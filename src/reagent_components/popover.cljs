@@ -1,4 +1,4 @@
-(ns reagent-components.component.popover
+(ns reagent-components.popover
   (:require [reagent-components.util :as util]
             [reagent.core :as reagent]))
 

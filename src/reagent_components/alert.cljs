@@ -1,4 +1,4 @@
-(ns reagent-components.component.alert
+(ns reagent-components.alert
   (:require [reagent-components.util :as util]
             [reagent.core :as reagent]))
 
@@ -28,11 +28,7 @@
     ))
 
 
-;; TODO:
-;;    - Rename to closeable-alert
-;;    - close-alert => close-cb or callback
-
-(defn alert-box [alert-item close-alert]
+(defn closeable-alert [alert-item close-callback]
   "Displays one Bootstrap alert box. A close button allows the message to be removed.
   Parameters:
   - alert-type is a string of either info, warning or danger
@@ -44,29 +40,26 @@
   ;;
   (let [{:keys [id alert-type heading body]} alert-item]
     (fn []
-      (util/console-log (str "in alert-box for id #" (:id alert-item)))
+      (util/console-log (str "in closeable-alert for id #" (:id alert-item)))
       [:div.alert.fade.in {:class (str "alert-" alert-type)}
        [:button.close {:type "button"
-                       :on-click #(close-alert id)} "×"]
+                       :on-click #(close-callback id)} "×"]
        [:h4 (str id ": " heading)]
        [:p body]])))
 
 
-;; TODO
-;;    - alerts => alert-list
-
-(defn alert-box-list [alerts close-alert]
-  "Displays a list of alert-boxes"
+(defn alert-list [alert-items close-callback]
+  "Displays a list of closeable-alerts"
 
   (fn []
-    (util/console-log "in alert-box-list")
+    (util/console-log "in alert-list")
     [:div#alert-list {:style {:border "1px dashed lightgrey"}} ;; TODO: id is only required for (popover-old ...), not (popover ...)
-;;      (for [alert @alerts] ^{:key (:id (last alert))} [alert-box (last alert) close-alert])]))
+;;      (for [alert @alerts] ^{:key (:id (last alert))} [closeable-alert (last alert) close-callback])]))
 ;;      (for [alert alerts] ;; FAILS BECAUSE YOU MUST PASS LIVE ATOM RATHER THAN A MAP WITHIN IT
-     (for [alert (:alerts @state/app-state)]
-;;      (for [alert (:alerts @alerts)]
+;;      (for [alert (:alerts @state/app-state)]
+     (for [alert @alerts]
        (do
          (util/console-log (str "metadata :key=" (:id (last alert))))
-         ^{:key (:id (last alert))} [alert-box (last alert) close-alert]
+         ^{:key (:id (last alert))} [closeable-alert (last alert) close-callback]
          )
        )])) ;; [POPOVER]

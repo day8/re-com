@@ -1,4 +1,4 @@
-(ns reagent-components.component.v-layout
+(ns reagent-components.v-layout
   (:require [reagent.core :as reagent]))
 
 
