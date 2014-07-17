@@ -17,6 +17,12 @@
     [(keyword (keywords 1)) (keyword (keywords 2))]))
 
 
+(defn make-close-button [popover-to-close?]
+  [:button.close {:type "button"
+                  :style {:font-size "36px" :margin-top "-8px"}
+                  :on-click #(reset! popover-to-close? false)} "×"])
+
+
 (defn calc-popover-pos [pop-id pop-orient pop-offset]
   (if-let [popover-elem (util/get-element-by-id pop-id)]
     (let [p-width        (.-clientWidth popover-elem)
@@ -80,20 +86,23 @@
                          :stroke-width "1"}}]]))
 
 
-(defn create-popover [{:keys [position title body width height arrow-length arrow-width backdrop-callback backdrop-transparency]
-                       :or {position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22 backdrop-transparency 0.1}}]
+(defn create-popover [{:keys [show-popover? close-button? position title body width height arrow-length arrow-width backdrop-callback backdrop-transparency]
+                       :or {close-button? false position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22 backdrop-transparency 0.1}}]
   "Renders an element or control along with a Bootstrap popover
   Parameters:
-  - :position          [:right-below  ] place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
-  - :title             [nil           ] popover title (nil for no title)
-  - :body              ["{empty body}"] popover body (a string or a hiccup vector or function returning a hiccup vector)
-  - :width             [250           ] a CSS string representing the popover width in pixels (or nil or omit parameter for auto)
-  - :height            [auto          ] a CSS string representing the popover height in pixels (or nil or omit parameter for auto)
-  - :arrow-length      [11            ] length in pixels of arrow (from pointy part to middle of arrow base)
-  - :arrow-width       [22            ] length in pixels of arrow base
-  - :backdrop-callback [nil           ] NOT YET IMPLEMENTED: if specified, add a backdrop div between the main screen (including element) and the popover.
-  .                                    when clicked, this callback is called (usually to close the popover)
-  - :backdrop-opacity  [0.1           ] NOT YET IMPLEMENTED: 0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)"
+  - popover-params map
+  .  - :show-popover?     [nil           ] a reagent atom with boolean, which controls whether the popover is showing or not
+  .  - :close-button?     [false         ] a boolean indicating whether a close button will be added to the popover title
+  .  - :position          [:right-below  ] place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
+  .  - :title             [nil           ] popover title (nil for no title)
+  .  - :body              ["{empty body}"] popover body (a string or a hiccup vector or function returning a hiccup vector)
+  .  - :width             [250           ] a CSS string representing the popover width in pixels (or nil or omit parameter for auto)
+  .  - :height            [auto          ] a CSS string representing the popover height in pixels (or nil or omit parameter for auto)
+  .  - :arrow-length      [11            ] length in pixels of arrow (from pointy part to middle of arrow base)
+  .  - :arrow-width       [22            ] length in pixels of arrow base
+  .  - :backdrop-callback [nil           ] NOT YET IMPLEMENTED: if specified, add a backdrop div between the main screen (including element) and the popover.
+  .                                        when clicked, this callback is called (usually to close the popover)
+  .  - :backdrop-opacity  [0.1           ] NOT YET IMPLEMENTED: 0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)"
 
   (let [rendered-once           (reagent/atom false)
         pop-id                  (gensym "popover-")
@@ -146,100 +155,65 @@
                           {:display "block" :max-width "none" :padding (px 0)})}
 
            [create-popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
-           (when title [:h3.popover-title title])
+           (when title [:h3.popover-title [:div title (when close-button? [make-close-button show-popover?])]])
            [:div.popover-content body]]
           ))
       })))
 
 
-;; ***** TO BE REMOVED *****
-
-(defn create-element-popover-old [element popover-params show-popover?]
-  "Renders an element (hiccup markup) along with a Bootstrap popover using a flexbox container
+(defn popover [position show-popover? anchor popover-content popover-options]
+  "Renders an element or control along with a Bootstrap popover
   Parameters:
-  - element         Hiccup style markup for the element to attach the popover to (will include )
-  - popover-params  Parameter map to be passed to the create-popover function (see that function for details)
-  - show-popover?   The reagent atom used to control whether the popover is showing or not
-  - anchor-params   NEED THIS? USECASES? Parameter map to specify where the anchor point should be placed in relation to the element"
+  - position              place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
+  - show-popover?         a reagent atom with boolean, which controls whether the popover is showing or not
+  - anchor                the hiccup markup which the popover is attached to
+  - popover-content map
+  .  - :width             a CSS string representing the popover width in pixels (or nil or omit parameter for auto)
+  .  - :height            a CSS string representing the popover height in pixels (or nil or omit parameter for auto)
+  .  - :title             popover title (nil for no title)
+  .  - :close-button?     a boolean indicating whether a close button will be added to the popover title
+  .  - :body              popover body (a string or a hiccup vector or function returning a hiccup vector)
+  - popover-options map
+  .  - :arrow-length      length in pixels of arrow (from pointy part to middle of arrow base)
+  .  - :arrow-width       length in pixels of arrow base
+  .  - :backdrop-callback NOT YET IMPLEMENTED: if specified, add a backdrop div between the main screen (including element) and the popover.
+  .                       when clicked, this callback is called (usually to close the popover)
+  .  - :backdrop-opacity  NOT YET IMPLEMENTED: 0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)"
 
-  (create-popover popover-params))
-
-
-(defn create-element-popover [element popover-params show-popover?]
-  "Renders an element (hiccup markup) along with a Bootstrap popover using a flexbox container
-  Parameters:
-  - element         Hiccup style markup for the element to attach the popover to (will include )
-  - popover-params  Parameter map to be passed to the create-popover function (see that function for details)
-  - show-popover?   The reagent atom used to control whether the popover is showing or not
-  - anchor-params   NEED THIS? USECASES? Parameter map to specify where the anchor point should be placed in relation to the element"
-
-  (let [[orientation arrow-pos] (split-keyword (:position popover-params) "-")
-        place-element-before?   (case orientation (:left :above) false true)
-        flex-flow               (case orientation (:left :right) "row" "column")]
+  (let [[orientation arrow-pos] (split-keyword position "-")
+        place-anchor-before?    (case orientation (:left :above) false true)
+        flex-flow               (case orientation (:left :right) "row" "column")
+        popover-params          (merge {:position position :show-popover? show-popover?} popover-content popover-options)]
 
     [:div {:style {:display "inline-flex" :flex-flow flex-flow :align-items "center"}}
-     (when place-element-before? element)
+     (when place-anchor-before? anchor)
      (when @show-popover?
        [:div {:style {:position "relative" :display "inline-block"}} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
         [create-popover popover-params]])
-     (when-not place-element-before? element)
+     (when-not place-anchor-before? anchor)
      ]))
 
 
-(defn create-button-popover [{:keys [type text] :or {type "default" text "{no text}"}}
-                             popover-params]
-  "Renders a Bootstrap button along with a Bootstrap popover
-  Parameters:
-  - button-params   Parameter map to set specifics of the button
-  .  - :type        The Bootstrap button type string (default, primary, success, info, warning, danger, link). Defaults to default
-  .  - :text        The text of the button
-  - popover-params  Parameter map to be passed to the create-popover function (see that function for details)"
-
-  (let [show-button-popover? (reagent/atom false) ;; Doesn't allow caller to set default state or hide/show popover
-        button [:input.btn
-                {:class (str "btn-" type) ;; TODO: Needs validation
-                 :type "button"
-                 :value text
-                 ;; :style {} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-                 :on-click #(reset! show-button-popover? (not @show-button-popover?))}]]
-
-    [create-element-popover button popover-params show-button-popover?]))
+(defn make-button [show-popover? type text]
+  [:input.btn
+   {:class (str "btn-" type) ;; TODO: Needs validation
+    :type "button"
+    :value text
+    ;; :style {} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+    :on-click #(reset! show-popover? (not @show-popover?))}])
 
 
-(defn create-link-popover [{:keys [text toggle-on] :or {text "{no text}" toggle-on :mouse}}
-                           popover-params]
-  "Renders a link along with a Bootstrap popover
-  Parameters:
-  - link-params     Parameter map to set specifics of the link (e.g. text)
-  .  - :text        The text of the link
-  .  - :toggle-on   How the popover will toggle. Either :mouse or :click. Defaults to :mouse
-  - popover-params  Parameter map to be passed to the create-popover function (see that function for details)"
-
-  (let [show-link-popover? (reagent/atom false)
-        show   #(reset! show-link-popover? true)
-        hide   #(reset! show-link-popover? false)
-        toggle #(reset! show-link-popover? (not @show-link-popover?))
-        link [:a
-              (merge {;; :value text
-                      ;; :style {} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-                      }
-                     (if (= toggle-on :mouse)
-                       {:on-mouse-over show
-                        :on-mouse-out  hide}
-                       {:on-click      toggle}
-                     ))
-              text]]
-
-    [create-element-popover link popover-params show-link-popover?]))
-
-
-;; TODO
-
-(defn create-tooltip [element popover-params]
-  "Renders an element (hiccup markup) along with a Bootstrap popover as a tooltip
-  Parameters:
-  - link-params     Parameter map to set specifics of the link (e.g. text)
-  - popover-params  Parameter map to be passed to the create-popover function (see that function for details)"
-
-  (create-popover popover-params)
-  )
+(defn make-link [show-popover? toggle-on text]
+  (let [show   #(reset! show-popover? true)
+        hide   #(reset! show-popover? false)
+        toggle #(reset! show-popover? (not @show-popover?))]
+    [:a
+     (merge {;; :value text
+             ;; :style {} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+             }
+            (if (= toggle-on :mouse)
+              {:on-mouse-over show
+               :on-mouse-out  hide}
+              {:on-click      toggle}
+              ))
+     text]))

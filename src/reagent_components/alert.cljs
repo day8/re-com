@@ -2,7 +2,7 @@
   (:require [reagent-components.util :as util]
             [reagent.core :as reagent]))
 
-			
+
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: closeable-alert
 ;; 

@@ -6,17 +6,11 @@ A ClojureScript library containing Day8's reusable UI components implemented usi
 
 ## Dependencies
 
-The following external dependencies exist for this component library:
+These components make use of the following libraries:
 
-
-### Bootstrap
-
-[Bootstrap](http://getbootstrap.com) is a CSS/JavaScript library, but we're just using it for the CSS styling.
-
-
-#### Reagent
-
-[Reagent](http://holmsand.github.io/reagent) is a ClojureScript wrapper for the [Facebook React](http://facebook.github.io/react) library which is used to build web-based user interfaces.
+ * [Bootstrap](http://getbootstrap.com) is a CSS/JavaScript library, but we're just using it for the CSS styling.
+ * [Reagent](http://holmsand.github.io/reagent) is a ClojureScript wrapper for the [Facebook React](http://facebook.github.io/react) 
+   library which is used to build web-based user interfaces.
 
 
 
