@@ -1,0 +1,150 @@
+html, body {
+  /* background-color: lightyellow; */
+  height: 100%;
+  margin: 0px;
+}
+
+.flex-container {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+/* REMOVE! */
+.flex-container .v-layout-bottom { /* required for iframes to stretch to 100% width */
+  flex-flow: inherit;
+}
+
+.flex-container .h-splitter-bottom { /* required for iframes to stretch to 100% width */
+  flex-flow: inherit;
+}
+
+#nav {
+  flex: 0 0 auto;
+  margin: 8px 8px 0px 8px;
+  overflow: hidden;
+}
+
+.debug-panel-body {
+  display: flex;
+  flex-flow: inherit;
+}
+
+.debug-iframe {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #a3a3a3;
+  border-radius: 5px;
+}
+
+.nav-padding {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.pad-left {
+  margin-left: 8px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.pad-right {
+  margin-right: 8px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.smooth {
+  transition: all 0.2s;
+  -webkit-transition: all 0.3s;
+}
+
+
+/* OVERRIDES */
+
+/* !important to override bootstrap media query */
+.url-bar {
+  width: 500px !important;
+}
+
+/* add this to panel body to iframe height resizes correctly */
+.panel-body {
+  height: inherit;
+}
+
+/*
+#nav > .row {
+  margin-right: initial; override this as the -15px causes horizontal scroll bars
+}
+*/
+
+#nav > .row> .navbar-form {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+/* override for splitter */
+.panel {
+  margin-bottom: 0px;
+}
+
+/*
+   Popovers have an arrow. When this arrow is adjacent to the title area
+   the popover arrow should be grey (to match the title area).  Otherwise it should
+   have a white background.
+
+   We use bootstrap as our base CSS, and it doesn't cater for grey arrows, only white,
+   so we have to do some work below to make grey happen.  And it is tricky work,
+   unfortunately. Hence this explanation.
+
+
+   Bootstrap uses cunning CSS tricks to create the arrow triangle.  You'll need to
+   understand them.  See references at the bottom.
+
+
+   CSS triangles are made from thick borders around 0 size divs.
+   To add a border (like the Bootstrap ones), the 0 size div is responsible for this
+   border and an :after pseudo element is added and positioned on top of it and is
+   responsible for the space inside the border.
+
+   To change the colour, you set border-XXXX-color in the pseudo element. This cannot
+   be done in JS so we must create a :after style and apply it to the div.
+   Because the style is coming from an external file (low in the CSS heirarchy),
+   we also need to bump the priority with the !important tag.
+
+   But there's another problem. Just changing the colour of the :after element yields
+   an ugly white line between the triangle and the box, so we have to increase the
+   size of the :after element by one pixel (using border-width) and reposition it to
+   a new position to compensate for the size increase (using bottom/right).
+
+   Links
+    - http://css-tricks.com/snippets/css/css-triangle - how-to
+    - http://cssarrowplease.com - generates CSS for triangles
+    - http://codeitdown.com/responsive-css-shapes - other shapes as well
+*/
+
+/*
+ *  MARKED FOR REMOVAL
+ *
+
+.popover-left-arrow-grey:after {
+  border-left-color: #f7f7f7 !important;
+  border-width: 11px 0px 11px 11px !important;
+  bottom: -11px !important;
+}
+.popover-right-arrow-grey:after {
+  border-right-color: #f7f7f7 !important;
+  border-width: 11px 11px 11px 0px !important;
+  bottom: -11px !important;
+}
+.popover-above-arrow-grey:after {
+  border-top-color: #f7f7f7 !important;
+  border-width: 11px 11px 0px 11px !important;
+  right: -11px !important;
+}
+.popover-below-arrow-grey:after {
+  border-bottom-color: #f7f7f7 !important;
+  border-width: 0px 11px 11px 11px !important;
+  right: -11px !important;
+}
+*/
