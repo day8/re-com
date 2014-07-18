@@ -1,32 +1,34 @@
 (ns reagent-components.core
-  (:require [reagent-components.util :as util]
-            [reagent-components.alert :as alert]
-            [reagent-components.popover :refer [popover make-button make-link]]
-            [reagent-components.tour :as tour]
-            [reagent-components.v-layout :as v-layout]
-            [reagent-components.popover-form-demo :as popover-form-demo]
-            [reagent.core :as reagent]))
+  (:require [reagent-components.util              :as    util]
+            [reagent-components.v-layout          :refer [v-layout]]
+            [reagent-components.alert             :refer [closeable-alert alert-list add-alert]]
+            [reagent-components.popover           :refer [popover make-button make-link]]
+            [reagent-components.tour              :refer [make-tour make-tour-nav]]
+            [reagent-components.popover-form-demo :as    popover-form-demo]
+            [reagent.core                         :as    reagent]))
 
 
-(def show-alert-popover?  (reagent/atom true))
+(def show-alert-popover? (reagent/atom true))
 
-(def show-but1-popover?   (reagent/atom false))
-(def show-but2-popover?   (reagent/atom false))
-(def show-but3-popover?   (reagent/atom false))
-(def show-but4-popover?   (reagent/atom false))
-(def show-but5-popover?   (reagent/atom false))
-(def show-but6-popover?   (reagent/atom false))
-(def show-but7-popover?   (reagent/atom false))
-(def show-but8-popover?   (reagent/atom false))
+(def show-but1-popover?  (reagent/atom false))
+(def show-but2-popover?  (reagent/atom false))
+(def show-but3-popover?  (reagent/atom false))
+(def show-but4-popover?  (reagent/atom false))
+(def show-but5-popover?  (reagent/atom false))
+(def show-but6-popover?  (reagent/atom false))
+(def show-but7-popover?  (reagent/atom false))
+(def show-but8-popover?  (reagent/atom false))
 
-(def show-link1-popover?  (reagent/atom false))
-(def show-link2-popover?  (reagent/atom false))
+(def show-link1-popover? (reagent/atom false))
+(def show-link2-popover? (reagent/atom false))
 
-(def show-red-popover?    (reagent/atom false))
-(def show-green-popover?  (reagent/atom false))
-(def show-blue-popover?   (reagent/atom false))
+(def show-red-popover?   (reagent/atom false))
+(def show-green-popover? (reagent/atom false))
+(def show-blue-popover?  (reagent/atom false))
 
-(def show-div-popover?    (reagent/atom false))
+(def show-div-popover?   (reagent/atom false))
+
+(def demo-tour (make-tour [:step1 :step2 :step3 :step4]))
 
 
 (defn test-harness []
@@ -38,7 +40,7 @@
     [popover
      :right-below
      show-alert-popover?
-     [alert/alert-list]
+     [alert-list]
      {:width         300
       :title         [:strong "Product Tour (1 of 5)"]
       :close-button? true
@@ -149,14 +151,12 @@
       {:title [:strong "BUTTON Popover Title"]
        :body  "This was created using a call to create-button-popover"}]
 
-
      [popover
       :left-below
       show-but7-popover?
       [make-button show-but7-popover? "default" ":left-below"]
       {:title [:strong "BUTTON Popover Title"]
        :body  "This is another button created using a call to create-button-popover"}]
-
 
      [popover
       :below-right
@@ -179,7 +179,6 @@
        :body  "This is the body of the link popover. This is the body of the link popover. This is the body of the link popover. This is the body of the link popover."}]
      " with " [:strong "mouseover/mouseout"] " used to show/hide the popover. "
      ]
-
 
     [:div {:style {:margin-top "1em"}}
      "Here is a STANDARD div, and then here is a call to "
@@ -252,10 +251,53 @@
                           :on-click #(do (reset! show-blue-popover? false) (reset! show-green-popover? true))}]
                         [:input.btn.btn-default
                          {:type "button"
-                          :value "CLOSE"
+                          :value "Finish"
                           :on-click #(reset! show-blue-popover? false)}]
                         ]}]
       ]]
+
+
+    ;; New tour component
+
+    [:div {:style {:display "flex" :flex-flow "row" :margin-top "20px" :margin-left "20px"}}
+     [:h4 {:style {:margin-right "20px"}} "Here is a sample of the new tour component:"]
+
+     [popover
+      :above-left
+      (:step1 demo-tour)
+      [make-button (:step1 demo-tour) "info" "Tour 1"]
+      {:title [:strong "Tour 1 of 4"]
+       :close-button? true
+       :body          [:div "So this is the first tour popover"
+                       [make-tour-nav demo-tour]]}]
+
+     [popover
+      :above-center
+      (:step2 demo-tour)
+      [make-button (:step2 demo-tour) "info" "Tour 2"]
+      {:title [:strong "Tour 2 of 4"]
+       :close-button? true
+       :body          [:div "And this is the second tour popover"
+                       [make-tour-nav demo-tour]]}]
+
+     [popover
+      :above-center
+      (:step3 demo-tour)
+      [make-button (:step3 demo-tour) "info" "Tour 3"]
+      {:title [:strong "Tour 3 of 4"]
+       :close-button? true
+       :body          [:div "Penultimate tour popover"
+                       [make-tour-nav demo-tour]]}]
+
+     [popover
+      :above-right
+      (:step4 demo-tour)
+      [make-button (:step4 demo-tour) "info" "Tour 4"]
+      {:title [:strong "Tour 4 of 4"]
+       :close-button? true
+       :body          [:div "Lucky last tour popover"
+                       [make-tour-nav demo-tour]]}]
+     ]
 
 
     ;; Orange square - :right-center - no flex stuff added yet so doesn't work properly
@@ -278,9 +320,9 @@
 
 
 (defn init []
-  (alert/add-alert "danger" {:heading "Unfortunately something bad happened" :body "Next time you should take more care! Next time you should take more care! Next time you should take more care! Next time you should take more care! Next time you should take more care!"})
-  (alert/add-alert "info" {:heading "Here's some info for you" :body "The rain in Spain falls mainly on the plain"})
-  (alert/add-alert "warning" {:heading "Hmmm, something might go wrong" :body "There be dragons!"})
-  (alert/add-alert "info" {:heading "Here's some info for you" :body "The rain in Spain falls mainly on the plain"})
+  (add-alert "danger" {:heading "Unfortunately something bad happened" :body "Next time you should take more care! Next time you should take more care! Next time you should take more care! Next time you should take more care! Next time you should take more care!"})
+  (add-alert "info" {:heading "Here's some info for you" :body "The rain in Spain falls mainly on the plain"})
+  (add-alert "warning" {:heading "Hmmm, something might go wrong" :body "There be dragons!"})
+  (add-alert "info" {:heading "Here's some info for you" :body "The rain in Spain falls mainly on the plain"})
 
   (reagent/render-component [test-harness] (util/get-element-by-id "app")))

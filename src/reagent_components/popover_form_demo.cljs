@@ -1,6 +1,6 @@
 (ns reagent-components.popover-form-demo
   (:require [reagent-components.util :as util]
-            [reagent-components.alert :as alert]
+            [reagent-components.alert :refer [add-alert]]
             [reagent-components.popover :refer [popover make-button make-link]]
             [reagent.core :as reagent]))
 
@@ -29,7 +29,7 @@
     (swap! pform-data assoc :file (.-value selected-file))
     (reset! show-this-popover? false)
     (util/console-log-prstr "Submitted PRIMARY form: pform-data" pform-data)
-    (alert/add-alert "info" {:heading "Submitted PRIMARY form" :body (str "Form data submitted: " (. js/cljs.core (pr_str @pform-data)))})
+    (add-alert "info" {:heading "Submitted PRIMARY form" :body (str "Form data submitted: " (. js/cljs.core (pr_str @pform-data)))})
     false)) ;; Prevent default "GET" form submission to server
 
 
@@ -38,7 +38,7 @@
     (reset! pform-data @initial-form-data)
     (reset! show-this-popover? false)
     (util/console-log-prstr "Cancelled PRIMARY form: pform-data" pform-data)
-    (alert/add-alert "warning" {:heading "Cancelled PRIMARY form" :body (str "Form data reset to original values: " (. js/cljs.core (pr_str @pform-data)))})
+    (add-alert "warning" {:heading "Cancelled PRIMARY form" :body (str "Form data reset to original values: " (. js/cljs.core (pr_str @pform-data)))})
     false)) ;; Prevent default "GET" form submission to server
 
 
@@ -128,7 +128,7 @@
 
 (defn sform-submit []
   (util/console-log-prstr "Submitted SECONDARY form: sform-data" sform-data)
-  (alert/add-alert "info" {:heading "Submitted SECONDARY form" :body (str "Form data submitted: " (. js/cljs.core (pr_str @sform-data)))})
+  (add-alert "info" {:heading "Submitted SECONDARY form" :body (str "Form data submitted: " (. js/cljs.core (pr_str @sform-data)))})
   false) ;; Prevent default "GET" form submission to server
 
 

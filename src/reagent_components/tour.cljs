@@ -1,46 +1,89 @@
 (ns reagent-components.tour
-  (:require [reagent-components.util :as util]
-            [reagent-components.popover :as popover]
-            [reagent.core :as reagent]))
+  (:require [reagent-components.util    :as util]
+            [reagent-components.popover :refer [popover make-button make-link]]
+            [reagent.core               :as reagent]))
 
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: tour
-;; 
-;;   Strings together 
-;; 
+;;
+;;   Strings together
+;;
 ;;   Notes/todo:
 ;;    - TBA
 ;;--------------------------------------------------------------------------------------------------
 
-(defn tour
-  "Blah.
-  Parameters:
-  - blah:       Blah"
-  []
+(defn make-tour
+  "Returns a map containing
+   - A reagent atom for each tour step controlling popover show/hide (boolean)
+   - A standard atom holding the current step (integer)
+   - A copy of the steps parameter passed in, to determine the order for prev/next functions
+  It sets the first step atom to true so that it will be initially shown
+  Sample return value:
+    {:steps [:step1 :step2 :step3]
+     :current-step (atom 0)
+     :step1 (reagent/atom true)
+     :step2 (reagent/atom false)
+     :step3 (reagent/atom false)}"
 
-  (let [a 1]
-    (fn []
-      [:div
-       [:p "This is a tour"]])))
+  [tour-spec]
+  (let [tour-map {:current-step (atom 0) :steps tour-spec} ;; Only need normal atom
+        tour     (reduce #(assoc %1 %2 (reagent/atom false)) tour-map tour-spec)] ;; Old way: (merge {} (map #(hash-map % (reagent/atom false)) tour-spec))
 
-	   
-	   
-;;(defn make-tour []
-;;  ;; return an atom containing current-step + an atom for each step controlling show/hide
-;;  )
-;;
-;;(defn tour-next-step [tour]
-;;
-;;  )
-;;
-;;(defn tour-previous-step [tour]
-;;
-;;  )
-;;
-;;(defn tour-nav [tour] ;; If first or last in tour, then only make one button
-;;
-;;  )
-;;
-;;(def tour (make-tour [:step1 :step3 :step3]))
-;;
+    (reset! ((first tour-spec) tour) true) ;; Initialise first step to show
+    tour))
+
+
+(defn tour-next-step [tour]
+  (let [steps     (:steps tour)
+        old-step  @(:current-step tour)
+        new-step  (inc old-step)]
+
+    (when (< new-step (count (:steps tour)))
+      (reset! (:current-step tour) new-step)
+      (reset! ((nth steps old-step) tour) false)
+      (reset! ((nth steps new-step) tour) true))))
+
+
+(defn tour-prev-step [tour]
+  (let [steps    (:steps tour)
+        old-step @(:current-step tour)
+        new-step (dec old-step)]
+
+    (when (>= new-step 0)
+      (reset! (:current-step tour) new-step)
+      (reset! ((nth steps old-step) tour) false)
+      (reset! ((nth steps new-step) tour) true))))
+
+
+(defn finish-tour
+  "Resets all poover atoms to false."
+
+  [tour]
+  (doall (for [step (:steps tour)] (reset! (step tour) false))))
+
+
+(defn make-tour-nav
+  "Generate the hr and previous/next buttons markup.
+  If first button in tour, don't generate a Previous button.
+  If last button in tour, change Next button to a Finish button."
+
+  [tour]
+  (let [on-first-button (= @(:current-step tour) 0)
+        on-last-button  (= @(:current-step tour) (dec (count (:steps tour))))]
+
+    [:div
+     [:hr {:style {:margin "10px 0 10px"}}]
+     (when-not on-first-button
+       [:input.btn.btn-default
+        {:type "button"
+         :value "Previous"
+         :style {:margin-right "15px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+         :on-click #(tour-prev-step tour)}])
+     [:input.btn.btn-default
+      {:type "button"
+       :value (if on-last-button "Finish" "Next")
+       :on-click #(if on-last-button
+                    (finish-tour tour)
+                    (tour-next-step tour))}]]
+    ))

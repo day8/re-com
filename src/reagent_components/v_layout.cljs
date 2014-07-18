@@ -19,7 +19,7 @@
 ;; see http://css-tricks.com/snippets/css/a-guide-to-flexbox/
 ;;
 
-(defn create [top-panel bottom-panel]
+(defn v-layout [top-panel bottom-panel]
   (let [container-id (gensym "v-layout-")
 
         this        (reagent/current-component)
