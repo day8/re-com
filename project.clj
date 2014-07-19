@@ -3,11 +3,11 @@
 
   :url          "https://github.com/Day8/reagent-components.git"
 
-  :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-2173"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [org.clojure/clojurescript "0.0-2268"]
                  [reagent "0.4.2"]]
 
-  :plugins      [[lein-cljsbuild "1.0.2"]]
+  :plugins      [[lein-cljsbuild "1.0.3"]]
 
   :source-paths ["src/"]
 
