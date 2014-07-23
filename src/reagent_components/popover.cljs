@@ -51,7 +51,7 @@
     nil))
 
 
-(defn create-popover-arrow [orientation pop-offset arrow-length arrow-width grey-arrow]
+(defn make-popover-arrow [orientation pop-offset arrow-length arrow-width grey-arrow]
   (let [half-arrow-width (/ arrow-width 2)
         arrow-shape {:left  (str (point 0 0)            (point arrow-length half-arrow-width) (point 0 arrow-width))
                      :right (str (point arrow-length 0) (point 0 half-arrow-width)            (point arrow-length arrow-width))
@@ -86,7 +86,7 @@
                          :stroke-width "1"}}]]))
 
 
-(defn create-popover [{:keys [show-popover? close-button? position title body width height arrow-length arrow-width backdrop-callback backdrop-transparency]
+(defn make-popover [{:keys [show-popover? close-button? position title body width height arrow-length arrow-width backdrop-callback backdrop-transparency]
                        :or {close-button? false position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22 backdrop-transparency 0.1}}]
   "Renders an element or control along with a Bootstrap popover
   Parameters:
@@ -154,7 +154,7 @@
                           ;; make it visible and turn off BS max-width and remove BS padding which adds an internal white border
                           {:display "block" :max-width "none" :padding (px 0)})}
 
-           [create-popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
+           [make-popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
            (when title [:h3.popover-title [:div title (when close-button? [make-close-button show-popover?])]])
            [:div.popover-content body]]
           ))
@@ -183,15 +183,27 @@
   (let [[orientation arrow-pos] (split-keyword position "-")
         place-anchor-before?    (case orientation (:left :above) false true)
         flex-flow               (case orientation (:left :right) "row" "column")
-        popover-params          (merge {:position position :show-popover? show-popover?} popover-content popover-options)]
+        popover-params          (merge {:position position :show-popover? show-popover?} popover-content popover-options)
+        backdrop-callback       (:backdrop-callback popover-params)
+        backdrop-opacity        (:backdrop-opacity popover-params)]
 
-    [:div {:style {:display "inline-flex" :flex-flow flex-flow :align-items "center"}}
-     (when place-anchor-before? anchor)
-     (when @show-popover?
-       [:div {:style {:position "relative" :display "inline-block"}} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-        [create-popover popover-params]])
-     (when-not place-anchor-before? anchor)
-     ]))
+    [:div {:style {:display "inline-block"}}
+     (when (and @show-popover? backdrop-callback)
+       [:div {:style {:position "absolute"
+                      :left "0px"
+                      :top "0px"
+                      :width "100%"
+                      :height "100%"
+                      :background-color "black"
+                      :opacity backdrop-opacity}
+              :on-click backdrop-callback}])
+     [:div {:style {:display "inline-flex" :flex-flow flex-flow :align-items "center"}}
+      (when place-anchor-before? anchor)
+      (when @show-popover?
+        [:div {:style {:position "relative" :display "inline-block"}} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+         [make-popover popover-params]])
+      (when-not place-anchor-before? anchor)
+      ]]))
 
 
 (defn make-button [show-popover? type text]

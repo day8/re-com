@@ -3,7 +3,7 @@
             [reagent-components.v-layout          :refer [v-layout]]
             [reagent-components.alert             :refer [closeable-alert alert-list add-alert]]
             [reagent-components.popover           :refer [popover make-button make-link]]
-            [reagent-components.tour              :refer [make-tour make-tour-nav]]
+            [reagent-components.tour              :refer [make-tour start-tour make-tour-nav]]
             [reagent-components.popover-form-demo :as    popover-form-demo]
             [reagent.core                         :as    reagent]))
 
@@ -139,7 +139,9 @@
                        [:input.btn.btn-default
                         {:type "button"
                          :value "Next"
-                         :on-click #(do (reset! show-but5-popover? false) (reset! show-red-popover? true))}]]}]
+                         :on-click #(do (reset! show-but5-popover? false) (reset! show-red-popover? true))}]]}
+      {:backdrop-callback #(reset! show-but5-popover? false)
+       :backdrop-opacity .3}]
 
 
      ;; Button popovers
@@ -213,7 +215,9 @@
                          {:type "button"
                           :value "Next"
                           :on-click #(do (reset! show-red-popover? false) (reset! show-green-popover? true))}]
-                        ]}]
+                        ]}
+       {:backdrop-callback #(reset! show-red-popover? false)
+        :backdrop-opacity .3}]
 
       [popover
        :below-center
@@ -263,9 +267,14 @@
      [:h4 {:style {:margin-right "20px"}} "Here is a sample of the new tour component:"]
 
      [popover
-      :above-left
+      :above-center
       (:step1 demo-tour)
-      [make-button (:step1 demo-tour) "info" "Tour 1"]
+      [:input.btn                    ;; Can't use make-button as we need a custom on-click
+       {:class (str "btn-info")
+        :style {:font-weight "bold" :color "yellow"}
+        :type "button"
+        :value "Start Tour"
+        :on-click #(start-tour demo-tour)}]
       {:title [:strong "Tour 1 of 4"]
        :close-button? true
        :body          [:div "So this is the first tour popover"

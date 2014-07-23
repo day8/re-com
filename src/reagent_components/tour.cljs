@@ -15,26 +15,44 @@
 
 (defn make-tour
   "Returns a map containing
-   - A reagent atom for each tour step controlling popover show/hide (boolean)
-   - A standard atom holding the current step (integer)
-   - A copy of the steps parameter passed in, to determine the order for prev/next functions
+  - A reagent atom for each tour step controlling popover show/hide (boolean)
+  - A standard atom holding the current step (integer)
+  - A copy of the steps parameter passed in, to determine the order for prev/next functions
   It sets the first step atom to true so that it will be initially shown
   Sample return value:
-    {:steps [:step1 :step2 :step3]
-     :current-step (atom 0)
-     :step1 (reagent/atom true)
-     :step2 (reagent/atom false)
-     :step3 (reagent/atom false)}"
+  {:steps [:step1 :step2 :step3]
+  :current-step (atom 0)
+  :step1 (reagent/atom true)
+  :step2 (reagent/atom false)
+  :step3 (reagent/atom false)}"
 
   [tour-spec]
-  (let [tour-map {:current-step (atom 0) :steps tour-spec} ;; Only need normal atom
-        tour     (reduce #(assoc %1 %2 (reagent/atom false)) tour-map tour-spec)] ;; Old way: (merge {} (map #(hash-map % (reagent/atom false)) tour-spec))
+  (let [tour-map {:current-step (atom 0) :steps tour-spec}] ;; Only need normal atom
 
-    (reset! ((first tour-spec) tour) true) ;; Initialise first step to show
-    tour))
+    (reduce #(assoc %1 %2 (reagent/atom false)) tour-map tour-spec))) ;; Old way: (merge {} (map #(hash-map % (reagent/atom false)) tour-spec))
 
 
-(defn tour-next-step [tour]
+(defn initialise-tour
+  "Resets all poover atoms to false."
+  [tour]
+  (doall (for [step (:steps tour)] (reset! (step tour) false))))
+
+
+(defn start-tour
+  "Sets the first popover atom in the tour to true."
+  [tour]
+  (initialise-tour tour)
+  (reset! (:current-step tour) 0)
+  (reset! ((first (:steps tour)) tour) true))
+
+
+(defn finish-tour
+  "Closes all tour popovers."
+  [tour]
+  (initialise-tour tour))
+
+
+(defn next-tour-step [tour]
   (let [steps     (:steps tour)
         old-step  @(:current-step tour)
         new-step  (inc old-step)]
@@ -45,7 +63,7 @@
       (reset! ((nth steps new-step) tour) true))))
 
 
-(defn tour-prev-step [tour]
+(defn prev-tour-step [tour]
   (let [steps    (:steps tour)
         old-step @(:current-step tour)
         new-step (dec old-step)]
@@ -54,13 +72,6 @@
       (reset! (:current-step tour) new-step)
       (reset! ((nth steps old-step) tour) false)
       (reset! ((nth steps new-step) tour) true))))
-
-
-(defn finish-tour
-  "Resets all poover atoms to false."
-
-  [tour]
-  (doall (for [step (:steps tour)] (reset! (step tour) false))))
 
 
 (defn make-tour-nav
@@ -79,11 +90,11 @@
         {:type "button"
          :value "Previous"
          :style {:margin-right "15px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-         :on-click #(tour-prev-step tour)}])
+         :on-click #(prev-tour-step tour)}])
      [:input.btn.btn-default
       {:type "button"
        :value (if on-last-button "Finish" "Next")
        :on-click #(if on-last-button
                     (finish-tour tour)
-                    (tour-next-step tour))}]]
+                    (next-tour-step tour))}]]
     ))
