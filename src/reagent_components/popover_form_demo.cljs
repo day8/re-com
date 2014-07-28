@@ -144,10 +144,10 @@
        [:label {:for "pf-radio1"}
         [:input#pf-radio1
          {:type      "radio"
-          :name      "rgroup"
-          :value     "1"
+          :name      "rgroup" ;; TODO: REMOVE ???????????
+          :value     "1"  ;; TODO: REMOVE??????
           :checked   (= (:radio-group @form-data) "1") ;; TODO: A bit nasty, ideally get from value
-          :on-change #(swap! form-data assoc :radio-group (-> % .-target .-value))}
+          :on-change #(swap! form-data assoc :radio-group (-> % .-target .-value))} ;; (-> % .-target .-value) ==> "1" ???????????
          "Hue"]]]
       [:div.radio
        [:label {:for "pf-radio2"}
@@ -201,9 +201,9 @@
        {:size      8
         :multiple  true
         :value     (:listbox-multi @form-data)
-        :on-change #(let [selected-nodes  (-> % .-target .-selectedOptions) ;; HTMLElement array is not ISeq-able (could make a fucntion out of this)
+        :on-change #(let [selected-nodes  (-> % .-target .-selectedOptions) ;; HTMLElement array is not ISeq-able (could make a fucntion out of this) TODO: TRY ################ js->cljs
                           count           (.-length selected-nodes)
-                          selected-values (for [index (range 0 count)
+                          selected-values (for [index (range count)
                                                 :let [item (.-value (aget selected-nodes index))]]
                                             item)]
                       (swap! form-data assoc :listbox-multi (vec selected-values)))}

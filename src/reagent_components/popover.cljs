@@ -45,7 +45,7 @@
                            :right nil
                            :above (px 10) ;; "100%" TODO: Work out why we need 10px instead of 100%
                            :below nil)]
-      (util/console-log (str "in calc-popover-pos: pop-offset=" pop-offset ", p-width=" p-width ", p-height=" p-height))
+      #_(util/console-log (str "in calc-popover-pos: pop-offset=" pop-offset ", p-width=" p-width ", p-height=" p-height))
       {:left popover-left :top popover-top :right popover-right :bottom popover-bottom}
       )
     nil))
@@ -109,7 +109,7 @@
         [orientation arrow-pos] (split-keyword position "-")
         grey-arrow              (and title (or (= orientation :below) (= arrow-pos :below)))]
 
-    (util/console-log (str "in popover ("
+    #_(util/console-log (str "in popover ("
                            "orientation="  orientation
                            ", arrow-pos="  arrow-pos
                            ", grey-arrow=" grey-arrow
@@ -121,12 +121,12 @@
      {
       :component-did-mount
       (fn []
-        (util/console-log ":component-did-mount")
+        #_(util/console-log "make-popover :component-did-mount")
         (reset! rendered-once true))
 
       :render
       (fn []
-        (util/console-log ":render")
+        #_(util/console-log "make-popover :render")
         (let [popover-elem   (util/get-element-by-id pop-id)
               p-height       (if popover-elem (.-clientHeight popover-elem) 0) ;; height is optional (with no default) so we need to calculate it
               pop-offset     (case arrow-pos
@@ -189,7 +189,7 @@
 
     [:div {:style {:display "inline-block"}}
      (when (and @show-popover? backdrop-callback)
-       [:div {:style {:position "absolute"
+       [:div {:style {:position "fixed"
                       :left "0px"
                       :top "0px"
                       :width "100%"

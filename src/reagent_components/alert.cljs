@@ -5,10 +5,10 @@
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: closeable-alert
-;; 
+;;
 ;;   Displays one Bootstrap alert box. A close button allows the message to be removed.
 ;;   See function for more details
-;; 
+;;
 ;;   Notes/todo:
 ;;    - Either validate alert-type or find a better way to specify the alert
 ;;--------------------------------------------------------------------------------------------------
@@ -26,7 +26,7 @@
 
   (let [{:keys [id alert-type heading body]} alert-item]
     (fn []
-      (util/console-log (str "in closeable-alert for id #" (:id alert-item)))
+      #_(util/console-log (str "in closeable-alert for id #" (:id alert-item)))
       [:div.alert.fade.in {:class (str "alert-" alert-type)}
        [:button.close {:type "button"
                        :on-click #(close-callback id)} "×"]
@@ -53,15 +53,15 @@
 (def alerts-count (reagent/atom 0))
 
 (defn close-alert [id]
-  (util/console-log (str "closing alert #" id))
+  #_(util/console-log (str "closing alert #" id))
   (swap! alerts dissoc id)
-  (util/console-log-prstr "after close" @alerts))
+  #_(util/console-log-prstr "after close" @alerts))
 
 
 (defn add-alert [alert-type {:keys [heading body]}]
   (let [id (swap! alerts-count inc)]
     (swap! alerts assoc id {:id id :alert-type alert-type :heading heading :body body})
-    (util/console-log-prstr "after add" @alerts)))
+    #_(util/console-log-prstr "after add" @alerts)))
 
 
 (defn alert-list
@@ -72,9 +72,9 @@
   [alert-items close-callback] ;; TODO: Currently hard coded to interal version
 
   (fn []
-    (util/console-log "in alert-list")
+    #_(util/console-log "in alert-list")
     [:div {:style {:border "1px dashed lightgrey"}}
      (for [alert @alerts]
        (do
-         (util/console-log (str "metadata :key=" (:id (last alert))))
+         #_(util/console-log (str "metadata :key=" (:id (last alert))))
          ^{:key (:id (last alert))} [closeable-alert (last alert) close-alert]))]))

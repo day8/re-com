@@ -1,9 +1,11 @@
 (ns reagent-components.core
   (:require [reagent-components.util              :as    util]
             [reagent-components.v-layout          :refer [v-layout]]
+            [reagent-components.h-layout          :refer [h-layout]]
             [reagent-components.alert             :refer [closeable-alert alert-list add-alert]]
             [reagent-components.popover           :refer [popover make-button make-link]]
             [reagent-components.tour              :refer [make-tour start-tour make-tour-nav]]
+            [reagent-components.modal             :refer [modal-dialog]]
             [reagent-components.popover-form-demo :as    popover-form-demo]
             [reagent.core                         :as    reagent]))
 
@@ -26,9 +28,57 @@
 (def show-green-popover? (reagent/atom false))
 (def show-blue-popover?  (reagent/atom false))
 
+(def show-modal-popover? (reagent/atom false))
+
 (def show-div-popover?   (reagent/atom false))
 
 (def demo-tour (make-tour [:step1 :step2 :step3 :step4]))
+
+
+(def show-processing-modal? (reagent/atom false))
+
+(defn processing-modal-markup []
+  [:div
+   [:p "Doing some serious processing, this might take some time"]
+   [:div.progress
+    [:div.progress-bar
+     {:role "progressbar"
+      :style {:width "60%"}}
+     "60%"]]
+   [:div {:style {:display "flex"}}
+    [:input#cancelbutton.btn.btn-info  ;; TODO: Hard coded ID
+     {:type "button"
+      :value "Cancel"
+      :style {:margin "auto"}
+      :on-click #(reset! show-processing-modal? false)
+      }]]]
+  )
+
+
+(defn serious-processing [iterations]
+  (util/console-log "START serious-processing")
+  (loop [i 1]
+    (if @show-processing-modal?
+      (when (< i iterations)
+        (def a (* (Math/sqrt i) (Math/log i)))
+        ;; (when (= i 1000000) (reset! show-processing-modal? false))
+        (recur (inc i)))
+      (util/console-log (str "Cancel clicked at i=" i))
+      ))
+  (reset! show-processing-modal? false)
+  (util/console-log "END serious-processing")
+  )
+
+
+(defn do-some-serious-processing []
+  (util/console-log "STARTING do-some-serious-processing")
+  (reset! show-processing-modal? true)
+
+  (js/setTimeout #(serious-processing 40000000) 0) ;; Give UI time to paint modal
+  ;; (serious-processing 40000000)
+
+  (util/console-log "FINISHED do-some-serious-processing")
+  )
 
 
 (defn test-harness []
@@ -55,12 +105,9 @@
 
     [:div {:style {:margin-top "90px"}}]
 
-    ;; Flexbox button bar wrapper
-
-    [:div {:style {:display "flex" :flex-flow "row"}}
+    [:div {:style {:display "flex" :flex-flow "row"}} ;; Flexbox button bar wrapper
 
      ;; Button #1 - :right-below
-
      [popover
       :right-below
       show-but1-popover?
@@ -72,9 +119,7 @@
        :body         "Popover body. Can be a simple string or in-line hiccup or a function returning hiccup"}
       {:arrow-length 30}]
 
-
      ;; Button #2 - :above-right
-
      [popover
       :above-right
       show-but2-popover?
@@ -85,9 +130,7 @@
       {:body        "Popover body without a title. Basically a tooltip"}
       {:arrow-width 33}]
 
-
      ;; Button #3 - :left-above
-
      [popover
       :left-above
       show-but3-popover?
@@ -99,14 +142,10 @@
        :title "Popover Title"
        :body  "Popover body. Can be a simple string or in-line hiccup or a function returning hiccup"}]
 
-
      ;; Popover form demo - :right-below
-
      [popover-form-demo/show]
 
-
      ;; Button #4 - :below-left
-
      [popover
       :below-left
       show-but4-popover?
@@ -117,9 +156,7 @@
       {:title "Popover Title"
        :body  "Popover body. Can be a simple string or in-line hiccup or a function returning hiccup"}]
 
-
      ;; Button #5 - :left-center
-
      [popover
       :left-center
       show-but5-popover?
@@ -166,7 +203,8 @@
       [make-button show-but8-popover? "link" ":below-right"]
       {:title [:strong "BUTTON Popover Title"]
        :body  "This is another button created using a call to create-button-popover"}]
-     ]
+
+     ] ;; End of flexbox button bar wrapper
 
 
     ;; Link popovers
@@ -179,8 +217,7 @@
       [make-link show-link1-popover? :mouse "create-link-popover"]
       {:title [:strong "LINK Popover Title"]
        :body  "This is the body of the link popover. This is the body of the link popover. This is the body of the link popover. This is the body of the link popover."}]
-     " with " [:strong "mouseover/mouseout"] " used to show/hide the popover. "
-     ]
+     " with " [:strong "mouseover/mouseout"] " used to show/hide the popover. "]
 
     [:div {:style {:margin-top "1em"}}
      "Here is a STANDARD div, and then here is a call to "
@@ -190,8 +227,7 @@
       [make-link show-link2-popover? :click "create-link-popover"]
       {:title [:strong "LINK Popover Title"]
        :body "This is the body of the link popover. This is the body of the link popover. This is the body of the link popover. This is the body of the link popover."}]
-     " with " [:strong "click"] " used to show/hide the popover. "
-     ]
+     " with " [:strong "click"] " used to show/hide the popover. "]
 
 
     ;; Red, green, blue rectangles
@@ -261,17 +297,16 @@
       ]]
 
 
-    ;; New tour component
+    ;; Tour component PLUS modal component
 
-    [:div {:style {:display "flex" :flex-flow "row" :margin-top "20px" :margin-left "20px"}}
+    [:div {:style {:display "flex" :flex-flow "row" :margin-top "20px" :margin-left "20px"}} ;; Tour/modal wrapper
      [:h4 {:style {:margin-right "20px"}} "Here is a sample of the new tour component:"]
 
      [popover
       :above-center
       (:step1 demo-tour)
-      [:input.btn                    ;; Can't use make-button as we need a custom on-click
-       {:class (str "btn-info")
-        :style {:font-weight "bold" :color "yellow"}
+      [:input.btn.btn-info ;; Can't use make-button as we need a custom on-click
+       {:style {:font-weight "bold" :color "yellow"}
         :type "button"
         :value "Start Tour"
         :on-click #(start-tour demo-tour)}]
@@ -306,7 +341,30 @@
        :close-button? true
        :body          [:div "Lucky last tour popover"
                        [make-tour-nav demo-tour]]}]
-     ]
+
+     [popover
+      :right-center
+      show-modal-popover?
+      [:input.btn.btn-info
+       {:style {:font-weight "bold" :color "red" :margin-left "10px"}
+        :type "button"
+        :value "Modal Demo"
+        :on-mouse-over #(reset! show-modal-popover? true)
+        :on-mouse-out  #(reset! show-modal-popover? false)
+        :on-click      #(do-some-serious-processing)}]
+      {:body  [:div
+               [:p "Click on this button to launch a modal demo. The demo will start an intensive operation and..."]
+               [:p "It will have a progress bar which looks something like this:"]
+               [:div.progress
+                [:div.progress-bar
+                 {:role "progressbar"
+                  :style {:width "60%"}}
+                 "60%"]]]
+       :width 300}]
+     (when @show-processing-modal? [modal-dialog processing-modal-markup "cancelbutton" show-processing-modal?])
+
+
+     ] ;; End of tour/modal wrapper
 
 
     ;; Orange square - :right-center - no flex stuff added yet so doesn't work properly
@@ -315,14 +373,13 @@
      :right-center
      show-div-popover?
      [:div {:style {:background-color "coral"
-                    :display "block"
-                    :margin-top "20px"
-                    :width "200px"
+                    :display          "block"
+                    :margin-top       "20px"
+                    :width            "200px"
                     :height "200px"}
             :on-mouse-over #(reset! show-div-popover? true)
-            :on-mouse-out #(reset! show-div-popover? false)
-            :on-click #(reset! show-div-popover? (not @show-div-popover?))
-            }]
+            :on-mouse-out  #(reset! show-div-popover? false)
+            :on-click      #(reset! show-div-popover? (not @show-div-popover?))}]
      {:title "Rollover Popover"
       :body  "This is basically a tooltip."}]
     ]])
