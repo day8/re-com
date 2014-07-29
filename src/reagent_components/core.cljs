@@ -36,37 +36,58 @@
 
 
 (def show-processing-modal? (reagent/atom false))
+(def progress-percent (reagent/atom 0))
 
 (defn processing-modal-markup []
-  [:div
-   [:p "Doing some serious processing, this might take some time"]
-   [:div.progress
-    [:div.progress-bar
-     {:role "progressbar"
-      :style {:width "60%"}}
-     "60%"]]
-   [:div {:style {:display "flex"}}
-    [:input#cancelbutton.btn.btn-info  ;; TODO: Hard coded ID
-     {:type "button"
-      :value "Cancel"
-      :style {:margin "auto"}
-      :on-click #(reset! show-processing-modal? false)
-      }]]]
-  )
+  (let [percent (str @progress-percent "%")]
+    [:div
+     [:p "Doing some serious processing, this might take some time"]
+     [:div.progress
+      [:div.progress-bar
+       {:role "progressbar"
+        :style {:width (str @progress-percent "%")
+                :transition "none"}} ;; Default BS transitions cause the progress bar to lag behind
+       (str @progress-percent "%")]]
+     [:div {:style {:display "flex"}}
+      [:input#cancelbutton.btn.btn-info  ;; TODO: Hard coded ID
+       {:type "button"
+        :value "Cancel"
+        :style {:margin "auto"}
+        :on-click #(reset! show-processing-modal? false)
+        }]]
+     ]))
 
 
-(defn serious-processing [iterations]
-  (util/console-log "START serious-processing")
-  (loop [i 1]
-    (if @show-processing-modal?
+;; (defn serious-processing [iterations]
+;;   (util/console-log "START serious-processing")
+;;   (loop [i 1]
+;;     (when (= (mod i 1000000) 0)
+;;       (util/console-log "do-events")
+;;       (js/setTimeout #(do
+;;                         (util/console-log "in setTimeout")
+;;                         (when-not @show-processing-modal?
+;;                           (util/console-log "OUTTA HERE!"))) 0))
+;;     (if @show-processing-modal?
+;;       (when (< i iterations)
+;;         (def a (* (Math/sqrt i) (Math/log i)))
+;;         ;; (when (= i 1000000) (reset! show-processing-modal? false))
+;;         (recur (inc i)))
+;;       (util/console-log (str "Cancel clicked at i=" i))
+;;       ))
+;;   (reset! show-processing-modal? false)
+;;   (util/console-log "END serious-processing")
+;;   )
+
+
+(defn serious-processing-chunk [iterations percent]
+  (util/console-log (str "START serious-processing: " percent))
+  (reset! progress-percent percent)
+  (if @show-processing-modal?
+    (loop [i 1]
       (when (< i iterations)
         (def a (* (Math/sqrt i) (Math/log i)))
-        ;; (when (= i 1000000) (reset! show-processing-modal? false))
-        (recur (inc i)))
-      (util/console-log (str "Cancel clicked at i=" i))
-      ))
-  (reset! show-processing-modal? false)
-  (util/console-log "END serious-processing")
+        (recur (inc i))))
+    (util/console-log "CANCELLED!"))
   )
 
 
@@ -74,8 +95,18 @@
   (util/console-log "STARTING do-some-serious-processing")
   (reset! show-processing-modal? true)
 
-  (js/setTimeout #(serious-processing 40000000) 0) ;; Give UI time to paint modal
   ;; (serious-processing 40000000)
+
+  ;; (js/setTimeout #(serious-processing 40000000) 0)
+
+  (let [chunks 200]
+    (loop [i 0]
+      (if (< i chunks)
+        (let [percent (int (+ (* (/ i chunks) 100) 0.5))]
+          (js/setTimeout #(serious-processing-chunk 1000000 percent) 0) ;; Schedule each chunk of work
+          (recur (inc i)))
+        (js/setTimeout #(reset! show-processing-modal? false) 0)) ;; Schedule closing the modal
+      ))
 
   (util/console-log "FINISHED do-some-serious-processing")
   )
