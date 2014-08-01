@@ -172,7 +172,7 @@
             (when @modal-alert  [:div {:style {:margin "12px"}}
                                  [closeable-alert
                                   @modal-alert
-                                  (fn [_] (reset! modal-alert nil))]])
+                                  (fn [id] (reset! modal-alert nil))]])
             ]]
           [:span])
         )
@@ -228,7 +228,7 @@
   could be comprised of one or more calls to the same function plus one or more calls to an numbers of other
   functions.
   Parameters:
-  - fn-seq  A sequence of fucntion calls
+  - fn-seq  A sequence of function calls
   - status  A reagent atom which holds either :running, :finished or :cancelled
   "
   (let [schedule (fn reschedule []
@@ -248,11 +248,11 @@
   "A modal runner for single processes that are not CPU intensive, typically I/O operations.
   Cancel buttons, spinners and progress bars work fine.
   Parameters:
-  - fn         I/O function to be executed
+  - fn         Function to be executed
   - fn-params  Parameters (in a vector) to be passed to the call to fn (or []/nil if none)
   - status     The status atom which shows/hides the modal window
 
-  NOTE: Could use modal-single-chunk-runner in place of this.
+  NOTE: Could just as easily use modal-single-chunk-runner in place of this.
   .     modal-single-chunk-runner does not actually stop you using cancel/spinner/progress.
   "
   (reset! modal-alert nil)
@@ -265,7 +265,7 @@
   "A modal runner for single processes which ARE CPU intensive.
   Cancel buttons, spinners and progress bars will NOT work.
   Parameters:
-  - fn         I/O function to be executed
+  - fn         Function to be executed
   - fn-params  Parameters (in a vector) to be passed to the call to fn (or []/nil if none)
   - status     The status atom which shows/hides the modal window
   "
@@ -275,18 +275,32 @@
   )
 
 
-(defn modal-multi-chunk-runner [fn-seq status]
-  (let []
-
+(defn modal-multi-chunk-runner [fn-seq initial-state status]
+  "...
+  Parameters:
+  - fn-seq         A sequence of function calls
+  - initial-state  The initial state to be passed to the first function call.
+  .                After that, each successive function call is responsible for returning the parameters
+  .                to be used for the subsequent function call and so on.
+  - status         A reagent atom which holds either :running, :finished or :cancelled
+  .                It's the responsibility of the function calls to set this to :finished once done.
+  "
+  (let [schedule (fn reschedule [state]
+                   (js/setTimeout
+                    #(let [next-state ((fn-seq) state status)]
+                       (if (= @status :running) (reschedule next-state))
+                       )
+                    10))] ;; 10ms should give enough time for UI events to be processed
+    (reset! modal-alert nil)
     (reset! status :running)
-    (fn-seq)
+    (schedule initial-state)
     ))
 
 
 (defn modal-dialog [status]
   "A runner for modal dialog boxes.
   Parameters:
-  - status     The status atom which shows/hides the modal window
+  - status     The status atom which shows/hides the modal dialog
   "
   (reset! modal-alert nil)
   (reset! status :running))

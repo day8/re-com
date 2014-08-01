@@ -40,6 +40,12 @@
 
 (def demo-tour (make-tour [:step1 :step2 :step3 :step4]))
 
+(defn cpu-delay [count]
+  (loop [i 1]
+    (when (< i count)
+      (def a (* (Math/sqrt i) (Math/log i)))
+      (recur (inc i)))))
+
 
 ;; ------------------------------------------------------------------------------------
 ;;  MODAL PROCESSING #1 - Long running with progress and cancel
@@ -49,21 +55,13 @@
 
 (defn serious-process-1-modal-markup []
   [:div {:style {:max-width "300px"}}
-   [:p "Doing some serious processing. This might take some time, so hang on a moment..."]
-   ])
+   [:p "Doing some serious processing. This might take some time, so hang on a moment..."]])
 
 (defn serious-process-1-chunk [chunk-index chunks percent]
   (util/console-log (str "START serious-processing 1: " chunk-index " of " chunks " (" percent "%)"))
   (reset! progress-percent percent)
   (if (= @serious-process-1-status :running)
-
-    ;; ACTUAL PROCESSING CODE - START
-    (loop [i 1]
-      (when (< i 1000000)
-        (def a (* (Math/sqrt i) (Math/log i)))
-        (recur (inc i))))
-    ;; ACTUAL PROCESSING CODE - END
-
+    (cpu-delay 1000000)
     (util/console-log "CANCELLED!")))
 
 
@@ -79,21 +77,13 @@
     {:src   "img/Guru.jpg"
      :style {:width "145px" :margin "20px"}}]
    [:h4 "Modal Demo #2"]
-   [:p "This is the second modal demo and it is different to the first one, in terms of message displayed, length of process and what controls are displayed (in this case you can't cancel it. This is the second modal demo and it is different to the first one, in terms of message displayed, length of process and what controls are displayed (in this case you can't cancel it. "]
-   ])
+   [:p "This is the second modal demo and it is different to the first one, in terms of message displayed, length of process and what controls are displayed (in this case you can't cancel it. This is the second modal demo and it is different to the first one, in terms of message displayed, length of process and what controls are displayed (in this case you can't cancel it. "]])
 
 (defn serious-process-2-chunk [chunk-index chunks percent]
   (util/console-log (str "START serious-processing 2: " chunk-index " of " chunks " (" percent "%)"))
   (reset! progress-percent percent)
   (if (= @serious-process-2-status :running)
-
-    ;; ACTUAL PROCESSING CODE - START
-    (loop [i 1]
-      (when (< i 1000000)
-        (def a (* (Math/sqrt i) (Math/log i)))
-        (recur (inc i))))
-    ;; ACTUAL PROCESSING CODE - END
-
+    (cpu-delay 1000000)
     (util/console-log "CANCELLED!")))
 
 
@@ -105,8 +95,7 @@
 
 (defn fib-markup []
   [:div {:style {:max-width "200px"}}
-   [:p "Calculating some Fibonacci numbers..."]
-   ])
+   [:p "Calculating some Fibonacci numbers..."]])
 
 (defn fib [a b] (cons a (lazy-seq (fib b (+ b a)))))
 
@@ -122,15 +111,7 @@
         (reset! p1 (+ (last res) (last (butlast res))))
         (reset! p2 (+ @p1 (last res)))
         (when (= @p1 420196140727489660) (reset! fib-status :finished))
-
-        ;; DELAY - START
-        (loop [i 1]
-          (when (< i 5000000)
-            (def a (* (Math/sqrt i) (Math/log i)))
-            (recur (inc i))))
-        ;; DELAY - END
-
-        ))
+        (cpu-delay 5000000)))
     ))
 
 
@@ -242,25 +223,42 @@
 
 (def calc-pivot-totals-status (reagent/atom nil)) ;; :running, :finished, :cancelled
 
-(defn calc-pivot-totals-markup []
-  [:div {:style {:max-width "200px"}}
-   [:p
-    {:style {:text-align "center"}}
-    [:strong "Calculating pivot totals"] [:br] "Please wait..."]
-   ])
-
 (defn calc-pivot-totals []
-
-  ;; DELAY - START
   (util/console-log "calc-pivot-totals START")
-  (loop [i 1]
-    (when (< i 50000000)
-      (def a (* (Math/sqrt i) (Math/log i)))
-      (recur (inc i))))
+  (cpu-delay 50000000)
   (util/console-log "calc-pivot-totals END")
-  ;; DELAY - END
-
   (reset! calc-pivot-totals-status :finished))
+
+
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING USE CASE 4 - Processing a large in-memory XML file (chunked)
+;; ------------------------------------------------------------------------------------
+
+(def chunked-xml-status (reagent/atom nil)) ;; :running, :finished, :cancelled
+
+(defn chunked-xml-markup []
+  [:div {:style {:max-width "200px"}}
+   [:p {:style {:text-align "center"}}
+    [:strong "Processing large XML file"] [:br]
+    [:strong "(actually, just reusing fib)"] [:br]
+    "Please wait..."]])
+
+(defn chunked-xml []
+  (let [chunks 5]
+
+    (fn [fib-params fib-status]
+      (let [p1          (first fib-params)
+            p2          (second fib-params)
+            chunk-res   (take chunks (fib p1 p2))
+            new-p1      (+ (last chunk-res) (last (butlast chunk-res)))
+            new-p2      (+ new-p1 (last chunk-res))
+            next-params [new-p1 new-p2]]
+
+        (util/console-log (str "(fib " p1 " "  p2 ") = " chunk-res " next = " next-params))
+        (cpu-delay 5000000)
+        (when (= new-p1 420196140727489660) (reset! chunked-xml-status :finished))
+        next-params))
+    ))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -270,8 +268,8 @@
 (def test-form-status (reagent/atom nil)) ;; :running, :finished, :cancelled
 
 (def test-form-data (reagent/atom {:email       "gregg.ramsey@day8.com.au"
-                              :password    "abc123"
-                              :remember-me true}))
+                                   :password    "abc123"
+                                   :remember-me true}))
 
 (defn test-form-submit [event]
   (reset! test-form-status :finished)
@@ -674,6 +672,9 @@
           ;; )
 
         ;; MODAL - USE CASE 1 - Loading URL
+        ;;
+        ;; NOTES: - Showing non-runner equivalent code
+        ;;        - Using DEFAULT cancel button
 
         [:input.btn.btn-info
          {:style {:font-weight "bold" :color "red" :margin "1px"}
@@ -693,10 +694,13 @@
            [load-url-markup url-to-load]
            load-url-status
            {:spinner       true
-            :cancel-button true}] ;; NOTE: Using default cancel button
+            :cancel-button true}]
           ;; )
 
         ;; MODAL - USE CASE 2 - Writing to disk
+        ;;
+        ;; NOTES: - Removed (when (= @write-disk-status...
+        ;;        - Using CUSTOM cancel button
 
         [:input.btn.btn-info
          {:style {:font-weight "bold" :color "red" :margin "1px"}
@@ -706,13 +710,13 @@
                       write-disk
                       [mwi-file]
                       write-disk-status)}]
-        ;; (when (= @write-disk-status :running)
-          [show-modal-window
-           [write-disk-markup mwi-file]
-           write-disk-status] ;; NOTE: NOT using default cancel button
-          ;; )
+        [show-modal-window
+         [write-disk-markup mwi-file]
+         write-disk-status]
 
         ;; MODAL - USE CASE 3 - Calculating pivot totals
+        ;;
+        ;; NOTE: Uses (when (= @calc-pivot-totals-status... (still works)
 
         [:input.btn.btn-info
          {:style {:font-weight "bold" :color "red" :margin "1px"}
@@ -722,27 +726,32 @@
                       calc-pivot-totals
                       []
                       calc-pivot-totals-status)}]
-        ;; (when (= @calc-pivot-totals-status :running)
+        (when (= @calc-pivot-totals-status :running)
           [show-modal-window
-           [calc-pivot-totals-markup]
+           [:div {:style {:max-width "200px"}}
+            [:p {:style {:text-align "center"}}
+             [:strong "Calculating pivot totals"] [:br] "Please wait..."]]
            calc-pivot-totals-status]
-          ;; )
+          )
 
-;;        ;; MODAL - USE CASE 4 - Processing a large in-memory XML file (chunked).
-;;
-;;        [:input.btn.btn-info
-;;         {:style {:font-weight "bold" :color "red" :margin "1px"}
-;;          :type "button"
-;;          :value "4. CPU-M Process XML (chunked)"
-;;          :on-click #(modal-multi-chunk-runner
-;;                      calc-pivot-totals
-;;                      calc-pivot-totals-status)}]
-;;        ;; (when (= @calc-pivot-totals-status :running)
-;;          [show-modal-window
-;;           [calc-pivot-totals-markup]
-;;           calc-pivot-totals-status]
-;;          ;; )
-;;
+        ;; MODAL - USE CASE 4 - Processing a large in-memory XML file (chunked)
+
+        [:input.btn.btn-info
+         {:style {:font-weight "bold" :color "red" :margin "1px"}
+          :type "button"
+          :value "4. CPU-M Process XML (chunked)"
+          :on-click #(modal-multi-chunk-runner
+                      chunked-xml
+                      [1 1]
+                      chunked-xml-status)}]
+        ;; (when (= @chunked-xml-status :running)
+          [show-modal-window
+           [chunked-xml-markup]
+           chunked-xml-status
+           {:spinner       true
+            :cancel-button true}]
+        ;; )
+
 ;;        ;; MODAL - USE CASE 5 - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked).
 ;;
 ;;        [:input.btn.btn-info
