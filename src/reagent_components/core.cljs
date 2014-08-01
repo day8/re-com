@@ -5,7 +5,11 @@
             [reagent-components.alert             :refer [closeable-alert alert-list add-alert]]
             [reagent-components.popover           :refer [popover make-button make-link]]
             [reagent-components.tour              :refer [make-tour start-tour make-tour-nav]]
-            [reagent-components.modal             :refer [modal-dialog]]
+            [reagent-components.modal             :refer [show-modal-window add-modal-alert
+                                                          make-cancel-button make-spinner make-progress-bar
+                                                          chunk-runner chunked-runner
+                                                          modal-io-runner modal-single-chunk-runner modal-multi-chunk-runner
+                                                          modal-dialog]]
             [reagent-components.popover-form-demo :as    popover-form-demo]
             [reagent.core                         :as    reagent]))
 
@@ -32,85 +36,301 @@
 
 (def show-div-popover?   (reagent/atom false))
 
+(def progress-percent    (reagent/atom 0))
+
 (def demo-tour (make-tour [:step1 :step2 :step3 :step4]))
 
 
-(def show-processing-modal? (reagent/atom false))
-(def progress-percent (reagent/atom 0))
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING #1 - Long running with progress and cancel
+;; ------------------------------------------------------------------------------------
 
-(defn processing-modal-markup []
-  (let [percent (str @progress-percent "%")]
-    [:div
-     [:p "Doing some serious processing, this might take some time"]
-     [:div.progress
-      [:div.progress-bar
-       {:role "progressbar"
-        :style {:width (str @progress-percent "%")
-                :transition "none"}} ;; Default BS transitions cause the progress bar to lag behind
-       (str @progress-percent "%")]]
-     [:div {:style {:display "flex"}}
-      [:input#cancelbutton.btn.btn-info  ;; TODO: Hard coded ID
-       {:type "button"
-        :value "Cancel"
-        :style {:margin "auto"}
-        :on-click #(reset! show-processing-modal? false)
-        }]]
-     ]))
+(def serious-process-1-status (reagent/atom nil)) ;; :running, :finished, :cancelled
 
+(defn serious-process-1-modal-markup []
+  [:div {:style {:max-width "300px"}}
+   [:p "Doing some serious processing. This might take some time, so hang on a moment..."]
+   ])
 
-;; (defn serious-processing [iterations]
-;;   (util/console-log "START serious-processing")
-;;   (loop [i 1]
-;;     (when (= (mod i 1000000) 0)
-;;       (util/console-log "do-events")
-;;       (js/setTimeout #(do
-;;                         (util/console-log "in setTimeout")
-;;                         (when-not @show-processing-modal?
-;;                           (util/console-log "OUTTA HERE!"))) 0))
-;;     (if @show-processing-modal?
-;;       (when (< i iterations)
-;;         (def a (* (Math/sqrt i) (Math/log i)))
-;;         ;; (when (= i 1000000) (reset! show-processing-modal? false))
-;;         (recur (inc i)))
-;;       (util/console-log (str "Cancel clicked at i=" i))
-;;       ))
-;;   (reset! show-processing-modal? false)
-;;   (util/console-log "END serious-processing")
-;;   )
-
-
-(defn serious-processing-chunk [iterations percent]
-  (util/console-log (str "START serious-processing: " percent))
+(defn serious-process-1-chunk [chunk-index chunks percent]
+  (util/console-log (str "START serious-processing 1: " chunk-index " of " chunks " (" percent "%)"))
   (reset! progress-percent percent)
-  (if @show-processing-modal?
+  (if (= @serious-process-1-status :running)
+
+    ;; ACTUAL PROCESSING CODE - START
     (loop [i 1]
-      (when (< i iterations)
+      (when (< i 1000000)
         (def a (* (Math/sqrt i) (Math/log i)))
         (recur (inc i))))
-    (util/console-log "CANCELLED!"))
+    ;; ACTUAL PROCESSING CODE - END
+
+    (util/console-log "CANCELLED!")))
+
+
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING #2 - Short running with progress only
+;; ------------------------------------------------------------------------------------
+
+(def serious-process-2-status (reagent/atom nil)) ;; :running, :finished, :cancelled
+
+(defn serious-process-2-modal-markup []
+  [:div {:style {:max-width "600px"}}
+   [:img.img-rounded.smooth.pull-right
+    {:src   "img/Guru.jpg"
+     :style {:width "145px" :margin "20px"}}]
+   [:h4 "Modal Demo #2"]
+   [:p "This is the second modal demo and it is different to the first one, in terms of message displayed, length of process and what controls are displayed (in this case you can't cancel it. This is the second modal demo and it is different to the first one, in terms of message displayed, length of process and what controls are displayed (in this case you can't cancel it. "]
+   ])
+
+(defn serious-process-2-chunk [chunk-index chunks percent]
+  (util/console-log (str "START serious-processing 2: " chunk-index " of " chunks " (" percent "%)"))
+  (reset! progress-percent percent)
+  (if (= @serious-process-2-status :running)
+
+    ;; ACTUAL PROCESSING CODE - START
+    (loop [i 1]
+      (when (< i 1000000)
+        (def a (* (Math/sqrt i) (Math/log i)))
+        (recur (inc i))))
+    ;; ACTUAL PROCESSING CODE - END
+
+    (util/console-log "CANCELLED!")))
+
+
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING #3 - Fibonacci sequence
+;; ------------------------------------------------------------------------------------
+
+(def fib-status (reagent/atom nil)) ;; :running, :finished, :cancelled
+
+(defn fib-markup []
+  [:div {:style {:max-width "200px"}}
+   [:p "Calculating some Fibonacci numbers..."]
+   ])
+
+(defn fib [a b] (cons a (lazy-seq (fib b (+ b a)))))
+
+(def p1 (atom 1))
+(def p2 (atom 1))
+
+(defn fibonacci []
+  (let [chunks 5]
+
+    (fn [fib-status]
+      (let [res (take chunks (fib @p1 @p2))]
+        (util/console-log (str "(fib " @p1 " "  @p2 ") = " res))
+        (reset! p1 (+ (last res) (last (butlast res))))
+        (reset! p2 (+ @p1 (last res)))
+        (when (= @p1 420196140727489660) (reset! fib-status :finished))
+
+        ;; DELAY - START
+        (loop [i 1]
+          (when (< i 5000000)
+            (def a (* (Math/sqrt i) (Math/log i)))
+            (recur (inc i))))
+        ;; DELAY - END
+
+        ))
+    ))
+
+
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING USE CASE 1 - Loading a URL
+;; ------------------------------------------------------------------------------------
+
+;; URL and simulated returned data
+(def url-to-load "http://static.day8.com.au/locations.xml")
+(def xml-data    "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>here it is!</data>")
+
+;; Simulate the system's load-url functionality (will call back in 3 seconds)
+(defn system-load-url [url callback]
+  (js/setTimeout #(callback nil xml-data) 3000))
+
+;; ------------------------------------------------------------------------------------
+
+(def load-url-status (reagent/atom nil)) ;; :running, :finished, :cancelled
+
+(defn load-url-markup [url]
+  [:div {:style {:max-width "600px"}}
+   [:p (str "Loading data from '" url "'...")]])
+
+(defn load-url [url]
+  (util/console-log (str "*** Loading data from: " url))
+  (system-load-url
+   url
+   (fn [err data]
+     (if err
+       (do
+         (util/console-log (str "*** ERROR: " err))
+
+         ;; HANDLE ERROR HERE
+
+         )
+       (do
+         (if (= @load-url-status :cancelled)
+           (util/console-log "*** CANCELLED!")
+           (do
+             (util/console-log (str "*** Data returned: " data))
+
+             ;; PROCESS THE RETURNED DATA HERE
+
+             ))
+         (reset! load-url-status :finished)
+         ))
+     ))
+  )
+
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING USE CASE 2 - Write to disk
+;; ------------------------------------------------------------------------------------
+
+;; Path to save to
+(def mwi-file "C:\\Day8\\MWIEnhancer\\test.mwi")
+
+;; Simulate the system's load-url functionality (will call back in 3 seconds)
+(defn system-write-path [path data callback]
+  (js/setTimeout #(callback "The file could not be saved - Disk Full! " nil) 3000))
+
+;; ------------------------------------------------------------------------------------
+
+(def write-disk-status (reagent/atom nil)) ;; :running, :finished, :cancelled
+
+(defn write-disk-markup [path]
+  [:div {:style {:max-width "600px"}}
+   [:p (str "Saving '" path "'...")]
+   [:div {:style {:display "flex"}}
+    [:div {:style {:margin "auto"}}
+     [:img {:src "img/spinner.gif" :style {:margin-right "12px"}}]
+     [:input.btn.btn-danger
+      {:type "button"
+       :value "STOP!"
+       :on-click #(reset! write-disk-status :cancelled)
+       }]]]])
+
+
+(defn write-disk [path]
+  (util/console-log (str "*** Saving data to: " path))
+  (system-write-path
+   path
+   "data to write to path"
+   (fn [err data]
+     (if err
+       (do
+         (util/console-log (str "*** ERROR: " err))
+         (add-modal-alert {:alert-type "danger"
+                           :heading "File Error"
+                           :body err})
+         )
+       (do
+         (if (= @write-disk-status :cancelled)
+           (util/console-log "*** CANCELLED!")
+           (do
+             (util/console-log (str "*** SAVED!"))
+
+             ;; FURTHER PROCESSING HERE IF REQUIRED
+
+             ))
+         (reset! write-disk-status :finished)
+         ))
+     ))
   )
 
 
-(defn do-some-serious-processing []
-  (util/console-log "STARTING do-some-serious-processing")
-  (reset! show-processing-modal? true)
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING USE CASE 3 - Calculating pivot totals
+;; ------------------------------------------------------------------------------------
 
-  ;; (serious-processing 40000000)
+(def calc-pivot-totals-status (reagent/atom nil)) ;; :running, :finished, :cancelled
 
-  ;; (js/setTimeout #(serious-processing 40000000) 0)
+(defn calc-pivot-totals-markup []
+  [:div {:style {:max-width "200px"}}
+   [:p
+    {:style {:text-align "center"}}
+    [:strong "Calculating pivot totals"] [:br] "Please wait..."]
+   ])
 
-  (let [chunks 200]
-    (loop [i 0]
-      (if (< i chunks)
-        (let [percent (int (+ (* (/ i chunks) 100) 0.5))]
-          (js/setTimeout #(serious-processing-chunk 1000000 percent) 0) ;; Schedule each chunk of work
-          (recur (inc i)))
-        (js/setTimeout #(reset! show-processing-modal? false) 0)) ;; Schedule closing the modal
-      ))
+(defn calc-pivot-totals []
 
-  (util/console-log "FINISHED do-some-serious-processing")
-  )
+  ;; DELAY - START
+  (util/console-log "calc-pivot-totals START")
+  (loop [i 1]
+    (when (< i 50000000)
+      (def a (* (Math/sqrt i) (Math/log i)))
+      (recur (inc i))))
+  (util/console-log "calc-pivot-totals END")
+  ;; DELAY - END
 
+  (reset! calc-pivot-totals-status :finished))
+
+
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING USE CASE 7 - Arbitrarily complex input form
+;; ------------------------------------------------------------------------------------
+
+(def test-form-status (reagent/atom nil)) ;; :running, :finished, :cancelled
+
+(def test-form-data (reagent/atom {:email       "gregg.ramsey@day8.com.au"
+                              :password    "abc123"
+                              :remember-me true}))
+
+(defn test-form-submit [event]
+  (reset! test-form-status :finished)
+  (util/console-log-prstr "Submitted form: form-data" test-form-data)
+  false) ;; Prevent default "GET" form submission to server
+
+(defn form-cancel []
+  ;; (reset! test-form-data @initial-test-form-data)
+  (reset! test-form-status :cancelled)
+  (util/console-log-prstr "Cancelled form (not implemented): form-data" test-form-data)
+  false) ;; Prevent default "GET" form submission to server
+
+(defn test-form-markup []
+  [:div {:style {:padding "5px" :background-color "cornsilk" :border "1px solid #eee"}} ;; [:form {:name "pform" :on-submit ptest-form-submit}
+   [:h3 "Welcome to MWI Enhancer"]
+   [:div.form-group
+    [:label {:for "pf-email"} "Email address"]
+    [:input#pf-email.form-control
+     {:name        "email"
+      :type        "text"
+      :placeholder "Type email"
+      :style       {:width "250px"}
+      :value       (:email @test-form-data)
+      :on-change   #(swap! test-form-data assoc :email (-> % .-target .-value))}]
+    ]
+   [:div.form-group
+    [:label {:for "pf-password"} "Password"]
+    [:input#pf-password.form-control
+     {:name        "password"
+      :type        "password"
+      :placeholder "Type password"
+      :style       {:width "250px"}
+      :value       (:password @test-form-data)
+      :on-change   #(swap! test-form-data assoc :password (-> % .-target .-value))}]
+    ]
+   [:div.checkbox
+    [:label
+     [:input
+      {:name      "remember-me"
+       :type      "checkbox"
+       :checked   (:remember-me @test-form-data)
+       :on-change #(swap! test-form-data assoc :remember-me (-> % .-target .-checked))}
+      "Remember me"]]]
+   [:hr {:style {:margin "10px 0 10px"}}]
+   [:button.btn.btn-primary
+    {:type     "button" ;; submit
+     :on-click test-form-submit}
+    "Sign in"]
+   [:span " "]
+   [:button.btn.btn-default
+    {:type     "button"
+     :on-click form-cancel}
+    "Cancel"]
+   ])
+
+
+;; ------------------------------------------------------------------------------------
+;;  TEST HARNESS MAIN
+;; ------------------------------------------------------------------------------------
 
 (defn test-harness []
   [:div.panel.panel-default {:style {:margin "8px"}}
@@ -134,7 +354,7 @@
                       ]}]
 
 
-    [:div {:style {:margin-top "90px"}}]
+    [:div {:style {:margin-top "40px"}}]
 
     [:div {:style {:display "flex" :flex-flow "row"}} ;; Flexbox button bar wrapper
 
@@ -328,7 +548,7 @@
       ]]
 
 
-    ;; Tour component PLUS modal component
+    ;; Tour component
 
     [:div {:style {:display "flex" :flex-flow "row" :margin-top "20px" :margin-left "20px"}} ;; Tour/modal wrapper
      [:h4 {:style {:margin-right "20px"}} "Here is a sample of the new tour component:"]
@@ -373,29 +593,203 @@
        :body          [:div "Lucky last tour popover"
                        [make-tour-nav demo-tour]]}]
 
-     [popover
-      :right-center
-      show-modal-popover?
-      [:input.btn.btn-info
-       {:style {:font-weight "bold" :color "red" :margin-left "10px"}
-        :type "button"
-        :value "Modal Demo"
-        :on-mouse-over #(reset! show-modal-popover? true)
-        :on-mouse-out  #(reset! show-modal-popover? false)
-        :on-click      #(do-some-serious-processing)}]
-      {:body  [:div
-               [:p "Click on this button to launch a modal demo. The demo will start an intensive operation and..."]
-               [:p "It will have a progress bar which looks something like this:"]
-               [:div.progress
-                [:div.progress-bar
-                 {:role "progressbar"
-                  :style {:width "60%"}}
-                 "60%"]]]
-       :width 300}]
-     (when @show-processing-modal? [modal-dialog processing-modal-markup "cancelbutton" show-processing-modal?])
+     ] ;; End of tour wrapper
 
 
-     ] ;; End of tour/modal wrapper
+    ;; Modal component
+
+    [:div.container
+     {:style {:width "100%" :margin-top "20px" :margin-left "0px" :margin-right "0px"}}
+     [:div.row
+      [:div.col-xs-2
+       {:style {:text-align "right"}}
+       [:h4 "Modals demos:"]]
+      [::div.col-xs-10
+       [:div {:style {:display "flex" :flex-flow "row" :flex-wrap "wrap"}} ;; Modal wrapper
+
+        ;; MODAL - LONG
+
+        [popover
+         :right-center
+         show-modal-popover?
+         [:input.btn.btn-info
+          {:style {:font-weight "bold" :color "red" :margin "1px" :height "39px"}
+           :type "button"
+           :value "Long"
+           :on-mouse-over #(reset! show-modal-popover? true)
+           :on-mouse-out  #(reset! show-modal-popover? false)
+           :on-click      #(chunk-runner
+                            serious-process-1-chunk
+                            serious-process-1-status
+                            250)}]
+         {:body  [:div
+                  [:p "Click on this button to launch a modal demo. The demo will start an intensive operation and..."]
+                  [:p "It will have a progress bar which looks something like this:"]
+                  [:div.progress
+                   [:div.progress-bar
+                    {:role "progressbar"
+                     :style {:width "60%"}}
+                    "60%"]]]
+          :width 300}]
+        (when (= @serious-process-1-status :running)
+          [show-modal-window
+           [serious-process-1-modal-markup]
+           serious-process-1-status
+           {:progress-bar true
+            :cancel-button true}
+           progress-percent]
+          )
+
+        ;; MODAL - SHORT
+
+        [:input.btn.btn-info
+         {:style {:font-weight "bold" :color "red" :margin "1px"}
+          :type "button"
+          :value "Short"
+          :on-click #(chunk-runner
+                      serious-process-2-chunk
+                      serious-process-2-status
+                      57)}]
+        (when (= @serious-process-2-status :running)
+          [show-modal-window
+           [serious-process-2-modal-markup]
+           serious-process-2-status
+           {:progress-bar true}
+           progress-percent]
+          )
+
+        ;; MODAL - FIBONACCI
+
+        [:input.btn.btn-info
+         {:style {:font-weight "bold" :color "red" :margin "1px"}
+          :type "button"
+          :value "Fib"
+          :on-click #(chunked-runner fibonacci fib-status)}]
+        ;; (when (= @fib-status :running)
+          [show-modal-window
+           [fib-markup]
+           fib-status
+           {:spinner       true
+            :cancel-button true}]
+          ;; )
+
+        ;; MODAL - USE CASE 1 - Loading URL
+
+        [:input.btn.btn-info
+         {:style {:font-weight "bold" :color "red" :margin "1px"}
+          :type "button"
+          :value "1. I/O Load url"
+          :on-click #(modal-io-runner
+                      load-url
+                      [url-to-load]
+                      load-url-status)
+          ;; Equivalent without calling modal-io-runner...
+          ;; :on-click #(do
+          ;;              (reset! load-url-status :running)
+          ;;              (load-url url-to-load))
+          }]
+        ;; (when (= @load-url-status :running)
+          [show-modal-window
+           [load-url-markup url-to-load]
+           load-url-status
+           {:spinner       true
+            :cancel-button true}] ;; NOTE: Using default cancel button
+          ;; )
+
+        ;; MODAL - USE CASE 2 - Writing to disk
+
+        [:input.btn.btn-info
+         {:style {:font-weight "bold" :color "red" :margin "1px"}
+          :type "button"
+          :value "2. I/O Save to disk"
+          :on-click #(modal-io-runner
+                      write-disk
+                      [mwi-file]
+                      write-disk-status)}]
+        ;; (when (= @write-disk-status :running)
+          [show-modal-window
+           [write-disk-markup mwi-file]
+           write-disk-status] ;; NOTE: NOT using default cancel button
+          ;; )
+
+        ;; MODAL - USE CASE 3 - Calculating pivot totals
+
+        [:input.btn.btn-info
+         {:style {:font-weight "bold" :color "red" :margin "1px"}
+          :type "button"
+          :value "3. CPU-S Pivot calc"
+          :on-click #(modal-single-chunk-runner
+                      calc-pivot-totals
+                      []
+                      calc-pivot-totals-status)}]
+        ;; (when (= @calc-pivot-totals-status :running)
+          [show-modal-window
+           [calc-pivot-totals-markup]
+           calc-pivot-totals-status]
+          ;; )
+
+;;        ;; MODAL - USE CASE 4 - Processing a large in-memory XML file (chunked).
+;;
+;;        [:input.btn.btn-info
+;;         {:style {:font-weight "bold" :color "red" :margin "1px"}
+;;          :type "button"
+;;          :value "4. CPU-M Process XML (chunked)"
+;;          :on-click #(modal-multi-chunk-runner
+;;                      calc-pivot-totals
+;;                      calc-pivot-totals-status)}]
+;;        ;; (when (= @calc-pivot-totals-status :running)
+;;          [show-modal-window
+;;           [calc-pivot-totals-markup]
+;;           calc-pivot-totals-status]
+;;          ;; )
+;;
+;;        ;; MODAL - USE CASE 5 - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked).
+;;
+;;        [:input.btn.btn-info
+;;         {:style {:font-weight "bold" :color "red" :margin "1px"}
+;;          :type "button"
+;;          :value "5. CPU-M Modify EDN in steps (unchunked)"
+;;          :on-click #(modal-multi-chunk-runner
+;;                      calc-pivot-totals
+;;                      calc-pivot-totals-status)}]
+;;        ;; (when (= @calc-pivot-totals-status :running)
+;;          [show-modal-window
+;;           [calc-pivot-totals-markup]
+;;           calc-pivot-totals-status]
+;;          ;; )
+;;
+;;        ;; MODAL - USE CASE 6 - Creating large JSON data for writing (chunked), then writing (a type A I/O job).
+;;
+;;        [:input.btn.btn-info
+;;         {:style {:font-weight "bold" :color "red" :margin "1px"}
+;;          :type "button"
+;;          :value "6. CPU-M Create JSON (chunked) then write to disk"
+;;          :on-click #(modal-multi-chunk-runner
+;;                      calc-pivot-totals
+;;                      calc-pivot-totals-status)}]
+;;        ;; (when (= @calc-pivot-totals-status :running)
+;;          [show-modal-window
+;;           [calc-pivot-totals-markup]
+;;           calc-pivot-totals-status]
+;;          ;; )
+
+        ;; MODAL - USE CASE 7 - Arbitrarily complex input form
+
+        [:input.btn.btn-info
+         {:style {:font-weight "bold" :color "red" :margin "1px"}
+          :type "button"
+          :value "7. Modal Dialog"
+          :on-click #(modal-dialog
+                      test-form-status)}]
+        ;; (when (= @test-form-status :running)
+          [show-modal-window
+           [test-form-markup]
+           test-form-status]
+          ;; )
+
+        ]  ;; End of modal wrapper
+       ]]] ;; End of container/row
+
 
 
     ;; Orange square - :right-center - no flex stuff added yet so doesn't work properly

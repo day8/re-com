@@ -211,7 +211,7 @@
    {:class (str "btn-" type) ;; TODO: Needs validation
     :type "button"
     :value text
-    ;; :style {} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+    :style {:margin-left "2px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
     :on-click #(reset! show-popover? (not @show-popover?))}])
 
 
