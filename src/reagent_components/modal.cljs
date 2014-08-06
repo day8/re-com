@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [reagent-components.util  :as util]
             ;; [cljs.core.async          :as async :refer [<! >! chan close! sliding-buffer put! alts!]]
-            [reagent-components.alert :refer [closeable-alert]]
+            ;; [reagent-components.alert :refer [closeable-alert]]
             [reagent.core             :as reagent]
             [goog.events              :as events]))
 
@@ -47,7 +47,7 @@
 ;;           b. Calling a sequence of jobs which do different processes.
 ;;               - Associated with each job would be status text which would display on modal.
 ;;               - Each individual job could potentially be chunked.
-;;               - Cancel button would only work between jobs unless each job chunked.
+;;               - Cancel button would only work between jobs unless a job was chunked.
 ;;               - Spinner/progress performance would be poor unless each job chunked.
 ;;               - Use cases:
 ;;                  5. MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked).
@@ -74,32 +74,41 @@
 ;;  - Possibly get rid of dependency on alert (unless we will ALWAYS have all components included)
 
 
-(defn make-cancel-button [status type text]
+(defn cancel-button
+  [callback]
+  "Render a bootstrap styled cancel button
+  "
   [:div {:style {:display "flex"}}
-   [:input.btn
-    {:class (str "btn-" type)
-     :type "button"
-     :value text
+   [:input.btn.btn-info
+    {:type "button"
+     :value "Cancel"
      :style {:margin "auto"}
-     :on-click #(reset! status :cancelled)
+     :on-click #(callback)
      }]]
   )
 
 
-(defn make-spinner []
+(defn spinner
+  []
+  "Render a spinner as an animated gif
+  "
   [:div {:style {:display "flex"
                  :margin "10px"}}
    [:img {:src "img/spinner.gif"
           :style {:margin "auto"}}]])
 
 
-(defn make-progress-bar [progress-percent]
+(defn progress-bar
+  [progress-percent]
+  "Render a bootstrap styled progress bar
+  "
   [:div.progress
    [:div.progress-bar ;;.progress-bar-striped.active
     {:role "progressbar"
      :style {:width (str @progress-percent "%")
              :transition "none"}} ;; Default BS transitions cause the progress bar to lag behind
-    (str @progress-percent "%")]])
+    (str @progress-percent "%")]]
+  )
 
 
 ;; CORE.ASYNC REMOVED
@@ -110,7 +119,8 @@
 
 (def modal-alert (reagent/atom nil))
 
-(defn show-modal-window [markup status modal-options progress-percent]
+
+(defn modal-window-OLD [markup status modal-options progress-percent]
   "Renders a modal window centered on screen. A dark transparent backdrop sits between this and the underlying
   main window to prevent UI interactivity and place user focus on the modal window.
   Parameters:
@@ -119,11 +129,13 @@
   .                   the modal should be shown. Only required when :cancel-button specified.
   - modal-options     [optional] A map containing two options:
   .                    - :spinner        A boolean indicating whether to show a spinner or not
-  .                    - :progress-bar   A boolean indicating whether to show a progress bar or not
+  .                    - :progress-bar?   A boolean indicating whether to show a progress bar or not
   .                    - :cancel-button  A boolean indicating whether to show a cancel button or not
   - progress-percent  [optional] The integer atom used to hold the percentage through the process we are. Used in rendering the progress bar
   "
-  (let [{:keys [spinner progress-bar cancel-button]} modal-options
+  (let [spinner?       (:spinner       modal-options)
+        progress-bar?  (:progress-bar  modal-options)
+        cancel-button? (:cancel-button modal-options)
         ;; cancel-id      (gensym "cancel-") ;; CORE.ASYNC REMOVED
         ]
 
@@ -133,7 +145,7 @@
       :component-did-mount
       (fn []
         ;; CORE.ASYNC REMOVED
-        ;; (when cancel-button
+        ;; (when cancel-button?
         ;;   (let [elem   (util/get-element-by-id cancel-id)
         ;;         clicks (listen elem "click")]
         ;;     (util/console-log (str "show-modal-window :component-did-mount - " (.-value elem)))
@@ -147,48 +159,70 @@
       :render
       (fn []
         ;; (util/console-log "show-modal-window :render")
-        (if (= @status :running)
-          [:div
-           {:style {:display "flex"      ;; Semi-transparent backdrop
-                    :position "fixed"
-                    :left "0px"
-                    :top "0px"
-                    :width "100%"
-                    :height "100%"
-                    :background-color "rgba(0,0,0,0.85)"
-                    :z-index 1020
-                    :on-click #(util/console-log "clicked backdrop") ;; Gobble up clicks so they don't go to the main window (TODO: Doesn't work)
-                    }}
-           [:div                         ;; Modal window containing div
-            {:style {:margin "auto"
-                     :background-color "white"
-                     :padding "16px"
-                     :border-radius "6px"
-                     :z-index 1020}}
-            markup
-            (when spinner       [make-spinner])
-            (when progress-bar  [make-progress-bar progress-percent])
-            (when cancel-button [make-cancel-button status "info" "Cancel"])
-            (when @modal-alert  [:div {:style {:margin "12px"}}
-                                 [closeable-alert
-                                  @modal-alert
-                                  (fn [id] (reset! modal-alert nil))]])
-            ]]
-          [:span])
+        [:div
+         {:style {:display "flex"      ;; Semi-transparent backdrop
+                  :position "fixed"
+                  :left "0px"
+                  :top "0px"
+                  :width "100%"
+                  :height "100%"
+                  :background-color "rgba(0,0,0,0.85)"
+                  :z-index 1020
+                  :on-click #(util/console-log "clicked backdrop") ;; Gobble up clicks so they don't go to the main window (TODO: Doesn't work)
+                  }}
+         [:div                         ;; Modal window containing div
+          {:style {:margin "auto"
+                   :background-color "white"
+                   :padding "16px"
+                   :border-radius "6px"
+                   :z-index 1020}}
+          markup
+          (when spinner?       [spinner])
+          (when progress-bar?  [progress-bar progress-percent])
+          (when cancel-button? [cancel-button #(reset! status :cancelled)])
+          #_(when @modal-alert   [:div {:style {:margin "12px"}}
+                                [closeable-alert
+                                 @modal-alert
+                                 (fn [id] (reset! modal-alert nil))]])
+          ]]
         )
       })))
 
 
-(defn add-modal-alert [alert-item]
-  "Adds an alert box to the bottom of the modal window for when errors occur
+(defn modal-window
+  [markup]
+  "Renders a modal window centered on screen. A dark transparent backdrop sits between this and the underlying
+  main window to prevent UI interactivity and place user focus on the modal window.
   Parameters:
-  - alert-item:       A map containing the definition of the alert:
-  .   - :alert-type   A Bootstrap string determining the style. Either 'info', 'warning' or 'danger'
-  .   - :heading      Hiccup markup or a string containing the heading text
-  .   - :body         Hiccup markup or a string containing the body of the alert
+  - markup  The message to display in the modal (a string or a hiccup vector or function returning a hiccup vector)
   "
-  (assoc alert-item :id 1) ;; Add the missing key
-  (reset! modal-alert alert-item))
+  (reagent/create-class
+   {
+    :component-did-mount
+    (fn []
+      ;; CORE.ASYNC REMOVED
+      )
+
+    :render
+    (fn []
+      [:div
+       {:style {:display "flex"      ;; Semi-transparent backdrop
+                :position "fixed"
+                :left "0px"
+                :top "0px"
+                :width "100%"
+                :height "100%"
+                :background-color "rgba(0,0,0,0.85)"
+                :z-index 1020
+                :on-click #(util/console-log "clicked backdrop") ;; Gobble up clicks so they don't go to the main window (TODO: Doesn't work)
+                }}
+       [:div                         ;; Modal window containing div
+        {:style {:margin "auto"
+                 :background-color "white"
+                 :padding "16px"
+                 :border-radius "6px"
+                 :z-index 1020}}
+        markup]])}))
 
 
 (defn chunk-runner [chunk-fn status chunks]
@@ -222,86 +256,68 @@
   (util/console-log "FINISHED chunk-runner"))
 
 
-(defn chunked-runner [fn-seq status]
-  "A more generic version of splitting your function into chunks. Works fine when the number of calls to the
-  worker function is not known as a lazy sequence of function calls is generated. Also, this lazy sequence
-  could be comprised of one or more calls to the same function plus one or more calls to an numbers of other
-  functions.
-  Parameters:
-  - fn-seq  A sequence of function calls
-  - status  A reagent atom which holds either :running, :finished or :cancelled
+(defn start-cpu-intensive
+  [func]
+  "Run a CPU intensive function with a slight delay to allow the UI to updated (and show modal window changes)
   "
-  (let [schedule (fn reschedule []
-                   (js/setTimeout
-                    #(do
-                       ((fn-seq) status)
-                       (if (= @status :running) (reschedule))
-                       )
-                    10))] ;; 10ms should give enough time for UI events to be processed
-    (reset! modal-alert nil)
-    (reset! status :running)
-    (schedule)
-    ))
+  (js/setTimeout func 10))
 
 
-(defn modal-io-runner [fn fn-params status]
-  "A modal runner for single processes that are not CPU intensive, typically I/O operations.
-  Cancel buttons, spinners and progress bars work fine.
-  Parameters:
-  - fn         Function to be executed
-  - fn-params  Parameters (in a vector) to be passed to the call to fn (or []/nil if none)
-  - status     The status atom which shows/hides the modal window
-
-  NOTE: Could just as easily use modal-single-chunk-runner in place of this.
-  .     modal-single-chunk-runner does not actually stop you using cancel/spinner/progress.
-  "
-  (reset! modal-alert nil)
-  (reset! status :running)
-  (apply fn fn-params)
-  )
-
-
-(defn modal-single-chunk-runner [fn fn-params status]
-  "A modal runner for single processes which ARE CPU intensive.
-  Cancel buttons, spinners and progress bars will NOT work.
-  Parameters:
-  - fn         Function to be executed
-  - fn-params  Parameters (in a vector) to be passed to the call to fn (or []/nil if none)
-  - status     The status atom which shows/hides the modal window
-  "
-  (reset! modal-alert nil)
-  (reset! status :running)
-  (js/setTimeout #(apply fn fn-params) 10)
-  )
-
-
-(defn modal-multi-chunk-runner [fn-seq initial-state status]
+(defn modal-multi-chunk-runner
+  [func initial-state running?]
   "...
   Parameters:
-  - fn-seq         A sequence of function calls
+  - func           A function to repeatedly call. On each call, something else happens, could be the
+  .                same funciton, could be a different function.
   - initial-state  The initial state to be passed to the first function call.
   .                After that, each successive function call is responsible for returning the parameters
   .                to be used for the subsequent function call and so on.
-  - status         A reagent atom which holds either :running, :finished or :cancelled
-  .                It's the responsibility of the function calls to set this to :finished once done.
+  - running?       A reagent boolean atom indicating if the processing is running
   "
   (let [schedule (fn reschedule [state]
                    (js/setTimeout
-                    #(let [next-state ((fn-seq) state status)]
-                       (if (= @status :running) (reschedule next-state))
-                       )
-                    10))] ;; 10ms should give enough time for UI events to be processed
-    (reset! modal-alert nil)
-    (reset! status :running)
-    (schedule initial-state)
-    ))
+                    #(let [next-state (apply (func) state)]
+                       (util/console-log (str "IN reschedule: " state))
+                       (when-not next-state (reset! running? false))
+                       (when @running? (reschedule next-state)))
+                    20))] ;; 20ms should give enough time for UI events to be processed
+    (reset! running? true)
+    (schedule initial-state)))
 
 
-(defn modal-dialog [status]
-  "A runner for modal dialog boxes.
-  Parameters:
-  - status     The status atom which shows/hides the modal dialog
-  "
-  (reset! modal-alert nil)
-  (reset! status :running))
-
+;; (defn modal-multi-chunk-runner-2 [fn-seq initial-state running?]
+;;   "...
+;;   Parameters:
+;;   - fn-seq         A sequence of function calls. On each call, something else happens, could be the
+;;   .                same funciton, could be a different function.
+;;   - initial-state  The initial state to be passed to the first function call.
+;;   .                After that, each successive function call is responsible for returning the parameters
+;;   .                to be used for the subsequent function call and so on.
+;;   - running?       A reagent boolean atom indicating if the processing is running
+;;   "
+;;   (let [schedule  (fn reschedule [state]
+;;                     (js/setTimeout
+;;                      #(let [next-state (apply (fn-seq) state)]
+;;                         (util/console-log (str "IN reschedule: " state))
+;;                         (when-not next-state (reset! running? false))
+;;                         (when @running? (reschedule next-state)))
+;;                      20))
+;;
+;;         ;; Version 2
+;;
+;;         yield     (fn [fn2]
+;;                     (js/setTimeout
+;;                      (fn [] fn2)
+;;                      20))
+;;         schedule2 (fn reschedule [state]
+;;                     (yield
+;;                      (fn [] (js/setTimeout
+;;                              #(let [next-state (apply (fn-seq) state)]
+;;                                 (util/console-log (str "IN reschedule: " state))
+;;                                 (when-not next-state (reset! running? false))
+;;                                 (when @running? (reschedule next-state)))
+;;                              20))
+;;                      ))
+;;         ]
+;;     (reset! running? true)
+;;     (schedule initial-state)))

@@ -1,16 +1,17 @@
 (ns reagent-components.core
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [reagent-components.util              :as    util]
             [reagent-components.v-layout          :refer [v-layout]]
             [reagent-components.h-layout          :refer [h-layout]]
             [reagent-components.alert             :refer [closeable-alert alert-list add-alert]]
             [reagent-components.popover           :refer [popover make-button make-link]]
             [reagent-components.tour              :refer [make-tour start-tour make-tour-nav]]
-            [reagent-components.modal             :refer [show-modal-window add-modal-alert
-                                                          make-cancel-button make-spinner make-progress-bar
-                                                          chunk-runner chunked-runner
-                                                          modal-io-runner modal-single-chunk-runner modal-multi-chunk-runner
-                                                          modal-dialog]]
+            [reagent-components.modal             :refer [modal-window modal-window-OLD
+                                                          cancel-button spinner progress-bar
+                                                          start-cpu-intensive
+                                                          chunk-runner modal-multi-chunk-runner]]
             [reagent-components.popover-form-demo :as    popover-form-demo]
+            [cljs.core.async                      :refer [<! >! chan close! put! take! alts! timeout]]
             [reagent.core                         :as    reagent]))
 
 
@@ -40,11 +41,13 @@
 
 (def demo-tour (make-tour [:step1 :step2 :step3 :step4]))
 
-(defn cpu-delay [count]
-  (loop [i 1]
-    (when (< i count)
-      (def a (* (Math/sqrt i) (Math/log i)))
-      (recur (inc i)))))
+(defn cpu-delay
+  [count]
+  (let [count (* count 100000)]
+    (loop [i 1]
+      (when (< i count)
+        (def a (* (Math/sqrt i) (Math/log i)))
+        (recur (inc i))))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -53,15 +56,17 @@
 
 (def serious-process-1-status (reagent/atom nil)) ;; :running, :finished, :cancelled
 
-(defn serious-process-1-modal-markup []
+(defn serious-process-1-modal-markup
+  []
   [:div {:style {:max-width "300px"}}
    [:p "Doing some serious processing. This might take some time, so hang on a moment..."]])
 
-(defn serious-process-1-chunk [chunk-index chunks percent]
+(defn serious-process-1-chunk
+  [chunk-index chunks percent]
   (util/console-log (str "START serious-processing 1: " chunk-index " of " chunks " (" percent "%)"))
   (reset! progress-percent percent)
   (if (= @serious-process-1-status :running)
-    (cpu-delay 1000000)
+    (cpu-delay 10)
     (util/console-log "CANCELLED!")))
 
 
@@ -71,7 +76,8 @@
 
 (def serious-process-2-status (reagent/atom nil)) ;; :running, :finished, :cancelled
 
-(defn serious-process-2-modal-markup []
+(defn serious-process-2-modal-markup
+  []
   [:div {:style {:max-width "600px"}}
    [:img.img-rounded.smooth.pull-right
     {:src   "img/Guru.jpg"
@@ -79,63 +85,54 @@
    [:h4 "Modal Demo #2"]
    [:p "This is the second modal demo and it is different to the first one, in terms of message displayed, length of process and what controls are displayed (in this case you can't cancel it. This is the second modal demo and it is different to the first one, in terms of message displayed, length of process and what controls are displayed (in this case you can't cancel it. "]])
 
-(defn serious-process-2-chunk [chunk-index chunks percent]
+(defn serious-process-2-chunk
+  [chunk-index chunks percent]
   (util/console-log (str "START serious-processing 2: " chunk-index " of " chunks " (" percent "%)"))
   (reset! progress-percent percent)
   (if (= @serious-process-2-status :running)
-    (cpu-delay 1000000)
+    (cpu-delay 10)
     (util/console-log "CANCELLED!")))
-
-
-;; ------------------------------------------------------------------------------------
-;;  MODAL PROCESSING #3 - Fibonacci sequence
-;; ------------------------------------------------------------------------------------
-
-(def fib-status (reagent/atom nil)) ;; :running, :finished, :cancelled
-
-(defn fib-markup []
-  [:div {:style {:max-width "200px"}}
-   [:p "Calculating some Fibonacci numbers..."]])
-
-(defn fib [a b] (cons a (lazy-seq (fib b (+ b a)))))
-
-(def p1 (atom 1))
-(def p2 (atom 1))
-
-(defn fibonacci []
-  (let [chunks 5]
-
-    (fn [fib-status]
-      (let [res (take chunks (fib @p1 @p2))]
-        (util/console-log (str "(fib " @p1 " "  @p2 ") = " res))
-        (reset! p1 (+ (last res) (last (butlast res))))
-        (reset! p2 (+ @p1 (last res)))
-        (when (= @p1 420196140727489660) (reset! fib-status :finished))
-        (cpu-delay 5000000)))
-    ))
 
 
 ;; ------------------------------------------------------------------------------------
 ;;  MODAL PROCESSING USE CASE 1 - Loading a URL
 ;; ------------------------------------------------------------------------------------
 
-;; URL and simulated returned data
-(def url-to-load "http://static.day8.com.au/locations.xml")
-(def xml-data    "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>here it is!</data>")
+(defn modal-button
+  [text callback]
+  "Return the markeup for a modal button
+  "
+  [:input.btn.btn-info
+   {:style {:font-weight "bold" :color "red" :margin "1px" :height "39px"}
+    :type "button"
+    :value text
+    :on-click #(callback)
+    }])
 
-;; Simulate the system's load-url functionality (will call back in 3 seconds)
-(defn system-load-url [url callback]
-  (js/setTimeout #(callback nil xml-data) 3000))
+(defn system-load-url
+  [url callback]
+  "Simulate the system's load-url functionality (will call back in 3 seconds)
+  "
+  (let [err  nil
+        data "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>here it is!</data>"]
+    (js/setTimeout #(callback err data) 3000)))
 
 ;; ------------------------------------------------------------------------------------
 
-(def load-url-status (reagent/atom nil)) ;; :running, :finished, :cancelled
+(defn loading-url-modal
+  [url loading?]
+  "Show this modal window when loading a url
+  "
+  [modal-window
+   [:div {:style {:max-width "600px"}}
+    [:p (str "Loading data from '" url "'...")]
+    [spinner]
+    [cancel-button #(reset! loading? false)]]])
 
-(defn load-url-markup [url]
-  [:div {:style {:max-width "600px"}}
-   [:p (str "Loading data from '" url "'...")]])
-
-(defn load-url [url]
+(defn load-url
+  [url loading?]
+  "Load some data from the remote server
+  "
   (util/console-log (str "*** Loading data from: " url))
   (system-load-url
    url
@@ -143,53 +140,69 @@
      (if err
        (do
          (util/console-log (str "*** ERROR: " err))
-
-         ;; HANDLE ERROR HERE
-
+         ;; ***** HANDLE ERROR HERE
          )
        (do
-         (if (= @load-url-status :cancelled)
-           (util/console-log "*** CANCELLED!")
+         (if @loading?
            (do
              (util/console-log (str "*** Data returned: " data))
+             ;; ***** PROCESS THE RETURNED DATA HERE
+             )
+           (util/console-log "*** CANCELLED!"))
+         (reset! loading? false))))
+   ))
 
-             ;; PROCESS THE RETURNED DATA HERE
+(defn test-load-url
+  []
+  "Create a button to test the modal component for loading a url
+  "
+  (let [loading? (reagent/atom false)
+        url      "http://static.day8.com.au/locations.xml"]
+    (fn []
+      [:div
+       [modal-button
+        "1. I/O Load url"
+        #(do
+           (reset! loading? true)
+           (load-url url loading?))]
+       (when @loading?
+         [loading-url-modal url loading?])
+       ])
+    ))
 
-             ))
-         (reset! load-url-status :finished)
-         ))
-     ))
-  )
 
 ;; ------------------------------------------------------------------------------------
 ;;  MODAL PROCESSING USE CASE 2 - Write to disk
 ;; ------------------------------------------------------------------------------------
 
-;; Path to save to
-(def mwi-file "C:\\Day8\\MWIEnhancer\\test.mwi")
-
-;; Simulate the system's load-url functionality (will call back in 3 seconds)
-(defn system-write-path [path data callback]
-  (js/setTimeout #(callback "The file could not be saved - Disk Full! " nil) 3000))
+(defn system-write-path
+  [path data callback]
+  "Simulate the system's load-url functionality (will call back in 3 seconds)
+  "
+  (let [err  "The file could not be saved - Disk Full!"
+        data nil]
+    (js/setTimeout #(callback err data) 3000)))
 
 ;; ------------------------------------------------------------------------------------
 
-(def write-disk-status (reagent/atom nil)) ;; :running, :finished, :cancelled
+(defn writing-disk-modal
+  [path writing?]
+  "Show this modal window when saving to disk
+  "
+  [modal-window
+   [:div {:style {:max-width "600px"}}
+    [:p (str "Saving '" path "'...")]
+    [:div {:style {:display "flex"}}
+     [:div {:style {:margin "auto"}}
+      [:img {:src "img/spinner.gif" :style {:margin-right "12px"}}]
+      [:input.btn.btn-danger
+       {:type "button"
+        :value "STOP!"
+        :on-click #(reset! writing? false)
+        }]]]]])
 
-(defn write-disk-markup [path]
-  [:div {:style {:max-width "600px"}}
-   [:p (str "Saving '" path "'...")]
-   [:div {:style {:display "flex"}}
-    [:div {:style {:margin "auto"}}
-     [:img {:src "img/spinner.gif" :style {:margin-right "12px"}}]
-     [:input.btn.btn-danger
-      {:type "button"
-       :value "STOP!"
-       :on-click #(reset! write-disk-status :cancelled)
-       }]]]])
-
-
-(defn write-disk [path]
+(defn write-disk
+  [path writing?]
   (util/console-log (str "*** Saving data to: " path))
   (system-write-path
    path
@@ -198,91 +211,574 @@
      (if err
        (do
          (util/console-log (str "*** ERROR: " err))
-         (add-modal-alert {:alert-type "danger"
-                           :heading "File Error"
-                           :body err})
+         ;; ***** PROCESS THE RETURNED DATA HERE
+         (reset! writing? false)
          )
        (do
-         (if (= @write-disk-status :cancelled)
-           (util/console-log "*** CANCELLED!")
+         (if writing?
            (do
              (util/console-log (str "*** SAVED!"))
-
              ;; FURTHER PROCESSING HERE IF REQUIRED
+             )
+           (util/console-log "*** CANCELLED!"))
+         (reset! writing? false))))
+   ))
 
-             ))
-         (reset! write-disk-status :finished)
-         ))
-     ))
-  )
-
+(defn test-write-disk
+  []
+  "Create a button to test the modal component for writing to disk
+  "
+  (let [writing? (reagent/atom false)
+        mwi-file "C:\\Day8\\MWIEnhancer\\test.mwi"]
+    (fn []
+      [:div
+       [modal-button
+        "2. I/O Save to disk"
+        #(do
+           (reset! writing? true)
+           (write-disk mwi-file writing?))]
+       (when @writing?
+         [writing-disk-modal mwi-file writing?])
+       ])
+    ))
 
 ;; ------------------------------------------------------------------------------------
 ;;  MODAL PROCESSING USE CASE 3 - Calculating pivot totals
 ;; ------------------------------------------------------------------------------------
 
-(def calc-pivot-totals-status (reagent/atom nil)) ;; :running, :finished, :cancelled
+(defn calcing-pivot-totals-modal
+  []
+  "Show this modal window when calculating pivot totals
+  "
+  [modal-window
+   [:div {:style {:max-width "200px"}}
+    [:p {:style {:text-align "center"}}
+     [:strong "Calculating pivot totals"] [:br] "Please wait..."]]])
 
-(defn calc-pivot-totals []
+(defn calc-pivot-totals
+  [calculating?]
+  "Calculate pivot totals
+  "
   (util/console-log "calc-pivot-totals START")
-  (cpu-delay 50000000)
+  (cpu-delay 500)
+  ;; ***** PROCESS THE RETURNED DATA HERE
   (util/console-log "calc-pivot-totals END")
-  (reset! calc-pivot-totals-status :finished))
+  (reset! calculating? false))
+
+(defn test-calc-pivot-totals
+  []
+  "Create a button to test the modal component for calculating pivot totals
+  "
+  (let [calculating? (reagent/atom false)]
+    (fn []
+      [:div
+       [modal-button
+        "3. CPU-S Pivot calc"
+        #(do
+           (reset! calculating? true)
+           (start-cpu-intensive (fn [] (calc-pivot-totals calculating?)))
+           )] ;; Delay call to allow modal to show
+       (when @calculating?
+         [calcing-pivot-totals-modal])
+       ])
+    ))
 
 
 ;; ------------------------------------------------------------------------------------
 ;;  MODAL PROCESSING USE CASE 4 - Processing a large in-memory XML file (chunked)
 ;; ------------------------------------------------------------------------------------
 
-(def chunked-xml-status (reagent/atom nil)) ;; :running, :finished, :cancelled
+(defn fib [a b] (cons a (lazy-seq (fib b (+ b a)))))
 
-(defn chunked-xml-markup []
-  [:div {:style {:max-width "200px"}}
-   [:p {:style {:text-align "center"}}
-    [:strong "Processing large XML file"] [:br]
-    [:strong "(actually, just reusing fib)"] [:br]
-    "Please wait..."]])
+(defn process-xml-modal
+  [calculating?]
+  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
+  "
+  [modal-window
+   [:div {:style {:max-width "200px"}}
+    [:p {:style {:text-align "center"}}
+     [:strong "Processing large XML file"] [:br]
+     [:strong "(actually, just reusing fib)"] [:br]
+     "Please wait..."]
+    [spinner]
+    [cancel-button #(reset! calculating? false)]]])
 
-(defn chunked-xml []
+(defn process-xml
+  []
   (let [chunks 5]
 
-    (fn [fib-params fib-status]
-      (let [p1          (first fib-params)
-            p2          (second fib-params)
-            chunk-res   (take chunks (fib p1 p2))
-            new-p1      (+ (last chunk-res) (last (butlast chunk-res)))
-            new-p2      (+ new-p1 (last chunk-res))
-            next-params [new-p1 new-p2]]
+    (fn [p1 p2]
+      (let [chunk-result (take chunks (fib p1 p2))
+            new-p1       (+ (last chunk-result) (last (butlast chunk-result)))
+            new-p2       (+ new-p1 (last chunk-result))
+            next-params  [new-p1 new-p2]]
 
-        (util/console-log (str "(fib " p1 " "  p2 ") = " chunk-res " next = " next-params))
-        (cpu-delay 5000000)
-        (when (= new-p1 420196140727489660) (reset! chunked-xml-status :finished))
-        next-params))
+        (util/console-log (str "(fib " p1 " "  p2 ") = " chunk-result " next = " next-params))
+        ;; ***** PROCESS THE RETURNED DATA HERE
+        (cpu-delay 50)
+        (if (< new-p1 420196140727489660)
+          next-params
+          nil)))
     ))
+
+(defn test-process-xml
+  []
+  "Create a button to test the modal component for calculating pivot totals
+  "
+  (let [calculating? (reagent/atom false)]
+    (fn []
+      [:div
+       [modal-button
+        "4. CPU-M Process XML (chunked)"
+        #(modal-multi-chunk-runner
+          process-xml
+          [1 1]
+          calculating?)]
+       (when @calculating?
+         [process-xml-modal calculating?])
+       ])
+    ))
+
+
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING USE CASE 5.1 - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked)
+;;   - GLOBAL ATOMS
+;; ------------------------------------------------------------------------------------
+
+(def mwi-steps-progress-msg     (reagent/atom ""))
+(def mwi-steps-progress-percent (reagent/atom 0))
+
+(defn mwi-step-1
+  []
+  (util/console-log "IN: mwi-step-1")
+  (cpu-delay 200)
+  true) ;; true to continue the process, false to cancel it
+
+
+(defn mwi-step-2
+  [p1 p2]
+  (util/console-log (str "IN: mwi-step-2. Params=" p1 "," p2))
+  (cpu-delay 300)
+  true) ;; continue
+
+
+(defn mwi-step-3
+  []
+  (util/console-log "IN: mwi-step-3")
+  (cpu-delay 400)
+  true) ;; continue
+
+(defn update-ui
+  [msg percent]
+  (util/console-log (str "update-ui: " msg))
+  (reset! mwi-steps-progress-msg msg)
+  (reset! mwi-steps-progress-percent percent)
+  true) ;; continue
+
+(defn progress-msg ;; msg doesn't update if it's placed directly in mwi-steps-modal
+  [progress-msg]
+  (util/console-log (str "progress-msg: " @progress-msg))
+  [:span @progress-msg])
+
+(defn mwi-steps-modal
+  [progress-msg progress-percent calculating?]
+  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
+  "
+  [modal-window
+   [:div {:style {:max-width "500px"}}
+    [:p {:style {:text-align "center"}}
+     [:strong "Recalculating..."] [:br]
+     [:strong "Current step: "] [progress-msg progress-msg]]
+    [progress-bar progress-percent]
+    [cancel-button #(reset! calculating? false)]]])
+
+(defn mwi-steps
+  []
+  (let [steps [{:fn update-ui  :params ["Performing step 1" 0]}
+               {:fn mwi-step-1}
+               {:fn update-ui  :params ["Performing step 2" 33]}
+               {:fn mwi-step-2 :params [1 "two"]}
+               {:fn update-ui  :params ["Performing step 3" 67]}
+               {:fn mwi-step-3}]]
+
+    (fn [step-to-process]
+      (let [this-step (get steps step-to-process)]
+        (util/console-log (str "mwi-steps step " step-to-process))
+        (let [step-result (apply (:fn this-step) (:params this-step))]
+          (if (and step-result (< step-to-process (dec (count steps))))
+            [(inc step-to-process)]
+            nil))))
+    ))
+
+(defn test-mwi-steps
+  []
+  "Create a button to test the modal component for calculating multiple mwi steps
+  "
+  (let [calculating? (reagent/atom false)]
+    (fn []
+      [:div
+       [modal-button
+        "5.1. CPU-M Modify EDN in steps (unchunked)"
+        #(modal-multi-chunk-runner
+          mwi-steps
+          [0]
+          calculating?)]
+       (when @calculating?
+         [mwi-steps-modal
+          mwi-steps-progress-msg       ;; Not necessary with global atoms
+          mwi-steps-progress-percent   ;; Not necessary with global atoms
+          calculating?])
+       ])
+    ))
+
+
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING USE CASE 5.2 - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked)
+;;   - LOCAL ATOMS
+;; ------------------------------------------------------------------------------------
+
+(defn mwi-step-2-1
+  []
+  (util/console-log "IN: mwi-step-2-1")
+  (cpu-delay 200)
+  true) ;; true to continue the process, false to cancel it
+
+(defn mwi-step-2-2
+  [p1 p2]
+  (util/console-log (str "IN: mwi-step-2-2. Params=" p1 "," p2))
+  (cpu-delay 300)
+  true) ;; continue
+
+(defn mwi-step-2-3
+  []
+  (util/console-log "IN: mwi-step-2-3")
+  (cpu-delay 400)
+  true) ;; continue
+
+(defn progress-msg-2 ;; msg doesn't update if it's placed directly in mwi-steps-modal-2
+  [progress-msg]
+  (util/console-log (str "progress-msg: " @progress-msg))
+  [:span @progress-msg])
+
+(defn mwi-steps-modal-2
+  [progress-msg progress-percent calculating?]
+  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
+  "
+  [modal-window
+   [:div {:style {:max-width "500px"}}
+    [:p {:style {:text-align "center"}}
+     [:strong "Recalculating..."] [:br]
+     [:strong "Current step: "] [progress-msg-2 progress-msg]]
+    [progress-bar progress-percent]
+    [cancel-button #(reset! calculating? false)]]])
+
+(defn mwi-steps-2
+  []
+  (let [steps [{:fn mwi-step-2-1                   :msg "2. Performing step 1" :percent 0}
+               {:fn mwi-step-2-2 :params [1 "two"] :msg "2. Performing step 2" :percent 33}
+               {:fn mwi-step-2-3                   :msg "2. Performing step 3" :percent 67}]]
+
+    (fn [step-to-process progress-msg progress-percent ui-updated?]
+      (let [this-step (get steps step-to-process)]
+        (if-not @ui-updated?
+          (do
+            (swap! ui-updated? not)
+            (util/console-log (str "mwi-steps-2 UPDATE-UI step " step-to-process ": " (:msg this-step)))
+            (reset! progress-msg (:msg this-step))
+            (reset! progress-percent (:percent this-step))
+            [step-to-process progress-msg progress-percent ui-updated?]) ;; Go again, run SAME step
+          (do
+            (swap! ui-updated? not)
+            (util/console-log (str "mwi-steps-2 step " step-to-process ": " (:msg this-step)))
+            (let [step-result (apply (:fn this-step) (:params this-step))]
+              (if (and step-result (< step-to-process (dec (count steps))))
+                [(inc step-to-process) progress-msg progress-percent ui-updated?] ;; Go again, run next step
+                nil))))
+
+        ))
+    ))
+
+(defn test-mwi-steps-2
+  []
+  "Create a button to test the modal component for calculating multiple mwi steps
+  "
+  (let [calculating?     (reagent/atom false)
+        progress-msg     (reagent/atom "")
+        progress-percent (reagent/atom 0)
+        ui-updated?      (atom false)]
+    (fn []
+      [:div
+       [modal-button
+        "5.1. CPU-M Modify EDN in steps (unchunked)"
+        #(modal-multi-chunk-runner
+          mwi-steps-2
+          [0 progress-msg progress-percent ui-updated?]
+          calculating?)]
+       (when @calculating?
+         [mwi-steps-modal-2
+          progress-msg
+          progress-percent
+          calculating?])
+       ])
+    ))
+
+
+;; ------------------------------------------------------------------------------------
+;;  core.async test
+;; ------------------------------------------------------------------------------------
+
+
+(defn do-stuff
+  [payload]
+  (util/console-log (str "do-stuff - payload = " payload))
+  (cpu-delay 200)
+  (assoc payload :do-stuff "done"))
+
+(defn do-more-stuff
+  [payload]
+  (util/console-log (str "do-more-stuff - payload = " payload))
+  (cpu-delay 300)
+  (assoc payload :do-more-stuff "done"))
+
+(defn do-even-more-stuff
+  [payload]
+  (util/console-log (str "do-even-more-stuff - payload = " payload))
+  (cpu-delay 400)
+  (assoc payload :do-even-more-stuff "done" :a 99 :b 99))
+
+(defn looper
+  [initial-value func]
+  (go (loop [pause (<! (timeout 20))
+             val   initial-value]
+        (let [out  (func val)
+              done? false]
+          (if done?
+            out
+            (recur (<! (timeout 20)) out))
+          ))))
+
+(defn step
+  [in-chan func]
+  (let [out-chan (chan)]
+    (go (let [in    (<! in-chan)
+              pause (<! (timeout 20))
+              out   (func in)]
+          (>! out-chan (if (nil? out) in out))))
+    out-chan))
+
+(defn pipeline
+  [initial-value funcs]
+  (assert ((complement nil?) initial-value) "Initial value can't be nil because that causes channel problems")
+  (let [in-chan  (chan)
+        out-chan (clojure.core/reduce step in-chan funcs)]
+    (put! in-chan initial-value)
+    out-chan))
+
+;###################################################
+;## TODO: cancel button doesn't stop the process
+;###################################################
+
+#_(defn do-funcs
+  [calculating? progress-msg progress-percent]
+  (pipeline
+   {:a 1 :b 2}
+   [#(do
+      (reset! calculating? true)
+      (reset! progress-msg "Performing step 1")
+      (reset! progress-percent 0)
+      nil)
+    do-stuff
+    (fn [_]
+      (reset! progress-msg "Performing step 2")
+      (reset! progress-percent 33)
+      nil)
+    do-more-stuff
+    (fn [_]
+      (reset! progress-msg "Performing step 3")
+      (reset! progress-percent 67)
+      nil)
+    do-even-more-stuff
+    (fn [payload]
+      (util/console-log (str "FINAL payload = " payload)))
+    (fn [_]
+      (reset! calculating? false)
+      nil)]))
+
+(defn do-funcs
+  [calculating? progress-msg progress-percent]
+  (reset! calculating? true)
+  (reset! progress-msg "Performing step 1")
+  (reset! progress-percent 0)
+  (go (let [pause  (<! (timeout 20))
+            result (do-stuff {:a 1 :b 2})]
+        (reset! progress-msg "Performing step 2")
+        (reset! progress-percent 33)
+        (go (let [pause  (<! (timeout 20))
+                  result (do-more-stuff result)]
+              (reset! progress-msg "Performing step 3")
+              (reset! progress-percent 67)
+              (go (let [pause  (<! (timeout 20))
+                        result (do-even-more-stuff result)]
+                    (util/console-log (str "FINAL payload = " result))
+                    (reset! calculating? false)))
+              ))
+        ))
+
+  )
+
+
+(defn core-async-progress-msg ;; msg doesn't update if it's placed directly in mwi-steps-modal-2
+  [progress-msg]
+  (util/console-log (str "progress-msg: " @progress-msg))
+  [:span @progress-msg])
+
+(defn core-async-modal
+  [progress-msg progress-percent calculating?]
+  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
+  "
+  [modal-window
+   [:div {:style {:max-width "500px"}}
+    [:p {:style {:text-align "center"}}
+     [:strong "Recalculating..."] [:br]
+     [:strong "Current step: "] [core-async-progress-msg progress-msg]]
+    [progress-bar progress-percent]
+    [cancel-button #(reset! calculating? false)]
+    ]])
+
+(defn test-core-async
+  []
+  "Create a button to test the core.async version
+  "
+  (let [calculating? (reagent/atom false)
+        progress-msg     (reagent/atom "")
+        progress-percent (reagent/atom 0)]
+    (fn []
+      [:div
+       [modal-button "5.2. CPU-M Modify EDN - CORE.ASYNC" #(do-funcs calculating? progress-msg progress-percent)]
+       (when @calculating?
+         [core-async-modal
+          progress-msg
+          progress-percent
+          calculating?])
+       ])
+    ))
+
+
+;; ------------------------------------------------------------------------------------
+;;  MODAL PROCESSING USE CASE 6 - Creating large JSON data for writing (chunked), then writing (a type A I/O job).
+;; ------------------------------------------------------------------------------------
+
+
+(def chunked-json-progress-msg     (reagent/atom ""))
+(def chunked-json-progress-percent (reagent/atom 0))
+
+(defn chunked-xml-in-sequence
+  []
+  (let [chunks 5]
+
+    (fn [p1 p2]
+      (let [chunk-result (take chunks (fib p1 p2))
+            new-p1       (+ (last chunk-result) (last (butlast chunk-result)))
+            new-p2       (+ new-p1 (last chunk-result))
+            next-params  [new-p1 new-p2]]
+
+        (util/console-log (str "(fib " p1 " "  p2 ") = " chunk-result " next = " next-params))
+        ;; ***** PROCESS THE RETURNED DATA HERE
+        (cpu-delay 50)
+        (if (< new-p1 420196140727489660)
+          next-params
+          nil)))
+    ))
+
+(defn write-disk-in-sequence
+  [path writing?]
+  (util/console-log (str "*** Saving data to: " path))
+  (system-write-path
+   path
+   "data to write to path"
+   (fn [err data]
+     (if err
+       (do
+         (util/console-log (str "*** ERROR: " err))
+         ;; ***** PROCESS THE RETURNED DATA HERE
+         (reset! writing? false)
+         )
+       (do
+         (if writing?
+           (do
+             (util/console-log (str "*** SAVED!"))
+             ;; FURTHER PROCESSING HERE IF REQUIRED
+             )
+           (util/console-log "*** CANCELLED!"))
+         (reset! writing? false))))
+   ))
+
+(defn update-chunked-json-ui
+  [msg percent]
+  (util/console-log (str "update-chunked-json-ui: " msg))
+  (reset! chunked-json-progress-msg msg)
+  (reset! chunked-json-progress-percent percent)
+  true) ;; continue
+
+(defn chunked-json-modal
+  [progress-msg progress-percent calculating?]
+  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
+  "
+  [modal-window
+   [:div {:style {:max-width "500px"}}
+    [:p {:style {:text-align "center"}}
+     [:strong "Recalculating..."] [:br]
+     [:strong "Current step: "] [progress-msg progress-msg]]
+    [progress-bar progress-percent]
+    [cancel-button #(reset! calculating? false)]]])
+
+(defn chunked-json
+  []
+  (let [mwi-file "C:\\Day8\\MWIEnhancer\\test.mwi"
+        running? (reagent/atom false) ;; TODO!
+        steps    [{:fn update-chunked-json-ui   :params ["1. Creating JSON " 0]}
+                  {:fn modal-multi-chunk-runner :params [chunked-xml-in-sequence [1 1] running?]} ;; TODO: running?
+                  {:fn update-chunked-json-ui   :params ["2. Writing JSON" 50]}
+                  {:fn write-disk-in-sequence   :params [mwi-file running?]}]] ;; TODO: running?
+
+    (fn [step-to-process]
+      (let [this-step (get steps step-to-process)]
+        (util/console-log (str "chunked-json step " step-to-process ": " (:msg this-step)))
+        (let [step-result ((:fn this-step) (:params this-step))]
+          (if (and step-result (< step-to-process (dec (count steps))))
+            (inc step-to-process)
+            nil))))
+    ))
+
+(defn test-chunked-json
+  []
+  "Create a button to test the modal component for calculating multiple mwi steps
+  "
+  (let [calculating? (reagent/atom false)]
+    (fn []
+      [:div
+       [modal-button
+        "6. CPU-M Create JSON (chunked) then write to disk"
+        #(modal-multi-chunk-runner
+          chunked-json
+          [0]
+          calculating?)]
+       (when @calculating?
+         [chunked-json-modal
+          chunked-json-progress-msg
+          chunked-json-progress-percent
+          calculating?])
+       ])
+    ))
+
 
 
 ;; ------------------------------------------------------------------------------------
 ;;  MODAL PROCESSING USE CASE 7 - Arbitrarily complex input form
 ;; ------------------------------------------------------------------------------------
 
-(def test-form-status (reagent/atom nil)) ;; :running, :finished, :cancelled
-
-(def test-form-data (reagent/atom {:email       "gregg.ramsey@day8.com.au"
-                                   :password    "abc123"
-                                   :remember-me true}))
-
-(defn test-form-submit [event]
-  (reset! test-form-status :finished)
-  (util/console-log-prstr "Submitted form: form-data" test-form-data)
-  false) ;; Prevent default "GET" form submission to server
-
-(defn form-cancel []
-  ;; (reset! test-form-data @initial-test-form-data)
-  (reset! test-form-status :cancelled)
-  (util/console-log-prstr "Cancelled form (not implemented): form-data" test-form-data)
-  false) ;; Prevent default "GET" form submission to server
-
-(defn test-form-markup []
+(defn test-form-markup
+  [form-data process-ok process-cancel]
   [:div {:style {:padding "5px" :background-color "cornsilk" :border "1px solid #eee"}} ;; [:form {:name "pform" :on-submit ptest-form-submit}
    [:h3 "Welcome to MWI Enhancer"]
    [:div.form-group
@@ -290,47 +786,79 @@
     [:input#pf-email.form-control
      {:name        "email"
       :type        "text"
-      :placeholder "Type email"
+      :placeholder "Enter email"
       :style       {:width "250px"}
-      :value       (:email @test-form-data)
-      :on-change   #(swap! test-form-data assoc :email (-> % .-target .-value))}]
+      :value       (:email @form-data)
+      :on-change   #(swap! form-data assoc :email (-> % .-target .-value))}]
     ]
    [:div.form-group
     [:label {:for "pf-password"} "Password"]
     [:input#pf-password.form-control
      {:name        "password"
       :type        "password"
-      :placeholder "Type password"
+      :placeholder "Enter password"
       :style       {:width "250px"}
-      :value       (:password @test-form-data)
-      :on-change   #(swap! test-form-data assoc :password (-> % .-target .-value))}]
+      :value       (:password @form-data)
+      :on-change   #(swap! form-data assoc :password (-> % .-target .-value))}]
     ]
    [:div.checkbox
     [:label
      [:input
       {:name      "remember-me"
        :type      "checkbox"
-       :checked   (:remember-me @test-form-data)
-       :on-change #(swap! test-form-data assoc :remember-me (-> % .-target .-checked))}
+       :checked   (:remember-me @form-data)
+       :on-change #(swap! form-data assoc :remember-me (-> % .-target .-checked))}
       "Remember me"]]]
    [:hr {:style {:margin "10px 0 10px"}}]
    [:button.btn.btn-primary
     {:type     "button" ;; submit
-     :on-click test-form-submit}
+     :on-click process-ok}
     "Sign in"]
    [:span " "]
    [:button.btn.btn-default
     {:type     "button"
-     :on-click form-cancel}
+     :on-click process-cancel}
     "Cancel"]
    ])
+
+(defn test-modal-dialog
+  []
+  "Create a button to test the modal component for modal dialogs
+  "
+  (let [showing?       (reagent/atom false)
+        form-data      (reagent/atom {:email       "gregg.ramsey@day8.com.au"
+                                      :password    "abc123"
+                                      :remember-me true})
+        save-form-data (reagent/atom nil)
+        process-ok     (fn [event]
+                         (reset! showing? false)
+                         (util/console-log-prstr "Submitted form data: " @form-data)
+                         ;; ***** PROCESS THE RETURNED DATA HERE
+                         false) ;; Prevent default "GET" form submission (if used)
+        process-cancel (fn [event]
+                         (reset! form-data @save-form-data)
+                         (reset! showing? false)
+                         (util/console-log-prstr "Cancelled form data: " @form-data)
+                         false)]
+    (fn []
+      [:div
+       [modal-button "7. Modal Dialog" #(do
+                                          (reset! save-form-data @form-data)
+                                          (reset! showing? true))]
+       (when @showing? [modal-window
+                        [test-form-markup
+                         form-data
+                         process-ok
+                         process-cancel]])])
+    ))
 
 
 ;; ------------------------------------------------------------------------------------
 ;;  TEST HARNESS MAIN
 ;; ------------------------------------------------------------------------------------
 
-(defn test-harness []
+(defn test-harness
+  []
   [:div.panel.panel-default {:style {:margin "8px"}}
    [:div.panel-body
 
@@ -630,7 +1158,7 @@
                     "60%"]]]
           :width 300}]
         (when (= @serious-process-1-status :running)
-          [show-modal-window
+          [modal-window-OLD
            [serious-process-1-modal-markup]
            serious-process-1-status
            {:progress-bar true
@@ -649,152 +1177,23 @@
                       serious-process-2-status
                       57)}]
         (when (= @serious-process-2-status :running)
-          [show-modal-window
+          [modal-window-OLD
            [serious-process-2-modal-markup]
            serious-process-2-status
            {:progress-bar true}
            progress-percent]
           )
 
-        ;; MODAL - FIBONACCI
-
-        [:input.btn.btn-info
-         {:style {:font-weight "bold" :color "red" :margin "1px"}
-          :type "button"
-          :value "Fib"
-          :on-click #(chunked-runner fibonacci fib-status)}]
-        ;; (when (= @fib-status :running)
-          [show-modal-window
-           [fib-markup]
-           fib-status
-           {:spinner       true
-            :cancel-button true}]
-          ;; )
-
-        ;; MODAL - USE CASE 1 - Loading URL
-        ;;
-        ;; NOTES: - Showing non-runner equivalent code
-        ;;        - Using DEFAULT cancel button
-
-        [:input.btn.btn-info
-         {:style {:font-weight "bold" :color "red" :margin "1px"}
-          :type "button"
-          :value "1. I/O Load url"
-          :on-click #(modal-io-runner
-                      load-url
-                      [url-to-load]
-                      load-url-status)
-          ;; Equivalent without calling modal-io-runner...
-          ;; :on-click #(do
-          ;;              (reset! load-url-status :running)
-          ;;              (load-url url-to-load))
-          }]
-        ;; (when (= @load-url-status :running)
-          [show-modal-window
-           [load-url-markup url-to-load]
-           load-url-status
-           {:spinner       true
-            :cancel-button true}]
-          ;; )
-
-        ;; MODAL - USE CASE 2 - Writing to disk
-        ;;
-        ;; NOTES: - Removed (when (= @write-disk-status...
-        ;;        - Using CUSTOM cancel button
-
-        [:input.btn.btn-info
-         {:style {:font-weight "bold" :color "red" :margin "1px"}
-          :type "button"
-          :value "2. I/O Save to disk"
-          :on-click #(modal-io-runner
-                      write-disk
-                      [mwi-file]
-                      write-disk-status)}]
-        [show-modal-window
-         [write-disk-markup mwi-file]
-         write-disk-status]
-
-        ;; MODAL - USE CASE 3 - Calculating pivot totals
-        ;;
-        ;; NOTE: Uses (when (= @calc-pivot-totals-status... (still works)
-
-        [:input.btn.btn-info
-         {:style {:font-weight "bold" :color "red" :margin "1px"}
-          :type "button"
-          :value "3. CPU-S Pivot calc"
-          :on-click #(modal-single-chunk-runner
-                      calc-pivot-totals
-                      []
-                      calc-pivot-totals-status)}]
-        (when (= @calc-pivot-totals-status :running)
-          [show-modal-window
-           [:div {:style {:max-width "200px"}}
-            [:p {:style {:text-align "center"}}
-             [:strong "Calculating pivot totals"] [:br] "Please wait..."]]
-           calc-pivot-totals-status]
-          )
-
-        ;; MODAL - USE CASE 4 - Processing a large in-memory XML file (chunked)
-
-        [:input.btn.btn-info
-         {:style {:font-weight "bold" :color "red" :margin "1px"}
-          :type "button"
-          :value "4. CPU-M Process XML (chunked)"
-          :on-click #(modal-multi-chunk-runner
-                      chunked-xml
-                      [1 1]
-                      chunked-xml-status)}]
-        ;; (when (= @chunked-xml-status :running)
-          [show-modal-window
-           [chunked-xml-markup]
-           chunked-xml-status
-           {:spinner       true
-            :cancel-button true}]
-        ;; )
-
-;;        ;; MODAL - USE CASE 5 - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked).
-;;
-;;        [:input.btn.btn-info
-;;         {:style {:font-weight "bold" :color "red" :margin "1px"}
-;;          :type "button"
-;;          :value "5. CPU-M Modify EDN in steps (unchunked)"
-;;          :on-click #(modal-multi-chunk-runner
-;;                      calc-pivot-totals
-;;                      calc-pivot-totals-status)}]
-;;        ;; (when (= @calc-pivot-totals-status :running)
-;;          [show-modal-window
-;;           [calc-pivot-totals-markup]
-;;           calc-pivot-totals-status]
-;;          ;; )
-;;
-;;        ;; MODAL - USE CASE 6 - Creating large JSON data for writing (chunked), then writing (a type A I/O job).
-;;
-;;        [:input.btn.btn-info
-;;         {:style {:font-weight "bold" :color "red" :margin "1px"}
-;;          :type "button"
-;;          :value "6. CPU-M Create JSON (chunked) then write to disk"
-;;          :on-click #(modal-multi-chunk-runner
-;;                      calc-pivot-totals
-;;                      calc-pivot-totals-status)}]
-;;        ;; (when (= @calc-pivot-totals-status :running)
-;;          [show-modal-window
-;;           [calc-pivot-totals-markup]
-;;           calc-pivot-totals-status]
-;;          ;; )
-
-        ;; MODAL - USE CASE 7 - Arbitrarily complex input form
-
-        [:input.btn.btn-info
-         {:style {:font-weight "bold" :color "red" :margin "1px"}
-          :type "button"
-          :value "7. Modal Dialog"
-          :on-click #(modal-dialog
-                      test-form-status)}]
-        ;; (when (= @test-form-status :running)
-          [show-modal-window
-           [test-form-markup]
-           test-form-status]
-          ;; )
+        ;; Test the use cases
+        [test-load-url]          ;; 1 - Loading URL
+        [test-write-disk]        ;; 2 - Writing to disk
+        [test-calc-pivot-totals] ;; 3 - Calculating pivot totals
+        [test-process-xml]       ;; 4 - Processing a large in-memory XML file (chunked)
+        ;; [test-mwi-steps]         ;; 5.1 - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked)
+        [test-mwi-steps-2]       ;; 5.2 - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked)
+        [test-core-async]        ;; 5.3 - core.async version of this
+        [test-chunked-json]      ;; 6 - Creating large JSON data for writing (chunked), then writing (a type A I/O job).
+        [test-modal-dialog]      ;; 7 - Arbitrarily complex input form
 
         ]  ;; End of modal wrapper
        ]]] ;; End of container/row
@@ -819,7 +1218,8 @@
     ]])
 
 
-(defn init []
+(defn init
+  []
   (add-alert "danger" {:heading "Unfortunately something bad happened" :body "Next time you should take more care! Next time you should take more care! Next time you should take more care! Next time you should take more care! Next time you should take more care!"})
   (add-alert "info" {:heading "Here's some info for you" :body "The rain in Spain falls mainly on the plain"})
   (add-alert "warning" {:heading "Hmmm, something might go wrong" :body "There be dragons!"})
