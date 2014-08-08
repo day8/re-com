@@ -1,16 +1,17 @@
 (ns reagent-components.test-harness
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [reagent-components.util              :as    util]
-            [reagent-components.core              :refer [button]]
+            [reagent-components.core              :refer [button spinner progress-bar]]
             [reagent-components.v-layout          :refer [v-layout]]
             [reagent-components.h-layout          :refer [h-layout]]
             [reagent-components.alert             :refer [closeable-alert alert-list add-alert]]
             [reagent-components.popover           :refer [popover make-button make-link]]
             [reagent-components.tour              :refer [make-tour start-tour make-tour-nav]]
             [reagent-components.modal             :refer [modal-window modal-window-OLD
-                                                          cancel-button spinner progress-bar
+                                                          cancel-button
                                                           start-cpu-intensive
-                                                          chunk-runner modal-multi-chunk-runner]]
+                                                          chunk-runner modal-multi-chunk-runner
+                                                          looper domino-process]]
             [reagent-components.popover-form-demo :as    popover-form-demo]
             [cljs.core.async                      :refer [<! >! chan close! put! take! alts! timeout]]
             [reagent.core                         :as    reagent]))
@@ -122,10 +123,10 @@
   "Show this modal window when loading a url
   "
   [modal-window
-   [:div {:style {:max-width "600px"}}
-    [:p (str "Loading data from '" url "'...")]
-    [spinner]
-    [cancel-button #(reset! loading? false)]]])
+   :markup [:div {:style {:max-width "600px"}}
+            [:p (str "Loading data from '" url "'...")]
+            [spinner]
+            [cancel-button #(reset! loading? false)]]])
 
 (defn load-url
   [url loading?]
@@ -185,15 +186,14 @@
 
 (defn writing-disk-modal
   [path writing?]
-  "Show this modal window when saving to disk
-  "
+  "Show this modal window when saving to disk"
   [modal-window
-   [:div {:style {:max-width "600px"}}
-    [:p (str "Saving '" path "'...")]
-    [:div {:style {:display "flex"}}
-     [:div {:style {:margin "auto"}}
-      [:img {:src "img/spinner.gif" :style {:margin-right "12px"}}]
-      [button "STOP!" #(reset! writing? false) :class "btn-danger"]]]]])
+   :markup [:div {:style {:max-width "600px"}}
+            [:p (str "Saving '" path "'...")]
+            [:div {:style {:display "flex"}}
+             [:div {:style {:margin "auto"}}
+              [:img {:src "img/spinner.gif" :style {:margin-right "12px"}}]
+              [button "STOP!" #(reset! writing? false) :class "btn-danger"]]]]])
 
 (defn write-disk
   [path writing?]
@@ -245,9 +245,9 @@
   "Show this modal window when calculating pivot totals
   "
   [modal-window
-   [:div {:style {:max-width "200px"}}
-    [:p {:style {:text-align "center"}}
-     [:strong "Calculating pivot totals"] [:br] "Please wait..."]]])
+   :markup [:div {:style {:max-width "200px"}}
+            [:p {:style {:text-align "center"}}
+             [:strong "Calculating pivot totals"] [:br] "Please wait..."]]])
 
 (defn calc-pivot-totals
   [calculating?]
@@ -289,13 +289,13 @@
   "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
   "
   [modal-window
-   [:div {:style {:max-width "200px"}}
-    [:p {:style {:text-align "center"}}
-     [:strong "Processing large XML file"] [:br]
-     [:strong "(actually, just reusing fib)"] [:br]
-     "Please wait..."]
-    [spinner]
-    [cancel-button #(reset! calculating? false)]]])
+   :markup [:div {:style {:max-width "200px"}}
+            [:p {:style {:text-align "center"}}
+             [:strong "Processing large XML file"] [:br]
+             [:strong "(actually, just reusing fib)"] [:br]
+             "Please wait..."]
+            [spinner]
+            [cancel-button #(reset! calculating? false)]]])
 
 (defn process-xml
   []
@@ -379,12 +379,12 @@
   "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
   "
   [modal-window
-   [:div {:style {:max-width "500px"}}
-    [:p {:style {:text-align "center"}}
-     [:strong "Recalculating..."] [:br]
-     [:strong "Current step: "] [progress-msg progress-msg]]
-    [progress-bar progress-percent]
-    [cancel-button #(reset! calculating? false)]]])
+   :markup [:div {:style {:max-width "500px"}}
+            [:p {:style {:text-align "center"}}
+             [:strong "Recalculating..."] [:br]
+             [:strong "Current step: "] [progress-msg progress-msg]]
+            [progress-bar progress-percent]
+            [cancel-button #(reset! calculating? false)]]])
 
 (defn mwi-steps
   []
@@ -459,12 +459,12 @@
   "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
   "
   [modal-window
-   [:div {:style {:max-width "500px"}}
-    [:p {:style {:text-align "center"}}
-     [:strong "Recalculating..."] [:br]
-     [:strong "Current step: "] [progress-msg-2 progress-msg]]
-    [progress-bar progress-percent]
-    [cancel-button #(reset! calculating? false)]]])
+   :markup [:div {:style {:max-width "500px"}}
+            [:p {:style {:text-align "center"}}
+             [:strong "Recalculating..."] [:br]
+             [:strong "Current step: "] [progress-msg-2 progress-msg]]
+            [progress-bar progress-percent]
+            [cancel-button #(reset! calculating? false)]]])
 
 (defn mwi-steps-2
   []
@@ -522,6 +522,75 @@
 ;; ------------------------------------------------------------------------------------
 
 
+(defn fib-step-OLD
+  [continue?]
+  (let [chunks 5]
+    (fn [{:keys [params results]}]
+      (let [[p1 p2]      params
+            chunk-result (take chunks (fib p1 p2))
+            new-p1       (+ (last chunk-result) (last (butlast chunk-result)))
+            new-p2       (+ new-p1 (last chunk-result))
+            new-res      (concat results chunk-result)
+            next-params  {:params [new-p1 new-p2]
+                          :results new-res}]
+        (util/console-log (str "(fib " p1 " "  p2 ") = " chunk-result))
+        (cpu-delay 50)
+        (when (>= new-p1 420196140727489660)
+          ;; ***** PROCESS THE RETURNED DATA HERE
+          (util/console-log (str "RESULT = " new-res))
+          (reset! continue? false))
+        next-params))))
+
+
+(defn cancellable-step
+  [continue? func]
+  (fn [val]
+    (if @continue?
+      (func val)
+      [false val])))
+
+
+(defn fib-step
+  [{:keys [params results]}]
+  (let [chunks 5]
+    (let [[p1 p2]      params
+          chunk-result (take chunks (fib p1 p2))
+          new-p1       (+ (last chunk-result) (last (butlast chunk-result)))
+          new-p2       (+ new-p1 (last chunk-result))
+          new-res      (concat results chunk-result)
+          next-params  {:params [new-p1 new-p2]
+                        :results new-res}]
+      (util/console-log (str "(fib " p1 " "  p2 ") = " chunk-result))
+      (cpu-delay 50)
+      [(< new-p1 420196140727489660) next-params])))
+
+
+(defn test-core-async-looper
+  []
+  "Create a button to test looper"
+  (let [calculating? (reagent/atom false)
+        progress-percent (reagent/atom 0)]
+    (fn []
+      [:div
+       [modal-button
+        "5.2. looper"
+        ;#(looper {:params [1 1] :results []} fib-step calculating?)]
+        #(do
+           (reset! calculating? true)
+           (looper
+            :initial-value {:params [1 1] :results []}
+            :func          (cancellable-step calculating? fib-step)
+            :when-done     (fn [] (reset! calculating? false)))
+           (util/console-log "FINISHED!!!!"))]
+       (when @calculating?
+         [modal-window
+          :markup [:div {:style {:width "300px"}}
+                   [:p {:style {:text-align "center"}}
+                    [:strong "Calculating fibonacci numbers..."]]
+                   [spinner]
+                   [cancel-button #(reset! calculating? false)]]])])))
+
+
 (defn do-stuff
   [payload]
   (util/console-log (str "do-stuff - payload = " payload))
@@ -540,28 +609,6 @@
   (cpu-delay 400)
   (assoc payload :do-even-more-stuff-result 300 :a 99 :b 99))
 
-;; TODO: Possibly move step and domino-process to modal
-
-(defn step
-  [continue-fn? in-chan func]
-  (let [out-chan (chan)]
-    (go (let [in    (<! in-chan)
-              pause (<! (timeout 20))
-              out   (if (continue-fn?) (func in) in)]
-          (>! out-chan (if (nil? out) in out))))
-    out-chan))
-
-(defn domino-process
-  ([initial-value funcs]
-   (domino-process initial-value (atom true) funcs))
-  ([initial-value continue? funcs]
-  (assert ((complement nil?) initial-value) "Initial value can't be nil because that causes channel problems")
-  (let [continue-fn? (fn [] @continue?)
-        in-chan   (chan)
-        out-chan  (clojure.core/reduce (partial step continue-fn?) in-chan funcs)]
-    (put! in-chan initial-value)
-    out-chan)))
-
 (defn do-processing
   [calculating? progress-msg progress-percent]
   (let [set-atoms (fn [msg percent]
@@ -578,6 +625,10 @@
       do-more-stuff
       #(set-atoms "Performing step 3" 67)
       do-even-more-stuff
+      ;#(set-atoms "Performing step 4" 80)
+      ;#(looper {:params [1 1] :results []} fib-step calculating?)
+      ;#(set-atoms "Performing step 5" 90)
+      ;#(looper {:params [1 1] :results []} fib-step calculating?)
       #(set-atoms "Finished" 100)
       #(do
          (reset! calculating? false)
@@ -606,38 +657,6 @@
                 (util/console-log (str "RESULT = " result))
                 (reset! calculating? false))))))))
 
-;; ==================================
-
-(defn green-box
-  [hiccup]
-  [:div {:width "100px" :height "100px" :background-color "green" :margin "10px"}
-   [hiccup]])
-
-(defn green-message-box-bad
-  [msg]
-  [:div
-   [:h3 "Here is a component"]
-   [green-box [:p "Message: " [:span @msg]]]]
-  )
-
-(defn green-message-box-good
-  [msg]
-  [:div
-   [:h3 "Here is a component"]
-   [green-box [:p "Message: " [(fn [] [:span @msg])]]]]
-  )
-
-(defn display-green-messages
-  []
-  (let [msg (reagent/atom "initial text")]
-    [:div
-     [green-message-box-bad  msg]
-     [green-message-box-good msg]]
-    ))
-
-;; ==================================
-
-
 (defn test-core-async
   []
   "Create a button to test the core.async version"
@@ -647,72 +666,21 @@
     (fn []
       [:div
        [modal-button
-        "5.2. domino"
+        "5.3. domino-process"
         #(do-processing calculating? progress-msg progress-percent)]
        (when @calculating?
          [modal-window
-          [:div {:style {:width "300px"}}
-           [:p {:style {:text-align "center"}}
-            [:strong "Recalculating..."] [:br]
-            [:strong "Current step: "] [(fn [] [:span @progress-msg])]]
-           [progress-bar progress-percent]
-           [cancel-button #(reset! calculating? false)]]])])))
-
-
-(defn fib-step
-  [continue?]
-  (let [chunks 5]
-    (fn [{:keys [params results]}]
-      (let [[p1 p2]      params
-            chunk-result (take chunks (fib p1 p2))
-            new-p1       (+ (last chunk-result) (last (butlast chunk-result)))
-            new-p2       (+ new-p1 (last chunk-result))
-            new-res      (concat results chunk-result)
-            next-params  {:params [new-p1 new-p2]
-                          :results new-res}]
-        (util/console-log (str "(fib " p1 " "  p2 ") = " chunk-result))
-        (cpu-delay 50)
-        (when (>= new-p1 420196140727489660)
-          ;; ***** PROCESS THE RETURNED DATA HERE
-          (util/console-log (str "RESULT = " new-res))
-          (reset! continue? false))
-        next-params))))
-
-
-(defn looper
-  [initial-value func continue?]
-  (reset! continue? true)
-  (go (loop [pause (<! (timeout 20))
-             val   initial-value]
-        (let [out  ((func continue?) val)]
-          (if @continue?
-            (recur (<! (timeout 20)) out)
-            out)))))
-
-
-(defn test-core-async-looper
-  []
-  "Create a button to test looper"
-  (let [calculating? (reagent/atom false)
-        progress-percent (reagent/atom 0)]
-    (fn []
-      [:div
-       [modal-button
-        "5.3. looper"
-        #(looper {:params [1 1] :results []} fib-step calculating?)]
-       (when @calculating?
-         [modal-window
-          [:div {:style {:width "300px"}}
-           [:p {:style {:text-align "center"}}
-            [:strong "Calculating fibonacci numbers..."]]
-           [spinner]
-           [cancel-button #(reset! calculating? false)]]])])))
+          :markup [:div {:style {:width "300px"}}
+                   [:p {:style {:text-align "center"}}
+                    [:strong "Recalculating..."] [:br]
+                    [:strong "Current step: "] [(fn [] [:span @progress-msg])]]
+                   [progress-bar progress-percent]
+                   [cancel-button #(reset! calculating? false)]]])])))
 
 
 ;; ------------------------------------------------------------------------------------
 ;;  MODAL PROCESSING USE CASE 6 - Creating large JSON data for writing (chunked), then writing (a type A I/O job).
 ;; ------------------------------------------------------------------------------------
-
 
 (def chunked-json-progress-msg     (reagent/atom ""))
 (def chunked-json-progress-percent (reagent/atom 0))
@@ -770,12 +738,12 @@
   "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
   "
   [modal-window
-   [:div {:style {:max-width "500px"}}
-    [:p {:style {:text-align "center"}}
-     [:strong "Recalculating..."] [:br]
-     [:strong "Current step: "] [progress-msg progress-msg]]
-    [progress-bar progress-percent]
-    [cancel-button #(reset! calculating? false)]]])
+   :markup [:div {:style {:max-width "500px"}}
+            [:p {:style {:text-align "center"}}
+             [:strong "Recalculating..."] [:br]
+             [:strong "Current step: "] [progress-msg progress-msg]]
+            [progress-bar progress-percent]
+            [cancel-button #(reset! calculating? false)]]])
 
 (defn chunked-json
   []
@@ -803,7 +771,7 @@
     (fn []
       [:div
        [modal-button
-        "6. CPU-M Create JSON (chunked) then write to disk"
+        "[TODO] 6. CPU-M Create JSON (chunked), write to disk"
         #(modal-multi-chunk-runner
           chunked-json
           [0]
@@ -885,10 +853,10 @@
                                           (reset! save-form-data @form-data)
                                           (reset! showing? true))]
        (when @showing? [modal-window
-                        [test-form-markup
-                         form-data
-                         process-ok
-                         process-cancel]])])
+                        :markup [test-form-markup
+                                 form-data
+                                 process-ok
+                                 process-cancel]])])
     ))
 
 
@@ -966,15 +934,10 @@
        :close-button? true
        :body          [:div "This is a button you can click to show or hide this popover, but it's also part of the tour so you can click the buttons below to move through it."
                        [:hr {:style {:margin "10px 0 10px"}}]
-                       [:input.btn.btn-default
-                        {:type "button"
-                         :value "Previous"
-                         :style {:margin-right "15px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-                         :on-click #(do (reset! show-but5-popover? false) (reset! show-alert-popover? true))}]
-                       [:input.btn.btn-default
-                        {:type "button"
-                         :value "Next"
-                         :on-click #(do (reset! show-but5-popover? false) (reset! show-red-popover? true))}]]}
+                       [button "Previous" #(do (reset! show-but5-popover? false) (reset! show-alert-popover? true))
+                        :style {:margin-right "15px"}] ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+                       [button "Next" #(do (reset! show-but5-popover? false) (reset! show-red-popover? true))
+                        :style {:margin-right "15px"}]]} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
       {:backdrop-callback #(reset! show-but5-popover? false)
        :backdrop-opacity .3}]
 
@@ -1040,16 +1003,10 @@
         :close-button? true
         :body          [:div "Here is a lovely red rectangle. It's a great warm colour and perfect for Winter."
                         [:hr {:style {:margin "10px 0 10px"}}]
-                        [:input.btn.btn-default
-                         {:type "button"
-                          :value "Previous"
-                          :style {:margin-right "15px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-                          :on-click #(do (reset! show-red-popover? false) (reset! show-but5-popover? true))}]
-                        [:input.btn.btn-default
-                         {:type "button"
-                          :value "Next"
-                          :on-click #(do (reset! show-red-popover? false) (reset! show-green-popover? true))}]
-                        ]}
+                        [button "Previous" #(do (reset! show-red-popover? false) (reset! show-but5-popover? true))
+                         :style {:margin-right "15px"}] ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+                        [button "Next" #(do (reset! show-red-popover? false) (reset! show-green-popover? true))
+                         :style {:margin-right "15px"}]]} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
        {:backdrop-callback #(reset! show-red-popover? false)
         :backdrop-opacity .3}]
 
@@ -1061,16 +1018,10 @@
         :close-button? true
         :body          [:div "And now we move onto the green rectangle. Feels like Spring to me."
                         [:hr {:style {:margin "10px 0 10px"}}]
-                        [:input.btn.btn-default
-                         {:type "button"
-                          :value "Previous"
-                          :style {:margin-right "15px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-                          :on-click #(do (reset! show-green-popover? false) (reset! show-red-popover? true))}]
-                        [:input.btn.btn-default
-                         {:type "button"
-                          :value "Next"
-                          :on-click #(do (reset! show-green-popover? false) (reset! show-blue-popover? true))}]
-                        ]}]
+                        [button "Previous" #(do (reset! show-green-popover? false) (reset! show-red-popover? true))
+                         :style {:margin-right "15px"}] ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+                        [button "Next" #(do (reset! show-green-popover? false) (reset! show-blue-popover? true))
+                         :style {:margin-right "15px"}]]}] ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
 
 
       [popover
@@ -1082,16 +1033,10 @@
         :close-button? true
         :body          [:div "Finally the blue rectagle. Summer at the beach, right?"
                         [:hr {:style {:margin "10px 0 10px"}}]
-                        [:input.btn.btn-default
-                         {:type "button"
-                          :value "Previous"
-                          :style {:margin-right "15px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-                          :on-click #(do (reset! show-blue-popover? false) (reset! show-green-popover? true))}]
-                        [:input.btn.btn-default
-                         {:type "button"
-                          :value "Finish"
-                          :on-click #(reset! show-blue-popover? false)}]
-                        ]}]
+                        [button "Previous" #(do (reset! show-blue-popover? false) (reset! show-green-popover? true))
+                         :style {:margin-right "15px"}] ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+                        [button "Finish" #(reset! show-blue-popover? false)
+                         :style {:margin-right "15px"}]]}]
       ]]
 
 
@@ -1103,11 +1048,9 @@
      [popover
       :above-center
       (:step1 demo-tour)
-      [:input.btn.btn-info ;; Can't use make-button as we need a custom on-click
-       {:style {:font-weight "bold" :color "yellow"}
-        :type "button"
-        :value "Start Tour"
-        :on-click #(start-tour demo-tour)}]
+      [button "Start Tour!" #(start-tour demo-tour)
+       :style {:font-weight "bold" :color "yellow"}
+       :class "btn-info"]
       {:title [:strong "Tour 1 of 4"]
        :close-button? true
        :body          [:div "So this is the first tour popover"
@@ -1189,14 +1132,13 @@
 
         ;; MODAL - SHORT
 
-        [:input.btn.btn-info
-         {:style {:font-weight "bold" :color "red" :margin "1px"}
-          :type "button"
-          :value "Short"
-          :on-click #(chunk-runner
-                      serious-process-2-chunk
-                      serious-process-2-status
-                      57)}]
+        [button "Short"
+         #(chunk-runner
+           serious-process-2-chunk
+           serious-process-2-status
+           57)
+         :style {:font-weight "bold" :color "red" :margin "1px"}
+         :class "btn-info"]
         (when (= @serious-process-2-status :running)
           [modal-window-OLD
            [serious-process-2-modal-markup]
@@ -1210,13 +1152,12 @@
         [test-write-disk]        ;; 2 - Writing to disk
         [test-calc-pivot-totals] ;; 3 - Calculating pivot totals
         [test-process-xml]       ;; 4 - Processing a large in-memory XML file (chunked)
-        ;; [test-mwi-steps]         ;; 5.1 - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked)
-        [test-mwi-steps-2]       ;; 5.2 - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked)
+     ;; [test-mwi-steps]         ;; 5.1 - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked)
+        [test-mwi-steps-2]       ;; 5.X - MWI Enhancer modifying EDN in steps (multiple fn calls, not chunked)
+        [test-core-async-looper] ;; 5.2 - core.async looper
         [test-core-async]        ;; 5.3 - core.async version of this
-        [test-core-async-looper] ;; 5.4 - core.async looper
         [test-chunked-json]      ;; 6 - Creating large JSON data for writing (chunked), then writing (a type A I/O job).
         [test-modal-dialog]      ;; 7 - Arbitrarily complex input form
-        ;; [display-green-messages]
 
         ]  ;; End of modal wrapper
        ]]] ;; End of container/row

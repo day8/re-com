@@ -8,7 +8,7 @@ The reagent documentation state that *"Any component that dereferences a reagent
 
 Note that the text says "component". Quite often we write components which can take hiccup as a parameter.
 
-This can lead to a subtle bug 
+This can lead to a subtle bug
 
 However, there are some cases where this will not work. Take the following example code:
 
@@ -31,27 +31,29 @@ However, there are some cases where this will not work. Take the following examp
 	   [green-box [:p "Message: " [(fn [] [:span @msg])]]]]
 	  )
 
-	(defn display-gree-message
+	(defn display-green-messages
 	  []
-	  (let msg (reagent/atom "{initial text}")
-		[green-message-box msg]
+	  (let [msg (reagent/atom "initial text")]
+		[:div
+		 [green-message-box-bad  msg]
+		 [green-message-box-good msg]]
 		))
 
 
 The difference between [] and ()
 ================================
 
-You can render code 
+You can render code
 
 
 Summary
 =======
 
-Learnings: 
+Learnings:
 
- - If you pass hiccup markup as a parameter to a component function, any dereferenced atoms in that markup 
+ - If you pass hiccup markup as a parameter to a component function, any dereferenced atoms in that markup
    will not be watched/updated because that component will have simply received the atom's value at the
-   time of the call.  
+   time of the call.
 
 
 References

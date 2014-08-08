@@ -112,3 +112,34 @@
     :style style
     :value text
     :on-click #(callback)}])
+
+
+;; ------------------------------------------------------------------------------------
+;;  spinner
+;; ------------------------------------------------------------------------------------
+
+(defn spinner
+  []
+  "Render an animated gif spinner"
+  [:div {:style {:display "flex"
+                 :margin "10px"}}
+   [:img {:src "img/spinner.gif"
+          :style {:margin "auto"}}]])
+
+
+;; ------------------------------------------------------------------------------------
+;;  progress-bar
+;; ------------------------------------------------------------------------------------
+
+(defn progress-bar
+  [progress-percent]
+  "Render a bootstrap styled progress bar
+  "
+  [:div.progress
+   [:div.progress-bar ;;.progress-bar-striped.active
+    {:role "progressbar"
+     :style {:width (str @progress-percent "%")
+             :transition "none"}} ;; Default BS transitions cause the progress bar to lag behind
+    (str @progress-percent "%")]]
+  )
+

@@ -1,8 +1,8 @@
 (ns reagent-components.modal
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [reagent-components.util  :as util]
-            [reagent-components.core  :refer [button]]
-            ;; [cljs.core.async          :as async :refer [<! >! chan close! sliding-buffer put! alts!]]
+            [reagent-components.core  :refer [button spinner progress-bar]]
+            [cljs.core.async          :as async :refer [<! >! chan close! sliding-buffer put! alts! timeout]]
             ;; [reagent-components.alert :refer [closeable-alert]]
             [reagent.core             :as reagent]
             [goog.events              :as events]))
@@ -75,38 +75,22 @@
 ;;  - Possibly get rid of dependency on alert (unless we will ALWAYS have all components included)
 
 
+;; ------------------------------------------------------------------------------------
+;;  cancel-button
+;; ------------------------------------------------------------------------------------
+
 (defn cancel-button ;; TODO: Only currently used in modal
   [callback]
-  "Render a bootstrap styled cancel button
-  "
+  "Render a cancel button"
   [:div {:style {:display "flex"}}
    [button "Cancel" callback
     :style {:margin "auto"}
     :class "btn-info"]])
 
 
-(defn spinner
-  []
-  "Render a spinner as an animated gif
-  "
-  [:div {:style {:display "flex"
-                 :margin "10px"}}
-   [:img {:src "img/spinner.gif"
-          :style {:margin "auto"}}]])
-
-
-(defn progress-bar
-  [progress-percent]
-  "Render a bootstrap styled progress bar
-  "
-  [:div.progress
-   [:div.progress-bar ;;.progress-bar-striped.active
-    {:role "progressbar"
-     :style {:width (str @progress-percent "%")
-             :transition "none"}} ;; Default BS transitions cause the progress bar to lag behind
-    (str @progress-percent "%")]]
-  )
-
+;; ------------------------------------------------------------------------------------
+;;  modal-window-OLD  TODO: TO BE REMOVED
+;; ------------------------------------------------------------------------------------
 
 ;; CORE.ASYNC REMOVED
 ;; (defn listen [el type]
@@ -186,8 +170,12 @@
       })))
 
 
+;; ------------------------------------------------------------------------------------
+;;  modal-window
+;; ------------------------------------------------------------------------------------
+
 (defn modal-window
-  [markup]
+  [& {:keys [markup]}]
   "Renders a modal window centered on screen. A dark transparent backdrop sits between this and the underlying
   main window to prevent UI interactivity and place user focus on the modal window.
   Parameters:
@@ -221,6 +209,10 @@
                  :z-index 1020}}
         markup]])}))
 
+
+;; ------------------------------------------------------------------------------------
+;;  chunk-runner  TODO: TO BE REMOVED
+;; ------------------------------------------------------------------------------------
 
 (defn chunk-runner [chunk-fn status chunks]
   "Split your long running process into bite-size chunks and use this function to schedule those execution
@@ -260,6 +252,10 @@
   (js/setTimeout func 10))
 
 
+;; ------------------------------------------------------------------------------------
+;;  modal-multi-chunk-runner   TODO: TO BE REMOVED
+;; ------------------------------------------------------------------------------------
+
 (defn modal-multi-chunk-runner
   [func initial-state running?]
   "...
@@ -282,39 +278,51 @@
     (schedule initial-state)))
 
 
-;; (defn modal-multi-chunk-runner-2 [fn-seq initial-state running?]
-;;   "...
-;;   Parameters:
-;;   - fn-seq         A sequence of function calls. On each call, something else happens, could be the
-;;   .                same funciton, could be a different function.
-;;   - initial-state  The initial state to be passed to the first function call.
-;;   .                After that, each successive function call is responsible for returning the parameters
-;;   .                to be used for the subsequent function call and so on.
-;;   - running?       A reagent boolean atom indicating if the processing is running
-;;   "
-;;   (let [schedule  (fn reschedule [state]
-;;                     (js/setTimeout
-;;                      #(let [next-state (apply (fn-seq) state)]
-;;                         (util/console-log (str "IN reschedule: " state))
-;;                         (when-not next-state (reset! running? false))
-;;                         (when @running? (reschedule next-state)))
-;;                      20))
-;;
-;;         ;; Version 2
-;;
-;;         yield     (fn [fn2]
-;;                     (js/setTimeout
-;;                      (fn [] fn2)
-;;                      20))
-;;         schedule2 (fn reschedule [state]
-;;                     (yield
-;;                      (fn [] (js/setTimeout
-;;                              #(let [next-state (apply (fn-seq) state)]
-;;                                 (util/console-log (str "IN reschedule: " state))
-;;                                 (when-not next-state (reset! running? false))
-;;                                 (when @running? (reschedule next-state)))
-;;                              20))
-;;                      ))
-;;         ]
-;;     (reset! running? true)
-;;     (schedule initial-state)))
+;; ------------------------------------------------------------------------------------
+;;  looper
+;; ------------------------------------------------------------------------------------
+
+(defn looper
+  [& {:keys [initial-value func when-done]}]
+  (go (loop [pause (<! (timeout 20))
+             val   initial-value]
+        (let [[continue? out]  (func val)]
+          (if continue?
+            (recur (<! (timeout 20)) out)
+            (when-done out))))))
+
+
+(defn looper-OLD
+  [initial-value func continue?]
+  (reset! continue? true)
+  (go (loop [pause (<! (timeout 20))
+             val   initial-value]
+        (let [out  ((func continue?) val)]
+          (if @continue?
+            (recur (<! (timeout 20)) out)
+            out)))))
+
+
+;; ------------------------------------------------------------------------------------
+;;  domino-process
+;; ------------------------------------------------------------------------------------
+
+(defn domino-step
+  [continue-fn? in-chan func]
+  (let [out-chan (chan)]
+    (go (let [in    (<! in-chan)
+              pause (<! (timeout 20))
+              out   (if (continue-fn?) (func in) in)]
+          (>! out-chan (if (nil? out) in out))))
+    out-chan))
+
+(defn domino-process
+  ([initial-value funcs]
+   (domino-process initial-value (atom true) funcs))
+  ([initial-value continue? funcs]
+  (assert ((complement nil?) initial-value) "Initial value can't be nil because that causes channel problems")
+  (let [continue-fn? (fn [] @continue?)
+        in-chan   (chan)
+        out-chan  (clojure.core/reduce (partial domino-step continue-fn?) in-chan funcs)]
+    (put! in-chan initial-value)
+    out-chan)))
