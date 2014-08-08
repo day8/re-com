@@ -5,7 +5,7 @@ window.prstr = function (obj) {
 
 window.onload = function () {
   try {
-    reagent_components.core.init();
+    reagent_components.test_harness.init();
   } catch (e) {
     console.error(e);
     console.log(e.stack);

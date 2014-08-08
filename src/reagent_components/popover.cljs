@@ -1,5 +1,6 @@
 (ns reagent-components.popover
   (:require [reagent-components.util :as util]
+            [reagent-components.core :refer [button]]
             [reagent.core :as reagent]))
 
 
@@ -207,12 +208,9 @@
 
 
 (defn make-button [show-popover? type text]
-  [:input.btn
-   {:class (str "btn-" type) ;; TODO: Needs validation
-    :type "button"
-    :value text
-    :style {:margin-left "2px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-    :on-click #(reset! show-popover? (not @show-popover?))}])
+  [button text #(reset! show-popover? (not @show-popover?))
+   :style {:margin-left "2px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+   :class (str "btn-" type)])
 
 
 (defn make-link [show-popover? toggle-on text]

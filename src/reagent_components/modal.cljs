@@ -1,6 +1,7 @@
 (ns reagent-components.modal
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [reagent-components.util  :as util]
+            [reagent-components.core  :refer [button]]
             ;; [cljs.core.async          :as async :refer [<! >! chan close! sliding-buffer put! alts!]]
             ;; [reagent-components.alert :refer [closeable-alert]]
             [reagent.core             :as reagent]
@@ -74,18 +75,14 @@
 ;;  - Possibly get rid of dependency on alert (unless we will ALWAYS have all components included)
 
 
-(defn cancel-button
+(defn cancel-button ;; TODO: Only currently used in modal
   [callback]
   "Render a bootstrap styled cancel button
   "
   [:div {:style {:display "flex"}}
-   [:input.btn.btn-info
-    {:type "button"
-     :value "Cancel"
-     :style {:margin "auto"}
-     :on-click #(callback)
-     }]]
-  )
+   [button "Cancel" callback
+    :style {:margin "auto"}
+    :class "btn-info"]])
 
 
 (defn spinner
@@ -128,9 +125,9 @@
   - status            [optional] The atom used to indicate the process is running (:running, :finished, :cancelled) and that
   .                   the modal should be shown. Only required when :cancel-button specified.
   - modal-options     [optional] A map containing two options:
-  .                    - :spinner        A boolean indicating whether to show a spinner or not
-  .                    - :progress-bar?   A boolean indicating whether to show a progress bar or not
-  .                    - :cancel-button  A boolean indicating whether to show a cancel button or not
+  .                    - :spinner       A boolean indicating whether to show a spinner or not
+  .                    - :progress-bar? A boolean indicating whether to show a progress bar or not
+  .                    - :cancel-button A boolean indicating whether to show a cancel button or not
   - progress-percent  [optional] The integer atom used to hold the percentage through the process we are. Used in rendering the progress bar
   "
   (let [spinner?       (:spinner       modal-options)
