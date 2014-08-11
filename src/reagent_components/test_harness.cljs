@@ -56,7 +56,7 @@
   [& {:keys [label on-click]}]
   "Render a button to launch a modal window"
   [button label on-click
-   ;; :text    label
+   ;; :label    label
    ;; :on-click on-click
    :style {:font-weight "bold" :color "red" :margin "1px" :height "39px"}
    :class "btn-info"])
@@ -121,18 +121,17 @@
 
 (defn loading-url-modal
   [url loading?]
-  "Show this modal window when loading a url
-  "
+  "Show this modal window when loading a url"
   [modal-window
    :markup [:div {:style {:max-width "600px"}}
             [:p (str "Loading data from '" url "'...")]
             [spinner]
             [cancel-button #(reset! loading? false)]]])
 
+
 (defn load-url
   [url loading?]
-  "Load some data from the remote server
-  "
+  "Load some data from the remote server"
   (util/console-log (str "*** Loading data from: " url))
   (system-load-url
    url
@@ -149,13 +148,12 @@
              ;; ***** PROCESS THE RETURNED DATA HERE
              )
            (util/console-log "*** CANCELLED!"))
-         (reset! loading? false))))
-   ))
+         (reset! loading? false))))))
+
 
 (defn test-load-url
   []
-  "Create a button to test the modal component for loading a url
-  "
+  "Create a button to test the modal component for loading a url"
   (let [loading? (reagent/atom false)
         url      "http://static.day8.com.au/locations.xml"]
     (fn []
@@ -166,9 +164,7 @@
                      (reset! loading? true)
                      (load-url url loading?))]
        (when @loading?
-         [loading-url-modal url loading?])
-       ])
-    ))
+         [loading-url-modal url loading?])])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -177,8 +173,7 @@
 
 (defn system-write-path
   [path data callback]
-  "Simulate the system's load-url functionality (will call back in 3 seconds)
-  "
+  "Simulate the system's load-url functionality (will call back in 3 seconds)"
   (let [err  "The file could not be saved - Disk Full!"
         data nil]
     (js/setTimeout #(callback err data) 3000)))
@@ -216,13 +211,12 @@
              ;; FURTHER PROCESSING HERE IF REQUIRED
              )
            (util/console-log "*** CANCELLED!"))
-         (reset! writing? false))))
-   ))
+         (reset! writing? false))))))
+
 
 (defn test-write-disk
   []
-  "Create a button to test the modal component for writing to disk
-  "
+  "Create a button to test the modal component for writing to disk"
   (let [writing? (reagent/atom false)
         mwi-file "C:\\Day8\\MWIEnhancer\\test.mwi"]
     (fn []
@@ -243,8 +237,7 @@
 
 (defn calcing-pivot-totals-modal
   []
-  "Show this modal window when calculating pivot totals
-  "
+  "Show this modal window when calculating pivot totals"
   [modal-window
    :markup [:div {:style {:max-width "200px"}}
             [:p {:style {:text-align "center"}}
@@ -252,18 +245,17 @@
 
 (defn calc-pivot-totals
   [calculating?]
-  "Calculate pivot totals
-  "
+  "Calculate pivot totals"
   (util/console-log "calc-pivot-totals START")
   (cpu-delay 500)
   ;; ***** PROCESS THE RETURNED DATA HERE
   (util/console-log "calc-pivot-totals END")
   (reset! calculating? false))
 
+
 (defn test-calc-pivot-totals
   []
-  "Create a button to test the modal component for calculating pivot totals
-  "
+  "Create a button to test the modal component for calculating pivot totals"
   (let [calculating? (reagent/atom false)]
     (fn []
       [:div
@@ -274,9 +266,7 @@
                      (start-cpu-intensive (fn [] (calc-pivot-totals calculating?)))
                      )] ;; Delay call to allow modal to show
        (when @calculating?
-         [calcing-pivot-totals-modal])
-       ])
-    ))
+         [calcing-pivot-totals-modal])])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -287,8 +277,7 @@
 
 (defn process-xml-modal
   [calculating?]
-  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
-  "
+  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)"
   [modal-window
    :markup [:div {:style {:max-width "200px"}}
             [:p {:style {:text-align "center"}}
@@ -297,6 +286,7 @@
              "Please wait..."]
             [spinner]
             [cancel-button #(reset! calculating? false)]]])
+
 
 (defn process-xml
   []
@@ -313,13 +303,12 @@
         (cpu-delay 50)
         (if (< new-p1 420196140727489660)
           next-params
-          nil)))
-    ))
+          nil)))))
+
 
 (defn test-process-xml
   []
-  "Create a button to test the modal component for calculating pivot totals
-  "
+  "Create a button to test the modal component for calculating pivot totals"
   (let [calculating? (reagent/atom false)]
     (fn []
       [:div
@@ -330,9 +319,7 @@
                     [1 1]
                     calculating?)]
        (when @calculating?
-         [process-xml-modal calculating?])
-       ])
-    ))
+         [process-xml-modal calculating?])])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -377,8 +364,7 @@
 
 (defn mwi-steps-modal
   [progress-msg progress-percent calculating?]
-  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
-  "
+  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)"
   [modal-window
    :markup [:div {:style {:max-width "500px"}}
             [:p {:style {:text-align "center"}}
@@ -407,8 +393,7 @@
 
 (defn test-mwi-steps
   []
-  "Create a button to test the modal component for calculating multiple mwi steps
-  "
+  "Create a button to test the modal component for calculating multiple mwi steps"
   (let [calculating? (reagent/atom false)]
     (fn []
       [:div
@@ -457,8 +442,7 @@
 
 (defn mwi-steps-modal-2
   [progress-msg progress-percent calculating?]
-  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
-  "
+  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)"
   [modal-window
    :markup [:div {:style {:max-width "500px"}}
             [:p {:style {:text-align "center"}}
@@ -488,15 +472,11 @@
             (let [step-result (apply (:fn this-step) (:params this-step))]
               (if (and step-result (< step-to-process (dec (count steps))))
                 [(inc step-to-process) progress-msg progress-percent ui-updated?] ;; Go again, run next step
-                nil))))
-
-        ))
-    ))
+                nil))))))))
 
 (defn test-mwi-steps-2
   []
-  "Create a button to test the modal component for calculating multiple mwi steps
-  "
+  "Create a button to test the modal component for calculating multiple mwi steps"
   (let [calculating?     (reagent/atom false)
         progress-msg     (reagent/atom "")
         progress-percent (reagent/atom 0)
@@ -513,9 +493,7 @@
          [mwi-steps-modal-2
           progress-msg
           progress-percent
-          calculating?])
-       ])
-    ))
+          calculating?])])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -724,8 +702,7 @@
              ;; FURTHER PROCESSING HERE IF REQUIRED
              )
            (util/console-log "*** CANCELLED!"))
-         (reset! writing? false))))
-   ))
+         (reset! writing? false))))))
 
 (defn update-chunked-json-ui
   [msg percent]
@@ -736,8 +713,7 @@
 
 (defn chunked-json-modal
   [progress-msg progress-percent calculating?]
-  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)
-  "
+  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)"
   [modal-window
    :markup [:div {:style {:max-width "500px"}}
             [:p {:style {:text-align "center"}}
@@ -761,8 +737,7 @@
         (let [step-result ((:fn this-step) (:params this-step))]
           (if (and step-result (< step-to-process (dec (count steps))))
             (inc step-to-process)
-            nil))))
-    ))
+            nil))))))
 
 (defn test-chunked-json
   []
@@ -778,9 +753,7 @@
          [chunked-json-modal
           chunked-json-progress-msg
           chunked-json-progress-percent
-          calculating?])
-       ])
-    ))
+          calculating?])])))
 
 
 
@@ -823,13 +796,11 @@
    [:hr {:style {:margin "10px 0 10px"}}]
    [button "Sign in" process-ok :class "btn-primary"]
    [:span " "]
-   [button "Cancel" process-cancel]
-   ])
+   [button "Cancel" process-cancel]])
 
 (defn test-modal-dialog
   []
-  "Create a button to test the modal component for modal dialogs
-  "
+  "Create a button to test the modal component for modal dialogs"
   (let [showing?       (reagent/atom false)
         form-data      (reagent/atom {:email       "gregg.ramsey@day8.com.au"
                                       :password    "abc123"
@@ -856,8 +827,7 @@
                         :markup [test-form-markup
                                  form-data
                                  process-ok
-                                 process-cancel]])])
-    ))
+                                 process-cancel]])])))
 
 
 ;; ------------------------------------------------------------------------------------
