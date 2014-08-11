@@ -19,9 +19,9 @@
 
 
 (defn make-close-button [popover-to-close?]
-  [:button.close {:type "button"
-                  :style {:font-size "36px" :margin-top "-8px"}
-                  :on-click #(reset! popover-to-close? false)} "×"])
+  [button "×" #(reset! popover-to-close? false)
+   :class "close"
+   :style {:font-size "36px" :margin-top "-8px"}])
 
 
 (defn calc-popover-pos [pop-id pop-orient pop-offset]

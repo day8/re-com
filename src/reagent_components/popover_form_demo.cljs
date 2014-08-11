@@ -1,5 +1,6 @@
 (ns reagent-components.popover-form-demo
   (:require [reagent-components.util :as util]
+            [reagent-components.core  :refer [button]]
             [reagent-components.alert :refer [add-alert]]
             [reagent-components.popover :refer [popover make-button make-link]]
             [reagent.core :as reagent]))
@@ -213,15 +214,11 @@
       ]]]
 
    [:hr {:style {:margin "10px 0 10px"}}]
-   [:button.btn.btn-primary
-    {:type     "button" ;; submit
-     :on-click pform-submit}
-    "Apply"]
+   
+   [button "Apply" pform-submit
+    :class "btn-primary"]
    [:span " "]
-   [:button.btn.btn-default
-    {:type     "button"
-     :on-click pform-cancel}
-    "Cancel"]
+   [button "Cancel" pform-cancel]
    ])
 
 
@@ -270,8 +267,7 @@
        :on-change #(swap! sform-data assoc :remember-me (-> % .-target .-checked))}
       "Remember me"]]]
    [:span " "]
-   [:button.btn.btn-default {:type     "button" ;; submit
-                             :on-click sform-submit} "Sign in"]]
+   [button "Sign in" sform-submit]]
   )
 
 
@@ -317,10 +313,10 @@
 
 (defn popover-title []
   [:div "Arbitrary " [:strong "markup"] " example (" [:span {:style {:color "red"}} "red text"] ")"
-   [:button.close
-    {:type     "button"
-     :style    {:font-size "36px" :margin-top "-8px"}
-     :on-click pform-cancel} "×"]])
+   [button "×" pform-cancel
+    :class "close"
+    :style {:font-size "36px" :margin-top "-8px"}]
+   ])
 
 
 (defn red-button []
