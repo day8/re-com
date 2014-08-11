@@ -53,10 +53,11 @@
 
 
 (defn modal-button
-  [text callback]
-  "Render a button to launch a modal window
-  "
-  [button text callback
+  [& {:keys [label on-click]}]
+  "Render a button to launch a modal window"
+  [button label on-click
+   ;; :text    label
+   ;; :on-click on-click
    :style {:font-weight "bold" :color "red" :margin "1px" :height "39px"}
    :class "btn-info"])
 
@@ -160,10 +161,10 @@
     (fn []
       [:div
        [modal-button
-        "1. I/O Load url"
-        #(do
-           (reset! loading? true)
-           (load-url url loading?))]
+        :label  "1. I/O Load url"
+        :on-click #(do
+                     (reset! loading? true)
+                     (load-url url loading?))]
        (when @loading?
          [loading-url-modal url loading?])
        ])
@@ -227,10 +228,10 @@
     (fn []
       [:div
        [modal-button
-        "2. I/O Save to disk"
-        #(do
-           (reset! writing? true)
-           (write-disk mwi-file writing?))]
+        :label    "2. I/O Save to disk"
+        :on-click #(do
+                     (reset! writing? true)
+                     (write-disk mwi-file writing?))]
        (when @writing?
          [writing-disk-modal mwi-file writing?])
        ])
@@ -267,11 +268,11 @@
     (fn []
       [:div
        [modal-button
-        "3. CPU-S Pivot calc"
-        #(do
-           (reset! calculating? true)
-           (start-cpu-intensive (fn [] (calc-pivot-totals calculating?)))
-           )] ;; Delay call to allow modal to show
+        :label    "3. CPU-S Pivot calc"
+        :on-click #(do
+                     (reset! calculating? true)
+                     (start-cpu-intensive (fn [] (calc-pivot-totals calculating?)))
+                     )] ;; Delay call to allow modal to show
        (when @calculating?
          [calcing-pivot-totals-modal])
        ])
@@ -323,11 +324,11 @@
     (fn []
       [:div
        [modal-button
-        "4. CPU-M Process XML (chunked)"
-        #(modal-multi-chunk-runner
-          process-xml
-          [1 1]
-          calculating?)]
+        :label    "4. CPU-M Process XML (chunked)"
+        :on-click #(modal-multi-chunk-runner
+                    process-xml
+                    [1 1]
+                    calculating?)]
        (when @calculating?
          [process-xml-modal calculating?])
        ])
@@ -412,11 +413,11 @@
     (fn []
       [:div
        [modal-button
-        "5.1. CPU-M Modify EDN in steps (unchunked)"
-        #(modal-multi-chunk-runner
-          mwi-steps
-          [0]
-          calculating?)]
+        :label   "5.1. CPU-M Modify EDN in steps (unchunked)"
+        :on-click #(modal-multi-chunk-runner
+                    mwi-steps
+                    [0]
+                    calculating?)]
        (when @calculating?
          [mwi-steps-modal
           mwi-steps-progress-msg       ;; Not necessary with global atoms
@@ -503,11 +504,11 @@
     (fn []
       [:div
        [modal-button
-        "5.1. CPU-M Modify EDN in steps (unchunked)"
-        #(modal-multi-chunk-runner
-          mwi-steps-2
-          [0 progress-msg progress-percent ui-updated?]
-          calculating?)]
+        :label    "5.1. CPU-M Modify EDN in steps (unchunked)"
+        :on-click #(modal-multi-chunk-runner
+                    mwi-steps-2
+                    [0 progress-msg progress-percent ui-updated?]
+                    calculating?)]
        (when @calculating?
          [mwi-steps-modal-2
           progress-msg
@@ -573,15 +574,15 @@
     (fn []
       [:div
        [modal-button
-        "5.2. looper"
+        :label    "5.2. looper"
         ;#(looper {:params [1 1] :results []} fib-step calculating?)]
-        #(do
-           (reset! calculating? true)
-           (looper
-            :initial-value {:params [1 1] :results []}
-            :func          (cancellable-step calculating? fib-step)
-            :when-done     (fn [] (reset! calculating? false)))
-           (util/console-log "FINISHED!!!!"))]
+        :on-click #(do
+                     (reset! calculating? true)
+                     (looper
+                      :initial-value {:params [1 1] :results []}
+                      :func          (cancellable-step calculating? fib-step)
+                      :when-done     (fn [] (reset! calculating? false)))
+                     (util/console-log "FINISHED!!!!"))]
        (when @calculating?
          [modal-window
           :markup [:div {:style {:width "300px"}}
@@ -666,8 +667,8 @@
     (fn []
       [:div
        [modal-button
-        "5.3. domino-process"
-        #(do-processing calculating? progress-msg progress-percent)]
+        :label    "5.3. domino-process"
+        :on-click #(do-processing calculating? progress-msg progress-percent)]
        (when @calculating?
          [modal-window
           :markup [:div {:style {:width "300px"}}
@@ -771,11 +772,8 @@
     (fn []
       [:div
        [modal-button
-        "[TODO] 6. CPU-M Create JSON (chunked), write to disk"
-        #(modal-multi-chunk-runner
-          chunked-json
-          [0]
-          calculating?)]
+        :label    "[TODO] 6. CPU-M Create JSON (chunked), write to disk"
+        :on-click #(modal-multi-chunk-runner  chunked-json [0] calculating?)]
        (when @calculating?
          [chunked-json-modal
           chunked-json-progress-msg
@@ -849,9 +847,11 @@
                          false)]
     (fn []
       [:div
-       [modal-button "7. Modal Dialog" #(do
-                                          (reset! save-form-data @form-data)
-                                          (reset! showing? true))]
+       [modal-button
+        :label    "7. Modal Dialog"
+        :on-click #(do
+                     (reset! save-form-data @form-data)
+                     (reset! showing? true))]
        (when @showing? [modal-window
                         :markup [test-form-markup
                                  form-data
