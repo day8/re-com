@@ -1,1 +1,0 @@
-call lein cljsbuild auto
