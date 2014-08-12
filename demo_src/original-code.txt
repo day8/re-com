@@ -19,39 +19,6 @@
 
 
 
-;; XXXX  A list of errors I'd like to improve:
-;; I set style to nil  .... I got a completely incomprehensible error
-;; if I include [] as markup I get an error, but not a lot of information about where it occurs
-
-(comment
-  I've figured out one puzzling thing about clojurescript    (when using "auto" compiles).
-Every now and again, my program stops working completely, I get an exception and I'm puzzled.     (exception is  something like  "undefined doesn't have a call method")
-Eventually, I "clean" and recompile, and bingo the compiler puts out an error.    I think to myself "Why didn't it do that in the first place".
-
-Now, as far as I can tell its all to do with the incremental compiler and the way it only compiles one file at a time, and ONLY files that have changed (not the ones that depend on it).
-Imagine that I have     namespace X,  uses namespace Y       (aka   X.cljs   and Y.cljs)
-X depends on Y.       In effect,  within X.cljs there is a reference to     Y/some-func
-And then you go to   Y.cljs    and change the name of the function from   "some-func"  to "my-func"
-At this point   the code in  X   is wrong.  It still refers to    Y/some-func.
-But the auto compile process won't pick that problem up.   Because it only recompiled  Y   when we changed it.
-The auto compile doesn't know   "X depends on Y,  therefore I should also compile X when Y changes."  To catch the problem in X,  you'd have to recompile X  *but*  only Y is recompiled..
-But when you do a "clean", it recompiles X and bingo you get to see the error.
-  )
-
-
-(comment
-   be careful on Linux.  By default you have an old version of lein
-  )
-
-(comment
-   If you make a change to project.cljs,  you'll have to restart `lein cljsbuild auto <name>`
-   So a common trap is to add a dependency to project.cljs but still get errors.
-  )
-
-(comment
-  leaving out the []  on a defn results in a compile-time error that is baffling and unhelpful.)
-
-
 (def show-alert-popover? (reagent/atom true))
 
 (def show-but1-popover?  (reagent/atom false))
@@ -1061,30 +1028,8 @@ But when you do a "clean", it recompiles X and bingo you get to see the error.
 
 
 
-(def tabs-definition
-  { ::welcome  {:label "Welcome"  :panel welcome-panel}
-    ::basics   {:label "Basics"   :panel basics-panel}
-    ::popovers {:label "Popovers" :panel popovers-panel}
-    ::tour     {:label "Tour"     :panel tour-panel}
-    ::modals   {:label "Modals"   :panel modals-panel}})
-
-;; http://css-tricks.com/functional-css-tabs-revisited/   (see the demo)
-;;
-(defn main
-  []
-  (let [selected-tab (reagent/atom (ffirst tabs-definition))]
-    (fn _main                                               ;;  TODO:  to assit with debugging, always include a name ?? So we avoid anonomus
-      []
-      [:div {:style {:margin "15px"}}
-        [horizontal-pills selected-tab tabs-definition]      ;; the button bar
-        [(-> (@selected-tab tabs-definition) :panel)]])))   ;; the panel for the select tab
-
-
-(defn init
-  []
   (add-alert "danger" {:heading "Unfortunately something bad happened" :body "Next time you should take more care! Next time you should take more care! Next time you should take more care! Next time you should take more care! Next time you should take more care!"})
   (add-alert "info" {:heading "Here's some info for you" :body "The rain in Spain falls mainly on the plain"})
   (add-alert "warning" {:heading "Hmmm, something might go wrong" :body "There be dragons!"})
   (add-alert "info" {:heading "Here's some info for you" :body "The rain in Spain falls mainly on the plain"})
 
-  (reagent/render-component [main] (util/get-element-by-id "app")))

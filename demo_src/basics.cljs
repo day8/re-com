@@ -8,6 +8,10 @@
 
 (defn panel
   []
-  [:div "Basics"]
+  [:div
+   [:br]
+   [:h2 "Basics"]
+   [:p "Should sow buttons and input fields in here"]
+   [:p "Perhaps typography"]]
   )
 
