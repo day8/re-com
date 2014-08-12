@@ -7,3 +7,4 @@ pom.xml.asc
 .lein-failures
 out/
 target/
+run_demo/compiled/

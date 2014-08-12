@@ -1,7 +1,0 @@
-{"version":3,
- "file":
- "/D:/Day8-git/reagent-components/run_demo/compiled/demo/re_com/demo/welcome.js",
- "sources":["welcome.cljs"],
- "lineCount":9,
- "mappings":";AAAA;;;;AAKA,4BAAA,kBAAA,AAAA,0FAAA,mDAAA,3LAAMA",
- "names":["re-com.demo.welcome/panel"]}

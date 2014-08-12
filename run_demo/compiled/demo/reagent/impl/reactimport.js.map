@@ -1,7 +1,0 @@
-{"version":3,
- "file":
- "/D:/Day8-git/reagent-components/run_demo/compiled/demo/reagent/impl/reactimport.js",
- "sources":["reactimport.cljs"],
- "lineCount":7,
- "mappings":";AAAA;;AAKA,AAAKA,iCAAMC;AAIX",
- "names":["reagent.impl.reactimport/React", "js/React"]}
