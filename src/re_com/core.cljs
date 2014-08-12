@@ -7,7 +7,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn label
-  [text & {:keys [style class]}]
+  [& {:keys [label style class]}]
   "Return the markup for a basic label
   Parameters:
   ...
@@ -15,7 +15,7 @@
   [:label
    {:class class
     :style style}
-   text])
+   label])
 
 
 ;; ------------------------------------------------------------------------------------
@@ -41,8 +41,8 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn button
-  [text callback & {:keys [style class]
-                    :or {class "btn-default"}}]
+  [& {:keys [label on-click style class]
+                    :or {:label "blank" :class "btn-default"}}]
   "Return the markup for a basic button
   Parameters:
   - text      Text to display on the button
@@ -55,7 +55,8 @@
   [:button
    {:class (str "btn " class)
     :style style
-    :on-click #(callback)} text])
+    :on-click #(on-click)}
+   label])
 
 
 ;; ------------------------------------------------------------------------------------

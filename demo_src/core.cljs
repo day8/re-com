@@ -16,8 +16,10 @@
 
 
 (def tabs-definition
+  ;;  id
   { ::welcome  {:label "Welcome"  :panel welcome/panel}
     ::basics   {:label "Basics"   :panel basics/panel}
+    ::alerts   {:label "Alerts"   :panel alerts/panel}
     ::tabs     {:label "Tabs"     :panel tabs/panel}
     ::popovers {:label "Popovers" :panel popovers/panel}
     ::tour     {:label "Tour"     :panel tour/panel}
@@ -28,13 +30,13 @@
 ;;
 (defn main
   []
-  (let [selected-tab (reagent/atom (ffirst tabs-definition))]
+  (let [selected-tab-id (reagent/atom (ffirst tabs-definition))]
     (fn _main                                               ;;  TODO:  to assit with debugging, always include a name ?? So we avoid anonomus
       []
       [:div.col-md-12 {:style {:role  "main" :margin-top "15px"}}
-       [re-com.tabs/horizontal-pills selected-tab tabs-definition]      ;; the button bar
+       [re-com.tabs/horizontal-pills selected-tab-id tabs-definition]      ;; the button bar
        [:div {:style {:margin "15px"}}
-             [(-> (@selected-tab tabs-definition) :panel)]]])))         ;; the component to show, for the selected tab
+             [(-> (@selected-tab-id tabs-definition) :panel)]]])))         ;; the component to show, for the selected tab
 
 
 (defn init
