@@ -8,6 +8,7 @@
 
 (defn panel
   []
-  [:div "Tour"]
-  )
 
+  [:div
+   [:h2.page-header "Tour"]
+   ])

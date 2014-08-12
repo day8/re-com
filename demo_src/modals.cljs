@@ -13,6 +13,6 @@
 
 (defn panel
   []
-  [:div "Modals"])
-
+  [:div
+   [:h2.page-header "Modals"]])
 

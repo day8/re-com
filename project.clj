@@ -7,6 +7,7 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2280"]
                  [org.clojure/core.async "0.1.303.0-886421-alpha"]
+                 [alandipert/storage-atom "1.2.3"]
                  [reagent "0.4.2"]]
 
   :plugins [[lein-cljsbuild "1.0.4-SNAPSHOT"]

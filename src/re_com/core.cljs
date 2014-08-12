@@ -2,6 +2,22 @@
   (:require [reagent.core :as reagent]
             [re-com.util  :as util]))
 
+
+
+;; ------------------------------------------------------------------------------------
+;;  Gaps
+;; ------------------------------------------------------------------------------------
+
+
+(defn gap
+  [&{:keys [height width]}]
+  (let [h-style (if height {:padding-top (str height "px")} {})
+        w-style  (if width{:padding-left (str width "px")})]
+  [:div
+   {:style (merge h-style w-style)}
+   ""]))
+
+
 ;; ------------------------------------------------------------------------------------
 ;;  Label
 ;; ------------------------------------------------------------------------------------
@@ -53,8 +69,8 @@
   .           e.g. \"btn-info\"
   .           See: http://getbootstrap.com/css/#buttons"
   [:button
-   {:class (str "btn " class)
-    :style style
+   {:class    (str "btn " class)
+    :style    style
     :on-click #(on-click)}
    label])
 

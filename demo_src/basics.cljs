@@ -1,7 +1,11 @@
 (ns re-com.demo.basics
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-com.util              :as    util]
-            [re-com.core              :refer [button label spinner progress-bar]]
+            [re-com.core              :refer [button
+                                              label
+                                              spinner
+                                              progress-bar
+                                              gap]]
             [reagent.core             :as    reagent]))
 
 
@@ -34,6 +38,8 @@
       [label
         :label (nth click-outcomes (:outcome-index @state))
         :style {:margin-left "15px"}]]]
+
+   [gap :px 30]
 
    [:div.row
     { :style {:margin-top "30px"}}

@@ -6,12 +6,11 @@
 
             [re-com.demo.welcome  :as welcome]
             [re-com.demo.basics   :as basics]
+            [re-com.demo.alerts   :as alerts]
             [re-com.demo.tabs     :as tabs]
             [re-com.demo.popovers :as popovers]
             [re-com.demo.tour     :as tour]
             [re-com.demo.modals   :as modals]))
-
-
 
 
 

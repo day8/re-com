@@ -10,4 +10,7 @@
 
 (defn panel
   []
-  [:div "Popovers"])
+  [:div
+   [:h2.page-header "Popovers"]
+   ])
+
