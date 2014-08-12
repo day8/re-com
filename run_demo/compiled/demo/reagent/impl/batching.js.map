@@ -1,0 +1,26 @@
+{"version":3,
+ "file":
+ "/D:/Day8-git/reagent-components/run_demo/compiled/demo/reagent/impl/batching.js",
+ "sources":["batching.cljs"],
+ "lineCount":128,
+ "mappings":
+ "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",
+ "names":
+ ["reagent.impl.batching/fake-raf", "f", "js/setTimeout",
+  "reagent.impl.batching/next-tick", "cljs.core/not",
+  "reagent.impl.util/is-client", "w", "js/window", "or__3542__auto__",
+  "reagent.impl.batching/compare-levels", "c1", "c2",
+  "reagent.impl.util/cljs-level", "reagent.impl.batching/run-queue",
+  "a", "n__4398__auto__", "i", "C", "this__4109__auto__",
+  "writer__4110__auto__", "opt__4111__auto__", "cljs.core/-write",
+  "reagent.impl.batching/->RenderQueue",
+  "reagent.impl.batching/RenderQueue", "queue", "scheduled?", "this",
+  "_", "q", "reagent.impl.batching/render-queue",
+  "reagent.impl.batching/flush", "reagent.impl.batching/queue-render",
+  "reagent.impl.batching/mark-rendered",
+  "reagent.impl.batching/is-reagent-component", "and__3530__auto__",
+  "reagent.impl.batching/run-reactively", "run", "js/Error",
+  "cljs.core/pr-str", "rat", "res", "reagent.ratom/capture-derefed",
+  "derefed", "reagent.ratom/captured", "reagent.ratom/make-reaction",
+  "reagent.ratom/run", "reagent.impl.batching/dispose", "ratom",
+  "reagent.ratom/dispose!"]}

@@ -1,1 +1,1 @@
-start core\index.html
+start run_demo\index.html
