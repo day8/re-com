@@ -15,7 +15,7 @@
         <div id="app"></div>
 
         <script>
-            goog.require("re_com.demo");
+            goog.require("re_com.demo.core");
 
 
             window.prstr = function (obj) {
@@ -23,7 +23,7 @@
             }
 
             window.onload = function () {
-                re_com.demo.init();    // don't wrap.  Let the exceptions be uncaught when debugging.
+                re_com.demo.core.init();    // don't wrap.  Let the exceptions be uncaught when debugging.
                 /*
                 try {
                     reagent_components.test_harness.init();

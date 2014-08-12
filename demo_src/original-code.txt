@@ -1,4 +1,4 @@
-(ns re-com.demo
+(ns re-com.demo.core
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-com.util              :as    util]
             [re-com.core              :refer [button spinner progress-bar]]
@@ -1059,35 +1059,6 @@ But when you do a "clean", it recompiles X and bingo you get to see the error.
       :body  "This is basically a tooltip."}]
     ]])
 
-
-
-(defn welcome-panel
-  []
-  [:div "Welcome"]
-  )
-
-
-(defn tour-panel
-  []
-  [:div "Tour"]
-  )
-
-
-(defn modals-panel
-  []
-  [:div "Modals"]
-  )
-
-
-(defn popovers-panel
-  []
-  [:div "Popovers"]
-  )
-
-(defn basics-panel
-  []
-  [:div "Basics"]
-  )
 
 
 (def tabs-definition

@@ -1,0 +1,8 @@
+{"version":3,
+ "file":
+ "/D:/Day8-git/reagent-components/run_demo/compiled/demo/re_com/demo/popovers.js",
+ "sources":["popovers.cljs"],
+ "lineCount":17,
+ "mappings":
+ ";AAAA;;;;;;;;;;;;AAUA,6BAAA,kBAAA,AAAA,0FAAA,mDAAA,5LAAMA",
+ "names":["re-com.demo.popovers/panel"]}

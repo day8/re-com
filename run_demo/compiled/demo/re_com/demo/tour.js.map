@@ -1,0 +1,8 @@
+{"version":3,
+ "file":
+ "/D:/Day8-git/reagent-components/run_demo/compiled/demo/re_com/demo/tour.js",
+ "sources":["tour.cljs"],
+ "lineCount":31,
+ "mappings":
+ ";AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;AAqBA,yBAAA,kBAAA,AAAA,0FAAA,mDAAA,xLAAMA",
+ "names":["re-com.demo.tour/panel"]}
