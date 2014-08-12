@@ -31,10 +31,10 @@
   (let [selected-tab (reagent/atom (ffirst tabs-definition))]
     (fn _main                                               ;;  TODO:  to assit with debugging, always include a name ?? So we avoid anonomus
       []
-      [:div {:style {:margin "15px"}}
+      [:div.col-md-12 {:style {:role  "main" :margin-top "15px"}}
        [re-com.tabs/horizontal-pills selected-tab tabs-definition]      ;; the button bar
        [:div {:style {:margin "15px"}}
-             [(-> (@selected-tab tabs-definition) :panel)]]])))   ;; the panel for the select tab
+             [(-> (@selected-tab tabs-definition) :panel)]]])))         ;; the component to show, for the selected tab
 
 
 (defn init

@@ -9,7 +9,8 @@
 (defn panel
   []
   [:div
-   [:h2 "Basics"]
+   [:h1.page-header "Basics"]
    [:p "Should show buttons and input fields in here"]
-   [:p "Perhaps typography"]])
+   [:p "Perhaps typography"]
+   [:p "XXX Explain that bootstrap has to be included into the html"]])
 

@@ -6,5 +6,5 @@
 (defn panel
   []
   [:div
-   [:h2 "Re-Com"]
+   [:h1.page-header "Re-Com"]
    [:p "Re-com is a component library for Reagent which makes heavy use of Bootstrap."]])
