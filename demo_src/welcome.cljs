@@ -11,7 +11,7 @@
    [:h2.page-header "Re-Com"]
    [:p "Re-com is a component library for Reagent. "]
 
-   [gap :height 30]
+   [gap :height 15]
 
    [:p "It makes use of:"]
    [:ul
@@ -27,7 +27,7 @@
            "Flex Box"]
           " so that's Chrome, Firefox, and > IE 10."]]]
 
-   (gap :height 40)
+   [gap :height 20]
 
    [:p "Reagent tutorials and further explanation:"]
 
@@ -40,4 +40,4 @@
           [:a
            {:href "https://github.com/jonase/reagent-tutorial"
             :target "_blank"}
-           "The Om Tutorial Port - By Jonas Enlund"]]]]])
+           "The om tutorial port - By Jonas Enlund"]]]]])

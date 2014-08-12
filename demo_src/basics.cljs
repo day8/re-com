@@ -15,7 +15,14 @@
    "Oops. Priceless Ming Vase smashed!!"
    "Diamonds accidentally flushed."
    "" "" "" "" "" ""
-   "Now its real. Once more & you'll get a page-freezing exception."])
+   "Now it's real. Once more & you'll get a page-freezing exception."])
+
+
+(def combo-options
+  ["Do this"
+   "Do that"
+   "Do somthing else"])
+
 
 
 (def state (reagent/atom
@@ -31,24 +38,34 @@
 
    [:div.row
     [:div.col-md-6
-      [button
-        :label    "No Clicking!"
-        :on-click #(swap! state update-in [:outcome-index] inc)
-        :class    "btn-danger"]
-      [label
-        :label (nth click-outcomes (:outcome-index @state))
-        :style {:margin-left "15px"}]]]
+     [button
+      :label    "No Clicking!"
+      :on-click #(swap! state update-in [:outcome-index] inc)
+      :class    "btn-danger"]
+     [label
+      :label (nth click-outcomes (:outcome-index @state))
+      :style {:margin-left "15px"}]]]
 
-   [gap :px 30]
+   [gap :height 20]
 
    [:div.row
-    { :style {:margin-top "30px"}}
     [:div.col-md-4
      [button
-       :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
-       :on-click #(swap! state update-in [:see-spinner] not)]
+      :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
+      :on-click #(swap! state update-in [:see-spinner] not)]
      (when (:see-spinner @state)
        [spinner])]]
+
+
+   [:h2.page-header "Combobox"]
+
+   ;; [combobox ]
+
+   [:select#MwiSelect.form-control {:style {:display "inline" :width "auto"}}
+    nil
+    (for [o combo-options]
+      ^{:key o}
+      [:option nil o])]
 
    [:h2.page-header "Inputs"]
 

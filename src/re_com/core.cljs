@@ -11,11 +11,10 @@
 
 (defn gap
   [&{:keys [height width]}]
-  (let [h-style (if height {:padding-top (str height "px")} {})
-        w-style  (if width{:padding-left (str width "px")})]
-  [:div
-   {:style (merge h-style w-style)}
-   ""]))
+  (let [h-style  (if height {:padding-top  (str height "px")} {})
+        w-style  (if width  {:padding-left (str width  "px")} {})
+        s        (merge (merge h-style w-style))]
+  [:div {:style s}]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -49,7 +48,7 @@
     :class class
     :style style
     :value text
-    :on-change #(callback)}])
+    :on-change callback}])
 
 
 ;; ------------------------------------------------------------------------------------
@@ -58,7 +57,7 @@
 
 (defn button
   [& {:keys [label on-click style class]
-                    :or {:label "blank" :class "btn-default"}}]
+      :or {:label "blank" :class "btn-default"}}]
   "Return the markup for a basic button
   Parameters:
   - text      Text to display on the button
@@ -71,7 +70,7 @@
   [:button
    {:class    (str "btn " class)
     :style    style
-    :on-click #(on-click)}
+    :on-click on-click}
    label])
 
 
