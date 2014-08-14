@@ -30,7 +30,7 @@
 (defn horizontal-pills    ;; tabs-like in action
   [& {:keys [model tabs]}]
   (let [current  @model
-        tabs     (if (satisfies? cljs.core/IDeref tabs) @tabs tabs)] ;; (if (instance? IDeref tabs) @tabs tabs)]     ;; if it's an atom we want the contents
+        tabs     (if (satisfies? cljs.core/IDeref tabs) @tabs tabs)] ;;      ;; if it's an atom we want the contents
     [:ul.nav.nav-pills
      {:role "tabslist"}
      (for [[this-id {:keys [label]}] tabs]
