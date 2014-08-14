@@ -10,5 +10,5 @@
   []
 
   [:div
-   [:h2.page-header "Tour"]
+   [:h3.page-header "Tour"]
    ])

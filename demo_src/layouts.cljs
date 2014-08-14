@@ -8,7 +8,7 @@
 (defn panel
   []
   [:div
-   [:h2.page-header "Layouts"]])
+   [:h3.page-header "Layouts"]])
 
 
 

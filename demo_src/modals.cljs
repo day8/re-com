@@ -14,5 +14,5 @@
 (defn panel
   []
   [:div
-   [:h2.page-header "Modals"]])
+   [:h3.page-header "Modals"]])
 

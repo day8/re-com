@@ -25,7 +25,7 @@
            {:href "https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Flexible_boxes"
             :target "_blank"}
            "Flex Box"]
-          " so that's Chrome, Firefox, and > IE 10."]]]
+          " so that's Chrome, Firefox, and IE 11!"]]]
 
    [gap :height 20]
 

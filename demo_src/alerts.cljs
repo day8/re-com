@@ -15,5 +15,5 @@
 (defn panel
   []
   [:div
-   [:h2.page-header "Alerts"]
+   [:h3.page-header "Alerts"]
    ])

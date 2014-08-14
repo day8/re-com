@@ -34,7 +34,7 @@
 (defn panel
   []
   [:div
-   [:h2.page-header "Buttons"]
+   [:h3.page-header "Buttons"]
 
    [:div.row
     [:div.col-md-6
@@ -57,7 +57,7 @@
        [spinner])]]
 
 
-   [:h2.page-header "Combobox"]
+   [:h3.page-header "Combobox"]
 
    ;; [combobox ]
 
@@ -67,7 +67,7 @@
       ^{:key o}
       [:option nil o])]
 
-   [:h2.page-header "Inputs"]
+   [:h3.page-header "Inputs"]
 
    [:p]
    [:p "Should show buttons and input fields in here"]

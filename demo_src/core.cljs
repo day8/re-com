@@ -32,13 +32,16 @@
 (defn main
   []
   (let [selected-tab-id (reagent/atom (ffirst tabs-definition))]
-    (fn _main                                               ;;  TODO:  to assit with debugging, always include a name ?? So we avoid anonomus
+    (fn _main
       []
-      [:div.col-md-12 {:style {:role  "main" :margin-top "15px"}}
-       [re-com.tabs/horizontal-pills selected-tab-id tabs-definition]      ;; the button bar
-       [:div [(-> (@selected-tab-id tabs-definition) :panel)]]])))         ;; the component to show, for the selected tab
+      [:div.col-md-12
+       [core/gap :height 15]
+       [re-com.tabs/horizontal-pills                                 ;; tabs across the top
+          :model selected-tab-id
+          :tabs  tabs-definition]
+       [:div [(-> (@selected-tab-id tabs-definition) :panel)]]])))   ;; the tab panel to show, for the selected tab
 
 
-(defn init
+(defn ^:export  mount-demo
   []
   (reagent/render-component [main] (util/get-element-by-id "app")))
