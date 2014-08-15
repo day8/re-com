@@ -1,4 +1,4 @@
-(ns re-com.demo.welcome
+(ns re-demo.welcome
    (:require [reagent.core :as reagent]
              [re-com.core  :refer [gap]]))
 

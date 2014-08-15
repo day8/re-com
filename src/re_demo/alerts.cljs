@@ -1,4 +1,4 @@
-(ns re-com.demo.alerts
+(ns re-demo.alerts
   (:require [re-com.util    :as     util]
             [re-com.core    :refer  [button]]
             [re-com.alert   :as     alert]

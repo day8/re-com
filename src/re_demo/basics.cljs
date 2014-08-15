@@ -1,4 +1,4 @@
-(ns re-com.demo.basics
+(ns re-demo.basics
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-com.util              :as    util]
             [re-com.core              :refer [button

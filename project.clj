@@ -1,4 +1,4 @@
-(defproject reagent-components "0.1.0"
+(defproject re-com "0.1.0"
   :description  "Reusable UI components for Reagent"
 
   :url          "https://github.com/Day8/re-com.git"
@@ -13,25 +13,25 @@
   :plugins [[lein-cljsbuild "1.0.4-SNAPSHOT"]
             [com.cemerick/clojurescript.test "0.3.1"]]
 
-  :source-paths ["src"]
+  :source-paths ["src/re_com" "src/re_demo"]
 
 
   :cljsbuild { :builds [
                         {:id "demo"
-                         :source-paths   ["src" "demo_src"]
-                         :compiler       {:output-to     "run_demo/compiled/demo.js"
-                                          :source-map    "run_demo/compiled/demo.js.map"
-                                          :output-dir    "run_demo/compiled/demo"
+                         :source-paths   ["src/re_com" "src/re_demo"]
+                         :compiler       {:output-to     "run/compiled/demo.js"
+                                          :source-map    "run/compiled/demo.js.map"
+                                          :output-dir    "run/compiled/demo"
                                           :optimizations :none
                                           :pretty-print  true}}
 
 
                         {:id "prod"
-                         :source-paths   ["src"]
+                         :source-paths   ["src/re_com"]
                          :compiler       {:output-to     "compiled/prod.js"
                                           :output-dir    "compiled/prod"
                                           :preamble      ["reagent/react.min.js"]
                                           :elide-asserts true
-                                          :pretty-print false
+                                          :pretty-print  false
                                           :optimizations :advanced}}]}
   )

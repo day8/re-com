@@ -1,4 +1,4 @@
-(ns re-com.demo.tabs
+(ns re-demo.tabs
    (:require [reagent.core :as reagent]
              [alandipert.storage-atom :refer [local-storage]]
              [re-com.core  :refer [gap]]

@@ -8,71 +8,12 @@
 ;;  Gaps
 ;; ------------------------------------------------------------------------------------
 
-
 (defn gap
   [&{:keys [height width]}]
   (let [h-style  (if height {:padding-top  (str height "px")} {})
         w-style  (if width  {:padding-left (str width  "px")} {})
         s        (merge (merge h-style w-style))]
   [:div {:style s}]))
-
-
-;; ------------------------------------------------------------------------------------
-;;  Boxes
-;; ------------------------------------------------------------------------------------
-
-
-;; Case 1:
-;;   - fixed LHS ... certain px ?
-;;    - one or more grwoable compents, perctage based
-;;
-;; Case 2:
-;;    - fixed left and right
-;;    - growable middle
-;;
-;; Case 3:
-;;    - one of the box compents is a vbox insdie an hbox.
-;;
-;; Will ask for "perc" but underneath that's just ratios
-;;
-;; Align stuff, we will ignore.
-;; max-size contraints
-;;
-;; [scrolling XXXX]  contins a box
-;; [border XXXX]     contains a box for the children
-;;
-;;
-;; Let's use HBox and VBox as the names
-;;
-#_[Hbox
-   { :padding XXXX         ;; also: padding-top  padding-bottom padding-right
-     :gap     "10px"       ;; between children
-     :align   XXXX
-     :width   "300px"
-     :height  "300px"      ;; borders ??
-                    }
-
-   [gap :size "50px"]     ;; basics a bix with no centent a fixed size.
-
-   [box
-      :size     "50%"     ;; remember that size is optional. When absent, child takes on natual size.
-      :max-size "300px"
-      :min-size "200px"
-      :child    [XXXX  blah]]
-
-   ;;    :wrap
-   ;;    :content
-   ;;    :inside
-   ;;    :inner
-
-
-   [gap :width 50]     ;; basics a bix with no centent a fixed size.
-
-   [line XXXX]         ;; in an hbox means one thing, vbox another ??
-
-   [box
-      :size  "100px"
-      :markup [XXXX  blah XXXX]]]
 
 
 ;; ------------------------------------------------------------------------------------
@@ -216,4 +157,3 @@
              :transition "none"}} ;; Default BS transitions cause the progress bar to lag behind
     (str @progress-percent "%")]]
   )
-

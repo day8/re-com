@@ -1,18 +1,18 @@
-(ns re-com.demo.core
+(ns re-demo.core
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [reagent.core         :as    reagent]
             [re-com.util          :as    util]
             [re-com.core          :as    core]
             [re-com.tabs ]
 
-            [re-com.demo.welcome  :as welcome]
-            [re-com.demo.basics   :as basics]
-            [re-com.demo.alerts   :as alerts]
-            [re-com.demo.tabs     :as tabs]
-            [re-com.demo.popovers :as popovers]
-            [re-com.demo.layouts  :as layouts]
-            [re-com.demo.tour     :as tour]
-            [re-com.demo.modals   :as modals]))
+            [re-demo.welcome  :as welcome]
+            [re-demo.basics   :as basics]
+            [re-demo.alerts   :as alerts]
+            [re-demo.tabs     :as tabs]
+            [re-demo.popovers :as popovers]
+            [re-demo.layouts  :as layouts]
+            [re-demo.tour     :as tour]
+            [re-demo.modals   :as modals]))
 
 
 

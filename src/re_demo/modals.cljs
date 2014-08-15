@@ -1,4 +1,4 @@
-(ns re-com.demo.modals
+(ns re-demo.modals
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-com.util              :as    util]
             [re-com.core              :refer [button spinner progress-bar]]

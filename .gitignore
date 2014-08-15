@@ -1,10 +1,14 @@
+.idea
+*.iml
+.nrepl-port
 pom.xml
 pom.xml.asc
-*jar
+*.jar
 .lein-deps-sum
 .lein-repl-history
 .lein-plugins/
 .lein-failures
+core/
 out/
 target/
-run_demo/compiled/
+compiled/
