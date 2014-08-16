@@ -6,7 +6,7 @@ Things About Reagent I'd Like To Improve
 
 If I set a style to nil  .... I got a completely incomprehensible error at run-time
 
-If I include [] as markup I get an error, but not a lot of information about where it occurs
+If I include [] as markup I get an error, but no  information about where it occurs
 
 
 

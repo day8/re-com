@@ -1,1 +1,1 @@
-start run_demo\index.html
+start run\index.html

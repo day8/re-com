@@ -1,7 +1,7 @@
 (ns re-demo.tabs
    (:require [reagent.core :as reagent]
              [alandipert.storage-atom :refer [local-storage]]
-             [re-com.core  :refer [gap]]
+             [re-com.core  :refer [gap button]]
              [re-com.tabs  :as tabs]))
 
 
@@ -53,9 +53,52 @@
         [:h4.well (-> (@selected-tab-id tabs-definition) :say-this)]]])))
 
 
+(defn remembers-demo
+ []
+ (let [tab-defs        { ::1  {:label "1" } ::2  {:label "2" } ::3  {:label "3" }}
+       id-store        (local-storage (atom nil) ::id-store)
+       selected-tab-id (reagent/atom (if  (nil? @id-store) (ffirst tab-defs) @id-store))   ;; id of the selected tab
+       _               (add-watch selected-tab-id nil #(reset! id-store %4))]              ;; store selection for later
+    (fn []                                                          ;; returning a function which closes over selected-tab-id.
+      [:div
+       [:h3.page-header "A Remembered Tab"]
+       [:div.col-md-4
+        [:div.h4 "Notes:"]
+        [:ul
+         [:li "This tab's selection is remembered in local-storage."]
+         [:li "When you refresh the page, the selection persists."]
+         [:li "In contrast, the tabs above are volitile. If you switch to \"Welcome\" and back again, the current selection is lost. Easily fixed but be aware."]]]
+
+       [:div.col-md-7.col-md-offset-1
+        [tabs/horizontal-tabs
+          :model  selected-tab-id
+          :tabs  tab-defs]]])))
+
+(defn adding-tabs-demo
+  []
+  (let [tab-defs        (reagent/atom { ::1  {:label "1" } ::2  {:label "2" } ::3  {:label "3" }})
+        selected-tab-id (reagent/atom (ffirst @tab-defs))]
+    (fn []
+      [:div
+       [:h3.page-header "Dynamic Tabs"]
+       [button
+         :label "Add"
+         :on-click (fn []
+                     (let [c (str (inc (count @tab-defs)))]
+                          (swap! tab-defs assoc  (keyword c) {:label c})))]
+       [:div.col-md-4
+        [:div.h4 "Notes:"]
+        [:ul
+         [:li "Click  \"Add\" for more tabs."]]]
+
+       [:div.col-md-7.col-md-offset-1
+        [tabs/horizontal-tabs
+         :model  selected-tab-id
+         :tabs  tab-defs]]])))
+
 (defn vertical-tabs-demo
   []
- (let [selected-tab-id (reagent/atom (ffirst tabs-definition))]     ;; this atom holds the id of the selected
+  (let [selected-tab-id (reagent/atom (ffirst tabs-definition))]     ;; this atom holds the id of the selected
     (fn []
       [:div
        [:h3.page-header "Vertical Tabs"]
@@ -65,41 +108,13 @@
          [:li "XXX Not Done yet"]]]])))
 
 
-
-;; In normal code, it wouldn't be global.
-;; XXXX Notice how we can remember it for next time, you come in.
-
-(def storage (local-storage (atom nil) ::store))
-
-;; (swap! storage assoc :tab-id selected-tab-id)
-
-(defn remembers-demo
-  []
- (let [tab-defs        { ::1  {:label "1" } ::2  {:label "2" } ::3  {:label "3" }}
-       storage         (local-storage (atom nil) ::tab-store)
-       selected-tab-id (reagent/atom (ffirst tab-defs))]     ;; this atom holds the id of the selected
-    (fn []                                                          ;; returning a function which closes over selected-tab-id.
-      [:div
-       [:h3.page-header "A Tab That Remembers"]
-       [:div.col-md-4
-        [:div.h4 "Notes:"]
-        [:ul
-         [:li "This tab remembers its selection when you refresh the page"]]]
-
-       [:div.col-md-7.col-md-offset-1
-        [tabs/horizontal-tabs
-          :model  selected-tab-id
-          :tabs  tab-defs]
-
-
-        ]])))
-
-
 (defn panel
   []
   [:div                             ;; must wrap
    [horizontal-tabs-demo]
    [gap :height 40]
    [remembers-demo]
+   [gap :height 40]
+   [adding-tabs-demo]
    [gap :height 40]
    [vertical-tabs-demo]])

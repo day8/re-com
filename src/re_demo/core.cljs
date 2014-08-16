@@ -14,7 +14,7 @@
             [re-demo.tour     :as tour]
             [re-demo.modals   :as modals]))
 
-
+(enable-console-print!)
 
 (def tabs-definition
   { ::welcome  {:label "Welcome"  :panel welcome/panel}
