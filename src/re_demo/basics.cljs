@@ -36,8 +36,8 @@
   [:div
    [:h3.page-header "Buttons"]
 
-   [:div.row
-    [:div.col-md-6
+   [:div                                                    ;;.row
+    [:div                                                   ;;.col-md-6
      [button
       :label    "No Clicking!"
       :on-click #(swap! state update-in [:outcome-index] inc)
@@ -48,8 +48,8 @@
 
    [gap :height 20]
 
-   [:div.row
-    [:div.col-md-4
+   [:div                                                    ;;.row
+    [:div                                                   ;;.col-md-4
      [button
       :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
       :on-click #(swap! state update-in [:see-spinner] not)]
