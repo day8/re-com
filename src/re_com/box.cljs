@@ -40,6 +40,13 @@
 ;;
 ;;
 
+(defn split-size
+  [size]
+  (let [re (js/RegExp. #"(\d+)(.*)")]
+    (if-let [res  (js->clj (.exec re size))]
+      [(second res) (last res)]
+      [nil nil])))
+
 ;; ------------------------------------------------------------------------------------
 ;;  h-box (debug colour: gold)
 ;;
@@ -51,21 +58,24 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn h-box
-  [& {:keys [f-child width height align margin padding children]
-      :or   {f-child true align :between}}]
+  [& {:keys [f-child width height justify margin padding children]
+      :or   {f-child true justify :between}}]
   (let [flex-container {:display "flex" :flex-flow "row nowrap"}
-        flex-child     (if f-child {:flex "1 1 0px"} {})
-        w-style        (if width {:width width} {:width "inherit"})
-        h-style        (if height {:height height} {})
-        a-style        {:justify-content (case align
+        flex-child     (when f-child {:flex "1 1 0px"})
+        ;w-style        (if width          ;; No need for width inheritence
+        ;                 {:width width}
+        ;                 {:width "inherit"})
+        w-style        (when width {:width width})
+        h-style        (when height {:height height})
+        a-style        {:justify-content (case justify
                                            :left    "flex-start"
                                            :right   "flex-end"
                                            :center  "center"
                                            :between "space-between"
                                            :around  "space-around")}
-        m-style        (if margin {:margin margin} {})
-        p-style        (if padding {:padding padding} {})
-        d-style        (if debug {:background-color "gold"} {})
+        m-style        (when margin {:margin margin})
+        p-style        (when padding {:padding padding})
+        d-style        (when debug {:background-color "gold"})
         s              (merge flex-container flex-child w-style h-style a-style m-style p-style d-style)]
     (into [:div {:style s}] children)))
 
@@ -81,21 +91,23 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn v-box
-  [& {:keys [f-child width height align margin padding children]
-      :or   {f-child true align :between}}]                              ;; width "100%" height "100%"
+  [& {:keys [f-child width height justify margin padding children]
+      :or   {f-child true justify :between}}]
   (let [flex-container {:display "flex" :flex-flow "column nowrap"}
-        flex-child     (if f-child {:flex "1 1 0px"} {})
-        w-style        (if width {:width width} {})
-        h-style        (if height {:height height} {:height "inherit"})
-        a-style        {:justify-content (case align
+        flex-child     (when f-child {:flex "1 1 0px"})
+        w-style        (when width {:width width})
+        h-style        (if height
+                         {:height height}
+                         {:height "inherit"})
+        a-style        {:justify-content (case justify
                                            :top     "flex-start"
                                            :bottom  "flex-end"
                                            :center  "center"
                                            :between "space-between"
                                            :around  "space-around")}
-        m-style        (if margin {:margin margin} {})
-        p-style        (if padding {:padding padding} {})
-        d-style        (if debug {:background-color "antiquewhite"} {})
+        m-style        (when margin {:margin margin})
+        p-style        (when padding {:padding padding})
+        d-style        (when debug {:background-color "antiquewhite"})
         s              (merge flex-container flex-child w-style h-style a-style m-style p-style d-style)]
     (into [:div {:style s}] children)))
 
@@ -108,25 +120,34 @@
 ;;      - "all"
 ;;      - "top&bottom right&left"
 ;;      - "top right bottom left"
-;;
-;;  TODO
-;;   - Worth changing child to children to allow multiple forms?
 ;; ------------------------------------------------------------------------------------
 
 (defn box
-  [& {:keys [f-child f-contain size width height align margin padding b-color child]
-      :or   {f-child true f-contain false size 1}}]
-  (let [flex-child     (if f-child {:flex (str size " 1 0px")} {})
-        flex-container (if f-contain {:display "flex" :flex-flow "inherit"} {})
+  [& {:keys [f-child f-container size width height align margin padding b-color child]
+      :or   {f-child true f-container true size "1"}}]        ;; was f-container false
+  (let [[num units]    (split-size size)
+        percent        (or (= units "%") (= units ""))
+        grow           (if percent num 0)
+        basis          (if percent "0px" size)
+        flex-attr      (str grow " " 1 " " basis)
+        flex-child     (when f-child {:flex flex-attr})
+        flex-container (when f-container {:display "flex" :flex-flow "inherit"})
         o-style        {:overflow "auto"}
         w-style        (when width {:width width})
         h-style        (when height {:height height})
-        a-style        (if align {:align-self (case align
-                                                :start "flex-start"
-                                                :end   "flex-end")}
-                                 {})
-        m-style        (if margin {:margin margin} {})
-        p-style        (if padding {:padding padding} {})
+        a-style        (when align
+                         {:align-self (case align
+                                        :start "flex-start"
+                                        :end   "flex-end")})
+        ;a-style        (when (and f-container align)
+        ;                 {:justify-content (case align
+        ;                                     :top     "flex-start"
+        ;                                     :bottom  "flex-end"
+        ;                                     :center  "center"
+        ;                                     :between "space-between"
+        ;                                     :around  "space-around")})
+        m-style        (when margin {:margin margin})
+        p-style        (when padding {:padding padding})
         c-style        (if b-color
                          {:background-color b-color}
                          (if debug {:background-color "lightblue"} {}))

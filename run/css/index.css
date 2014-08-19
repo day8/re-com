@@ -4,6 +4,14 @@ html, body {
   margin: 0px;
 }
 
+
+.rounded-panel {
+  border: 1px solid lightgray;
+  border-radius: 8px;
+  margin: 8px;
+  padding: 8px;
+}
+
 .flex-container {
   display: flex;
   flex-flow: column;

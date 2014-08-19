@@ -14,45 +14,108 @@
             [re-demo.popovers :as popovers]
             [re-demo.layouts  :as layouts]
             [re-demo.tour     :as tour]
-            [re-demo.modals   :as modals]))
+            [re-demo.modals   :as modals]
+            [re-demo.boxes    :as boxes]))
 
 (enable-console-print!)
 
 (def tabs-definition
-  { ::welcome  {:label "Welcome"  :panel welcome/panel}
+  {
+    ::welcome  {:label "Welcome"  :panel welcome/panel}
     ::basics   {:label "Basics"   :panel basics/panel}
     ::alerts   {:label "Alerts"   :panel alerts/panel}
     ::tabs     {:label "Tabs"     :panel tabs/panel}
     ::popovers {:label "Popovers" :panel popovers/panel}
     ::layouts  {:label "Layouts"  :panel layouts/panel}
     ::tour     {:label "Tour"     :panel tour/panel}
-    ::modals   {:label "Modals"   :panel modals/panel}})
+    ;::modals   {:label "Modals"   :panel modals/panel}
+    ::boxes    {:label "Boxes"    :panel boxes/panel}
+    })
 
 
 ;; http://css-tricks.com/functional-css-tabs-revisited/   (see the demo)
 ;;
 (defn main
   []
-  (let [selected-tab-id (reagent/atom (ffirst tabs-definition))]
+  (let [selected-tab-id (reagent/atom (ffirst tabs-definition))
+        simple-layout   (reagent/atom false)]
     (fn _main
       []
       [v-box
+       ;; TODO: EXPLAIN both lines below with more clarity
+       ;; Outer-most box height must be 100% to fill the entrie client area
+       ;; (height is 100% of body, which must have already had it's height set to 100%)
+       ;; width doesn't need to be initially set
        :height   "100%"
        :children [[box
-                   :f-child false
+                   :size    "auto"
                    :padding "10px"
                    :child   [re-com.tabs/horizontal-pills ;; tabs across the top
                              :model selected-tab-id
                              :tabs  tabs-definition]]
-                  [box
-                   :f-contain true
-                   :padding   "0px 10px"
-                   :child     [(-> (@selected-tab-id tabs-definition) :panel)]]  ;; the tab panel to show, for the selected tab
-                  ]
-       ])))
+                  (if @simple-layout
+                    [box
+                     ;:f-container true
+                     :padding   "0px 10px"
+                     :child     [(-> (@selected-tab-id tabs-definition) :panel)]]  ;; the tab panel to show, for the selected tab
+                    #_[h-box ;; NOTE: MAKE SURE TO COMMENT THE ABOVE WHEN YOU UNCOMMENT THIS
+                     :padding   "0px 10px"
+                     :children  [[(-> (@selected-tab-id tabs-definition) :panel)]]]  ;; alternate method to box above
+                    [h-box
+                     :children [[box
+                                 :size "100px"
+                                 :padding "10px"
+                                 :b-color "coral"
+                                 :child [:div
+                                         {:style {:background-color "coral"}}
+                                         "LAYOUT SIDE BAR fixed to 100px"]]
+                                [v-box
+                                 :children [[box
+                                             ;:f-container true
+                                             :size      "60%"
+                                             :padding   "0px 10px"
+                                             :child     [(-> (@selected-tab-id tabs-definition) :panel)]]  ;; the tab panel to show, for the selected tab
+                                            [box
+                                             :size      "20%"
+                                             :b-color   "teal"
+                                             :padding   "0px 10px"
+                                             :child     [:div
+                                                         {:style {:background-color "teal"}}
+                                                         "VERTICAL PANEL #2 (20% high). The one above is 60% high"]]
+                                            [gap :size "10px"]
+                                            [box
+                                             ;:f-container true
+                                             :size      "20%"
+                                             ;; :b-color "plum"
+                                             :padding   "0px 10px"
+                                             :child   [h-box
+                                                       :children [[box
+                                                                   :b-color "khaki"
+                                                                   :padding "10px"
+                                                                   :child [:div
+                                                                           {:style {:background-color "khaki"}}
+                                                                           "VERTICAL PANEL #3 (20% high, 10px padding)"]]
+                                                                  [box
+                                                                   :b-color "tan"
+                                                                   :child [:div
+                                                                           {:style {:background-color "tan"}}
+                                                                           [:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"]]]
+                                                                  [gap :size "40px"]
+                                                                  [box
+                                                                   :b-color "orange"
+                                                                   :child [:div
+                                                                           {:style {:background-color "orange"}}
+                                                                           "horizontal panel #3 (50px gap between this and horizontal panel #2"]]
+                                                                  ]
+                                                       ]
+                                             ]]
+                                 ]]
+                     ]
+                    )
+                  ]])))
 
 
-(defn main2
+#_(defn main2
   []
   (let [selected-tab-id (reagent/atom (ffirst tabs-definition))]
     (fn _main
@@ -60,42 +123,43 @@
       [v-box
        :height   "100%"
        :children [[box
-                   :f-child false
+                   :size "auto"
                    :padding "10px"
                    :child   [re-com.tabs/horizontal-pills ;; tabs across the top
                              :model selected-tab-id
                              :tabs  tabs-definition]]
                   [h-box
                    :children [[box
-                               :f-child false
+                               :size "100px"
                                :padding "10px"
                                :b-color "coral"
-                               :child [:div {:style {:width "50px"}} "LAYOUT SIDE BAR fixed to 50px"]]
+                               :child [:div "LAYOUT SIDE BAR fixed to 100px"]]
                               [v-box
                                :children [[box
-                                           :f-contain true
-                                           :size      60
+                                           ;:f-container true
+                                           :size      "60%"
                                            :padding   "0px 10px"
                                            :child     [(-> (@selected-tab-id tabs-definition) :panel)]]  ;; the tab panel to show, for the selected tab
                                           [box
-                                           :size      20
+                                           :size      "20%"
                                            :b-color   "teal"
                                            :padding   "0px 10px"
                                            :child     [:div "VERTICAL PANEL #2 (20% high). The one above is 60% high"]]
                                           [gap :size "10px"]
                                           [box
-                                           :size      20
+                                           ;:f-container true
+                                           :size      "20%"
                                            ;; :b-color "plum"
                                            :padding   "0px 10px"
                                            :child   [h-box
                                                      :children [[box
-                                                                 :b-color "gold"
+                                                                 :b-color "khaki"
                                                                  :padding "10px"
                                                                  :child [:div "VERTICAL PANEL #3 (20% high, 10px padding)"]]
                                                                 [box
                                                                  :b-color "tan"
                                                                  :child [:div [:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"][:p "The quick brown fox"]]]
-                                                                [gap :size "50px"]
+                                                                [gap :size "40px"]
                                                                 [box
                                                                  :b-color "orange"
                                                                  :child [:div "horizontal panel #3 (50px gap between this and horizontal panel #2"]]
