@@ -63,7 +63,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn h-box
-  [& {:keys [f-child width height justify align margin padding children]
+  [& {:keys [f-child width height min-width min-height justify align margin padding children]
       :or   {f-child true justify :between align :stretch}}]
   (let [flex-container {:display "flex" :flex-flow "row nowrap"}
         flex-child     (when f-child {:flex "1 1 0px"})
@@ -71,6 +71,8 @@
                          {:width width}
                          {:width "inherit"}) ;; width inheritence is actually optional, but here for consistency with
         h-style        (when height {:height height})
+        mw-style       (when min-width {:min-width min-width})
+        mh-style       (when min-height {:min-height min-height})
         j-style        {:justify-content (case justify
                                            :start   "flex-start"
                                            :end     "flex-end"
@@ -86,7 +88,8 @@
         m-style        (when margin {:margin margin})
         p-style        (when padding {:padding padding})
         d-style        (when debug {:background-color "gold"})
-        s              (merge flex-container flex-child w-style h-style j-style a-style m-style p-style d-style)]
+        s              (merge flex-container flex-child w-style h-style mw-style mh-style
+                              j-style a-style m-style p-style d-style)]
     (into [:div {:style s}] children)))
 
 
@@ -101,7 +104,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn v-box
-  [& {:keys [f-child width height justify align margin padding children]
+  [& {:keys [f-child width height min-width min-height justify align margin padding children]
       :or   {f-child true justify :between align :stretch}}]
   (let [flex-container {:display "flex" :flex-flow "column nowrap"}
         flex-child     (when f-child {:flex "1 1 0px"})
@@ -109,6 +112,8 @@
         h-style        (if height
                          {:height height}
                          {:height "inherit"})
+        mw-style       (when min-width {:min-width min-width})
+        mh-style       (when min-height {:min-height min-height})
         j-style        {:justify-content (case justify
                                            :start   "flex-start"
                                            :end     "flex-end"
@@ -124,7 +129,8 @@
         m-style        (when margin {:margin margin})
         p-style        (when padding {:padding padding})
         d-style        (when debug {:background-color "antiquewhite"})
-        s              (merge flex-container flex-child w-style h-style j-style a-style m-style p-style d-style)]
+        s              (merge flex-container flex-child w-style h-style mw-style mh-style
+                              j-style a-style m-style p-style d-style)]
     (into [:div {:style s}] children)))
 
 
@@ -139,7 +145,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn box
-  [& {:keys [f-child f-container size width height justify align align-self margin padding b-color child]
+  [& {:keys [f-child f-container size width height min-width min-height justify align align-self margin padding b-color child]
       :or   {f-child true f-container true size "1"}}]
   (let [[num units]    (split-size size)
         percent        (or (= units "%") (= units ""))
@@ -150,6 +156,8 @@
         o-style        {:overflow "auto"}                   ;; Adds scroll bars to this box if required
         w-style        (when width {:width width})
         h-style        (when height {:height height})
+        mw-style       (when min-width {:min-width min-width})
+        mh-style       (when min-height {:min-height min-height})
         j-style        (when (and f-container justify)
                          {:justify-content (case justify
                                              :start   "flex-start"
@@ -176,7 +184,8 @@
         c-style        (if b-color
                          {:background-color b-color}
                          (if debug {:background-color "lightblue"} {}))
-        s              (merge flex-child flex-container o-style w-style h-style j-style a-style as-style m-style p-style c-style)]
+        s              (merge flex-child flex-container o-style w-style h-style mw-style mh-style
+                              j-style a-style as-style m-style p-style c-style)]
     [:div {:style s}
      child]))
 
@@ -189,6 +198,7 @@
   [& {:keys [size]                                          ;; TODO: Get rid of :keys as this is a single parameter?
       :or {size "20px"}}]
   [:div {:style {:flex (str "0 0 " size)
+                 ;; :min-width size                         ;; TODO: Need a way of determining whether to use min-width OR min-height
                  :background-color (if debug "chocolate" "transparent")}}])
 
 

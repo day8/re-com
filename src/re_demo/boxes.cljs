@@ -17,15 +17,18 @@
               [gap  :size "10px"]
               [line :size "2px"]
               [h-box
+               :min-width "900px"
                :children [[box
                            :size "100px"
+                           :min-width "100px"
                            :padding "4px"
                            :child [:div
                                    {:style {:background-color "f0f0ff"}}
                                    "Fixed Left Side Bar (100px)"]]
                           [line :size "2px"]
                           [box
-                           :size    "60%"
+                           :size    "600px"
+                           :min-width "300px"
                            :child   [:div.rounded-panel
                                      [:h4 "Left Panel (60%)"]
                                      [:p "This is the left side div."]
@@ -34,6 +37,7 @@
                           [line :size "2px"]
                           [box
                            :size    "40%"
+                           :min-width "300px"
                            :child   [:div.rounded-panel
                                      [:h4 "Right Panel (40%)"]
                                      [:p "This is the right side div."]
