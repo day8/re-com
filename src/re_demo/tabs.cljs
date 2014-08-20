@@ -7,19 +7,19 @@
 
 
 
-;; Define a few tabs.
-;; A tab definition need only consist of an 'id' and a :label. The rest is up to you
+;; Define some tabs.
+;; A tab definition need only consist of an :id and a :label. The rest is up to you
+;; Below, you'll note that all ids are namespaced keywords, but they can be anything.
 ;;
 (def tabs-definition
-  { ::tab1  {:label "Tab1"   :say-this  "I don't like my tab siblings, they smell."}
-    ::tab2  {:label "Tab2"   :say-this  "Don't listen to Tab1, he's just jealous of my train set."}
-    ::tab3  {:label "Tab3"   :say-this  "I'm telling Mum on you two !!"}})
-
+  [ {:id ::tab1  :label "Tab1"   :say-this  "I don't like my tab siblings, they smell."}
+    {:id ::tab2  :label "Tab2"   :say-this  "Don't listen to Tab1, he's just jealous of my train set."}
+    {:id ::tab3  :label "Tab3"   :say-this  "I'm telling Mum on you two !!"}])
 
 
 (defn horizontal-tabs-demo
   []
- (let [selected-tab-id (reagent/atom (ffirst tabs-definition))]     ;; this atom holds the id of the selected
+ (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]     ;; holds the id of the selected tab
     (fn []                                                          ;; returning a function which closes over selected-tab-id.
       [:div
        [:h3.page-header "Horizontal Tabs"]
@@ -50,15 +50,17 @@
           :tabs  tabs-definition]
 
         ;; display the tab content which, in this case, is extracted from the tab definition
-        [:h4.well (-> (@selected-tab-id tabs-definition) :say-this)]]])))
+        [:h4.well (:say-this (tabs/find-tab @selected-tab-id tabs-definition))]]])))
 
 
 (defn remembers-demo
  []
- (let [tab-defs        { ::1  {:label "1" } ::2  {:label "2" } ::3  {:label "3" }}
+ (let [tab-defs        [{:id ::1 :label "1"}
+                        {:id ::2 :label "2"}
+                        {:id ::3 :label "3" }]
        id-store        (local-storage (atom nil) ::id-store)
-       selected-tab-id (reagent/atom (if  (nil? @id-store) (ffirst tab-defs) @id-store))   ;; id of the selected tab
-       _               (add-watch selected-tab-id nil #(reset! id-store %4))]              ;; store selection for later
+       selected-tab-id (reagent/atom (if  (nil? @id-store) (:id (first tab-defs)) @id-store))   ;; id of the selected tab
+       _               (add-watch selected-tab-id nil #(reset! id-store %4))]              ;; put into local-store for later
     (fn []                                                          ;; returning a function which closes over selected-tab-id.
       [:div
        [:h3.page-header "A Remembered Tab"]
@@ -76,8 +78,10 @@
 
 (defn adding-tabs-demo
   []
-  (let [tab-defs        (reagent/atom { ::1  {:label "1" } ::2  {:label "2" } ::3  {:label "3" }})
-        selected-tab-id (reagent/atom (ffirst @tab-defs))]
+  (let [tab-defs        (reagent/atom [{:id ::1 :label "1"}
+                                       {:id ::2 :label "2"}
+                                       {:id ::3 :label "3"}])
+        selected-tab-id (reagent/atom (:id (first @tab-defs)))]
     (fn []
       [:div
        [:h3.page-header "Dynamic Tabs"]
@@ -85,7 +89,7 @@
          :label "Add"
          :on-click (fn []
                      (let [c (str (inc (count @tab-defs)))]
-                          (swap! tab-defs assoc  (keyword c) {:label c})))]
+                          (swap! tab-defs conj {:id (keyword c) :label c})))]
        [:div.col-md-4
         [:div.h4 "Notes:"]
         [:ul
@@ -98,7 +102,7 @@
 
 (defn vertical-tabs-demo
   []
-  (let [selected-tab-id (reagent/atom (ffirst tabs-definition))]     ;; this atom holds the id of the selected
+  (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]     ;; this atom holds the id of the selected
     (fn []
       [:div
        [:h3.page-header "Vertical Tabs"]

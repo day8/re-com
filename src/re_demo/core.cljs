@@ -20,24 +20,22 @@
 (enable-console-print!)
 
 (def tabs-definition
-  {
-    ::welcome  {:label "Welcome"  :panel welcome/panel}
-    ::basics   {:label "Basics"   :panel basics/panel}
-    ::alerts   {:label "Alerts"   :panel alerts/panel}
-    ::tabs     {:label "Tabs"     :panel tabs/panel}
-    ::popovers {:label "Popovers" :panel popovers/panel}
-    ::layouts  {:label "Layouts"  :panel layouts/panel}
-    ::tour     {:label "Tour"     :panel tour/panel}
-    ;::modals   {:label "Modals"   :panel modals/panel}
-    ::boxes    {:label "Boxes"    :panel boxes/panel}
-    })
+  [ {:id ::welcome   :label "Welcome"  :panel welcome/panel}
+    {:id ::basics    :label "Basics"   :panel basics/panel}
+    {:id ::alerts    :label "Alerts"   :panel alerts/panel}
+    {:id ::tabs      :label "Tabs"     :panel tabs/panel}
+    {:id ::popovers  :label "Popovers" :panel popovers/panel}
+    {:id ::layouts   :label "Layouts"  :panel layouts/panel}
+    {:id ::tour      :label "Tour"     :panel tour/panel}
+    {:id ::modals    :label "Modals"   :panel modals/panel}
+    {:id ::boxes     :label "Boxes"    :panel boxes/panel}])
 
 
 ;; http://css-tricks.com/functional-css-tabs-revisited/   (see the demo)
 ;;
 (defn main
   []
-  (let [selected-tab-id (reagent/atom (ffirst tabs-definition))
+  (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))
         simple-layout   (reagent/atom false)]
     (fn _main
       []
@@ -57,10 +55,10 @@
                     [box
                      ;:f-container true
                      :padding   "0px 10px"
-                     :child     [(-> (@selected-tab-id tabs-definition) :panel)]]  ;; the tab panel to show, for the selected tab
+                     :child     [(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]  ;; the tab panel to show, for the selected tab
                     #_[h-box ;; NOTE: MAKE SURE TO COMMENT THE ABOVE WHEN YOU UNCOMMENT THIS
                      :padding   "0px 10px"
-                     :children  [[(-> (@selected-tab-id tabs-definition) :panel)]]]  ;; alternate method to box above
+                     :children  [[(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]]  ;; alternate method to box above
                     [h-box
                      :children [[box
                                  :size "100px"
@@ -74,7 +72,7 @@
                                              ;:f-container true
                                              :size      "60%"
                                              :padding   "0px 10px"
-                                             :child     [(-> (@selected-tab-id tabs-definition) :panel)]]  ;; the tab panel to show, for the selected tab
+                                             :child     [(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]  ;; the tab panel to show, for the selected tab
                                             [box
                                              :size      "20%"
                                              :b-color   "teal"
@@ -139,7 +137,7 @@
                                            ;:f-container true
                                            :size      "60%"
                                            :padding   "0px 10px"
-                                           :child     [(-> (@selected-tab-id tabs-definition) :panel)]]  ;; the tab panel to show, for the selected tab
+                                           :child     [(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]  ;; the tab panel to show, for the selected tab
                                           [box
                                            :size      "20%"
                                            :b-color   "teal"

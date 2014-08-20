@@ -1,8 +1,7 @@
 (ns re-com.alert
   (:require [reagent.core :as reagent]
-            [re-com.core  :refer [button spinner progress-bar]]
+            [re-com.core  :refer [button]]
             [re-com.util  :as util]))
-
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: closeable-alert
