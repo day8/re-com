@@ -6,10 +6,12 @@ html, body {
 
 
 .rounded-panel {
+  background-color: #fff4f4;
   border: 1px solid lightgray;
   border-radius: 8px;
   margin: 8px;
   padding: 8px;
+  flex: 1;
 }
 
 .flex-container {

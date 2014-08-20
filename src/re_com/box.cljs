@@ -42,6 +42,11 @@
 
 (defn split-size
   [size]
+  "Splits a CSS size attibute into two parts. e.g.
+    - '100'   will return ['100' '']
+    - '100px' will return ['100' 'px']
+    - '50%'   will return ['50' '%']
+    - 'auto'  will return [nil nil] (so will anything that isn't in the form of {number}{string}"
   (let [re (js/RegExp. #"(\d+)(.*)")]
     (if-let [res  (js->clj (.exec re size))]
       [(second res) (last res)]
@@ -58,25 +63,30 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn h-box
-  [& {:keys [f-child width height justify margin padding children]
-      :or   {f-child true justify :between}}]
+  [& {:keys [f-child width height justify align margin padding children]
+      :or   {f-child true justify :between align :stretch}}]
   (let [flex-container {:display "flex" :flex-flow "row nowrap"}
         flex-child     (when f-child {:flex "1 1 0px"})
-        ;w-style        (if width          ;; No need for width inheritence
-        ;                 {:width width}
-        ;                 {:width "inherit"})
-        w-style        (when width {:width width})
+        w-style        (if width
+                         {:width width}
+                         {:width "inherit"}) ;; width inheritence is actually optional, but here for consistency with
         h-style        (when height {:height height})
-        a-style        {:justify-content (case justify
-                                           :left    "flex-start"
-                                           :right   "flex-end"
+        j-style        {:justify-content (case justify
+                                           :start   "flex-start"
+                                           :end     "flex-end"
                                            :center  "center"
                                            :between "space-between"
                                            :around  "space-around")}
+        a-style        {:align-items (case align
+                                       :start    "flex-start"
+                                       :end      "flex-end"
+                                       :center   "center"
+                                       :baseline "baseline"
+                                       :stretch  "stretch")}
         m-style        (when margin {:margin margin})
         p-style        (when padding {:padding padding})
         d-style        (when debug {:background-color "gold"})
-        s              (merge flex-container flex-child w-style h-style a-style m-style p-style d-style)]
+        s              (merge flex-container flex-child w-style h-style j-style a-style m-style p-style d-style)]
     (into [:div {:style s}] children)))
 
 
@@ -91,24 +101,30 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn v-box
-  [& {:keys [f-child width height justify margin padding children]
-      :or   {f-child true justify :between}}]
+  [& {:keys [f-child width height justify align margin padding children]
+      :or   {f-child true justify :between align :stretch}}]
   (let [flex-container {:display "flex" :flex-flow "column nowrap"}
         flex-child     (when f-child {:flex "1 1 0px"})
         w-style        (when width {:width width})
         h-style        (if height
                          {:height height}
                          {:height "inherit"})
-        a-style        {:justify-content (case justify
-                                           :top     "flex-start"
-                                           :bottom  "flex-end"
+        j-style        {:justify-content (case justify
+                                           :start   "flex-start"
+                                           :end     "flex-end"
                                            :center  "center"
                                            :between "space-between"
                                            :around  "space-around")}
+        a-style        {:align-items (case align
+                                       :start    "flex-start"
+                                       :end      "flex-end"
+                                       :center   "center"
+                                       :baseline "baseline"
+                                       :stretch  "stretch")}
         m-style        (when margin {:margin margin})
         p-style        (when padding {:padding padding})
         d-style        (when debug {:background-color "antiquewhite"})
-        s              (merge flex-container flex-child w-style h-style a-style m-style p-style d-style)]
+        s              (merge flex-container flex-child w-style h-style j-style a-style m-style p-style d-style)]
     (into [:div {:style s}] children)))
 
 
@@ -123,35 +139,44 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn box
-  [& {:keys [f-child f-container size width height align margin padding b-color child]
-      :or   {f-child true f-container true size "1"}}]        ;; was f-container false
+  [& {:keys [f-child f-container size width height justify align align-self margin padding b-color child]
+      :or   {f-child true f-container true size "1"}}]
   (let [[num units]    (split-size size)
         percent        (or (= units "%") (= units ""))
         grow           (if percent num 0)
         basis          (if percent "0px" size)
-        flex-attr      (str grow " " 1 " " basis)
-        flex-child     (when f-child {:flex flex-attr})
+        flex-child     (when f-child {:flex (str grow " " 1 " " basis)})
         flex-container (when f-container {:display "flex" :flex-flow "inherit"})
-        o-style        {:overflow "auto"}
+        o-style        {:overflow "auto"}                   ;; Adds scroll bars to this box if required
         w-style        (when width {:width width})
         h-style        (when height {:height height})
-        a-style        (when align
-                         {:align-self (case align
-                                        :start "flex-start"
-                                        :end   "flex-end")})
-        ;a-style        (when (and f-container align)
-        ;                 {:justify-content (case align
-        ;                                     :top     "flex-start"
-        ;                                     :bottom  "flex-end"
-        ;                                     :center  "center"
-        ;                                     :between "space-between"
-        ;                                     :around  "space-around")})
+        j-style        (when (and f-container justify)
+                         {:justify-content (case justify
+                                             :start   "flex-start"
+                                             :end     "flex-end"
+                                             :center  "center"
+                                             :between "space-between"
+                                             :around  "space-around")})
+        a-style        (when (and f-container align)
+                         {:align-items (case align
+                                       :start    "flex-start"
+                                       :end      "flex-end"
+                                       :center   "center"
+                                       :baseline "baseline"
+                                       :stretch  "stretch")})
+        as-style       (when align-self
+                         {:align-self (case align-self
+                                        :start    "flex-start"
+                                        :end      "flex-end"
+                                        :center   "center"
+                                        :baseline "baseline"
+                                        :stretch  "stretch")})
         m-style        (when margin {:margin margin})
         p-style        (when padding {:padding padding})
         c-style        (if b-color
                          {:background-color b-color}
                          (if debug {:background-color "lightblue"} {}))
-        s              (merge flex-child flex-container o-style w-style h-style a-style m-style p-style c-style)]
+        s              (merge flex-child flex-container o-style w-style h-style j-style a-style as-style m-style p-style c-style)]
     [:div {:style s}
      child]))
 

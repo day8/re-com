@@ -19,7 +19,8 @@
 ;; see http://css-tricks.com/snippets/css/a-guide-to-flexbox/
 ;;
 
-(defn h-layout [left-panel right-panel]
+(defn h-layout
+  [left-panel right-panel]
   (let [container-id (gensym "h-layout-")
 
         this        (reagent/current-component)

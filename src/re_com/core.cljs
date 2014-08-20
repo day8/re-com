@@ -23,9 +23,8 @@
 (defn label
   [& {:keys [label style class]}]
   "Return the markup for a basic label
-  Parameters:
-  ...
-  "
+   Parameters:
+   ..."
   [:label
    {:class class
     :style style}
@@ -39,9 +38,8 @@
 (defn input-text
   [text callback & {:keys [style class]}]
   "Return the markup for a basic text input box
-  Parameters:
-  ...
-  "
+   Parameters:
+   ..."
   [:input
    {:type "text"
     :class class
@@ -58,14 +56,14 @@
   [& {:keys [label on-click style class]
       :or {:label "blank" :class "btn-default"}}]
   "Return the markup for a basic button
-  Parameters:
-  - text      Text to display on the button
-  - callback  The function to call when the button is clicked
-  - style     [optional] :style {map} where map is the standard hicckup style map values
-  .           e.g. :style {:color \"blue\" :margin \"4px\"}
-  - class     [optional] :class "class" where class is one or more of the Bootstrap button styles
-  .           e.g. \"btn-info\"
-  .           See: http://getbootstrap.com/css/#buttons"
+   Parameters:
+    - text      Text to display on the button
+    - callback  The function to call when the button is clicked
+    - style     [optional] :style {map} where map is the standard hicckup style map values
+                e.g. :style {:color \"blue\" :margin \"4px\"}
+    - class     [optional] :class \"class\" where class is one or more of the Bootstrap button styles
+                e.g. \"btn-info\"
+                See: http://getbootstrap.com/css/#buttons"
   [:button
    {:class    (str "btn " class)
     :style    style
@@ -80,10 +78,8 @@
 (defn checkbox
   [text callback & {:keys [style class]}]
   "Return the markup for a basic checkbox
-  Parameters:
-  ...
-  "
-
+   Parameters:
+   ..."
   #_[:div.checkbox
    [:label
     [:input
@@ -108,9 +104,8 @@
 (defn radio-button
   [text callback & {:keys [style class]}]
   "Return the markup for a basic radio button
-  Parameters:
-  ...
-  "
+   Parameters:
+   ..."
   #_[:div.radio
    [:label {:for "pf-radio2"}
     [:input#pf-radio2
@@ -148,8 +143,7 @@
 
 (defn progress-bar
   [progress-percent]
-  "Render a bootstrap styled progress bar
-  "
+  "Render a bootstrap styled progress bar"
   [:div.progress
    [:div.progress-bar ;;.progress-bar-striped.active
     {:role "progressbar"

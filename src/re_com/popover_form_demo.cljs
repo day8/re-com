@@ -30,13 +30,15 @@
                               :listbox-multi  ["Item 2" "Item 4" "Item 7"]}))
 
 
-(defn pform-initialise []
+(defn pform-initialise
+  []
   (reset! initial-form-data @form-data)
   (reset! show-this-popover? true)
   (util/console-log-prstr "Initialised PRIMARY form: form-data" form-data))
 
 
-(defn pform-submit [event]
+(defn pform-submit
+  [event]
   (let [selected-file ""] ;; (aget (.-target event) "file")
     (swap! form-data assoc :file (.-value selected-file))
     (reset! show-this-popover? false)
@@ -45,7 +47,8 @@
     false)) ;; Prevent default "GET" form submission to server
 
 
-(defn pform-cancel []
+(defn pform-cancel
+  []
   (reset! form-data @initial-form-data)
   (reset! show-this-popover? false)
   (util/console-log-prstr "Cancelled PRIMARY form: form-data" form-data)
@@ -53,7 +56,8 @@
   false) ;; Returning false prevent default "GET" form submission to server in on-click event for forms
 
 
-(defn primary-form []
+(defn primary-form
+  []
   [:div {:style {:padding "5px" :background-color "cornsilk" :border "1px solid #eee"}} ;; [:form {:name "pform" :on-submit pform-submit}
    [:div.form-group
     [:label {:for "pf-email"} "Email address"]
@@ -229,13 +233,15 @@
                                :remember-me false}))
 
 
-(defn sform-submit []
+(defn sform-submit
+  []
   (util/console-log-prstr "Submitted SECONDARY form: sform-data" sform-data)
   (add-alert "info" {:heading "Submitted SECONDARY form" :body (str "Form data submitted: " (. js/cljs.core (pr_str @sform-data)))})
   false) ;; Prevent default "GET" form submission to server
 
 
-(defn secondary-form []
+(defn secondary-form
+  []
   [:div.form-inline
    {:style {:padding          "5px"
             :background-color "cornsilk"
@@ -271,7 +277,8 @@
   )
 
 
-(defn popover-form []
+(defn popover-form
+  []
   [:div
    [:h3 "Primary Form"]
    [:p "Here is a form which has some events"]
@@ -311,7 +318,8 @@
    ])
 
 
-(defn popover-title []
+(defn popover-title
+  []
   [:div "Arbitrary " [:strong "markup"] " example (" [:span {:style {:color "red"}} "red text"] ")"
    [button "×" pform-cancel
     :class "close"
@@ -319,7 +327,8 @@
    ])
 
 
-(defn red-button []
+(defn red-button
+  []
   [:input.btn.btn-danger
    {:type     "button"
     :value    ":right-below"
@@ -332,7 +341,8 @@
     }])
 
 
-(defn show []
+(defn show
+  []
   (let [popover-content {:width         800
                          :title         [popover-title]
                          :close-button? false            ;; We have to add our own close button because it does more than simply close the popover

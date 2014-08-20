@@ -14,6 +14,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (defn make-tour
+  [tour-spec]
   "Returns a map containing
   - A reagent atom for each tour step controlling popover show/hide (boolean)
   - A standard atom holding the current step (integer)
@@ -25,8 +26,6 @@
   :step1 (reagent/atom true)
   :step2 (reagent/atom false)
   :step3 (reagent/atom false)}"
-
-  [tour-spec]
   (let [tour-map {:current-step (atom 0) :steps tour-spec}] ;; Only need normal atom
 
     (reduce #(assoc %1 %2 (reagent/atom false)) tour-map tour-spec))) ;; Old way: (merge {} (map #(hash-map % (reagent/atom false)) tour-spec))
@@ -39,20 +38,21 @@
 
 
 (defn start-tour
-  "Sets the first popover atom in the tour to true."
   [tour]
+  "Sets the first popover atom in the tour to true."
   (initialise-tour tour)
   (reset! (:current-step tour) 0)
   (reset! ((first (:steps tour)) tour) true))
 
 
 (defn finish-tour
-  "Closes all tour popovers."
   [tour]
+  "Closes all tour popovers."
   (initialise-tour tour))
 
 
-(defn next-tour-step [tour]
+(defn next-tour-step
+  [tour]
   (let [steps     (:steps tour)
         old-step  @(:current-step tour)
         new-step  (inc old-step)]
@@ -63,7 +63,8 @@
       (reset! ((nth steps new-step) tour) true))))
 
 
-(defn prev-tour-step [tour]
+(defn prev-tour-step
+  [tour]
   (let [steps    (:steps tour)
         old-step @(:current-step tour)
         new-step (dec old-step)]
@@ -75,11 +76,10 @@
 
 
 (defn make-tour-nav
+  [tour]
   "Generate the hr and previous/next buttons markup.
   If first button in tour, don't generate a Previous button.
   If last button in tour, change Next button to a Finish button."
-
-  [tour]
   (let [on-first-button (= @(:current-step tour) 0)
         on-last-button  (= @(:current-step tour) (dec (count (:steps tour))))]
 

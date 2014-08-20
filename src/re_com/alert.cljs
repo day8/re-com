@@ -16,13 +16,13 @@
 (defn closeable-alert
   [alert-item close-callback]
   "Displays one Bootstrap alert box. A close button allows the message to be removed.
-  Parameters:
-  - alert-item:       A map containing the definition of the alert:
-  .   - :id           A unique identifier, usually an integer or string
-  .   - :alert-type   A Bootstrap string determining the style. Either 'info', 'warning' or 'danger'
-  .   - :heading      Hiccup markup or a string containing the heading text
-  .   - :body         Hiccup markup or a string containing the body of the alert
-  - close-callback:   A callback function which knows how to close the alert"
+   Parameters:
+   - alert-item:       A map containing the definition of the alert:
+       - :id           A unique identifier, usually an integer or string
+       - :alert-type   A Bootstrap string determining the style. Either 'info', 'warning' or 'danger'
+       - :heading      Hiccup markup or a string containing the heading text
+       - :body         Hiccup markup or a string containing the body of the alert
+   - close-callback:   A callback function which knows how to close the alert"
   (let [{:keys [id alert-type heading body]} alert-item]
     (fn []
       #_(util/console-log (str "in closeable-alert for id #" (:id alert-item)))
@@ -68,10 +68,9 @@
 (defn alert-list
   [alert-items close-callback] ;; TODO: Currently hard coded to interal version
   "Displays a list of closeable-alerts
-  Parameters:
-  - alert-items:      An atom containing a map of alerts. Normally (sorted-map-by >) so that latest alerts are rendered at the top
-  - close-callback:   A callback function which knows how to close an alert
-  "
+   Parameters:
+    - alert-items:      An atom containing a map of alerts. Normally (sorted-map-by >) so that latest alerts are rendered at the top
+    - close-callback:   A callback function which knows how to close an alert"
   (fn []
     #_(util/console-log "in alert-list")
     [:div {:style {:border "1px dashed lightgrey"}}
