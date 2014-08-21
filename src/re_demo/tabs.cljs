@@ -104,22 +104,27 @@
                                        {:id ::3 :label "3"}])
         selected-tab-id (reagent/atom (:id (first @tab-defs)))]
     (fn []
-      [:div
-       [:h3.page-header "Dynamic Tabs"]
-       [button
-         :label "Add"
-         :on-click (fn []
-                     (let [c (str (inc (count @tab-defs)))]
-                          (swap! tab-defs conj {:id (keyword c) :label c})))]
-       [:div.col-md-4
-        [:div.h4 "Notes:"]
-        [:ul
-         [:li "Click  \"Add\" for more tabs."]]]
+      [v-box
+       :children [[title "Dynamic Tabs"]
+                  [h-box
+                   :gap "50px"
+                   :children [[v-box
+                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :children [[button
+                                           :label "Add"
+                                           :on-click (fn []
+                                                       (let [c (str (inc (count @tab-defs)))]
+                                                         (swap! tab-defs conj {:id (keyword c) :label c})))]
+                                          [:div.h4 "Notes:"]
+                                          [:ul
+                                           [:li "Click  \"Add\" for more tabs."]]]]
 
-       [:div.col-md-7.col-md-offset-1
-        [tabs/horizontal-tabs
-         :model  selected-tab-id
-         :tabs  tab-defs]]])))
+                              [v-box
+                               :gap     "30px"
+                               :margin  "20px 0px 0px 0px"       ;; TOD0:  decide would we prefer to use :top-margin??
+                               :children [[tabs/horizontal-tabs
+                                           :model  selected-tab-id
+                                           :tabs  tab-defs]]]]]]])))
 
 (defn vertical-tabs-demo
   []
@@ -136,8 +141,7 @@
 (defn panel
   []
   [v-box
-   ;; :gap "10px"
    :children [[horizontal-tabs-demo]
               [remembers-demo]
-              #_[adding-tabs-demo]
+              [adding-tabs-demo]
               #_[vertical-tabs-demo]]])
