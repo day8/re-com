@@ -53,6 +53,32 @@
       [nil nil])))
 
 ;; ------------------------------------------------------------------------------------
+;;  gap (debug colour: chocolate)
+;; ------------------------------------------------------------------------------------
+
+(defn gap
+  [& {:keys [size]                                          ;; TODO: Get rid of :keys as this is a single parameter?
+      :or {size "20px"}}]
+  [:div {:style {:flex (str "0 0 " size)
+                 ;; :min-width size                         ;; TODO: Need a way of determining whether to use min-width OR min-height
+                 ;; :border "1px dashed black" ;; When debugging
+                 :background-color (if debug "chocolate" "transparent")}}])
+
+
+;; ------------------------------------------------------------------------------------
+;;  line
+;; ------------------------------------------------------------------------------------
+
+(defn line
+  [& {:keys [size color]
+      :or {size "1px" color "red"}}]
+  (let [flex-child {:flex (str "0 1 " size)}
+        c-style    {:background-color color}
+        s          (merge flex-child c-style)]
+    [:div {:style s}]))
+
+
+;; ------------------------------------------------------------------------------------
 ;;  h-box (debug colour: gold)
 ;;
 ;;  NOTES
@@ -63,7 +89,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn h-box
-  [& {:keys [f-child width height min-width min-height justify align margin padding children]
+  [& {:keys [f-child width height min-width min-height justify align margin padding gap children]
       :or   {f-child true justify :start align :stretch}}]
   (let [flex-container {:display "flex" :flex-flow "row nowrap"}
         flex-child     (when f-child {:flex "1 1 0px"})
@@ -89,8 +115,14 @@
         p-style        (when padding {:padding padding})
         d-style        (when debug {:background-color "gold"})
         s              (merge flex-container flex-child w-style h-style mw-style mh-style
-                              j-style a-style m-style p-style d-style)]
+                              j-style a-style m-style p-style d-style)
+        gap-form       (when gap [re-com.box/gap :size gap])
+        children       (if gap
+                         (drop-last (interleave children (repeat gap-form)))
+                         children)]
     (into [:div {:style s}] children)))
+
+;
 
 
 ;; ------------------------------------------------------------------------------------
@@ -104,7 +136,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn v-box
-  [& {:keys [f-child width height min-width min-height justify align margin padding children]
+  [& {:keys [f-child width height min-width min-height justify align margin padding gap children]
       :or   {f-child true justify :start align :stretch}}]
   (let [flex-container {:display "flex" :flex-flow "column nowrap"}
         flex-child     (when f-child {:flex "1 1 0px"})
@@ -130,7 +162,11 @@
         p-style        (when padding {:padding padding})
         d-style        (when debug {:background-color "antiquewhite"})
         s              (merge flex-container flex-child w-style h-style mw-style mh-style
-                              j-style a-style m-style p-style d-style)]
+                              j-style a-style m-style p-style d-style)
+        gap-form       (when gap [re-com.box/gap :size gap])
+        children       (if gap
+                         (drop-last (interleave children (repeat gap-form)))
+                         children)]
     (into [:div {:style s}] children)))
 
 
@@ -188,28 +224,3 @@
                               j-style a-style as-style m-style p-style c-style)]
     [:div {:style s}
      child]))
-
-
-;; ------------------------------------------------------------------------------------
-;;  gap (debug colour: chocolate)
-;; ------------------------------------------------------------------------------------
-
-(defn gap
-  [& {:keys [size]                                          ;; TODO: Get rid of :keys as this is a single parameter?
-      :or {size "20px"}}]
-  [:div {:style {:flex (str "0 0 " size)
-                 ;; :min-width size                         ;; TODO: Need a way of determining whether to use min-width OR min-height
-                 :background-color (if debug "chocolate" "transparent")}}])
-
-
-;; ------------------------------------------------------------------------------------
-;;  line
-;; ------------------------------------------------------------------------------------
-
-(defn line
-  [& {:keys [size color]
-      :or {size "1px" color "red"}}]
-  (let [flex-child {:flex (str "0 1 " size)}
-        c-style    {:background-color color}
-        s          (merge flex-child c-style)]
-    [:div {:style s}]))
