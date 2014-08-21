@@ -64,7 +64,7 @@
 
 (defn h-box
   [& {:keys [f-child width height min-width min-height justify align margin padding children]
-      :or   {f-child true justify :between align :stretch}}]
+      :or   {f-child true justify :start align :stretch}}]
   (let [flex-container {:display "flex" :flex-flow "row nowrap"}
         flex-child     (when f-child {:flex "1 1 0px"})
         w-style        (if width
@@ -105,7 +105,7 @@
 
 (defn v-box
   [& {:keys [f-child width height min-width min-height justify align margin padding children]
-      :or   {f-child true justify :between align :stretch}}]
+      :or   {f-child true justify :start align :stretch}}]
   (let [flex-container {:display "flex" :flex-flow "column nowrap"}
         flex-child     (when f-child {:flex "1 1 0px"})
         w-style        (when width {:width width})

@@ -6,6 +6,16 @@
             [reagent.core             :as    reagent]))
 
 
+(def rounded-panel {:background-color "fff4f4"
+                    :border           "1px solid lightgray"
+                    :border-radius    "8px"
+                    :margin           "8px"
+                    :padding          "8px"
+                    :flex             "1"})
+
+(def side-bar {:background-color "f0f0ff"})
+
+
 (defn panel1
   []
   [v-box
@@ -13,47 +23,122 @@
                :size "auto"
                :child [h-box
                        :justify :center
-                       :children [[:h3 "Boxes"]]]]
+                       :children [[:h3 "Boxes (simple)"]]]]
               [gap  :size "10px"]
               [line :size "2px"]
               [h-box
-               :min-width "900px"
                :children [[box
                            :size "100px"
-                           :min-width "100px"
                            :padding "4px"
-                           :child [:div
-                                   {:style {:background-color "f0f0ff"}}
+                           :child [:div {:style side-bar}
                                    "Fixed Left Side Bar (100px)"]]
                           [line :size "2px"]
                           [box
-                           :size    "600px"
-                           :min-width "300px"
-                           :child   [:div.rounded-panel
+                           :size    "60%"
+                           :child   [:div {:style rounded-panel}
                                      [:h4 "Left Panel (60%)"]
-                                     [:p "This is the left side div."]
                                      [:p "The red lines are [line] components.
                                           The white space between the heading and the top red line is a [gap] component."]]]
                           [line :size "2px"]
                           [box
                            :size    "40%"
-                           :min-width "300px"
-                           :child   [:div.rounded-panel
+                           :child   [:div {:style rounded-panel}
                                      [:h4 "Right Panel (40%)"]
-                                     [:p "This is the right side div."]
                                      [:p "The width of this and the left side div is 40%/60% of the pixels remaining after
                                           removing all the fixed pixels, including boxes, lines, gaps and horizontal margin/padding values."]]]
                           [line :size "2px"]
                           [box
                            :size "100px"
                            :padding "4px"
-                           :child [:div
-                                   {:style {:background-color "f0f0ff"}}
-                                   "Fixed Right Side Bar (100px)"]]]]
+                           :child [:div {:style side-bar}
+                                   "Fixed Right Side Bar (100px)"]]
+                          ]]
               ]])
 
 
 (defn panel2
+  []
+  [v-box
+   :children [[box
+               :size "auto"
+               :child [h-box
+                       :justify :center
+                       :children [[:h3 "Boxes (min-width/height)"]]]]
+              [gap  :size "10px"]
+              [line :size "2px"]
+              [v-box
+               :children [[h-box
+                           :min-width "900px"
+                           :children [[box
+                                       :size "100px"
+                                       :min-width "100px"
+                                       :padding "4px"
+                                       :child [:div {:style side-bar}
+                                               [:p "Fixed Left Side Bar"]
+                                               [:p "size=100px"]
+                                               [:p "min-w=100px"]]]
+                                      [line :size "2px"]
+                                      [box
+                                       :size       "600px"
+                                       :min-width  "300px"
+                                       :min-height "300px"
+                                       :child   [:div {:style rounded-panel}
+                                                 [:h4 "Top Left Panel"]
+                                                 [:p  "Note: There is a min-width of 900px around this entire h-box"]
+                                                 [:p  "size=600px, min-width=300px, min-height=300px"]]]
+                                      [line :size "2px"]
+                                      [box
+                                       :size       "40%"
+                                       :min-width  "300px"
+                                       :min-height "200px"
+                                       :child   [:div {:style rounded-panel}
+                                                 [:h4 "Top Right Panel"]
+                                                 [:p  "size=40%, min-width=300px, min-height=200px"]]]
+                                      [line :size "2px"]
+                                      [box
+                                       :size "100px"
+                                       :padding "4px"
+                                       :child [:div {:style side-bar}
+                                               [:p "Fixed Right Side Bar"]
+                                               [:p "size=100px"]]]
+                                      ]]
+                          [h-box
+                           :min-width "1000px"
+                           :children [[box
+                                       :size "100px"
+                                       :min-width "100px"
+                                       :padding "4px"
+                                       :child [:div {:style side-bar}
+                                               [:p "Fixed Left Side Bar"]
+                                               [:p "size=100px"]
+                                               [:p "min-w=100px"]]]
+                                      [line :size "2px"]
+                                      [box
+                                       :size    "600px"
+                                       :min-width "400px"
+                                       :child   [:div {:style rounded-panel}
+                                                 [:h4 "Bottom Left Panel"]
+                                                 [:p  "Note: There is a min-width of 1000px around this entire h-box"]
+                                                 [:p  "size=600px, min-width=400px"]]]
+                                      [line :size "2px"]
+                                      [box
+                                       :size    "40%"
+                                       :min-width "400px"
+                                       :child   [:div {:style rounded-panel}
+                                                 [:h4 "Bottom Right Panel"]
+                                                 [:p  "size=40%, min-width=400px"]]]
+                                      [line :size "2px"]
+                                      [box
+                                       :size "100px"
+                                       :padding "4px"
+                                       :child [:div {:style side-bar}
+                                               [:p "Fixed Right Side Bar"]
+                                               [:p "size=100px"]]]
+                                      ]]
+                          ]]
+              ]])
+
+(defn panel3
   []
   [h-box
    :children [[box
@@ -75,7 +160,7 @@
                                                            :justify :center
                                                            :children [[button :label "Button 1"]
                                                                       [gap :size "10px"]
-                                                                      [:h3 "Boxes"]
+                                                                      [:h3 "Boxes (deep nesting and alignment)"]
                                                                       [gap :size "10px"]
                                                                       [button :label "Button 2"]]]]
                                                   [gap  :size "10px"]

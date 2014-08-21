@@ -28,8 +28,9 @@
     {:id ::layouts   :label "Layouts"  :panel layouts/panel}
     {:id ::tour      :label "Tour"     :panel tour/panel}
     {:id ::modals    :label "Modals"   :panel modals/panel}
-    {:id ::boxes1    :label "Boxes 1"  :panel boxes/panel1}
-    {:id ::boxes2    :label "Boxes 2"  :panel boxes/panel2}
+    {:id ::boxes1    :label "Boxes-1"  :panel boxes/panel1}
+    {:id ::boxes2    :label "Boxes-2"  :panel boxes/panel2}
+    {:id ::boxes3    :label "Boxes-3"  :panel boxes/panel3}
     ])
 
 
