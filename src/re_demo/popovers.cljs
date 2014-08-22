@@ -64,17 +64,17 @@
 
 
 [popover
-  :direction   XXXX
-  :anchor      [button XXXX]
-  :showing?     XXXX             ;; optional, if supplied use it otherwise create one
+  :direction   :x
+  :anchor      [button :x]
+  :showing?    :x             ;; optional, if supplied use it otherwise create one
 
-  :popover  {:title  XXXXX
-             :body }
-  :pop-title    XXXXXX
-  :pop-body      XXXX
-  :pop-close-button?
-  :pop-width
-  :pop-height
+  :popover  {:title  :x
+             :body   :x}
+  :pop-title   :x
+  :pop-body    :x
+  :pop-close-button? :x
+  :pop-width   :x
+  :pop-height  :x
  ]
 
 
