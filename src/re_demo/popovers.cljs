@@ -63,6 +63,20 @@
                    :children []]]])))
 
 
+[popover
+  :direction   XXXX
+  :anchor      [button XXXX]
+  :showing?     XXXX             ;; optional, if supplied use it otherwise create one
+
+  :popover  {:title  XXXXX
+             :body }
+  :pop-title    XXXXXX
+  :pop-body      XXXX
+  :pop-close-button?
+  :pop-width
+  :pop-height
+ ]
+
 
 
 (defn panel
