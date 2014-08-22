@@ -8,7 +8,7 @@
 ;;  Gaps
 ;; ------------------------------------------------------------------------------------
 
-(defn gap
+(defn gap-old
   [&{:keys [height width]}]
   (let [h-style  (if height {:padding-top  (str height "px")} {})
         w-style  (if width  {:padding-left (str width  "px")} {})

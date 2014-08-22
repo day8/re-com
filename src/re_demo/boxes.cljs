@@ -24,9 +24,10 @@
                :child [h-box
                        :justify :center
                        :children [[:h3 "Boxes (simple)"]]]]
-              [gap  :size "10px"]
+              [gap  :size "30px"]
               [line :size "2px"]
               [h-box
+               :size "100%"
                :children [[box
                            :size "100px"
                            :padding "4px"
@@ -37,15 +38,15 @@
                            :size    "60%"
                            :child   [:div {:style rounded-panel}
                                      [:h4 "Left Panel (60%)"]
-                                     [:p "The red lines are [line] components.
-                                          The white space between the heading and the top red line is a [gap] component."]]]
+                                     [:p "The red lines are [line] components."]
+                                     [:p "The white space between the heading above and the top red line is a [gap] component of 30px size."]]]
                           [line :size "2px"]
                           [box
                            :size    "40%"
                            :child   [:div {:style rounded-panel}
                                      [:h4 "Right Panel (40%)"]
-                                     [:p "The width of this and the left side div is 40%/60% of the pixels remaining after
-                                          removing all the fixed pixels, including boxes, lines, gaps and horizontal margin/padding values."]]]
+                                     [:p "The width of this panel and the left panel is 40%/60% of the pixels remaining after
+                                          accounting for all the fixed pixels, including boxes, lines, gaps and horizontal margin values."]]]
                           [line :size "2px"]
                           [box
                            :size "100px"
@@ -84,8 +85,8 @@
                                        :min-height "300px"
                                        :child   [:div {:style rounded-panel}
                                                  [:h4 "Top Left Panel"]
-                                                 [:p  "Note: There is a min-width of 900px around this entire h-box"]
-                                                 [:p  "size=600px, min-width=300px, min-height=300px"]]]
+                                                 [:p "size=600px, min-width=300px, min-height=300px"]
+                                                 [:p "Note: There is a min-width of 900px around this entire h-box"]]]
                                       [line :size "2px"]
                                       [box
                                        :size       "40%"

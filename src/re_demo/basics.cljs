@@ -5,7 +5,7 @@
                                               label
                                               spinner
                                               progress-bar
-                                              gap]]
+                                              gap-old]]
             [reagent.core             :as    reagent]))
 
 
@@ -46,7 +46,7 @@
       :label (nth click-outcomes (:outcome-index @state))
       :style {:margin-left "15px"}]]]
 
-   [gap :height 20]
+   [gap-old :height 20]
 
    [:div                                                    ;;.row
     [:div                                                   ;;.col-md-4

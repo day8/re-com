@@ -1,8 +1,8 @@
 (ns re-demo.tabs
    (:require [reagent.core :as reagent]
              [alandipert.storage-atom :refer [local-storage]]
-             [re-com.box   :refer [h-box v-box box gap line]]
-             [re-com.core  :refer [gap button]]
+             [re-com.box   :refer [h-box v-box box gap line scroller border]]
+             [re-com.core  :refer [gap-old button]]
              [re-com.tabs  :as tabs]))
 
 
@@ -20,7 +20,6 @@
   [text]
   "An underlined, left justified, H3 Title"
   [box
-   :size "auto"
    :child  [v-box
             :children [[h-box
                         :children [[:h3 text]]]
@@ -35,20 +34,27 @@
        :children [[title "Horizontal Tabs"]
                   [h-box
                    :gap "50px"
-                   :children [[v-box
-                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
-                               :children [
-                                           [:div.h4 "Notes:"]
-                                           [:ul
-                                            [:li "The code for this page can be found in /demo_src/tabs.cljs"]
-                                            [:li "For another demonstration, also look in /demo_src/core.cljs. This entire app is just a set of tabs."]
-                                            [:li "Tab-like controls can be styled in the ways shown to the right."]
-                                            [:li "We've linked all the examples to the one peice of state, so they'll change in lockstep."]
-                                            [:li "Also, notice that if you refresh the page, it remembers which tab you were in last time."]]]]
+                   :min-width "1200px"
+                   :children [[border
+                               :border  "2px dashed blue"
+                               :radius  "10px"
+                               :padding "4px"
+                               :margin  "4px"
+                               ;:size    "50%"
+                               :child [v-box
+                                       :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                                       :children [[:div.h4 "Notes:"]
+                                                  [:ul
+                                                   [:li "The code for this page can be found in /demo_src/tabs.cljs"]
+                                                   [:li "For another demonstration, also look in /demo_src/core.cljs. This entire app is just a set of tabs."]
+                                                   [:li "Tab-like controls can be styled in the ways shown to the right."]
+                                                   [:li "We've linked all the examples to the one peice of state, so they'll change in lockstep."]
+                                                   [:li "Also, notice that if you refresh the page, it remembers which tab you were in last time."]]]]]
 
                               [v-box
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"       ;; TOD0:  decide would we prefer to use :top-margin??
+                               :size "50%"
                                :children [
                                            ;; Three visual variations on tabs which share selection state via 'selected-tab-id'
                                            [tabs/horizontal-pills
@@ -80,8 +86,10 @@
        :children [[title "A Remembered Tab"]
                   [h-box
                    :gap "50px"
+                   :min-width "1000px"
                    :children [[v-box
                                :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :size "50%"
                                :children [
                                            [:div.h4 "Notes:"]
                                            [:ul
@@ -92,6 +100,7 @@
                               [v-box
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"       ;; TOD0:  decide would we prefer to use :top-margin??
+                               :size "50%"
                                :children [[tabs/horizontal-tabs
                                            :model  selected-tab-id
                                            :tabs  tab-defs]]]]]]])))
@@ -108,8 +117,10 @@
        :children [[title "Dynamic Tabs"]
                   [h-box
                    :gap "50px"
+                   :min-width "800px"
                    :children [[v-box
                                :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :size "50%"
                                :children [[button
                                            :label "Add"
                                            :on-click (fn []
@@ -122,6 +133,7 @@
                               [v-box
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"       ;; TOD0:  decide would we prefer to use :top-margin??
+                               :size "50%"
                                :children [[tabs/horizontal-tabs
                                            :model  selected-tab-id
                                            :tabs  tab-defs]]]]]]])))
@@ -140,8 +152,10 @@
 
 (defn panel
   []
-  [v-box
-   :children [[horizontal-tabs-demo]
-              [remembers-demo]
-              [adding-tabs-demo]
-              #_[vertical-tabs-demo]]])
+  [scroller
+   :scroll :auto
+   :child [v-box
+           :children [[horizontal-tabs-demo]
+                      [remembers-demo]
+                      [adding-tabs-demo]
+                      #_[vertical-tabs-demo]]]])

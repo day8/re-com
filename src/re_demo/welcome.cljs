@@ -1,6 +1,6 @@
 (ns re-demo.welcome
    (:require [reagent.core :as reagent]
-             [re-com.core  :refer [gap]]))
+             [re-com.core  :refer [gap-old]]))
 
 
 
@@ -11,7 +11,7 @@
    [:h2.page-header "Re-Com"]
    [:p "Re-com is a component library for Reagent. "]
 
-   [gap :height 15]
+   [gap-old :height 15]
 
    [:p "It makes use of:"]
    [:ul
@@ -27,7 +27,7 @@
            "Flex Box"]
           " so that's Chrome, Firefox, and IE 11!"]]]
 
-   [gap :height 20]
+   [gap-old :height 20]
 
    [:p "Reagent tutorials and further explanation:"]
 
