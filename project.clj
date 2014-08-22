@@ -15,6 +15,11 @@
 
   :source-paths ["src/re_com" "src/re_demo"]
 
+  ;; Exclude the demo code from the output of either:
+  ;;   - lein jar
+  ;;   - lein install
+  :jar-exclusions [#"*./src/re_demo"]
+
 
   :cljsbuild { :builds [
                         {:id "demo"

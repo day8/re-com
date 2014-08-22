@@ -4,26 +4,36 @@
             [reagent.core :as reagent]))
 
 
-(defn point [x y] (str x "," y " "))
+(defn point
+  [x y]
+  (str x "," y " "))
 
 
-(defn px [val & negative] (str (when negative "-") val "px"))
+(defn px
+  [val & negative]
+  (str (when negative "-") val "px"))
 
 
 (defn split-keyword
   [kw delimiter] ;; TODO: Possibly move to util
-  "Takes a single keyword separated by a delimiter character string (usually "-") and makes two keywords from it
-   Returns a vector with the two new keywords"
+  "I return the vector of the two keywords formed by splitting
+   another keyword 'kw' on an internal delimiter (usually '-').
 
+   (split-keyword  :above-left  \"-\")
+   =>  [:above :left]
+   "
   (let [keywords (clojure.string/split (str kw) (re-pattern (str "[" delimiter ":]")))] ;; (:require [clojure.string :as cstr])
     [(keyword (keywords 1)) (keyword (keywords 2))]))
 
 
-(defn make-close-button
-  [popover-to-close?]
-  [button "×" #(reset! popover-to-close? false)
-   :class "close"
-   :style {:font-size "36px" :margin-top "-8px"}])
+(defn close-button
+  [show-popover?]
+  "A button with a big X in it. Too right of the popup."
+  [button
+   :label    "×"
+   :on-click #(reset! show-popover? false)
+   :class    "close"                                    ;; TODO: we seems to have both a class and embedded CSS styles ??
+   :style    {:font-size "36px" :margin-top "-8px"}])
 
 
 (defn calc-popover-pos
@@ -50,12 +60,10 @@
                            :above (px 10) ;; "100%" TODO: Work out why we need 10px instead of 100%
                            :below nil)]
       #_(util/console-log (str "in calc-popover-pos: pop-offset=" pop-offset ", p-width=" p-width ", p-height=" p-height))
-      {:left popover-left :top popover-top :right popover-right :bottom popover-bottom}
-      )
-    nil))
+      {:left popover-left :top popover-top :right popover-right :bottom popover-bottom})))
 
 
-(defn make-popover-arrow
+(defn popover-arrow
   [orientation pop-offset arrow-length arrow-width grey-arrow]
   (let [half-arrow-width (/ arrow-width 2)
         arrow-shape {:left  (str (point 0 0)            (point arrow-length half-arrow-width) (point 0 arrow-width))
@@ -160,11 +168,9 @@
                           ;; make it visible and turn off BS max-width and remove BS padding which adds an internal white border
                           {:display "block" :max-width "none" :padding (px 0)})}
 
-           [make-popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
-           (when title [:h3.popover-title [:div title (when close-button? [make-close-button show-popover?])]])
-           [:div.popover-content body]]
-          ))
-      })))
+           [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
+           (when title [:h3.popover-title [:div title (when close-button? [close-button show-popover?])]])
+           [:div.popover-content body]]))})))
 
 
 (defn popover
