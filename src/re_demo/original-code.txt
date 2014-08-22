@@ -756,14 +756,6 @@
 
     [:div {:style {:display "flex" :flex-flow "row"}} ;; Flexbox button bar wrapper
 
-     ;; Button #1 - :right-below
-     [popover
-      :right-below
-      show-but1-popover?
-      [button ":right-below" #(reset! show-but1-popover? (not @show-but1-popover?)) :class "btn-success"]
-      {:title        "Popover Title"
-       :body         "Popover body. Can be a simple string or in-line hiccup or a function returning hiccup"}
-      {:arrow-length 30}]
 
      ;; Button #2 - :above-right
      [popover
