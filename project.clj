@@ -18,7 +18,7 @@
   ;; Exclude the demo code from the output of either:
   ;;   - lein jar
   ;;   - lein install
-  :jar-exclusions [#"*./src/re_demo"]
+  :jar-exclusions [#".*/src/re_demo"]
 
 
   :cljsbuild { :builds [
