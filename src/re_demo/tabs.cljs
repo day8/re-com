@@ -42,8 +42,8 @@
                                           [:ul
                                            [:li "Tab-like controls can be styled in the 3 ways shown to the right."]
                                            [:li "All 3 share the same state so they change in lockstep."]
-                                           [:li "Tab \"contents\" (a string of text) is shown in the dotted border below."]
-                                           [:li "For simplicity, your selection is forgotten when you change to another panel, like Welcome (look top left)."]
+                                           [:li "Placeholder  \"Tab Contents\" (a string of text) is shown in the dotted border below. Just for effect."]
+                                           [:li "The implementation here is simple. As a result, your selection is forgotten when you change to another panel, like Welcome (look top left)."]
                                            [:li "The code for this page can be found in /src/re_demo/tabs.cljs"]
                                            [:li "For another demonstration, also look in /src/re_demo/core.cljs. After all, this entire demo app is just a series of tabs."]]]]
 
@@ -52,7 +52,7 @@
                                :margin  "20px 0px 0px 0px"       ;; TOD0:  decide would we prefer to use :top-margin??
                                :size "50%"
                                :children [
-                                           ;; Three visual variations on tabs which share selection state via 'selected-tab-id'
+                                           ;; Three visual variations on tabs follow
                                            [tabs/horizontal-pills
                                             :model selected-tab-id
                                             :tabs  tabs-definition]
@@ -124,12 +124,14 @@
                    :min-width "800px"
                    :children [[v-box
                                :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
-                               :size "50%"
-                               :children [[button
-                                           :label "Add"
-                                           :on-click (fn []
-                                                       (let [c (str (inc (count @tab-defs)))]
-                                                         (swap! tab-defs conj {:id (keyword c) :label c})))]
+                               :size "auto"
+                               :children [[h-box
+                                           :children [[button
+                                                      :label "Add"
+                                                      :on-click (fn []
+                                                                  (let [c       (str (inc (count @tab-defs)))
+                                                                        new-tab {:id (keyword c) :label c}]
+                                                                    (swap! tab-defs conj new-tab)))]]]
                                           [:div.h4 "Notes:"]
                                           [:ul
                                            [:li "Click  \"Add\" for more tabs."]]]]

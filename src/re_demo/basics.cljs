@@ -28,49 +28,53 @@
 
 (defn buttons-demo
   []
-  (let [popover-showing?  (reagent/atom false)]
-    (fn []
-      [v-box
-       :children [[title "Buttons"]
-                  [button
-                   :label    "No Clicking!"
-                   :on-click #(swap! state update-in [:outcome-index] inc)
-                   :class    "btn-danger"]
-                  [label
-                   :label (nth click-outcomes (:outcome-index @state))
-                   :style {:margin-left "15px"}]]])))
+  (fn []
+    [v-box
+     :children [[title "Buttons"]
+                [gap "20px"]
+                [h-box
+                 :children [[button
+                             :label    "No Clicking!"
+                             :on-click #(swap! state update-in [:outcome-index] inc)
+                             :class    "btn-danger"]
+                            [box
+                             :align :center   ;; Cnote: centered text wrt the button
+                             :child  [label
+                                      :label (nth click-outcomes (:outcome-index @state))
+                                      :style {:margin-left "15px"}]]]]]]))
 
 
 (defn combo-box-demo
   []
-  (let [popover-showing?  (reagent/atom false)]
-    (fn []
-      [v-box
-       :children [[title "Buttons"]
-                  [:select#MwiSelect.form-control {:style {:display "inline" :width "auto"}}
-                   nil
-                   (for [o combo-options]
-                     ^{:key o}
-                     [:option nil o])]]])))
+  (fn []
+    [v-box
+     :children [[title "ComboBox"]
+                [gap "20px"]
+                [h-box
+                 :children [[:select#MwiSelect.form-control {:style {:display "inline" :width "auto"}}
+                             nil
+                             (for [o combo-options]
+                               ^{:key o}
+                               [:option o])]]]]]))
 
 (defn inputs-demo
-[]
-(let [popover-showing?  (reagent/atom false)]
+  []
   (fn []
     [v-box
      :children [[:h3.page-header "Inputs"]
                  [:p]
                  [:p "Should show buttons and input fields in here"]
                  [:p "Perhaps typography"]
-                 [:p "XXX Explain that bootstrap has to be included into the html"]]])))
+                 [:p "XXX Explain that bootstrap has to be included into the html"]]]))
 
 (defn panel
   []
   [v-box
-   :children [_[buttons-demo]
-              #_[combo-box-demo]
-              [inputs-demo]
-              ]])
+   :children [[buttons-demo]
+              [gap "20px"]
+              [combo-box-demo]
+              [gap "20px"]
+              [inputs-demo]]])
 
 
 

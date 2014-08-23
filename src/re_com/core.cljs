@@ -57,11 +57,10 @@
       :or {:label "blank" :class "btn-default"}}]
   "Return the markup for a basic button
    Parameters:
-    - text      Text to display on the button
-    - callback  The function to call when the button is clicked
-    - style     [optional] :style {map} where map is the standard hicckup style map values
-                e.g. :style {:color \"blue\" :margin \"4px\"}
-    - class     [optional] :class \"class\" where class is one or more of the Bootstrap button styles
+    - on-click  The function to call when the button is clicked
+    - style     [optional] a map. Standard hicckup style map values
+                e.g. {:color \"blue\" :margin \"4px\"}
+    - class     [optional] string. One or more of the Bootstrap button styles
                 e.g. \"btn-info\"
                 See: http://getbootstrap.com/css/#buttons"
   [:button
