@@ -1,7 +1,6 @@
 (ns re-demo.popovers
-  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-com.core       :refer  [button]]
-            [re-demo.util      :refer [title]]
+            [re-demo.util      :refer  [title]]
             [re-com.popover    :refer  [popover make-button make-link]]
             [re-com.box        :refer  [h-box v-box box gap line]]
             [reagent.core      :as     reagent]))

@@ -35,21 +35,17 @@
                   [h-box
                    :gap "50px"
                    :min-width "1200px"
-                   :children [[border
-                               :border  "2px dashed blue"
-                               :radius  "10px"
-                               :padding "4px"
-                               :margin  "4px"
-                               ;:size    "50%"
-                               :child [v-box
-                                       :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
-                                       :children [[:div.h4 "Notes:"]
-                                                  [:ul
-                                                   [:li "The code for this page can be found in /demo_src/tabs.cljs"]
-                                                   [:li "For another demonstration, also look in /demo_src/core.cljs. This entire app is just a set of tabs."]
-                                                   [:li "Tab-like controls can be styled in the ways shown to the right."]
-                                                   [:li "We've linked all the examples to the one peice of state, so they'll change in lockstep."]
-                                                   [:li "Also, notice that if you refresh the page, it remembers which tab you were in last time."]]]]]
+                   :children [[v-box
+                               :size "450px"
+                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :children [[:div.h4 "Notes:"]
+                                          [:ul
+                                           [:li "Tab-like controls can be styled in the 3 ways shown to the right."]
+                                           [:li "All 3 share the same state so they change in lockstep."]
+                                           [:li "Tab \"contents\" (a string of text) is shown in the dotted border below."]
+                                           [:li "For simplicity, your selection is forgotten when you change to another panel, like Welcome (look top left)."]
+                                           [:li "The code for this page can be found in /src/re_demo/tabs.cljs"]
+                                           [:li "For another demonstration, also look in /src/re_demo/core.cljs. After all, this entire demo app is just a series of tabs."]]]]
 
                               [v-box
                                :gap     "30px"
@@ -69,8 +65,16 @@
                                             :model selected-tab-id
                                             :tabs  tabs-definition]
 
-                                           ;; display the tab content which, in this case, is extracted from the tab definition
-                                           [:h4.well (:say-this (tabs/find-tab @selected-tab-id tabs-definition))]]]]]]])))
+                                           ;; Display the tab content which, in this case, is a string
+                                           ;; extracted from the tab definition.
+                                           ;; We out a dotted border around it for dramatic effect.
+                                           [border
+                                            :border  "1px dashed grey"
+                                            :radius  "10px"
+                                            :padding "20px"
+                                            ;;:margin  "4px"
+                                            ;:size    "50%"
+                                            :child [:p (:say-this (tabs/find-tab @selected-tab-id tabs-definition))]]]]]]]])))
 
 
 (defn remembers-demo
@@ -83,7 +87,7 @@
         _               (add-watch selected-tab-id nil #(reset! id-store %4))]                   ;; put into local-store for later
     (fn []
       [v-box
-       :children [[title "A Remembered Tab"]
+       :children [[title "A Persistent Tab Selection"]
                   [h-box
                    :gap "50px"
                    :min-width "1000px"
@@ -93,9 +97,9 @@
                                :children [
                                            [:div.h4 "Notes:"]
                                            [:ul
-                                            [:li "This tab's selection is remembered in local-storage."]
-                                            [:li "When you refresh the page, the selection persists."]
-                                            [:li "Also, notice that if you refresh the page, it remembers which tab you were in last time."]]]]
+                                            [:li "Any tab selection you make on the right will persist."]
+                                            [:li "It is stored using HTML5's local-storage."]
+                                            [:li "Even if you refresh the entire browser page, you'll see the same selection."]]]]
 
                               [v-box
                                :gap     "30px"

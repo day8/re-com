@@ -149,5 +149,4 @@
     {:role "progressbar"
      :style {:width (str @progress-percent "%")
              :transition "none"}} ;; Default BS transitions cause the progress bar to lag behind
-    (str @progress-percent "%")]]
-  )
+    (str @progress-percent "%")]])
