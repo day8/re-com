@@ -41,7 +41,14 @@
                              :align :center   ;; Cnote: centered text wrt the button
                              :child  [label
                                       :label (nth click-outcomes (:outcome-index @state))
-                                      :style {:margin-left "15px"}]]]]]]))
+                                      :style {:margin-left "15px"}]]]]
+
+                [gap "20px"]
+                [h-box                                                 
+                 :children [[button
+                             :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
+                             :on-click #(swap! state update-in [:see-spinner] not)]
+                            (when (:see-spinner @state)  [spinner])]]]]))
 
 
 (defn combo-box-demo
