@@ -38,13 +38,14 @@
                              :on-click #(swap! state update-in [:outcome-index] inc)
                              :class    "btn-danger"]
                             [box
-                             :align :center   ;; Cnote: centered text wrt the button
+                             :align :center      ;; note: centered text wrt the button
                              :child  [label
                                       :label (nth click-outcomes (:outcome-index @state))
                                       :style {:margin-left "15px"}]]]]
 
                 [gap "20px"]
-                [h-box                                                 
+                [h-box             ;; I had to put the button in an h-box or else it streached out horizontally
+                 :gap "50px"
                  :children [[button
                              :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
                              :on-click #(swap! state update-in [:see-spinner] not)]

@@ -39,10 +39,18 @@
                [:li
                 "Focus managment? When the user presses tab, to what field does focus move?  Not 100% sure about this."]
                [:li
-                "A framework for tying together views to underlying models, and some way to \"conveyer belt\" UI events back to some sort of controller/state-management logic."]]
+                "A framework for tying together views to underlying models, and some way to \"conveyer belt\" UI events back to some sort of controller/state-management logic."]
+               [:li
+                "drag and drop"]
+               [:li
+                "annimations and transitions"]
+               [:li
+                "how do we do testing?  Look in inspiration in "
+                [hyperlink "omchaya" "https://github.com/sgrove/omchaya/"]
+                ]]
 
 
-              [:p "What Re-com Is Not:"]
+               [:p "What Re-com Is Not:"]
               [:ul
                [:li
                 "Because it rellies heavily on "
