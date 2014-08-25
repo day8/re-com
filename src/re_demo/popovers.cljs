@@ -26,17 +26,18 @@
                                             [:li "If window contents change while popped-up, it stays glued. "]]]]
                               [v-box
                                :gap     "30px"
-                               :margin  "20px 0px 0px 0px"       ;; TOD0:  decide would we prefer to use :top-margin??
+                               :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
                                :children [[popover
-                                            :below-right
-                                            popover-showing?
-                                            [button
-                                             :label    (if @popover-showing? "Pop-down" "Click me")
-                                             :on-click #(reset! popover-showing? (not @popover-showing?))
-                                             :class    "btn-success"]
-                                            {:title    "A Popover Is Happening"
-                                             :body     "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}
-                                            #_{:arrow-length 30}]]]]]]])))
+                                           :position :below-right
+                                           :showing? popover-showing?
+                                           :anchor   [button
+                                                      :label    (if @popover-showing? "Pop-down" "Click me")
+                                                      :on-click #(reset! popover-showing? (not @popover-showing?))
+                                                      :class    "btn-success"]
+                                           :popover  {:title    "A Popover Is Happening"
+                                                      :body     "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}
+                                           ;:options  {:arrow-length 30}
+                                           ]]]]]]])))
 
 
 
@@ -69,8 +70,6 @@
 
   :popover  {:title  :x
              :body   :x}
-  :pop-title   :x
-  :pop-body    :x
   :pop-close-button? :x
   :pop-width   :x
   :pop-height  :x

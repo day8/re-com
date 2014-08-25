@@ -1,6 +1,7 @@
 (ns re-demo.tabs
    (:require [reagent.core :as reagent]
              [alandipert.storage-atom :refer [local-storage]]
+             [re-demo.util :refer  [title]]
              [re-com.box   :refer [h-box v-box box gap line scroller border]]
              [re-com.core  :refer [gap-old button]]
              [re-com.tabs  :as tabs]))
@@ -16,16 +17,6 @@
     {:id ::tab3  :label "Tab3"   :say-this  "I'm telling Mum on you two !!"}])
 
 
-(defn title
-  [text]
-  "An underlined, left justified, H3 Title"
-  [box
-   :child  [v-box
-            :children [[h-box
-                        :children [[:h3 text]]]
-                       [line :size "1px"]]]])
-
-
 (defn horizontal-tabs-demo
   []
   (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]     ;; holds the id of the selected tab
@@ -37,7 +28,7 @@
                    :min-width "1200px"
                    :children [[v-box
                                :size "450px"
-                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :margin  "20px 0px 0px 0px"        ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
                                :children [[:div.h4 "Notes:"]
                                           [:ul
                                            [:li "Tab-like controls can be styled in the 3 ways shown to the right."]
@@ -48,9 +39,9 @@
                                            [:li "For another demonstration, also look in /src/re_demo/core.cljs. After all, this entire demo app is just a series of tabs."]]]]
 
                               [v-box
+                               :size "100%"
                                :gap     "30px"
-                               :margin  "20px 0px 0px 0px"       ;; TOD0:  decide would we prefer to use :top-margin??
-                               :size "50%"
+                               :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
                                :children [
                                            ;; Three visual variations on tabs follow
                                            [tabs/horizontal-pills
@@ -92,8 +83,8 @@
                    :gap "50px"
                    :min-width "1000px"
                    :children [[v-box
-                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
                                :size "50%"
+                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
                                :children [
                                            [:div.h4 "Notes:"]
                                            [:ul
@@ -102,9 +93,9 @@
                                             [:li "Even if you refresh the entire browser page, you'll see the same selection."]]]]
 
                               [v-box
-                               :gap     "30px"
-                               :margin  "20px 0px 0px 0px"       ;; TOD0:  decide would we prefer to use :top-margin??
                                :size "50%"
+                               :gap     "30px"
+                               :margin  "20px 0px 0px 0px"       ;; TODO:  decide would we prefer to use :top-margin??
                                :children [[tabs/horizontal-tabs
                                            :model  selected-tab-id
                                            :tabs  tab-defs]]]]]]])))
@@ -121,25 +112,24 @@
        :children [[title "Dynamic Tabs"]
                   [h-box
                    :gap "50px"
-                   :min-width "800px"
                    :children [[v-box
-                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
-                               :size "auto"
-                               :children [[h-box
-                                           :children [[button
-                                                      :label "Add"
-                                                      :on-click (fn []
-                                                                  (let [c       (str (inc (count @tab-defs)))
-                                                                        new-tab {:id (keyword c) :label c}]
-                                                                    (swap! tab-defs conj new-tab)))]]]
+                               :size    "auto"
+                               :margin  "20px 0px 0px 0px"        ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :align   :start
+                               :children [[button
+                                           :label "Add"
+                                           :on-click (fn []
+                                                       (let [c       (str (inc (count @tab-defs)))
+                                                             new-tab {:id (keyword c) :label c}]
+                                                         (swap! tab-defs conj new-tab)))]
                                           [:div.h4 "Notes:"]
                                           [:ul
                                            [:li "Click  \"Add\" for more tabs."]]]]
 
                               [v-box
-                               :gap     "30px"
-                               :margin  "20px 0px 0px 0px"       ;; TOD0:  decide would we prefer to use :top-margin??
                                :size "50%"
+                               :gap     "30px"
+                               :margin  "20px 0px 0px 0px"       ;; TODO:  decide would we prefer to use :top-margin??
                                :children [[tabs/horizontal-tabs
                                            :model  selected-tab-id
                                            :tabs  tab-defs]]]]]]])))
@@ -158,10 +148,8 @@
 
 (defn panel
   []
-  [scroller
-   :scroll :auto
-   :child [v-box
-           :children [[horizontal-tabs-demo]
-                      [remembers-demo]
-                      [adding-tabs-demo]
-                      #_[vertical-tabs-demo]]]])
+  [v-box
+   :children [[horizontal-tabs-demo]
+              [remembers-demo]
+              [adding-tabs-demo]
+              #_[vertical-tabs-demo]]])

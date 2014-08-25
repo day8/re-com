@@ -5,7 +5,7 @@
             [re-com.core      :as    core]
             [re-com.tabs ]
             [re-com.box       :refer [h-box v-box box
-                                      gap line]]
+                                      gap line scroller border]]
 
             [re-demo.welcome  :as welcome]
             [re-demo.basics   :as basics]
@@ -48,18 +48,15 @@
        ;; width doesn't need to be initially set
        :height   "100%"
        :children [[box
-                   :size    "auto"
                    :padding "10px"
                    :child   [re-com.tabs/horizontal-pills ;; tabs across the top
                              :model selected-tab-id
                              :tabs  tabs-definition]]
-                  [box
-                   ;:f-container true
-                   :padding   "0px 10px"
-                   :child     [(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]  ;; the tab panel to show, for the selected tab
-                  #_[h-box
-                   :padding   "0px 10px"
-                   :children  [[(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]]  ;; alternate method to box above
+                  [scroller
+                   :child [box
+                           :size      "auto"
+                           :padding   "0px 10px"
+                           :child     [(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]] ;; the tab panel to show, for the selected tab
                   ]])))
 
 

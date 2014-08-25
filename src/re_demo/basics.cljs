@@ -7,7 +7,7 @@
 
 (def click-outcomes
   [""   ;; start blank
-   "Neuclear warhead launched."
+   "Nuclear warhead launched."
    "Oops. Priceless Ming Vase smashed!!"
    "Diamonds accidentally flushed."
    "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""

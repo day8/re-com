@@ -43,42 +43,66 @@
 ;;  helper functions
 ;; ------------------------------------------------------------------------------------
 
-#_(defn split-size ;; REDUNDANT, use clojure.string/split
-  [size]
-  "Splits a CSS size attibute into two parts. e.g.
-    - '100'   will return ['100' '']
-    - '100px' will return ['100' 'px']
-    - '50%'   will return ['50' '%']
-    - 'auto'  will return [nil nil] (so will anything that isn't in the form of {number}{string}"
-  (let [re (js/RegExp. #"(\d+)(.*)")]
-    (if-let [res  (js->clj (.exec re size))]
-      [(second res) (last res)]
-      [nil nil])))
-
-
 (defn flex-child-style
   [size]
-  "Determines the value for the 'flex' attribute, based on the size parameter.
-   e.g. 100px, 60% or auto
-   Also handles passing a custom flex string if there is more than one word in size. e.g. '0 0 auto'"
-  (let [split-size      (str/split (str/trim size) #" +")
-        size-only       (when (= (count split-size) 1) split-size)
-        split-size-only (when size-only (str/split size-only #"(\d+)(.*)"))
-        [_ num units]   (if size-only (js->clj split-size-only) nil)
-        percent         (or (= units "%") (= units "") (= units "\"]")) ;; TODO: Not sure why we're getting the "]
-        grow            (if percent num 0)
-        shrink          1
-        basis           (if percent "0px" size)]
-    {:flex (if size-only
-             (str grow " " shrink " " basis)
-             size)}))
+  "Determines the value for the 'flex' attribute (which has grow, shrink and basis), based on the size parameter.
+   IMPORTANT: The term 'size' means width of the item in the case of flex-direction 'row' OR height of the item in the case of flex-direction 'column'.
+   Flex property explanation:
+    - grow    Integer ratio (used with other siblings) to determined how a flex item grows it's size if there is extra space to distribute. 0 for no growing.
+    - shrink  Integer ratio (used with other siblings) to determined how a flex item shrinks it's size if space needs to be removed. 0 for no shrinking.
+    - basis   Initial size of item before any growing or shrinking. Can be any size value, e.g. 60%, 100px, auto
+   Supported values:
+    - initial            '0 1 auto'  - Use item's width/height for dimensions (or content dimensions if w/h not specifed). Never grow. Shrink (to min-size) if necessary.
+                                       Good for creating boxes with fixed maximum size, but that can shrink to a smaller size (min-width/height) if space becomes tight.
+    - auto               '1 1 auto'  - Use item's width/height for dimensions. Grow if necessary. Shrink (to min-size) if necessary.
+                                       Good for creating really flexible boxes that will gobble as much available space as they are allowed or shrink as much as they are forced to.
+    - none               '0 0 auto'  - Use item's width/height for dimensions (or content dimensions if not specifed). Never grow. Never shrink.
+                                       Good for creating rigid boxes that stick to their width/height if specified, otherwise their content size.
+    - 100px              '0 0 100px' - Non flexible 100px size (in the flex direction) box.
+                                       Good for fixed headers/footers and side bars of an exact size.
+    - 60%                '60 1 0px'  - Set the item's size (remember, it's width/height depending on flex-direction) to be 60% of the parent container's width/height.
+                                       IMPORTANT: If you use this, then all siblings with percentage values must add up to 100%.
+    - 60                 '60 1 0px'  - Same as percentage above.
+    - grow shrink basis  'grow shrink basis' - If none of the above common valaues above meet your needs, this gives you precise control.
+   If number of words is not 1 or 3, an exception is thrown.
+   Reference: http://www.w3.org/TR/css3-flexbox/#flexibility"
+  ;; TODO: Could make initial/auto/none into keywords???
+  (let [split-size      (str/split (str/trim size) #"\s+")                  ;; Split into words separated by whitespace
+        split-count     (count split-size)
+        _               (assert (contains? #{1 3} split-count) "Must pass either 1 or 3 words to flex-child-style")
+        size-only       (when (= split-count 1) (first split-size))         ;; Contains value when only one word passed (e.g. auto, 60px)
+        split-size-only (when size-only (str/split size-only #"(\d+)(.*)")) ;; Split into number + string
+        [_ num units]   (when size-only split-size-only)                    ;; grab number and units
+        pass-through?   (nil? num)                                          ;; If we can't split, then we'll pass this straign through
+        grow-ratio?     (or (= units "%") (= units "") (nil? units))        ;; Determine case for using grow ratio
+        grow            (if grow-ratio? num "0")                            ;; Set grow based on percent or integer, otherwise no grow
+        shrink          (if grow-ratio? "1" "0")                            ;; If grow set, then set shrink to even shrinkage as well
+        basis           (if grow-ratio? "0px" size)                         ;; If grow set, then even growing, otherwise set basis size to the passed in size (e.g. 100px, 5em)
+        flex            (if (and size-only (not pass-through?))
+                          (str grow " " shrink " " basis)
+                          size)]
+    {:flex flex}))
+
+
+(defn test-flex-child-style []
+  (assert (= (:flex (flex-child-style "initial")) "initial"))
+  (assert (= (:flex (flex-child-style "auto")) "auto"))
+  (assert (= (:flex (flex-child-style "none")) "none"))
+  (assert (= (:flex (flex-child-style "100px")) "0 0 100px"))
+  (assert (= (:flex (flex-child-style "4.5em")) "0 0 4.5em"))
+  (assert (= (:flex (flex-child-style "60%")) "60 1 0px"))
+  (assert (= (:flex (flex-child-style "60")) "60 1 0px"))
+  (assert (= (:flex (flex-child-style "5 4 0%")) "5 4 0%"))
+  ;(assert (= (flex-child-style "a b") "EXCEPTION"))
+  )
 
 
 (defn justify-style
   [justify]
   "Determines the value for the flex 'justify-content' attribute.
-   This parameter determines how children are aligned along the normal axis.
-   The justify parameter is a keyword."
+   This parameter determines how children are aligned along the main axis.
+   The justify parameter is a keyword.
+   Reference: http://www.w3.org/TR/css3-flexbox/#justify-content-property"
   {:justify-content (case justify
                       :start   "flex-start"
                       :end     "flex-end"
@@ -88,16 +112,17 @@
 
 
 (defn align-style
-  [align]
-  "Determines the value for the flex 'align' or 'self-align' attributes.
-   This parameter determines how children are aligned on the cross-axis.
-   The justify parameter is a keyword."
-  {:align-items (case align
-                  :start    "flex-start"
-                  :end      "flex-end"
-                  :center   "center"
-                  :baseline "baseline"
-                  :stretch  "stretch")})
+  [attribute align]
+  "Determines the value for the flex align type attributes.
+   This parameter determines how children are aligned on the cross axis.
+   The justify parameter is a keyword.
+   Reference: http://www.w3.org/TR/css3-flexbox/#align-items-property"
+  {attribute (case align
+               :start    "flex-start"
+               :end      "flex-end"
+               :center   "center"
+               :baseline "baseline"
+               :stretch  "stretch")})
 
 
 (defn scroll-style
@@ -119,7 +144,7 @@
 (defn gap
   [& {:keys [size]
       :or {size "20px"}}]
-  "Returns markup which produces a gap between children in a v-box/h-box along the normal axis.
+  "Returns markup which produces a gap between children in a v-box/h-box along the main axis.
    Specify size in pixels. Defaults to 20px."
   (let [g-style {:flex (str "0 0 " size)}
         d-style (when debug {:background-color "chocolate"
@@ -135,7 +160,7 @@
 (defn line
   [& {:keys [size color]
       :or {size "1px" color "red"}}]
-  "Returns markup which produces a line between children in a v-box/h-box along the normal axis.
+  "Returns markup which produces a line between children in a v-box/h-box along the main axis.
    Specify size in pixels and a stancard CSS colour. Defaults to a 1px red line."
   (let [flex-child {:flex (str "0 0 " size)}
         c-style    {:background-color color}
@@ -149,12 +174,12 @@
 
 (defn h-box
   [& {:keys [f-child size width height min-width min-height justify align margin padding gap children]
-      :or   {f-child true size "auto" justify :start align :stretch}}]
+      :or   {f-child true size "none" justify :start align :stretch}}]
   "Returns markup which produces a horizontal box.
    It's primary role is to act as a container for child components and lays it's children from left to right.
    By default, it also acts as a child under it's parent."
   (let [flex-container {:display "flex" :flex-flow "row nowrap"}
-        flex-child     (when f-child (flex-child-style size)) ;; Was {:flex "1 1 0px"}
+        flex-child     (when f-child (flex-child-style size))
         w-style        (if width
                          {:width width}
                          {:width "inherit"}) ;; width inheritence is actually optional, but here for consistency with
@@ -162,7 +187,7 @@
         mw-style       (when min-width {:min-width min-width})
         mh-style       (when min-height {:min-height min-height})
         j-style        (justify-style justify)
-        a-style        (align-style align)
+        a-style        (align-style :align-items align)
         m-style        (when margin {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
         p-style        (when padding {:padding padding})
         d-style        (when debug {:background-color "gold"})
@@ -180,12 +205,12 @@
 
 (defn v-box
   [& {:keys [f-child size width height min-width min-height justify align margin padding gap children]
-      :or   {f-child true size "auto" justify :start align :stretch}}]
+      :or   {f-child true size "none" justify :start align :stretch}}]
   "Returns markup which produces a vertical box.
    It's primary role is to act as a container for child components and lays it's children from top to bottom.
    By default, it also acts as a child under it's parent."
   (let [flex-container {:display "flex" :flex-flow "column nowrap"}
-        flex-child     (when f-child    (flex-child-style size)) ;; Was {:flex "1 1 0px"}
+        flex-child     (when f-child    (flex-child-style size))
         w-style        (when width      {:width width})
         h-style        (if height
                          {:height height}
@@ -193,7 +218,7 @@
         mw-style       (when min-width  {:min-width min-width})
         mh-style       (when min-height {:min-height min-height})
         j-style        (justify-style justify)
-        a-style        (align-style align)
+        a-style        (align-style :align-items align)
         m-style        (when margin     {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
         p-style        (when padding    {:padding padding})
         d-style        (when debug      {:background-color "antiquewhite"})
@@ -221,8 +246,8 @@
         mw-style       (when min-width   {:min-width min-width})
         mh-style       (when min-height  {:min-height min-height})
         j-style        (when (and f-container justify) (justify-style justify))
-        a-style        (when (and f-container align) (align-style align))
-        as-style       (when align-self  (align-style align-self))
+        a-style        (when (and f-container align) (align-style :align-items align))
+        as-style       (when align-self  (align-style :align-self align-self))
         m-style        (when margin      {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
         p-style        (when padding     {:padding padding})
         b-style        (when border      {:border        border})
@@ -246,7 +271,7 @@
 
 (defn box
   [& {:keys [f-child f-container size width height min-width min-height justify align align-self margin padding child]
-      :or   {f-child true f-container true size "auto"}}]
+      :or   {f-child true f-container true size "none"}}]
   "Returns markup which produces a box, which is generally used as a child of a v-box or an h-box.
    By default, it also acts as a container for further child compenents, or another h-box or v-box."
   (box-base :class       "rc-box"
@@ -279,7 +304,7 @@
 
 (defn scroller
   [& {:keys [scroll width height min-width min-height align-self margin padding child]
-      :or   {}}]
+      :or   {scroll :auto}}]
   "Returns markup which produces a scoller component.
    This is the way scroll bars are added to boxes, in favour of adding the scroll attributes directly to the boxes themselves.
    scroll property syntax: :auto  Only show scroll bars if rquired.
@@ -288,8 +313,8 @@
                            :spill Never show scroll bars (content not in the bounds of the scroller spills all over the place)."
   (box-base :class       "rc-scroller"
             :f-child     true
-            :f-container false
-            :size        "auto"                         ;; Was "1" which produces "1 1 0px"
+            :f-container true
+            :size        "auto"
             :scroll      scroll
             :width       width
             :height      height
@@ -328,7 +353,7 @@
     (box-base :class       "rc-border"
               :f-child     true
               :f-container true
-              :size        "1"
+              :size        "auto"
               ;:scroll      scroll
               ;:width       width
               ;:height      height
