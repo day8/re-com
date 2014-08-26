@@ -8,7 +8,6 @@
   [text]
   "An underlined, left justified, H3 Title"
   [box
-   :size "auto"
    :child  [v-box
             :children [[h-box
                         :children [[:h3 text]]]

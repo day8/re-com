@@ -158,3 +158,27 @@ html, body {
   right: -11px !important;
 }
 */
+
+/*
+ Custom scrollbars
+  - http://css-tricks.com/custom-scrollbars-in-webkit
+  - http://codemug.com/html/custom-scrollbars-using-css
+*/
+
+::-webkit-scrollbar {
+  width: 10px;
+  background-color: rgba(0,0,0,.05);
+  }
+::-webkit-scrollbar:horizontal {
+  height:10px;
+  }
+::-webkit-scrollbar:hover {
+  background-color:rgba(0,0,0,.19);
+  }
+::-webkit-scrollbar-thumb:horizontal, ::-webkit-scrollbar-thumb:vertical {
+  background:rgba(0,0,0,.5);
+  border-radius: 5px;
+  }
+::-webkit-scrollbar-thumb:horizontal:active, ::-webkit-scrollbar-thumb:vertical:active {
+  background:rgba(0,0,0,.61);
+  }

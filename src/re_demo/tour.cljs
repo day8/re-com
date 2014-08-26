@@ -4,7 +4,8 @@
             [re-com.core   :refer  [button]]
 
             [re-demo.util      :refer [title]]
-            [re-com.box    :refer  [h-box v-box box gap line]]
+            [re-com.box    :refer  [h-box v-box box
+                                    gap line scroller border]]
             [reagent.core  :as     reagent]))
 
 

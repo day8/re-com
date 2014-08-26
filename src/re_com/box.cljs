@@ -53,19 +53,22 @@
     - basis   Initial size of item before any growing or shrinking. Can be any size value, e.g. 60%, 100px, auto
    Supported values:
     - initial            '0 1 auto'  - Use item's width/height for dimensions (or content dimensions if w/h not specifed). Never grow. Shrink (to min-size) if necessary.
-                                       Good for creating boxes with fixed maximum size, but that can shrink to a smaller size (min-width/height) if space becomes tight.
+                                       Good for creating boxes with fixed maximum size, but that can shrink to a fixed smaller size (min-width/height) if space becomes tight.
+                                       NOTE: When using initial, you should also set a width/height value (depending on flex-direction) to specify it's default size
+                                             and an optional min-width/height value to specify the size it can shrink to.
     - auto               '1 1 auto'  - Use item's width/height for dimensions. Grow if necessary. Shrink (to min-size) if necessary.
                                        Good for creating really flexible boxes that will gobble as much available space as they are allowed or shrink as much as they are forced to.
     - none               '0 0 auto'  - Use item's width/height for dimensions (or content dimensions if not specifed). Never grow. Never shrink.
                                        Good for creating rigid boxes that stick to their width/height if specified, otherwise their content size.
     - 100px              '0 0 100px' - Non flexible 100px size (in the flex direction) box.
                                        Good for fixed headers/footers and side bars of an exact size.
-    - 60%                '60 1 0px'  - Set the item's size (remember, it's width/height depending on flex-direction) to be 60% of the parent container's width/height.
-                                       IMPORTANT: If you use this, then all siblings with percentage values must add up to 100%.
+    - 60%                '60 1 0px'  - Set the item's size (it's width/height depending on flex-direction) to be 60% of the parent container's width/height.
+                                       NOTE: If you use this, then all siblings with percentage values must add up to 100%.
     - 60                 '60 1 0px'  - Same as percentage above.
     - grow shrink basis  'grow shrink basis' - If none of the above common valaues above meet your needs, this gives you precise control.
    If number of words is not 1 or 3, an exception is thrown.
-   Reference: http://www.w3.org/TR/css3-flexbox/#flexibility"
+   Reference: http://www.w3.org/TR/css3-flexbox/#flexibility
+   Regex101 testing: ^(initial|auto|none)|(\\d+)(px|%|em)|(\\d+)\\w(\\d+)\\w(.*) - remove double backslashes"
   ;; TODO: Could make initial/auto/none into keywords???
   (let [split-size      (str/split (str/trim size) #"\s+")                  ;; Split into words separated by whitespace
         split-count     (count split-size)
@@ -126,11 +129,11 @@
 
 
 (defn scroll-style
-  [scroll]
+  [attribute scroll]
   "Determines the value for the 'overflow' attribute.
    The scroll parameter is a keyword.
    Because we're translating scroll into overflow, the keyword doesn't appear to match the attribute value."
-  {:overflow (case scroll
+  {attribute (case scroll
                   :auto  "auto"
                   :off   "hidden"
                   :on    "scroll"
@@ -145,10 +148,9 @@
   [& {:keys [size]
       :or {size "20px"}}]
   "Returns markup which produces a gap between children in a v-box/h-box along the main axis.
-   Specify size in pixels. Defaults to 20px."
+   Specify size in any sizing amount, usually px or % or perhaps em. Defaults to 20px."
   (let [g-style {:flex (str "0 0 " size)}
-        d-style (when debug {:background-color "chocolate"
-                             :border "1px dashed black"})
+        d-style (when debug {:background-color "chocolate"})
         s       (merge g-style d-style)]
     [:div {:class "rc-gap" :style s}]))
 
@@ -159,7 +161,7 @@
 
 (defn line
   [& {:keys [size color]
-      :or {size "1px" color "red"}}]
+      :or {size "1px" color "lightgray"}}]
   "Returns markup which produces a line between children in a v-box/h-box along the main axis.
    Specify size in pixels and a stancard CSS colour. Defaults to a 1px red line."
   (let [flex-child {:flex (str "0 0 " size)}
@@ -235,12 +237,14 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn box-base
-  [& {:keys [class f-child f-container size scroll width height min-width min-height justify align align-self
+  [& {:keys [class f-child f-container size scroll h-scroll v-scroll width height min-width min-height justify align align-self
              margin padding border l-border r-border t-border b-border radius bk-color child]}]
   "This should generally NOT be used as it is the basis for the box, scroller and border components."
   (let [flex-child     (when f-child     (flex-child-style size))
         flex-container (when f-container {:display "flex" :flex-flow "inherit"})
-        s-style        (when scroll      (scroll-style scroll))  ;; TODO: Possibly also implement h-scroll and v-scroll
+        s-style        (when scroll      (scroll-style :overflow scroll))
+        sh-style       (when h-scroll    (scroll-style :overflow-x h-scroll))
+        sv-style       (when v-scroll    (scroll-style :overflow-y v-scroll))
         w-style        (when width       {:width width})
         h-style        (when height      {:height height})
         mw-style       (when min-width   {:min-width min-width})
@@ -259,7 +263,7 @@
         c-style        (if bk-color
                          {:background-color bk-color}
                          (if debug {:background-color "lightblue"} {}))
-        s              (merge flex-child flex-container s-style w-style h-style mw-style mh-style j-style a-style as-style
+        s              (merge flex-child flex-container s-style sh-style sv-style w-style h-style mw-style mh-style j-style a-style as-style
                               m-style p-style b-style bl-style br-style bt-style bb-style r-style c-style)]
     [:div {:class class :style s}
      child]))
@@ -279,6 +283,8 @@
             :f-container f-container
             :size        size
             ;:scroll      scroll
+            ;:h-scroll    h-scroll
+            ;:v-scroll    v-scroll
             :width       width
             :height      height
             :min-width   min-width
@@ -303,19 +309,27 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn scroller
-  [& {:keys [scroll width height min-width min-height align-self margin padding child]
-      :or   {scroll :auto}}]
+  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height align-self margin padding child]
+      :or   {size "auto" scroll :auto}}]
   "Returns markup which produces a scoller component.
    This is the way scroll bars are added to boxes, in favour of adding the scroll attributes directly to the boxes themselves.
-   scroll property syntax: :auto  Only show scroll bars if rquired.
-                           :on    Always show scroll bars.
-                           :off   Never show scroll bars (content not in the bounds of the scroller can not be seen).
-                           :spill Never show scroll bars (content not in the bounds of the scroller spills all over the place)."
+   IMPORTANT: Because this component becomes the flex child in place of the component it is wrapping, you must copy the size attibutes to this componenet.
+   There are three scroll types:
+    - h-scroll  Determines how the horizontal scroll bar will be displayed.
+    - v-scroll  Determines how the vertical scroll bar will be displayed.
+    - scroll    Sets both h-scroll and v-scroll at once.
+   Syntax: :auto   [DEFAULT] Only show scroll bar(s) if the content is larger than the scroller.
+           :on     Always show scroll bar(s).
+           :off    Never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen.
+           :spill  Never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place.
+   Note:   If scroll is set, then setting h-scroll or v-scroll overrides the scroll value."
   (box-base :class       "rc-scroller"
             :f-child     true
             :f-container true
-            :size        "auto"
+            :size        size
             :scroll      scroll
+            :h-scroll    h-scroll
+            :v-scroll    v-scroll
             :width       width
             :height      height
             :min-width   min-width
@@ -355,6 +369,8 @@
               :f-container true
               :size        "auto"
               ;:scroll      scroll
+              ;:h-scroll    h-scroll
+              ;:v-scroll    v-scroll
               ;:width       width
               ;:height      height
               ;:min-width   min-width
