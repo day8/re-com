@@ -13,17 +13,16 @@
   :plugins [[lein-cljsbuild "1.0.4-SNAPSHOT"]
             [com.cemerick/clojurescript.test "0.3.1"]]
 
-  :source-paths ["src/re_com" "src/re_demo"]
+  :source-paths ["src"]
 
   ;; Exclude the demo code from the output of either:
   ;;   - lein jar
   ;;   - lein install
-  :jar-exclusions [#".*/src/re_demo"]
-
+  :jar-exclusions [#"(?:^|\/)re_demo\/"]
 
   :cljsbuild { :builds [
                         {:id "demo"
-                         :source-paths   ["src/re_com" "src/re_demo"]
+                         :source-paths   ["src/re_demo" "src/re_com"]
                          :compiler       {:output-to     "run/compiled/demo.js"
                                           :source-map    "run/compiled/demo.js.map"
                                           :output-dir    "run/compiled/demo"
@@ -38,5 +37,7 @@
                                           :preamble      ["reagent/react.min.js"]
                                           :elide-asserts true
                                           :pretty-print  false
-                                          :optimizations :advanced}}]}
-  )
+                                          :optimizations :none}}]}
+   :aliases {"auto-demo" ["do" "clean," "cljsbuild" "clean," "cljsbuild" "auto" "demo,"]
+            "auto-test" ["do" "clean," "cljsbuild" "auto" "test"]}
+ )

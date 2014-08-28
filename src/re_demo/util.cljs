@@ -1,7 +1,6 @@
  (ns re-demo.util
   (:require [reagent.core :as reagent]
-            [re-com.core  :refer [gap]]
-            [re-com.box   :refer [h-box v-box box line]]))
+            [re-com.box   :refer [gap h-box v-box box line]]))
 
 
 (defn title
