@@ -54,25 +54,29 @@
         mouseover-split #(reset! over? true)
         mouseout-split  #(reset! over? false)
 
-        make-container-style (fn [in-drag?]
-                               (merge {:id container-id
+        make-container-style (fn [class in-drag?]
+                               (merge {:class class
+                                       :id container-id
                                        :style {:display "flex"
                                                :flex-flow "row nowrap"
-                                               :height "100%"
+                                               :flex "auto"
                                                :margin margin}}
                                       (when in-drag?                             ;; only listen when we are dragging
                                         {:on-mouse-up stop-drag
                                          :on-mouse-move mousemove
                                          :on-mouse-out mouseout})))
 
-        make-panel-style (fn [in-drag? percentage]
-                           {:style (merge {:display "flex"
+        make-panel-style (fn [class in-drag? percentage]
+                           {:class class
+                            :style (merge {:display "flex"
                                            :flex (str percentage " 1 0px")
-                                           :overflow "hidden"}
+                                           :overflow "hidden" ;; TODO: Shouldn't have this...tyest removing it
+                                           }
                                           (when in-drag? {:pointer-events "none"}))})
 
-        make-splitter-style (fn []
-                              {:on-mouse-down mousedown
+        make-splitter-style (fn [class]
+                              {:class class
+                               :on-mouse-down mousedown
                                :on-mouse-over mouseover-split
                                :on-mouse-out  mouseout-split
                                :style (merge {:flex (str "0 0 " splitter-size)
@@ -80,14 +84,11 @@
                                              (when @over? {:background-color "#eeeeee"}))})]
 
     (fn []
-      [:div.h-layout-container
-       (make-container-style @dragging?)
-       [:div.h-layout-top
-        (make-panel-style @dragging? @split-perc)
+      [:div (make-container-style "rc-h-layout" @dragging?)
+       [:div (make-panel-style "rc-h-layout-top" @dragging? @split-perc)
         [left-panel]]
-       [:div.h-layout-splitter (make-splitter-style)]
-       [:div.h-layout-bottom
-        (make-panel-style @dragging? (- 100 @split-perc))
+       [:div (make-splitter-style "rc-h-layout-splitter")]
+       [:div (make-panel-style "rc-h-layout-bottom" @dragging? (- 100 @split-perc))
         [right-panel]]])))
 
 
@@ -104,6 +105,7 @@
 
         split-perc  (reagent/atom 50)                ;; splitter position as a percentage of height
         dragging?   (reagent/atom false)             ;; is the user dragging the splitter (mouse is down)?
+        over?       (reagent/atom false)             ;; is the mouse over the splitter, if so, highlight it
 
         stop-drag   #(reset! dragging? false)
 
@@ -127,35 +129,42 @@
                      (.preventDefault event)                                    ;; stop selection of text during drag
                      (reset! dragging? true))
 
-        make-container-style (fn [in-drag?]
-                               (merge {:id container-id
+        mouseover-split #(reset! over? true)
+        mouseout-split  #(reset! over? false)
+
+        make-container-style (fn [class in-drag?]
+                               (merge {:class class
+                                       :id container-id
                                        :style {:display "flex"
                                                :flex-flow "column nowrap"
-                                               :height "100%"
+                                               :flex "auto"
                                                :margin margin}}
                                       (when in-drag?                             ;; only listen when we are dragging
                                         {:on-mouse-up stop-drag
                                          :on-mouse-move mousemove
                                          :on-mouse-out mouseout})))
 
-        make-panel-style (fn [in-drag? percentage]
-                           {:style (merge {:display "flex"
+        make-panel-style (fn [class in-drag? percentage]
+                           {:class class
+                            :style (merge {:display "flex"
                                            :flex (str percentage " 1 0px")
-                                           :overflow "hidden"}
+                                           :overflow "hidden" ;; TODO: Shouldn't have this...tyest removing it
+                                           }
                                           (when in-drag? {:pointer-events "none"}))})
 
-        make-splitter-style (fn []
-                              {:on-mouse-down mousedown
-                               :style {:flex (str "0 0 " splitter-size)
-                                       :cursor "ns-resize"}})]
+        make-splitter-style (fn [class]
+                              {:class class
+                               :on-mouse-down mousedown
+                               :on-mouse-over mouseover-split
+                               :on-mouse-out  mouseout-split
+                               :style (merge {:flex (str "0 0 " splitter-size)
+                                              :cursor "ns-resize"}
+                                             (when @over? {:background-color "#eeeeee"}))})]
 
     (fn []
-      [:div.v-layout-container
-       (make-container-style @dragging?)
-       [:div.v-layout-top
-        (make-panel-style @dragging? @split-perc)
+      [:div (make-container-style "re-v-layout" @dragging?)
+       [:div (make-panel-style "re-v-layout-top" @dragging? @split-perc)
         [top-panel]]
-       [:div.v-layout-splitter (make-splitter-style)]
-       [:div.v-layout-bottom
-        (make-panel-style @dragging? (- 100 @split-perc))
+       [:div (make-splitter-style "re-v-layout-splitter")]
+       [:div (make-panel-style "re-v-layout-bottom" @dragging? (- 100 @split-perc))
         [bottom-panel]]])))

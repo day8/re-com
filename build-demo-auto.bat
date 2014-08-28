@@ -1,2 +1,1 @@
-call lein cljsbuild clean
-call lein cljsbuild auto demo
+call lein auto-demo

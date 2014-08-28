@@ -30,7 +30,7 @@
          [:button.btn.btn-default
           {:type     "button"
            :key      (str id)
-           :style    (if selected? {:background-color "#AAA"  :color "white"} {})
+           :style    (if selected? {:background-color "#aaa"  :color "white"} {})
            :on-click #(reset! model id)}
           label]))]))
 

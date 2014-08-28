@@ -1,4 +1,4 @@
-(defproject re-com "0.1.0"
+(defproject re-com "0.1.1"
   :description  "Reusable UI components for Reagent"
 
   :url          "https://github.com/Day8/re-com.git"
@@ -21,23 +21,25 @@
   :jar-exclusions [#"(?:^|\/)re_demo\/"]
 
   :cljsbuild { :builds [
-                        {:id "demo"
-                         :source-paths   ["src/re_demo" "src/re_com"]
-                         :compiler       {:output-to     "run/compiled/demo.js"
-                                          :source-map    "run/compiled/demo.js.map"
-                                          :output-dir    "run/compiled/demo"
-                                          :optimizations :none
-                                          :pretty-print  true}}
+                         {:id "demo"
+                          :source-paths   ["src/re_demo" "src/re_com"]
+                          :compiler       {:output-to     "run/compiled/demo.js"
+                                           :source-map    "run/compiled/demo.js.map"
+                                           :output-dir    "run/compiled/demo"
+                                           :optimizations :none
+                                           :pretty-print  true}}
 
+                         {:id "prod"
+                          :source-paths   ["src/re_com"]
+                          :compiler       {:output-to     "compiled/prod.js"
+                                           :output-dir    "compiled/prod"
+                                           :preamble      ["reagent/react.min.js"]
+                                           :elide-asserts true
+                                           :optimizations :advanced
+                                           :pretty-print  false}}]}
 
-                        {:id "prod"
-                         :source-paths   ["src/re_com"]
-                         :compiler       {:output-to     "compiled/prod.js"
-                                          :output-dir    "compiled/prod"
-                                          :preamble      ["reagent/react.min.js"]
-                                          :elide-asserts true
-                                          :pretty-print  false
-                                          :optimizations :none}}]}
-   :aliases {"auto-demo" ["do" "clean," "cljsbuild" "clean," "cljsbuild" "auto" "demo,"]
+  :aliases {"auto-demo" ["do" "clean," "cljsbuild" "clean," "cljsbuild" "auto" "demo,"]
+            "auto"      ["do" "cljsbuild" "auto" "demo,"]
+            "once"      ["do" "cljsbuild" "once" "demo,"]
             "auto-test" ["do" "clean," "cljsbuild" "auto" "test"]}
- )
+  )

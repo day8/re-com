@@ -7,7 +7,7 @@
             [reagent.core             :as    reagent]))
 
 
-(def rounded-panel {:background-color "fff4f4"
+(def rounded-panel {:background-color "#fff4f4"
                     :border           "1px solid lightgray"
                     :border-radius    "8px"
                     ;:margin           "8px"
@@ -57,7 +57,7 @@
                :size     "auto"
                :children [[title "Horizontal Layout"]
                           [h-layout
-                           :left-panel left-panel
+                           :left-panel  left-panel
                            :right-panel right-panel]]]
               [gap]
               [line]
@@ -66,5 +66,5 @@
                :size     "auto"
                :children [[title "Vertical Layout"]
                           [v-layout
-                           :top-panel top-panel
+                           :top-panel    top-panel
                            :bottom-panel bottom-panel]]]]])
