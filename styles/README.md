@@ -44,8 +44,8 @@ Bootstrap-chosen doesn't have releases but at time of writing, the commit number
  
 ### Compiling
 
-We have to link the two libraries, which requires editing the bootstrap master less file: `/less/bootstrap/bootstrap.less`.
-Simply add the following line to the end of the file to point it to the bootstrap-chosen file:
+We have to link the two libraries, which requires editing the bootstrap master less file: `/styles/bootstrap/bootstrap.less`.
+Simply add the following line to the end of the file to make sure it includes the bootstrap-chosen CSS:
 
     @import "../../bootstrap-chosen/bootstrap-chosen.less";
 

@@ -1,36 +1,37 @@
 (ns re-demo.core
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [reagent.core     :as    reagent]
-            [re-com.util      :as    util]
-            [re-com.core      :as    core]
+  (:require [reagent.core       :as    reagent]
+            [re-com.util        :as    util]
+            [re-com.core        :as    core]
             [re-com.tabs ]
-            [re-com.box       :refer [h-box v-box box
-                                      gap line scroller border]]
+            [re-com.box         :refer [h-box v-box box
+                                        gap line scroller border]]
 
-            [re-demo.welcome  :as welcome]
-            [re-demo.basics   :as basics]
-            [re-demo.alerts   :as alerts]
-            [re-demo.tabs     :as tabs]
-            [re-demo.popovers :as popovers]
-            [re-demo.layouts  :as layouts]
-            [re-demo.tour     :as tour]
-            [re-demo.modals   :as modals]
-            [re-demo.boxes    :as boxes]))
+            [re-demo.welcome    :as welcome]
+            [re-demo.basics     :as basics]
+            [re-demo.dropdowns  :as dropdowns]
+            [re-demo.alerts     :as alerts]
+            [re-demo.tabs       :as tabs]
+            [re-demo.popovers   :as popovers]
+            [re-demo.layouts    :as layouts]
+            [re-demo.tour       :as tour]
+            [re-demo.modals     :as modals]
+            [re-demo.boxes      :as boxes]))
 
 (enable-console-print!)
 
 (def tabs-definition
-  [ {:id ::welcome   :label "Welcome"  :panel welcome/panel}
-    {:id ::basics    :label "Basics"   :panel basics/panel}
-    {:id ::alerts    :label "Alerts"   :panel alerts/panel}
-    {:id ::tabs      :label "Tabs"     :panel tabs/panel}
-    {:id ::popovers  :label "Popovers" :panel popovers/panel}
-    {:id ::tour      :label "Tour"     :panel tour/panel}
-    {:id ::modals    :label "Modals"   :panel modals/panel}
-    {:id ::boxes1    :label "Boxes-1"  :panel boxes/panel1}
-    {:id ::boxes2    :label "Boxes-2"  :panel boxes/panel2}
-    {:id ::layouts   :label "Layouts"  :panel layouts/panel}
-    ])
+  [ {:id ::welcome   :label "Welcome"    :panel welcome/panel}
+    {:id ::basics    :label "Basics"     :panel basics/panel}
+    {:id ::dropdown  :label "Dropdowns"  :panel dropdowns/panel}
+    {:id ::alerts    :label "Alerts"     :panel alerts/panel}
+    {:id ::tabs      :label "Tabs"       :panel tabs/panel}
+    {:id ::popovers  :label "Popovers"   :panel popovers/panel}
+    {:id ::tour      :label "Tour"       :panel tour/panel}
+    {:id ::modals    :label "Modals"     :panel modals/panel}
+    {:id ::boxes1    :label "Boxes-1"    :panel boxes/panel1}
+    {:id ::boxes2    :label "Boxes-2"    :panel boxes/panel2}
+    {:id ::layouts   :label "Layouts"    :panel layouts/panel}])
 
 
 ;; http://css-tricks.com/functional-css-tabs-revisited/   (see the demo)

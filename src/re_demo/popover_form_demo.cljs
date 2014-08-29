@@ -1,4 +1,4 @@
-(ns re-com.popover-form-demo
+(ns re-demo.popover-form-demo
   (:require [reagent.core :as reagent]
             [re-com.util  :as util]
             [re-com.core  :refer [button]]
@@ -43,7 +43,7 @@
     (swap! form-data assoc :file (.-value selected-file))
     (reset! show-this-popover? false)
     (util/console-log-prstr "Submitted PRIMARY form: form-data" form-data)
-    (add-alert "info" {:heading "Submitted PRIMARY form" :body (str "Form data submitted: " (. js/cljs.core (pr_str @form-data)))})
+    ;(add-alert "info" {:heading "Submitted PRIMARY form" :body (str "Form data submitted: " (. js/cljs.core (pr_str @form-data)))})
     false)) ;; Prevent default "GET" form submission to server
 
 
@@ -52,7 +52,7 @@
   (reset! form-data @initial-form-data)
   (reset! show-this-popover? false)
   (util/console-log-prstr "Cancelled PRIMARY form: form-data" form-data)
-  (add-alert "warning" {:heading "Cancelled PRIMARY form" :body (str "Form data reset to original values: " (. js/cljs.core (pr_str @form-data)))})
+  ;(add-alert "warning" {:heading "Cancelled PRIMARY form" :body (str "Form data reset to original values: " (. js/cljs.core (pr_str @form-data)))})
   false) ;; Returning false prevent default "GET" form submission to server in on-click event for forms
 
 
@@ -218,11 +218,14 @@
       ]]]
 
    [:hr {:style {:margin "10px 0 10px"}}]
-   
-   [button "Apply" pform-submit
-    :class "btn-primary"]
+   [button
+    :label    [:span [:span.glyphicon.glyphicon-ok] " Apply"]
+    :on-click pform-submit
+    :class    "btn-primary"]
    [:span " "]
-   [button "Cancel" pform-cancel]
+   [button
+    :label    [:span [:span.glyphicon.glyphicon-remove] " Cancel"]
+    :on-click pform-cancel]
    ])
 
 
@@ -236,7 +239,7 @@
 (defn sform-submit
   []
   (util/console-log-prstr "Submitted SECONDARY form: sform-data" sform-data)
-  (add-alert "info" {:heading "Submitted SECONDARY form" :body (str "Form data submitted: " (. js/cljs.core (pr_str @sform-data)))})
+  ;(add-alert "info" {:heading "Submitted SECONDARY form" :body (str "Form data submitted: " (. js/cljs.core (pr_str @sform-data)))})
   false) ;; Prevent default "GET" form submission to server
 
 
@@ -273,7 +276,9 @@
        :on-change #(swap! sform-data assoc :remember-me (-> % .-target .-checked))}
       "Remember me"]]]
    [:span " "]
-   [button "Sign in" sform-submit]]
+   [button
+    :label [:span "Sign in " [:span.glyphicon.glyphicon-circle-arrow-right]]
+    :on-click sform-submit]]
   )
 
 
@@ -321,7 +326,7 @@
 (defn popover-title
   []
   [:div "Arbitrary " [:strong "markup"] " example (" [:span {:style {:color "red"}} "red text"] ")"
-   [button "×" pform-cancel
+   [button :label "×" :on-click pform-cancel
     :class "close"
     :style {:font-size "36px" :margin-top "-8px"}]
    ])
@@ -331,7 +336,7 @@
   []
   [:input.btn.btn-danger
    {:type     "button"
-    :value    ":right-below"
+    :value    "Popover Form"
     :style    {:flex-grow 0
                :flex-shrink 1
                :flex-basis "auto"}
@@ -347,8 +352,13 @@
                          :title         [popover-title]
                          :close-button? false            ;; We have to add our own close button because it does more than simply close the popover
                          :body          [popover-form]}
-        popover-options {:arrow-length      80
+        popover-options {:arrow-length      15
                          :arrow-width       10
                          :backdrop-callback pform-cancel
-                         :backdrop-opacity  .3}]
-    [popover :right-below show-this-popover? (red-button) popover-content popover-options]))
+                         :backdrop-opacity  0.3}]
+    [popover
+     :position :below-center
+     :showing? show-this-popover?
+     :anchor   (red-button)
+     :popover  popover-content
+     :options  popover-options]))

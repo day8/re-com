@@ -1,14 +1,15 @@
 (ns re-demo.popovers
-  (:require [re-com.core       :refer  [button]]
-            [re-demo.util      :refer  [title]]
-            [re-com.popover    :refer  [popover make-button make-link]]
-            [re-com.box        :refer  [h-box v-box box gap line]]
-            [reagent.core      :as     reagent]))
+  (:require [re-com.core               :refer  [button]]
+            [re-demo.util              :refer  [title]]
+            [re-com.box                :refer  [h-box v-box box gap line]]
+            [re-com.popover            :refer  [popover make-button make-link]]
+            [re-demo.popover-form-demo :as     popover-form-demo]
+            [reagent.core              :as     reagent]))
 
 
 (defn simple-popover-demo
   []
-  (let [popover-showing?  (reagent/atom false)]
+  (let [popover-showing?       (reagent/atom false)]
     (fn []
       [v-box
        :children [[title "Button Popover"]
@@ -28,7 +29,7 @@
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
                                :children [[popover
-                                           :position :below-right
+                                           :position :right-below
                                            :showing? popover-showing?
                                            :anchor   [button
                                                       :label    (if @popover-showing? "Pop-down" "Click me")
@@ -37,7 +38,9 @@
                                            :popover  {:title    "A Popover Is Happening"
                                                       :body     "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}
                                            ;:options  {:arrow-length 30}
-                                           ]]]]]]])))
+                                           ]
+                                          [popover-form-demo/show]
+                                          ]]]]]])))
 
 
 
@@ -61,20 +64,6 @@
                   [h-box
                    :gap "50px"
                    :children []]]])))
-
-
-[popover
-  :direction   :x
-  :anchor      [button :x]
-  :showing?    :x             ;; optional, if supplied use it otherwise create one
-
-  :popover  {:title  :x
-             :body   :x}
-  :pop-close-button? :x
-  :pop-width   :x
-  :pop-height  :x
- ]
-
 
 
 (defn panel
