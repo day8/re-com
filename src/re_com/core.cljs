@@ -74,23 +74,30 @@
 ;; TODO:  label ???  probably needs to be an hbox ?  or make that a labeled-checkbox ?
 ;; provide a model or a callback ??
 ;; what if model is nil ??
-;; document that con-chamnge will be passed the new value
+;; document that on-change will be passed the new value
+;; http://css-tricks.com/indeterminate-checkboxes/
 (defn checkbox
+  "I return the markup for a basic checkbox"
   [& {:keys [model on-change label disabled readonly style class]
       :or   {:on-change #() :disabled false :readonly false}}]
-  (let [ ; current  @model
-         disabled     (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
-         readonly     (if (satisfies? cljs.core/IDeref disabled) @readonly readonly)]
-    "I return the markup for a basic checkbox"
-    [:input
-     {:type "checkbox"
-      :class (str "btn " class)
-      :style style
-      :value label
-      :disabled disabled
-      :readonly readonly
-      :checked  (if model "true" "false")
-      :onclick  #(on-change (.-checked %))}]))
+  (let [model     (if (satisfies? cljs.core/IDeref disabled) @model model)
+        disabled  (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
+        readonly  (if (satisfies? cljs.core/IDeref disabled) @readonly readonly)]
+
+    [:div.checkbox.form-group
+     [:label
+       [:input
+        (merge
+          {:type     "checkbox"
+           ;;:class    (str "btn " class)
+           :style    style
+           :value    label
+           :disabled disabled
+           :readOnly readonly
+           ;;:checked  (if model "true")
+           :onChange  #(on-change (.-checked %))}
+         (when model {:checked nil}))]    ;; in HTML5  we just need the attribute, with no value
+       label]]))
 
 
 ;; ------------------------------------------------------------------------------------

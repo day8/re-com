@@ -1,6 +1,6 @@
 (ns re-demo.basics
   (:require [re-demo.util   :refer  [title]]
-            [re-com.core    :refer  [button label spinner progress-bar ]]
+            [re-com.core    :refer  [button label spinner progress-bar checkbox ]]
             [re-com.box     :refer  [h-box v-box box gap line]]
             [reagent.core   :as     reagent]))
 
@@ -52,7 +52,7 @@
                             (when (:see-spinner @state)  [spinner])]]]]))
 
 
-(defn combo-box-demo
+#_(defn combo-box-demo
   []
   (fn []
     [v-box
@@ -64,6 +64,58 @@
                              (for [o combo-options]
                                ^{:key o}
                                [:option o])]]]]]))
+
+(defn checkboxes-demo
+  []
+  (let [always-true  (reagent/atom true)
+        always-false (reagent/atom false)]
+    [v-box
+     :children [[title "Checkboxes"]
+                [h-box
+                 :children [
+                             [h-box
+                              :gap "50px"
+                              :min-width "1200px"
+                              :children [#_[v-box
+                                         :size "450px"
+                                         :children [[gap "20px"]
+                                                    [:div.h4 "Notes:"]
+                                                    [:ul
+                                                     [:li "."]
+                                                     [:li "."]
+                                                     [:li "."]]]]
+
+                                          [v-box
+                                           :size "100%"
+                                           :gap     "10px"
+                                           :children [
+                                                      [checkbox
+                                                       :model   always-true    ;; always ticked
+                                                       :disabled false
+                                                       :readonly false
+                                                       ;; :style class
+                                                       :on-change  #(reset! always-true true )
+                                                       :label "Always ticked"
+                                                       ]
+                                                      [checkbox
+                                                       :model   false    ;; never ticked
+                                                      ;; :style class
+                                                      ;;:on-change
+                                                       :label "Untickable"
+                                                       ]
+                                                      #_[checkbox
+                                                       :model   true    ;; always ticked
+                                                       :disabled false
+                                                       :readonly false
+                                                                        ;; :style class
+                                                                        ;;:on-change
+                                                       :label "Always ticked"
+                                                       ]
+                                                      ]]]]
+
+
+                             ]]]]))
+
 
 (defn inputs-demo
   []
@@ -79,9 +131,9 @@
   []
   [v-box
    :children [[buttons-demo]
-              [gap "20px"]
-              [combo-box-demo]
-              [gap "20px"]
+              [gap "30px"]
+              [checkboxes-demo]
+              [gap "30px"]
               [inputs-demo]]])
 
 
