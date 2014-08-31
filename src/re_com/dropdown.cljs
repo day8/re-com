@@ -21,6 +21,7 @@
         has-focus         (reagent/atom false)
         drop-showing?     (reagent/atom false)
         mouse-over?       (reagent/atom false)
+        filter-text       (reagent/atom "")
         backdrop-callback #(reset! drop-showing? false)
         click-handler     #(reset! drop-showing? (not @drop-showing?))
         ]
@@ -51,13 +52,16 @@
          [:input
           {:type          "text"
            :auto-complete "off"
-           :tab-index     "2"}]]
+           :tab-index     "2"
+           :on-change     #(reset! filter-text (-> % .-target .-value))}]]
         [:ul.chosen-results
-         (for [o options]
-           ^{:key (:value o)} [:li
-                               {:class         (str "active-result" (when @mouse-over? " highlighted"))
-                                :on-mouse-over #(reset! mouse-over? true)
-                                :on-mouse-out  #(reset! mouse-over? false)
-                                :value         (:value o)}
-                               (:label o)])]]
+         (let [re        (js/RegExp. @filter-text "i")
+               filter-fn (partial (fn [re opt] (.test re (:label opt))) re)]
+           (doall (for [opt (filter filter-fn options)]       ;; doall prevents warning (https://github.com/holmsand/reagent/issues/18)
+                    ^{:key (:value opt)} [:li
+                                        {:class         (str "active-result" (when @mouse-over? " highlighted")) ;;@mouse-over?
+                                         :on-mouse-over #(reset! mouse-over? true)
+                                         :on-mouse-out  #(reset! mouse-over? false)
+                                         :value         (:value opt)}
+                                        (:label opt)])))]]
        ])))

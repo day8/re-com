@@ -45,7 +45,6 @@
                 {:value "22" :label "Belarus"               }
                 {:value "23" :label "Belgium"               }
                 {:value "24" :label "Belize"                }
-                {:value "24" :label "Belize"                }
                 {:value "25" :label "Benin"                 }
                 {:value "26" :label "Bermuda"               }
                 {:value "27" :label "Bhutan"                }
