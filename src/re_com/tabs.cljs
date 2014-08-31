@@ -1,12 +1,16 @@
 (ns re-com.tabs
    (:require [reagent.core :as reagent]))
 
-
+;; Below there are three different stylings for horizontal tabs
+;; In each case they take two parameters.
 ;; 'model' is expected to be an atom containing a keyword identifier. Eg.  ::first-tab
-;; 'tabs' can be either a map OR an atom containing a map
-;;        the map should look like this:
+;; 'tabs' can be either:
+;;     -  a map OR
+;;     - an atom containing a map
+;; Either way, the map should look like this:
 ;;        { ::id1  {:label "1" } ::id2  {:label "2" } ::anotherId  {:label "3" }
 ;;
+;; TODO:  can tabs ever be "disabled" ?
 
 
 ;; utility function for finding a tab definition with a given id

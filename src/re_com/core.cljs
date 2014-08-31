@@ -8,6 +8,7 @@
 ;;  Gaps
 ;; ------------------------------------------------------------------------------------
 
+;; TODO remove ??
 (defn gap-old
   [&{:keys [height width]}]
   (let [h-style  (if height {:padding-top  (str height "px")} {})
@@ -22,9 +23,7 @@
 
 (defn label
   [& {:keys [label style class]}]
-  "Return the markup for a basic label
-   Parameters:
-   ..."
+  "returns the markup for a basic label"
   [:label
    {:class class
     :style style}
@@ -37,9 +36,7 @@
 
 (defn input-text
   [text callback & {:keys [style class]}]
-  "Return the markup for a basic text input box
-   Parameters:
-   ..."
+  "returns the markup for a basic text imput label"
   [:input
    {:type "text"
     :class class
@@ -54,7 +51,7 @@
 
 (defn button
   [& {:keys [label on-click style class]
-      :or {:label "blank" :class "btn-default"}}]
+      :or {:class "btn-default"}}]
   "Return the markup for a basic button
    Parameters:
     - on-click  The function to call when the button is clicked
@@ -74,26 +71,26 @@
 ;;  Checkbox
 ;; ------------------------------------------------------------------------------------
 
+;; TODO:  label ???  probably needs to be an hbox ?  or make that a labeled-checkbox ?
+;; provide a model or a callback ??
+;; what if model is nil ??
+;; document that con-chamnge will be passed the new value
 (defn checkbox
-  [text callback & {:keys [style class]}]
-  "Return the markup for a basic checkbox
-   Parameters:
-   ..."
-  #_[:div.checkbox
-   [:label
+  [& {:keys [model on-change label disabled readonly style class]
+      :or   {:on-change #() :disabled false :readonly false}}]
+  (let [ ; current  @model
+         disabled     (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
+         readonly     (if (satisfies? cljs.core/IDeref disabled) @readonly readonly)]
+    "I return the markup for a basic checkbox"
     [:input
-     {:name      "remember-me"
-      :type      "checkbox"
-      :checked   (:remember-me @form-data)
-      :on-change #(swap! form-data assoc :remember-me (-> % .-target .-checked))}
-     "Remember me"]]]
-
-  [:input
-   {:type "checkbox"
-    :class (str "btn " class)
-    :style style
-    :value text
-    :on-click #(callback)}])
+     {:type "checkbox"
+      :class (str "btn " class)
+      :style style
+      :value label
+      :disabled disabled
+      :readonly readonly
+      :checked  (if model "true" "false")
+      :onclick  #(on-change (.-checked %))}]))
 
 
 ;; ------------------------------------------------------------------------------------
