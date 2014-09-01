@@ -87,6 +87,7 @@
     {:flex flex}))
 
 
+;; TODO - belongs in unittests, not here
 (defn test-flex-child-style []
   (assert (= (:flex (flex-child-style "initial")) "initial"))
   (assert (= (:flex (flex-child-style "auto")) "auto"))

@@ -1,6 +1,7 @@
 (ns re-com.core
   (:require [reagent.core :as reagent]
-            [re-com.util  :as util]))
+            [re-com.util  :as util]
+            [re-com.box   :refer [h-box box]]))
 
 
 
@@ -24,9 +25,9 @@
 (defn label
   [& {:keys [label style class]}]
   "returns the markup for a basic label"
-  [:label
+  [:span
    {:class class
-    :style style}
+    :style (merge {:flex: "0 0 auto"} style )}
    label])
 
 
@@ -62,7 +63,7 @@
                 See: http://getbootstrap.com/css/#buttons"
   [:button
    {:class    (str "btn " class)
-    :style    style
+    :style    (merge {:flex: "0 0 auto"} style)
     :on-click on-click}
    label])
 
@@ -71,32 +72,27 @@
 ;;  Checkbox
 ;; ------------------------------------------------------------------------------------
 
-;; TODO:  label ???  probably needs to be an hbox ?  or make that a labeled-checkbox ?
-;; provide a model or a callback ??
-;; what if model is nil ??
-;; document that on-change will be passed the new value
-;; http://css-tricks.com/indeterminate-checkboxes/
 (defn checkbox
-  "I return the markup for a basic checkbox"
-  [& {:keys [model on-change label disabled readonly style class]
-      :or   {on-change #() disabled false readonly false}}]
+  "I return the markup for a checkbox and optional label."
+  [& {:keys [model on-change label disabled readonly style]
+      :or   {on-change #()
+             disabled false
+             readonly false}}]
   (let [model     (if (satisfies? cljs.core/IDeref model) @model model)
         disabled  (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
         readonly  (if (satisfies? cljs.core/IDeref readonly) @readonly readonly)]
-    [:div.checkbox.form-group
-     [:label
-       [:input
-          {:type     "checkbox"
-           ;;:class    (str "btn " class)
-           :style    style
-           :disabled disabled
-           :readOnly readonly
-           :checked  model
-           :on-change  #(do
-                         (on-change (-> % .-target .-checked))
-                         (println "changed to" (-> % .-target .-checked))
-                         #_(reset! model true))}]    ;; in HTML5  we just need the attribute, with no value
-       label]]))
+    [h-box
+     :gap "10px"
+     :children [[:input
+                 {:type      "checkbox"
+                  :style     (merge {:display "inline-flex" :flex: "0 0 auto"} style)
+                  :disabled  disabled
+                  :checked   model
+                  :on-click  #(do
+                               (println "on-click: " (not readonly))
+                               (not readonly))    ;; a value of false stops changes
+                  :on-change #(on-change (-> % .-target .-checked))}]    ;; calls on-change with true or false
+                (when label [re-com.core/label :label label])]]))
 
 
 ;; ------------------------------------------------------------------------------------
