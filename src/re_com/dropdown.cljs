@@ -14,24 +14,37 @@
 ;; style
 ;; options is   {::id id  :label "DDDD"  :group  "XXXX"  }
 
+(defn opt-item
+  []
+  (let [mouse-over? (reagent/atom false)]
+    (fn [opt on-click]
+      [:li
+       {:class         (str "active-result" (when @mouse-over? " highlighted"))
+        :on-mouse-over #(reset! mouse-over? true)
+        :on-mouse-out  #(reset! mouse-over? false)
+        :on-click      #(on-click (:index opt))
+        :value         (:value opt)}
+       (:label opt)])))
+
+
 (defn single-drop-down
   [& {:keys [options model placeholder]}]
   "Render a bootstrap styled choosen"
   (let [id                (gensym "select_")
         has-focus         (reagent/atom false)
         drop-showing?     (reagent/atom false)
-        mouse-over?       (reagent/atom false)
         filter-text       (reagent/atom "")
-        backdrop-callback #(reset! drop-showing? false)
-        click-handler     #(reset! drop-showing? (not @drop-showing?))
+        backdrop-click    #(reset! drop-showing? false)
+        dropdown-click    #(reset! drop-showing? (not @drop-showing?))
+        item-click        #(do
+                            (reset! model %)
+                            (reset! drop-showing? false)
+                            (reset! filter-text ""))
         ]
     (fn []
       [:div
        {:class (str "chosen-container chosen-container-single" (when @drop-showing? " chosen-container-active chosen-with-drop"))
-        :style {:width "300px"
-                ;:display "inline-block"
-                }
-        }
+        :style {:width "300px"}}
        (when @drop-showing?
          [:div
           {:style {:position         "fixed"
@@ -41,11 +54,11 @@
                    :height           "100%"
                    :background-color "black"
                    :opacity          0.05}
-           :on-click backdrop-callback}])
+           :on-click backdrop-click}])
        [:a.chosen-single.chosen-default
-        {:on-click  click-handler
+        {:on-click  dropdown-click
          :tab-index "-1"}
-        [:span placeholder]
+        [:span (if @model (:label (nth options @model)) placeholder)]
         [:div [:b]]]
        [:div.chosen-drop
         [:div.chosen-search
@@ -53,15 +66,17 @@
           {:type          "text"
            :auto-complete "off"
            :tab-index     "2"
+           :value         @filter-text
            :on-change     #(reset! filter-text (-> % .-target .-value))}]]
         [:ul.chosen-results
-         (let [re        (js/RegExp. @filter-text "i")
-               filter-fn (partial (fn [re opt] (.test re (:label opt))) re)]
+         (let [index     (atom -1)
+               options   (reduce #(conj %1 (assoc %2 :index (swap! index inc))) [] options)
+               re        (try
+                           (js/RegExp. @filter-text "i")
+                           (catch js/Object e nil))
+               filter-fn (partial (fn [re opt]
+                                    (when-not (nil? re) (.test re (:label opt)))) re)
+               ]
            (doall (for [opt (filter filter-fn options)]       ;; doall prevents warning (https://github.com/holmsand/reagent/issues/18)
-                    ^{:key (:value opt)} [:li
-                                        {:class         (str "active-result" (when @mouse-over? " highlighted")) ;;@mouse-over?
-                                         :on-mouse-over #(reset! mouse-over? true)
-                                         :on-mouse-out  #(reset! mouse-over? false)
-                                         :value         (:value opt)}
-                                        (:label opt)])))]]
+                    ^{:key (:value opt)} [opt-item opt item-click])))]]
        ])))
