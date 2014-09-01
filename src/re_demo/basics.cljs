@@ -67,54 +67,56 @@
 
 (defn checkboxes-demo
   []
-  (let [always-true  (reagent/atom true)
-        always-false (reagent/atom false)]
-    [v-box
-     :children [[title "Checkboxes"]
-                [h-box
-                 :children [
-                             [h-box
-                              :gap "50px"
-                              :min-width "1200px"
-                              :children [#_[v-box
-                                         :size "450px"
-                                         :children [[gap "20px"]
-                                                    [:div.h4 "Notes:"]
-                                                    [:ul
-                                                     [:li "."]
-                                                     [:li "."]
-                                                     [:li "."]]]]
+  (let [always-false (reagent/atom false)
+        disabled?    (reagent/atom false)
+        readonly?    (reagent/atom false)
+        something1?   (reagent/atom false)
+        something2?   (reagent/atom true)]
 
-                                          [v-box
-                                           :size "100%"
-                                           :gap     "10px"
-                                           :children [
-                                                      [checkbox
-                                                       :model   always-true    ;; always ticked
-                                                       :disabled false
-                                                       :readonly false
-                                                       ;; :style class
-                                                       :on-change  #(reset! always-true true )
-                                                       :label "Always ticked"
-                                                       ]
-                                                      [checkbox
-                                                       :model   false    ;; never ticked
-                                                      ;; :style class
-                                                      ;;:on-change
-                                                       :label "Untickable"
-                                                       ]
-                                                      #_[checkbox
-                                                       :model   true    ;; always ticked
-                                                       :disabled false
-                                                       :readonly false
-                                                                        ;; :style class
-                                                                        ;;:on-change
-                                                       :label "Always ticked"
-                                                       ]
-                                                      ]]]]
+    (fn
+      []
+      [v-box
+       :children [[title "Checkboxes"]
+                                [checkbox
+                                 :label "always ticked (state stays true when you click)"
+                                 :model   (= 1 1)]    ;; always ticked
 
-
-                             ]]]]))
+                                [checkbox
+                                 :label "untickable (state stays false when you click)"
+                                 :model   always-false
+                                 ]
+                                [h-box
+                                 :gap "25px"
+                                 :children [
+                                             [checkbox
+                                              :label "when ticked the one to the right is \"disabled\""
+                                              :model  disabled?
+                                              :on-change  #(reset! disabled? %)]
+                                             [checkbox
+                                              ;; :label "no label"
+                                              :model  something1?
+                                              :disabled disabled?
+                                              :on-change  #(reset! something1? %)
+                                              ;; :readonly false
+                                              ;; :style class
+                                              ;; :on-change  #(reset! always-true true)
+                                              ]]]
+                                [h-box
+                                 :gap "25px"
+                                 :children [
+                                             [checkbox
+                                              :label "when ticked the one to the right is \"readonly\" (not working)"
+                                              :model  readonly?
+                                              :on-change  #(reset! readonly? %)]
+                                             [checkbox
+                                              ;; :label "no label"
+                                              :model  something2?
+                                              :readonly readonly?
+                                              :on-change  #(reset! something2? %)
+                                              ;; :readonly false
+                                              ;; :style class
+                                              ;; :on-change  #(reset! always-true true)
+                                              ]]]]])))
 
 
 (defn inputs-demo

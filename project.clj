@@ -13,7 +13,7 @@
   :plugins [[lein-cljsbuild "1.0.4-SNAPSHOT"]
             [com.cemerick/clojurescript.test "0.3.1"]]
 
-  :jvm-opts ^:replace ["-Xms2g" "-Xmx2g" "-server"]
+  ;; :jvm-opts ^:replace ["-Xms2g" "-Xmx2g" "-server"]
 
   :source-paths ["src"]
 

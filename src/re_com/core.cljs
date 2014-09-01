@@ -79,24 +79,23 @@
 (defn checkbox
   "I return the markup for a basic checkbox"
   [& {:keys [model on-change label disabled readonly style class]
-      :or   {:on-change #() :disabled false :readonly false}}]
-  (let [model     (if (satisfies? cljs.core/IDeref disabled) @model model)
+      :or   {on-change #() disabled false readonly false}}]
+  (let [model     (if (satisfies? cljs.core/IDeref model) @model model)
         disabled  (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
-        readonly  (if (satisfies? cljs.core/IDeref disabled) @readonly readonly)]
-
+        readonly  (if (satisfies? cljs.core/IDeref readonly) @readonly readonly)]
     [:div.checkbox.form-group
      [:label
        [:input
-        (merge
           {:type     "checkbox"
            ;;:class    (str "btn " class)
            :style    style
-           :value    label
            :disabled disabled
            :readOnly readonly
-           ;;:checked  (if model "true")
-           :onChange  #(on-change (.-checked %))}
-         (when model {:checked nil}))]    ;; in HTML5  we just need the attribute, with no value
+           :checked  model
+           :on-change  #(do
+                         (on-change (-> % .-target .-checked))
+                         (println "changed to" (-> % .-target .-checked))
+                         #_(reset! model true))}]    ;; in HTML5  we just need the attribute, with no value
        label]]))
 
 
