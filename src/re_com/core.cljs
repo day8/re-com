@@ -62,7 +62,7 @@
 ;; TODO: when disabled, should the text appear "disabled".
 (defn checkbox
   "I return the markup for a checkbox, with an optional RHS label."
-  [& {:keys [model on-change label disabled readonly style]}]
+  [& {:keys [model on-change label disabled style]}]
   (let [model      (if (satisfies? cljs.core/IDeref model)    @model    model)
         disabled   (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
         changeable (and on-change (not disabled))
@@ -87,27 +87,24 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn radio-button
-  [text callback & {:keys [style class]}]
-  "Return the markup for a basic radio button
-   Parameters:
-   ..."
-  #_[:div.radio
-   [:label {:for "pf-radio2"}
-    [:input#pf-radio2
-     {:type      "radio"
-      :name      "rgroup"
-      :value     "2"
-      :checked   (= (:radio-group @form-data) "2")
-      :on-change #(swap! form-data assoc :radio-group (-> % .-target .-value))}
-     "Saturation (initially checked)"]]]
-
-  [:input
-   {:type "radio"
-    :class (str "btn " class)
-    :style style
-    :value text
-    :on-click #(callback)}])
-
+"I return the markup for a checkbox, with an optional RHS label."
+[& {:keys [model value label disabled style]}]
+(let [;;model      (if (satisfies? cljs.core/IDeref model)    @model    model)
+      disabled   (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
+      changeable (not disabled)
+      callback   (when changeable
+                   #(reset! model value))]     ;; model must be an atom !!
+  [h-box
+   :gap "8px"     ;; between the tickbox and the label
+   :children [[:input
+               {:type      "radio"
+                :style     (merge {:flex "none"} style)
+                :disabled  disabled
+                :checked   (= @model value)
+                :on-change callback}]
+              (when label [re-com.core/label
+                           :label label
+                           :on-click callback])]]))    ;; ticking on the la
 
 ;; ------------------------------------------------------------------------------------
 ;;  spinner

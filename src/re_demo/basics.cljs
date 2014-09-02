@@ -1,6 +1,6 @@
 (ns re-demo.basics
   (:require [re-demo.util   :refer  [title]]
-            [re-com.core    :refer  [button label spinner progress-bar checkbox]]
+            [re-com.core    :refer  [button label spinner progress-bar checkbox radio-button]]
             [re-com.box     :refer  [h-box v-box box gap line]]
             [reagent.core   :as     reagent]))
 
@@ -82,6 +82,7 @@
    [:polygon {:points "5,6 5,14 0,10" :style {:stroke "#888" :fill "#888"}}]])
 
 
+
 (defn checkboxes-demo
   []
   (let [always-false (reagent/atom false)
@@ -134,8 +135,35 @@
                               [left-arrow]
                               [gap :width "5px"]
                               [label
-                                :label "no label on this one"]
-                              ]]]])))
+                               :label "no label on this one"]]]]])))
+
+
+(defn radios-demo
+  []
+  (let [colour       (reagent/atom "red")]
+    (fn
+      []
+      [v-box
+       :gap "15px"
+       :children [[title "Radios"]
+                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
+                  [v-box
+                    :gap "0px"
+                    :children [
+                                [radio-button
+                                 :label "red"
+                                 :value "red"
+                                 :model colour]
+
+                                [radio-button
+                                 :label "blue"
+                                 :value "blue"
+                                 :model colour]
+
+                                [radio-button
+                                 :label "green"
+                                 :value "green"
+                                 :model colour]]]]])))
 
 
 (defn inputs-demo
@@ -152,9 +180,11 @@
   []
   [v-box
    :children [[buttons-demo]
-              [gap :size "30px"]
+              [gap :height "30px"]
               [checkboxes-demo]
-              [gap :size "30px"]
+              [gap :height "30px"]
+              [radios-demo]
+              [gap :height "30px"]
               [inputs-demo]]])
 
 
