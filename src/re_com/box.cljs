@@ -146,13 +146,15 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn gap
-  [& {:keys [size]
+  [& {:keys [size width height]
       :or {size "20px"}}]
   "Returns markup which produces a gap between children in a v-box/h-box along the main axis.
    Specify size in any sizing amount, usually px or % or perhaps em. Defaults to 20px."
   (let [g-style {:flex (str "0 0 " size)}
+        w-style (when width {:width width})
+        h-style (when height {:height height})
         d-style (when debug {:background-color "chocolate"})
-        s       (merge g-style d-style)]
+        s       (merge g-style w-style h-style d-style)]
     [:div {:class "rc-gap" :style s}]))
 
 
@@ -183,9 +185,7 @@
    By default, it also acts as a child under it's parent."
   (let [flex-container {:display "flex" :flex-flow "row nowrap"}
         flex-child     (when f-child (flex-child-style size))
-        w-style        (if width
-                         {:width width}
-                         {:width "inherit"}) ;; width inheritence is actually optional, but here for consistency with
+        w-style        (if width {:width width})
         h-style        (when height {:height height})
         mw-style       (when min-width {:min-width min-width})
         mh-style       (when min-height {:min-height min-height})
@@ -195,7 +195,7 @@
         p-style        (when padding {:padding padding})
         d-style        (when debug {:background-color "gold"})
         s              (merge flex-container flex-child w-style h-style mw-style mh-style j-style a-style m-style p-style d-style)
-        gap-form       (when gap [re-com.box/gap :size gap])
+        gap-form       (when gap [re-com.box/gap :size gap :width gap])
         children       (if gap
                          (drop-last (interleave children (repeat gap-form))) ;; Probably not more readable: (->> gap-form repeat (interleave children) drop-last)
                          children)]
@@ -226,7 +226,7 @@
         p-style        (when padding    {:padding padding})
         d-style        (when debug      {:background-color "antiquewhite"})
         s              (merge flex-container flex-child w-style h-style mw-style mh-style j-style a-style m-style p-style d-style)
-        gap-form       (when gap [re-com.box/gap :size gap])
+        gap-form       (when gap [re-com.box/gap :size gap :height gap])
         children       (if gap
                          (drop-last (interleave children (repeat gap-form)))
                          children)]

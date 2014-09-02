@@ -1,7 +1,7 @@
 (ns re-com.core
   (:require [reagent.core :as reagent]
             [re-com.util  :as util]
-            [re-com.box   :refer [h-box box]]))
+            [re-com.box   :refer [h-box box gap]]))
 
 
 
@@ -27,7 +27,8 @@
   "returns the markup for a basic label"
   [:span
    {:class class
-    :style (merge {:flex: "0 0 auto"} style )}
+    :style (merge {:flex "none"} style)
+    }
    label])
 
 
@@ -63,7 +64,7 @@
                 See: http://getbootstrap.com/css/#buttons"
   [:button
    {:class    (str "btn " class)
-    :style    (merge {:flex: "0 0 auto"} style)
+    :style    (merge {:flex "none"} style)
     :on-click on-click}
    label])
 
@@ -85,14 +86,28 @@
      :gap "10px"
      :children [[:input
                  {:type      "checkbox"
-                  :style     (merge {:display "inline-flex" :flex: "0 0 auto"} style)
-                  :disabled  disabled
+                  :style     (merge {:display "inline-flex" :flex "none"} style)
+                  ;:disabled  disabled
                   :checked   model
                   :on-click  #(do
                                (println "on-click: " (not readonly))
                                (not readonly))    ;; a value of false stops changes
                   :on-change #(on-change (-> % .-target .-checked))}]    ;; calls on-change with true or false
-                (when label [re-com.core/label :label label])]]))
+                ;[gap :size "10px"]
+                (when label [re-com.core/label :label label])]]
+
+    ;; Alternative does without flexbox (widths work here)
+    #_[:div.rc-checkbox
+     [:input
+      {:type      "checkbox"
+       :style     (merge {:margin-right "10px"} style)
+       :checked   model
+       :on-click  #(do
+                    (println "on-click: " (not readonly))
+                    (not readonly))    ;; a value of false stops changes
+       :on-change #(on-change (-> % .-target .-checked))}]    ;; calls on-change with true or false
+     (when label [re-com.core/label :style {:position "relative" :top "-3px"} :label label])]
+    ))
 
 
 ;; ------------------------------------------------------------------------------------

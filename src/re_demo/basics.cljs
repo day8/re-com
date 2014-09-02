@@ -31,7 +31,7 @@
   (fn []
     [v-box
      :children [[title "Buttons"]
-                [gap "20px"]
+                [gap :size "20px"]
                 [h-box
                  :children [[button
                              :label    "No Clicking!"
@@ -43,7 +43,7 @@
                                       :label (nth click-outcomes (:outcome-index @state))
                                       :style {:margin-left "15px"}]]]]
 
-                [gap "20px"]
+                [gap :size "20px"]
                 [h-box             ;; I had to put the button in an h-box or else it streached out horizontally
                  :gap "50px"
                  :children [[button
@@ -86,10 +86,9 @@
     (fn
       []
       [v-box
-       ;; :width "550px"        ;; TODO: If I put this in things get messed up
        :gap "15px"
        :children [[title "Checkboxes"]
-                  [gap "1px"]
+                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [checkbox
                    :label "always ticked (state stays true when you click)"
                    :model   (= 1 1)]    ;; true means always ticked
@@ -147,9 +146,9 @@
   []
   [v-box
    :children [[buttons-demo]
-              [gap "30px"]
+              [gap :size "30px"]
               [checkboxes-demo]
-              [gap "30px"]
+              [gap :size "30px"]
               [inputs-demo]]])
 
 
