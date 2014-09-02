@@ -147,7 +147,7 @@
 
 (defn gap
   [& {:keys [size width height]
-      :or {size "20px"}}]
+     :or {size "none"}}]
   "Returns markup which produces a gap between children in a v-box/h-box along the main axis.
    Specify size in any sizing amount, usually px or % or perhaps em. Defaults to 20px."
   (let [g-style {:flex (str "0 0 " size)}

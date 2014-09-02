@@ -3,7 +3,7 @@
              [alandipert.storage-atom :refer [local-storage]]
              [re-demo.util :refer  [title]]
              [re-com.box   :refer [h-box v-box box gap line scroller border]]
-             [re-com.core  :refer [gap-old button]]
+             [re-com.core  :refer [button]]
              [re-com.tabs  :as tabs]))
 
 

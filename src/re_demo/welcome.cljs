@@ -1,8 +1,7 @@
 (ns re-demo.welcome
   (:require [reagent.core :as reagent]
             [re-demo.util :refer [title]]
-            [re-com.box   :refer [h-box v-box box gap]]
-            [re-com.core  :refer [gap-old]]))
+            [re-com.box   :refer [h-box v-box box gap]]))
 
 (defn hyperlink
   [text href]
@@ -60,7 +59,7 @@
 
                [:li "None of the components have been designed with mobile in mind and there's certainly no attempt to morph based on media queries etc."]]
 
-              [gap-old :height 15]
+              [gap :height 15]
               [:p "It makes use of:"]
               [:ul
                [:li "CSS from " [hyperlink "Bootstrap" "http://getbootstrap.com/" ]]
@@ -68,7 +67,7 @@
 
 
 
-              [gap-old :height 20]
+              [gap :height 20]
 
               [:p "Reagent tutorials and further explanation:"]
 

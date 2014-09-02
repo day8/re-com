@@ -4,31 +4,18 @@
             [re-com.box   :refer [h-box box gap]]))
 
 
-
-;; ------------------------------------------------------------------------------------
-;;  Gaps
-;; ------------------------------------------------------------------------------------
-
-;; TODO remove ??
-(defn gap-old
-  [&{:keys [height width]}]
-  (let [h-style  (if height {:padding-top  (str height "px")} {})
-        w-style  (if width  {:padding-left (str width  "px")} {})
-        s        (merge (merge h-style w-style))]
-  [:div {:style s}]))
-
-
 ;; ------------------------------------------------------------------------------------
 ;;  Label
 ;; ------------------------------------------------------------------------------------
 
 (defn label
-  [& {:keys [label style class]}]
-  "returns the markup for a basic label"
+  [& {:keys [label style class on-click]}]
+  "returns markup for a basic label"
   [:span
-   {:class class
-    :style (merge {:flex "none"} style)
-    }
+   (merge
+      {:class class
+       :style (merge {:flex "none"} style)}
+      (when on-click {:on-click #(do (println "click") (on-click))}))
    label])
 
 
@@ -38,11 +25,11 @@
 
 (defn input-text
   [text callback & {:keys [style class]}]
-  "returns the markup for a basic text imput label"
+  "returns markup for a basic text imput label"
   [:input
    {:type "text"
     :class class
-    :style style
+    :style (merge {:flex "none"} style)
     :value text
     :on-change callback}])
 
@@ -72,42 +59,27 @@
 ;; ------------------------------------------------------------------------------------
 ;;  Checkbox
 ;; ------------------------------------------------------------------------------------
-
+;; TODO: when disabled, should the text appear "disabled".
 (defn checkbox
-  "I return the markup for a checkbox and optional label."
-  [& {:keys [model on-change label disabled readonly style]
-      :or   {on-change #()
-             disabled false
-             readonly false}}]
-  (let [model     (if (satisfies? cljs.core/IDeref model) @model model)
-        disabled  (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
-        readonly  (if (satisfies? cljs.core/IDeref readonly) @readonly readonly)]
+  "I return the markup for a checkbox, with an optional RHS label."
+  [& {:keys [model on-change label disabled readonly style]}]
+  (let [model      (if (satisfies? cljs.core/IDeref model)    @model    model)
+        disabled   (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
+        changeable (and on-change (not disabled))
+        callback   (when changeable
+                     #(on-change (not model)))]     ;; call on-change with either true or false
     [h-box
-     :gap "10px"
+     :gap "8px"     ;; between the tickbox and the label
      :children [[:input
                  {:type      "checkbox"
-                  :style     (merge {:display "inline-flex" :flex "none"} style)
-                  ;:disabled  disabled
+                  :style     (merge {:flex "none"} style)
+                  :disabled  disabled
                   :checked   model
-                  :on-click  #(do
-                               (println "on-click: " (not readonly))
-                               (not readonly))    ;; a value of false stops changes
-                  :on-change #(on-change (-> % .-target .-checked))}]    ;; calls on-change with true or false
-                ;[gap :size "10px"]
-                (when label [re-com.core/label :label label])]]
+                  :on-change callback}]
+                (when label [re-com.core/label
+                             :label label
+                             :on-click callback])]]))    ;; ticking on the label is the same as clicking on the checkbox
 
-    ;; Alternative does without flexbox (widths work here)
-    #_[:div.rc-checkbox
-     [:input
-      {:type      "checkbox"
-       :style     (merge {:margin-right "10px"} style)
-       :checked   model
-       :on-click  #(do
-                    (println "on-click: " (not readonly))
-                    (not readonly))    ;; a value of false stops changes
-       :on-change #(on-change (-> % .-target .-checked))}]    ;; calls on-change with true or false
-     (when label [re-com.core/label :style {:position "relative" :top "-3px"} :label label])]
-    ))
 
 
 ;; ------------------------------------------------------------------------------------

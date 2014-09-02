@@ -66,13 +66,20 @@
                                [:option o])]]]]]))
 
 (defn right-arrow
-  "See:  https://developer.mozilla.org/en-US/docs/Web/SVG/Element/marker"
   []
   [:svg
-   {:height 10  :width 20  :style {:display "flex" :flex-flow "inherit"} }
-   [:line {:x1 "0" :y1 "5" :x2 "20" :y2 "5"
-           :style {:stroke "#222222"}
-           }]])
+   {:height 20  :width 25  :style {:display "flex" :align-self "center"} }
+   [:line {:x1 "0" :y1 "10" :x2 "20" :y2 "10"
+           :style {:stroke "#888"}}]
+   [:polygon {:points "20,6 20,14 25,10" :style {:stroke "#888" :fill "#888"}}]])
+
+(defn left-arrow
+  []
+  [:svg
+   {:height 20  :width 25  :style {:display "flex" :align-self "center"} }
+   [:line {:x1 "5" :y1 "10" :x2 "20" :y2 "10"
+           :style {:stroke "#888"}}]
+   [:polygon {:points "5,6 5,14 0,10" :style {:stroke "#888" :fill "#888"}}]])
 
 
 (defn checkboxes-demo
@@ -80,7 +87,6 @@
   (let [always-false (reagent/atom false)
         disabled?    (reagent/atom false)
         ticked?      (reagent/atom false)
-        readonly?    (reagent/atom false)
         something1?  (reagent/atom false)
         something2?  (reagent/atom true)]
     (fn
@@ -98,38 +104,38 @@
                    :model   always-false]
 
                   [h-box
-                   :gap "5px"
+                   :gap "10px"
                    :children [[checkbox
-                               :label "I'm a label"
+                               :label "tick me  "
                                :model  ticked?
                                :on-change  #(reset! ticked? %)]
-                              (when @ticked? [label :label " <-- ticked"])]]
+                              (when @ticked? [left-arrow])
+                              (when @ticked? [label :label " is ticked"])]]
 
                   [h-box
-                   :gap "5px"
+                   :gap "15px"
                    :children [[checkbox
                                :label "when you tick this one, this other one is \"disabled\""
                                :model  disabled?
                                :on-change  #(reset! disabled? %)]
-                             ;; [right-arrow]
+                              [right-arrow]
                               [checkbox
                                :label (if @disabled? "disabled" "enabled")
                                :model  something1?
                                :disabled disabled?
                                :on-change  #(reset! something1? %)]]]
+
                   [h-box
-                   :gap "5px"
+                   :gap "1px"
                    :children [[checkbox
-                               :label "when you tick this one, the one to the right is \"readonly\""
-                               :model  readonly?
-                               :on-change  #(reset! readonly? %)]
-                             ;; [right-arrow]
-                              [checkbox
-                               ;;:label "no label"
                                :model  something2?
-                              ;; :readonly readonly?
-                               :on-change  #(reset! something2? %)
-                               ]]]]])))
+                               :on-change  #(reset! something2? %)]
+                              [gap :width "50px"]
+                              [left-arrow]
+                              [gap :width "5px"]
+                              [label
+                                :label "no label on this one"]
+                              ]]]])))
 
 
 (defn inputs-demo
