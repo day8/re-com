@@ -183,3 +183,13 @@ html, body {
 ::-webkit-scrollbar-thumb:horizontal:active, ::-webkit-scrollbar-thumb:vertical:active {
   background:rgba(0,0,0,.61);
   }
+
+/*
+ bootstrap-chosen additions
+ */
+
+.chosen-container .chosen-results li.mouseover {
+  background-color: #eeeeee;
+  background-image: none;
+  /*color: white;*/
+}

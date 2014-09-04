@@ -59,9 +59,9 @@
                           [h-layout
                            :left-panel  left-panel
                            :right-panel right-panel]]]
-              [gap]
+              [gap :size "10px"]
               [line]
-              [gap]
+              [gap :size "10px"]
               [v-box
                :size     "auto"
                :children [[title "Vertical Layout"]

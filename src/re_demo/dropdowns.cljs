@@ -61,143 +61,20 @@
                 {:id "37" :label "Burundi"                :group "'B' COUNTRIES"}])
 
 
-#_(def countries [{:id "G1" :group "POPULAR COUNTRIES"}
-                {:id "AU" :label "Australia"}
-                {:id "US" :label "United States"}
-                {:id "GB" :label (if @bold-uk [:strong "United Kingdom"] "Old Blighty!")}
-                {:id "G2" :group "'A' COUNTRIES"}
-                {:id "AF" :label "Afghanistan"            }
-                {:id "AB" :label "Albania"                }
-                {:id "AG" :label [test-button]            }
-                {:id 06   :label "American Samoa"         }
-                {:id 07   :label "Andorra"                }
-                {:id true :label "Angola"                 }
-                {:id [4]  :label "Anguilla"               }
-                {:id "00" :label "Antarctica"             }
-                {:id "11" :label "Antigua and Barbuda"    }
-                {:id "12" :label "Argentina"              }
-                {:id "13" :label "Armenia"                }
-                {:id "14" :label "Aruba"                  }
-                {:id "16" :label "Austria"                }
-                {:id "17" :label "Azerbaijan"             }
-                {:id "G3" :group "'B' COUNTRIES"}
-                {:id "18" :label "Bahamas"                }
-                {:id "19" :label "Bahrain"                }
-                {:id "20" :label "Bangladesh"             }
-                {:id "21" :label "Barbados"               }
-                {:id "22" :label "Belarus"                }
-                {:id "23" :label "Belgium"                }
-                {:id "24" :label "Belize"                 }
-                {:id "25" :label "Benin"                  }
-                {:id "26" :label "Bermuda"                }
-                {:id "27" :label "Bhutan"                 }
-                {:id "28" :label "Bolivia"                }
-                {:id "29" :label "Bosnia and Herzegovina" }
-                {:id "30" :label "Botswana"               }
-                {:id "31" :label "Bouvet Island"          }
-                {:id "32" :label "Brazil"                 }
-                {:id "34" :label "Brunei Darussalam"      }
-                {:id "35" :label "Bulgaria"               }
-                {:id "36" :label "Burkina Faso"           }
-                {:id "37" :label "Burundi"                }])
-
-
-#_(def countries [{:id "AU" :label "Australia"              }
-                {:id "US" :label "United States"          }
-                {:id "GB" :label (if @bold-uk [:strong "United Kingdom"] "Old Blighty!")}
-                {:id "AF" :label "Afghanistan"            }
-                {:id "AB" :label "Albania"                }
-                {:id "AG" :label [test-button]            }
-                {:id 06   :label "American Samoa"         }
-                {:id 07   :label "Andorra"                }
-                {:id true :label "Angola"                 }
-                {:id [4]  :label "Anguilla"               }
-                {:id "00" :label "Antarctica"             }
-                {:id "11" :label "Antigua and Barbuda"    }
-                {:id "12" :label "Argentina"              }
-                {:id "13" :label "Armenia"                }
-                {:id "14" :label "Aruba"                  }
-                {:id "16" :label "Austria"                }
-                {:id "17" :label "Azerbaijan"             }
-                {:id "18" :label "Bahamas"                }
-                {:id "19" :label "Bahrain"                }
-                {:id "20" :label "Bangladesh"             }
-                {:id "21" :label "Barbados"               }
-                {:id "22" :label "Belarus"                }
-                {:id "23" :label "Belgium"                }
-                {:id "24" :label "Belize"                 }
-                {:id "25" :label "Benin"                  }
-                {:id "26" :label "Bermuda"                }
-                {:id "27" :label "Bhutan"                 }
-                {:id "28" :label "Bolivia"                }
-                {:id "29" :label "Bosnia and Herzegovina" }
-                {:id "30" :label "Botswana"               }
-                {:id "31" :label "Bouvet Island"          }
-                {:id "32" :label "Brazil"                 }
-                {:id "34" :label "Brunei Darussalam"      }
-                {:id "35" :label "Bulgaria"               }
-                {:id "36" :label "Burkina Faso"           }
-                {:id "37" :label "Burundi"                }])
-
-#_(def countries [{:id    "G1"
-                 :label "POPULAR COUNTRIES"
-                 :items [{:id "AU" :label "Australia"             }
-                         {:id "US" :label "United States"         }
-                         {:id "GB" :label (if @bold-uk [:strong "United Kingdom"] "Old Blighty!")}]}
-                {:id    "G2"
-                 :label "'A' COUNTRIES"
-                 :items [{:id "AF" :label "Afghanistan"           }
-                         {:id "AB" :label "Albania"               }
-                         {:id "AG" :label [test-button]           }
-                         {:id 06   :label "American Samoa"        }
-                         {:id 07   :label "Andorra"               }
-                         {:id true :label "Angola"                }
-                         {:id [4]  :label "Anguilla"              }
-                         {:id "00" :label "Antarctica"            }
-                         {:id "11" :label "Antigua and Barbuda"   }
-                         {:id "12" :label "Argentina"             }
-                         {:id "13" :label "Armenia"               }
-                         {:id "14" :label "Aruba"                 }
-                         {:id "16" :label "Austria"               }
-                         {:id "17" :label "Azerbaijan"            }]}
-                {:id    "G3"
-                 :label "B COUNTRIES"
-                 :items [{:id "18" :label "Bahamas"               }
-                         {:id "19" :label "Bahrain"               }
-                         {:id "20" :label "Bangladesh"            }
-                         {:id "21" :label "Barbados"              }
-                         {:id "22" :label "Belarus"               }
-                         {:id "23" :label "Belgium"               }
-                         {:id "24" :label "Belize"                }
-                         {:id "25" :label "Benin"                 }
-                         {:id "26" :label "Bermuda"               }
-                         {:id "27" :label "Bhutan"                }
-                         {:id "28" :label "Bolivia"               }
-                         {:id "29" :label "Bosnia and Herzegovina"}
-                         {:id "30" :label "Botswana"              }
-                         {:id "31" :label "Bouvet Island"         }
-                         {:id "32" :label "Brazil"                }
-                         {:id "34" :label "Brunei Darussalam"     }
-                         {:id "35" :label "Bulgaria"              }
-                         {:id "36" :label "Burkina Faso"          }
-                         {:id "37" :label "Burundi"               }]}
-                {:id "i1" :label "Orphan Item 1"}
-                {:id "i2" :label "Orphan Item 2"}
-                {:id "i3" :label "Orphan Item 3"}
-                ])
-
 (defn panel
   []
-  (let [selected-country-id (reagent/atom nil)]
+  (let [selected-country-id (reagent/atom "US")]
     (fn [] [:div
             [:h3.page-header "Dropdowns"]
             [single-drop-down
              :options     countries
-             :placeholder "Choose a country"
              :model       selected-country-id
+             :placeholder "Choose a country"
              :width       "300px"
-             :disabled    false         ;; TODO
-             :read-only   false]        ;; TODO
+             :filter-box  true
+             :disabled    false
+             :read-only   false         ;; TODO
+             :on-select #(reset! selected-country-id %)]
             [:div
              {:style {:display     "inline-block"
                       :margin-left "20px"}}

@@ -146,11 +146,10 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn gap
-  [& {:keys [size width height]
-     :or {size "none"}}]
+  [& {:keys [size width height]}]
   "Returns markup which produces a gap between children in a v-box/h-box along the main axis.
    Specify size in any sizing amount, usually px or % or perhaps em. Defaults to 20px."
-  (let [g-style {:flex (str "0 0 " size)}
+  (let [g-style (when size {:flex (str "0 0 " size)})
         w-style (when width {:width width})
         h-style (when height {:height height})
         d-style (when debug {:background-color "chocolate"})
@@ -197,7 +196,7 @@
         s              (merge flex-container flex-child w-style h-style mw-style mh-style j-style a-style m-style p-style d-style)
         gap-form       (when gap [re-com.box/gap :size gap :width gap])
         children       (if gap
-                         (drop-last (interleave children (repeat gap-form))) ;; Probably not more readable: (->> gap-form repeat (interleave children) drop-last)
+                         (drop-last (interleave (filter identity children) (repeat gap-form)))
                          children)]
     (into [:div {:class "rc-h-box" :style s}] children)))
 
@@ -228,7 +227,7 @@
         s              (merge flex-container flex-child w-style h-style mw-style mh-style j-style a-style m-style p-style d-style)
         gap-form       (when gap [re-com.box/gap :size gap :height gap])
         children       (if gap
-                         (drop-last (interleave children (repeat gap-form)))
+                         (drop-last (interleave (filter identity children) (repeat gap-form)))
                          children)]
     (into [:div {:class "rc-v-box" :style s}] children)))
 
