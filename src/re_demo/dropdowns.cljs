@@ -1,8 +1,8 @@
 (ns re-demo.dropdowns
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-com.util     :as    util]
-            [re-com.core     :refer [button spinner progress-bar]]
-            [re-com.box      :refer [gap]]
+            [re-com.core     :refer [button spinner progress-bar label input-text]]
+            [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-drop-down find-option]]
             [re-com.modal    :refer [modal-window
                                      cancel-button
@@ -28,7 +28,8 @@
                                                           :group "POPULAR COUNTRIES"}
                 {:id "AF" :label "Afghanistan"            :group "'A' COUNTRIES"}
                 {:id "AB" :label "Albania"                :group "'A' COUNTRIES"}
-                {:id "AG" :label [test-button]            :group "'A' COUNTRIES"}
+                ;{:id "AG" :label [test-button]            :group "'A' COUNTRIES"}
+                {:id "AG" :label "Algeria"                :group "'A' COUNTRIES"}
                 {:id 06   :label "American Samoa"         :group "'A' COUNTRIES"}
                 {:id 07   :label "Andorra"                :group "'A' COUNTRIES"}
                 {:id true :label "Angola"                 :group "'A' COUNTRIES"}
@@ -64,22 +65,28 @@
 (defn panel
   []
   (let [selected-country-id (reagent/atom "US")]
-    (fn [] [:div
-            [:h3.page-header "Dropdowns"]
-            [single-drop-down
-             :options     countries
-             :model       selected-country-id
-             :placeholder "Choose a country"
-             :width       "300px"
-             :filter-box  true
-             :disabled    false
-             :read-only   false         ;; TODO
-             :on-select #(reset! selected-country-id %)]
-            [:div
-             {:style {:display     "inline-block"
-                      :margin-left "20px"}}
-             [:strong "Selected country: "] (if (nil? @selected-country-id)
-                                              "None"
-                                              (str (:label (find-option countries @selected-country-id)) " [" @selected-country-id "]"))]
-            ])))
+    (fn [] [v-box
+            :children [[:h3.page-header "Dropdowns"]
+                       [h-box
+                        :gap      "10px"
+                        :align    :center
+                        :children [[label :label "Test tabbing"]
+                                   [input-text "" #() :style {:width "80px"}]
+                                   [single-drop-down
+                                    :options countries
+                                    :model selected-country-id
+                                    :placeholder "Choose a country"
+                                    :width "300px"
+                                    :filter-box  true
+                                    :disabled    false
+                                    :on-select #(reset! selected-country-id %)]
+                                   [input-text "" #() :style {:width "80px"}]
+                                   [:div
+                                    [:strong "Selected country: "]
+                                    (if (nil? @selected-country-id)
+                                      "None"
+                                      (str (:label (find-option countries @selected-country-id)) " [" @selected-country-id "]"))]
+                                   ]]
+                       ]]
+      )))
 

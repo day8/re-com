@@ -134,30 +134,32 @@
 
 
 (defn filter-text-box-base
-  [filter-text key-handler]
-  [:div.chosen-search     ;; NOTE: When this markup is wrapped in a (fn [])...up/down cycles through full list instead of filtered list ???????
-   [:input
-    {:type          "text"
-     :auto-complete "off"
-     :tab-index     "2"
-     :value         @filter-text
-     :on-change     #(reset! filter-text (-> % .-target .-value))
-     :on-focus      #(util/console-log (str "filter-text-box - FOCUS"))
-     :on-blur       #(util/console-log (str "filter-text-box - BLUR"))
-     :on-key-down   key-handler
-     }]])
+  []
+  (fn [filter-text key-handler]
+    [:div.chosen-search
+     [:input
+      {:type          "text"
+       :auto-complete "off"
+       :value         @filter-text
+       :on-change     #(reset! filter-text (-> % .-target .-value))
+       :on-key-down   key-handler}]]))
 
 
-(def filter-text-box (with-meta filter-text-box-base
-                                {:component-did-mount #(let [dn (.-firstChild (reagent/dom-node %))]
-                                                        (util/console-log (str "filter-text-box did-mount: " (.-value dn))))
-                                 :component-did-update #(let [dn (.-firstChild (reagent/dom-node %))]
-                                                         (util/console-log (str "filter-text-box did-update: " (.-value dn)))
-                                                         (.focus dn))
-                                 }))
+(def filter-text-box
+  (with-meta filter-text-box-base
+             {:component-did-mount #(let [dn (.-firstChild (reagent/dom-node %))]
+                                     (util/console-log (str "filter-text-box did-mount: " (.-value dn)))
+                                     (.focus dn))
+              :component-did-update #(let [dn (.-firstChild (reagent/dom-node %))]
+                                      (util/console-log (str "filter-text-box did-update: " (.-value dn)))
+                                      (.focus dn))}))
 
 
-#_(defn filter-text-box ;; TODO: BUG: up/down cycles through full list instead of filtered list ???????
+;; TODO: BUG: up/down cycles through full list instead of filtered list ???????
+;;       This is because the parameters (filter-text key-handler) change from time to time but render is using the
+;;       initial values, when the component was first mounted.
+;;       So, the question becomes, "how do we pass fresh versions of the parameters to the render fucntion?
+#_(defn filter-text-box
   [filter-text key-handler]
   (reagent/create-class
     {:component-did-mount
@@ -173,17 +175,17 @@
 
      :render
       (fn [me]
-        [:div.chosen-search
-         [:input
-          {:type          "text"
-           :auto-complete "off"
-           :tab-index     "2"
-           :value         @filter-text
-           :on-change     #(reset! filter-text (-> % .-target .-value))
-           :on-focus      #(util/console-log (str "filter-text-box - FOCUS" ))
-           :on-blur       #(util/console-log (str "filter-text-box BLUR" ))
-           :on-key-down   key-handler
-           }]])
+        (let [argv (reagent/argv me)] ;; TODO: Test code...remove
+          [:div.chosen-search
+           [:input
+            {:type          "text"
+             :auto-complete "off"
+             :value         @filter-text
+             :on-change     #(reset! filter-text (-> % .-target .-value))
+             :on-focus      #(util/console-log (str "filter-text-box - FOCUS"))
+             :on-blur       #(util/console-log (str "filter-text-box BLUR"))
+             :on-key-down   key-handler
+             }]]))
      }))
 
 
@@ -193,7 +195,7 @@
   (let [tmp-model      (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model)) ;; Create a new atom from the model value passed in for use with keyboard actions
         drop-showing?  (reagent/atom false)
         filter-text    (reagent/atom "")]
-    (fn [& {:keys [options model on-select disabled filter-box placeholder width]}]
+    (fn [& {:keys [options model on-select disabled filter-box placeholder width tab-index]}]
       (let [options          (if (satisfies? cljs.core/IDeref options) @options options)
             save-model       (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model))
             disabled         (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
@@ -215,42 +217,48 @@
                                           (when-not (nil? re)
                                             (or (.test re (:group opt)) (.test re (:label opt)))))
                                         re)
-            filtered-options (doall (filter filter-fn options))
-            key-handler      #(case (.-which %)
-                               13 (callback @tmp-model)         ;; Enter key
-                               27 (cancel)                      ;; Esc key
-                                9 (+)                           ;; Tab key
-                               38 (if @drop-showing?            ;; Up arrow
-                                    (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model -1))
-                                    (reset! drop-showing? true))
-                               40 (if @drop-showing?            ;; Down arrow
-                                    (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model 1))
-                                    (reset! drop-showing? true))
-                               36 (when @drop-showing?          ;; Home key
-                                    (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :start)))
-                               35 (when @drop-showing?          ;; End key
-                                    (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :end)))
-                               true)]
-        (util/console-log "RE-RENDERING")
+            filtered-options (filter filter-fn options)
+            key-handler      #(let [a (+)]
+                               (case (.-which %)
+                                 13 (if disabled                  ;; Enter key
+                                      (cancel)
+                                      (callback @tmp-model))
+                                 27 (cancel)                      ;; Esc key
+                                 9 (+)                           ;; Tab key ;; NOTE: Use this to add more robust support of tabbing
+                                 38 (if @drop-showing?            ;; Up arrow
+                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model -1))
+                                      (reset! drop-showing? true))
+                                 40 (if @drop-showing?            ;; Down arrow
+                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model 1))
+                                      (reset! drop-showing? true))
+                                 36 (when @drop-showing?          ;; Home key
+                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :start)))
+                                 35 (when @drop-showing?          ;; End key
+                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :end)))
+                                 true))]
         [:div
          {:class (str "chosen-container chosen-container-single" (when @drop-showing? " chosen-container-active chosen-with-drop"))
-          :style (when width {:width width})}
+          :style (if width
+                   {:width width}
+                   {:flex "auto"})}
          (when @drop-showing? [backdrop cancel])
          [:a.chosen-single.chosen-default
           {:style       {:-webkit-user-select "none"}
+           :href        "#" ;; Required to make this anchor appear in the tab order
+           :tab-index   (when tab-index tab-index)
            :on-click    dropdown-click
-           :on-key-down key-handler
-           :tab-index   "-1"} ;; Remove from tab order
+           :on-key-down key-handler}
           [:span (if @tmp-model
                    (:label (find-option options @tmp-model))
                    placeholder)]
           [:div [:b]]] ;; This odd thing produces the visual arrow on the right
-         [:div.chosen-drop
-          (when filter-box [filter-text-box filter-text key-handler])
-          [:ul.chosen-results
-           (if (-> filtered-options count pos?)
-             (for [opt (morph filtered-options)]
-               (if (:group opt)
-                 ^{:key (:id opt)} [option-group-item opt]
-                 ^{:key (:id opt)} [option-item opt callback tmp-model]))
-             [:li.no-results (str "No results match \"" @filter-text "\"")])]]]))))
+         (when @drop-showing?
+           [:div.chosen-drop
+            (when filter-box [filter-text-box filter-text key-handler drop-showing?])
+            [:ul.chosen-results
+             (if (-> filtered-options count pos?)
+               (for [opt (morph filtered-options)]
+                 (if (:group opt)
+                   ^{:key (:id opt)} [option-group-item opt]
+                   ^{:key (:id opt)} [option-item opt callback tmp-model]))
+               [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))
