@@ -108,14 +108,22 @@
   [opt on-click model]
   "Render an option item and set up appropriate mouse events"
   (let [mouse-over? (reagent/atom false)]
+    (println ">IN option-item" (:label opt))
     (reagent/create-class
       {:component-did-mount
         (fn [me]
-          #_(println "option-item - did-mount"))
+          (let [dn        (reagent/dom-node me)
+                selected (= @model (:id opt))]
+            (when selected (.scrollIntoView dn false))
+            (println "option-item - did-mount" (:label opt))))
 
        :component-did-update
         (fn [me old-argv]
-          #_(println "option-item - did-update"))
+          (let [dn        (reagent/dom-node me)
+                selected (= @model (:id opt))]
+            (println "option-item - did-update" (:label opt))
+            (when selected (.scrollIntoView dn false))
+            ))
 
        :render
         (fn [me]
@@ -123,6 +131,7 @@
                 class    (if selected
                            " highlighted"
                            (when @mouse-over? " mouseover"))]  ;; TODO: mouseover style is in index.css
+            (println "option-item - render" (:label opt) (if selected "*SELECTED*" ""))
             [:li
              {:class         (str "active-result group-option" class)
               :style         {:-webkit-user-select "none"}
@@ -149,10 +158,10 @@
 (def filter-text-box
   (with-meta filter-text-box-base
              {:component-did-mount #(let [dn (.-firstChild (reagent/dom-node %))]
-                                     (println "filter-text-box did-mount:" (.-value dn))
+                                     #_(println "filter-text-box did-mount:" (.-value dn))
                                      (.focus dn))
               :component-did-update #(let [dn (.-firstChild (reagent/dom-node %))]
-                                      (println "filter-text-box did-update:" (.-value dn))
+                                      #_(println "filter-text-box did-update:" (.-value dn))
                                       (.focus dn))}))
 
 
@@ -192,38 +201,32 @@
 
 (defn dropdown-top-base
   []
-  (let []
+  (let [ignore-click (atom false)]
     (fn
-      [tmp-model options tab-index placeholder dropdown-click key-handler]
-      [:a.chosen-single.chosen-default
-       {:style       {:-webkit-user-select "none"}
-        :href        "#" ;; Required to make this anchor appear in the tab order
-        :tab-index   (when tab-index tab-index)
-        :on-click    #(do (print "a.click") (dropdown-click))
-        :on-key-down #(do (print "a.key") (key-handler %))
-        }
-       [:span
-        {
-          ;:on-click    #(do (print "span.click") (dropdown-click))
-          ;:on-key-down #(do (print "span.key") (key-handler %))
+      [tmp-model options tab-index placeholder dropdown-click key-handler filter-box]
+      (let [_ (reagent/set-state (reagent/current-component) {:filter-box filter-box})]
+        [:a.chosen-single.chosen-default
+         {:style       {:-webkit-user-select "none"}
+          :href        "#"                                  ;; Required to make this anchor appear in the tab order
+          :tab-index   (when tab-index tab-index)
+          :on-click    #(do (println "a.click") (if @ignore-click
+                                                  (reset! ignore-click false)
+                                                  (dropdown-click)))
+          :on-key-down #(do (println "a.key") (key-handler %) (reset! ignore-click true)) ;; Pressing enter on an anchor also triggers click event, which we don't want
           }
-        (if @tmp-model
-          (:label (find-option options @tmp-model))
-          placeholder)]
-       [:div [:b]]] ;; This odd thing produces the visual arrow on the right
-      )))
+         [:span
+          (if @tmp-model
+            (:label (find-option options @tmp-model))
+            placeholder)]
+         [:div [:b]]])))) ;; This odd thing produces the visual arrow on the right
 
 
 (def dropdown-top
   (with-meta dropdown-top-base
-             {
-               ;:component-did-mount #(let [dn (.-firstChild (reagent/dom-node %))]
-               ;                       (println "filter-text-box did-mount: " (.-value dn))
-               ;                       (.focus dn))
-               ;:component-did-update #(let [dn (reagent/dom-node %)]
-               ;                        (println "dropdown-base-base did-update: " (.-value dn))
-               ;                        (.focus dn))
-               }))
+             {:component-did-update #(let [dn (reagent/dom-node %)
+                                           filter-box (:filter-box (reagent/state %))]
+                                      #_(println "dropdown-base-base did-update: " (.-value dn))
+                                      (when-not filter-box (.focus dn)))}))
 
 
 (defn single-dropdown
@@ -240,7 +243,8 @@
             callback         #(do
                                (reset! tmp-model %)
                                (when changeable (on-select @tmp-model))
-                               (reset! drop-showing? false)
+                               ;(reset! drop-showing? false)
+                               (reset! drop-showing? (not @drop-showing?))
                                (reset! filter-text ""))
             cancel           #(do
                                (reset! drop-showing? false)
@@ -256,32 +260,31 @@
                                             (or (.test re (:group opt)) (.test re (:label opt)))))
                                         re)
             filtered-options (filter filter-fn options)
-            key-handler      #(let [a (+)]                  ;; TODO: REMOVE
-                               (if (not disabled)
-                                 (case (.-which %)
-                                   13 (if disabled          ;; Enter key
-                                        (cancel)
-                                        (callback @tmp-model))
-                                   27 (cancel)              ;; Esc key
-                                   9 (+)                    ;; Tab key ;; NOTE: Use this to add more robust support of tabbing
-                                   38 (if @drop-showing?    ;; Up arrow
-                                        (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model -1))
-                                        (reset! drop-showing? true))
-                                   40 (if @drop-showing?    ;; Down arrow
-                                        (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model 1))
-                                        (reset! drop-showing? true))
-                                   36 (when @drop-showing?  ;; Home key
-                                        (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :start)))
-                                   35 (when @drop-showing?  ;; End key
-                                        (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :end)))
-                                   true)))]
+            key-handler      #(if (not disabled)
+                               (case (.-which %)
+                                 13 (if disabled          ;; Enter key
+                                      (cancel)
+                                      (callback @tmp-model))
+                                 27 (cancel)              ;; Esc key
+                                 9 (+)                    ;; Tab key ;; NOTE: Use this to add more robust support of tabbing
+                                 38 (if @drop-showing?    ;; Up arrow
+                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model -1))
+                                      (reset! drop-showing? true))
+                                 40 (if @drop-showing?    ;; Down arrow
+                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model 1))
+                                      (reset! drop-showing? true))
+                                 36 (when @drop-showing?  ;; Home key
+                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :start)))
+                                 35 (when @drop-showing?  ;; End key
+                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :end)))
+                                 true))]
         [:div
          {:class (str "chosen-container chosen-container-single" (when @drop-showing? " chosen-container-active chosen-with-drop"))
           :style (if width
                    {:width width}
                    {:flex "auto"})}
          (when @drop-showing? [backdrop cancel])
-         [dropdown-top tmp-model options tab-index placeholder dropdown-click key-handler]
+         [dropdown-top tmp-model options tab-index placeholder dropdown-click key-handler filter-box]
          (when (and @drop-showing? (not disabled))
            [:div.chosen-drop
             (when filter-box [filter-text-box filter-text key-handler])

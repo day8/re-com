@@ -64,7 +64,7 @@
 
 (defn panel
   []
-  (let [selected-country-id (reagent/atom "US")]
+  (let [selected-country-id (reagent/atom "32")]
     (fn [] [v-box
             :children [[:h3.page-header "Dropdowns"]
                        [h-box

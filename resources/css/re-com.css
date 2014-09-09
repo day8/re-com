@@ -1,16 +1,10 @@
 /*----------------------------------------------------------------------------------------
   re-com.css
 
-  This file is required for styling the re-com UI library components.
-  To use the library, bootstrap.css is also required, which is best obtained from a CDN.
-  So, place the following lines in the <head> section of the html file:
-
-    <link type="text/css" rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
-    <link type="text/css" rel="stylesheet" href="css/re-com.css">
+  This file is required for styling the re-com UI library components
 
   The section immediately below is required for the drop-down components and comes from
-  the bootstrap-chosen library (https://github.com/alxlit/bootstrap-chosen).
-  That library provides it's css as a .less file.
+  The bootstrap-chosen library. That library provides it's css as a .less file
   To compile the less file into the css below, use the following steps from
   a command prompt (you'll need git and the lessc compiler (http://lesscss.org):
 
@@ -26,9 +20,7 @@
 
     lessc bootstrap-chosen.less > bootstrap-chosen.css
 
-  Finally, replace the section below with the contents of bootstrap-chosen.css.
-
-  START OF BOOTSTRAP-CHOSEN SECTION...
+  Then replace the section below with the contents of bootstrap-chosen.css.
 ----------------------------------------------------------------------------------------*/
 
 .chosen-select {
@@ -437,12 +429,14 @@
 }
 
 /*----------------------------------------------------------------------------------------
-  ...END OF BOOTSTRAP-CHOSEN SECTION
+  END OF BOOTSTRAP-CHOSEN SECTION
+----------------------------------------------------------------------------------------*/
 
+/*----------------------------------------------------------------------------------------
   bootstrap-chosen additions
 ----------------------------------------------------------------------------------------*/
 
-/* Mouse hover colour in drop-downs */
+/* hover colour in drop-downs */
 .chosen-container .chosen-results li.mouseover {
   background-color: #eeeeee;
   background-image: none;
