@@ -3,8 +3,9 @@
     [re-com.util  :as util]
     [reagent.core :as reagent]))
 
-;;  http://alxlit.name/bootstrap-chosen/
-;;  Alternative: http://silviomoreto.github.io/bootstrap-select/
+;;  Inspiration: http://alxlit.name/bootstrap-chosen
+;;  Alternative: http://silviomoreto.github.io/bootstrap-select
+
 
 (defn find-option-index
   [options id]
@@ -39,7 +40,7 @@
 
 (defn morph
   [opts]
-  ""
+  "Converts the user specified data for the dropdown into a form that this code can better work with"
   (let [new-opts   (atom [])
         last-group (atom nil)]
     (doall
@@ -64,7 +65,7 @@
             :width            "100%"
             :height           "100%"
             :background-color "black"
-            :opacity          0.05}
+            :opacity          0} ;0.05
     :on-click backdrop-click}])
 
 
@@ -97,9 +98,9 @@
 
 #_(def option-item (with-meta option-item-base
                             {:component-did-mount #(let [dn (reagent/dom-node %)]
-                                                    (util/console-log (str "option-item-2 did-mount: " (.-innerText dn))))
+                                                    (println "option-item-2 did-mount: " (.-innerText dn)))
                              :component-did-update #(let [dn (reagent/dom-node %)]
-                                                     (util/console-log (str "option-item-2 did-update: " (.-innerText dn))))
+                                                     (println "option-item-2 did-update: " (.-innerText dn)))
                              }))
 
 
@@ -110,11 +111,11 @@
     (reagent/create-class
       {:component-did-mount
         (fn [me]
-          #_(util/console-log "option-item - did-mount"))
+          #_(println "option-item - did-mount"))
 
        :component-did-update
         (fn [me old-argv]
-          #_(util/console-log "option-item - did-update"))
+          #_(println "option-item - did-update"))
 
        :render
         (fn [me]
@@ -148,29 +149,29 @@
 (def filter-text-box
   (with-meta filter-text-box-base
              {:component-did-mount #(let [dn (.-firstChild (reagent/dom-node %))]
-                                     (util/console-log (str "filter-text-box did-mount: " (.-value dn)))
+                                     (println "filter-text-box did-mount:" (.-value dn))
                                      (.focus dn))
               :component-did-update #(let [dn (.-firstChild (reagent/dom-node %))]
-                                      (util/console-log (str "filter-text-box did-update: " (.-value dn)))
+                                      (println "filter-text-box did-update:" (.-value dn))
                                       (.focus dn))}))
 
 
 ;; TODO: BUG: up/down cycles through full list instead of filtered list ???????
 ;;       This is because the parameters (filter-text key-handler) change from time to time but render is using the
 ;;       initial values, when the component was first mounted.
-;;       So, the question becomes, "how do we pass fresh versions of the parameters to the render fucntion?
+;;       So, the question becomes, "how do we pass fresh versions of the parameters to the render function?
 #_(defn filter-text-box
   [filter-text key-handler]
   (reagent/create-class
     {:component-did-mount
       (fn [me]
         (let [dn (.-firstChild (reagent/dom-node me))]
-          (util/console-log (str "filter-text-box - did-mount: " (.-value dn)))))
+          (println "filter-text-box - did-mount: " (.-value dn))))
 
      :component-did-update
       (fn [me old-argv]
         (let [dn (.-firstChild (reagent/dom-node me))]
-          (util/console-log (str "filter-text-box - did-update: " (.-value dn)))
+          (println "filter-text-box - did-update: " (.-value dn))
           (.focus dn)))
 
      :render
@@ -182,14 +183,50 @@
              :auto-complete "off"
              :value         @filter-text
              :on-change     #(reset! filter-text (-> % .-target .-value))
-             :on-focus      #(util/console-log (str "filter-text-box - FOCUS"))
-             :on-blur       #(util/console-log (str "filter-text-box BLUR"))
+             :on-focus      #(println "filter-text-box - FOCUS")
+             :on-blur       #(println "filter-text-box BLUR")
              :on-key-down   key-handler
              }]]))
      }))
 
 
-(defn single-drop-down
+(defn dropdown-top-base
+  []
+  (let []
+    (fn
+      [tmp-model options tab-index placeholder dropdown-click key-handler]
+      [:a.chosen-single.chosen-default
+       {:style       {:-webkit-user-select "none"}
+        :href        "#" ;; Required to make this anchor appear in the tab order
+        :tab-index   (when tab-index tab-index)
+        :on-click    #(do (print "a.click") (dropdown-click))
+        :on-key-down #(do (print "a.key") (key-handler %))
+        }
+       [:span
+        {
+          ;:on-click    #(do (print "span.click") (dropdown-click))
+          ;:on-key-down #(do (print "span.key") (key-handler %))
+          }
+        (if @tmp-model
+          (:label (find-option options @tmp-model))
+          placeholder)]
+       [:div [:b]]] ;; This odd thing produces the visual arrow on the right
+      )))
+
+
+(def dropdown-top
+  (with-meta dropdown-top-base
+             {
+               ;:component-did-mount #(let [dn (.-firstChild (reagent/dom-node %))]
+               ;                       (println "filter-text-box did-mount: " (.-value dn))
+               ;                       (.focus dn))
+               ;:component-did-update #(let [dn (reagent/dom-node %)]
+               ;                        (println "dropdown-base-base did-update: " (.-value dn))
+               ;                        (.focus dn))
+               }))
+
+
+(defn single-dropdown
   [& {:keys [model]}]
   "Render a bootstrap styled choosen"
   (let [tmp-model      (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model)) ;; Create a new atom from the model value passed in for use with keyboard actions
@@ -209,7 +246,8 @@
                                (reset! drop-showing? false)
                                (reset! filter-text "")
                                (reset! tmp-model @save-model))
-            dropdown-click   #(when-not disabled (reset! drop-showing? (not @drop-showing?)))
+            dropdown-click   #(when-not disabled
+                               (reset! drop-showing? (not @drop-showing?)))
             re               (try
                                (js/RegExp. @filter-text "i")
                                (catch js/Object e nil))
@@ -218,43 +256,35 @@
                                             (or (.test re (:group opt)) (.test re (:label opt)))))
                                         re)
             filtered-options (filter filter-fn options)
-            key-handler      #(let [a (+)]
-                               (case (.-which %)
-                                 13 (if disabled                  ;; Enter key
-                                      (cancel)
-                                      (callback @tmp-model))
-                                 27 (cancel)                      ;; Esc key
-                                 9 (+)                           ;; Tab key ;; NOTE: Use this to add more robust support of tabbing
-                                 38 (if @drop-showing?            ;; Up arrow
-                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model -1))
-                                      (reset! drop-showing? true))
-                                 40 (if @drop-showing?            ;; Down arrow
-                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model 1))
-                                      (reset! drop-showing? true))
-                                 36 (when @drop-showing?          ;; Home key
-                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :start)))
-                                 35 (when @drop-showing?          ;; End key
-                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :end)))
-                                 true))]
+            key-handler      #(let [a (+)]                  ;; TODO: REMOVE
+                               (if (not disabled)
+                                 (case (.-which %)
+                                   13 (if disabled          ;; Enter key
+                                        (cancel)
+                                        (callback @tmp-model))
+                                   27 (cancel)              ;; Esc key
+                                   9 (+)                    ;; Tab key ;; NOTE: Use this to add more robust support of tabbing
+                                   38 (if @drop-showing?    ;; Up arrow
+                                        (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model -1))
+                                        (reset! drop-showing? true))
+                                   40 (if @drop-showing?    ;; Down arrow
+                                        (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model 1))
+                                        (reset! drop-showing? true))
+                                   36 (when @drop-showing?  ;; Home key
+                                        (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :start)))
+                                   35 (when @drop-showing?  ;; End key
+                                        (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :end)))
+                                   true)))]
         [:div
          {:class (str "chosen-container chosen-container-single" (when @drop-showing? " chosen-container-active chosen-with-drop"))
           :style (if width
                    {:width width}
                    {:flex "auto"})}
          (when @drop-showing? [backdrop cancel])
-         [:a.chosen-single.chosen-default
-          {:style       {:-webkit-user-select "none"}
-           :href        "#" ;; Required to make this anchor appear in the tab order
-           :tab-index   (when tab-index tab-index)
-           :on-click    dropdown-click
-           :on-key-down key-handler}
-          [:span (if @tmp-model
-                   (:label (find-option options @tmp-model))
-                   placeholder)]
-          [:div [:b]]] ;; This odd thing produces the visual arrow on the right
-         (when @drop-showing?
+         [dropdown-top tmp-model options tab-index placeholder dropdown-click key-handler]
+         (when (and @drop-showing? (not disabled))
            [:div.chosen-drop
-            (when filter-box [filter-text-box filter-text key-handler drop-showing?])
+            (when filter-box [filter-text-box filter-text key-handler])
             [:ul.chosen-results
              (if (-> filtered-options count pos?)
                (for [opt (morph filtered-options)]

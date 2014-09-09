@@ -196,7 +196,7 @@
         s              (merge flex-container flex-child w-style h-style mw-style mh-style j-style a-style m-style p-style d-style)
         gap-form       (when gap [re-com.box/gap :size gap :width gap])
         children       (if gap
-                         (drop-last (interleave (filter identity children) (repeat gap-form)))
+                         (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
                          children)]
     (into [:div {:class "rc-h-box" :style s}] children)))
 
@@ -227,7 +227,7 @@
         s              (merge flex-container flex-child w-style h-style mw-style mh-style j-style a-style m-style p-style d-style)
         gap-form       (when gap [re-com.box/gap :size gap :height gap])
         children       (if gap
-                         (drop-last (interleave (filter identity children) (repeat gap-form)))
+                         (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
                          children)]
     (into [:div {:class "rc-v-box" :style s}] children)))
 

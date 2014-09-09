@@ -3,7 +3,7 @@
   (:require [re-com.util     :as    util]
             [re-com.core     :refer [button spinner progress-bar label input-text]]
             [re-com.box      :refer [h-box v-box box gap]]
-            [re-com.dropdown :refer [single-drop-down find-option]]
+            [re-com.dropdown :refer [single-dropdown find-option]]
             [re-com.modal    :refer [modal-window
                                      cancel-button
                                      looper
@@ -72,7 +72,7 @@
                         :align    :center
                         :children [[label :label "Test tabbing"]
                                    [input-text "" #() :style {:width "80px"}]
-                                   [single-drop-down
+                                   [single-dropdown
                                     :options countries
                                     :model selected-country-id
                                     :placeholder "Choose a country"
@@ -89,4 +89,3 @@
                                    ]]
                        ]]
       )))
-
