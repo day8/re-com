@@ -16,6 +16,7 @@
   ;; :jvm-opts ^:replace ["-Xms2g" "-Xmx2g" "-server"]
 
   :source-paths ["src"]
+  :test-paths ["test"]
 
   ;; Exclude the demo code from the output of either:
   ;;   - lein jar
@@ -38,7 +39,14 @@
                                            :preamble      ["reagent/react.min.js"]
                                            :elide-asserts true
                                            :optimizations :advanced
-                                           :pretty-print  false}}]}
+                                           :pretty-print  false}}
+                        {:id "test"
+                         :source-paths ["src" "test"]
+                         :compiler        {:output-to "compiled/test.js"
+                                           :output-dir "compiled/test"
+                                           :optimizations :none
+                                           :pretty-print true
+                                           :source-map "compiled/test.js.map"}}]}
 
   :aliases {"auto-demo" ["do" "clean," "cljsbuild" "clean," "cljsbuild" "auto" "demo,"]
             "auto"      ["do" "cljsbuild" "auto" "demo,"]
