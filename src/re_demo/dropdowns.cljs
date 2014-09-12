@@ -73,13 +73,15 @@
                         :children [[label :label "Test tabbing"]
                                    [input-text "" #() :style {:width "80px"}]
                                    [single-dropdown
-                                    :options countries
-                                    :model selected-country-id
-                                    :placeholder "Choose a country"
-                                    :width "300px"
-                                    :filter-box  true
-                                    :disabled    false
-                                    :on-select #(reset! selected-country-id %)]
+                                    :options      countries
+                                    :model        selected-country-id
+                                    :placeholder  "Choose a country"
+                                    :width        "300px"
+                                    :max-height   "400px"
+                                    :disabled     false
+                                    :filter-box   true
+                                    :regex-filter false
+                                    :on-select    #(reset! selected-country-id %)]
                                    [input-text "" #() :style {:width "80px"}]
                                    [:div
                                     [:strong "Selected country: "]
