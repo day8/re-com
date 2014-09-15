@@ -148,25 +148,27 @@
   "Starting at the first character, perform the validation for each character until we have
   reached the end (which might come sooner than originally expected because if an invalid
   value is encountered the model will be truncated)."
-  [char min max n]
+  [chars min max n]
   (let [funcs [first-char second-char third-char fourth-char fifth-char]]
-    (if (< n (count char))
-       ((nth funcs n) char min max))))
+    (if (< n (count chars))
+       ((nth funcs n) chars min max))))
 
-(defn validate-each-character [tmp-model min max n]
-  (let [char (nth @tmp-model n)
-        new-val (validated-time-change char min max n)]
-    (if-not (= new-val char)
-      (reset! tmp-model new-val))))
+(defn validate-each-character [tmp-model min max]
+  (loop [i 0]
+    (let [chars (subs @tmp-model 0 (+ i 1))
+          new-val (validated-time-change chars min max i)]
+      (if (= new-val chars)
+        (if (and (< i 4))
+          (recur (inc i)))
+        (reset! tmp-model new-val)))))
 
 (defn time-changed [ev tmp-model min max]
   (let [target (.-target ev)
         input-val (.-value target)]
      (reset! tmp-model input-val)
-     (map (validate-each-character tmp-model min max %) (range 5))
+     (validate-each-character tmp-model min max)))
     ;;(set! (.-value target) new-val)
     ;;(when (= 5 (count new-val)) ;; tiem is complete - lose focus?
-    ))
 
 (defn time-updated
   "Check what has been entered is complete. If not, and if possible, complete it. Then update the model."
