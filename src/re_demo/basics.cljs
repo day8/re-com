@@ -14,13 +14,6 @@
    "Now it's real. Once more & you'll get a page-freezing exception."])
 
 
-(def combo-options
-  ["Do this"
-   "Do that"
-   "Do somthing else"])
-
-
-
 (def state (reagent/atom
              {:outcome-index 0
               :see-spinner  false}))
@@ -52,19 +45,6 @@
                             (when (:see-spinner @state)  [spinner])]]]]))
 
 
-#_(defn combo-box-demo
-  []
-  (fn []
-    [v-box
-     :children [[title "ComboBox"]
-                [gap "20px"]
-                [h-box
-                 :children [[:select#MwiSelect.form-control {:style {:display "inline" :width "auto"}}
-                             nil
-                             (for [o combo-options]
-                               ^{:key o}
-                               [:option o])]]]]]))
-
 (defn right-arrow
   []
   [:svg
@@ -72,6 +52,7 @@
    [:line {:x1 "0" :y1 "10" :x2 "20" :y2 "10"
            :style {:stroke "#888"}}]
    [:polygon {:points "20,6 20,14 25,10" :style {:stroke "#888" :fill "#888"}}]])
+
 
 (defn left-arrow
   []
@@ -124,6 +105,7 @@
                                :label (if @disabled? "disabled" "enabled")
                                :model  something1?
                                :disabled disabled?
+                               :label-style (if @disabled?  {:color "#888"})
                                :on-change  #(reset! something1? %)]]]
 
                   [h-box
@@ -138,33 +120,28 @@
                                :label "no label on this one"]]]]])))
 
 
+
+
+
 (defn radios-demo
   []
-  (let [colour       (reagent/atom "red")]
+  (let [colour       (reagent/atom "green")]
     (fn
       []
       [v-box
        :gap "15px"
-       :children [[title "Radios"]
+       :children [[title "Radio Buttons"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [v-box
-                    :gap "0px"
-                    :children [
-                                [radio-button
-                                 :label "red"
-                                 :value "red"
-                                 :model colour]
-
-                                [radio-button
-                                 :label "blue"
-                                 :value "blue"
-                                 :model colour]
-
-                                [radio-button
-                                 :label "green"
-                                 :value "green"
-                                 :model colour]]]]])))
-
+                   :gap "0px"
+                   :children [(doall (for [c ["red" "green" "blue"]]       ;; Notice the ugly "doall"
+                                       ^{:key c}                 ;; key should be unique within this compenent
+                                       [radio-button
+                                        :label c
+                                        :value c
+                                        :model colour
+                                        :label-style  (if (= c @colour) {:color c})     ;; could use label-class
+                                        :on-change  #(reset! colour c)]))]]]])))
 
 (defn inputs-demo
   []
