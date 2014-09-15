@@ -1,6 +1,7 @@
 (ns re-com.popover
   (:require [re-com.util  :as util]
             [re-com.core  :refer [button]]
+            [clojure.string :as string]
             [reagent.core :as reagent]))
 
 
@@ -22,7 +23,7 @@
    (split-keyword  :above-left  \"-\")
    =>  [:above :left]
    "
-  (let [keywords (clojure.string/split (str kw) (re-pattern (str "[" delimiter ":]")))] ;; (:require [clojure.string :as cstr])
+  (let [keywords (string/split (str kw) (re-pattern (str "[" delimiter ":]")))]
     [(keyword (keywords 1)) (keyword (keywords 2))]))
 
 

@@ -1,6 +1,7 @@
 (ns re-com.dropdown
   (:require
     [re-com.util  :as util]
+    [clojure.string :as string]
     [reagent.core :as reagent]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
@@ -34,11 +35,11 @@
   (let [current-index (find-option-index options id)
         _             (assert ((complement nil?) current-index) (str "Can't find model index '" id "' in options vector"))]
     (if (nil? current-index)
-      (first options)                ;; TODO: This is "failing silently"
+      (first options) ;; TODO: This is "failing silently"
       (nth options current-index))))
 
 
-(defn morph
+(defn options-with-headings
   [opts]
   "Converts the user specified data for the dropdown into a form that this code can better work with"
   (let [new-opts   (atom [])
@@ -48,15 +49,41 @@
         (let [new-group (not= (:group opt) @last-group)
               _         (reset! last-group (:group opt))]
           (when new-group
-            (swap! new-opts conj {:id (str (:id opt) "##")
+            (swap! new-opts conj {:id    (str (:id opt) "##")
                                   :group (:group opt)}))
-          (swap! new-opts conj {:id (:id opt)
+          (swap! new-opts conj {:id    (:id opt)
                                 :label (:label opt)}))
         ))
     @new-opts))
 
 
-(defn backdrop
+(defn filter-options
+  "Filter a list of options based on a filter string using plain string searches (case insensitive). Less powerful
+   than regex's but no confusion with reserved characters."
+  [options filter-text]
+  (let [lower-filter-text (string/lower-case filter-text)
+        filter-fn        (fn [opt]
+                           (or
+                             (>= (.indexOf (string/lower-case (:group opt)) lower-filter-text) 0)
+                             (>= (.indexOf (string/lower-case (str (:label opt))) lower-filter-text) 0)))] ;; Need str for non-string labels like hiccup
+    (filter filter-fn options)))
+
+
+(defn filter-options-regex
+  "Filter a list of options based on a filter string using regex's (case insensitive). More powerful but can cause
+   confusion for users entering reserved characters such as [ ] * + . ( ) etc."
+  [options filter-text]
+  (let [re        (try
+                    (js/RegExp. filter-text "i")
+                    (catch js/Object e nil))
+        filter-fn (partial (fn [re opt]
+                             (when-not (nil? re)
+                               (or (.test re (:group opt)) (.test re (:label opt)))))
+                           re)]
+    (filter filter-fn options)))
+
+
+#_(defn backdrop ;; TODO: Currently disabled, so remove when confirmed we're done with this
   [backdrop-click]
   [:div
    {:style {:position         "fixed"
@@ -69,11 +96,11 @@
     :on-click backdrop-click}])
 
 
-(defn option-group-item
+(defn option-group-heading
   [opt]
   "Render a group option item"
   [:li.group-result
-   {:style {:-webkit-user-select "none"}
+   {:style {:user-select "none"} ;; Prevent user text selection
     :value (:value opt)}
    (:group opt)])
 
@@ -89,18 +116,18 @@
                        (when @mouse-over? " mouseover"))]  ;; TODO: mouseover style is in index.css
         [:li
          {:class         (str "active-result group-option" class)
-          :style         {:-webkit-user-select "none"}
+          :style         {:-webkit-user-select "none"} ;; Prevent user text selection
           :on-mouse-over #(reset! mouse-over? true)
           :on-mouse-out  #(reset! mouse-over? false)
-          :on-click      #(on-click (:id opt))}
+          :on-mouse-down #(on-click (:id opt))}
          (:label opt)]))))
 
 
 #_(def option-item (with-meta option-item-base
-                            {:component-did-mount #(let [dn (reagent/dom-node %)]
-                                                    (println "option-item-2 did-mount: " (.-innerText dn)))
-                             :component-did-update #(let [dn (reagent/dom-node %)]
-                                                     (println "option-item-2 did-update: " (.-innerText dn)))
+                            {:component-did-mount #(let [node (reagent/dom-node %)]
+                                                    (println "option-item-2 did-mount: " (.-innerText node)))
+                             :component-did-update #(let [node (reagent/dom-node %)]
+                                                     (println "option-item-2 did-update: " (.-innerText node)))
                              }))
 
 
@@ -108,21 +135,23 @@
   [opt on-click model]
   "Render an option item and set up appropriate mouse events"
   (let [mouse-over? (reagent/atom false)]
-    (println ">IN option-item" (:label opt))
+    #_(println ">IN option-item" (:label opt))
     (reagent/create-class
       {:component-did-mount
         (fn [me]
-          (let [dn        (reagent/dom-node me)
+          (let [node     (reagent/dom-node me)
                 selected (= @model (:id opt))]
-            (when selected (.scrollIntoView dn false))
-            (println "option-item - did-mount" (:label opt))))
+            (when selected (.scrollIntoView node false))
+            #_(println "option-item - did-mount" (:label opt))))
 
        :component-did-update
         (fn [me old-argv]
-          (let [dn        (reagent/dom-node me)
+          (let [node     (reagent/dom-node me)
                 selected (= @model (:id opt))]
-            (println "option-item - did-update" (:label opt))
-            (when selected (.scrollIntoView dn false))
+            #_(println "option-item - did-update" (:label opt))
+            ;; TODO: Only options are to fix the element to the top or bottom of the window. Suggested solution is window.scrollTO() :-( See link below...
+            ;; http://social.msdn.microsoft.com/Forums/vstudio/en-US/340637f1-835a-43ed-9724-6eb4b166fdf8/html-scrollintoview-question
+            (when selected (.scrollIntoView node false))
             ))
 
        :render
@@ -130,14 +159,14 @@
           (let [selected (= @model (:id opt))
                 class    (if selected
                            " highlighted"
-                           (when @mouse-over? " mouseover"))]  ;; TODO: mouseover style is in index.css
-            (println "option-item - render" (:label opt) (if selected "*SELECTED*" ""))
+                           (when @mouse-over? " mouseover"))]
+            #_(println "option-item - render" (:label opt) (if selected "*SELECTED*" ""))
             [:li
              {:class         (str "active-result group-option" class)
-              :style         {:-webkit-user-select "none"}
+              :style         {:user-select "none"} ;; Prevent user text selection
               :on-mouse-over #(reset! mouse-over? true)
               :on-mouse-out  #(reset! mouse-over? false)
-              :on-click      #(on-click (:id opt))}
+              :on-mouse-down #(on-click (:id opt))} ;; on-click doesn't work because of blur event
              (:label opt)]))
        })
     ))
@@ -145,27 +174,31 @@
 
 (defn filter-text-box-base
   []
-  (fn [filter-text key-handler]
+  (fn [filter-text key-handler drop-showing?]
     [:div.chosen-search
      [:input
       {:type          "text"
        :auto-complete "off"
        :value         @filter-text
        :on-change     #(reset! filter-text (-> % .-target .-value))
+       :on-focus      #(println "txt.focus")
+       :on-blur       #(do
+                        (reset! drop-showing? false)
+                        (println "txt.blur"))
        :on-key-down   key-handler}]]))
 
 
 (def filter-text-box
   (with-meta filter-text-box-base
-             {:component-did-mount #(let [dn (.-firstChild (reagent/dom-node %))]
-                                     #_(println "filter-text-box did-mount:" (.-value dn))
-                                     (.focus dn))
-              :component-did-update #(let [dn (.-firstChild (reagent/dom-node %))]
-                                      #_(println "filter-text-box did-update:" (.-value dn))
-                                      (.focus dn))}))
+             {:component-did-mount #(let [node (.-firstChild (reagent/dom-node %))]
+                                     #_(println "filter-text-box did-mount:" (.-value node))
+                                     (.focus node))
+              :component-did-update #(let [node (.-firstChild (reagent/dom-node %))]
+                                      #_(println "filter-text-box did-update:" (.-value node))
+                                      (.focus node))}))
 
 
-;; TODO: BUG: up/down cycles through full list instead of filtered list ???????
+;; TODO: BUG: up/down cycles through full list of options instead of filtered list
 ;;       This is because the parameters (filter-text key-handler) change from time to time but render is using the
 ;;       initial values, when the component was first mounted.
 ;;       So, the question becomes, "how do we pass fresh versions of the parameters to the render function?
@@ -174,14 +207,15 @@
   (reagent/create-class
     {:component-did-mount
       (fn [me]
-        (let [dn (.-firstChild (reagent/dom-node me))]
-          (println "filter-text-box - did-mount: " (.-value dn))))
+        (let [node (.-firstChild (reagent/dom-node me))]
+          #_(println "filter-text-box - did-mount: " (.-value node))
+          (.focus node)))
 
      :component-did-update
       (fn [me old-argv]
-        (let [dn (.-firstChild (reagent/dom-node me))]
-          (println "filter-text-box - did-update: " (.-value dn))
-          (.focus dn)))
+        (let [node (.-firstChild (reagent/dom-node me))]
+          #_(println "filter-text-box - did-update: " (.-value node))
+          (.focus node)))
 
      :render
       (fn [me]
@@ -192,8 +226,6 @@
              :auto-complete "off"
              :value         @filter-text
              :on-change     #(reset! filter-text (-> % .-target .-value))
-             :on-focus      #(println "filter-text-box - FOCUS")
-             :on-blur       #(println "filter-text-box BLUR")
              :on-key-down   key-handler
              }]]))
      }))
@@ -203,16 +235,28 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [tmp-model options tab-index placeholder dropdown-click key-handler filter-box]
+      [tmp-model options tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
       (let [_ (reagent/set-state (reagent/current-component) {:filter-box filter-box})]
         [:a.chosen-single.chosen-default
-         {:style       {:-webkit-user-select "none"}
-          :href        "#"                                  ;; Required to make this anchor appear in the tab order
+         {:style       {:user-select "none"} ;; Prevent user text selection
+          :href        "javascript:" ;; Required to make this anchor appear in the tab order
           :tab-index   (when tab-index tab-index)
-          :on-click    #(do (println "a.click") (if @ignore-click
-                                                  (reset! ignore-click false)
-                                                  (dropdown-click)))
-          :on-key-down #(do (println "a.key") (key-handler %) (reset! ignore-click true)) ;; Pressing enter on an anchor also triggers click event, which we don't want
+          :on-click    #(do
+                         (println "a.click")
+                         (if @ignore-click
+                           (reset! ignore-click false)
+                           (dropdown-click)))
+          :on-mouse-down #(do
+                           (println "a.mousedown")
+                           (when (and filter-box @drop-showing?) (reset! ignore-click true))) ;; Clicking anchor when filter-text-box is enabled and drop-down
+          :on-key-down #(do                                                                   ;; is open closes then reopens because of txt.blur event
+                         (println "a.key")
+                         (key-handler %)
+                         (reset! ignore-click true)) ;; Pressing enter on an anchor also triggers click event, which we don't want
+          :on-focus      #(println "a.focus")
+          :on-blur       #(do
+                           (println "a.blur")
+                           (when-not filter-box (reset! drop-showing? false)))
           }
          [:span
           (if @tmp-model
@@ -223,19 +267,19 @@
 
 (def dropdown-top
   (with-meta dropdown-top-base
-             {:component-did-update #(let [dn (reagent/dom-node %)
+             {:component-did-update #(let [node       (reagent/dom-node %)
                                            filter-box (:filter-box (reagent/state %))]
-                                      #_(println "dropdown-base-base did-update: " (.-value dn))
-                                      (when-not filter-box (.focus dn)))}))
+                                      #_(println "dropdown-base-base did-update: " (.-value node))
+                                      (when-not filter-box (.focus node)))}))
 
 
 (defn single-dropdown
   [& {:keys [model]}]
   "Render a bootstrap styled choosen"
-  (let [tmp-model      (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model)) ;; Create a new atom from the model value passed in for use with keyboard actions
-        drop-showing?  (reagent/atom false)
-        filter-text    (reagent/atom "")]
-    (fn [& {:keys [options model on-select disabled filter-box placeholder width tab-index]}]
+  (let [tmp-model     (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model)) ;; Create a new atom from the model value passed in for use with keyboard actions
+        drop-showing? (reagent/atom false)
+        filter-text   (reagent/atom "")]
+    (fn [& {:keys [options model on-select disabled filter-box regex-filter placeholder width max-height tab-index]}]
       (let [options          (if (satisfies? cljs.core/IDeref options) @options options)
             save-model       (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model))
             disabled         (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
@@ -243,8 +287,7 @@
             callback         #(do
                                (reset! tmp-model %)
                                (when changeable (on-select @tmp-model))
-                               ;(reset! drop-showing? false)
-                               (reset! drop-showing? (not @drop-showing?))
+                               (reset! drop-showing? (not @drop-showing?)) ;; toggle to allow opening dropdown on Enter key
                                (reset! filter-text ""))
             cancel           #(do
                                (reset! drop-showing? false)
@@ -252,21 +295,27 @@
                                (reset! tmp-model @save-model))
             dropdown-click   #(when-not disabled
                                (reset! drop-showing? (not @drop-showing?)))
-            re               (try
-                               (js/RegExp. @filter-text "i")
-                               (catch js/Object e nil))
-            filter-fn          (partial (fn [re opt]
-                                          (when-not (nil? re)
-                                            (or (.test re (:group opt)) (.test re (:label opt)))))
-                                        re)
-            filtered-options (filter filter-fn options)
+            filtered-options (if regex-filter
+                               (filter-options-regex options @filter-text)
+                               (filter-options options @filter-text))
             key-handler      #(if (not disabled)
                                (case (.-which %)
                                  13 (if disabled          ;; Enter key
                                       (cancel)
                                       (callback @tmp-model))
                                  27 (cancel)              ;; Esc key
-                                 9 (+)                    ;; Tab key ;; NOTE: Use this to add more robust support of tabbing
+                                  9 (do                   ;; Tab key ;; NOTE: Use this to add more robust support of tabbing
+                                      (println "tab.key")
+                                      (if disabled
+                                        (cancel)
+                                        ;(callback @tmp-model) ;; Replaced with customised version below...
+                                        (do
+                                          ;(reset! tmp-model %)
+                                          (when changeable (on-select @tmp-model))
+                                          (reset! drop-showing? false)
+                                          (reset! filter-text ""))
+                                        )
+                                      (reset! drop-showing? false))
                                  38 (if @drop-showing?    ;; Up arrow
                                       (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model -1))
                                       (reset! drop-showing? true))
@@ -283,15 +332,16 @@
           :style (if width
                    {:width width}
                    {:flex "auto"})}
-         (when @drop-showing? [backdrop cancel])
-         [dropdown-top tmp-model options tab-index placeholder dropdown-click key-handler filter-box]
+         ;(when @drop-showing? [backdrop cancel]) ;; TODO: Currently disabled (we use on-blur now), so remove when confirmed we're done with this
+         [dropdown-top tmp-model options tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
          (when (and @drop-showing? (not disabled))
            [:div.chosen-drop
-            (when filter-box [filter-text-box filter-text key-handler])
+            (when filter-box [filter-text-box filter-text key-handler drop-showing?])
             [:ul.chosen-results
+             (when max-height {:style {:max-height max-height}})
              (if (-> filtered-options count pos?)
-               (for [opt (morph filtered-options)]
+               (for [opt (options-with-headings filtered-options)]
                  (if (:group opt)
-                   ^{:key (:id opt)} [option-group-item opt]
+                   ^{:key (:id opt)} [option-group-heading opt]
                    ^{:key (:id opt)} [option-item opt callback tmp-model]))
                [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))

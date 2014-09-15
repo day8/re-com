@@ -1,6 +1,6 @@
 (ns re-com.box
   (:require [reagent.core :as reagent]
-            [clojure.string :as str]))
+            [clojure.string :as string]))
 
 (def debug false)
 
@@ -70,11 +70,11 @@
    Reference: http://www.w3.org/TR/css3-flexbox/#flexibility
    Regex101 testing: ^(initial|auto|none)|(\\d+)(px|%|em)|(\\d+)\\w(\\d+)\\w(.*) - remove double backslashes"
   ;; TODO: Could make initial/auto/none into keywords???
-  (let [split-size      (str/split (str/trim size) #"\s+")                  ;; Split into words separated by whitespace
+  (let [split-size      (string/split (string/trim size) #"\s+")                  ;; Split into words separated by whitespace
         split-count     (count split-size)
         _               (assert (contains? #{1 3} split-count) "Must pass either 1 or 3 words to flex-child-style")
         size-only       (when (= split-count 1) (first split-size))         ;; Contains value when only one word passed (e.g. auto, 60px)
-        split-size-only (when size-only (str/split size-only #"(\d+)(.*)")) ;; Split into number + string
+        split-size-only (when size-only (string/split size-only #"(\d+)(.*)")) ;; Split into number + string
         [_ num units]   (when size-only split-size-only)                    ;; grab number and units
         pass-through?   (nil? num)                                          ;; If we can't split, then we'll pass this straign through
         grow-ratio?     (or (= units "%") (= units "") (nil? units))        ;; Determine case for using grow ratio
