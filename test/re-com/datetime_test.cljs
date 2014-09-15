@@ -48,6 +48,14 @@
     "01:00"   (datetime/fifth-char "01:00" default-min default-max)   ;; Valid character - should be returned unchanged
     "11:0"    (datetime/fifth-char "11:0a" default-min default-max)))   ;; Expected invalid character to be ignored.
 
+(deftest test-validate-each-character
+   (let [tmp-model (reagent/atom "22:30")
+         _ (datetime/validate-each-character tmp-model default-min default-max)]
+     (is (= "22:30" @tmp-model))
+     (reset! tmp-model "29:30")  ;; Exceeds max
+     (datetime/validate-each-character tmp-model default-min default-max)
+     (is (= "2" @tmp-model))))
+
 (deftest test-validate-hours
   (are [expected actual] (= expected actual)
     false (datetime/validate-hours "aa" default-min default-max)   ;; Invalid character - not valid

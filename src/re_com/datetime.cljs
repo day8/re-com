@@ -144,30 +144,33 @@
     (reset! tmp-model ""))
   (and (not (nil? @tmp-model))(= 5 (count @tmp-model))))
 
-(defn validated-time-change [input-val min max]
-  (let [length (count input-val)]
-    (cond
-      (= length 0) input-val
-      (= length 1) (first-char input-val min max)
-      (= length 2) (second-char input-val min max)
-      (= length 3) (third-char input-val min max)
-      (= length 4) (fourth-char input-val min max)
-      (= length 5) (fifth-char input-val min max)
-      (> length 5) (subs input-val 0 5)
-      :else input-val)))
+(defn validated-time-change
+  "Starting at the first character, perform the validation for each character until we have
+  reached the end (which might come sooner than originally expected because if an invalid
+  value is encountered the model will be truncated)."
+  [char min max n]
+  (let [funcs [first-char second-char third-char fourth-char fifth-char]]
+    (if (< n (count char))
+       ((nth funcs n) char min max))))
+
+(defn validate-each-character [tmp-model min max n]
+  (let [char (nth @tmp-model n)
+        new-val (validated-time-change char min max n)]
+    (if-not (= new-val char)
+      (reset! tmp-model new-val))))
 
 (defn time-changed [ev tmp-model min max]
   (let [target (.-target ev)
-        input-val (.-value target)
-        new-val (validated-time-change input-val min max)]
-    (reset! tmp-model new-val)
+        input-val (.-value target)]
+     (reset! tmp-model input-val)
+     (map (validate-each-character tmp-model min max %) (range 5))
     ;;(set! (.-value target) new-val)
-    #_(when (= 5 (count new-val)) ;; tiem is complete - lose focus?
-    )))
+    ;;(when (= 5 (count new-val)) ;; tiem is complete - lose focus?
+    ))
 
 (defn time-updated
   "Check what has been entered is complete. If not, and if possible, complete it. Then update the model."
-  [ev model tmp-model]
+  [ev model tmp-model min max]
   (let [length (count @tmp-model)]
     (cond
       (= length 0) (reset! tmp-model nil)  ;; Insufficient data to complete
@@ -175,7 +178,7 @@
       (= length 2) (reset! tmp-model (str @tmp-model ":00"))
       (= length 3) (reset! tmp-model (str @tmp-model "00"))
       (= length 4) (reset! tmp-model (str @tmp-model "0"))))
-  ;;(set! (.-value (.-target ev)) @tmp-model)
+  (validate-time-string tmp-model min max)
   (reset! model @tmp-model)
   (println @model))
 
@@ -194,13 +197,14 @@
     (fn [& {:keys [model callback minimum-time maximum-time style]}]
       (let [min (if minimum-time minimum-time [0 0])
             max (if maximum-time maximum-time [23 59])]
+        (validate-time-string tmp-model min max) ;; Check the passed model is a valid time string
         [:input
           {:type "text"
            :class "time-entry"
            :value @tmp-model  ;; TODO validate this first
            :style {:font-size "11px"
-                   :max-width "41px"
-                   :width "41px"
-                   :min-width "41px"}
+                   :max-width "35px"
+                   :width "35px"
+                   :min-width "35px"}
           :on-change #(time-changed % tmp-model min max)
-          :on-blur #(time-updated % model tmp-model)}]))))
+          :on-blur #(time-updated % model tmp-model min max)}]))))
