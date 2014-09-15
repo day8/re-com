@@ -158,7 +158,7 @@
     (let [chars (subs @tmp-model 0 (+ i 1))
           new-val (validated-time-change chars min max i)]
       (if (= new-val chars)
-        (if (and (< i 4))
+        (if (and (< i 4)(< (+ 1 i)(count @tmp-model)))
           (recur (inc i)))
         (reset! tmp-model new-val)))))
 
@@ -172,7 +172,7 @@
 
 (defn time-updated
   "Check what has been entered is complete. If not, and if possible, complete it. Then update the model."
-  [ev model tmp-model min max]
+  [ev model tmp-model min max callback]
   (let [length (count @tmp-model)]
     (cond
       (= length 0) (reset! tmp-model nil)  ;; Insufficient data to complete
@@ -182,7 +182,7 @@
       (= length 4) (reset! tmp-model (str @tmp-model "0"))))
   (validate-time-string tmp-model min max)
   (reset! model @tmp-model)
-  (println @model))
+  (if callback (callback @model)))
 
 ;; --- Public function ---
 
@@ -199,14 +199,15 @@
     (fn [& {:keys [model callback minimum-time maximum-time style]}]
       (let [min (if minimum-time minimum-time [0 0])
             max (if maximum-time maximum-time [23 59])]
-        (validate-time-string tmp-model min max) ;; Check the passed model is a valid time string
-        [:input
-          {:type "text"
-           :class "time-entry"
-           :value @tmp-model  ;; TODO validate this first
-           :style {:font-size "11px"
-                   :max-width "35px"
-                   :width "35px"
-                   :min-width "35px"}
-          :on-change #(time-changed % tmp-model min max)
-          :on-blur #(time-updated % model tmp-model min max)}]))))
+        (if (validate-time-string tmp-model min max) ;; Check the passed model is a valid time string
+          [:input
+            {:type "text"
+             :class "time-entry"
+             :value @tmp-model  ;; TODO validate this first
+             :style {:font-size "11px"
+                     :max-width "35px"
+                     :width "35px"
+                     :min-width "35px"}
+            :on-change #(time-changed % tmp-model min max)
+            :on-blur #(time-updated % model tmp-model min max callback)}]
+          [:p [:b "invalid model value"]])))))

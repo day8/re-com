@@ -8,7 +8,7 @@
 
 (defn single-time []
   (let [model1 (reagent/atom "09:00")
-        model2 (reagent/atom "12:00")]
+        model2 (reagent/atom "20:30")]
     [v-box
      :gap "0px"
      :children [[title "Time"]
