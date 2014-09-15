@@ -1,6 +1,6 @@
 (ns re-com.box
   (:require [reagent.core :as reagent]
-            [clojure.string :as str]))
+            [clojure.string :as string]))
 
 (def debug false)
 
@@ -70,11 +70,11 @@
    Reference: http://www.w3.org/TR/css3-flexbox/#flexibility
    Regex101 testing: ^(initial|auto|none)|(\\d+)(px|%|em)|(\\d+)\\w(\\d+)\\w(.*) - remove double backslashes"
   ;; TODO: Could make initial/auto/none into keywords???
-  (let [split-size      (str/split (str/trim size) #"\s+")                  ;; Split into words separated by whitespace
+  (let [split-size      (string/split (string/trim size) #"\s+")                  ;; Split into words separated by whitespace
         split-count     (count split-size)
         _               (assert (contains? #{1 3} split-count) "Must pass either 1 or 3 words to flex-child-style")
         size-only       (when (= split-count 1) (first split-size))         ;; Contains value when only one word passed (e.g. auto, 60px)
-        split-size-only (when size-only (str/split size-only #"(\d+)(.*)")) ;; Split into number + string
+        split-size-only (when size-only (string/split size-only #"(\d+)(.*)")) ;; Split into number + string
         [_ num units]   (when size-only split-size-only)                    ;; grab number and units
         pass-through?   (nil? num)                                          ;; If we can't split, then we'll pass this straign through
         grow-ratio?     (or (= units "%") (= units "") (nil? units))        ;; Determine case for using grow ratio
@@ -146,11 +146,10 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn gap
-  [& {:keys [size width height]
-     :or {size "none"}}]
+  [& {:keys [size width height]}]
   "Returns markup which produces a gap between children in a v-box/h-box along the main axis.
    Specify size in any sizing amount, usually px or % or perhaps em. Defaults to 20px."
-  (let [g-style {:flex (str "0 0 " size)}
+  (let [g-style (when size {:flex (str "0 0 " size)})
         w-style (when width {:width width})
         h-style (when height {:height height})
         d-style (when debug {:background-color "chocolate"})
@@ -197,7 +196,7 @@
         s              (merge flex-container flex-child w-style h-style mw-style mh-style j-style a-style m-style p-style d-style)
         gap-form       (when gap [re-com.box/gap :size gap :width gap])
         children       (if gap
-                         (drop-last (interleave children (repeat gap-form))) ;; Probably not more readable: (->> gap-form repeat (interleave children) drop-last)
+                         (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
                          children)]
     (into [:div {:class "rc-h-box" :style s}] children)))
 
@@ -228,7 +227,7 @@
         s              (merge flex-container flex-child w-style h-style mw-style mh-style j-style a-style m-style p-style d-style)
         gap-form       (when gap [re-com.box/gap :size gap :height gap])
         children       (if gap
-                         (drop-last (interleave children (repeat gap-form)))
+                         (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
                          children)]
     (into [:div {:class "rc-v-box" :style s}] children)))
 
