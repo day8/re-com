@@ -62,12 +62,10 @@
 ;; TODO: when disabled, should the text appear "disabled".
 (defn checkbox
   "I return the markup for a checkbox, with an optional RHS label."
-  [& {:keys [model on-change label disabled style]}]
-  (let [model      (if (satisfies? cljs.core/IDeref model)    @model    model)
-        disabled   (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
-        changeable (and on-change (not disabled))
-        callback   (when changeable
-                     #(on-change (not model)))]     ;; call on-change with either true or false
+  [& {:keys [model on-change label disabled style label-class label-style]}]
+  (let [model       (if (satisfies? cljs.core/IDeref model)    @model    model)
+        disabled    (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
+        callback-fn (if (and on-change (not disabled)) #(on-change (not model)))]     ;; call on-change with either true or false
     [h-box
      :gap "8px"     ;; between the tickbox and the label
      :children [[:input
@@ -75,10 +73,12 @@
                   :style     (merge {:flex "none"} style)
                   :disabled  disabled
                   :checked   model
-                  :on-change callback}]
+                  :on-change callback-fn}]
                 (when label [re-com.core/label
                              :label label
-                             :on-click callback])]]))    ;; ticking on the label is the same as clicking on the checkbox
+                             :class label-class
+                             :style label-style
+                             :on-click callback-fn])]]))    ;; ticking on the label is the same as clicking on the checkbox
 
 
 
@@ -87,24 +87,26 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn radio-button
-"I return the markup for a checkbox, with an optional RHS label."
-[& {:keys [model value label disabled style]}]
-(let [;;model      (if (satisfies? cljs.core/IDeref model)    @model    model)
-      disabled   (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
-      changeable (not disabled)
-      callback   (when changeable
-                   #(reset! model value))]     ;; model must be an atom !!
+"I return the markup for a radio button, with an optional RHS label."
+[& {:keys [model value label on-change disabled style label-class label-style]}]
+(let [model       (if (satisfies? cljs.core/IDeref model)    @model    model)
+      disabled    (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
+      callback-fn (if (and on-change (not disabled)) #(on-change value))]
   [h-box
    :gap "8px"     ;; between the tickbox and the label
    :children [[:input
                {:type      "radio"
-                :style     (merge {:flex "none"} style)
+                :style     (merge {:flex "none"} style)     ;; add in flex child style, so it can sit in a vbox
                 :disabled  disabled
-                :checked   (= @model value)
-                :on-change callback}]
+                :checked   (= model value)
+                :on-change callback-fn}]
               (when label [re-com.core/label
                            :label label
-                           :on-click callback])]]))    ;; ticking on the la
+                           :class label-class
+                           :style label-style
+                           :on-click callback-fn])]]))
+
+
 
 ;; ------------------------------------------------------------------------------------
 ;;  spinner

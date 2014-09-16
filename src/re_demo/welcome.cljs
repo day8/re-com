@@ -44,6 +44,10 @@
                [:li
                 "annimations and transitions"]
                [:li
+                "date &amp; date time"]
+               [:li
+                "time"]
+               [:li
                 "how do we do testing?  Look in inspiration in "
                 [hyperlink "omchaya" "https://github.com/sgrove/omchaya/"]
                 ]]
