@@ -35,11 +35,11 @@
                              [label :label (model-str @model2)]]]]]))
 
 (defn time-range []
-  (let [model (reagent/atom [[9 0] [21 0]])]
+  (let [range-model (reagent/atom [[9 0] [21 0]])]
     [v-box
       :gap "20px"
       :children [[title "Time Range"]
-                 [time-range-input :model model]]]))
+                 [time-range-input :model range-model :gap "60px"]]]))
 
 (defn panel
   []

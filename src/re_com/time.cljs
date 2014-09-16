@@ -209,7 +209,8 @@
   Optional parameters are -
     minimum-time - default is [0 0] - a 2 element vector of minimum hour and minute
     maximum-time - default is [23 59] - a 2 element vector of maximum hour and minute
-    callback - function to call when model has changed - parameter will be the new value"
+    callback - function to call when model has changed - parameter will be the new value
+    style - css"
   [& {:keys [model]}]
   (let [tmp-model (reagent/atom (model-str (if (satisfies? cljs.core/IDeref model) @model model)))]
     (fn [& {:keys [model callback minimum-time maximum-time style]}]
@@ -233,11 +234,23 @@
   Optional parameters are -
     minimum-time - default is [0 0] - a 2 element vector of minimum hour and minute
     maximum-time - default is [23 59] - a 2 element vector of maximum hour and minute
-    callback - function to call when model has changed - parameter will be the new value"
+    callback - function to call when model has changed - parameter will be the new value
+    gap - horizontal gap between time inputs - default '4px'
+    style - css"
   [& {:keys [model]}]
-  (let [deref-model (model-str (if (satisfies? cljs.core/IDeref model) @model model))]
-    (fn [& {:keys [model callback minimum-time maximum-time style]}]
+  (fn [& {:keys [model callback minimum-time maximum-time gap style]}]
+    (let [deref-model (if (satisfies? cljs.core/IDeref model) @model model)]
       [h-box
-        :gap "4px"
-        :children [[time-input (first deref-model) callback minimum-time maximum-time style]
-                   [time-input (first deref-model) callback minimum-time maximum-time style]]])))
+        :gap (if gap gap "4px")
+        :children [[time-input
+                     :model (first deref-model)
+                     :callback callback
+                     :minimum-time minimum-time
+                     :maximum-time (last  deref-model)
+                     :style style]
+                   [time-input
+                     :model (last  deref-model)
+                     :callback callback
+                     :minimum-time (first deref-model)
+                     :maximum-time maximum-time
+                     :style style]]])))
