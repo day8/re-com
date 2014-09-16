@@ -1,6 +1,8 @@
 (ns re-com.time
   (:require
-    [reagent.core :as reagent]))
+    [reagent.core :as reagent]
+    [goog.string.format]
+    [goog.string :refer [format]]))
 
 ; --- Private functions ---
 
@@ -184,18 +186,37 @@
   (reset! model @tmp-model)
   (if callback (callback @model)))
 
+#_(defn format
+  "Formats a string using goog.string.format."
+  [fmt & args]
+  (let [args (map (fn [x]
+                    (if (or (keyword? x) (symbol? x))
+                      (str x)
+                      x))
+                args)]
+    (apply gformat/format fmt args)))
 ;; --- Public function ---
+
+(defn model-str
+  "Return a string representation of the model."
+  [mdl]
+  (let [hr-mi @mdl
+        hr (first hr-mi)
+        mi (last hr-mi)]
+    #_(str hr ":" mi)
+    (str (goog.string/format "%02d" [hr]) ":" (goog.string/format "%02d" [mi]))))
 
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
   Required parameters -
-    model - an atom
+    model - an atom of [hr mi]
   Optional parameters are -
     minimum-time - default is [0 0] - a 2 element vector of minimum hour and minute
     maximum-time - default is [23 59] - a 2 element vector of maximum hour and minute
     callback - function to call when model has changed - parameter will be the new value"
   [& {:keys [model]}]
-  (let [tmp-model (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model))]
+  ;;(let [tmp-model (reagent/atom (model-str (if (satisfies? cljs.core/IDeref model) @model model)))]
+  (let [tmp-model (reagent/atom (model-str @model))]
     (fn [& {:keys [model callback minimum-time maximum-time style]}]
       (let [min (if minimum-time minimum-time [0 0])
             max (if maximum-time maximum-time [23 59])]

@@ -90,3 +90,9 @@
     true  (time/is-valid (reagent/atom "14:30") alternate-min alternate-max)
     false (time/is-valid (reagent/atom "04:30") alternate-min alternate-max)   ;; Before min
     false (time/is-valid (reagent/atom "23:15") alternate-min alternate-max))) ;; After max
+
+(deftest test-model-str
+  (are [expected actual] (= expected actual)
+    "00:00" (datetime/model-str (reagent/atom [0 0]))
+    "01:30" (datetime/model-str (reagent/atom [1 30]))
+    "21:59" (datetime/model-str (reagent/atom [21 59]))))
