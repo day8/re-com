@@ -1,6 +1,7 @@
 (ns re-com.time
   (:require
-    [reagent.core :as reagent]))
+    [reagent.core :as reagent]
+    [re-com.box      :refer  [h-box gap]]))
 
 ; --- Private functions ---
 
@@ -224,3 +225,19 @@
                      :min-width "35px"}
             :on-change #(time-changed % tmp-model min max)
             :on-blur #(time-updated % model tmp-model min max callback)}]))))
+
+(defn time-range-input
+  "I return the markup for a pair input boxes which will accept and validate times.
+  Required parameters -
+    model - an atom of from and to times [[hr mi][hr mi]]
+  Optional parameters are -
+    minimum-time - default is [0 0] - a 2 element vector of minimum hour and minute
+    maximum-time - default is [23 59] - a 2 element vector of maximum hour and minute
+    callback - function to call when model has changed - parameter will be the new value"
+  [& {:keys [model]}]
+  (let [deref-model (model-str (if (satisfies? cljs.core/IDeref model) @model model))]
+    (fn [& {:keys [model callback minimum-time maximum-time style]}]
+      [h-box
+        :gap "4px"
+        :children [[time-input (first deref-model) callback minimum-time maximum-time style]
+                   [time-input (first deref-model) callback minimum-time maximum-time style]]])))

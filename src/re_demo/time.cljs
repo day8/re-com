@@ -1,7 +1,7 @@
 (ns re-demo.time
   (:require [re-demo.util    :refer  [title]]
             [re-com.core     :refer [label]]
-            [re-com.time :refer  [time-input model-str]]
+            [re-com.time :refer  [time-input time-range-input model-str]]
             [re-com.box      :refer  [h-box v-box box gap line]]
             [reagent.core    :as     reagent]))
 
@@ -35,9 +35,11 @@
                              [label :label (model-str @model2)]]]]]))
 
 (defn time-range []
-  [v-box
-   :gap "20px"
-   :children [[title "Time Range"]]])
+  (let [model (reagent/atom [[9 0] [21 0]])]
+    [v-box
+      :gap "20px"
+      :children [[title "Time Range"]
+                 [time-range-input :model model]]]))
 
 (defn panel
   []
