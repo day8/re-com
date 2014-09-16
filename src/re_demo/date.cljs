@@ -9,7 +9,8 @@
   []
   [v-box
    :gap "20px"
-   :children [[title "Date"]]])
+   :children [[title "Date"]
+              [single-date]]])
 
 (defn inline-date-range
   []
