@@ -24,7 +24,8 @@
                   :gap "4px"
                   :children [[label :label "Time with default range:"]
                              [time-input :model model1]
-                             [label :label (str "entered time: " @model1)]]]
+                             [label :label "entered time: "]
+                             [label :label (model-str @model1)]]]
                 [gap "14px"]
                 [h-box
                   :gap "4px"

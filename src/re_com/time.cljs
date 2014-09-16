@@ -1,8 +1,6 @@
 (ns re-com.time
   (:require
-    [reagent.core :as reagent]
-    [goog.string.format]
-    [goog.string :refer [format]]))
+    [reagent.core :as reagent]))
 
 ; --- Private functions ---
 
@@ -186,25 +184,22 @@
   (reset! model @tmp-model)
   (if callback (callback @model)))
 
-#_(defn format
-  "Formats a string using goog.string.format."
-  [fmt & args]
-  (let [args (map (fn [x]
-                    (if (or (keyword? x) (symbol? x))
-                      (str x)
-                      x))
-                args)]
-    (apply gformat/format fmt args)))
+(defn pad-zero [subject-str max-chars]
+  "If subject-str zero pad subject-str from left up to max-chars."
+  (if (< (count subject-str) max-chars)
+  	(apply str (take-last max-chars (concat (repeat max-chars \0) subject-str)))
+  	subject-str))
+
 ;; --- Public function ---
 
 (defn model-str
   "Return a string representation of the model."
   [mdl]
-  (let [hr-mi @mdl
+  (let [hr-mi (if (satisfies? cljs.core/IDeref mdl) @mdl mdl)
         hr (first hr-mi)
         mi (last hr-mi)]
     #_(str hr ":" mi)
-    (str (goog.string/format "%02d" [hr]) ":" (goog.string/format "%02d" [mi]))))
+    (str (pad-zero (str hr) 2) ":" (pad-zero (str mi) 2))))
 
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
@@ -215,12 +210,10 @@
     maximum-time - default is [23 59] - a 2 element vector of maximum hour and minute
     callback - function to call when model has changed - parameter will be the new value"
   [& {:keys [model]}]
-  ;;(let [tmp-model (reagent/atom (model-str (if (satisfies? cljs.core/IDeref model) @model model)))]
-  (let [tmp-model (reagent/atom (model-str @model))]
+  (let [tmp-model (reagent/atom (model-str (if (satisfies? cljs.core/IDeref model) @model model)))]
     (fn [& {:keys [model callback minimum-time maximum-time style]}]
       (let [min (if minimum-time minimum-time [0 0])
             max (if maximum-time maximum-time [23 59])]
-        (if (validate-time-string tmp-model min max) ;; Check the passed model is a valid time string
           [:input
             {:type "text"
              :class "time-entry"
@@ -230,5 +223,4 @@
                      :width "35px"
                      :min-width "35px"}
             :on-change #(time-changed % tmp-model min max)
-            :on-blur #(time-updated % model tmp-model min max callback)}]
-          [:p [:b "invalid model value"]])))))
+            :on-blur #(time-updated % model tmp-model min max callback)}]))))

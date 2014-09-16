@@ -93,6 +93,7 @@
 
 (deftest test-model-str
   (are [expected actual] (= expected actual)
-    "00:00" (datetime/model-str (reagent/atom [0 0]))
-    "01:30" (datetime/model-str (reagent/atom [1 30]))
-    "21:59" (datetime/model-str (reagent/atom [21 59]))))
+    "00:00" (time/model-str (reagent/atom [0 0]))
+    "01:30" (time/model-str (reagent/atom [1 30]))
+    "21:59" (time/model-str (reagent/atom [21 59]))
+    "24:30" (time/model-str (reagent/atom [24 30]))))
