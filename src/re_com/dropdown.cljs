@@ -332,6 +332,9 @@
                                  35 (when @drop-showing?  ;; End key
                                       (reset! tmp-model (move-to-new-option filtered-options @tmp-model :end)))
                                  true))]
+
+        ;; TODO: Remove this comment
+
         [:div
          {:class (str "chosen-container chosen-container-single" (when @drop-showing? " chosen-container-active chosen-with-drop"))
           :style (if width
