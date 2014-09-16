@@ -1,9 +1,45 @@
 (ns re-com.time
   (:require
     [reagent.core :as reagent]
+    [clairvoyant.core :as trace :include-macros true]  ;; TODO remove clairvoyant
+    [clojure.string :as cljstring]
     [re-com.box      :refer  [h-box gap]]))
 
+
 ; --- Private functions ---
+
+(defn pad-zero [subject-str max-chars]
+  "If subject-str zero pad subject-str from left up to max-chars."
+  (if (< (count subject-str) max-chars)
+  	(apply str (take-last max-chars (concat (repeat max-chars \0) subject-str)))
+  	subject-str))
+
+(defn pad-zero-number [subject-num max-chars]
+  "If subject-num zero pad subject-str from left up to max-chars."
+  (pad-zero (str subject-num) max-chars))
+
+(defn int-from-string
+  [s]
+  (let [val (js/parseInt s)]
+    (if (js/isNaN val)
+      nil
+      val)))
+
+(defrecord TimeVector [hour minute second])
+(defn create-time
+  "Return a TimeVector. No validation is made for hours."
+  [& {:keys [hour minute second]}]
+  (assert (or (nil? minute)(< minute 60) "Invalid value for minutes"))
+  (assert (or (nil? second)(< second 60) "Invalid value for seconds"))
+  (TimeVector. hour minute second))
+
+(defn create-time-from-vector
+  "Return a TimeVector."
+  [vals]
+  (let [hr (if (> (count vals)0) (int-from-string (first vals)) nil)
+        mi (if (> (count vals)1) (int-from-string (nth vals 1)) nil)
+        se (if (> (count vals)2) (int-from-string (last vals)) nil)]
+  (create-time :hour hr :minute mi :second se)))
 
 (defn fifth-char
   "Validate the fifth chars of a time string.
@@ -185,11 +221,18 @@
   (reset! model @tmp-model)
   (if callback (callback @model)))
 
-(defn pad-zero [subject-str max-chars]
-  "If subject-str zero pad subject-str from left up to max-chars."
-  (if (< (count subject-str) max-chars)
-  	(apply str (take-last max-chars (concat (repeat max-chars \0) subject-str)))
-  	subject-str))
+(trace/trace-forms {:tracer trace/default-tracer}
+(defn string-as-model-values
+  "Convert string values to a TimeVector with hour, minute and second (or part thereof)."
+  [tm-string]
+  (let [vals (cljstring/split tm-string ":")]
+    (create-time-from-vector vals))))
+
+(defn display-string
+  "Return a string display of the time."
+  [time]
+  (str (pad-zero-number (:hour time) 2)":"(pad-zero-number (:minute time)2)(when (:second time)(str ":" (pad-zero-number (:second time) 2)))))
+
 
 ;; --- Public function ---
 

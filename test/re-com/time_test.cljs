@@ -97,3 +97,22 @@
     "01:30" (time/model-str (reagent/atom [1 30]))
     "21:59" (time/model-str (reagent/atom [21 59]))
     "24:30" (time/model-str (reagent/atom [24 30]))))
+
+(deftest test-create-time
+  (let [tm (time/create-time :hour 23 :minute 30 :second nil)]
+    (are [expected actual] (= expected actual)
+      23 (:hour tm)
+      30 (:minute tm))
+    (is (nil? (:second tm))))
+  (let [tm (time/create-time :hour 23 :minute 30 :second 59)]
+    (are [expected actual] (= expected actual)
+      23 (:hour tm)
+      30 (:minute tm)
+      59 (:second tm))))
+
+(deftest test-string-as-model-values
+  (let [tm (time/string-as-model-values "6")]
+    (are [expected actual] (= expected actual)
+      6 (:hour tm)
+      nil (:minute tm)
+      nil (:second tm))))  ;; TODO test what happens with invalid values
