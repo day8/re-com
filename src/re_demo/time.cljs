@@ -1,7 +1,7 @@
-(ns re-demo.datetime
+(ns re-demo.time
   (:require [re-demo.util    :refer  [title]]
             [re-com.core     :refer [label]]
-            [re-com.datetime :refer  [time-input]]
+            [re-com.time :refer  [time-input]]
             [re-com.box      :refer  [h-box v-box box gap line]]
             [reagent.core    :as     reagent]))
 
@@ -38,26 +38,12 @@
    :gap "20px"
    :children [[title "Time Range"]]])
 
-(defn single-date []
-  [v-box
-   :gap "20px"
-   :children [[title "Date"]]])
-
-(defn date-range []
-  [v-box
-   :gap "20px"
-   :children [[title "Date Range"]]])
-
 (defn panel
   []
   [v-box
    :children [[single-time]
               [gap :height "30px"]
-              [time-range]
-              [gap :height "30px"]
-              [single-date]
-              [gap :height "30px"]
-              [date-range]]])
+              [time-range]]])
 
 
 

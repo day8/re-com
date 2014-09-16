@@ -13,7 +13,7 @@
             [re-demo.alerts     :as alerts]
             [re-demo.tabs       :as tabs]
             [re-demo.popovers   :as popovers]
-            [re-demo.datetime   :as datetime]
+            [re-demo.time       :as time]
             [re-demo.date       :as date-chooser]
             [re-demo.layouts    :as layouts]
             [re-demo.tour       :as tour]
@@ -29,7 +29,7 @@
     {:id ::alerts    :label "Alerts"     :panel alerts/panel}
     {:id ::tabs      :label "Tabs"       :panel tabs/panel}
     {:id ::popovers  :label "Popovers"   :panel popovers/panel}
-    {:id ::datetime  :label "Date/Time"  :panel datetime/panel}
+    {:id ::time      :label "Time"       :panel time/panel}
     {:id ::date      :label "Date"       :panel date-chooser/panel}
     {:id ::tour      :label "Tour"       :panel tour/panel}
     {:id ::modals    :label "Modals"     :panel modals/panel}

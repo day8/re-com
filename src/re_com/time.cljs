@@ -1,4 +1,4 @@
-(ns re-com.datetime
+(ns re-com.time
   (:require
     [reagent.core :as reagent]))
 
