@@ -44,7 +44,7 @@
                [:li
                 "annimations and transitions"]
                [:li
-                "date &amp; date time"]
+                "date & date time"]
                [:li
                 "time"]
                [:li

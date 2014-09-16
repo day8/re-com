@@ -1,42 +1,47 @@
 (ns re-com.dropdown
+  ;Extra
+  (:require-macros [clairvoyant.core :refer [trace-forms]])
   (:require
     [re-com.util  :as util]
     [clojure.string :as string]
+    [clairvoyant.core :refer [default-tracer]]
     [reagent.core :as reagent]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
 
 
-(defn find-option-index
-  [options id]
-  "In a vector of maps (where each map has an :id), return the index of the first map containing the id parameter
-   Returns nil if id not found"
-  (let [index-fn    (fn [index item] (when (= (:id item) id) index))
-        index-of-id (first (keep-indexed index-fn options))]
-    index-of-id))
+(trace-forms {:tracer default-tracer}
+             (defn find-option-index
+               [options id]
+               "In a vector of maps (where each map has an :id), return the index of the first map containing the id parameter
+                Returns nil if id not found"
+               (let [index-fn (fn [index item] (when (= (:id item) id) index))
+                     index-of-id (first (keep-indexed index-fn options))]
+                 index-of-id)))
 
 
-(defn find-option-id-from-current
-  [options id offset]
-  "In a vector of maps (where each map has an :id), return the first map containing the id parameter"
-  (let [current-index (find-option-index options id)
-        new-index     (cond
-                        (= offset :start)    0
-                        (= offset :end)      (dec (count options))
-                        (nil? current-index) 0
-                        :else                (mod (+ current-index offset) (count options)))]
-    (:id (nth options new-index))))
+(trace-forms
+  {:tracer default-tracer}
+  (defn move-to-new-option
+    [options id offset]
+    "In a vector of maps (where each map has an :id), return the first map containing the id parameter"
+    (let [current-index (find-option-index options id)
+          new-index (cond
+                      (= offset :start) 0
+                      (= offset :end) (dec (count options))
+                      (nil? current-index) 0
+                      :else (mod (+ current-index offset) (count options)))]
+      (:id (nth options new-index)))))
 
 
-(defn find-option
-  [options id]
-  "In a vector of maps (where each map has an :id), return the first map containing the id parameter"
-  (let [current-index (find-option-index options id)
-        _             (assert ((complement nil?) current-index) (str "Can't find model index '" id "' in options vector"))]
-    (if (nil? current-index)
-      (first options) ;; TODO: This is "failing silently"
-      (nth options current-index))))
+(trace-forms {:tracer default-tracer}
+             (defn find-option
+               [options id]
+               "In a vector of maps (where each map has an :id), return the first map containing the id parameter"
+               (let [current-index (find-option-index options id)
+                     _ (assert ((complement nil?) current-index) (str "Can't find model index '" id "' in options vector"))]
+                 (nth options current-index))))
 
 
 (defn options-with-headings
@@ -83,19 +88,6 @@
     (filter filter-fn options)))
 
 
-#_(defn backdrop ;; TODO: Currently disabled, so remove when confirmed we're done with this
-  [backdrop-click]
-  [:div
-   {:style {:position         "fixed"
-            :left             "0px"
-            :top              "0px"
-            :width            "100%"
-            :height           "100%"
-            :background-color "black"
-            :opacity          0} ;0.05
-    :on-click backdrop-click}])
-
-
 (defn option-group-heading
   [opt]
   "Render a group option item"
@@ -113,7 +105,7 @@
       (let [selected (= @model (:id opt))
             class    (if selected
                        " highlighted"
-                       (when @mouse-over? " mouseover"))]  ;; TODO: mouseover style is in index.css
+                       (when @mouse-over? " mouseover"))]
         [:li
          {:class         (str "active-result group-option" class)
           :style         {:-webkit-user-select "none"} ;; Prevent user text selection
@@ -172,30 +164,32 @@
     ))
 
 
-(defn filter-text-box-base
-  []
-  (fn [filter-text key-handler drop-showing?]
-    [:div.chosen-search
-     [:input
-      {:type          "text"
-       :auto-complete "off"
-       :value         @filter-text
-       :on-change     #(reset! filter-text (-> % .-target .-value))
-       :on-focus      #(println "txt.focus")
-       :on-blur       #(do
-                        (reset! drop-showing? false)
-                        (println "txt.blur"))
-       :on-key-down   key-handler}]]))
+(trace-forms {:tracer default-tracer}
+             (defn filter-text-box-base
+               []
+               (fn [filter-text key-handler drop-showing? tmp-model] ;; TODO: Remove tmp-model
+                 [:div.chosen-search
+                  [:input
+                   {:type          "text"
+                    :auto-complete "off"
+                    :value         @filter-text
+                    :on-change     #(reset! filter-text (-> % .-target .-value))
+                    :on-focus      #(println @tmp-model @drop-showing? "txt.focus")
+                    :on-blur       #(do
+                                     (reset! drop-showing? false)
+                                     (println @tmp-model @drop-showing? "txt.blur"))
+                    :on-key-down   key-handler}]])))
 
 
 (def filter-text-box
   (with-meta filter-text-box-base
              {:component-did-mount #(let [node (.-firstChild (reagent/dom-node %))]
-                                     #_(println "filter-text-box did-mount:" (.-value node))
+                                     (println "filter-text-box did-mount:" (.-value node))
                                      (.focus node))
-              :component-did-update #(let [node (.-firstChild (reagent/dom-node %))]
-                                      #_(println "filter-text-box did-update:" (.-value node))
-                                      (.focus node))}))
+              :component-did-update #(let [node (.-firstChild (reagent/dom-node %))] ;; TODO: REMOVE - did-update not actually required
+                                      (println "filter-text-box did-update:" (.-value node))
+                                      (.focus node))
+              }))
 
 
 ;; TODO: BUG: up/down cycles through full list of options instead of filtered list
@@ -231,46 +225,52 @@
      }))
 
 
-(defn dropdown-top-base
-  []
-  (let [ignore-click (atom false)]
-    (fn
-      [tmp-model options tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
-      (let [_ (reagent/set-state (reagent/current-component) {:filter-box filter-box})]
-        [:a.chosen-single.chosen-default
-         {:style       {:user-select "none"} ;; Prevent user text selection
-          :href        "javascript:" ;; Required to make this anchor appear in the tab order
-          :tab-index   (when tab-index tab-index)
-          :on-click    #(do
-                         (println "a.click")
-                         (if @ignore-click
-                           (reset! ignore-click false)
-                           (dropdown-click)))
-          :on-mouse-down #(do
-                           (println "a.mousedown")
-                           (when (and filter-box @drop-showing?) (reset! ignore-click true))) ;; Clicking anchor when filter-text-box is enabled and drop-down
-          :on-key-down #(do                                                                   ;; is open closes then reopens because of txt.blur event
-                         (println "a.key")
-                         (key-handler %)
-                         (reset! ignore-click true)) ;; Pressing enter on an anchor also triggers click event, which we don't want
-          :on-focus      #(println "a.focus")
-          :on-blur       #(do
-                           (println "a.blur")
-                           (when-not filter-box (reset! drop-showing? false)))
-          }
-         [:span
-          (if @tmp-model
-            (:label (find-option options @tmp-model))
-            placeholder)]
-         [:div [:b]]])))) ;; This odd thing produces the visual arrow on the right
+(trace-forms {:tracer default-tracer}
+             (defn dropdown-top-base
+               []
+               (let [ignore-click (atom false)]
+                 (fn
+                   [tmp-model options tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
+                   (let [_ (reagent/set-state (reagent/current-component) {:filter-box filter-box})]
+                     [:a.chosen-single.chosen-default
+                      {:style         {:user-select "none"} ;; Prevent user text selection
+                       :href          "javascript:"   ;; Required to make this anchor appear in the tab order
+                       :tab-index     (when tab-index tab-index)
+                       :on-click      #(do
+                                        (println @tmp-model @drop-showing? "a.click")
+                                        (if @ignore-click
+                                          (reset! ignore-click false)
+                                          (dropdown-click)))
+                       :on-mouse-down #(do
+                                        (println @tmp-model @drop-showing? "a.mousedown")
+                                        (when (and filter-box @drop-showing?) (reset! ignore-click true))) ;; Clicking anchor when filter-text-box is enabled and drop-down
+                       :on-key-down   #(do            ;; is open closes then reopens because of txt.blur event
+                                        (println @tmp-model @drop-showing? "a.key")
+                                        (key-handler %)
+                                        (reset! ignore-click true)) ;; Pressing enter on an anchor also triggers click event, which we don't want
+                       :on-focus      #(println @tmp-model @drop-showing? "a.focus") ;; TODO: Remove
+                       :on-blur       #(do
+                                        (println @tmp-model @drop-showing? "a.blur")
+                                        (when-not filter-box (reset! drop-showing? false)))
+                       }
+                      [:span
+                       (if @tmp-model
+                         (:label (find-option options @tmp-model))
+                         placeholder)]
+                      [:div [:b]]])))))               ;; This odd bit of markup produces the visual arrow on the right
 
 
 (def dropdown-top
   (with-meta dropdown-top-base
-             {:component-did-update #(let [node       (reagent/dom-node %)
-                                           filter-box (:filter-box (reagent/state %))]
-                                      #_(println "dropdown-base-base did-update: " (.-value node))
-                                      (when-not filter-box (.focus node)))}))
+             {
+               ;:component-did-mount #(let [node       (reagent/dom-node %) ;; TODO: REMOVE - did-mount not actually required
+               ;                            filter-box (:filter-box (reagent/state %))]
+               ;                       (println "dropdown-top did-mount: " (.-text node))
+               ;                       #_(when-not filter-box (.focus node)))
+               :component-did-update #(let [node       (reagent/dom-node %)
+                                            filter-box (:filter-box (reagent/state %))]
+                                       (println "dropdown-top did-update: " (.-text node))
+                                       (when-not filter-box (.focus node)))}))
 
 
 (defn single-dropdown
@@ -300,43 +300,47 @@
                                (filter-options options @filter-text))
             key-handler      #(if (not disabled)
                                (case (.-which %)
-                                 13 (if disabled          ;; Enter key
-                                      (cancel)
-                                      (callback @tmp-model))
-                                 27 (cancel)              ;; Esc key
-                                  9 (do                   ;; Tab key ;; NOTE: Use this to add more robust support of tabbing
-                                      (println "tab.key")
-                                      (if disabled
+                                 13 (do
+                                      (println @tmp-model @drop-showing? "enter.key")
+                                      (if disabled        ;; Enter key
                                         (cancel)
-                                        ;(callback @tmp-model) ;; Replaced with customised version below...
-                                        (do
-                                          ;(reset! tmp-model %)
-                                          (when changeable (on-select @tmp-model))
-                                          (reset! drop-showing? false)
-                                          (reset! filter-text ""))
-                                        )
-                                      (reset! drop-showing? false))
-                                 38 (if @drop-showing?    ;; Up arrow
-                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model -1))
-                                      (reset! drop-showing? true))
-                                 40 (if @drop-showing?    ;; Down arrow
-                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model 1))
-                                      (reset! drop-showing? true))
+                                        (callback @tmp-model)))
+                                 27 (do
+                                      (println @tmp-model @drop-showing? "esc.key")
+                                      (cancel))           ;; Esc key
+                                 9 (do                   ;; Tab key
+                                     (println @tmp-model @drop-showing? "tab.key")
+                                     (if disabled
+                                       (cancel)
+                                       (do   ;; Was (callback @tmp-model) but needed a customised version
+                                         (when changeable (on-select @tmp-model))
+                                         (reset! drop-showing? false)
+                                         (reset! filter-text "")))
+                                     (reset! drop-showing? false))
+                                 38 (do
+                                      (println @tmp-model @drop-showing? "up.key")
+                                      (if @drop-showing?  ;; Up arrow
+                                        (reset! tmp-model (move-to-new-option filtered-options @tmp-model -1))
+                                        (reset! drop-showing? true)))
+                                 40 (do
+                                      (println @tmp-model @drop-showing? "down.key")
+                                      (if @drop-showing?  ;; Down arrow
+                                        (reset! tmp-model (move-to-new-option filtered-options @tmp-model 1))
+                                        (reset! drop-showing? true)))
                                  36 (when @drop-showing?  ;; Home key
-                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :start)))
+                                      (reset! tmp-model (move-to-new-option filtered-options @tmp-model :start)))
                                  35 (when @drop-showing?  ;; End key
-                                      (reset! tmp-model (find-option-id-from-current filtered-options @tmp-model :end)))
+                                      (reset! tmp-model (move-to-new-option filtered-options @tmp-model :end)))
                                  true))]
         [:div
          {:class (str "chosen-container chosen-container-single" (when @drop-showing? " chosen-container-active chosen-with-drop"))
           :style (if width
-                   {:width width}
+                   {:flex (str "0 0 " width) :width width}
                    {:flex "auto"})}
-         ;(when @drop-showing? [backdrop cancel]) ;; TODO: Currently disabled (we use on-blur now), so remove when confirmed we're done with this
          [dropdown-top tmp-model options tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
          (when (and @drop-showing? (not disabled))
            [:div.chosen-drop
-            (when filter-box [filter-text-box filter-text key-handler drop-showing?])
+            (when filter-box [filter-text-box filter-text key-handler drop-showing? tmp-model]) ;; TODO: Remove tmp-model
             [:ul.chosen-results
              (when max-height {:style {:max-height max-height}})
              (if (-> filtered-options count pos?)

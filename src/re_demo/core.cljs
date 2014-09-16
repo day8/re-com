@@ -3,7 +3,7 @@
   (:require [reagent.core       :as    reagent]
             [re-com.util        :as    util]
             [re-com.core        :as    core]
-            [re-com.tabs ]
+            [re-com.tabs]
             [re-com.box         :refer [h-box v-box box
                                         gap line scroller border]]
 
@@ -13,8 +13,8 @@
             [re-demo.alerts     :as alerts]
             [re-demo.tabs       :as tabs]
             [re-demo.popovers   :as popovers]
-            [re-demo.time       :as time]
             [re-demo.date       :as date-chooser]
+            [re-demo.time       :as time]
             [re-demo.layouts    :as layouts]
             [re-demo.tour       :as tour]
             [re-demo.modals     :as modals]
@@ -29,8 +29,8 @@
     {:id ::alerts    :label "Alerts"     :panel alerts/panel}
     {:id ::tabs      :label "Tabs"       :panel tabs/panel}
     {:id ::popovers  :label "Popovers"   :panel popovers/panel}
-    {:id ::time      :label "Time"       :panel time/panel}
     {:id ::date      :label "Date"       :panel date-chooser/panel}
+    {:id ::time      :label "Time"       :panel time/panel}
     {:id ::tour      :label "Tour"       :panel tour/panel}
     {:id ::modals    :label "Modals"     :panel modals/panel}
     {:id ::boxes1    :label "Boxes-1"    :panel boxes/panel1}

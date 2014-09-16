@@ -1,7 +1,7 @@
 (ns re-demo.dropdowns
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-com.util     :as    util]
-            [re-com.core     :refer [button spinner progress-bar label input-text]]
+            [re-com.core     :refer [button label input-text checkbox]]
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown find-option]]
             [re-com.modal    :refer [modal-window
@@ -17,9 +17,7 @@
   []
   [button
    :label "Algeria"
-   :on-click #(
-               reset! bold-uk (not @bold-uk))
-   ])
+   :on-click #(reset! bold-uk (not @bold-uk))])
 
 
 (def countries [{:id "AU" :label "Australia"              :group "POPULAR COUNTRIES"}
@@ -64,30 +62,97 @@
 
 (defn panel
   []
-  (let [selected-country-id (reagent/atom "32")]
+  (let [selected-country-id1 (reagent/atom "32")
+        selected-country-id2 (reagent/atom nil)
+        selected-country-id3 (reagent/atom "US")
+        disabled?            (reagent/atom false)
+        regex?               (reagent/atom false)]
     (fn [] [v-box
-            :children [[:h3.page-header "Dropdowns"]
+            :children [[:h3.page-header "Single Dropdowns"]
                        [h-box
-                        :gap      "10px"
-                        :align    :center
-                        :children [[label :label "Test tabbing"]
-                                   [input-text "" #() :style {:width "80px"}]
-                                   [single-dropdown
-                                    :options      countries
-                                    :model        selected-country-id
-                                    :placeholder  "Choose a country"
-                                    :width        "300px"
-                                    :max-height   "400px"
-                                    :disabled     false
-                                    :filter-box   true
-                                    :regex-filter false
-                                    :on-select    #(reset! selected-country-id %)]
-                                   [input-text "" #() :style {:width "80px"}]
-                                   [:div
-                                    [:strong "Selected country: "]
-                                    (if (nil? @selected-country-id)
-                                      "None"
-                                      (str (:label (find-option countries @selected-country-id)) " [" @selected-country-id "]"))]
-                                   ]]
-                       ]]
-      )))
+                        :gap "50px"
+                        :children [[v-box
+                                    :width "400px"
+                                    :children [[:div.h4 "Notes:"]
+                                               [:ul
+                                                [:li "The top dropdown has the initial model value set but no text filtering.
+                                                      Max height set to 500px."]
+                                                [:li "The bottom dropdown has initial value set to nil (nothing selected) and has text
+                                                      filtering enabled. No max height set (defaults to 240px)."]]]]
+                                   [v-box
+                                    :gap "40px"
+                                    :children [[h-box
+                                                :gap      "10px"
+                                                :align    :center
+                                                :children [[label :label "Test tabbing"]
+                                                           [input-text "" #() :style {:width "80px"}]
+                                                           [single-dropdown
+                                                            :options      countries
+                                                            :model        selected-country-id1
+                                                            :width        "300px"
+                                                            :max-height   "500px"
+                                                            :disabled     false
+                                                            :filter-box   false
+                                                            :regex-filter false
+                                                            :on-select    #(reset! selected-country-id1 %)]
+                                                           [:div
+                                                            [:strong "Selected country: "]
+                                                            (if (nil? @selected-country-id1)
+                                                              "None"
+                                                              (str (:label (find-option countries @selected-country-id1)) " [" @selected-country-id1 "]"))]]]
+                                               [h-box
+                                                :gap      "10px"
+                                                :align    :center
+                                                :children [[label :label "Test tabbing"]
+                                                           [input-text "" #() :style {:width "160px"}]
+                                                           [single-dropdown
+                                                            :options      countries
+                                                            :model        selected-country-id2
+                                                            :placeholder  "Choose a country"
+                                                            :width        "300px"
+                                                            :disabled     @disabled?
+                                                            :filter-box   true
+                                                            :regex-filter @regex?
+                                                            :on-select    #(reset! selected-country-id2 %)]
+                                                           [:div
+                                                            [:strong "Selected country: "]
+                                                            (if (nil? @selected-country-id2)
+                                                              "None"
+                                                              (str (:label (find-option countries @selected-country-id2)) " [" @selected-country-id2 "]"))]]]
+                                               [h-box
+                                                :gap      "20px"
+                                                :align    :center
+                                                :children [[label :label "Options for above dropdown: "]
+                                                            [checkbox
+                                                            :label "Disabled"
+                                                            :model  disabled?
+                                                            :on-change  #(reset! disabled? %)]
+                                                           [checkbox
+                                                            :label "Allow regular expressions in filters"
+                                                            :model  regex?
+                                                            :on-change  #(reset! regex? %)]]]
+
+                                               ;; TODO: REMOVE h-box below...
+                                               [h-box
+                                                :gap      "10px"
+                                                :align    :center
+                                                :children [[label :label "Test tabbing"]
+                                                           [input-text "" #() :style {:width "240px"}]
+                                                           [single-dropdown
+                                                            :options      countries
+                                                            :model        selected-country-id3
+                                                            :placeholder  "Choose a country"
+                                                            :width        "300px"
+                                                            :disabled     false
+                                                            :filter-box   false
+                                                            :regex-filter false
+                                                            :on-select    #(reset! selected-country-id3 %)]
+                                                           [:div
+                                                            [:strong "Selected country: "]
+                                                            (if (nil? @selected-country-id3)
+                                                              "None"
+                                                              (str (:label (find-option countries @selected-country-id3)) " [" @selected-country-id3 "]"))]]]
+                                               ]
+                                    ]]
+                        ]]
+            ])))

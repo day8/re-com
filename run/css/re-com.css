@@ -456,6 +456,7 @@
 
 ::-webkit-scrollbar {
   width: 10px;
+  border-radius: 5px;
   background-color: rgba(0,0,0,.05);
   }
 ::-webkit-scrollbar:horizontal {
