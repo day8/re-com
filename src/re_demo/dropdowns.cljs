@@ -136,8 +136,8 @@
                                                [h-box
                                                 :gap      "10px"
                                                 :align    :center
-                                                :children [[label :label "Test tabbing"]
-                                                           [input-text "" #() :style {:width "240px"}]
+                                                :children [[label :label "Test tabbing (to be removed)"]
+                                                           [input-text "" #() :style {:width "160px"}]
                                                            [single-dropdown
                                                             :options      countries
                                                             :model        selected-country-id3
