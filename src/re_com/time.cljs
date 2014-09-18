@@ -12,8 +12,8 @@
 (defn create-time
   "Return a TimeVector. No validation is made for hours."
   [& {:keys [hour minute second]}]
-  (assert (or (nil? minute)(< minute 60) "Invalid value for minutes"))
-  (assert (or (nil? second)(< second 60) "Invalid value for seconds"))
+  (assert (or (nil? minute)(< minute 60)) "Invalid value for minutes")
+  (assert (or (nil? second)(< second 60)) "Invalid value for seconds")
   (TimeVector. hour minute second))
 
 (defn create-time-from-vector
@@ -21,8 +21,8 @@
   ASSUMPTION: the vector contains 3 values which are either integers or nil."
   [vals]
   (let [hr (if (> (count vals)0) (first vals) nil)
-        mi (if (> (count vals)1) (nth vals 1) nil)
-        se (if (> (count vals)2) (last vals) nil)]
+        mi (if (>= (nth vals 1) 60) nil (nth vals 1))
+        se (if (>= (last vals) 60) nil (last vals))]
   (create-time :hour hr :minute mi :second se)))
 
 (defn int-from-string

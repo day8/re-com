@@ -149,7 +149,12 @@
     (is (= (first vals) 6)  "Expected hours value to be 6")
     (is (= (nth vals 1) 30) "Expected minutes value to be 30")
     (is (nil? (last vals))  "Expected seconds value to be nil"))
-    (let [vals (time/string-as-model-values "06:30:25")]
+  (let [vals (time/string-as-model-values "06:30:25")]
+    (is (= (count vals) 3)  "Expected a 3 element vector")
+    (is (= (first vals) 6)  "Expected hours value to be 6")
+    (is (= (nth vals 1) 30) "Expected minutes value to be 30")
+    (is (= (last vals) 25)  "Expected seconds value to be 25"))
+  (let [vals (time/string-as-model-values "06:30:25")] ;; This function allows invalid values
     (is (= (count vals) 3)  "Expected a 3 element vector")
     (is (= (first vals) 6)  "Expected hours value to be 6")
     (is (= (nth vals 1) 30) "Expected minutes value to be 30")
@@ -166,12 +171,17 @@
       6   (:hour tm)
       30  (:minute tm)
       nil (:second tm)))
-      (let [tm (time/create-time-from-string "6:30:55")]
-  (are [expected actual] (= expected actual)
+  (let [tm (time/create-time-from-string "6:30:55")]
+    (are [expected actual] (= expected actual)
       6  (:hour tm)
       30 (:minute tm)
       55 (:second tm)))
   (let [tm (time/create-time-from-string "6pm")]
+    (are [expected actual] (= expected actual)
+      6   (:hour tm)
+      nil (:minute tm)
+      nil (:second tm)))
+  (let [tm (time/create-time-from-string "6:60:75")] ;; Invalid values should be nil
     (are [expected actual] (= expected actual)
       6   (:hour tm)
       nil (:minute tm)
