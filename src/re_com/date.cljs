@@ -5,7 +5,7 @@
   (:require-macros [clairvoyant.core :refer [trace-forms]])
   (:require
     [clairvoyant.core     :refer [default-tracer]]
-    [cljs-time.core       :refer [minus plus months days year month first-day-of-the-month]]
+    [cljs-time.core       :refer [minus plus months days year month day first-day-of-the-month]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [box border]]
@@ -13,29 +13,24 @@
     [clojure.string       :as string]
     [reagent.core         :as reagent]))
 
-;;TODO: From core-utils should be a common lib
-(defn ^:private pad-zero [subject-str max-chars]
-  "If subject-str zero pad subject-str from left up to max-chars."
-  (if (< (count subject-str) max-chars)
-    (apply str (take-last max-chars (concat (repeat max-chars \0) subject-str)))
-    subject-str))
-
-
 ;; --- private cljs-time facades ----------------------------------------------
 ;; TODO: from day8date should be a common lib
+
 (def ^:private iso_8601_extended (formatters :basic-date))
 
 (def ^:private month-format (formatter "MMM yyyy"))
 
-(defn ^:private from-ISO8601-extended [extended] (parse iso_8601_extended extended))
+(defn- from-ISO8601-extended [extended] (parse iso_8601_extended extended))
 
-(defn ^:private month-label [date] (unparse month-format date))
+(defn- month-label [date] (unparse month-format date))
 
-(defn ^:private dec-date [date] (minus date (months 1)))
+(defn- dec-month [date] (minus date (months 1)))
 
-(defn ^:private inc-date [date] (plus date (months 1)))
+(defn- inc-month [date] (plus date (months 1)))
 
-(defn ^:private ->previous-sunday
+(defn- inc-date [date n] (plus date (days n)))
+
+(defn- ->previous-sunday
   "If passed date is not a sunday, return the nearest previous sunday date"
   [date]
   (if (sunday? date)
@@ -45,7 +40,7 @@
 ;; ----------------------------------------------------------------------------
 
 
-(defn ^:private main-div-with
+(defn- main-div-with
   [table-div]
   ;;TODO: At some point add arg to optionaly turn off border
   [box
@@ -60,25 +55,48 @@
                             :-webkit-user-select "none"}} table-div]]])
 
 
-(defn ^:private table-thead
+(defn- table-thead
   "Answer 2 x rows for month with nav buttons and days NOTE: non internationalized"
-  [model]
+  [current]
   [:thead
    [:tr
     [:th {:class "prev available"}
      [:i {:class "fa fa-arrow-left icon-arrow-left glyphicon glyphicon-arrow-left"
-          :on-click #(reset! model (dec-date @model))}]]
-    [:th {:class "month" :col-span "5"} (month-label @model)]
+          :on-click #(reset! current (dec-month @current))}]]
+    [:th {:class "month" :col-span "5"} (month-label @current)]
     [:th {:class "next available"}
      [:i {:class "fa fa-arrow-right icon-arrow-right glyphicon glyphicon-arrow-right"
-          :on-click #(reset! model (inc-date @model))}]]]
+          :on-click #(reset! current (inc-month @current))}]]]
    [:tr [:th "Su"][:th "Mo"][:th "Tu"][:th "We"][:th "Th"][:th "Fr"][:th "Sa"]]])
+
+
+(defn- table-td
+  [date column]
+  [:td {:class "available"} (day date)])
+
+
+(trace-forms {:tracer default-tracer}
+(defn- table-tr
+  [date week-row-ix]
+  ;;TODO: Add first column to show week number.
+  (let [week-start (inc-date date (* 7 week-row-ix))
+        columns    (take-while (partial > 7) (iterate inc 0))]
+    (into [:tr] (map #(table-td (inc-date week-start %) %) columns)))))
+
+
+(defn- table-tbody
+  "Answer matrix of 7 x 6 table cells representing days."
+  [model]
+  (let [rows (take-while (partial > 6) (iterate inc 0))]
+    (into [:tbody] (map #(table-tr model %) rows))))
 
 
 (trace-forms {:tracer default-tracer}
 (defn single-date
   [& {:keys [model]}]
-  (let [month-start (first-day-of-the-month @model)
-        cal-start   (->previous-sunday month-start) ;;WIP
-        cal-end     (plus cal-start (days 41))]     ;;WIP
-    (main-div-with [:table {:class "table-condensed"} [table-thead model]]))))
+  (let [current (reagent/atom @model)
+        current-start (-> (first-day-of-the-month @current) ->previous-sunday reagent/atom)]
+    (fn []
+      (main-div-with [:table {:class "table-condensed"}
+                      [table-thead current]
+                      [table-tbody @current-start]])))))

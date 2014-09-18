@@ -1,6 +1,6 @@
 (ns re-demo.date
   (:require [re-demo.util    :refer  [title]]
-            [cljs-time.core `:refer  [now]]
+            [cljs-time.core  :refer  [now]]
             [re-com.core     :refer  [label]]
             [re-com.date     :refer  [single-date]]
             [re-com.box      :refer  [h-box v-box box gap line border]]
@@ -8,6 +8,7 @@
 
 (defn inline-date
   []
+  ;;TODO: extended API to include start, selected & on-change callback
   (let [model (reagent/atom (now))]
     [v-box
      :gap "20px"
