@@ -1,7 +1,7 @@
 (ns re-demo.time
   (:require [re-demo.util    :refer  [title]]
             [re-com.core     :refer [label]]
-            [re-com.time :refer  [time-input time-range-input model-str]]
+            [re-com.time :refer  [time-input time-range-input display-string]]
             [re-com.box      :refer  [h-box v-box box gap line]]
             [reagent.core    :as     reagent]))
 
@@ -25,14 +25,14 @@
                   :children [[label :label "Time with default range:"]
                              [time-input :model model1]
                              [label :label "entered time: "]
-                             [label :label (model-str @model1)]]]
+                             [label :label (display-string @model1)]]]
                 [gap "14px"]
                 [h-box
                   :gap "4px"
                   :children [[label :label "Time with range 06:00-21:59:"]
                              [time-input :model model2 :minimum-time [6 0] :maximum-time [21 59]]
                              [label :label "entered time: "]
-                             [label :label (model-str @model2)]]]]]))
+                             [label :label (display-string @model2)]]]]]))
 
 (defn time-range []
   (let [range-model (reagent/atom [[9 0] [21 0]])]
