@@ -6,7 +6,7 @@
   (:require
     [clairvoyant.core     :refer [default-tracer]]
     [cljs-time.core       :refer [minus plus months days year month day first-day-of-the-month]]
-    [cljs-time.predicates :refer [sunday?]]
+    [cljs-time.predicates :refer [sunday? monday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [box border]]
     [re-com.util          :as util]
@@ -16,11 +16,7 @@
 ;; --- private cljs-time facades ----------------------------------------------
 ;; TODO: from day8date should be a common lib
 
-(def ^:private iso_8601_extended (formatters :basic-date))
-
 (def ^:private month-format (formatter "MMM yyyy"))
-
-(defn- from-ISO8601-extended [extended] (parse iso_8601_extended extended))
 
 (defn- month-label [date] (unparse month-format date))
 
@@ -56,7 +52,7 @@
 
 
 (defn- table-thead
-  "Answer 2 x rows for month with nav buttons and days NOTE: non internationalized"
+  "Answer 2 x rows for month with nav buttons and days NOTE: not internationalized"
   [current]
   [:thead
    [:tr
@@ -71,32 +67,42 @@
 
 
 (defn- table-td
-  [date column]
-  [:td {:class "available"} (day date)])
+  [date column focus-month]
+  ;;Cells which represent days not in focus month are subdued
+  ;;TODO: only allow Sundays to be selected, highlight ?
+  (if (= focus-month (month date))
+    [:td {:class "available" }     (day date)]
+    [:td {:class "available off" } (day date)]))
 
 
-(trace-forms {:tracer default-tracer}
 (defn- table-tr
-  [date week-row-ix]
+  "Return 7 columns of date cells from date inclusive."
+  [date focus-month week-row-ix]
   ;;TODO: Add first column to show week number.
   (let [week-start (inc-date date (* 7 week-row-ix))
         columns    (take-while (partial > 7) (iterate inc 0))]
-    (into [:tr] (map #(table-td (inc-date week-start %) %) columns)))))
+    (into [:tr] (map #(table-td (inc-date week-start %) % focus-month) columns))))
 
 
 (defn- table-tbody
-  "Answer matrix of 7 x 6 table cells representing days."
-  [model]
-  (let [rows (take-while (partial > 6) (iterate inc 0))]
-    (into [:tbody] (map #(table-tr model %) rows))))
+  "Return matrix of 7 x 6 table cells representing 41 days from start-date inclusive"
+  [current]
+  (let [current-start (->previous-sunday current)
+        focus-month   (month current)
+        rows          (take-while (partial > 6) (iterate inc 0))]
+    (into [:tbody] (map #(table-tr current-start focus-month %) rows))))
 
 
 (trace-forms {:tracer default-tracer}
 (defn single-date
   [& {:keys [model]}]
-  (let [current (reagent/atom @model)
-        current-start (-> (first-day-of-the-month @current) ->previous-sunday reagent/atom)]
+  ;;TODO:
+  ;; - add args for selection callback
+  ;; - accept atom or plain model arg
+  ;; - set of days allowed to be selected e.g. Sunday only
+  (let [current (reagent/atom (first-day-of-the-month @model))]
     (fn []
-      (main-div-with [:table {:class "table-condensed"}
-                      [table-thead current]
-                      [table-tbody @current-start]])))))
+      (main-div-with
+        [:table {:class "table-condensed"}
+         [table-thead current]
+         [table-tbody @current]])))))
