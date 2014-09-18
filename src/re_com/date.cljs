@@ -48,7 +48,8 @@
                     ;; override position from css because we are inline
                     :style {:font-size "13px"
                             :position "static"
-                            :-webkit-user-select "none"}} table-div]]])
+                            :-webkit-user-select "none" ;; only good on webkit/chrome what do we do for firefox etc
+                            }} table-div]]])
 
 
 (defn- table-thead
@@ -67,7 +68,7 @@
 
 
 (defn- table-td
-  [date column focus-month]
+  [date focus-month]
   ;;Cells which represent days not in focus month are subdued
   ;;TODO: only allow Sundays to be selected, highlight ?
   (if (= focus-month (month date))
@@ -75,28 +76,28 @@
     [:td {:class "available off" } (day date)]))
 
 
+
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive."
-  [date focus-month week-row-ix]
+  [date focus-month]
   ;;TODO: Add first column to show week number.
-  (let [week-start (inc-date date (* 7 week-row-ix))
-        columns    (take-while (partial > 7) (iterate inc 0))]
-    (into [:tr] (map #(table-td (inc-date week-start %) % focus-month) columns))))
+  (into [:tr] (map #(table-td (inc-date date %) focus-month) (range 7))))
 
 
 (defn- table-tbody
   "Return matrix of 7 x 6 table cells representing 41 days from start-date inclusive"
   [current]
-  (let [current-start (->previous-sunday current)
-        focus-month   (month current)
-        rows          (take-while (partial > 6) (iterate inc 0))]
-    (into [:tbody] (map #(table-tr current-start focus-month %) rows))))
+  (let [current-start   (->previous-sunday current)
+        focus-month     (month current)
+        row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
+    (into [:tbody] (map #(table-tr % focus-month) row-start-dates))))
 
 
 (trace-forms {:tracer default-tracer}
 (defn inline-date-picker
   [& {:keys [model]}]
   ;;TODO: add args handling for :minimum :maximum :show-weeks :disabled :on-change :allow
+  ;;TODO: Pass thorugh on-change call back to table-tbody, table-tr, table-td
   (let [current (reagent/atom (first-day-of-the-month @model))]
     (fn []
       (main-div-with
