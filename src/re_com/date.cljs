@@ -9,9 +9,9 @@
     [cljs-time.predicates :refer [sunday? monday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [box border]]
-    [re-com.util          :as util]
-    [clojure.string       :as string]
-    [reagent.core         :as reagent]))
+    [re-com.util          :as    util]
+    [clojure.string       :as    string]
+    [reagent.core         :as    reagent]))
 
 ;; --- private cljs-time facades ----------------------------------------------
 ;; TODO: from day8date should be a common lib
@@ -94,12 +94,9 @@
 
 
 (trace-forms {:tracer default-tracer}
-(defn single-date
+(defn inline-date-picker
   [& {:keys [model]}]
-  ;;TODO:
-  ;; - add args for selection callback
-  ;; - accept atom or plain model arg
-  ;; - set of days allowed to be selected e.g. Sunday only
+  ;;TODO: add args handling for :minimum :maximum :show-weeks :disabled :on-change :allow
   (let [current (reagent/atom (first-day-of-the-month @model))]
     (fn []
       (main-div-with
