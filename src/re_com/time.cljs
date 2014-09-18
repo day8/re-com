@@ -63,7 +63,7 @@
   "Return a string display of the time."
   [time-vector]
   (str (pad-zero-number (:hour time-vector) 2)
-       (when (:minute time-vector)(str ":"(pad-zero-number (:minute time-vector) 2)))
+       (when (:minute time-vector)(str ":" (pad-zero-number (:minute time-vector) 2)))
        (when (:second time-vector)(str ":" (pad-zero-number (:second time-vector) 2)))))
 
 
@@ -132,7 +132,7 @@
         time-vector))))
 
 
-;;--------------------------------------------------------------------------------------
+;;----- old stuff ---------------------------------------------------------------------------------
 (defn fifth-char
   "Validate the fifth chars of a time string.
   Return the corrected string."
@@ -293,24 +293,22 @@
 
 (defn time-changed [ev tmp-model min max]
   (let [target (.-target ev)
-        input-val (.-value target)]
-     (reset! tmp-model input-val)
-     (validate-each-character tmp-model min max)))
-    ;;(set! (.-value target) new-val)
-    ;;(when (= 5 (count new-val)) ;; tiem is complete - lose focus?
+        input-val (.-value target)
+        time-vector (create-time-from-string input-val)]
+     (reset! tmp-model (validated-time-vector time-vector min max))))
 
 (defn time-updated
   "Check what has been entered is complete. If not, and if possible, complete it. Then update the model."
   [ev model tmp-model min max callback]
-  (let [length (count @tmp-model)]
+  #_(let [length (count @tmp-model)]
     (cond
       (= length 0) (reset! tmp-model nil)  ;; Insufficient data to complete
       (= length 1) (reset! tmp-model (str "0" @tmp-model ":00"))
       (= length 2) (reset! tmp-model (str @tmp-model ":00"))
       (= length 3) (reset! tmp-model (str @tmp-model "00"))
       (= length 4) (reset! tmp-model (str @tmp-model "0"))))
-  (validate-time-string tmp-model min max)
-  (reset! model @tmp-model)
+  #_(validate-time-string tmp-model min max)
+  #_(reset! model @tmp-model)
   (if callback (callback @model)))
 
 ;; --- Public function ---
@@ -323,21 +321,21 @@
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
   Required parameters -
-    model - an atom of [hr mi]
+    model - an atom of a time vector
   Optional parameters are -
-    minimum-time - default is [0 0] - a 2 element vector of minimum hour and minute
-    maximum-time - default is [23 59] - a 2 element vector of maximum hour and minute
+    minimum-time - default is 00:00:00 - a time vector of minimum hour, minute and second
+    maximum-time - default is 23:59:59 - a element vector of maximum hour, minute and second
     callback - function to call when model has changed - parameter will be the new value
     style - css"
   [& {:keys [model]}]
   (let [tmp-model (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model))]
     (fn [& {:keys [model callback minimum-time maximum-time style]}]
-      (let [min (if minimum-time minimum-time [0 0])
-            max (if maximum-time maximum-time [23 59])]
+      (let [min (if minimum-time minimum-time (create-time :hour 0 :minute 0 :second 0))
+            max (if maximum-time maximum-time (create-time :hour 23 :minute 59 :second 59))]
           [:input
             {:type "text"
              :class "time-entry"
-             :value @tmp-model  ;; TODO validate this first
+             :value (display-string @tmp-model)  ;; TODO validate model first
              :style {:font-size "11px"
                      :max-width "35px"
                      :width "35px"
@@ -356,16 +354,18 @@
     gap - horizontal gap between time inputs - default '4px'
     style - css"
   [& {:keys [model]}]
-  (fn [& {:keys [model callback minimum-time maximum-time gap style]}]
+  (fn [& {:keys [model callback minimum-time maximum-time from-label to-label gap style]}]
     (let [deref-model (if (satisfies? cljs.core/IDeref model) @model model)]
       [h-box
         :gap (if gap gap "4px")
-        :children [[time-input
+        :children [(when from-label [:label from-label])
+                   [time-input
                      :model (first deref-model)
                      :callback callback
                      :minimum-time minimum-time
                      :maximum-time (last  deref-model)
                      :style style]
+                   (when to-label [:label to-label])
                    [time-input
                      :model (last  deref-model)
                      :callback callback
