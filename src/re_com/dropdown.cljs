@@ -35,11 +35,11 @@
   [options id]
   "In a vector of maps (where each map has an :id), return the first map containing the id parameter"
   (let [current-index (find-option-index options id)
-        _ (assert ((complement nil?) current-index) (str "Can't find model index '" id "' in options vector"))]
+        _ (assert ((complement nil?) current-index) (str "Can't find option index '" id "' in options vector"))]
     (nth options current-index)))
 
 
-(defn options-with-headings
+(defn- options-with-headings
   [opts]
   "Converts the user specified data for the dropdown into a form that this code can better work with"
   (let [new-opts   (atom [])
@@ -57,7 +57,7 @@
     @new-opts))
 
 
-(defn filter-options
+(defn- filter-options
   "Filter a list of options based on a filter string using plain string searches (case insensitive). Less powerful
    than regex's but no confusion with reserved characters."
   [options filter-text]
@@ -69,7 +69,7 @@
     (filter filter-fn options)))
 
 
-(defn filter-options-regex
+(defn- filter-options-regex
   "Filter a list of options based on a filter string using regex's (case insensitive). More powerful but can cause
    confusion for users entering reserved characters such as [ ] * + . ( ) etc."
   [options filter-text]
@@ -83,7 +83,7 @@
     (filter filter-fn options)))
 
 
-(defn option-group-heading
+(defn- option-group-heading
   [opt]
   "Render a group option item"
   [:li.group-result
@@ -91,12 +91,12 @@
    (:group opt)])
 
 
-#_(defn option-item-base
+#_(defn- option-item-base
   []
   "Render an option item and set up appropriate mouse events"
   (let [mouse-over? (reagent/atom false)]
-    (fn [opt on-click model]
-      (let [selected (= @model (:id opt))
+    (fn [opt on-click tmp-model]
+      (let [selected (= @tmp-model (:id opt))
             class    (if selected
                        " highlighted"
                        (when @mouse-over? " mouseover"))]
@@ -108,7 +108,7 @@
          (:label opt)]))))
 
 
-#_(def option-item (with-meta option-item-base
+#_(def ^:private option-item (with-meta option-item-base
                             {:component-did-mount #(let [node (reagent/dom-node %)]
                                                     (println "option-item-2 did-mount: " (.-innerText node)))
                              :component-did-update #(let [node (reagent/dom-node %)]
@@ -116,8 +116,8 @@
                              }))
 
 
-(defn option-item
-  [opt on-click model]
+(defn- option-item
+  [opt on-click tmp-model]
   "Render an option item and set up appropriate mouse events"
   (let [mouse-over? (reagent/atom false)]
     #_(println ">IN option-item" (:label opt))
@@ -125,14 +125,14 @@
       {:component-did-mount
         (fn [me]
           (let [node     (reagent/dom-node me)
-                selected (= @model (:id opt))]
+                selected (= @tmp-model (:id opt))]
             (when selected (.scrollIntoView node false))
             #_(println "option-item - did-mount" (:label opt))))
 
        :component-did-update
         (fn [me old-argv]
           (let [node     (reagent/dom-node me)
-                selected (= @model (:id opt))]
+                selected (= @tmp-model (:id opt))]
             #_(println "option-item - did-update" (:label opt))
             ;; TODO: Only options are to fix the element to the top or bottom of the window. Suggested solution is window.scrollTO() :-( See link below...
             ;; http://social.msdn.microsoft.com/Forums/vstudio/en-US/340637f1-835a-43ed-9724-6eb4b166fdf8/html-scrollintoview-question
@@ -141,7 +141,7 @@
 
        :render
         (fn [me]
-          (let [selected (= @model (:id opt))
+          (let [selected (= @tmp-model (:id opt))
                 class    (if selected
                            "highlighted"
                            (when @mouse-over? "mouseover"))]
@@ -150,13 +150,13 @@
              {:class         (str "active-result group-option " class)
               :on-mouse-over #(reset! mouse-over? true)
               :on-mouse-out  #(reset! mouse-over? false)
-              :on-mouse-down #(on-click (:id opt))} ;; on-click doesn't work because of blur event
+              :on-mouse-down #(on-click (:id opt))}
              (:label opt)]))
        })
     ))
 
 
-(defn filter-text-box-base
+#_(defn- filter-text-box-base
   []
   (fn [filter-box filter-text key-handler drop-showing? tmp-model] ;; TODO: Remove tmp-model
     [:div.chosen-search
@@ -164,7 +164,7 @@
       {:type          "text"
        :auto-complete "off"
        :style         (when-not filter-box {:position "absolute" ;; When no filter box required, use it but hide it off screen
-                                            :left     "-9999px"})
+                                            :top     "-9999px"})
        :value         @filter-text
        :on-change     #(reset! filter-text (-> % .-target .-value))
        :on-focus      #(println @tmp-model @drop-showing? "txt.focus")
@@ -173,7 +173,7 @@
                         (println @tmp-model @drop-showing? "txt.blur"))
        :on-key-down   key-handler}]]))
 
-(def filter-text-box
+#_(def ^:private filter-text-box
   (with-meta filter-text-box-base
              {:component-did-mount #(let [node (.-firstChild (reagent/dom-node %))]
                                      (println "filter-text-box did-mount:" (.-value node))
@@ -188,8 +188,8 @@
 ;;       This is because the parameters (filter-text key-handler) change from time to time but render is using the
 ;;       initial values, when the component was first mounted.
 ;;       So, the question becomes, "how do we pass fresh versions of the parameters to the render function?
-#_(defn filter-text-box
-  [filter-text key-handler]
+(defn- filter-text-box
+  [filter-box filter-text key-handler drop-showing? tmp-model]
   (reagent/create-class
     {:component-did-mount
       (fn [me]
@@ -210,14 +210,20 @@
            [:input
             {:type          "text"
              :auto-complete "off"
+             :style         (when-not filter-box {:position "absolute" ;; When no filter box required, use it but hide it off screen
+                                                  :top     "-9999px"})
              :value         @filter-text
              :on-change     #(reset! filter-text (-> % .-target .-value))
+             :on-focus      #(println @tmp-model @drop-showing? "txt.focus")
+             :on-blur       #(do
+                              (reset! drop-showing? false)
+                              (println @tmp-model @drop-showing? "txt.blur"))
              :on-key-down   key-handler
              }]]))
      }))
 
 
-(defn dropdown-top-base
+(defn- dropdown-top
   []
   (let [ignore-click (atom false)]
     (fn
@@ -253,7 +259,7 @@
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
 
-(def dropdown-top
+#_(def ^:private dropdown-top
   (with-meta dropdown-top-base
              {
                ;:component-did-mount #(let [node       (reagent/dom-node %) ;; TODO: REMOVE - did-mount not actually required
