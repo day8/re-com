@@ -23,7 +23,7 @@
 (def countries [{:id "AU" :label "Australia"              :group "POPULAR COUNTRIES"}
                 {:id "US" :label "United States"          :group "POPULAR COUNTRIES"}
                 {:id "GB" :label (if @bold-uk [:strong "United Kingdom"] "Old Blighty!")
-                                                          :group "POPULAR COUNTRIES"}
+                 :group "POPULAR COUNTRIES"}
                 {:id "AF" :label "Afghanistan"            :group "'A' COUNTRIES"}
                 {:id "AB" :label "Albania"                :group "'A' COUNTRIES"}
                 ;{:id "AG" :label [test-button]            :group "'A' COUNTRIES"}
@@ -64,7 +64,6 @@
   []
   (let [selected-country-id1 (reagent/atom "32")
         selected-country-id2 (reagent/atom nil)
-        selected-country-id3 (reagent/atom "US")
         disabled?            (reagent/atom false)
         regex?               (reagent/atom false)]
     (fn [] [v-box
@@ -123,36 +122,11 @@
                                                 :gap      "20px"
                                                 :align    :center
                                                 :children [[label :label "Options for above dropdown: "]
-                                                            [checkbox
+                                                           [checkbox
                                                             :label "Disabled"
                                                             :model  disabled?
                                                             :on-change  #(reset! disabled? %)]
                                                            [checkbox
                                                             :label "Allow regular expressions in filters"
                                                             :model  regex?
-                                                            :on-change  #(reset! regex? %)]]]
-
-                                               ;; TODO: REMOVE h-box below...
-                                               [h-box
-                                                :gap      "10px"
-                                                :align    :center
-                                                :children [[label :label "Test tabbing (to be removed)"]
-                                                           [input-text "" #() :style {:width "160px"}]
-                                                           [single-dropdown
-                                                            :options      countries
-                                                            :model        selected-country-id3
-                                                            :placeholder  "Choose a country"
-                                                            :width        "300px"
-                                                            :disabled     false
-                                                            :filter-box   false
-                                                            :regex-filter false
-                                                            :on-select    #(reset! selected-country-id3 %)]
-                                                           [:div
-                                                            [:strong "Selected country: "]
-                                                            (if (nil? @selected-country-id3)
-                                                              "None"
-                                                              (str (:label (find-option countries @selected-country-id3)) " [" @selected-country-id3 "]"))]]]
-                                               ]
-                                    ]]
-                        ]]
-            ])))
+                                                            :on-change  #(reset! regex? %)]]]]]]]]])))
