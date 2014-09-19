@@ -5,7 +5,7 @@
   (:require-macros [clairvoyant.core :refer [trace-forms]])
   (:require
     [clairvoyant.core     :refer [default-tracer]]
-    [cljs-time.core       :refer [minus plus months days year month day first-day-of-the-month]]
+    [cljs-time.core       :refer [now minus plus months days year month day first-day-of-the-month]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [box border]]
@@ -69,16 +69,27 @@
                  :on-click #(reset! current (inc-month @current))}]])
      (conj template-row [:th "Su"][:th "Mo"][:th "Tu"][:th "We"][:th "Th"][:th "Fr"][:th "Sa"])]))
 
+(defn equal-dates [date1 date2]
+  ;; TODO: investigate why cljs-time/= and goog.date .equals etc don't work
+  (and
+    (= (year date1)  (year date2))
+    (= (month date1) (month date2))
+    (= (day date1)   (day date2))))
 
-(trace-forms {:tracer default-tracer}
+
 (defn- table-td
-  [date focus-month selected on-change]
+  [date focus-month selected today on-change]
   ;;Cells which represent days not in focus month are subdued
   ;;TODO: only allow Sundays to be selected, highlight ?
-  (let [attributes (if (= focus-month (month date)) "available" "available off")
-        attributes (if (= (cljs-time.core/milli selected) (cljs-time.core/milli date)) (str attributes " active start-date end-date") attributes)
-        ]
-    [:td {:class attributes} (day date)])))
+  (let [styles (if (= focus-month (month date)) "available" "available off")
+        styles (cond (equal-dates selected date)
+                     (str styles " active start-date end-date")
+
+                     (and today (equal-dates date today))
+                     (str styles " today")
+
+                     :else styles)]
+    [:td {:class styles} (day date)]))
 
 
 (defn- week-td [date]
@@ -87,10 +98,12 @@
 
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive."
-  [date focus-month selected {show-weeks :show-weeks} on-change]
+  [date focus-month selected attributes on-change]
   {:pre [(sunday? date)]}
-  (let [table-row (if show-weeks [:tr (week-td date)] [:tr])]
-    (into table-row (map #(table-td (inc-date date %) focus-month selected on-change) (range 7)))))
+  (let [table-row (if (:show-weeks attributes) [:tr (week-td date)] [:tr])
+        today     (if (:show-today attributes) (:today attributes) nil)]
+    ;; TODO: following call to table-td should probably use named args
+    (into table-row (map #(table-td (inc-date date %) focus-month selected today on-change) (range 7)))))
 
 
 (defn- table-tbody
@@ -98,16 +111,18 @@
   [current selected attributes on-change]
   (let [current-start   (->previous-sunday current)
         focus-month     (month current)
-        row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
+        row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))
+        attributes      (assoc attributes :today (now))]
+    ;; TODO: following call to table-tr should probably use named args
     (into [:tbody] (map #(table-tr % focus-month selected attributes on-change) row-start-dates))))
 
 
 (defn inline-date-picker
-  [& {:keys [model attributes on-change]}]
+  [& {:keys [model attributes on-change] :as allargs}]
   ;;TODO: add attribute property handling for :minimum :maximum :disabled etc
   (let [current (reagent/atom (first-day-of-the-month @model))]
     (fn []
       (main-div-with
         [:table {:class "table-condensed"}
          [table-thead current @attributes]
-         [table-tbody @current @model @attributes on-change]]))))
+         [table-tbody @current (minus @model (days 4)) @attributes on-change]]))))

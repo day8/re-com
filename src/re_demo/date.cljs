@@ -8,18 +8,19 @@
 
 (defn inline-date
   []
-  (let [model      (reagent/atom (now))
+  (let [model       (reagent/atom (now))
         attributes1 (reagent/atom {
                                    :minimum      nil        ;; optional inclusive
                                    :maximum      nil        ;; optional inclusive
-                                   :show-weeks   true       ;; value
-                                   :disabled     false      ;; navigation will be allowed, selection not
+                                   :show-weeks   true
+                                   :show-today   true
                                    :enable-days #{:SUNDAY}  ;; optional set or nil for all
                                    })
         attributes2 (reagent/atom {
                                     :minimum     nil        ;; optional inclusive
                                     :maximum     nil        ;; optional inclusive
-                                    :show-weeks  false      ;; value
+                                    :show-weeks  false
+                                    :show-today  false
                                     :disabled    false      ;; navigation will be allowed, selection not
                                     :enable-days #{:SUNDAY} ;; optional set or nil for all
                                     })]
@@ -31,12 +32,14 @@
                 :gap "20px"
                 :align :start
                 :children [[inline-date-picker
-                            :model      model      ;; atom / value
+                            :model      model       ;; atom / value
                             :attributes attributes1 ;; atom / value
+                            :disabled false         ;; navigation will be allowed, selection not
                             :on-change  #(println %)]
                            [inline-date-picker
-                            :model model      ;; atom / value
+                            :model model            ;; atom / value
                             :attributes attributes2 ;; atom / value
+                            :disabled false         ;; navigation will be allowed, selection not
                             :on-change #(println %)]]]]]))
 
 (defn popup-date
