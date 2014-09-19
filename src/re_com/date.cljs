@@ -6,7 +6,7 @@
   (:require
     [clairvoyant.core     :refer [default-tracer]]
     [cljs-time.core       :refer [minus plus months days year month day first-day-of-the-month]]
-    [cljs-time.predicates :refer [sunday? monday?]]
+    [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [box border]]
     [re-com.util          :as    util]
@@ -17,6 +17,8 @@
 ;; TODO: from day8date should be a common lib
 
 (def ^:private month-format (formatter "MMM yyyy"))
+
+(def ^:private week-format (formatter "ww"))
 
 (defn- month-label [date] (unparse month-format date))
 
@@ -54,53 +56,58 @@
 
 (defn- table-thead
   "Answer 2 x rows for month with nav buttons and days NOTE: not internationalized"
-  [current]
-  [:thead
-   [:tr
-    [:th {:class "prev available"}
-     [:i {:class "fa fa-arrow-left icon-arrow-left glyphicon glyphicon-arrow-left"
-          :on-click #(reset! current (dec-month @current))}]]
-    [:th {:class "month" :col-span "5"} (month-label @current)]
-    [:th {:class "next available"}
-     [:i {:class "fa fa-arrow-right icon-arrow-right glyphicon glyphicon-arrow-right"
-          :on-click #(reset! current (inc-month @current))}]]]
-   [:tr [:th "Su"][:th "Mo"][:th "Tu"][:th "We"][:th "Th"][:th "Fr"][:th "Sa"]]])
+  [current {show-weeks :show-weeks}]
+  (let [template-row (if show-weeks [:tr [:th]] [:tr])]
+    [:thead
+     (conj template-row
+           [:th {:class "prev available"}
+            [:i {:class "fa fa-arrow-left icon-arrow-left glyphicon glyphicon-arrow-left"
+                 :on-click #(reset! current (dec-month @current))}]]
+           [:th {:class "month" :col-span "5"} (month-label @current)]
+           [:th {:class "next available"}
+            [:i {:class "fa fa-arrow-right icon-arrow-right glyphicon glyphicon-arrow-right"
+                 :on-click #(reset! current (inc-month @current))}]])
+     (conj template-row [:th "Su"][:th "Mo"][:th "Tu"][:th "We"][:th "Th"][:th "Fr"][:th "Sa"])]))
 
 
+(trace-forms {:tracer default-tracer}
 (defn- table-td
-  [date focus-month]
+  [date focus-month selected on-change]
   ;;Cells which represent days not in focus month are subdued
   ;;TODO: only allow Sundays to be selected, highlight ?
-  (if (= focus-month (month date))
-    [:td {:class "available" }     (day date)]
-    [:td {:class "available off" } (day date)]))
+  (let [attributes (if (= focus-month (month date)) "available" "available off")
+        attributes (if (= (cljs-time.core/milli selected) (cljs-time.core/milli date)) (str attributes " active start-date end-date") attributes)
+        ]
+    [:td {:class attributes} (day date)])))
 
+
+(defn- week-td [date]
+  [:td {:class "week"} (unparse week-format date)])
 
 
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive."
-  [date focus-month]
-  ;;TODO: Add first column to show week number.
-  (into [:tr] (map #(table-td (inc-date date %) focus-month) (range 7))))
+  [date focus-month selected {show-weeks :show-weeks} on-change]
+  {:pre [(sunday? date)]}
+  (let [table-row (if show-weeks [:tr (week-td date)] [:tr])]
+    (into table-row (map #(table-td (inc-date date %) focus-month selected on-change) (range 7)))))
 
 
 (defn- table-tbody
-  "Return matrix of 7 x 6 table cells representing 41 days from start-date inclusive"
-  [current]
+  "Return matrix of 6 rows x 7 cols table cells representing 41 days from start-date inclusive"
+  [current selected attributes on-change]
   (let [current-start   (->previous-sunday current)
         focus-month     (month current)
         row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
-    (into [:tbody] (map #(table-tr % focus-month) row-start-dates))))
+    (into [:tbody] (map #(table-tr % focus-month selected attributes on-change) row-start-dates))))
 
 
-(trace-forms {:tracer default-tracer}
 (defn inline-date-picker
-  [& {:keys [model]}]
-  ;;TODO: add args handling for :minimum :maximum :show-weeks :disabled :on-change :allow
-  ;;TODO: Pass thorugh on-change call back to table-tbody, table-tr, table-td
+  [& {:keys [model attributes on-change]}]
+  ;;TODO: add attribute property handling for :minimum :maximum :disabled etc
   (let [current (reagent/atom (first-day-of-the-month @model))]
     (fn []
       (main-div-with
         [:table {:class "table-condensed"}
-         [table-thead current]
-         [table-tbody @current]])))))
+         [table-thead current @attributes]
+         [table-tbody @current @model @attributes on-change]]))))

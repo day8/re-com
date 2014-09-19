@@ -8,20 +8,36 @@
 
 (defn inline-date
   []
-  (let [model (reagent/atom (now))]
+  (let [model      (reagent/atom (now))
+        attributes1 (reagent/atom {
+                                   :minimum      nil        ;; optional inclusive
+                                   :maximum      nil        ;; optional inclusive
+                                   :show-weeks   true       ;; value
+                                   :disabled     false      ;; navigation will be allowed, selection not
+                                   :enable-days #{:SUNDAY}  ;; optional set or nil for all
+                                   })
+        attributes2 (reagent/atom {
+                                    :minimum     nil        ;; optional inclusive
+                                    :maximum     nil        ;; optional inclusive
+                                    :show-weeks  false      ;; value
+                                    :disabled    false      ;; navigation will be allowed, selection not
+                                    :enable-days #{:SUNDAY} ;; optional set or nil for all
+                                    })]
     [v-box
      :gap "20px"
      :align :start
      :children [[title "Inline Date"]
-                [inline-date-picker
-                 :minimum    nil        ;; optional atom / value
-                 :maximum    nil        ;; optional atom / value
-                 :show-weeks false      ;; value
-                 :disabled   false      ;; optional
-                 :model      model      ;; atom / value
-                 :on-change  #()
-                 :allow      #{:SUNDAY} ;; optional set or nil for all
-                 ]]]))
+                [h-box
+                :gap "20px"
+                :align :start
+                :children [[inline-date-picker
+                            :model      model      ;; atom / value
+                            :attributes attributes1 ;; atom / value
+                            :on-change  #(println %)]
+                           [inline-date-picker
+                            :model model      ;; atom / value
+                            :attributes attributes2 ;; atom / value
+                            :on-change #(println %)]]]]]))
 
 (defn popup-date
   []
