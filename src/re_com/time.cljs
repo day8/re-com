@@ -16,16 +16,10 @@
   ;;(assert (or (nil? second)(< second 60)) "Invalid value for seconds")
   (TimeRecord. hour minute second))
 
-(defrecord DisplayedTimeRecord [displayed-string time-record])
-(defn create-displayed-time
-  "Return a DisplayedTimeRecord."
-  [displayed-string time-record]
-  (DisplayedTimeRecord. displayed-string time-record))
-
 (defn create-time-from-vector
   "Return a TimeRecord.
   ASSUMPTION: the vector contains 3 values which are -
-   hour, ':'|'', minutes."
+   hour, ':' or '' and minutes."
   [vals]
   (create-time :hour (first vals) :minute (last vals) :second nil))
 
@@ -38,20 +32,12 @@
         nil
         val))))
 
-#_(defn string-as-model-values
-  "Convert string values to a 3 element vector with hour, minute and second (or part thereof)."
-  [vals]
-  (let [hr (if (> (count vals)0) (int-from-string (first vals)) nil)
-        mi (if (> (count vals)2) (int-from-string (last vals)) nil)]
-    [hr mi nil]))
-
 (defn create-time-from-string
   "Return a TimeRecord from the passed string."
   [s]
   (let [matches (re-matches #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" s)
        vals (filter #(not (nil? %))(rest matches))]
     (create-time-from-vector (map int-from-string vals))))
-
 
 (defn pad-zero [subject-str max-chars]
   "If subject-str zero pad subject-str from left up to max-chars."
@@ -75,8 +61,6 @@
            (str (pad-zero-number (:minute time-record) 2))
            (:minute time-record)))
        (when (:second time-record)(:second time-record))))
-
-
 
 ;; --- Validation ---
 
@@ -104,26 +88,13 @@
       (< se 60)
       true)))
 
-(defn validated-time-record
-  "Validate the values in the vector.
-  If any are invalid replace them and the following values with nil."
-  [time-record min max]
-  (if-not (validate-hours time-record min max)
-    (create-time :hour nil :minute nil second nil)
-    (if-not (validate-minutes time-record)
-      (create-time :hour (:hour time-record) :minute nil second nil)
-      (if-not (validate-seconds time-record)
-        (create-time :hour (:hour time-record) :minute (:minute time-record) second nil)
-        time-record))))
-
-
 (defn validate-time-range
   "Validate the time string in comparison to the min and max values. Return true if it is valid.
   ASSUMPTION: we have already determined that both the hours and minutes components can be converted to integers."
   [time-record min max]
   (let [tm-int (+ (* (:hour time-record) 100) (:minute time-record))
-        minimum (+ (* (first min) 100)(last min))
-        maximum (+ (* (first max) 100)(last max))]
+        minimum (+ (* (:hour min) 100)(:minute min))
+        maximum (+ (* (:hour max) 100)(:minute max))]
     (if (or (< tm-int minimum)
             (> tm-int maximum))
       (do
@@ -134,6 +105,20 @@
           (.warn js/console (str "WARNING: Time " tm-string " is outside range " range-str)))
         false)
       true)))
+
+(defn validated-time-record
+  "Validate the values in the vector.
+  If any are invalid replace them and the following values with nil."
+  [time-record min max]
+  (if-not (validate-hours time-record min max)
+    (create-time :hour nil :minute nil second nil)
+    (if-not (validate-minutes time-record)
+      (create-time :hour (:hour time-record) :minute nil second nil)
+      (if-not (validate-seconds time-record)
+        (create-time :hour (:hour time-record) :minute (:minute time-record) second nil)
+        (if-not (validate-time-range time-record min max)
+          (create-time :hour (:hour time-record) :minute (:minute time-record) second nil)
+          time-record)))))
 
 (defn is-valid
   "Return true if the passed time is valid."
@@ -150,36 +135,22 @@
 ;;------------------------------------------------------------------
 
 (defn key-pressed
-  "Prevent input of invalid characters.
-  Event properties are -
-    boolean altKey
-    Number charCode
-    boolean ctrlKey
-    function getModifierState(key)
-    String key
-    Number keyCode
-    String locale
-    Number location
-    boolean metaKey
-    boolean repeat
-    boolean shiftKey
-    Number which"
+  "Prevent input of invalid characters."
   [ev]
   (let [target (.-target ev)
         input-val (.-value target)]
     (let [match (re-matches #"^[\d|:]$" (char (.-charCode ev)))]
     (if (nil? match)
       (do
-        (println (str "rejected char " (.-charCode ev)))
+        (.info js/console (str "INFO: rejected keyboard input of char " (.-charCode ev)))
         false)
-      (do
-        #_(println (str "accepted char " (.-charCode ev)))
-        true)))))
+      true))))
 
 (defn display-string
   "Return a string display of the time."
   [time-record]
-  (str (when (:hour time-record)  (pad-zero-number (:hour time-record) 2))
+  (str
+    (when (:hour time-record)  (pad-zero-number (:hour time-record) 2))
     (when (:minute time-record)(str ":" (pad-zero-number (:minute time-record) 2)))
     (when (:second time-record)(str ":" (pad-zero-number (:second time-record) 2)))))
 
@@ -191,9 +162,10 @@
         time-record (create-time-from-string input-val)]
     (reset! tmp-model (validated-time-record time-record min max))
     (set! (.-value target)(display-string @tmp-model)))  ;; Show formatted result
-  (if callback (callback @model)))  ;; TODO validate, then update the model
+    (reset! model @tmp-model)
+  (if callback (callback @model)))  ;; TODO validate
 
-;; --- Public function ---
+;; --- Components ---
 
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
@@ -231,19 +203,21 @@
     style - css"
   [& {:keys [model]}]
   (fn [& {:keys [model callback minimum-time maximum-time from-label to-label gap style]}]
-    (let [deref-model (if (satisfies? cljs.core/IDeref model) @model model)]
+    (let [deref-model (if (satisfies? cljs.core/IDeref model) @model model)
+          from-model  (reagent/atom (first deref-model))
+          to-model    (reagent/atom (last  deref-model))]
       [h-box
         :gap (if gap gap "4px")
         :children [(when from-label [:label from-label])
                    [time-input
-                     :model (first deref-model)
+                     :model from-model
                      :callback callback
                      :minimum-time minimum-time
                      :maximum-time (last deref-model)
                      :style style]
                    (when to-label [:label to-label])
                    [time-input
-                     :model (last  deref-model)
+                     :model to-model
                      :callback callback
                      :minimum-time (first deref-model)
                      :maximum-time maximum-time

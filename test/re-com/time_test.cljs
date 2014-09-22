@@ -124,3 +124,10 @@
     ""        (time/time-record->string (time/validated-time-record (time/create-time :hour 5 :minute 0 :second 0) alternate-min alternate-max))
     ""        (time/time-record->string (time/validated-time-record (time/create-time :hour 23 :minute 59 :second nil) alternate-min alternate-max))))
 
+(deftest test-validate-time-range
+  (are [expected actual] (= expected actual)
+    true     (time/validate-time-range (time/create-time :hour 6 :minute 30 :second nil) default-min default-max)
+    false    (time/validate-time-range (time/create-time :hour 24 :minute 30 :second nil) default-min default-max)
+    false    (time/validate-time-range (time/create-time :hour 5 :minute 0 :second 0) alternate-min alternate-max)
+    false    (time/validate-time-range (time/create-time :hour 23 :minute 45 :second nil) alternate-min alternate-max)))
+

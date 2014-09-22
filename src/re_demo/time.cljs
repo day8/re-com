@@ -22,7 +22,7 @@
                   [:li "callback - function to call upon model change."]]
                 [time-input
                   :model (reagent/atom (create-time :hour nil :minute nil :second nil))
-                  :style {:width "40px"}]
+                  :style {}]
                 [h-box
                   :gap "4px"
                   :children [[label :label "Time with default range:"]
@@ -40,7 +40,8 @@
                              [label :label (display-string @model2)]]]]]))
 
 (defn time-range []
-  (let [range-model (reagent/atom [(create-time :hour 9 :minute 0 :second nil)(create-time :hour 21 :minute 0 :second nil)])]
+  (let [range-model (reagent/atom [(create-time :hour 9  :minute 0 :second nil)
+                                   (create-time :hour 21 :minute 0 :second nil)])]
     [v-box
       :gap "20px"
       :children [[title "Time Range"]
