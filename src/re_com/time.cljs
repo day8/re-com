@@ -104,31 +104,6 @@
       (< se 60)
       true)))
 
-
-(defn vector->seconds
-  "Return the number of seconds for the time vector.
-  If any of the values are nil, assume 0."
-  [vals]
-  (let [hr (if (nil? (first vals)) 0 (first vals))
-        mi (if (nil? (nth vals 1)) 0 (nth vals 1))
-        se (if (nil? (last vals)) 0 (last vals))]
-  (+ (* hr 3600)(* mi 60) se)))
-
-(defn validated-time-range
-  "Validate the time string in comparison to the min and max values. Return true if it is valid."
-  [int-vals min max]
-  (let [tm-int  (vector->seconds int-vals)
-        min-int (vector->seconds min)
-        max-int (vector->seconds max)]
-    (if (or (< tm-int min-int)
-            (> tm-int max-int))
-      (do
-        (if-not (nil? (first int-vals))
-          (do (let [range-str (str (time-record->string min) "-" (time-record->string max))]
-                (.warn js/console (str "WARNING: Time " int-vals " is outside range " range-str))))
-          [nil nil nil]))
-      int-vals)))
-
 (defn validated-time-record
   "Validate the values in the vector.
   If any are invalid replace them and the following values with nil."
@@ -142,104 +117,17 @@
         time-record))))
 
 
-;;----- old stuff ---------------------------------------------------------------------------------
-(defn fifth-char
-  "Validate the fifth chars of a time string.
-  Return the corrected string."
-  [input-val min max]
-  (let [first-4-chars (subs input-val 0 4)]
-    (if (re-matches #"[0-9]" (last input-val))
-      (let [int-val (js/parseInt (subs input-val 3 5))]
-        (if (or (< int-val (last min))(> int-val (last max)))
-            first-4-chars
-            input-val))
-      first-4-chars)))
-
-(defn fourth-char
-  "Validate the fourth chars of a time string.
-  If another colon is added, ignore it.
-  Return the corrected string."
-  [input-val min max]
-  (let [first-3-chars (str (subs input-val 0 2) ":")]
-    (if (re-matches #"[:-]" (nth input-val 3))
-      first-3-chars
-      (if (re-matches #"[0-9]" (last input-val))
-        (let [int-val (js/parseInt (last input-val))]
-          (if (or (< int-val (quot (last min) 10))(> int-val (quot (last max) 10)))
-            first-3-chars
-            input-val))
-        first-3-chars)))) ;; Ignore non- alpha character
-
-(defn third-char
-  "Validate the third chars of a time string.
-  If no colon is found, add that and validate the (now) fourth character.
-  Return the corrected string."
-  [input-val min max]
-  (if (re-matches #"[:-]" (last input-val ))
-    (str (subs input-val 0 2) ":")
-    (fourth-char (str (subs input-val 0 2) ":" (last input-val)) min max)))
-
-(defn second-char
-  "Validate the first and second chars of a time string. Return the corrected string."
-  [input-val min max]
-  (if (re-matches #"[0-9]" (last input-val))
-    (let [int-val (js/parseInt input-val)]
-       (if (or (js/isNaN int-val)(< int-val (first min))(> int-val (first max)))
-         (subs input-val 0 1)                ;; Not a number or not in min-max range - ignore second char
-         input-val))
-    (subs input-val 0 1)))
-
-(defn first-char
-  "Validate the first char of a time string. Return the corrected string."
-  [input-val min max]
-  (let [int-val (js/parseInt input-val)]
-    (if (or (js/isNaN int-val)(< int-val (quot (first min) 10)))
-      ""
-      (if (> int-val (quot (first max) 10))
-        (let [tmp (second-char (str "0" input-val) min max)]  ;; Treat it as second char, but validate it too
-          (if (= "0" tmp)
-            ""
-            tmp))
-        input-val))))
-
-(defn validate-hours-string
-  "Validate the first and second characters of a time string. Return true if it is valid."
-  [s min max]
-  (if s
-    (let [int-val (js/parseInt s)]
-      (not (js/isNaN int-val)))
-    false))
-
-(defn validate-third-char
-  "Validate the third character of a time string. Return true if it is valid."
-  [ch min max]
-  (if ch
-    (= \: ch)
-    false))
-
-(defn validate-minutes-string
-  "Validate the fourth and fifth characters of a time string. Return true if it is valid."
-  [s min max]
-  (if s
-    (let [int-val (js/parseInt s)]
-      (if (js/isNaN int-val)
-        false
-        (< int-val 60)))
-    false))
-
 (defn validate-time-range
   "Validate the time string in comparison to the min and max values. Return true if it is valid.
   ASSUMPTION: we have already determined that both the hours and minutes components can be converted to integers."
-  [hour minute min max]
-  (let [hour-int (js/parseInt hour)
-        minute-int (js/parseInt minute)
-        tm-int (+ (* hour-int 100) minute-int)
+  [time-record min max]
+  (let [tm-int (+ (* (:hour time-record) 100) (:minute time-record))
         minimum (+ (* (first min) 100)(last min))
         maximum (+ (* (first max) 100)(last max))]
     (if (or (< tm-int minimum)
             (> tm-int maximum))
       (do
-        (let [tm-string   (str hour ":" minute)
+        (let [tm-string   (str (:hour time-record) ":" (:minute time-record))
               range-start (str (first min) ":" (last min))
               range-end   (str (first max) ":" (last max))
               range-str   (str range-start "-" range-end)]
@@ -247,57 +135,17 @@
         false)
       true)))
 
-(defn validate-groups
-  [tmp-model min max]
-  (if-not (validate-hours-string (subs @tmp-model 0 2) min max)
-    (do (reset! tmp-model "") false)
-    true)
-  (if-not (validate-third-char (nth @tmp-model 2) min max)
-    (do ((reset! tmp-model (subs @tmp-model 0 2))) false)
-    true)
-  (if-not (validate-minutes-string (subs @tmp-model 3 5) min max)
-    (do (reset! tmp-model (subs @tmp-model 0 3))false)
-    true)
-  (if-not (validate-time-range (subs @tmp-model 0 2)(subs @tmp-model 3 5) min max)
-    (do
-      (reset! tmp-model (subs @tmp-model ""))
-      false)
-    true))
-
-(defn validate-time-string
-  "Validate each character in the string.
-  Remove it and subsequent characters if the character is not valid."
-  [tmp-model min max]
-  (if @tmp-model
-    (validate-groups tmp-model min max)
-    false))
-
 (defn is-valid
-  "Return true if the passed time string is valid.
-  During validation of each character, if any invalid characters are found they, and all following characters, are deleted.
-  At the end we can assume a time of the correct length is valid."
-  [tmp-model min max]
-  (if (not (validate-time-string tmp-model min max))
-    (reset! tmp-model ""))
-  (and (not (nil? @tmp-model))(= 5 (count @tmp-model))))
+  "Return true if the passed time is valid."
+  [time-record min max]
+  (if-not (validate-hours time-record min max)
+    false
+    (if-not (validate-minutes time-record)
+      false
+      (if-not (validate-seconds time-record)
+        false
+        (validate-time-range time-record min max)))))
 
-(defn validated-time-change
-  "Starting at the first character, perform the validation for each character until we have
-  reached the end (which might come sooner than originally expected because if an invalid
-  value is encountered the model will be truncated)."
-  [chars min max n]
-  (let [funcs [first-char second-char third-char fourth-char fifth-char]]
-    (if (< n (count chars))
-       ((nth funcs n) chars min max))))
-
-(defn validate-each-character [tmp-model min max]
-  (loop [i 0]
-    (let [chars (subs @tmp-model 0 (+ i 1))
-          new-val (validated-time-change chars min max i)]
-      (if (= new-val chars)
-        (if (and (< i 4)(< (+ 1 i)(count @tmp-model)))
-          (recur (inc i)))
-        (reset! tmp-model new-val)))))
 
 ;;------------------------------------------------------------------
 
