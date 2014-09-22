@@ -239,7 +239,7 @@
                      :model (first deref-model)
                      :callback callback
                      :minimum-time minimum-time
-                     :maximum-time (last  deref-model)
+                     :maximum-time (last deref-model)
                      :style style]
                    (when to-label [:label to-label])
                    [time-input
