@@ -5,7 +5,8 @@
   (:require-macros [clairvoyant.core :refer [trace-forms]])
   (:require
     [clairvoyant.core     :refer [default-tracer]]
-    [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month]]
+    [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month
+                                  before? after?]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [box border]]
@@ -19,6 +20,10 @@
 (def ^:private month-format (formatter "MMM yyyy"))
 
 (def ^:private week-format (formatter "ww"))
+
+(defn- iso8601->date [iso8601]
+  (when (seq iso8601)
+    (parse (formatters :basic-date) iso8601)))
 
 (defn- month-label [date] (unparse month-format date))
 
@@ -35,12 +40,18 @@
     date
     (recur (minus date (days 1)))))
 
-(defn equal-dates [date1 date2]
+(defn- =date [date1 date2]
   ;; TODO: investigate why cljs-time/= and goog.date .equals etc don't work
   (and
     (= (year date1)  (year date2))
     (= (month date1) (month date2))
     (= (day date1)   (day date2))))
+
+(defn- <=date [date1 date2]
+  (or (=date date1 date2) (before? date1 date2)))
+
+(defn- >=date [date1 date2]
+  (or (=date date1 date2) (after? date1 date2)))
 
 ;; ----------------------------------------------------------------------------
 
@@ -63,19 +74,25 @@
 
 (defn- table-thead
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
-  [current {show-weeks :show-weeks enabled-days :enabled-days}]
+  [current {show-weeks :show-weeks enabled-days :enabled-days minimum :minimum maximum :maximum}]
+  ;;TODO: We might choose later to style by removing arrows altogether instead of greying when disabled navigation
   (let [style        (fn [week-day] {:class (if (enabled-days week-day) "selectable" "disabled")})
+        prev-date    (dec-month @current)
+        prev-enabled (if minimum (after? prev-date minimum) true)
+        next-date    (inc-month @current)
+        next-enabled (if maximum (before? next-date maximum) true)
         template-row (if show-weeks [:tr [:th]] [:tr])]
     [:thead
      (conj template-row
-           [:th {:class "prev available selectable"}
+           [:th {:class (str "prev " (if prev-enabled "available selectable" "disabled"))}
             [:i {:class "fa fa-arrow-left icon-arrow-left glyphicon glyphicon-arrow-left"
-                        :on-click #(reset! current (dec-month @current))}]]
+                        :on-click #(when prev-enabled (reset! current prev-date))}]]
            [:th {:class "month" :col-span "5"} (month-label @current)]
-           [:th {:class "next available selectable"}
+           [:th {:class (str "next " (if next-enabled "available selectable" "disabled"))}
             [:i {:class "fa fa-arrow-right icon-arrow-right glyphicon glyphicon-arrow-right"
-                        :on-click #(reset! current (inc-month @current))}]])
-     ;; could be done via more clever mapping but avoiding abscurity here
+                        :on-click #(when next-enabled (reset! current next-date))}]])
+     ;; could be done via more clever mapping but avoiding abscurity here.
+     ;; style each day label based on if it is in enabled-days
      (conj template-row
            [:th (style 7) "Su"]
            [:th (style 1) "Mo"]
@@ -92,28 +109,34 @@
 
 
 (defn- table-td
-  [date focus-month selected today attributes disabled on-change]
-  (let [disabled-day (nil? ((:enabled-days attributes) (day-of-week date)))
-        styles   (cond disabled
-                       "off"
+  [date focus-month selected today {minimum :minimum maximum :maximum :as attributes} disabled on-change]
+  ;;following can be simplified and terse
+  (let [enabled-min  (if minimum (>=date date minimum) true)
+        enabled-max  (if maximum (<=date date maximum) true)
+        enabled-day  (and enabled-min enabled-max)
+        disabled-day (if enabled-day
+                       (nil? ((:enabled-days attributes) (day-of-week date)))
+                       true)
+        styles       (cond disabled
+                           "off"
 
-                       disabled-day
-                       "off"
+                           disabled-day
+                           "off"
 
-                       (= focus-month (month date))
-                       "available"
+                           (= focus-month (month date))
+                           "available"
 
-                       :else
-                       "available off")
-        styles   (cond (equal-dates selected date)
-                       (str styles " active start-date end-date")
+                           :else
+                           "available off")
+        styles       (cond (=date selected date)
+                           (str styles " active start-date end-date")
 
-                       (and today (equal-dates date today))
-                       (str styles " today")
+                           (and today (=date date today))
+                           (str styles " today")
 
-                       :else styles)
-        on-click (when-not (or disabled disabled-day) {:on-click #(selection-changed date on-change)})]
-    [:td (merge {:class styles} on-click) (day date)]))
+                           :else styles)
+        on-click     #(when-not (or disabled disabled-day) (selection-changed date on-change))]
+    [:td {:class styles :on-click on-click} (day date)]))
 
 
 (defn- week-td [date]
@@ -144,11 +167,16 @@
   "Augment passed attributes with extra info/defaults."
   [attributes]
   (let [enabled-days (->> (if (seq (:enabled-days attributes))
-                          (:enabled-days attributes)
-                          #{:Su :Mo :Tu :We :Th :Fr :Sa})
-                        (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}))
-                        set)]
-    (merge attributes {:enabled-days enabled-days :today (now)})))
+                            (:enabled-days attributes)
+                            #{:Su :Mo :Tu :We :Th :Fr :Sa})
+                          (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}))
+                          set)
+        minimum      (->> (:minimum attributes) iso8601->date)
+        maximum      (->> (:maximum attributes) iso8601->date)]
+    (merge attributes {:enabled-days enabled-days
+                       :today (now)
+                       :minimum minimum
+                       :maximum maximum})))
 
 
 (defn inline-date-picker
