@@ -22,7 +22,7 @@
                   [:li "callback - function to call upon model change."]]
                 [time-input
                   :model (reagent/atom (create-time :hour nil :minute nil :second nil))
-                  :style {:width "60px"}]
+                  :style {:width "40px"}]
                 [h-box
                   :gap "4px"
                   :children [[label :label "Time with default range:"]

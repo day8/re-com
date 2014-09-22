@@ -301,12 +301,6 @@
 
 ;;------------------------------------------------------------------
 
-#_(defn time-changed [ev tmp-model min max]
-  (let [target (.-target ev)
-        input-val (.-value target)
-        time-record (create-time-from-string input-val)]
-    (reset! tmp-model (validated-time-record time-record min max))))
-
 (defn key-pressed
   "Prevent input of invalid characters.
   Event properties are -
@@ -344,21 +338,12 @@
 (defn time-updated
   "Check what has been entered is complete. If not, and if possible, complete it. Then update the model."
   [ev model tmp-model min max callback]
-  #_(let [length (count @tmp-model)]
-    (cond
-      (= length 0) (reset! tmp-model nil)  ;; Insufficient data to complete
-      (= length 1) (reset! tmp-model (str "0" @tmp-model ":00"))
-      (= length 2) (reset! tmp-model (str @tmp-model ":00"))
-      (= length 3) (reset! tmp-model (str @tmp-model "00"))
-      (= length 4) (reset! tmp-model (str @tmp-model "0"))))
-  #_(validate-time-string tmp-model min max)
-  #_(reset! model @tmp-model)
   (let [target (.-target ev)
         input-val (.-value target)
         time-record (create-time-from-string input-val)]
     (reset! tmp-model (validated-time-record time-record min max))
     (set! (.-value target)(display-string @tmp-model)))  ;; Show formatted result
-  (if callback (callback @model)))
+  (if callback (callback @model)))  ;; TODO validate, then update the model
 
 ;; --- Public function ---
 
