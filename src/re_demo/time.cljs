@@ -14,12 +14,15 @@
      :children [[title "Time"]
                 [:p "Accepts input of a time. Model does not update until a valid time has been entered. Required parameters are -"]
                 [:ul
-                 [:li "model"]]
+                  [:li "model"]]
                 [:p "Optional parameters are -"]
                 [:ul
-                 [:li "minimum-time - 2 element vec of min hour and min minute - will not allow input less than this time - default [0 0]."]
-                 [:li "maximum-time - 2 element vec of max hour and max minute - will not allow input more than this time - default [23 59]."]
-                 [:li "callback - function to call upon model change."]]
+                  [:li "minimum-time - 2 element vec of min hour and min minute - will not allow input less than this time - default [0 0]."]
+                  [:li "maximum-time - 2 element vec of max hour and max minute - will not allow input more than this time - default [23 59]."]
+                  [:li "callback - function to call upon model change."]]
+                [time-input
+                  :model (reagent/atom (create-time :hour nil :minute nil :second nil))
+                  :style {:width "60px"}]
                 [h-box
                   :gap "4px"
                   :children [[label :label "Time with default range:"]

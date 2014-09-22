@@ -1,29 +1,33 @@
 (ns re-com.time
   (:require
     [reagent.core :as reagent]
-    [clairvoyant.core :as trace :include-macros true]  ;; TODO remove clairvoyant
+    ;;[clairvoyant.core :as trace :include-macros true]  ;; TODO remove clairvoyant - development only
     [clojure.string :as cljstring]
     [re-com.box      :refer  [h-box gap]]))
 
 
 ; --- Private functions ---
 
-(defrecord TimeVector [hour minute second])
+(defrecord TimeRecord [hour minute second])
 (defn create-time
-  "Return a TimeVector. No validation is made for hours."
+  "Return a TimeRecord. No validation is made for hours."
   [& {:keys [hour minute second]}]
-  (assert (or (nil? minute)(< minute 60)) "Invalid value for minutes")
-  (assert (or (nil? second)(< second 60)) "Invalid value for seconds")
-  (TimeVector. hour minute second))
+  ;;(assert (or (nil? minute)(< minute 60)) "Invalid value for minutes")
+  ;;(assert (or (nil? second)(< second 60)) "Invalid value for seconds")
+  (TimeRecord. hour minute second))
+
+(defrecord DisplayedTimeRecord [displayed-string time-record])
+(defn create-displayed-time
+  "Return a DisplayedTimeRecord."
+  [displayed-string time-record]
+  (DisplayedTimeRecord. displayed-string time-record))
 
 (defn create-time-from-vector
-  "Return a TimeVector.
-  ASSUMPTION: the vector contains 3 values which are either integers or nil."
+  "Return a TimeRecord.
+  ASSUMPTION: the vector contains 3 values which are -
+   hour, ':'|'', minutes."
   [vals]
-  (let [hr (if (> (count vals)0) (first vals) nil)
-        mi (if (>= (nth vals 1) 60) nil (nth vals 1))
-        se (if (>= (last vals) 60) nil (last vals))]
-  (create-time :hour hr :minute mi :second se)))
+  (create-time :hour (first vals) :minute (last vals) :second nil))
 
 (defn int-from-string
   [s]
@@ -34,19 +38,19 @@
         nil
         val))))
 
-(defn string-as-model-values
+#_(defn string-as-model-values
   "Convert string values to a 3 element vector with hour, minute and second (or part thereof)."
-  [tm-string]
-  (let [vals (cljstring/split tm-string ":")
-        hr (if (> (count vals)0) (int-from-string (first vals)) nil)
-        mi (if (> (count vals)1) (int-from-string (nth vals 1)) nil)
-        se (if (> (count vals)2) (int-from-string (last vals)) nil)]
-    [hr mi se]))
+  [vals]
+  (let [hr (if (> (count vals)0) (int-from-string (first vals)) nil)
+        mi (if (> (count vals)2) (int-from-string (last vals)) nil)]
+    [hr mi nil]))
 
 (defn create-time-from-string
-  "Return a TimeVector from the passed string."
+  "Return a TimeRecord from the passed string."
   [s]
-  (create-time-from-vector (string-as-model-values s)))
+  (let [matches (re-matches #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" s)
+       vals (filter #(not (nil? %))(rest matches))]
+    (create-time-from-vector (map int-from-string vals))))
 
 
 (defn pad-zero [subject-str max-chars]
@@ -59,12 +63,18 @@
   "If subject-num zero pad subject-str from left up to max-chars."
   (pad-zero (str subject-num) max-chars))
 
-(defn time-vector->string
-  "Return a string display of the time."
-  [time-vector]
-  (str (pad-zero-number (:hour time-vector) 2)
-       (when (:minute time-vector)(str ":" (pad-zero-number (:minute time-vector) 2)))
-       (when (:second time-vector)(str ":" (pad-zero-number (:second time-vector) 2)))))
+(defn time-record->string
+  "Return a string to display the time."
+  [time-record]
+  (str (when (:hour time-record)
+         (if (or (>= (:hour time-record) 10)(not (nil? (:minute time-record))))
+           (str (pad-zero-number (:hour time-record) 2))
+           (:hour time-record)))
+       (when (:minute time-record)
+         (if (or (>= (:minute time-record) 10)(not (nil? (:second time-record))))
+           (str (pad-zero-number (:minute time-record) 2))
+           (:minute time-record)))
+       (when (:second time-record)(:second time-record))))
 
 
 
@@ -72,24 +82,24 @@
 
 (defn validate-hours
   "Validate the first element of a time vector. Return true if it is valid."
-  [time-vector min max]
-  (let [hr (:hour time-vector)]
+  [time-record min max]
+  (let [hr (:hour time-record)]
     (if hr
       (and (>= hr (:hour min))(<= hr (:hour max)))
       true)))
 
 (defn validate-minutes
   "Validate the second element of a time vector. Return true if it is valid."
-  [time-vector]
-  (let [mi (:minute time-vector)]
+  [time-record]
+  (let [mi (:minute time-record)]
     (if mi
       (< mi 60)
       true)))
 
 (defn validate-seconds
   "Validate the third element of a time vector. Return true if it is valid."
-  [time-vector]
-  (let [se (:hour time-vector)]
+  [time-record]
+  (let [se (:hour time-record)]
     (if se
       (< se 60)
       true)))
@@ -114,22 +124,22 @@
             (> tm-int max-int))
       (do
         (if-not (nil? (first int-vals))
-          (do (let [range-str (str (time-vector->string min) "-" (time-vector->string max))]
+          (do (let [range-str (str (time-record->string min) "-" (time-record->string max))]
                 (.warn js/console (str "WARNING: Time " int-vals " is outside range " range-str))))
           [nil nil nil]))
       int-vals)))
 
-(defn validated-time-vector
+(defn validated-time-record
   "Validate the values in the vector.
   If any are invalid replace them and the following values with nil."
-  [time-vector min max]
-  (if-not (validate-hours time-vector min max)
+  [time-record min max]
+  (if-not (validate-hours time-record min max)
     (create-time :hour nil :minute nil second nil)
-    (if-not (validate-minutes time-vector)
-      (create-time :hour (:hour time-vector) :minute nil second nil)
-      (if-not (validate-seconds time-vector)
-        (create-time :hour (:hour time-vector) :minute (:minute time-vector) second nil)
-        time-vector))))
+    (if-not (validate-minutes time-record)
+      (create-time :hour (:hour time-record) :minute nil second nil)
+      (if-not (validate-seconds time-record)
+        (create-time :hour (:hour time-record) :minute (:minute time-record) second nil)
+        time-record))))
 
 
 ;;----- old stuff ---------------------------------------------------------------------------------
@@ -291,11 +301,45 @@
 
 ;;------------------------------------------------------------------
 
-(defn time-changed [ev tmp-model min max]
+#_(defn time-changed [ev tmp-model min max]
   (let [target (.-target ev)
         input-val (.-value target)
-        time-vector (create-time-from-string input-val)]
-     (reset! tmp-model (validated-time-vector time-vector min max))))
+        time-record (create-time-from-string input-val)]
+    (reset! tmp-model (validated-time-record time-record min max))))
+
+(defn key-pressed
+  "Prevent input of invalid characters.
+  Event properties are -
+    boolean altKey
+    Number charCode
+    boolean ctrlKey
+    function getModifierState(key)
+    String key
+    Number keyCode
+    String locale
+    Number location
+    boolean metaKey
+    boolean repeat
+    boolean shiftKey
+    Number which"
+  [ev]
+  (let [target (.-target ev)
+        input-val (.-value target)]
+    (let [match (re-matches #"^[\d|:]$" (char (.-charCode ev)))]
+    (if (nil? match)
+      (do
+        (println (str "rejected char " (.-charCode ev)))
+        false)
+      (do
+        #_(println (str "accepted char " (.-charCode ev)))
+        true)))))
+
+(defn display-string
+  "Return a string display of the time."
+  [time-record]
+  (str (when (:hour time-record)  (pad-zero-number (:hour time-record) 2))
+    (when (:minute time-record)(str ":" (pad-zero-number (:minute time-record) 2)))
+    (when (:second time-record)(str ":" (pad-zero-number (:second time-record) 2)))))
 
 (defn time-updated
   "Check what has been entered is complete. If not, and if possible, complete it. Then update the model."
@@ -309,14 +353,14 @@
       (= length 4) (reset! tmp-model (str @tmp-model "0"))))
   #_(validate-time-string tmp-model min max)
   #_(reset! model @tmp-model)
+  (let [target (.-target ev)
+        input-val (.-value target)
+        time-record (create-time-from-string input-val)]
+    (reset! tmp-model (validated-time-record time-record min max))
+    (set! (.-value target)(display-string @tmp-model)))  ;; Show formatted result
   (if callback (callback @model)))
 
 ;; --- Public function ---
-
-(defn display-string
-  "Return a string display of the time."
-  [time-vector]
-  (time-vector->string time-vector))
 
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
@@ -335,13 +379,12 @@
           [:input
             {:type "text"
              :class "time-entry"
-             :value (display-string @tmp-model)  ;; TODO validate model first
-             :style {:font-size "11px"
-                     :max-width "35px"
-                     :width "35px"
-                     :min-width "35px"}
-            :on-change #(time-changed % tmp-model min max)
-            :on-blur #(time-updated % model tmp-model min max callback)}]))))
+             ;;:value (time-record->string @tmp-model)  ;; TODO validate model first
+             :style (merge {:font-size "11px"
+                            :width "35px"} style)
+             :on-key-press #(key-pressed %)
+             ;;:on-change #(time-changed % tmp-model min max)
+             :on-blur #(time-updated % model tmp-model min max callback)}]))))
 
 (defn time-range-input
   "I return the markup for a pair input boxes which will accept and validate times.

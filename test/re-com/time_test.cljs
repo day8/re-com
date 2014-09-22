@@ -9,10 +9,10 @@
 (def alternate-min [6 0])
 (def alternate-max [21 59])
 ;; TODO remove previous definitions
-(def new-default-min (time/TimeVector. 0 0 0))
-(def new-default-max (time/TimeVector. 23 59 59))
-(def new-alternate-min (time/TimeVector. 6 0 0))
-(def new-alternate-max (time/TimeVector. 21 59 59))
+(def new-default-min (time/TimeRecord. 0 0 0))
+(def new-default-max (time/TimeRecord. 23 59 59))
+(def new-alternate-min (time/TimeRecord. 6 0 0))
+(def new-alternate-max (time/TimeRecord. 21 59 59))
 
 (def time-6-30 (time/create-time :hour 6 :minute 30 :second nil))
 (def time-5-30 (time/create-time :hour 5 :minute 30 :second 0))
@@ -115,16 +115,27 @@
 
 (deftest test-display-string
   (are [expected actual] (= expected actual)
-    "00"       (time/display-string (time/TimeVector. 0 nil nil))
-    "06"        (time/display-string (time/TimeVector. 6 nil nil))
-    "00:00"    (time/display-string (time/TimeVector. 0 0 nil))
-    "01:30"    (time/display-string (time/TimeVector. 1 30 nil))
-    "21:59"    (time/display-string (time/TimeVector. 21 59 nil))
-    "24:30"    (time/display-string (time/TimeVector. 24 30 nil))
-    "00:00:00" (time/display-string (time/TimeVector. 0 0 0))
-    "01:30:10" (time/display-string (time/TimeVector. 1 30 10))
-    "21:59:59" (time/display-string (time/TimeVector. 21 59 59))
-    "24:30:05" (time/display-string (time/TimeVector. 24 30 5))))
+    "00"       (time/display-string (time/TimeRecord. 0 nil nil))
+    "06"        (time/display-string (time/TimeRecord. 6 nil nil))
+    "00:00"    (time/display-string (time/TimeRecord. 0 0 nil))
+    "01:30"    (time/display-string (time/TimeRecord. 1 30 nil))
+    "21:59"    (time/display-string (time/TimeRecord. 21 59 nil))
+    "24:30"    (time/display-string (time/TimeRecord. 24 30 nil))
+    "00:00:00" (time/display-string (time/TimeRecord. 0 0 0))
+    "01:30:10" (time/display-string (time/TimeRecord. 1 30 10))
+    "21:59:59" (time/display-string (time/TimeRecord. 21 59 59))
+    "24:30:05" (time/display-string (time/TimeRecord. 24 30 5))))
+
+(deftest test-time-record->string
+  (are [expected actual] (= expected actual)
+    "0"        (time/time-record->string (time/TimeRecord. 0 nil nil))
+    "6"        (time/time-record->string (time/TimeRecord. 6 nil nil))
+    "11:"      (time/time-record->string (time/TimeRecord. 11 nil nil))
+    "00:0"     (time/time-record->string (time/TimeRecord. 0 0 nil))
+    "01:30"    (time/time-record->string (time/TimeRecord. 1 30 nil))
+    "21:59"    (time/time-record->string (time/TimeRecord. 21 59 nil))
+    "24:30"    (time/time-record->string (time/TimeRecord. 24 30 nil))
+    "00:00:0"  (time/time-record->string (time/TimeRecord. 0 0 0))))
 
 (deftest test-create-time
   (let [tm (time/create-time :hour 23 :minute 30 :second nil)]
@@ -138,27 +149,22 @@
     59 (:minute time-23-59-59)
     59 (:second time-23-59-59))))
 
-(deftest test-string-as-model-values
-  (let [vals (time/string-as-model-values "6")]
+#_(deftest test-string-as-model-values
+  (let [vals (time/string-as-model-values ["6"])]
     (is (= (count vals) 3)  "Expected a 3 element vector")
     (is (= (first vals) 6)  "Expected hours value to be 6")
     (is (nil? (nth vals 1)) "Expected minutes value to be nil")
     (is (nil? (last vals))  "Expected seconds value to be nil"))
-  (let [vals (time/string-as-model-values "06:30")]
+  (let [vals (time/string-as-model-values ["06" "" "30"])]
     (is (= (count vals) 3)  "Expected a 3 element vector")
     (is (= (first vals) 6)  "Expected hours value to be 6")
     (is (= (nth vals 1) 30) "Expected minutes value to be 30")
     (is (nil? (last vals))  "Expected seconds value to be nil"))
-  (let [vals (time/string-as-model-values "06:30:25")]
+  (let [vals (time/string-as-model-values ["6" ":" "30"])]
     (is (= (count vals) 3)  "Expected a 3 element vector")
     (is (= (first vals) 6)  "Expected hours value to be 6")
     (is (= (nth vals 1) 30) "Expected minutes value to be 30")
-    (is (= (last vals) 25)  "Expected seconds value to be 25"))
-  (let [vals (time/string-as-model-values "06:30:25")] ;; This function allows invalid values
-    (is (= (count vals) 3)  "Expected a 3 element vector")
-    (is (= (first vals) 6)  "Expected hours value to be 6")
-    (is (= (nth vals 1) 30) "Expected minutes value to be 30")
-    (is (= (last vals) 25)  "Expected seconds value to be 25")))
+    (is (nil? (last vals))  "Expected seconds value to be nil")))
 
 (deftest test-create-time-from-string
   (let [tm (time/create-time-from-string "6")]
@@ -171,17 +177,22 @@
       6   (:hour tm)
       30  (:minute tm)
       nil (:second tm)))
-  (let [tm (time/create-time-from-string "6:30:55")]
-    (are [expected actual] (= expected actual)
-      6  (:hour tm)
-      30 (:minute tm)
-      55 (:second tm)))
-  (let [tm (time/create-time-from-string "6pm")]
+  (let [tm (time/create-time-from-string "630")]
     (are [expected actual] (= expected actual)
       6   (:hour tm)
-      nil (:minute tm)
+      30  (:minute tm)
       nil (:second tm)))
-  (let [tm (time/create-time-from-string "6:60:75")] ;; Invalid values should be nil
+  (let [tm (time/create-time-from-string "2252")]
+    (are [expected actual] (= expected actual)
+      22  (:hour tm)
+      52  (:minute tm)
+      nil (:second tm)))
+  (let [tm (time/create-time-from-string "22:52")]
+    (are [expected actual] (= expected actual)
+      22  (:hour tm)
+      52  (:minute tm)
+      nil (:second tm)))
+  (let [tm (time/create-time-from-string "6:60")] ;; Invalid values should be nil
     (are [expected actual] (= expected actual)
       6   (:hour tm)
       nil (:minute tm)
@@ -206,14 +217,14 @@
     true (time/validate-minutes (time/create-time :hour 6 :minute 55 :second nil))
     true (time/validate-minutes (time/create-time :hour 6 :minute 0 :second nil))))
 
-(deftest test-validated-time-vector
+(deftest test-validated-time-record
   (are [expected actual] (= expected actual)
-    "06"       (time/time-vector->string (time/validated-time-vector (time/create-time :hour 6 :minute nil :second nil) new-default-min new-default-max))
-    "06:30"    (time/time-vector->string (time/validated-time-vector time-6-30 new-default-min new-default-max))
-    "06:30:55" (time/time-vector->string (time/validated-time-vector (time/create-time :hour 6 :minute 30 :second 55) new-default-min new-default-max))
-    "23:59:59" (time/time-vector->string (time/validated-time-vector (time/create-time :hour 23 :minute 59 :second 59) new-default-min new-default-max))
-    "00"       (time/time-vector->string (time/validated-time-vector (time/create-time :hour 5 :minute 0 :second 0) new-alternate-min new-alternate-max))
-    "00"       (time/time-vector->string (time/validated-time-vector (time/create-time :hour 23 :minute 59 :second 59) new-alternate-min new-alternate-max))))
+    "6"        (time/time-record->string (time/validated-time-record (time/create-time :hour 6 :minute nil :second nil) new-default-min new-default-max))
+    "06:30"    (time/time-record->string (time/validated-time-record time-6-30 new-default-min new-default-max))
+    "06:30:55" (time/time-record->string (time/validated-time-record (time/create-time :hour 6 :minute 30 :second 55) new-default-min new-default-max))
+    "23:59:59" (time/time-record->string (time/validated-time-record (time/create-time :hour 23 :minute 59 :second 59) new-default-min new-default-max))
+    ""         (time/time-record->string (time/validated-time-record (time/create-time :hour 5 :minute 0 :second 0) new-alternate-min new-alternate-max))
+    ""         (time/time-record->string (time/validated-time-record (time/create-time :hour 23 :minute 59 :second 59) new-alternate-min new-alternate-max))))
 
 (deftest test-validated-time-range
   (are [expected actual] (= expected actual)
