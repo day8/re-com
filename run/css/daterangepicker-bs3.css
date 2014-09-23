@@ -247,6 +247,25 @@
   color: #fff;
 }
 
+/* Introduced by Day8 from http://eternicode.github.io/bootstrap-datepicker */
+.daterangepicker td.today, .daterangepicker td.today:hover {
+    background-color: #ffcd70;
+    border-color: #f59e00;
+    color: #fff;
+}
+
+/* Introduced by Day8 */
+.daterangepicker th.selectable {
+    font-weight: normal;
+    color: #357ebd;
+}
+
+/* Introduced by Day8 */
+.daterangepicker th.disabled {
+    font-weight: normal;
+    color: #999;
+}
+
 .daterangepicker td.week, .daterangepicker th.week {
   font-size: 80%;
   color: #ccc;
