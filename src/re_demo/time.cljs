@@ -1,25 +1,20 @@
 (ns re-demo.time
   (:require [re-demo.util    :refer  [title]]
             [re-com.core     :refer [label]]
+            [re-com.util     :refer  [pad-zero-number]]
             [re-com.time     :refer  [time-input time-range-input]]
             [re-com.box      :refer  [h-box v-box box gap line]]
             [reagent.core    :as     reagent]))
-
-(defn pad-zero [subject-str max-chars]  ;; TODO this needs to be a utility method
-  "If subject-str zero pad subject-str from left up to max-chars."
-  (if (< (count subject-str) max-chars)
-  	(apply str (take-last max-chars (concat (repeat max-chars \0) subject-str)))
-  	subject-str))
 
 (defn display-time
   "Return a string display of the time."
   [time-map]
   (str
     (if (:hour time-map)
-      (pad-zero (str (:hour time-map)) 2)
+      (pad-zero-number (str (:hour time-map)) 2)
       "00")
     (if (:minute time-map)
-      (str ":" (pad-zero (str (:minute time-map)) 2))
+      (str ":" (pad-zero-number (str (:minute time-map)) 2))
       ":00")))
 
 (defn single-time []

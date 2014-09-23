@@ -3,7 +3,8 @@
     [reagent.core :as reagent]
     ;;[clairvoyant.core :as trace :include-macros true]  ;; TODO remove clairvoyant - development only
     [clojure.string :as cljstring]
-    [re-com.box      :refer  [h-box gap]]))
+    [re-com.box      :refer  [h-box gap]]
+    [re-com.util :refer [pad-zero-number]]))
 
 
 ; --- Private functions ---
@@ -42,13 +43,13 @@
        vals (filter #(not (nil? %))(rest matches))]
     (create-time-from-vector (map int-from-string vals))))
 
-(defn pad-zero [subject-str max-chars]
+#_(defn pad-zero [subject-str max-chars]
   "If subject-str zero pad subject-str from left up to max-chars."
   (if (< (count subject-str) max-chars)
   	(apply str (take-last max-chars (concat (repeat max-chars \0) subject-str)))
   	subject-str))
 
-(defn pad-zero-number [subject-num max-chars]
+#_(defn pad-zero-number [subject-num max-chars]
   "If subject-num zero pad subject-str from left up to max-chars."
   (pad-zero (str subject-num) max-chars))
 
