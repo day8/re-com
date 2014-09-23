@@ -1,4 +1,4 @@
-(ns re-comp-test.time-test
+(ns re-com-test.time-test
   (:require-macros [cemerick.cljs.test :refer (is are deftest with-test run-tests testing test-var)])
   (:require [cemerick.cljs.test]
             [reagent.core :as reagent]
