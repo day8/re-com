@@ -12,8 +12,6 @@
 (defn create-time
   "Return a TimeRecord. No validation is made for hours."
   [& {:keys [hour minute second]}]
-  ;;(assert (or (nil? minute)(< minute 60)) "Invalid value for minutes")
-  ;;(assert (or (nil? second)(< second 60)) "Invalid value for seconds")
   (TimeRecord. hour minute second))
 
 (defn create-time-from-vector
@@ -49,7 +47,7 @@
   "If subject-num zero pad subject-str from left up to max-chars."
   (pad-zero (str subject-num) max-chars))
 
-(defn time-record->string
+#_(defn time-record->string
   "Return a string to display the time."
   [time-record]
   (str (when (:hour time-record)
@@ -61,6 +59,17 @@
            (str (pad-zero-number (:minute time-record) 2))
            (:minute time-record)))
        (when (:second time-record)(:second time-record))))
+
+(defn time-record->string
+  "Return a string to display the time."
+  [time-record]
+  (str (if (:hour time-record)
+         (str (pad-zero-number (:hour time-record) 2))
+         (:hour time-record))
+       (if (:minute time-record)
+         (str (pad-zero-number (:minute time-record) 2))
+         (:minute time-record))
+       (when (:second time-record)(str (pad-zero-number (:second time-record) 2)))))
 
 ;; --- Validation ---
 
@@ -97,28 +106,34 @@
         maximum (+ (* (:hour max) 100)(:minute max))]
     (if (or (< tm-int minimum)
             (> tm-int maximum))
-      (do
-        (let [tm-string   (str (:hour time-record) ":" (:minute time-record))
-              range-start (str (first min) ":" (last min))
-              range-end   (str (first max) ":" (last max))
-              range-str   (str range-start "-" range-end)]
-          (.warn js/console (str "WARNING: Time " tm-string " is outside range " range-str)))
-        false)
+      false
       true)))
 
 (defn validated-time-record
   "Validate the values in the vector.
   If any are invalid replace them and the following values with nil."
   [time-record min max]
-  (if-not (validate-hours time-record min max)
-    (create-time :hour nil :minute nil second nil)
-    (if-not (validate-minutes time-record)
-      (create-time :hour (:hour time-record) :minute nil second nil)
-      (if-not (validate-seconds time-record)
-        (create-time :hour (:hour time-record) :minute (:minute time-record) second nil)
-        (if-not (validate-time-range time-record min max)
-          (create-time :hour (:hour time-record) :minute (:minute time-record) second nil)
-          time-record)))))
+  (let [tm-string   (str (:hour time-record) ":" (:minute time-record))
+        range-start (str (first min) ":" (last min))
+        range-end   (str (first max) ":" (last max))
+        range-str   (str range-start "-" range-end)]
+    (if-not (validate-hours time-record min max)
+      (do
+        (create-time :hour nil :minute nil second nil)
+        (.info js/console (str "WARNING: Time " tm-string " is outside range " range-str)))
+      (if-not (validate-minutes time-record)
+        (do
+          (create-time :hour (:hour time-record) :minute nil second nil)
+          (.info js/console (str "WARNING: Minutes of " tm-string " are invalid.")))
+        (if-not (validate-seconds time-record)
+          (do
+            (create-time :hour (:hour time-record) :minute (:minute time-record) second nil)
+            (.info js/console (str "WARNING: Seconds of " tm-string " are invalid.")))
+          (if-not (validate-time-range time-record min max)
+            (do
+              (.info js/console (str "WARNING: Time " tm-string " is outside range " range-str))
+              (create-time :hour (:hour time-record) :minute (:minute time-record) second nil))
+            time-record))))))
 
 (defn is-valid
   "Return true if the passed time is valid."
@@ -134,25 +149,44 @@
 
 ;;------------------------------------------------------------------
 
+(defn character-valid?
+  "Return true if the character is valid."
+  [ch]
+  (not (nil? (re-matches #"^[\d|:]$" (str ch)))))
+
 (defn key-pressed
   "Prevent input of invalid characters."
   [ev]
-  (let [target (.-target ev)
-        input-val (.-value target)]
-    (let [match (re-matches #"^[\d|:]$" (char (.-charCode ev)))]
-    (if (nil? match)
-      (do
-        (.info js/console (str "INFO: rejected keyboard input of char " (.-charCode ev)))
-        false)
-      true))))
+  (if (character-valid? (char (.-charCode ev)))
+    true
+    (do
+      (.info js/console (str "INFO: rejected keyboard input of char " (.-charCode ev)))
+      false)))
 
 (defn display-string
   "Return a string display of the time."
   [time-record]
   (str
-    (when (:hour time-record)  (pad-zero-number (:hour time-record) 2))
-    (when (:minute time-record)(str ":" (pad-zero-number (:minute time-record) 2)))
+    (if (:hour time-record)
+      (pad-zero-number (:hour time-record) 2)
+      "00")
+    (if (:minute time-record)
+      (str ":" (pad-zero-number (:minute time-record) 2))
+      ":00")
     (when (:second time-record)(str ":" (pad-zero-number (:second time-record) 2)))))
+
+(defn got-focus
+  [ev tmp-model]
+  (let [target (.-target ev)]
+    (set! (.-value target)(time-record->string @tmp-model))))
+
+(defn time-changed
+  [ev tmp-model min max]
+  (let [target (.-target ev)
+        input-val (.-value target)
+        time-record (create-time-from-string input-val)]
+    (reset! tmp-model (validated-time-record time-record min max))
+    (set! (.-value target)(display-string @tmp-model))))
 
 (defn time-updated
   "Check what has been entered is complete. If not, and if possible, complete it. Then update the model."
@@ -161,9 +195,24 @@
         input-val (.-value target)
         time-record (create-time-from-string input-val)]
     (reset! tmp-model (validated-time-record time-record min max))
-    (set! (.-value target)(display-string @tmp-model)))  ;; Show formatted result
+    (set! (.-value target)(display-string @tmp-model)))
     (reset! model @tmp-model)
   (if callback (callback @model)))  ;; TODO validate
+
+(defn clipboard-paste
+  "Prevent pasting of invalid characters."
+  [ev tmp-model min max]
+  (let [data (.getData (.-clipboardData ev) "text/plain")
+        chrs (seq data)]
+    (if (every? #(character-valid? %) chrs)
+      (do
+        (let [time-record (create-time-from-string data)]
+          (reset! tmp-model (validated-time-record time-record min max)))  ;; TODO this is duplicated code
+        true)
+      (do
+        (.info js/console (str "INFO: rejected paste of '" data "'"))
+        false))))
+
 
 ;; --- Components ---
 
@@ -181,15 +230,21 @@
     (fn [& {:keys [model callback minimum-time maximum-time style]}]
       (let [min (if minimum-time minimum-time (create-time :hour 0 :minute 0 :second 0))
             max (if maximum-time maximum-time (create-time :hour 23 :minute 59 :second 59))]
+        [:span.input-append.bootstrap-timepicker
           [:input
             {:type "text"
              :class "time-entry"
+             :default-value (display-string @tmp-model)  ;; TODO validate model first
              ;;:value (time-record->string @tmp-model)  ;; TODO validate model first
              :style (merge {:font-size "11px"
                             :width "35px"} style)
+             :on-focus #(got-focus % tmp-model)
              :on-key-press #(key-pressed %)
+             :on-paste #(clipboard-paste % tmp-model min max)
              ;;:on-change #(time-changed % tmp-model min max)
-             :on-blur #(time-updated % model tmp-model min max callback)}]))))
+             :on-blur #(time-updated % model tmp-model min max callback)}
+            ;;[:span.add-on [:i.glyphicon.glyphicon-time]]
+           ]]))))
 
 (defn time-range-input
   "I return the markup for a pair input boxes which will accept and validate times.

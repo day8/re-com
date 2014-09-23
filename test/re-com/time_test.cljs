@@ -38,8 +38,8 @@
 
 (deftest test-display-string
   (are [expected actual] (= expected actual)
-    "00"       (time/display-string (time/TimeRecord. 0 nil nil))
-    "06"       (time/display-string (time/TimeRecord. 6 nil nil))
+    "00:00"    (time/display-string (time/TimeRecord. 0 nil nil))
+    "06:00"    (time/display-string (time/TimeRecord. 6 nil nil))
     "00:00"    (time/display-string (time/TimeRecord. 0 0 nil))
     "01:30"    (time/display-string (time/TimeRecord. 1 30 nil))
     "21:59"    (time/display-string (time/TimeRecord. 21 59 nil))
@@ -51,10 +51,11 @@
 
 (deftest test-time-record->string
   (are [expected actual] (= expected actual)
-    "0"        (time/time-record->string (time/TimeRecord. 0 nil nil))
+    "00"        (time/time-record->string (time/TimeRecord. 0 nil nil))
     "6"        (time/time-record->string (time/TimeRecord. 6 nil nil))
     "11"      (time/time-record->string (time/TimeRecord. 11 nil nil))
     "000"     (time/time-record->string (time/TimeRecord. 0 0 nil))
+    "0900"    (time/time-record->string (time/TimeRecord. 9 0 nil))
     "0130"    (time/time-record->string (time/TimeRecord. 1 30 nil))
     "2159"    (time/time-record->string (time/TimeRecord. 21 59 nil))
     "2430"    (time/time-record->string (time/TimeRecord. 24 30 nil))
