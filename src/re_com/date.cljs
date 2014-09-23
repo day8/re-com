@@ -182,10 +182,10 @@
 (defn inline-date-picker
   [& {:keys [model attributes disabled on-change]}]
   ;;TODO: add attribute property handling for :minimum :maximum
-  (let [current       (reagent/atom (first-day-of-the-month @model))
-        configuration (configuration @attributes)]
+  (let [current (reagent/atom (first-day-of-the-month @model))]
     (fn []
+      (let [configuration (configuration @attributes)]
       (main-div-with
         [:table {:class "table-condensed"}
          [table-thead current configuration]
-         [table-tbody @current @model configuration @disabled on-change]]))))
+         [table-tbody @current @model configuration @disabled on-change]])))))
