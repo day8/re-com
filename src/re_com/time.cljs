@@ -14,6 +14,11 @@
   [& {:keys [hour minute second]}]
   (TimeRecord. hour minute second))
 
+(defn create-time-from-map
+  "Return a TimeRecord."
+  [tm-map]
+  (TimeRecord. (:hour tm-map) (:minute tm-map) (:second tm-map)))
+
 (defn create-time-from-vector
   "Return a TimeRecord.
   ASSUMPTION: the vector contains 3 values which are -
@@ -146,9 +151,6 @@
         false
         (validate-time-range time-record min max)))))
 
-
-;;------------------------------------------------------------------
-
 (defn character-valid?
   "Return true if the character is valid."
   [ch]
@@ -196,7 +198,7 @@
         time-record (create-time-from-string input-val)]
     (reset! tmp-model (validated-time-record time-record min max))
     (set! (.-value target)(display-string @tmp-model)))
-    (reset! model @tmp-model)
+    (reset! model {:hour (:hour @tmp-model) :minute (:minute @tmp-model)})
   (if callback (callback @model)))  ;; TODO validate
 
 (defn clipboard-paste
@@ -219,17 +221,17 @@
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
   Required parameters -
-    model - an atom of a time vector
+    model - an atom of a time map like {:hour 9 :minute 30}
   Optional parameters are -
-    minimum-time - default is 00:00:00 - a time vector of minimum hour, minute and second
-    maximum-time - default is 23:59:59 - a element vector of maximum hour, minute and second
+    minimum-time - default is 00:00:00 - a time map like {:hour 9 :minute 30}
+    maximum-time - default is 23:59:59 - a time map like {:hour 9 :minute 30}
     callback - function to call when model has changed - parameter will be the new value
     style - css"
   [& {:keys [model]}]
   (let [tmp-model (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model))]
     (fn [& {:keys [model callback minimum-time maximum-time style]}]
-      (let [min (if minimum-time minimum-time (create-time :hour 0 :minute 0 :second 0))
-            max (if maximum-time maximum-time (create-time :hour 23 :minute 59 :second 59))]
+      (let [min (if minimum-time (create-time-from-map minimum-time) (create-time :hour 0 :minute 0 :second 0))
+            max (if maximum-time (create-time-from-map maximum-time) (create-time :hour 23 :minute 59 :second 59))]
         [:span.input-append.bootstrap-timepicker
           [:input
             {:type "text"
@@ -251,8 +253,8 @@
   Required parameters -
     model - an atom of from and to times [[hr mi][hr mi]]
   Optional parameters are -
-    minimum-time - default is [0 0] - a 2 element vector of minimum hour and minute
-    maximum-time - default is [23 59] - a 2 element vector of maximum hour and minute
+    minimum-time - default is {:hour 0 :minute 0} - a time map like {:hour 9 :minute 30}
+    maximum-time - default is {:hour 23 :minute 59} - time map like {:hour 9 :minute 30}
     callback - function to call when model has changed - parameter will be the new value
     gap - horizontal gap between time inputs - default '4px'
     style - css"

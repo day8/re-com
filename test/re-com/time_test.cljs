@@ -51,15 +51,14 @@
 
 (deftest test-time-record->string
   (are [expected actual] (= expected actual)
-    "00"        (time/time-record->string (time/TimeRecord. 0 nil nil))
-    "6"        (time/time-record->string (time/TimeRecord. 6 nil nil))
+    "00"      (time/time-record->string (time/TimeRecord. 0 nil nil))
+    "06"      (time/time-record->string (time/TimeRecord. 6 nil nil))
     "11"      (time/time-record->string (time/TimeRecord. 11 nil nil))
-    "000"     (time/time-record->string (time/TimeRecord. 0 0 nil))
     "0900"    (time/time-record->string (time/TimeRecord. 9 0 nil))
     "0130"    (time/time-record->string (time/TimeRecord. 1 30 nil))
     "2159"    (time/time-record->string (time/TimeRecord. 21 59 nil))
     "2430"    (time/time-record->string (time/TimeRecord. 24 30 nil))
-    "000"     (time/time-record->string (time/TimeRecord. 0 0 nil))))
+    "0000"    (time/time-record->string (time/TimeRecord. 0 0 nil))))
 
 (deftest test-create-time
   (let [tm (time/create-time :hour 23 :minute 30 :second nil)]
@@ -69,9 +68,17 @@
     (is (nil? (:second tm))))
   (let [tm (time/create-time :hour 23 :minute 30 :second 59)]
     (are [expected actual] (= expected actual)
-    23 (:hour time-23-59-59)
-    59 (:minute time-23-59-59)
-    59 (:second time-23-59-59))))
+      23 (:hour tm)
+      30 (:minute tm)
+      59 (:second tm))))
+
+(deftest test-create-time-from-map
+  (let [tm (time/create-time-from-map{:hour 23 :minute 45})]
+    (are [expected actual] (= expected actual)
+      23 (:hour tm)
+      45 (:minute tm)
+      nil (:second tm))))
+
 
 (deftest test-create-time-from-string
   (let [tm (time/create-time-from-string "6")]
@@ -119,7 +126,7 @@
 
 (deftest test-validated-time-record
   (are [expected actual] (= expected actual)
-    "6"       (time/time-record->string (time/validated-time-record (time/create-time :hour 6 :minute nil :second nil) default-min default-max))
+    "06"      (time/time-record->string (time/validated-time-record (time/create-time :hour 6 :minute nil :second nil) default-min default-max))
     "0630"    (time/time-record->string (time/validated-time-record time-6-30 default-min default-max))
     "2359"    (time/time-record->string (time/validated-time-record (time/create-time :hour 23 :minute 59 :second nil) default-min default-max))
     ""        (time/time-record->string (time/validated-time-record (time/create-time :hour 5 :minute 0 :second 0) alternate-min alternate-max))
