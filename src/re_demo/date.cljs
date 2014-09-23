@@ -2,7 +2,7 @@
   (:require [re-demo.util         :refer  [title]]
             [cljs-time.core       :refer  [now]]
             [re-com.core          :refer  [label checkbox]]
-            [re-com.date          :refer  [inline-date-picker ->previous-sunday]]
+            [re-com.date          :refer  [inline-picker dropdown-picker previous-sunday]]
             [re-com.box           :refer  [h-box v-box box gap line border]]
             [reagent.core         :as     reagent]))
 
@@ -10,8 +10,8 @@
   []
   (let [model1      (reagent/atom (now))
         model2      (reagent/atom (now))
-        model3      (reagent/atom (->previous-sunday (now)))
-        model4      (reagent/atom (->previous-sunday (now)))
+        model3      (reagent/atom (previous-sunday (now)))
+        model4      (reagent/atom (previous-sunday (now)))
         disabled?   (reagent/atom false)
         show-today? (reagent/atom true)
         show-weeks? (reagent/atom false)
@@ -46,39 +46,39 @@
                              :model show-today?
                              :on-change #(do
                                           (reset! show-today? %)
-                                          (reset! attributes1 (assoc @attributes1 :show-today @show-today?))
-                                          (reset! attributes2 (assoc @attributes2 :show-today @show-today?))
-                                          (reset! attributes3 (assoc @attributes3 :show-today @show-today?))
-                                          (reset! attributes4 (assoc @attributes4 :show-today @show-today?)))]
+                                          (swap! attributes1 assoc :show-today @show-today?)
+                                          (swap! attributes2 assoc :show-today @show-today?)
+                                          (swap! attributes3 assoc :show-today @show-today?)
+                                          (swap! attributes4 assoc :show-today @show-today?))]
                             [checkbox
                              :label "Show weeks"
                              :model show-weeks?
                              :on-change #(do
                                           (reset! show-weeks? %)
-                                          (reset! attributes1 (assoc @attributes1 :show-weeks @show-weeks?))
-                                          (reset! attributes2 (assoc @attributes2 :show-weeks @show-weeks?))
-                                          (reset! attributes3 (assoc @attributes3 :show-weeks @show-weeks?))
-                                          (reset! attributes4 (assoc @attributes4 :show-weeks @show-weeks?)))]
+                                          (swap! attributes1 assoc :show-weeks @show-weeks?)
+                                          (swap! attributes2 assoc :show-weeks @show-weeks?)
+                                          (swap! attributes3 assoc :show-weeks @show-weeks?)
+                                          (swap! attributes4 assoc :show-weeks @show-weeks?))]
                             ]]
                 [h-box
                 :gap "20px"
                 :align :start
-                :children [[inline-date-picker
+                :children [[inline-picker
                             :model      model1       ;; atom / value TODO: Maybe just pass in an ISO date like min/max
                             :attributes attributes1  ;; atom / value
                             :disabled   disabled?    ;; navigation will be allowed, selection not. atom /value
                             :on-change  #(reset! model1 %)]
-                           [inline-date-picker
+                           [inline-picker
                             :model      model2       ;; atom / value TODO: Maybe just pass in an ISO date like min/max
                             :attributes attributes2  ;; atom / value
                             :disabled   disabled?    ;; navigation will be allowed, selection not. atom /value
                             :on-change #(reset! model2 %)]
-                           [inline-date-picker
+                           [inline-picker
                             :model      model3       ;; atom / value TODO: Maybe just pass in an ISO date like min/max
                             :attributes attributes3  ;; atom / value
                             :disabled   disabled?    ;; navigation will be allowed, selection not. atom /value
                             :on-change #(reset! model3 %)]
-                           [inline-date-picker
+                           [inline-picker
                             :model      model4       ;; atom / value TODO: Maybe just pass in an ISO date like min/max
                             :attributes attributes4  ;; atom / value
                             :disabled   disabled?    ;; navigation will be allowed, selection not. atom /value
@@ -87,16 +87,18 @@
 
 (defn popup-date
   []
-  ;;TODO: pop-up date reuses inline-date-picker and adds the following API for wrapper conponent
   (let [model (reagent/atom (now))]
     [v-box
      :gap "20px"
      :align :start
      :children [[title "Popup Date"]
                 ;; API same as inline-date-picker above + as follows:
-                ;; :direction     :top-left  ;; :top-left , :bottom-right etc
-                ;; :auto-colapse  true
-                 ]]))
+                ;; :direction      :top-left  ;; :top-left , :bottom-right etc
+                ;; :auto-collapse  true
+                [dropdown-picker
+                 :model     model
+                 :disabled  false
+                 :on-change #(reset! model %)]]]))
 
 (defn panel
   []

@@ -9,7 +9,7 @@
                                   before? after?]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
-    [re-com.box           :refer [box border]]
+    [re-com.box           :refer [box border h-box]]
     [re-com.util          :as    util]
     [clojure.string       :as    string]
     [reagent.core         :as    reagent]))
@@ -20,6 +20,8 @@
 (def ^:private month-format (formatter "MMM yyyy"))
 
 (def ^:private week-format (formatter "ww"))
+
+(def ^:private date-format (formatter "yyyy MMM dd"))
 
 (defn- iso8601->date [iso8601]
   (when (seq iso8601)
@@ -33,7 +35,7 @@
 
 (defn- inc-date [date n] (plus date (days n)))
 
-(defn- ->previous-sunday
+(defn- previous-sunday
   "If passed date is not a sunday, return the nearest previous sunday date"
   [date]
   (if (sunday? date)
@@ -69,7 +71,8 @@
                            :style {:font-size "13px"
                                        :position "static"
                                        :-webkit-user-select "none" ;; only good on webkit/chrome what do we do for firefox etc
-                             }} table-div]]])
+                             }}
+                   table-div]]])
 
 
 (defn- table-thead
@@ -157,7 +160,7 @@
   "Return matrix of 6 rows x 7 cols table cells representing 41 days from start-date inclusive"
   [current selected attributes disabled on-change]
   {:pre [(and (seq (:enabled-days attributes)) ((:enabled-days attributes) (day-of-week selected)))]}
-  (let [current-start   (->previous-sunday current)
+  (let [current-start   (previous-sunday current)
         focus-month     (month current)
         row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
     (into [:tbody] (map #(table-tr % focus-month selected attributes disabled on-change) row-start-dates))))
@@ -179,13 +182,33 @@
                        :maximum maximum})))
 
 
-(defn inline-date-picker
+(defn inline-picker
   [& {:keys [model attributes disabled on-change]}]
-  ;;TODO: add attribute property handling for :minimum :maximum
   (let [current (reagent/atom (first-day-of-the-month @model))]
-    (fn []
+    (fn
+      []
       (let [configuration (configuration @attributes)]
       (main-div-with
         [:table {:class "table-condensed"}
          [table-thead current configuration]
          [table-tbody @current @model configuration @disabled on-change]])))))
+
+
+(trace-forms {:tracer default-tracer}
+(defn dropdown-picker
+  [& {:keys [model attributes disabled on-change]}]
+  ;;TODO: some temporary explicit styling overrides bellow
+  ;;TODO: does not popup anything just yet.
+  (let [shown? (reagent/atom false)]
+    (fn
+      []
+      [:div {:class "input-group date"
+             :style {:display "flex"
+                     :flex "none"}}
+       [h-box
+        :align :center
+        :children [[:label {:class "form-control"
+                            :style {:font-size "13px" :font-weight "normal"}}
+                    (unparse date-format @model)]
+                   [:span {:class "input-group-addon" :style {:width "40px" :height "34px"}}
+                    [:i {:class "glyphicon glyphicon-th"}]]]]]))))
