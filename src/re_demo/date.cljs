@@ -14,20 +14,7 @@
         model4      (reagent/atom (previous-sunday (now)))
         disabled?   (reagent/atom false)
         show-today? (reagent/atom true)
-        show-weeks? (reagent/atom false)
-        attributes1 (reagent/atom {
-                                   :minimum      nil        ;; optional inclusive ISO8601
-                                   :maximum      nil        ;; optional inclusive ISO8601
-                                   :show-weeks   @show-weeks?
-                                   :show-today   @show-today?
-                                   ;:enabled-days #{:Su}    ;; optional set or nil for all
-                                   })
-        attributes2 (reagent/atom (merge @attributes1 {:enabled-days #{:Mo :Tu :We :Th :Fr}}))
-        attributes3 (reagent/atom (merge @attributes1 {:enabled-days #{:Su}}))
-        attributes4 (reagent/atom (merge @attributes1 {:enabled-days #{:Su}
-                                                       :minimum "20140831"
-                                                       :maximum "20141019"}))
-        ]
+        show-weeks? (reagent/atom false)]
     (fn []
     [v-box
      :gap "20px"
@@ -44,45 +31,44 @@
                             [checkbox
                              :label "Show today"
                              :model show-today?
-                             :on-change #(do
-                                          (reset! show-today? %)
-                                          (swap! attributes1 assoc :show-today @show-today?)
-                                          (swap! attributes2 assoc :show-today @show-today?)
-                                          (swap! attributes3 assoc :show-today @show-today?)
-                                          (swap! attributes4 assoc :show-today @show-today?))]
+                             :on-change #(reset! show-today? %)]
                             [checkbox
                              :label "Show weeks"
                              :model show-weeks?
-                             :on-change #(do
-                                          (reset! show-weeks? %)
-                                          (swap! attributes1 assoc :show-weeks @show-weeks?)
-                                          (swap! attributes2 assoc :show-weeks @show-weeks?)
-                                          (swap! attributes3 assoc :show-weeks @show-weeks?)
-                                          (swap! attributes4 assoc :show-weeks @show-weeks?))]
+                             :on-change #(reset! show-weeks? %)]
                             ]]
                 [h-box
                 :gap "20px"
                 :align :start
                 :children [[inline-picker
-                            :model      model1       ;; atom / value TODO: Maybe just pass in an ISO date like min/max
-                            :attributes attributes1  ;; atom / value
-                            :disabled   disabled?    ;; navigation will be allowed, selection not. atom /value
-                            :on-change  #(reset! model1 %)]
+                            :model        model1
+                            :disabled     disabled?
+                            :show-today   @show-today?
+                            :show-weeks   @show-weeks?
+                            :on-change    #(reset! model1 %)]
                            [inline-picker
-                            :model      model2       ;; atom / value TODO: Maybe just pass in an ISO date like min/max
-                            :attributes attributes2  ;; atom / value
-                            :disabled   disabled?    ;; navigation will be allowed, selection not. atom /value
-                            :on-change #(reset! model2 %)]
+                            :model        model2
+                            :show-today   @show-today?
+                            :show-weeks   @show-weeks?
+                            :enabled-days #{:Mo :Tu :We :Th :Fr}
+                            :disabled     disabled?
+                            :on-change    #(reset! model2 %)]
                            [inline-picker
-                            :model      model3       ;; atom / value TODO: Maybe just pass in an ISO date like min/max
-                            :attributes attributes3  ;; atom / value
-                            :disabled   disabled?    ;; navigation will be allowed, selection not. atom /value
-                            :on-change #(reset! model3 %)]
+                            :model        model3
+                            :show-today   @show-today?
+                            :show-weeks   @show-weeks?
+                            :enabled-days #{:Su}
+                            :disabled     disabled?
+                            :on-change    #(reset! model3 %)]
                            [inline-picker
-                            :model      model4       ;; atom / value TODO: Maybe just pass in an ISO date like min/max
-                            :attributes attributes4  ;; atom / value
-                            :disabled   disabled?    ;; navigation will be allowed, selection not. atom /value
-                            :on-change #(reset! model4 %)]
+                            :model        model4
+                            :minimum      "20140831"
+                            :maximum      "20141019"
+                            :show-today   @show-today?
+                            :show-weeks   @show-weeks?
+                            :enabled-days #{:Su}
+                            :disabled     disabled?
+                            :on-change    #(reset! model4 %)]
                            ]]]])))
 
 (defn popup-date

@@ -10,7 +10,7 @@
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [box border h-box]]
-    [re-com.util          :as    util]
+    [re-com.util          :refer [real-value]]
     [clojure.string       :as    string]
     [reagent.core         :as    reagent]))
 
@@ -166,7 +166,7 @@
     (into [:tbody] (map #(table-tr % focus-month selected attributes disabled on-change) row-start-dates))))
 
 
-(defn- configuration
+(defn- configure
   "Augment passed attributes with extra info/defaults."
   [attributes]
   (let [enabled-days (->> (if (seq (:enabled-days attributes))
@@ -174,8 +174,8 @@
                             #{:Su :Mo :Tu :We :Th :Fr :Sa})
                           (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}))
                           set)
-        minimum      (->> (:minimum attributes) iso8601->date)
-        maximum      (->> (:maximum attributes) iso8601->date)]
+        minimum      (-> (:minimum attributes) iso8601->date)
+        maximum      (-> (:maximum attributes) iso8601->date)]
     (merge attributes {:enabled-days enabled-days
                        :today (now)
                        :minimum minimum
@@ -183,20 +183,30 @@
 
 
 (defn inline-picker
-  [& {:keys [model attributes disabled on-change]}]
-  (let [current (reagent/atom (first-day-of-the-month @model))]
+  ;; API
+  ;;  :model         - goog.date.UtcDateTime can be reagent/atom.
+  ;;                   The calendar will be focused on corresponding date and the date represents selection.
+  ;;  :enabled-days  - set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
+  ;;  :disabled      - boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
+  ;;  :on-change     - function callback will be passed new selected goog.date.UtcDateTime
+  ;;  :show-weeks    - boolean. When true, first column shows week numbers.
+  ;;  :show-today    - boolean. When true, today's date is highlighted. Selected day highlight takes precence.
+  ;;  :minimum       - Optional ISO8601 date (YYYYMMDD) inclusive beyond which navigation and selection will be blocked.
+  ;;  :maximum       - Optional ISO8601 date (YYYYMMDD) inclusive beyond which navigation and selection will be blocked.
+
+  [& {:keys [model]}]
+  (let [current (-> (real-value model) first-day-of-the-month reagent/atom)]
     (fn
-      []
-      (let [configuration (configuration @attributes)]
-      (main-div-with
-        [:table {:class "table-condensed"}
-         [table-thead current configuration]
-         [table-tbody @current @model configuration @disabled on-change]])))))
+      [& {:keys [model disabled on-change] :as properties}]
+      (let [configuration (configure properties)]
+        (main-div-with
+          [:table {:class "table-condensed"}
+           [table-thead current configuration]
+           [table-tbody @current (real-value model) configuration (real-value disabled) on-change]])))))
 
 
-(trace-forms {:tracer default-tracer}
 (defn dropdown-picker
-  [& {:keys [model attributes disabled on-change]}]
+  [& {:keys [model]}]
   ;;TODO: some temporary explicit styling overrides bellow
   ;;TODO: does not popup anything just yet.
   (let [shown? (reagent/atom false)]
@@ -211,4 +221,4 @@
                             :style {:font-size "13px" :font-weight "normal"}}
                     (unparse date-format @model)]
                    [:span {:class "input-group-addon" :style {:width "40px" :height "34px"}}
-                    [:i {:class "glyphicon glyphicon-th"}]]]]]))))
+                    [:i {:class "glyphicon glyphicon-th"}]]]]])))
