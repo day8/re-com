@@ -1,6 +1,7 @@
 (ns re-demo.date
   (:require [re-demo.util         :refer  [title]]
             [cljs-time.core       :refer  [now]]
+            [cljs-time.format     :refer  [parse unparse formatters formatter]]
             [re-com.core          :refer  [label checkbox]]
             [re-com.date          :refer  [inline-picker dropdown-picker previous-sunday]]
             [re-com.box           :refer  [h-box v-box box gap line border]]
@@ -73,18 +74,26 @@
 
 (defn popup-date
   []
-  (let [model (reagent/atom (now))]
+  (let [example-date (parse (formatters :basic-date) "20140914") ;; A sunday. Must be one of :enabled-days
+        model        (reagent/atom example-date)]
     [v-box
      :gap "20px"
      :align :start
      :children [[title "Popup Date"]
-                ;; API same as inline-date-picker above + as follows:
+                ;; API same as inline-date-picker above + following:
                 ;; :direction      :top-left  ;; :top-left , :bottom-right etc
                 ;; :auto-collapse  true
-                [dropdown-picker
-                 :model     model
-                 :disabled  false
-                 :on-change #(reset! model %)]]]))
+                [h-box
+                 :size "auto"
+                 :align :start
+                 :children [[gap :size "100px"]
+                            [dropdown-picker
+                             :model        model
+                             :show-weeks   true
+                             :show-today   true
+                             :enabled-days #{:Su}
+                             :disabled     false
+                             :on-change    #(reset! model %)]]]]]))
 
 (defn panel
   []

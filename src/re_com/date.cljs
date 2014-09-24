@@ -11,7 +11,7 @@
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [box border h-box]]
     [re-com.util          :refer [real-value]]
-    [clojure.string       :as    string]
+    [re-com.popover       :refer [popover make-button make-link]]
     [reagent.core         :as    reagent]))
 
 ;; --- private cljs-time facades ----------------------------------------------
@@ -68,10 +68,10 @@
                    {:class "calendar-date daterangepicker opensleft show-calendar"
                            ;; override inherrited body larger 14px font-size
                            ;; override position from css because we are inline
-                           :style {:font-size "13px"
-                                       :position "static"
-                                       :-webkit-user-select "none" ;; only good on webkit/chrome what do we do for firefox etc
-                             }}
+                    :style {:font-size "13px"
+                            :position "static"
+                            :-webkit-user-select "none" ;; only good on webkit/chrome what do we do for firefox etc
+                            }}
                    table-div]]])
 
 
@@ -204,21 +204,50 @@
            [table-thead current configuration]
            [table-tbody @current (real-value model) configuration (real-value disabled) on-change]])))))
 
+(defn- anchor-button
+  [& {:keys [model]}]
+  [:div {:class "input-group date"
+         :style {:display "flex"
+                 :flex "none"}}
+   [h-box
+    :align :center
+    :children [[:label {:class "form-control"
+                        :style {:font-size "13px" :font-weight "normal"}}
+                (unparse date-format @model)]
+               [:span {:class "input-group-addon" :style {:width "40px" :height "34px"}}
+                [:i {:class "glyphicon glyphicon-th"}]]]]])
+
+
+(defn- anchor-button
+  [shown? model]
+  "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
+  ;;TODO: some temporary explicit styling overrides bellow should go into css etc
+  [:div {:class    "input-group date"
+         :style    {:display             "flex"
+                    :flex                "none"
+                    :-webkit-user-select "none"}
+         :on-click #(reset! shown? (not @shown?))}
+   [h-box
+    :align :center
+    :children [[:label {:class "form-control"
+                        :style {:font-size "13px" :font-weight "normal"}}
+                (unparse date-format @model)]
+               [:span {:class "input-group-addon" :style {:width "40px" :height "34px"}}
+                [:i {:class "glyphicon glyphicon-th"}]]]]])
+
 
 (defn dropdown-picker
-  [& {:keys [model]}]
-  ;;TODO: some temporary explicit styling overrides bellow
-  ;;TODO: does not popup anything just yet.
+  []
+  ;;TODO: parameterise internal calendar border.
+  ;;TODO: implement auto-collapse on selection by wrapping passed on-change handler and reset shown? atom ?
+  ;;TODO: flattening of pass through args map is a little obscure
   (let [shown? (reagent/atom false)]
     (fn
-      []
-      [:div {:class "input-group date"
-             :style {:display "flex"
-                     :flex "none"}}
-       [h-box
-        :align :center
-        :children [[:label {:class "form-control"
-                            :style {:font-size "13px" :font-weight "normal"}}
-                    (unparse date-format @model)]
-                   [:span {:class "input-group-addon" :style {:width "40px" :height "34px"}}
-                    [:i {:class "glyphicon glyphicon-th"}]]]]])))
+      [& {:keys [model] :as passthrough-args}]
+      [popover
+       :position :below-center
+       :showing? shown?
+       :options {:arrow-length 0 :arrow-width 0}
+       :anchor  [anchor-button shown? model]
+       :on-click #(reset! shown? (not @shown?))
+       :popover {:body [#(->> passthrough-args vec flatten (into [inline-picker]))]}])))
