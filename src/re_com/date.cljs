@@ -65,7 +65,7 @@
            :radius "4px"
            :border (when hide-border "none")
            :child [:div
-                   {:class "calendar-date daterangepicker opensleft show-calendar"
+                   {:class "calendar-date daterangepicker show-calendar"
                            ;; override inherrited body larger 14px font-size
                            ;; override position from css because we are inline
                     :style {:font-size "13px"
@@ -208,20 +208,6 @@
 
 
 (defn- anchor-button
-  [& {:keys [model]}]
-  [:div {:class "input-group date"
-         :style {:display "flex"
-                 :flex "none"}}
-   [h-box
-    :align :center
-    :children [[:label {:class "form-control"
-                        :style {:font-size "13px" :font-weight "normal"}}
-                (unparse date-format @model)]
-               [:span {:class "input-group-addon" :style {:width "40px" :height "34px"}}
-                [:i {:class "glyphicon glyphicon-th"}]]]]])
-
-
-(defn- anchor-button
   [shown? model]
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   ;;TODO: some temporary explicit styling overrides bellow should go into css etc
@@ -254,4 +240,4 @@
          :showing? shown?
          :options {:arrow-length 0 :arrow-width 0}
          :anchor  [anchor-button shown? model]
-         :popover {:body [#(into [inline-picker] passthrough-args)]}]))))
+         :popover {:body (into [inline-picker] passthrough-args)}]))))
