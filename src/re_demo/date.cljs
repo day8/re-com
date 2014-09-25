@@ -74,26 +74,50 @@
 
 (defn popup-date
   []
+  ;; API same as inline-date-picker above + following:
+  ;; :direction      :top-left  ;; :top-left , :bottom-right etc
+  ;; :auto-collapse  true
   (let [example-date (parse (formatters :basic-date) "20140914") ;; A sunday. Must be one of :enabled-days
-        model        (reagent/atom example-date)]
-    [v-box
-     :gap "20px"
-     :align :start
-     :children [[title "Popup Date"]
-                ;; API same as inline-date-picker above + following:
-                ;; :direction      :top-left  ;; :top-left , :bottom-right etc
-                ;; :auto-collapse  true
-                [h-box
-                 :size "auto"
-                 :align :start
-                 :children [[gap :size "100px"]
-                            [dropdown-picker
-                             :model        model
-                             :show-weeks   true
-                             :show-today   true
-                             :enabled-days #{:Su}
-                             :disabled     false
-                             :on-change    #(reset! model %)]]]]]))
+        model        (reagent/atom example-date)
+        disabled?    (reagent/atom false)
+        show-today?  (reagent/atom true)
+        show-weeks?  (reagent/atom true)]
+    (fn
+      []
+      [v-box
+       :gap "5px"
+       :align :start
+       :children [[title "Popup Date"]
+                  [h-box
+                   :gap "20px"
+                   :align :start
+                   :children [[label :label "options: "]
+                              [checkbox
+                               :label "Disabled"
+                               :model disabled?
+                               :on-change #(reset! disabled? %)]
+                              [checkbox
+                               :label "Show today"
+                               :model show-today?
+                               :on-change #(reset! show-today? %)]
+                              [checkbox
+                               :label "Show weeks"
+                               :model show-weeks?
+                               :on-change #(reset! show-weeks? %)]]]
+                  [:label
+                   {:style {:font-size "12px" :font-weight "normal"}}
+                   "(show today & show weeks won't refresh while dropped down)"]
+                  [h-box
+                   :size "auto"
+                   :align :start
+                   :children [[gap :size "100px"]
+                              [dropdown-picker
+                               :model        model
+                               :show-today   @show-today?
+                               :show-weeks   @show-weeks?
+                               :enabled-days #{:Su}
+                               :disabled     disabled?
+                               :on-change    #(reset! model %)]]]]])))
 
 (defn panel
   []

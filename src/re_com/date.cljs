@@ -59,11 +59,11 @@
 
 
 (defn- main-div-with
-  [table-div]
-  ;;TODO: At some point add arg to optionaly turn off border
+  [table-div hide-border]
   [box
    :child [border
            :radius "4px"
+           :border (when hide-border "none")
            :child [:div
                    {:class "calendar-date daterangepicker opensleft show-calendar"
                            ;; override inherrited body larger 14px font-size
@@ -191,18 +191,21 @@
   ;;  :on-change     - function callback will be passed new selected goog.date.UtcDateTime
   ;;  :show-weeks    - boolean. When true, first column shows week numbers.
   ;;  :show-today    - boolean. When true, today's date is highlighted. Selected day highlight takes precence.
+  ;;  :hide-border   - boolean. Default false.
   ;;  :minimum       - Optional ISO8601 date (YYYYMMDD) inclusive beyond which navigation and selection will be blocked.
   ;;  :maximum       - Optional ISO8601 date (YYYYMMDD) inclusive beyond which navigation and selection will be blocked.
 
   [& {:keys [model]}]
   (let [current (-> (real-value model) first-day-of-the-month reagent/atom)]
     (fn
-      [& {:keys [model disabled on-change] :as properties}]
+      [& {:keys [model disabled hide-border on-change] :as properties}]
       (let [configuration (configure properties)]
         (main-div-with
           [:table {:class "table-condensed"}
            [table-thead current configuration]
-           [table-tbody @current (real-value model) configuration (real-value disabled) on-change]])))))
+           [table-tbody @current (real-value model) configuration (real-value disabled) on-change]]
+          hide-border)))))
+
 
 (defn- anchor-button
   [& {:keys [model]}]
@@ -238,16 +241,17 @@
 
 (defn dropdown-picker
   []
-  ;;TODO: parameterise internal calendar border.
   ;;TODO: implement auto-collapse on selection by wrapping passed on-change handler and reset shown? atom ?
-  ;;TODO: flattening of pass through args map is a little obscure
   (let [shown? (reagent/atom false)]
     (fn
       [& {:keys [model] :as passthrough-args}]
-      [popover
-       :position :below-center
-       :showing? shown?
-       :options {:arrow-length 0 :arrow-width 0}
-       :anchor  [anchor-button shown? model]
-       :on-click #(reset! shown? (not @shown?))
-       :popover {:body [#(->> passthrough-args vec flatten (into [inline-picker]))]}])))
+      (let [passthrough-args (->> passthrough-args
+                                  (merge {:hide-border true}) ;; apply defaults
+                                  vec
+                                  flatten)]
+        [popover
+         :position :below-center
+         :showing? shown?
+         :options {:arrow-length 0 :arrow-width 0}
+         :anchor  [anchor-button shown? model]
+         :popover {:body [#(into [inline-picker] passthrough-args)]}]))))
