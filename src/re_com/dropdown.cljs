@@ -12,14 +12,14 @@
 
 (defn find-option-index
   [options id]
-  "In a vector of maps (where each map has an :id), return the index of the first map containing the id parameter
+  "In a vector of maps (where each map has an :id), return the index of the first map containing the id parameter.
    Returns nil if id not found."
   (let [index-fn (fn [index item] (when (= (:id item) id) index))
         index-of-id (first (keep-indexed index-fn options))]
     index-of-id))
 
 
-(defn move-to-new-option
+(defn- move-to-new-option
   [options id offset]
   "In a vector of maps (where each map has an :id), return the id of the option offset posititions away
    from id (usually +1 or -1 to go to next/previous). Also accepts :start and :end."
@@ -58,19 +58,21 @@
     @new-opts))
 
 
-(defn- filter-options
+(defn filter-options
   "Filter a list of options based on a filter string using plain string searches (case insensitive). Less powerful
    than regex's but no confusion with reserved characters."
   [options filter-text]
   (let [lower-filter-text (string/lower-case filter-text)
         filter-fn         (fn [opt]
-                            (or
-                              (>= (.indexOf (string/lower-case (:group opt)) lower-filter-text) 0)
-                              (>= (.indexOf (string/lower-case (str (:label opt))) lower-filter-text) 0)))] ;; Need str for non-string labels like hiccup
+                            (let [group (if (nil? (:group opt)) "" (:group opt))
+                                  label (str (:label opt))] ;; Need str for non-string labels like hiccup
+                              (or
+                                (>= (.indexOf (string/lower-case group) lower-filter-text) 0)
+                                (>= (.indexOf (string/lower-case label) lower-filter-text) 0))))]
     (filter filter-fn options)))
 
 
-(defn- filter-options-regex
+(defn filter-options-regex
   "Filter a list of options based on a filter string using regex's (case insensitive). More powerful but can cause
    confusion for users entering reserved characters such as [ ] * + . ( ) etc."
   [options filter-text]
@@ -81,6 +83,13 @@
                              (when-not (nil? re)
                                (or (.test re (:group opt)) (.test re (:label opt)))))
                            re)]
+    (filter filter-fn options)))
+
+
+(defn filter-options-by-keyword
+  "Filter a list of options extra data within the options vector."
+  [options keyword value]
+  (let [filter-fn (fn [opt] (>= (.indexOf (keyword opt) value) 0))]
     (filter filter-fn options)))
 
 
@@ -176,12 +185,17 @@
   [& {:keys [model]}]
   "Render a single dropdown component which emulates the bootstrap-choosen style."
   (let [tmp-model     (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model)) ;; Create a new atom from the model value passed in for use with keyboard actions
+        ext-model     (reagent/atom @tmp-model) ;; Holds the last known external value of model, to detect external model changes
         drop-showing? (reagent/atom false)
         filter-text   (reagent/atom "")]
     (fn [& {:keys [options model on-select disabled filter-box regex-filter placeholder width max-height tab-index]}]
       (let [options          (if (satisfies? cljs.core/IDeref options) @options options)
-            save-model       (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model))
             disabled         (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
+            regex-filter     (if (satisfies? cljs.core/IDeref regex-filter) @regex-filter regex-filter)
+            latest-model     (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model))
+            _                (when (not= @ext-model @latest-model) ;; Has model changed externally?
+                               (reset! ext-model @latest-model)
+                               (reset! tmp-model @latest-model))
             changeable       (and on-select (not disabled))
             callback         #(do
                                (reset! tmp-model %)
@@ -191,7 +205,7 @@
             cancel           #(do
                                (reset! drop-showing? false)
                                (reset! filter-text "")
-                               (reset! tmp-model @save-model))
+                               (reset! tmp-model @ext-model)) ;; Was save-model
             dropdown-click   #(when-not disabled
                                (reset! drop-showing? (not @drop-showing?)))
             filtered-options (if regex-filter
