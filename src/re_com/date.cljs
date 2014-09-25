@@ -221,7 +221,8 @@
     :children [[:label {:class "form-control"
                         :style {:font-size "13px" :font-weight "normal"}}
                 (unparse date-format @model)]
-               [:span {:class "input-group-addon" :style {:width "40px" :height "34px"}}
+               [:span {:class "input-group-addon"
+                       :style {:width "40px" :height "34px"}}
                 [:i {:class "glyphicon glyphicon-th"}]]]]])
 
 
@@ -238,6 +239,6 @@
         [popover
          :position :below-center
          :showing? shown?
-         :options {:arrow-length 0 :arrow-width 0}
+         :options {:arrow-length 0 :arrow-width 0 :margin-left "-33px" :margin-top "3px"}
          :anchor  [anchor-button shown? model]
          :popover {:body (into [inline-picker] passthrough-args)}]))))

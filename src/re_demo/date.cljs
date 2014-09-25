@@ -110,7 +110,7 @@
                   [h-box
                    :size "auto"
                    :align :start
-                   :children [[gap :size "100px"]
+                   :children [[gap :size "120px"]
                               [dropdown-picker
                                :model        model
                                :show-today   @show-today?
