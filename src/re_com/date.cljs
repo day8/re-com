@@ -14,7 +14,7 @@
     [re-com.popover       :refer [popover make-button make-link]]
     [reagent.core         :as    reagent]))
 
-;; --- private cljs-time facades ----------------------------------------------
+;; --- cljs-time facades ------------------------------------------------------
 ;; TODO: from day8date should be a common lib
 
 (def ^:private month-format (formatter "MMM yyyy"))
@@ -23,7 +23,7 @@
 
 (def ^:private date-format (formatter "yyyy MMM dd"))
 
-(defn- iso8601->date [iso8601]
+(defn iso8601->date [iso8601]
   (when (seq iso8601)
     (parse (formatters :basic-date) iso8601)))
 
@@ -35,7 +35,7 @@
 
 (defn- inc-date [date n] (plus date (days n)))
 
-(defn- previous-sunday
+(defn previous-sunday
   "If passed date is not a sunday, return the nearest previous sunday date"
   [date]
   (if (sunday? date)
@@ -173,13 +173,9 @@
                             (:enabled-days attributes)
                             #{:Su :Mo :Tu :We :Th :Fr :Sa})
                           (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}))
-                          set)
-        minimum      (-> (:minimum attributes) iso8601->date)
-        maximum      (-> (:maximum attributes) iso8601->date)]
+                          set)]
     (merge attributes {:enabled-days enabled-days
-                       :today (now)
-                       :minimum minimum
-                       :maximum maximum})))
+                       :today (now)})))
 
 
 (defn inline-picker
@@ -192,8 +188,8 @@
   ;;  :show-weeks    - boolean. When true, first column shows week numbers.
   ;;  :show-today    - boolean. When true, today's date is highlighted. Selected day highlight takes precence.
   ;;  :hide-border   - boolean. Default false.
-  ;;  :minimum       - Optional ISO8601 date (YYYYMMDD) inclusive beyond which navigation and selection will be blocked.
-  ;;  :maximum       - Optional ISO8601 date (YYYYMMDD) inclusive beyond which navigation and selection will be blocked.
+  ;;  :minimum       - optional goog.date.UtcDateTime inclusive beyond which navigation & selection will be blocked.
+  ;;  :maximum       - optional goog.date.UtcDateTime inclusive beyond which navigation & selection will be blocked.
 
   [& {:keys [model]}]
   (let [current (-> (real-value model) first-day-of-the-month reagent/atom)]

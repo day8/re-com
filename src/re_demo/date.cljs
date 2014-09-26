@@ -3,7 +3,7 @@
             [cljs-time.core       :refer  [now]]
             [cljs-time.format     :refer  [parse unparse formatters formatter]]
             [re-com.core          :refer  [label checkbox]]
-            [re-com.date          :refer  [inline-picker dropdown-picker previous-sunday]]
+            [re-com.date          :refer  [inline-picker dropdown-picker previous-sunday iso8601->date]]
             [re-com.box           :refer  [h-box v-box box gap line border]]
             [reagent.core         :as     reagent]))
 
@@ -63,8 +63,8 @@
                             :on-change    #(reset! model3 %)]
                            [inline-picker
                             :model        model4
-                            :minimum      "20140831"
-                            :maximum      "20141019"
+                            :minimum      (iso8601->date "20140831")
+                            :maximum      (iso8601->date "20141019")
                             :show-today   @show-today?
                             :show-weeks   @show-weeks?
                             :enabled-days #{:Su}
