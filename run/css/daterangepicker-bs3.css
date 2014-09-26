@@ -1,26 +1,18 @@
 /*!
  * Stylesheet for the Date Range Picker, for use with Bootstrap 3.x
- *
+ * Day8 variation loosely based on:
+ * ----------------------------------------------------------------
  * Copyright 2013 Dan Grossman ( http://www.dangrossman.info )
  * Licensed under the Apache License v2.0
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Built for http://www.improvely.com
+ * ----------------------------------------------------------------
  */
 
  .daterangepicker.dropdown-menu {
   max-width: none;
   z-index: 3000;
-}
-
-.daterangepicker.opensleft .ranges, .daterangepicker.opensleft .calendar {
-  float: left;
-  margin: 4px;
-}
-
-.daterangepicker.opensright .ranges, .daterangepicker.opensright .calendar {
-  float: right;
-  margin: 4px;
 }
 
 .daterangepicker.single .ranges, .daterangepicker.single .calendar {
@@ -131,15 +123,19 @@
 }
 
 .daterangepicker {
-  position: absolute;
-  background: #fff;
-  top: 100px;
-  left: 20px;
-  padding: 4px;
-  margin-top: 1px;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
+    position: absolute;
+    background: #fff;
+    top: 100px;
+    left: 20px;
+    padding-top: 5px;
+    padding-left:   10px;
+    padding-right:  10px;
+    padding-bottom: 10px;
+    margin-top: 1px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    line-height: 15px;
+    border-radius: 4px;
 }
 
 .daterangepicker.opensleft:before {
@@ -195,13 +191,14 @@
 
 .daterangepicker td, .daterangepicker th {
   text-align: center;
-  width: 20px;
+  width: 27px;
   height: 20px;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
   cursor: pointer;
   white-space: nowrap;
+  font-weight: normal;
 }
 
 .daterangepicker td.off {
@@ -303,5 +300,7 @@
 }
 
 .daterangepicker th.month {
-  width: auto;
+    width: auto;
+    font-size: 15px;
+    color: #777777
 }

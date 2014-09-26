@@ -107,7 +107,7 @@
   "Renders an element or control along with a Bootstrap popover
    Parameters:
     - popover-params map
-       - :showing?     [nil           ] a reagent atom with boolean, which controls whether the popover is showing or not
+       - :showing?          [nil           ] a reagent atom with boolean, which controls whether the popover is showing or not
        - :close-button?     [false         ] a boolean indicating whether a close button will be added to the popover title
        - :position          [:right-below  ] place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
        - :title             [nil           ] popover title (nil for no title)
@@ -173,7 +173,7 @@
                           (select-keys popover-params [:margin-left :margin-top]))}
            [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
            (when title [:h3.popover-title [:div title (when close-button? [close-button showing?])]])
-           [:div.popover-content body]]))})))
+           [:div.popover-content {:style (select-keys popover-params [:padding :width])} body]]))})))
 
 
 (defn popover

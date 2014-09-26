@@ -79,7 +79,7 @@
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
   [current {show-weeks :show-weeks enabled-days :enabled-days minimum :minimum maximum :maximum}]
   ;;TODO: We might choose later to style by removing arrows altogether instead of greying when disabled navigation
-  (let [style        (fn [week-day] {:class (if (enabled-days week-day) "selectable" "disabled")})
+  (let [style        (fn [week-day] {:class (if (enabled-days week-day) "available" "disabled")})
         prev-date    (dec-month @current)
         prev-enabled (if minimum (after? prev-date minimum) true)
         next-date    (inc-month @current)
@@ -231,7 +231,7 @@
   ;;TODO: implement auto-collapse on selection by wrapping passed on-change handler and reset shown? atom ?
   (let [shown? (reagent/atom false)]
     (fn
-      [& {:keys [model] :as passthrough-args}]
+      [& {:keys [model show-weeks] :as passthrough-args}]
       (let [passthrough-args (->> passthrough-args
                                   (merge {:hide-border true}) ;; apply defaults
                                   vec
@@ -239,6 +239,8 @@
         [popover
          :position :below-center
          :showing? shown?
-         :options {:arrow-length 0 :arrow-width 0 :margin-left "-33px" :margin-top "3px"}
+         :options {:arrow-length 0 :arrow-width 0
+                   :margin-left (if show-weeks "-19px" "-10px") :margin-top "3px"
+                   :width "auto" :padding "0px"}
          :anchor  [anchor-button shown? model]
          :popover {:body (into [inline-picker] passthrough-args)}]))))
