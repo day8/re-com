@@ -241,7 +241,7 @@
          :position :below-center
          :showing? shown?
          :options {:arrow-length 0 :arrow-width 0
-                   :margin-left (if show-weeks "-29px" "-20px") :margin-top "3px"
+                   :margin-left (if show-weeks "-26px" "-17px") :margin-top "3px"
                    :width "auto" :padding "0px"}
          :anchor  [anchor-button shown? model format]
          :popover {:body (into [inline-picker] passthrough-args)}]))))
