@@ -17,7 +17,7 @@
 ;; --- cljs-time facades ------------------------------------------------------
 ;; TODO: from day8date should be a common lib
 
-(def ^:private month-format (formatter "MMM yyyy"))
+(def ^:private month-format (formatter "MMMM yyyy"))
 
 (def ^:private week-format (formatter "ww"))
 
@@ -79,7 +79,7 @@
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
   [current {show-weeks :show-weeks enabled-days :enabled-days minimum :minimum maximum :maximum}]
   ;;TODO: We might choose later to style by removing arrows altogether instead of greying when disabled navigation
-  (let [style        (fn [week-day] {:class (if (enabled-days week-day) "available" "disabled")})
+  (let [style        (fn [week-day] {:class (if (enabled-days week-day) "day-enabled" "day-disabled")})
         prev-date    (dec-month @current)
         prev-enabled (if minimum (after? prev-date minimum) true)
         next-date    (inc-month @current)
@@ -97,13 +97,13 @@
      ;; could be done via more clever mapping but avoiding abscurity here.
      ;; style each day label based on if it is in enabled-days
      (conj template-row
-           [:th (style 7) "Su"]
-           [:th (style 1) "Mo"]
-           [:th (style 2) "Tu"]
-           [:th (style 3) "We"]
-           [:th (style 4) "Th"]
-           [:th (style 5) "Fr"]
-           [:th (style 6) "Sa"])]))
+           [:th (style 7) "SUN"]
+           [:th (style 1) "MON"]
+           [:th (style 2) "TUE"]
+           [:th (style 3) "WED"]
+           [:th (style 4) "THU"]
+           [:th (style 5) "FRI"]
+           [:th (style 6) "SAT"])]))
 
 
 (defn- selection-changed
@@ -204,7 +204,7 @@
 
 
 (defn- anchor-button
-  [shown? model]
+  [shown? model format]
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   ;;TODO: some temporary explicit styling overrides bellow should go into css etc
   [:div {:class    "input-group date"
@@ -215,18 +215,21 @@
    [h-box
     :align :center
     :children [[:label {:class "form-control"
-                        :style {:font-size "13px" :font-weight "normal"}}
-                (unparse date-format @model)]
+                        :style {:font-size "13px" :font-weight "normal" :height "32px"}}
+                (unparse (if (seq format) (formatter format) date-format) @model)]
                [:span {:class "input-group-addon"
-                       :style {:width "40px" :height "34px"}}
+                       :style {:width "40px" :height "32px"}}
                 [:i {:class "glyphicon glyphicon-th"}]]]]])
 
 
 (defn dropdown-picker
+  ;; API
+  ;;  Same as inline-picker +
+  ;;  :format   - optional date format see cljs_time.format Default "yyyy MMM dd"
   []
   (let [shown? (reagent/atom false)]
     (fn
-      [& {:keys [model show-weeks on-change] :as passthrough-args}]
+      [& {:keys [model show-weeks on-change format] :as passthrough-args}]
       (let [collapse-on-select (fn [new-model]
                                  (reset! shown? false)
                                  (when on-change (on-change new-model))) ;; wrap callback to collapse popover
@@ -238,7 +241,7 @@
          :position :below-center
          :showing? shown?
          :options {:arrow-length 0 :arrow-width 0
-                   :margin-left (if show-weeks "-19px" "-10px") :margin-top "3px"
+                   :margin-left (if show-weeks "-29px" "-20px") :margin-top "3px"
                    :width "auto" :padding "0px"}
-         :anchor  [anchor-button shown? model]
+         :anchor  [anchor-button shown? model format]
          :popover {:body (into [inline-picker] passthrough-args)}]))))

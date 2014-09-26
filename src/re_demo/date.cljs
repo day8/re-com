@@ -114,6 +114,7 @@
                                :show-today   @show-today?
                                :show-weeks   @show-weeks?
                                :enabled-days #{:Su}
+                               :format       "dd MMM, yyyy"
                                :disabled     disabled?
                                :on-change    #(reset! model %)]]]]])))
 
