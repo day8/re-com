@@ -163,6 +163,11 @@
     color: #999;
 }
 
+.daterangepicker th.disabled {
+    padding: 4px;
+    color: #999;
+}
+
 .daterangepicker td.available:hover, .daterangepicker th.available:hover {
     padding: 4px;
     background: #eee;

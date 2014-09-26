@@ -88,11 +88,11 @@
     [:thead
      (conj template-row
            [:th {:class (str "prev " (if prev-enabled "available selectable" "disabled"))}
-            [:i {:class "fa fa-arrow-left icon-arrow-left glyphicon glyphicon-arrow-left"
+            [:i {:class "fa fa-arrow-left icon-arrow-left glyphicon glyphicon-chevron-left"
                         :on-click #(when prev-enabled (reset! current prev-date))}]]
            [:th {:class "month" :col-span "5"} (month-label @current)]
            [:th {:class (str "next " (if next-enabled "available selectable" "disabled"))}
-            [:i {:class "fa fa-arrow-right icon-arrow-right glyphicon glyphicon-arrow-right"
+            [:i {:class "fa fa-arrow-right icon-arrow-right glyphicon glyphicon-chevron-right"
                         :on-click #(when next-enabled (reset! current next-date))}]])
      ;; could be done via more clever mapping but avoiding abscurity here.
      ;; style each day label based on if it is in enabled-days
