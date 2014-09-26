@@ -74,9 +74,7 @@
 
 (defn popup-date
   []
-  ;; API same as inline-date-picker above + following:
-  ;; :direction      :top-left  ;; :top-left , :bottom-right etc
-  ;; :auto-collapse  true
+  ;; API same as inline-date-picker above
   (let [example-date (parse (formatters :basic-date) "20140914") ;; A sunday. Must be one of :enabled-days
         model        (reagent/atom example-date)
         disabled?    (reagent/atom false)

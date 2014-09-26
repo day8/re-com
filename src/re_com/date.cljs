@@ -224,14 +224,16 @@
 
 (defn dropdown-picker
   []
-  ;;TODO: implement auto-collapse on selection by wrapping passed on-change handler and reset shown? atom ?
   (let [shown? (reagent/atom false)]
     (fn
-      [& {:keys [model show-weeks] :as passthrough-args}]
-      (let [passthrough-args (->> passthrough-args
-                                  (merge {:hide-border true}) ;; apply defaults
-                                  vec
-                                  flatten)]
+      [& {:keys [model show-weeks on-change] :as passthrough-args}]
+      (let [collapse-on-select (fn [new-model]
+                                 (reset! shown? false)
+                                 (when on-change (on-change new-model))) ;; wrap callback to collapse popover
+            passthrough-args   (->> (assoc passthrough-args :on-change collapse-on-select)
+                                    (merge {:hide-border true}) ;; apply defaults
+                                    vec
+                                    flatten)]
         [popover
          :position :below-center
          :showing? shown?
