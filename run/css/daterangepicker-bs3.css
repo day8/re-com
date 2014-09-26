@@ -131,7 +131,7 @@
     margin-top: 1px;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
-    line-height: 15px;
+    line-height: 16px;
     border-radius: 4px;
 }
 
@@ -144,6 +144,10 @@
     text-align: center;
     width: 27px;
     height: 26px;
+    max-width: 27px;
+    max-height: 26px;
+    min-width: 27px;
+    min-height: 26px;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
@@ -159,17 +163,14 @@
 }
 
 .daterangepicker td.disabled {
-    padding: 4px;
     color: #999;
 }
 
 .daterangepicker th.disabled {
-    padding: 4px;
     color: #999;
 }
 
 .daterangepicker td.available:hover, .daterangepicker th.available:hover {
-    padding: 4px;
     background: #eee;
 }
 
@@ -181,28 +182,24 @@
 }
 
 .daterangepicker td.start-date {
-    padding: 4px;
     -webkit-border-radius: 4px 0 0 4px;
     -moz-border-radius: 4px 0 0 4px;
     border-radius: 4px 0 0 4px;
 }
 
 .daterangepicker td.end-date {
-    padding: 4px;
     -webkit-border-radius: 0 4px 4px 0;
     -moz-border-radius: 0 4px 4px 0;
     border-radius: 0 4px 4px 0;
 }
 
 .daterangepicker td.start-date.end-date {
-    padding: 4px;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
 }
 
 .daterangepicker td.active, .daterangepicker td.active:hover {
-    padding: 4px;
     background-color: #357ebd;
     border-color: #3071a9;
     color: #fff;
@@ -210,7 +207,6 @@
 
 /* Introduced by Day8 from http://eternicode.github.io/bootstrap-datepicker */
 .daterangepicker td.today, .daterangepicker td.today:hover {
-    padding: 4px;
     background-color: #ffcd70;
     border-color: #f59e00;
     border-radius: 18px;
@@ -219,7 +215,6 @@
 
 /* Introduced by Day8 */
 .daterangepicker th.day-enabled {
-    padding: 4px;
     cursor: default;
     font-weight: normal;
     font-size: 10px;
@@ -237,7 +232,6 @@
     cursor: default;
     font-weight: normal;
     font-size: 10px;
-    padding: 4px;
     color: #999;
 }
 
