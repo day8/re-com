@@ -35,12 +35,21 @@
 
 (defn- inc-date [date n] (plus date (days n)))
 
-(defn previous-sunday
-  "If passed date is not a sunday, return the nearest previous sunday date"
-  [date]
-  (if (sunday? date)
+(defn previous
+  "If date fails pred, subtract period until true, otherwise answer date"
+  ;; date   - a goog.date.UtcDateTime now if ommited
+  ;; pred   - can be one of cljs-time.predicate e.g. sunday? but anything that can deal with goog.date.UtcDateTime
+  ;; period - a period which will be subtracted see cljs-time.core periods
+  ;; Note:  If period and pred do not represent same granularity, some steps may be skipped
+  ;         e.g Pass a Wed date, specify sunday? as pred and a period (days 2) will skip one Sunday.
+  ([pred]
+   (previous pred (now)))
+  ([pred date]
+   (previous pred date (days 1)))
+  ([pred date period]
+   (if (pred date)
     date
-    (recur (minus date (days 1)))))
+   (recur pred (minus date period) period))))
 
 (defn- =date [date1 date2]
   ;; TODO: investigate why cljs-time/= and goog.date .equals etc don't work
@@ -160,7 +169,7 @@
   "Return matrix of 6 rows x 7 cols table cells representing 41 days from start-date inclusive"
   [current selected attributes disabled on-change]
   {:pre [(and (seq (:enabled-days attributes)) ((:enabled-days attributes) (day-of-week selected)))]}
-  (let [current-start   (previous-sunday current)
+  (let [current-start   (previous sunday? current)
         focus-month     (month current)
         row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
     (into [:tbody] (map #(table-tr % focus-month selected attributes disabled on-change) row-start-dates))))

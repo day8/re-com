@@ -1,18 +1,18 @@
 (ns re-demo.date
   (:require [re-demo.util         :refer  [title]]
             [cljs-time.core       :refer  [now]]
-            [cljs-time.format     :refer  [parse unparse formatters formatter]]
+            [cljs-time.predicates :refer  [sunday? monday?]]
             [re-com.core          :refer  [label checkbox]]
-            [re-com.date          :refer  [inline-picker dropdown-picker previous-sunday iso8601->date]]
+            [re-com.date          :refer  [inline-picker dropdown-picker previous iso8601->date]]
             [re-com.box           :refer  [h-box v-box box gap line border]]
             [reagent.core         :as     reagent]))
 
 (defn inline-date
   []
   (let [model1      (reagent/atom (now))
-        model2      (reagent/atom (now))
-        model3      (reagent/atom (previous-sunday (now)))
-        model4      (reagent/atom (previous-sunday (now)))
+        model2      (reagent/atom (previous monday?))
+        model3      (reagent/atom (previous sunday?))
+        model4      (reagent/atom (iso8601->date "20140914"))
         disabled?   (reagent/atom false)
         show-today? (reagent/atom true)
         show-weeks? (reagent/atom false)]
@@ -75,7 +75,7 @@
 (defn popup-date
   []
   ;; API same as inline-date-picker above
-  (let [example-date (parse (formatters :basic-date) "20140914") ;; A sunday. Must be one of :enabled-days
+  (let [example-date (iso8601->date "20140914") ;; A sunday. Must be one of :enabled-days
         model        (reagent/atom example-date)
         disabled?    (reagent/atom false)
         show-today?  (reagent/atom true)
