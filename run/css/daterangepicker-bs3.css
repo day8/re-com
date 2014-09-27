@@ -127,7 +127,7 @@
     background: #fff;
     top: 100px;
     left: 20px;
-    padding: 5px 10px 10px;
+    padding: 10px 10px 5px;
     margin-top: 1px;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
@@ -136,8 +136,9 @@
 }
 
 .daterangepicker table {
-  width: 100%;
-  margin: 0;
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
 }
 
 .daterangepicker td, .daterangepicker th {
@@ -269,8 +270,29 @@
   padding-left: 11px
 }
 
+.daterangepicker th.prev {
+    border: 1px solid #ccc;
+    border-right-style: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: #EEE;
+}
+
+.daterangepicker th.next {
+    border: 1px solid #ccc;
+    border-left-style: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: #EEE;
+}
+
 .daterangepicker th.month {
     width: auto;
     font-size: 14px;
-    color: #777777
+    color: #777;
+    border-radius: 0;
+    border: 1px solid #CCC;
+    border-right-style: none;
+    border-left-style: none;
+    background-color: #EEE;
 }

@@ -74,7 +74,7 @@
            :radius "4px"
            :border (when hide-border "none")
            :child [:div
-                   {:class "calendar-date daterangepicker show-calendar"
+                   {:class "calendar-date daterangepicker"
                            ;; override inherrited body larger 14px font-size
                            ;; override position from css because we are inline
                     :style {:font-size "13px"
@@ -226,8 +226,8 @@
     :children [[:label {:class "form-control"
                         :style {:font-size "13px" :font-weight "normal" :height "32px"}}
                 (unparse (if (seq format) (formatter format) date-format) @model)]
-               [:span {:class "input-group-addon"
-                       :style {:width "40px" :height "32px"}}
+               [:span  {:class "input-group-addon"
+                        :style {:width "40px" :height "32px" :color "#777"}}
                 [:i {:class "glyphicon glyphicon-th"}]]]]])
 
 
