@@ -1,124 +1,47 @@
 /*!
- * Stylesheet for the Date Picker Day8 variation loosely based on:
- * ----------------------------------------------------------------
+ * Stylesheet for re-com.date Date Picker variants inline-picker & dropdown-picker
+ * Day8 variation loosely based on:
+ * -------------------------------------------------------------------------------
  * Copyright 2013 Dan Grossman ( http://www.dangrossman.info )
  * Licensed under the Apache License v2.0
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  * Built for http://www.improvely.com
- * ----------------------------------------------------------------
+ * -------------------------------------------------------------------------------
+ * http://eternicode.github.io/bootstrap-datepicker
  */
 
- .datepicker.dropdown-menu {
-  max-width: none;
-  z-index: 3000;
-}
 
-.datepicker.single .ranges, .datepicker.single .calendar {
-  float: none;
-}
-
-.datepicker .ranges {
-  width: 160px;
-  text-align: left;
-}
-
-.datepicker .ranges .range_inputs>div {
-  float: left;
-}
-
-.datepicker .ranges .range_inputs>div:nth-child(2) {
-  padding-left: 11px;
+.datepicker.single .calendar {
+    float: none;
 }
 
 .datepicker .calendar {
-  display: none;
-  max-width: 270px;
-}
-
-.datepicker.show-calendar .calendar {
-    display: block;
+    display: none;
+    max-width: 200px;
 }
 
 .datepicker .calendar.single .calendar-date {
-  border: none;
+    border: none;
 }
 
 .datepicker .calendar th, .datepicker .calendar td {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  white-space: nowrap;
-  text-align: center;
-  min-width: 32px;
-}
-
-.datepicker .daterangepicker_start_input label,
-.datepicker .daterangepicker_end_input label {
-  color: #333;
-  display: block;
-  font-size: 11px;
-  font-weight: normal;
-  height: 20px;
-  line-height: 20px;
-  margin-bottom: 2px;
-  text-shadow: #fff 1px 1px 0px;
-  text-transform: uppercase;
-  width: 74px;
-}
-
-.datepicker .ranges input {
-  font-size: 11px;
-}
-
-.datepicker .ranges .input-mini {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  color: #555;
-  display: block;
-  font-size: 11px;
-  height: 30px;
-  line-height: 30px;
-  vertical-align: middle;
-  margin: 0 0 10px 0;
-  padding: 0 6px;
-  width: 74px;
-}
-
-.datepicker .ranges ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.datepicker .ranges li {
-  font-size: 13px;
-  background: #f5f5f5;
-  border: 1px solid #f5f5f5;
-  color: #08c;
-  padding: 3px 12px;
-  margin-bottom: 8px;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.datepicker .ranges li.active, .datepicker .ranges li:hover {
-  background: #08c;
-  border: 1px solid #08c;
-  color: #fff;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    white-space: nowrap;
+    text-align: center;
+    min-width: 32px;
 }
 
 .datepicker .calendar-date {
-  border: 1px solid #ddd;
-  padding: 4px;
-  border-radius: 4px;
-  background: #fff;
+    border: 1px solid #ddd;
+    padding: 4px;
+    border-radius: 4px;
+    background: #fff;
 }
 
 .datepicker .calendar-time {
-  text-align: center;
-  margin: 8px auto 0 auto;
-  line-height: 30px;
+    text-align: center;
+    margin: 8px auto 0 auto;
+    line-height: 30px;
 }
 
 .datepicker {
@@ -176,9 +99,9 @@
 }
 
 .datepicker td.in-range {
-  background: #ebf4f8;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
+    background: #ebf4f8;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
   border-radius: 0;
 }
 
@@ -214,20 +137,17 @@
     color: #fff;
 }
 
-/* Introduced by Day8 */
 .datepicker th.day-enabled {
     font-weight: normal;
     font-size: 10px;
     color: #333;
 }
 
-/* Introduced by Day8 */
 .datepicker th.selectable {
     font-weight: normal;
     color: #357ebd;
 }
 
-/* Introduced by Day8 */
 .datepicker th.day-disabled {
     font-weight: normal;
     font-size: 10px;
@@ -239,35 +159,6 @@
   color: #ccc;
 }
 
-.datepicker select.monthselect, .datepicker select.yearselect {
-  font-size: 12px;
-  padding: 1px;
-  height: auto;
-  margin: 0;
-}
-
-.datepicker select.monthselect {
-  margin-right: 2%;
-  width: 56%;
-}
-
-.datepicker select.yearselect {
-  width: 40%;
-}
-
-.datepicker select.hourselect, .datepicker select.minuteselect, .datepicker select.ampmselect {
-  width: 50px;
-  margin-bottom: 0;
-}
-
-.daterangepicker_start_input {
-  float: left;
-}
-
-.daterangepicker_end_input {
-  float: left; 
-  padding-left: 11px
-}
 
 .datepicker th.prev {
     border: 1px solid #ccc;
@@ -294,4 +185,16 @@
     border-right-style: none;
     border-left-style: none;
     background-color: #EEE;
+}
+
+.dropdown-button {
+    cursor: pointer;
+    height: 32px;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.dropdown-button.activator {
+    width: 40px;
+    color: #777;
 }

@@ -1,4 +1,4 @@
-;; Based on: https://github.com/dangrossman/bootstrap-daterangepicker
+;; Loosly based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
 ;; depends: datepicker-bs3.css
 
 (ns re-com.date
@@ -215,19 +215,16 @@
 (defn- anchor-button
   [shown? model format]
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
-  ;;TODO: some temporary explicit styling overrides bellow should go into css etc
-  [:div {:class    "input-group date"
+  [:div {:class    "input-group"
          :style    {:display             "flex"
                     :flex                "none"
                     :-webkit-user-select "none"}
          :on-click #(reset! shown? (not @shown?))}
    [h-box
     :align :center
-    :children [[:label {:class "form-control"
-                        :style {:font-size "13px" :font-weight "normal" :height "32px"}}
+    :children [[:label {:class "form-control dropdown-button"}
                 (unparse (if (seq format) (formatter format) date-format) @model)]
-               [:span  {:class "input-group-addon"
-                        :style {:width "40px" :height "32px" :color "#777"}}
+               [:span  {:class "dropdown-button activator input-group-addon"}
                 [:i {:class "glyphicon glyphicon-th"}]]]]])
 
 
