@@ -1,5 +1,5 @@
 ;; Based on: https://github.com/dangrossman/bootstrap-daterangepicker
-;; depends: daterangepicker-bs3.css
+;; depends: datepicker-bs3.css
 
 (ns re-com.date
   (:require-macros [clairvoyant.core :refer [trace-forms]])
@@ -74,7 +74,7 @@
            :radius "4px"
            :border (when hide-border "none")
            :child [:div
-                   {:class "calendar-date daterangepicker"
+                   {:class "calendar-date datepicker"
                            ;; override inherrited body larger 14px font-size
                            ;; override position from css because we are inline
                     :style {:font-size "13px"
