@@ -137,7 +137,7 @@
     color: #fff;
 }
 
-.datepicker th.day-enabled {
+.datepicker th.day-enabled, label.day-enabled {
     font-weight: normal;
     font-size: 10px;
     color: #333;

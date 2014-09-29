@@ -192,7 +192,7 @@
   ;;  :model         - goog.date.UtcDateTime can be reagent/atom.
   ;;                   The calendar will be focused on corresponding date and the date represents selection.
   ;;  :enabled-days  - set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
-  ;;  :disabled      - boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
+  ;;  :disabled      - optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
   ;;  :on-change     - function callback will be passed new selected goog.date.UtcDateTime
   ;;  :show-weeks    - boolean. When true, first column shows week numbers.
   ;;  :show-today    - boolean. When true, today's date is highlighted. Selected day highlight takes precence.
@@ -208,7 +208,12 @@
         (main-div-with
           [:table {:class "table-condensed"}
            [table-thead current configuration]
-           [table-tbody @current (real-value model) configuration (real-value disabled) on-change]]
+           [table-tbody
+            @current
+            (real-value model)
+            configuration
+            (if (nil? disabled) false (real-value disabled))
+            on-change]]
           hide-border)))))
 
 
