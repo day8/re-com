@@ -1,6 +1,8 @@
 (ns re-com.util
   (:require  [clojure.string :as string]))
 
+(defn real-value [val-or-atom]
+  (if (satisfies? IDeref val-or-atom) @val-or-atom val-or-atom))
 
 (defn console-log
   [msg]

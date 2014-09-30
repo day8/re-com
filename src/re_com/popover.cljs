@@ -102,11 +102,12 @@
 
 (defn make-popover
   [{:keys [showing? close-button? position title body width height arrow-length arrow-width backdrop-callback backdrop-transparency]
-    :or {close-button? false position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22 backdrop-transparency 0.1}}]
+    :or {close-button? false position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22 backdrop-transparency 0.1}
+    :as popover-params}]
   "Renders an element or control along with a Bootstrap popover
    Parameters:
     - popover-params map
-       - :showing?     [nil           ] a reagent atom with boolean, which controls whether the popover is showing or not
+       - :showing?          [nil           ] a reagent atom with boolean, which controls whether the popover is showing or not
        - :close-button?     [false         ] a boolean indicating whether a close button will be added to the popover title
        - :position          [:right-below  ] place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
        - :title             [nil           ] popover title (nil for no title)
@@ -167,11 +168,12 @@
                                                                 :above          (str "-" (+ arrow-length p-height))
                                                                 (:right :below) arrow-length))}
                           ;; make it visible and turn off BS max-width and remove BS padding which adds an internal white border
-                          {:display "block" :max-width "none" :padding (px 0)})}
-
+                          {:display "block" :max-width "none" :padding (px 0)}
+                          ;; optional override offsets
+                          (select-keys popover-params [:margin-left :margin-top]))}
            [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
            (when title [:h3.popover-title [:div title (when close-button? [close-button showing?])]])
-           [:div.popover-content body]]))})))
+           [:div.popover-content {:style (select-keys popover-params [:padding :width])} body]]))})))
 
 
 (defn popover
@@ -191,6 +193,8 @@
       options map
        - :arrow-length      length in pixels of arrow (from pointy part to middle of arrow base)
        - :arrow-width       length in pixels of arrow base
+       - :margin-left       optional horiztonal offset from anchor after position
+       - :margin-top        optional vertical offset from anchor after position
        - :backdrop-callback NOT YET IMPLEMENTED: if specified, add a backdrop div between the main screen (including element) and the popover.
                             when clicked, this callback is called (usually to close the popover)
        - :backdrop-opacity  NOT YET IMPLEMENTED: 0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)"
