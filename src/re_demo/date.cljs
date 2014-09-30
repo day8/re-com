@@ -135,19 +135,37 @@
                                :on-change    #(reset! model %)]]]]])))
 
 (defn notes
-  []
+  [selected-variation]
   [v-box
    :width "500px"
-   :children [[:div.h4 "Component parameters:"]
-              [:ul
-               [:li "required:"
+   :children [[:div.h4 "Parameters:"]
+              [:div {:style {:font-size "small"}}
+               [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
-                 [:li.spacer [:strong ":model"]     " - goog.date.UtcDateTime can be reagent/atom. The calendar will be focused on corresponding date and the date represents selection."]
-                 [:li.spacer [:strong ":on-change"] " - callback will be passed single arg of the selected goog.date.UtcDateTime."]]]
-               [:li "optional:"
+                 [:li.spacer [:strong ":model"]
+                  "- goog.date.UtcDateTime can be reagent/atom. Represents displayed month and actual selected day. Must be one of :enabled-days"]
+                 [:li.spacer [:strong ":on-change"]
+                  "- callback will be passed single arg of the selected goog.date.UtcDateTime."]
+                 ]
+               [:label {:style {:font-variant "small-caps"}} "optional"]
                 [:ul
-                 [:li.spacer [:strong ":disabled"] " - a boolean indicating whether the control should be disabled. false if not specified."]
-                 ]]]]])
+                 [:li.spacer [:strong ":disabled"]
+                  "- boolean can be reagent/atom. (default false) If true, navigation is allowed but selection is disabled."]
+                 [:li.spacer [:strong ":enabled-days"]
+                  "- set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} If nil or empty, all days are enabled."]
+                 [:li.spacer [:strong ":show-weeks"]
+                  "- boolean. (default false) If true, first column shows week numbers."]
+                 [:li.spacer [:strong ":show-today"]
+                  "- boolean. (default false) If true, today's date is highlighted different to selection. When both today's date and selected day are the same, selected highlight takes precedence."]
+                 [:li.spacer [:strong ":minimum"]
+                  "- optional goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
+                 [:li.spacer [:strong ":maximum"]
+                  "- optional goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
+                 [:li.spacer [:strong ":hide-border"]
+                  "- boolean. Default false."]
+                 (when (= "2" @selected-variation)
+                   [:li.spacer [:strong ":format"]
+                    "- string format for dropdown label showing currently selected date see cljs_time.format Default \"yyyy MMM dd\""])]]]])
 
 (def variations [{:id "1" :label "Inline"}
                  {:id "2" :label "Dropdown"}
@@ -161,7 +179,7 @@
        :children [[:h3.page-header "Date Picker"]
                   [h-box
                    :gap "50px"
-                   :children [[notes]
+                   :children [[notes selected-variation]
                               [v-box
                                :gap "15px"
                                :size "auto"
