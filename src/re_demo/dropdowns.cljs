@@ -8,12 +8,12 @@
             [reagent.core    :as    reagent]))
 
 
-(def demos [{:id "1" :label "Simple dropdown"}
-            {:id "2" :label "Dropdown with grouping"}
-            {:id "3" :label "Dropdown with filtering"}
-            {:id "4" :label "Keyboard support"}
-            {:id "5" :label "Other parameters"}
-            {:id "6" :label "Two dependent dropdowns"}])
+(def demos [{:id 1 :label "Simple dropdown"}
+            {:id 2 :label "Dropdown with grouping"}
+            {:id 3 :label "Dropdown with filtering"}
+            {:id 4 :label "Keyboard support"}
+            {:id 5 :label "Other parameters"}
+            {:id 6 :label "Two dependent dropdowns"}])
 
 
 (def countries [{:id "au" :label "Australia"}
@@ -313,30 +313,31 @@
 
 (defn panel
   []
-  (let [selected-demo-id (reagent/atom "1")]
-    (fn [] [v-box
-            :children [[:h3.page-header "Single Selection Dropdowns"]
-                       [h-box
-                        :gap      "50px"
-                        :children [[notes]
-                                   [v-box
-                                    :gap       "15px"
-                                    :size      "auto"
-                                    :min-width "500px"
-                                    :children  [[h-box
-                                                :gap      "10px"
-                                                :align    :center
-                                                :children [[label :label "Select a demo"]
-                                                           [single-dropdown
-                                                            :options   demos
-                                                            :model     selected-demo-id
-                                                            :width     "300px"
-                                                            :on-select #(reset! selected-demo-id %)]]]
-                                               [gap :size "0px"] ;; Force a bit more space here
-                                               (case @selected-demo-id
-                                                 "1" [demo1]
-                                                 "2" [demo2]
-                                                 "3" [demo3]
-                                                 "4" [demo4]
-                                                 "5" [demo5]
-                                                 "6" [demo6])]]]]]])))
+  (let [selected-demo-id (reagent/atom 1)]
+    (fn []
+      [v-box
+       :children [[:h3.page-header "Single Selection Dropdowns"]
+                  [h-box
+                   :gap      "50px"
+                   :children [[notes]
+                              [v-box
+                               :gap       "15px"
+                               :size      "auto"
+                               :min-width "500px"
+                               :children  [[h-box
+                                            :gap      "10px"
+                                            :align    :center
+                                            :children [[label :label "Select a demo"]
+                                                       [single-dropdown
+                                                        :options   demos
+                                                        :model     selected-demo-id
+                                                        :width     "300px"
+                                                        :on-select #(reset! selected-demo-id %)]]]
+                                           [gap :size "0px"] ;; Force a bit more space here
+                                           (case @selected-demo-id
+                                             1 [demo1]
+                                             2 [demo2]
+                                             3 [demo3]
+                                             4 [demo4]
+                                             5 [demo5]
+                                             6 [demo6])]]]]]])))
