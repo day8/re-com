@@ -1,7 +1,6 @@
 (ns re-com.time
   (:require
     [reagent.core :as reagent]
-    ;;[clairvoyant.core :as trace :include-macros true]  ;; TODO remove clairvoyant - development only
     [clojure.string :as cljstring]
     [re-com.box      :refer  [h-box gap]]
     [re-com.util :refer [pad-zero-number]]))
@@ -20,8 +19,9 @@
 (defn time-integer-from-vector
   "Return a TimeRecord.
   ASSUMPTION: the vector contains 3 values which are -
-   hour, ':' or '' and minutes."
+    hour, ':' or '' and minutes."
   [vals]
+  (assert (= (count vals) 3) "Application error: re-com.time/time-integer-from-vector expected a vector of 3 values.")
   (let [hr (if (nil? (first vals)) 0 (first vals))
         mi (if (nil? (last vals)) 0 (last vals))]
   (+ (* hr 100) mi)))
@@ -119,7 +119,7 @@
 
 (defn validate-string
   "Return true if the passed string valdiates OK."
-  [s min max]
+  [s]
   (let [matches (re-matches #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" s)
        vals (filter #(not (nil? %))(rest matches))]
     (= (count vals) 3)))  ;; Cannot do any further validation here - input must be finished first (why? because when entering 6:30, "63" is not valid)
@@ -135,19 +135,20 @@
       (throw (js/Error. (str "maximum " maximum-time " is less than minimum " minimum-time "."))))))
 
 (defn time-changed
-  [ev tmp-model min max]
+  "Triggered whenever the input field changes via key press on cut & paste."
+  [ev tmp-model]
   (let [input-val (-> ev .-target .-value)
-        valid? (validate-string input-val @min @max)]
+        valid? (validate-string input-val)]
     (when valid?
       (reset! tmp-model input-val))))
 
 (defn time-updated
-  "Check what has been entered is complete. Then update the model."
+  "Triggered whenever the input field loses focus.
+  Re-validate been entered. Then update the model."
   [ev tmp-model min max callback]
   (let [input-val (-> ev .-target .-value)
         time-int (string->time-integer input-val)]
     (reset! tmp-model (display-string (time-int->hour-minute (validated-time-integer time-int @min @max))))
-    ;;(set! (-> ev .-target .-value)(display-string @tmp-model))
   (when callback (callback time-int))))
 
 (defn atom-on
@@ -165,8 +166,9 @@
   Required parameters -
     model - an atom of a time integer like 930
   Optional parameters are -
-    minimum-time - default is 0 - a time integer
-    maximum-time - default is 2359 - a time integer
+    minimum-time - default is 0 - an atom of a time integer
+    maximum-time - default is 2359 - an atom of a time integer
+    disabled - boolean - default false
     on-change - function to call when model has changed - parameter will be the new value
     style - css"
   [& {:keys [model minimum-time maximum-time]}]
@@ -174,37 +176,24 @@
         tmp-model (atom-on (display-string (time-int->hour-minute deref-model)) "")
         min (atom-on minimum-time 0)
         max (atom-on maximum-time 2359)]
-    (validate-max-min @min @max)  ;; This will throw an error if the parameters are invalid
+    (validate-max-min @min @max)                  ;; This will throw an error if the parameters are invalid
     (if-not (valid-time-integer? deref-model @min @max)
       (throw (js/Error. (str "model " deref-model " is not a valid time integer."))))
-    (fn [& {:keys [model on-change minimum-time maximum-time style]}]
+    (fn [& {:keys [on-change disabled style]}]
         [:span.input-append.bootstrap-timepicker
           [:input
             {:type "text"
+             :disabled (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
              :class "time-entry"
-             ;;:default-value (display-string @tmp-model)
              :value @tmp-model
              :style (merge {:font-size "11px"
                             :width "35px"} style)
              :on-focus #(got-focus %)
-             ;;:on-key-press #(key-pressed %)
-             ;;:on-paste #(clipboard-paste % tmp-model min max)
-             :on-change #(time-changed % tmp-model min max)
+             :on-change #(time-changed % tmp-model)
+             :on-mouse-up #(.preventDefault %)    ;; Chrome browser deselects on mouse up - prevent this from happening
              :on-blur #(time-updated % tmp-model min max on-change)}
             ;;[:span.add-on [:i.glyphicon.glyphicon-time]]
            ]])))
-
-#_(defn atom-input [value]
-  [:input {:type "text"
-           :value @value
-           :on-change #(reset! value (-> % .-target .-value))}])
-
-#_(defn shared-state []
-  (let [val (atom "foo")]
-    (fn []
-      [:div
-       [:p "The value is now: " @val]
-       [:p "Change it here: " [atom-input val]]])))
 
 (defn time-range-input
   "I return the markup for a pair input boxes which will accept and validate times.
@@ -217,10 +206,10 @@
     gap - horizontal gap between time inputs - default '4px'
     style - css"
   [& {:keys [model]}]
-  (fn [& {:keys [model on-change minimum-time maximum-time from-label to-label gap style]}]
+  (fn [& {:keys [on-change minimum-time maximum-time from-label to-label gap style]}]
     (let [deref-model (if (satisfies? cljs.core/IDeref model) @model model)
-          from-model  (reagent/atom (first deref-model))
-          to-model    (reagent/atom (last  deref-model))]
+          from-model  (atom-on (first deref-model) nil)
+          to-model    (atom-on (last  deref-model) nil)]
       [h-box
         :gap (if gap gap "4px")
         :children [(when from-label [:label from-label])

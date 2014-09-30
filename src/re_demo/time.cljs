@@ -29,26 +29,23 @@
                   [:li "minimum-time - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
                   [:li "maximum-time - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
                   [:li "on-change - function to call upon change."]]
+                [label :label "Examples" :style {:font-weight "bold"}]
+                [label :label "Basic time input, empty model"]
                 [time-input
                   :model (reagent/atom nil)
                   :style {}]
-                [h-box
-                  :gap "4px"
-                  :children [[label :label "Time with default range:"]
-                             [time-input :model model1 :on-change #(reset! model1 %)]
-                             [label :label "entered time: "]
-                             [label :label (display-time @model1)]]]
-                [gap "14px"]
-                [h-box
-                  :gap "4px"
-                  :children [[label :label "Time with range 06:00-21:59"]
-                             [time-input
-                                :model model2
-                                :minimum-time 600
-                                :maximum-time 2159
-                                :on-change #(reset! model2 %)]
-                             [label :label "entered time: "]
-                             [label :label (display-time @model2)]]]]]))
+                [label :label "Disabled time input"]
+                [time-input
+                 :model (reagent/atom nil)
+                  :disabled true]
+                [label :label "Time with default range:"]
+                [time-input :model model1 :on-change #(reset! model1 %)]
+                [label :label "Time with range 06:00-21:59"]
+                [time-input
+                  :model model2
+                  :minimum-time 600
+                  :maximum-time 2159
+                  :on-change #(reset! model2 %)]]]))
 
 (defn time-range []
   (let [range-model (reagent/atom [900 2100])]
