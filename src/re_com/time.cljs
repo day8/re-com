@@ -21,7 +21,7 @@
   ASSUMPTION: the vector contains 3 values which are -
     hour, ':' or '' and minutes."
   [vals]
-  (assert (= (count vals) 3) "Application error: re-com.time/time-integer-from-vector expected a vector of 3 values.")
+  (assert (= (count vals) 3) (str "Application error: re-com.time/time-integer-from-vector expected a vector of 3 values. Got " vals))
   (let [hr (if (nil? (first vals)) 0 (first vals))
         mi (if (nil? (last vals)) 0 (last vals))]
   (+ (* hr 100) mi)))
@@ -99,9 +99,9 @@
         (.info js/console (str "WARNING: Time " tm-string " is outside range " range-str)))
       (if-not (validate-minutes time-integer)
         (do
-          (time-integer-from-vector [(quot time-integer 100) 0])
-          (.info js/console (str "WARNING: Minutes of " tm-string " are invalid.")))
-          time-integer))))
+          (.info js/console (str "WARNING: Minutes of " tm-string " are invalid."))
+          (time-integer-from-vector [(quot time-integer 100) "" 0]))
+        time-integer))))
 
 (defn valid-time-integer?
   "Return true if the passed time integer is valid."

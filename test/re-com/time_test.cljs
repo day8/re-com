@@ -81,13 +81,14 @@
     false (time/validate-minutes 98)
     false (time/validate-minutes 2398)))
 
-(deftest test-validated-time-record
+(deftest test-validated-time-integer
   (are [expected actual] (= expected actual)
-    "06:00"   (time/time-int->display-string (time/validated-time-integer 600 0 2359))
-    "06:30"   (time/time-int->display-string (time/validated-time-integer 630 0 2359))
-    "23:59"   (time/time-int->display-string (time/validated-time-integer 2359 0 2359))
-    ""        (time/time-int->display-string (time/validated-time-integer 500 600 2200))
-    ""        (time/time-int->display-string (time/validated-time-integer 2315 600 2200))))
+    600   (time/validated-time-integer 600 0 2359)
+    630   (time/validated-time-integer 630 0 2359)
+    2359  (time/validated-time-integer 2359 0 2359)
+    1500  (time/validated-time-integer 1575 600 2200)    ;; invalid minutes
+    nil   (time/validated-time-integer 500 600 2200)     ;; Too early
+    nil   (time/validated-time-integer 2315 600 2200)))  ;; Too late
 
 (deftest test-validate-time-range
   (are [expected actual] (= expected actual)
