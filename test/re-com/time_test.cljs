@@ -97,8 +97,8 @@
     false    (time/validate-time-range 2345 600 2200)))
 
 (deftest test-time-input
- (is (fn? (first (time/time-input :model 1500))) "Expected a function.")
- (is (fn? (first (time/time-input :model 1500 :minimum 600 :maximum 2159))) "Expected a function.")
+ (is (fn? (time/time-input :model 1500)) "Expected a function.")
+ (is (fn? (time/time-input :model 1500 :minimum 600 :maximum 2159)) "Expected a function.")
  (is (thrown? js/Error (time/time-input :model "abc") "should fail - model is invalid"))
  (is (thrown? js/Error (time/time-input :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
  (is (thrown? js/Error (time/time-input :model 930 :minimum 600 :maximum "fred") "should fail - maximum is invalid"))

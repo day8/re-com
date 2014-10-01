@@ -164,22 +164,7 @@
                    default)))
 
 ;; --- Components ---
-(defn private-time-input
-  [model min max & {:keys [on-change disabled style]}]
-        [:span.input-append.bootstrap-timepicker
-          [:input
-            {:type "text"
-             :disabled (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
-             :class "time-entry"
-             :value @model
-             :style (merge {:font-size "11px"
-                            :width "35px"} style)
-             :on-focus #(got-focus %)
-             :on-change #(time-changed % model)
-             :on-mouse-up #(.preventDefault %)    ;; Chrome browser deselects on mouse up - prevent this from happening
-             :on-blur #(time-updated % model min max on-change)}
-            ;;[:span.add-on [:i.glyphicon.glyphicon-time]]
-           ]])
+
 
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
@@ -199,39 +184,19 @@
     (validate-max-min @min @max)                  ;; This will throw an error if the parameters are invalid
     (if-not (valid-time-integer? deref-model @min @max)
       (throw (js/Error. (str "model " deref-model " is not a valid time integer."))))
-    [private-time-input tmp-model min max]))
+    (fn [& {:keys [on-change disabled style]}]
+        [:span.input-append.bootstrap-timepicker
+          [:input
+            {:type "text"
+             :disabled (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
+             :class "time-entry"
+             :value @tmp-model
+             :style (merge {:font-size "11px"
+                            :width "35px"} style)
+             :on-focus #(got-focus %)
+             :on-change #(time-changed % tmp-model)
+             :on-mouse-up #(.preventDefault %)    ;; Chrome browser deselects on mouse up - prevent this from happening
+             :on-blur #(time-updated % tmp-model min max on-change)}
+            ;;[:span.add-on [:i.glyphicon.glyphicon-time]]
+           ]])))
 
-#_(defn time-range-input
-  "This doesn't work because the model of time-input is a string, but the min and max are integers.
-
-  I return the markup for a pair input boxes which will accept and validate times.
-  Required parameters -
-    model - an atom of from and to times [from-int to-int]
-  Optional parameters are -
-    minimum - default is 0} - a time integer
-    maximum - default is 2359 - time integer
-    callback - function to call when model has changed - parameter will be the new value
-    gap - horizontal gap between time inputs - default '4px'
-    style - css"
-  [& {:keys [model minimum maximum]}]
-  (let [deref-model (dereffed-model model)
-        from-model  (atom-on (display-string (first deref-model)) nil)
-        to-model    (atom-on (display-string (last  deref-model)) nil)
-        min (atom-on minimum 0)
-        max (atom-on maximum 2359)]
-  (validate-max-min @min @max)                  ;; This will throw an error if the parameters are invalid
-  (if-not (valid-time-integer? @from-model @min @max)
-    (throw (js/Error. (str "model for FROM time: " @from-model " is not a valid time integer."))))
-  (if-not (valid-time-integer? @to-model @min @max)
-    (throw (js/Error. (str "model for TO time: " @to-model " is not a valid time integer."))))
-  (if-not (< @from-model @to-model)
-      (throw (js/Error. (str "TO " @to-model " is less than FROM " @from-model "."))))
-
-  (fn [& {:keys [on-change from-label to-label gap style]}]
-      [h-box
-        :gap (if gap gap "4px")
-        :children [(when from-label [:label from-label])
-                   [private-time-input from-model min to-model]
-                   (when to-label [:label to-label])
-                   [private-time-input to-model from-model max]
-                   ]])))

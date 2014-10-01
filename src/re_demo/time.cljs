@@ -15,7 +15,7 @@
          ":"
          (pad-zero-number min 2))))
 
-(defn single-time []
+(defn time-examples []
   (let [model1 (reagent/atom 900)
         model2 (reagent/atom 2030)]
     [v-box
@@ -29,7 +29,9 @@
                 [:ul
                   [:li "minimum - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
                   [:li "maximum - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
-                  [:li "on-change - function to call upon change."]]
+                  [:li "on-change - function to call upon change."]
+                  [:li "disabled - true if the component should be disabled - default false"]
+                  [:li "style - css style"]]
                 [label :label "Examples" :style {:font-weight "bold"}]
                 [label :label "Basic time input, empty model"]
                 [time-input
@@ -52,22 +54,10 @@
                   :maximum 2159
                   :on-change #(reset! model2 %)]]]))
 
-#_(defn time-range []
-  (let [range-model (reagent/atom [900 2100])]
-    [v-box
-      :gap "20px"
-      :children [[title "Time Range"]
-                 [time-range-input
-                   :model range-model
-                   ;;:from-label "From:"
-                   :to-label "-"
-                   :gap "4px"]]]))
-
 (defn panel
   []
   [v-box
-   :children [[single-time]
-              ]])
+   :children [[time-examples]]])
 
 
 
