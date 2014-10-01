@@ -75,53 +75,51 @@
           show-weeks?  (r/atom false)
           enabled-days (r/atom (-> days-map keys set))]
       (case variation
-        "1" [(fn []
-               [parameters-with
-                [h-box
-                 :gap "20px"
-                 :align :start
-                 :children [[(fn []
-                               [inline-picker
-                                :model model1
-                                :disabled disabled?
-                                :show-today @show-today?
-                                :show-weeks @show-weeks?
-                                :enabled-days @enabled-days
-                                :on-change #(reset! model1 %)])]
-                            ;; restricted to both minimum & maximum date
-                            [(fn []
-                               [inline-picker
-                                :model model2
-                                :minimum (iso8601->date "20140831")
-                                :maximum (iso8601->date "20141019")
-                                :show-today @show-today?
-                                :show-weeks @show-weeks?
-                                :enabled-days @enabled-days
-                                :disabled disabled?
-                                :on-change #(reset! model2 %)])]]]
-                enabled-days
-                disabled?
-                show-today?
-                show-weeks?])]
-        "2" [(fn []
-               [parameters-with
-                [h-box
-                 :size "auto"
-                 :align :start
-                 :children [[gap :size "120px"]
-                            [(fn []
-                               [dropdown-picker
-                                :model model1
-                                :show-today @show-today?
-                                :show-weeks @show-weeks?
-                                :enabled-days @enabled-days
-                                :format "dd MMM, yyyy"
-                                :disabled disabled?
-                                :on-change #(reset! model1 %)])]]]
-                enabled-days
-                disabled?
-                show-today?
-                show-weeks?])])))
+        "1" [parameters-with
+             [h-box
+              :gap "20px"
+              :align :start
+              :children [[(fn []
+                            [inline-picker
+                             :model model1
+                             :disabled disabled?
+                             :show-today @show-today?
+                             :show-weeks @show-weeks?
+                             :enabled-days @enabled-days
+                             :on-change #(reset! model1 %)])]
+                         ;; restricted to both minimum & maximum date
+                         [(fn []
+                            [inline-picker
+                             :model model2
+                             :minimum (iso8601->date "20140831")
+                             :maximum (iso8601->date "20141019")
+                             :show-today @show-today?
+                             :show-weeks @show-weeks?
+                             :enabled-days @enabled-days
+                             :disabled disabled?
+                             :on-change #(reset! model2 %)])]]]
+             enabled-days
+             disabled?
+             show-today?
+             show-weeks?]
+        "2" [parameters-with
+             [h-box
+              :size "auto"
+              :align :start
+              :children [[gap :size "120px"]
+                         [(fn []
+                            [dropdown-picker
+                             :model model1
+                             :show-today @show-today?
+                             :show-weeks @show-weeks?
+                             :enabled-days @enabled-days
+                             :format "dd MMM, yyyy"
+                             :disabled disabled?
+                             :on-change #(reset! model1 %)])]]]
+             enabled-days
+             disabled?
+             show-today?
+             show-weeks?])))
 
 
 (defn notes
@@ -157,9 +155,10 @@
                    [:li.spacer [:strong ":format"]
                     " - string format for dropdown label showing currently selected date see cljs_time.format Default \"yyyy MMM dd\""])]]]])
 
+
 (def variations [{:id "1" :label "Inline"}
-                 {:id "2" :label "Dropdown"}
-                 #_{:id "3" :label "Inline with min/max"}])
+                 {:id "2" :label "Dropdown"}])
+
 
 (defn panel
   []
