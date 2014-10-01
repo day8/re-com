@@ -340,20 +340,20 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn border
-  [& {:keys [margin padding border l-border r-border t-border b-border radius child]
-      :or   {}}]
+  [& {:keys [size margin padding border l-border r-border t-border b-border radius child]
+      :or   {size "auto"}}]
   "Returns markup which produces a border component.
    This is the way borders are added to boxes, in favour of adding the border attributes directly to the boxes themselves.
    border property syntax: '<border-width> || <border-style> || <color>'
     - border-width: thin, medium, thick or standard CSS size (e.g. 2px, 0.5em)
     - border-style: none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset
     - color:        standard CSS color (e.g. grey #88ffee)"
-  (let [no-border      (every? nil? [border l-border r-border t-border b-border])
+  (let [no-border (every? nil? [border l-border r-border t-border b-border])
         default-border "1px solid lightgrey"]
-    (box-base :class       "rc-border"
-              :f-child     true
+    (box-base :class "rc-border"
+              :f-child true
               :f-container true
-              :size        "auto"
+              :size size
               ;:scroll      scroll
               ;:h-scroll    h-scroll
               ;:v-scroll    v-scroll
@@ -364,13 +364,13 @@
               ;:justify     justify
               ;:align       align
               ;:align-self  align-self
-              :margin      margin
-              :padding     padding
-              :border      (if no-border default-border border)
-              :l-border    l-border
-              :r-border    r-border
-              :t-border    t-border
-              :b-border    b-border
-              :radius      radius
+              :margin margin
+              :padding padding
+              :border (if no-border default-border border)
+              :l-border l-border
+              :r-border r-border
+              :t-border t-border
+              :b-border b-border
+              :radius radius
               ;:bk-color    bk-color
-              :child       child)))
+              :child child)))
