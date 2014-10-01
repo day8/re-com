@@ -97,13 +97,13 @@
     false    (time/validate-time-range 2345 600 2200)))
 
 (deftest test-time-input
- (is (fn? (time/time-input :model 1500)) "Expected a function.")
- (is (fn? (time/time-input :model 1500 :minimum-time 600 :maximum-time 2159)) "Expected a function.")
+ (is (fn? (first (time/time-input :model 1500))) "Expected a function.")
+ (is (fn? (first (time/time-input :model 1500 :minimum 600 :maximum 2159))) "Expected a function.")
  (is (thrown? js/Error (time/time-input :model "abc") "should fail - model is invalid"))
- (is (thrown? js/Error (time/time-input :model 930 :minimum-time "abc" :maximum-time 2159) "should fail - minimum is invalid"))
- (is (thrown? js/Error (time/time-input :model 930 :minimum-time 600 :maximum-time "fred") "should fail - maximum is invalid"))
- (is (thrown? js/Error (time/time-input :model 530 :minimum-time 600 :maximum-time 2159) "should fail - model is before range start"))
- (is (thrown? js/Error (time/time-input :model 2230 :minimum-time 600 :maximum-time 2159) "should fail - model is after range end")))
+ (is (thrown? js/Error (time/time-input :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
+ (is (thrown? js/Error (time/time-input :model 930 :minimum 600 :maximum "fred") "should fail - maximum is invalid"))
+ (is (thrown? js/Error (time/time-input :model 530 :minimum 600 :maximum 2159) "should fail - model is before range start"))
+ (is (thrown? js/Error (time/time-input :model 2230 :minimum 600 :maximum 2159) "should fail - model is after range end")))
 
 (deftest test-atom-on
   (let [mdl (time/atom-on 123 nil)]

@@ -2,7 +2,7 @@
   (:require [re-demo.util    :refer  [title]]
             [re-com.core     :refer [label]]
             [re-com.util     :refer  [pad-zero-number]]
-            [re-com.time     :refer  [time-input time-range-input]]
+            [re-com.time     :refer  [time-input]]
             [re-com.box      :refer  [h-box v-box box gap line]]
             [reagent.core    :as     reagent]))
 
@@ -21,19 +21,24 @@
     [v-box
      :gap "0px"
      :children [[title "Time"]
-                [:p "Accepts input of a time. Model does not update until a valid time has been entered. Required parameters are -"]
+                [:p "Accepts input of a time. Model does not update until input loses focus. If the entered value is invalid it will be ignored."]
+                [:p "Required parameters are -"]
                 [:ul
                   [:li "model - an integer time e.g. 930"]]
                 [:p "Optional parameters are -"]
                 [:ul
-                  [:li "minimum-time - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
-                  [:li "maximum-time - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
+                  [:li "minimum - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
+                  [:li "maximum - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
                   [:li "on-change - function to call upon change."]]
                 [label :label "Examples" :style {:font-weight "bold"}]
                 [label :label "Basic time input, empty model"]
                 [time-input
                   :model (reagent/atom nil)
                   :style {}]
+                [label :label "Basic time input, with model, no border"]
+                [time-input
+                  :model (reagent/atom 0)
+                  :style {:border "none"}]
                 [label :label "Disabled time input"]
                 [time-input
                  :model (reagent/atom nil)
@@ -43,11 +48,11 @@
                 [label :label "Time with range 06:00-21:59"]
                 [time-input
                   :model model2
-                  :minimum-time 600
-                  :maximum-time 2159
+                  :minimum 600
+                  :maximum 2159
                   :on-change #(reset! model2 %)]]]))
 
-(defn time-range []
+#_(defn time-range []
   (let [range-model (reagent/atom [900 2100])]
     [v-box
       :gap "20px"
@@ -62,8 +67,7 @@
   []
   [v-box
    :children [[single-time]
-              [gap :height "30px"]
-              [time-range]]])
+              ]])
 
 
 
