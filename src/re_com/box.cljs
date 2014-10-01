@@ -87,20 +87,6 @@
     {:flex flex}))
 
 
-;; TODO - belongs in unittests, not here
-(defn test-flex-child-style []
-  (assert (= (:flex (flex-child-style "initial")) "initial"))
-  (assert (= (:flex (flex-child-style "auto")) "auto"))
-  (assert (= (:flex (flex-child-style "none")) "none"))
-  (assert (= (:flex (flex-child-style "100px")) "0 0 100px"))
-  (assert (= (:flex (flex-child-style "4.5em")) "0 0 4.5em"))
-  (assert (= (:flex (flex-child-style "60%")) "60 1 0px"))
-  (assert (= (:flex (flex-child-style "60")) "60 1 0px"))
-  (assert (= (:flex (flex-child-style "5 4 0%")) "5 4 0%"))
-  ;(assert (= (flex-child-style "a b") "EXCEPTION"))
-  )
-
-
 (defn justify-style
   [justify]
   "Determines the value for the flex 'justify-content' attribute.
