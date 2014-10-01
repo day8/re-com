@@ -73,53 +73,66 @@
           disabled?    (r/atom false)
           show-today?  (r/atom true)
           show-weeks?  (r/atom false)
-          enabled-days (r/atom (-> days-map keys set))]
+          enabled-days (r/atom (-> days-map keys set))
+          label-style  {:font-style "italic" :font-size "smaller" :color "#777"}]
       (case variation
-        "1" [parameters-with
-             [h-box
-              :gap "20px"
-              :align :start
-              :children [[(fn []
-                            [inline-picker
-                             :model model1
-                             :disabled disabled?
-                             :show-today @show-today?
-                             :show-weeks @show-weeks?
-                             :enabled-days @enabled-days
-                             :on-change #(reset! model1 %)])]
-                         ;; restricted to both minimum & maximum date
-                         [(fn []
-                            [inline-picker
-                             :model model2
-                             :minimum (iso8601->date "20140831")
-                             :maximum (iso8601->date "20141019")
-                             :show-today @show-today?
-                             :show-weeks @show-weeks?
-                             :enabled-days @enabled-days
-                             :disabled disabled?
-                             :on-change #(reset! model2 %)])]]]
-             enabled-days
-             disabled?
-             show-today?
-             show-weeks?]
-        "2" [parameters-with
-             [h-box
-              :size "auto"
-              :align :start
-              :children [[gap :size "120px"]
-                         [(fn []
-                            [dropdown-picker
-                             :model model1
-                             :show-today @show-today?
-                             :show-weeks @show-weeks?
-                             :enabled-days @enabled-days
-                             :format "dd MMM, yyyy"
-                             :disabled disabled?
-                             :on-change #(reset! model1 %)])]]]
-             enabled-days
-             disabled?
-             show-today?
-             show-weeks?])))
+        "1" [(fn
+               []
+               [parameters-with
+                [h-box
+                 :gap "20px"
+                 :align :start
+                 :children [[(fn []
+                               [v-box
+                                :gap "5px"
+                                :children [[label :style label-style :label ":minimum or :maximum not specified"]
+                                           [inline-picker
+                                            :model model1
+                                            :disabled disabled?
+                                            :show-today @show-today?
+                                            :show-weeks @show-weeks?
+                                            :enabled-days @enabled-days
+                                            :on-change #(reset! model1 %)]
+                                           [label :style label-style :label (str "selected: " @model1)]]])]
+                            ;; restricted to both minimum & maximum date
+                            [(fn []
+                               [v-box
+                                :gap "5px"
+                                :children [[label :style label-style :label ":minimum \"20140831\" :maximum \"20141019\""]
+                                           [inline-picker
+                                            :model model2
+                                            :minimum (iso8601->date "20140831")
+                                            :maximum (iso8601->date "20141019")
+                                            :show-today @show-today?
+                                            :show-weeks @show-weeks?
+                                            :enabled-days @enabled-days
+                                            :disabled disabled?
+                                            :on-change #(reset! model2 %)]
+                                           [label :style label-style :label (str "selected: " @model2)]]])]]]
+                enabled-days
+                disabled?
+                show-today?
+                show-weeks?])]
+        "2" [(fn
+               []
+               [parameters-with
+                [h-box
+                 :size "auto"
+                 :align :start
+                 :children [[gap :size "120px"]
+                            [(fn []
+                               [dropdown-picker
+                                :model model1
+                                :show-today @show-today?
+                                :show-weeks @show-weeks?
+                                :enabled-days @enabled-days
+                                :format "dd MMM, yyyy"
+                                :disabled disabled?
+                                :on-change #(reset! model1 %)])]]]
+                enabled-days
+                disabled?
+                show-today?
+                show-weeks?])])))
 
 
 (defn notes
