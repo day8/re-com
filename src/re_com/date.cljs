@@ -251,8 +251,13 @@
         [popover
          :position :below-center
          :showing? shown?
-         :options {:arrow-length 0 :arrow-width 0
-                   :margin-left (if show-weeks "-24px" "-11px") :margin-top "3px"
-                   :width "auto" :padding "0px"}
+         :options {:arrow-length      0
+                   :arrow-width       0
+                   :margin-left       (if show-weeks "-24px" "-11px")
+                   :margin-top        "3px"
+                   :padding           "0px"
+                   :backdrop-callback #(reset! shown? false)
+                   :backdrop-opacity  0}
          :anchor  [anchor-button shown? model format]
-         :popover {:body (into [inline-picker] passthrough-args)}]))))
+         :popover {:body  (into [inline-picker] passthrough-args)
+                   :width "auto"}]))))
