@@ -31,6 +31,7 @@
                   [:li "maximum - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
                   [:li "on-change - function to call upon change."]
                   [:li "disabled - true if the component should be disabled - default false"]
+                  [:li "show-time-icon - true if the clock icon should be disabled - default false"]
                   [:li "style - css style"]]
                 [label :label "Examples" :style {:font-weight "bold"}]
                 [label :label "Basic time input, empty model"]
@@ -45,8 +46,8 @@
                 [time-input
                  :model (reagent/atom nil)
                   :disabled true]
-                [label :label "Time with default range:"]
-                [time-input :model model1 :on-change #(reset! model1 %)]
+                [label :label "Time with default range and icon:"]
+                [time-input :model model1 :on-change #(reset! model1 %) :show-time-icon true]
                 [label :label "Time with range 06:00-21:59"]
                 [time-input
                   :model model2

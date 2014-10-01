@@ -184,19 +184,25 @@
     (validate-max-min @min @max)                  ;; This will throw an error if the parameters are invalid
     (if-not (valid-time-integer? deref-model @min @max)
       (throw (js/Error. (str "model " deref-model " is not a valid time integer."))))
-    (fn [& {:keys [on-change disabled style]}]
+    (fn [& {:keys [on-change disabled show-time-icon style]}]
         [:span.input-append.bootstrap-timepicker
-          [:input
+         {:style {}}
+          [:input.input-small
             {:type "text"
              :disabled (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
              :class "time-entry"
              :value @tmp-model
-             :style (merge {:font-size "11px"
+             :style (merge {:margin-top "0px"
+                            :padding-top "0px"
+                            :font-size "11px"
                             :width "35px"} style)
              :on-focus #(got-focus %)
              :on-change #(time-changed % tmp-model)
              :on-mouse-up #(.preventDefault %)    ;; Chrome browser deselects on mouse up - prevent this from happening
              :on-blur #(time-updated % tmp-model min max on-change)}
-            ;;[:span.add-on [:i.glyphicon.glyphicon-time]]
+            (when show-time-icon
+              [:span.time-icon
+               {:style {}}
+               [:span.glyphicon.glyphicon-time]])
            ]])))
 
