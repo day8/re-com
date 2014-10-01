@@ -31,7 +31,7 @@
                   [:li "maximum - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
                   [:li "on-change - function to call upon change."]
                   [:li "disabled - true if the component should be disabled - default false"]
-                  [:li "show-time-icon - true if the clock icon should be disabled - default false"]
+                  [:li "show-time-icon - true if the clock icon should be displayed - default false"]
                   [:li "style - css style"]]
                 [label :label "Examples" :style {:font-weight "bold"}]
                 [label :label "Basic time input, empty model"]
