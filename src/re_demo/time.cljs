@@ -1,9 +1,10 @@
 (ns re-demo.time
   (:require [re-demo.util    :refer  [title]]
-            [re-com.core     :refer [label]]
+            [re-com.core     :refer  [label]]
             [re-com.util     :refer  [pad-zero-number]]
             [re-com.time     :refer  [time-input]]
             [re-com.box      :refer  [h-box v-box box gap line]]
+            [re-com.dropdown :refer  [single-dropdown]]
             [reagent.core    :as     reagent]))
 
 (defn display-time
@@ -15,50 +16,159 @@
          ":"
          (pad-zero-number min 2))))
 
-(defn time-examples []
-  (let [model1 (reagent/atom 900)
-        model2 (reagent/atom 2030)]
-    [v-box
-     :gap "0px"
-     :children [[title "Time"]
-                [:p "Accepts input of a time. Model does not update until input loses focus. If the entered value is invalid it will be ignored."]
-                [:p "Required parameters are -"]
+(def demos [{:id "1" :label "Time input, empty model"}
+            {:id "2" :label "Time input, no border"}
+            {:id "3" :label "Disabled time input"}
+            {:id "4" :label "Time with icon"}
+            {:id "5" :label "Time with range 06:00-21:59"}])
+
+(defn notes
+  []
+  [v-box
+   :width    "500px"
+   :children [[:div.h4 "General notes:"]
+              [:div {:style {:font-size "small"}}
+               [:p "Accepts input of a time. The callback is triggered when the input loses focus. If the entered value is invalid it will be ignored."]
+               [:p "If invalid data is provided, an exception will be thrown."]
+               [:div.h4 "Parameters"]
+               [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
-                  [:li "model - an integer time e.g. 930"]]
-                [:p "Optional parameters are -"]
+                 [:li.spacer [:strong ":model"] " - an integer time e.g. 930"]]
+               [:label {:style {:font-variant "small-caps"}} "optional"]
                 [:ul
-                  [:li "minimum - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
-                  [:li "maximum - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
-                  [:li "on-change - function to call upon change."]
-                  [:li "disabled - true if the component should be disabled - default false"]
-                  [:li "show-time-icon - true if the clock icon should be displayed - default false"]
-                  [:li "style - css style"]]
-                [label :label "Examples" :style {:font-weight "bold"}]
-                [label :label "Basic time input, empty model"]
-                [time-input
-                  :model (reagent/atom nil)
-                  :style {}]
-                [label :label "Basic time input, with model, no border"]
-                [time-input
-                  :model (reagent/atom 0)
-                  :style {:border "none"}]
-                [label :label "Disabled time input"]
-                [time-input
-                 :model (reagent/atom nil)
-                  :disabled true]
-                [label :label "Time with default range and icon:"]
-                [time-input :model model1 :on-change #(reset! model1 %) :show-time-icon true]
-                [label :label "Time with range 06:00-21:59"]
-                [time-input
-                  :model model2
-                  :minimum 600
-                  :maximum 2159
-                  :on-change #(reset! model2 %)]]]))
+                  [:li.spacer [:strong ":minimum"] " - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
+                  [:li.spacer [:strong ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
+                  [:li.spacer [:strong ":on-change"] " - function to call upon change."]
+                  [:li.spacer [:strong ":disabled"] " - true if the component should be disabled - default false"]
+                  [:li.spacer [:strong ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
+                  [:li.spacer [:strong ":style"] " - css style"]]]]])
+
+(defn demo1
+  []
+  (let [model (reagent/atom nil)]
+    (fn []
+      [v-box
+        :style {:font-size "small"}
+        :children [[:div.h4 "Time input - empty model"]
+                   [:label "Usage -"]
+                   [:code "[time-input :model (reagent/atom nil) :on-change #(reset! model %)]"]
+                   [:ul
+                     [:li [:strong ":model"] " - atom on nil"]
+                     [:li [:strong ":minimum"] " - nil - (default 0)"]
+                     [:li [:strong ":maximum"] " - nil - (default 2359)"]]
+                   [:label "Demo -"]
+                   [time-input :model model]]])))
+
+(defn demo2
+  []
+  (let [model  (reagent/atom 600)]
+    (fn []
+      [v-box
+        :style {:font-size "small"}
+        :children [[:div.h4 "Time input - model 600"]
+                   [:label "Usage -"]
+                   [:code "[time-input
+                      :model (reagent/atom 600)
+                      :on-change #(reset! model %)
+                      :style {:border \"none\"}]"]
+                   [:ul
+                     [:li [:strong ":model"] " - atom on 600"]
+                     [:li [:strong ":on-change"] " - update the model with the new value"]
+                     [:li [:strong ":minimum"] " - nil - (default 0)"]
+                     [:li [:strong ":maximum"] " - nil - (default 2359)"]]
+                   [:label "Demo -"]
+                   [time-input :model model :style {:border "none"}]]])))
+
+(defn demo3
+  []
+  (let [model  (reagent/atom 0)]
+    (fn []
+      [v-box
+        :style {:font-size "small"}
+        :children [[:div.h4 "Disabled time input - model 0"]
+                   [:label "Usage -"]
+                   [:code "[time-input :model (reagent/atom 0) :disabled true]"]
+                   [:ul
+                     [:li [:strong ":model"] " - atom on nil"]
+                     [:li [:strong ":minimum"] " - nil -(default 0)"]
+                     [:li [:strong ":maximum"] " - nil - (default 2359)"]]
+                   [:label "Demo -"]
+                   [time-input :model model :disabled true]]])))
+
+(defn demo4
+  []
+  (let [model  (reagent/atom 900)]
+    (fn []
+      [v-box
+        :style {:font-size "small"}
+        :children [[:div.h4 "Time input with icon - model 900"]
+                   [:label "Usage -"]
+                   [:code "[time-input
+                             :model (reagent/atom 900)
+                             :on-change #(reset! model %)
+                             :show-time-icon true]"]
+                   [:ul
+                     [:li [:strong ":model"] " - atom on 900"]
+                     [:li [:strong ":on-change"] " - update the model with the new value"]
+                     [:li [:strong ":minimum"] " - (default) 0"]
+                     [:li [:strong ":maximum"] " - (default) 2359"]]
+                   [:label "Demo -"]
+                   [time-input :model model :on-change #(reset! model %) :show-time-icon true]]])))
+
+(defn demo5
+  []
+  (let [model  (reagent/atom 900)]
+    (fn []
+      [v-box
+        :style {:font-size "small"}
+        :children [[:div.h4 "Time input - model 900 - range 06:00-21:59"]
+                   [:label "Usage -"]
+                   [:code "[time-input
+                             :model (reagent/atom 900)
+                             :on-change #(reset! model %)
+                             :minimum 600
+                             :maximum 2159]"]
+                   [:ul
+                     [:li [:strong ":model"] " - atom on 900"]
+                     [:li [:strong ":on-change"] " - update the model with the new value"]
+                     [:li [:strong ":minimum"] " - 600"]
+                     [:li [:strong ":maximum"] " - 2159"]]
+                   [:label "Demo -"]
+                   [:p "Try typing a value outside the range."]
+                   [time-input
+                     :model model
+                     :on-change #(reset! model %)
+                     :minimum 600
+                     :maximum 2159]]])))
 
 (defn panel
   []
-  [v-box
-   :children [[time-examples]]])
+  (let [selected-demo-id (reagent/atom "1")]
+    (fn [] [v-box
+            :children [[:h3.page-header "Time Input"]
+                       [h-box
+                        :gap      "50px"
+                        :children [[notes]
+                                   [v-box
+                                    :gap       "15px"
+                                    :size      "auto"
+                                    :min-width "500px"
+                                    :children  [[h-box
+                                                :gap      "10px"
+                                                :align    :center
+                                                :children [[label :label "Select a demo"]
+                                                           [single-dropdown
+                                                            :options   demos
+                                                            :model     selected-demo-id
+                                                            :width     "300px"
+                                                            :on-select #(reset! selected-demo-id %)]]]
+                                               [gap :size "0px"] ;; Force a bit more space here
+                                               (case @selected-demo-id
+                                                 "1" [demo1]
+                                                 "2" [demo2]
+                                                 "3" [demo3]
+                                                 "4" [demo4]
+                                                 "5" [demo5])]]]]]])))
 
 
 
