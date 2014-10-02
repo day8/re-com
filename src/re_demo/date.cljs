@@ -1,12 +1,11 @@
 (ns re-demo.date
-  (:require [re-demo.util         :refer  [title]]
-            [cljs-time.core       :refer  [now]]
-            [cljs-time.predicates :refer  [sunday? monday?]]
-            [re-com.core          :refer  [label checkbox]]
-            [re-com.date          :refer  [inline-picker dropdown-picker previous iso8601->date]]
-            [re-com.box           :refer  [h-box v-box box gap line border]]
-            [re-com.dropdown      :refer  [single-dropdown]]
-            [reagent.core         :as     r]))
+  (:require
+    [reagent.core         :as     r]
+    [cljs-time.core       :refer  [now]]
+    [re-com.core          :refer  [label checkbox]]
+    [re-com.date          :refer  [inline-picker dropdown-picker iso8601->date]]
+    [re-com.box           :refer  [h-box v-box box gap border]]
+    [re-com.dropdown      :refer  [single-dropdown]]))
 
 (defn- toggle-inclusion! [set-atom member]
   "convenience function to include/exclude member from"
@@ -66,7 +65,7 @@
 
 
 
-  (defn show-variant
+  (defn- show-variant
     [variation]
     (let [model1       (r/atom (now))
           model2       (r/atom (iso8601->date "20140914"))
@@ -135,7 +134,7 @@
                 show-weeks?])])))
 
 
-(defn notes
+(defn- notes
   [selected-variation]
   [v-box
    :width "500px"
