@@ -2,9 +2,8 @@
 ;; depends: datepicker-bs3.css
 
 (ns re-com.date
-  (:require-macros [clairvoyant.core :refer [trace-forms]])
   (:require
-    [clairvoyant.core     :refer [default-tracer]]
+    [clojure.set          :refer [superset?]]
     [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month
                                   before? after?]]
     [cljs-time.predicates :refer [sunday?]]
@@ -188,21 +187,22 @@
     (merge attributes {:enabled-days enabled-days
                        :today (now)})))
 
+(def api
+  #{:model        ; goog.date.UtcDateTime can be reagent/atom.
+                  ; The calendar will be focused on corresponding date and the date represents selection.
+   :on-change     ; function callback will be passed new selected goog.date.UtcDateTime
+   :disabled      ; optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
+   :enabled-days  ; set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
+   :show-weeks    ; boolean. When true, first column shows week numbers.
+   :show-today    ; boolean. When true, today's date is highlighted. Selected day highlight takes precedence.
+   :minimum       ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
+   :maximum       ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
+   :hide-border   ; boolean. Default false.
+   })
 
 (defn inline-picker
-  ;; API
-  ;;  :model         - goog.date.UtcDateTime can be reagent/atom.
-  ;;                   The calendar will be focused on corresponding date and the date represents selection.
-  ;;  :on-change     - function callback will be passed new selected goog.date.UtcDateTime
-  ;;  :disabled      - optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
-  ;;  :enabled-days  - set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
-  ;;  :show-weeks    - boolean. When true, first column shows week numbers.
-  ;;  :show-today    - boolean. When true, today's date is highlighted. Selected day highlight takes precedence.
-  ;;  :minimum       - optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
-  ;;  :maximum       - optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
-  ;;  :hide-border   - boolean. Default false.
-
-  [& {:keys [model]}]
+  [& {:keys [model] :as allprops}]
+  {:pre [(superset? api (keys allprops))]}
   (let [current (-> (real-value model) first-day-of-the-month reagent/atom)]
     (fn
       [& {:keys [model disabled hide-border on-change] :as properties}]
