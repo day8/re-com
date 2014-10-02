@@ -69,19 +69,21 @@
 
 (defn- main-div-with
   [table-div hide-border]
-  [box
-   :child [border
-           :radius "4px"
-           :border (when hide-border "none")
-           :child [:div
-                   {:class "calendar-date datepicker"
-                           ;; override inherrited body larger 14px font-size
-                           ;; override position from css because we are inline
-                    :style {:font-size "13px"
-                            :position "static"
-                            :-webkit-user-select "none" ;; only good on webkit/chrome what do we do for firefox etc
-                            }}
-                   table-div]]])
+  ;;extra h-box is currently necessary so that calendar & border do not strecth to width of any containing v-box
+  [h-box
+   :children [[border
+               :radius "4px"
+               :size   "none"
+               :border (when hide-border "none")
+               :child [:div
+                       {:class "calendar-date datepicker"
+                        ;; override inherrited body larger 14px font-size
+                        ;; override position from css because we are inline
+                        :style {:font-size "13px"
+                                :position "static"
+                                :-webkit-user-select "none" ;; only good on webkit/chrome what do we do for firefox etc
+                                }}
+                       table-div]]]])
 
 
 (defn- table-thead
@@ -251,8 +253,13 @@
         [popover
          :position :below-center
          :showing? shown?
-         :options {:arrow-length 0 :arrow-width 0
-                   :margin-left (if show-weeks "-24px" "-11px") :margin-top "3px"
-                   :width "auto" :padding "0px"}
+         :options {:arrow-length      0
+                   :arrow-width       0
+                   :margin-left       (if show-weeks "-24px" "-11px")
+                   :margin-top        "3px"
+                   :padding           "0px"
+                   :backdrop-callback #(reset! shown? false)
+                   :backdrop-opacity  0}
          :anchor  [anchor-button shown? model format]
-         :popover {:body (into [inline-picker] passthrough-args)}]))))
+         :popover {:body  (into [inline-picker] passthrough-args)
+                   :width "auto"}]))))

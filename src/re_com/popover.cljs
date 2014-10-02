@@ -60,7 +60,6 @@
                            :right nil
                            :above (px 10) ;; "100%" TODO: Work out why we need 10px instead of 100%
                            :below nil)]
-      #_(util/console-log (str "in calc-popover-pos: pop-offset=" pop-offset ", p-width=" p-width ", p-height=" p-height))
       {:left popover-left :top popover-top :right popover-right :bottom popover-bottom})))
 
 
@@ -101,8 +100,8 @@
 
 
 (defn make-popover
-  [{:keys [showing? close-button? position title body width height arrow-length arrow-width backdrop-callback backdrop-transparency]
-    :or {close-button? false position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22 backdrop-transparency 0.1}
+  [{:keys [showing? close-button? position title body width height arrow-length arrow-width]
+    :or {close-button? false position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22}
     :as popover-params}]
   "Renders an element or control along with a Bootstrap popover
    Parameters:
@@ -111,38 +110,26 @@
        - :close-button?     [false         ] a boolean indicating whether a close button will be added to the popover title
        - :position          [:right-below  ] place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
        - :title             [nil           ] popover title (nil for no title)
-       - :body              ["{empty body}"] popover body (a string or a hiccup vector or function returning a hiccup vector)
+       - :body              ['{empty body}'] popover body (a string or a hiccup vector or function returning a hiccup vector)
        - :width             [250           ] a CSS string representing the popover width in pixels (or nil or omit parameter for auto)
        - :height            [auto          ] a CSS string representing the popover height in pixels (or nil or omit parameter for auto)
+       - :padding           [nil           ] override the inner padding of the popover
+       - :margin-left       [nil           ] horiztonal offset from anchor after position
+       - :margin-top        [nil           ] vertical offset from anchor after position
        - :arrow-length      [11            ] length in pixels of arrow (from pointy part to middle of arrow base)
-       - :arrow-width       [22            ] length in pixels of arrow base
-       - :backdrop-callback [nil           ] NOT YET IMPLEMENTED: if specified, add a backdrop div between the main screen (including element) and the popover.
-                                             when clicked, this callback is called (usually to close the popover)
-       - :backdrop-opacity  [0.1           ] NOT YET IMPLEMENTED: 0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)"
+       - :arrow-width       [22            ] length in pixels of arrow base"
 
   (let [rendered-once           (reagent/atom false)
         pop-id                  (gensym "popover-")
         [orientation arrow-pos] (split-keyword position "-")
         grey-arrow              (and title (or (= orientation :below) (= arrow-pos :below)))]
-
-    #_(util/console-log (str "in popover ("
-                           "orientation="  orientation
-                           ", arrow-pos="  arrow-pos
-                           ", grey-arrow=" grey-arrow
-                           ", title="      title
-                           ", w="          (if (nil? width) "auto" width)
-                           ", h="          (if (nil? height) "auto" height)
-                           ")"))
     (reagent/create-class
-     {
-      :component-did-mount
+     {:component-did-mount
       (fn []
-        #_(util/console-log "make-popover :component-did-mount")
         (reset! rendered-once true))
 
       :render
       (fn []
-        #_(util/console-log "make-popover :render")
         (let [popover-elem   (util/get-element-by-id pop-id)
               p-height       (if popover-elem (.-clientHeight popover-elem) 0) ;; height is optional (with no default) so we need to calculate it
               pop-offset     (case arrow-pos
@@ -173,7 +160,7 @@
                           (select-keys popover-params [:margin-left :margin-top]))}
            [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
            (when title [:h3.popover-title [:div title (when close-button? [close-button showing?])]])
-           [:div.popover-content {:style (select-keys popover-params [:padding :width])} body]]))})))
+           [:div.popover-content {:style (select-keys popover-params [:padding])} body]]))})))
 
 
 (defn popover
@@ -193,11 +180,12 @@
       options map
        - :arrow-length      length in pixels of arrow (from pointy part to middle of arrow base)
        - :arrow-width       length in pixels of arrow base
-       - :margin-left       optional horiztonal offset from anchor after position
-       - :margin-top        optional vertical offset from anchor after position
-       - :backdrop-callback NOT YET IMPLEMENTED: if specified, add a backdrop div between the main screen (including element) and the popover.
+       - :padding           override the inner padding of the popover
+       - :margin-left       horiztonal offset from anchor after position
+       - :margin-top        vertical offset from anchor after position
+       - :backdrop-callback if specified, add a backdrop div between the main screen (including element) and the popover.
                             when clicked, this callback is called (usually to close the popover)
-       - :backdrop-opacity  NOT YET IMPLEMENTED: 0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)"
+       - :backdrop-opacity  0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)"
 
   (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
         place-anchor-before?    (case orientation (:left :above) false true)
