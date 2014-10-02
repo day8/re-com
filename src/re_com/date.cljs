@@ -9,7 +9,7 @@
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [box border h-box]]
-    [re-com.util          :refer [real-value]]
+    [re-com.util          :refer [deref-or-value]]
     [re-com.popover       :refer [popover make-button make-link]]
     [reagent.core         :as    reagent]))
 
@@ -203,7 +203,7 @@
 (defn inline-picker
   [& {:keys [model] :as args}]
   {:pre [(superset? core-api (keys args))]}
-  (let [current (-> (real-value model) first-day-of-the-month reagent/atom)]
+  (let [current (-> (deref-or-value model) first-day-of-the-month reagent/atom)]
     (fn
       [& {:keys [model disabled hide-border on-change] :as properties}]
       (let [configuration (configure properties)]
@@ -212,9 +212,9 @@
            [table-thead current configuration]
            [table-tbody
             @current
-            (real-value model)
+            (deref-or-value model)
             configuration
-            (if (nil? disabled) false (real-value disabled))
+            (if (nil? disabled) false (deref-or-value disabled))
             on-change]]
           hide-border)))))
 
