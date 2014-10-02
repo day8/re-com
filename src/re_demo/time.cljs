@@ -29,7 +29,8 @@
    :children [[:div.h4 "General notes:"]
               [:div {:style {:font-size "small"}}
                [:p "Accepts input of a time. The callback is triggered when the input loses focus. If the entered value is invalid it will be ignored."]
-               [:p "If invalid data is provided, an exception will be thrown."]
+               [:p "Times are passed to the component and returned in the callback as integers e.g. 1830 is '18:30'."]
+               [:p "If invalid data is provided in the model or other parameters, an exception will be thrown."]
                [:div.h4 "Parameters"]
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
@@ -43,17 +44,19 @@
                   [:li.spacer [:strong ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
                   [:li.spacer [:strong ":style"] " - css style"]]]]])
 
+;; TODO write a macro to convert the demo source to actual code - see time-input-demo and time-input-code in each demo
+
 (defn demo1
   []
   (let [model (reagent/atom nil)
-        time-input-demo [time-input :model model]
-        time-input-code "[time-input :model model]"]
+        time-input-demo  [time-input :model model]
+        time-input-code "[time-input :model (reagent/atom nil)]"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
           :children [[:div.h4 "Time input - empty model"]
                      [:label "Usage -"]
-                     [:code time-input-code]
+                     [:pre [:code time-input-code]]
                      [:ul
                        [:li [:strong ":model"] " - atom on nil"]
                        [:li [:strong ":minimum"] " - nil - (default 0)"]
@@ -64,15 +67,15 @@
 (defn demo2
   []
   (let [model  (reagent/atom 600)
-        time-input-demo  [time-input :model model :style {:border "none"}]
-        time-input-code "[time-input :model model :style {:border \"none\"}]"]
+        time-input-demo  [time-input :model model              :style {:border "none"}]
+        time-input-code "[time-input :model (reagent/atom 600) :style {:border \"none\"}]"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
           :style {:font-size "small"}
           :children [[:div.h4 "Time input - model: 600"]
                    [:label "Usage -"]
-                   [:code time-input-code]
+                   [:pre [:code time-input-code]]
                    [:ul
                      [:li [:strong ":model"] " - atom on 600"]
                      [:li [:strong ":style"] " - map with: {:border \"none\"}"]
@@ -84,14 +87,14 @@
 (defn demo3
   []
   (let [model  (reagent/atom 0)
-        time-input-demo  [time-input :model model :disabled true]
-        time-input-code "[time-input :model model :disabled true]"]
+        time-input-demo  [time-input :model model            :disabled true]
+        time-input-code "[time-input :model (reagent/atom 0) :disabled true]"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
           :children [[:div.h4 "Disabled time input - model: 0"]
                    [:label "Usage -"]
-                   [:code time-input-code]
+                   [:pre [:code time-input-code]]
                    [:ul
                      [:li [:strong ":model"] " - atom on nil"]
                      [:li [:strong ":disabled"] " - true"]
@@ -103,17 +106,18 @@
 (defn demo4
   []
   (let [model  (reagent/atom 900)
-        time-input-demo  [time-input :model model :on-change #(reset! model %) :show-time-icon true]
-        time-input-code "[time-input :model model :on-change #(reset! model %) :show-time-icon true]"]
+        time-input-demo  [time-input :model model              :on-change #(reset! model %) :show-time-icon true]
+        time-input-code "(let [model  (reagent/atom 900)]
+  [time-input
+    :model model
+    :on-change #(reset! model %)
+    :show-time-icon true])"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
           :children [[:div.h4 "Time input with icon - model: 900"]
                    [:label "Usage -"]
-                   [:code "[time-input
-                             :model (reagent/atom 900)
-                             :on-change #(reset! model %)
-                             :show-time-icon true]"]
+                   [:pre [:code time-input-code]]
                    [:ul
                      [:li [:strong ":model"] " - atom on 900"]
                      [:li [:strong ":on-change"] " - update the model with the new value"]
@@ -130,17 +134,18 @@
                           :on-change #(reset! model %)
                           :minimum 600
                           :maximum 2159]
-        time-input-code "[time-input
-                          :model model
-                          :on-change #(reset! model %)
-                          :minimum 600
-                          :maximum 2159]"]
+        time-input-code "(let [model  (reagent/atom 900)]
+  [time-input
+    :model model
+    :on-change #(reset! model %)
+    :minimum 600
+    :maximum 2159])"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
           :children [[:div.h4 "Time input - model: 900 - range: 06:00-21:59"]
                    [:label "Usage -"]
-                   [:code time-input-code]
+                   [:pre [:code time-input-code]]
                    [:ul
                      [:li [:strong ":model"] " - atom on 900"]
                      [:li [:strong ":on-change"] " - update the model with the new value"]

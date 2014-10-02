@@ -115,7 +115,7 @@
 (defn got-focus
   "When the time input gets focus, select everything."
   [ev]
-  (-> ev .-target .select))  ;; TODO works, but then gets deselected
+  (-> ev .-target .select))  ;; works, but requires fix for Chrome - see :on-mouse-up
 
 (defn validate-string
   "Return true if the passed string valdiates OK."
