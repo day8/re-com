@@ -1,8 +1,8 @@
 (ns re-com.popover
-  (:require [re-com.util  :as util]
-            [re-com.core  :refer [button]]
-            [clojure.string :as string]
-            [reagent.core :as reagent]))
+  (:require [re-com.util    :as    util]
+            [re-com.core    :refer [button]]
+            [clojure.string :as    string]
+            [reagent.core   :as    reagent]))
 
 
 (defn point
@@ -208,13 +208,13 @@
 
     [:div {:style {:display "inline-block"}}
      (when (and @showing? backdrop-callback)
-       [:div {:style {:position "fixed"
-                      :left "0px"
-                      :top "0px"
-                      :width "100%"
-                      :height "100%"
-                      :background-color "black"
-                      :opacity backdrop-opacity}
+       [:div {:style    {:position "fixed"
+                         :left "0px"
+                         :top "0px"
+                         :width "100%"
+                         :height "100%"
+                         :background-color "black"
+                         :opacity backdrop-opacity}
               :on-click backdrop-callback}])
      [:div {:style {:display "inline-flex" :flex-flow flex-flow :align-items "center"}}
       (when place-anchor-before? anchor)
@@ -227,9 +227,11 @@
 
 (defn make-button
   [showing? type text]
-  [button text #(reset! showing? (not @showing?))
-   :style {:margin-left "2px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-   :class (str "btn-" type)])
+  [button
+   :label    text
+   :on-click #(reset! showing? (not @showing?))
+   :style    {:margin-left "2px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+   :class    (str "btn-" type)])
 
 
 (defn make-link

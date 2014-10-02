@@ -56,7 +56,7 @@
 
 (def grouped-countries [{:id "AU" :label "Australia"                :group "POPULAR COUNTRIES"}
                         {:id "US" :label "United States"            :group "POPULAR COUNTRIES"}
-                        {:id "GB" :label [:strong "United Kingdom"] :group "POPULAR COUNTRIES"}
+                        {:id "GB" :label [:code "United Kingdom"] :group "POPULAR COUNTRIES"}
                         {:id "AF" :label "Afghanistan"              :group "'A' COUNTRIES"}
                         {:id "AB" :label "Albania"                  :group "'A' COUNTRIES"}
                         {:id "AG" :label "Algeria"                  :group "'A' COUNTRIES"}
@@ -123,7 +123,7 @@
                                :filter-box  false
                                :on-select   #(reset! selected-country-id %)]
                               [:div
-                               [:strong "Selected country: "]
+                               [:code "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
@@ -150,7 +150,7 @@
                                :filter-box true
                                :on-select  #(reset! selected-country-id %)]
                               [:div
-                               [:strong "Selected country: "]
+                               [:code "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
@@ -182,7 +182,7 @@
                                :filter-box true
                                :on-select  #(reset! selected-country-id %)]
                               [:div
-                               [:strong "Selected country: "]
+                               [:code "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
@@ -242,7 +242,7 @@
                                :width        (when @width? dropdown-width)
                                :on-select    #(reset! selected-country-id %)]
                               [:div
-                               [:strong "Selected country: "]
+                               [:code "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
@@ -269,7 +269,7 @@
                                             (reset! filtered-cities (filter-options-by-keyword cities :country-id @selected-country-id))
                                             (reset! selected-city-id nil))]
                               [:div
-                               [:strong "Selected country: "]
+                               [:code "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (find-option countries @selected-country-id)) " [" @selected-country-id "]"))]]]
@@ -283,7 +283,7 @@
                                :width     "300px"
                                :on-select #(reset! selected-city-id %)]
                               [:div
-                               [:strong "Selected city: "]
+                               [:code "Selected city: "]
                                (if (nil? @selected-city-id)
                                  "None"
                                  (str (:label (find-option cities @selected-city-id)) " [" @selected-city-id "]"))]]]]])))
@@ -293,22 +293,22 @@
   []
   [v-box
    :width    "500px"
-   :children [[:div.h4 "General notes:"]
+   :children [[:div.h4 "General notes"]
               [:ul
                [:li "To create a dropdown component, the following parameters are required:"
                 [:ul
-                 [:li.spacer [:strong ":options"] " - a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."]
-                 [:li.spacer [:strong ":model"] " - the :id of the initially selected option, or nil to have no initial selection (in which case, :placeholder will be shown)."]
-                 [:li.spacer [:strong ":on-select"] " - a callback function taking one parameter which will be the :id of the new selection."]]]
+                 [:li.spacer [:code ":options"] " - a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."]
+                 [:li.spacer [:code ":model"] " - the :id of the initially selected option, or nil to have no initial selection (in which case, :placeholder will be shown)."]
+                 [:li.spacer [:code ":on-select"] " - a callback function taking one parameter which will be the :id of the new selection."]]]
                [:li "The rest of the parameters are optional:"
                 [:ul
-                 [:li.spacer [:strong ":disabled"] " - a boolean indicating whether the control should be disabled. false if not specified."]
-                 [:li.spacer [:strong ":filter-box"] " - a boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified."]
-                 [:li.spacer [:strong ":regex-filter"] " - a boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified."]
-                 [:li.spacer [:strong ":placeholder"] " - the text to be displayed in the dropdown if no selection has yet been made."]
-                 [:li.spacer [:strong ":width"] " - the width of the component (e.g. \"500px\"). If not specified, all available width is taken."]
-                 [:li.spacer [:strong ":max-height"] " - maximum height the dropdown will grow to. If not specified, \"240px\" is used."]
-                 [:li.spacer [:strong ":tab-index"] " - the tabindex number of this component. -1 to remove from tab order. If not specified, use natural tab order."]]]]]])
+                 [:li.spacer [:code ":disabled"] " - a boolean indicating whether the control should be disabled. false if not specified."]
+                 [:li.spacer [:code ":filter-box"] " - a boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified."]
+                 [:li.spacer [:code ":regex-filter"] " - a boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified."]
+                 [:li.spacer [:code ":placeholder"] " - the text to be displayed in the dropdown if no selection has yet been made."]
+                 [:li.spacer [:code ":width"] " - the width of the component (e.g. \"500px\"). If not specified, all available width is taken."]
+                 [:li.spacer [:code ":max-height"] " - maximum height the dropdown will grow to. If not specified, \"240px\" is used."]
+                 [:li.spacer [:code ":tab-index"] " - the tabindex number of this component. -1 to remove from tab order. If not specified, use natural tab order."]]]]]])
 
 
 (defn panel
