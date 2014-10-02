@@ -201,8 +201,8 @@
    })
 
 (defn inline-picker
-  [& {:keys [model] :as allprops}]
-  {:pre [(superset? api (keys allprops))]}
+  [& {:keys [model] :as args}]
+  {:pre [(superset? api (keys args))]}
   (let [current (-> (real-value model) first-day-of-the-month reagent/atom)]
     (fn
       [& {:keys [model disabled hide-border on-change] :as properties}]
