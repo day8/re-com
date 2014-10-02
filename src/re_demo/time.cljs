@@ -3,7 +3,7 @@
             [re-com.core     :refer  [label]]
             [re-com.util     :refer  [pad-zero-number]]
             [re-com.time     :refer  [time-input]]
-            [re-com.box      :refer  [h-box v-box box gap line]]
+            [re-com.box      :refer  [h-box v-box box gap]]
             [re-com.dropdown :refer  [single-dropdown]]
             [reagent.core    :as     reagent]))
 
