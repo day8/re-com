@@ -29,20 +29,20 @@
    :children [[:div.h4 "General notes:"]
               [:div {:style {:font-size "small"}}
                [:p "Accepts input of a time. The callback is triggered when the input loses focus. If the entered value is invalid it will be ignored."]
-               [:p "Times are passed to the component and returned in the callback as integers e.g. 1830 is '18:30'."]
+               [:p "Times are passed to the component and returned in the callback as integers e.g. '18:30' is 1830."]
                [:p "If invalid data is provided in the model or other parameters, an exception will be thrown."]
                [:div.h4 "Parameters"]
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
-                 [:li.spacer [:strong ":model"] " - an integer time e.g. 930"]]
+                 [:li.spacer [:code ":model"] " - an integer time e.g. 930"]]
                [:label {:style {:font-variant "small-caps"}} "optional"]
                 [:ul
-                  [:li.spacer [:strong ":minimum"] " - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
-                  [:li.spacer [:strong ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
-                  [:li.spacer [:strong ":on-change"] " - function to call upon change."]
-                  [:li.spacer [:strong ":disabled"] " - true if the component should be disabled - default false"]
-                  [:li.spacer [:strong ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
-                  [:li.spacer [:strong ":style"] " - css style"]]]]])
+                  [:li.spacer [:code ":minimum"] " - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
+                  [:li.spacer [:code ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
+                  [:li.spacer [:code ":on-change"] " - function to call upon change."]
+                  [:li.spacer [:code ":disabled"] " - true if the component should be disabled - default false"]
+                  [:li.spacer [:code ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
+                  [:li.spacer [:code ":style"] " - css style"]]]]])
 
 ;; TODO write a macro to convert the demo source to actual code - see time-input-demo and time-input-code in each demo
 
@@ -58,9 +58,9 @@
                      [:label "Usage -"]
                      [:pre [:code time-input-code]]
                      [:ul
-                       [:li [:strong ":model"] " - atom on nil"]
-                       [:li [:strong ":minimum"] " - nil - (default 0)"]
-                       [:li [:strong ":maximum"] " - nil - (default 2359)"]]
+                       [:li [:code ":model"] " - atom on nil"]
+                       [:li [:code ":minimum"] " - nil - (default 0)"]
+                       [:li [:code ":maximum"] " - nil - (default 2359)"]]
                      [:label "Demo -"]
                      time-input-demo]]])))
 
@@ -77,10 +77,10 @@
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li [:strong ":model"] " - atom on 600"]
-                     [:li [:strong ":style"] " - map with: {:border \"none\"}"]
-                     [:li [:strong ":minimum"] " - nil - (default 0)"]
-                     [:li [:strong ":maximum"] " - nil - (default 2359)"]]
+                     [:li [:code ":model"] " - atom on 600"]
+                     [:li [:code ":style"] " - map with: {:border \"none\"}"]
+                     [:li [:code ":minimum"] " - nil - (default 0)"]
+                     [:li [:code ":maximum"] " - nil - (default 2359)"]]
                    [:label "Demo -"]
                    time-input-demo]]])))
 
@@ -96,10 +96,10 @@
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li [:strong ":model"] " - atom on nil"]
-                     [:li [:strong ":disabled"] " - true"]
-                     [:li [:strong ":minimum"] " - nil -(default 0)"]
-                     [:li [:strong ":maximum"] " - nil - (default 2359)"]]
+                     [:li [:code ":model"] " - atom on nil"]
+                     [:li [:code ":disabled"] " - true"]
+                     [:li [:code ":minimum"] " - nil -(default 0)"]
+                     [:li [:code ":maximum"] " - nil - (default 2359)"]]
                    [:label "Demo -"]
                    time-input-demo]]])))
 
@@ -119,10 +119,10 @@
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li [:strong ":model"] " - atom on 900"]
-                     [:li [:strong ":on-change"] " - update the model with the new value"]
-                     [:li [:strong ":minimum"] " - (default) 0"]
-                     [:li [:strong ":maximum"] " - (default) 2359"]]
+                     [:li [:code ":model"] " - atom on 900"]
+                     [:li [:code ":on-change"] " - update the model with the new value"]
+                     [:li [:code ":minimum"] " - (default) 0"]
+                     [:li [:code ":maximum"] " - (default) 2359"]]
                    [:label "Demo -"]
                    time-input-demo]]])))
 
@@ -147,10 +147,10 @@
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li [:strong ":model"] " - atom on 900"]
-                     [:li [:strong ":on-change"] " - update the model with the new value"]
-                     [:li [:strong ":minimum"] " - 600"]
-                     [:li [:strong ":maximum"] " - 2159"]]
+                     [:li [:code ":model"] " - atom on 900"]
+                     [:li [:code ":on-change"] " - update the model with the new value"]
+                     [:li [:code ":minimum"] " - 600"]
+                     [:li [:code ":maximum"] " - 2159"]]
                    [:label "Demo -"]
                    [:p "Try typing a value outside the range."]
                    time-input-demo]]])))
