@@ -67,16 +67,16 @@
               [:div {:style {:font-size "small"}}
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
-                 [:li.spacer [:strong ":model"]
+                 [:li.spacer [:code ":model"]
                   " - TBA"]
-                 [:li.spacer [:strong ":on-change"]
+                 [:li.spacer [:code ":on-change"]
                   " - callback will be passed vector of selected items"]
                  ]
                [:label {:style {:font-variant "small-caps"}} "optional"]
                 [:ul
-                 [:li.spacer [:strong ":disabled"]
+                 [:li.spacer [:code ":disabled"]
                   " - boolean can be reagent/atom. (default false) If true, scrolling is allowed but selection is disabled."]
-                 [:li.spacer [:strong ":hide-border"]
+                 [:li.spacer [:code ":hide-border"]
                   " - boolean. Default false."]
                  ]]]])
 
