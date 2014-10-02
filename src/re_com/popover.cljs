@@ -19,10 +19,8 @@
   [kw delimiter] ;; TODO: Possibly move to util
   "I return the vector of the two keywords formed by splitting
    another keyword 'kw' on an internal delimiter (usually '-').
-
    (split-keyword  :above-left  \"-\")
-   =>  [:above :left]
-   "
+   =>  [:above :left]"
   (let [keywords (string/split (str kw) (re-pattern (str "[" delimiter ":]")))]
     [(keyword (keywords 1)) (keyword (keywords 2))]))
 
@@ -70,7 +68,6 @@
                      :right (str (point arrow-length 0) (point 0 half-arrow-width)            (point arrow-length arrow-width))
                      :above (str (point 0 0)            (point half-arrow-width arrow-length) (point arrow-width 0))
                      :below (str (point 0 arrow-length) (point half-arrow-width 0)            (point arrow-width arrow-length))}]
-
     [:svg {:style {:position "absolute"
                    (case orientation ;; Connect arrow to edge of popover
                      :left  :right
@@ -118,7 +115,6 @@
        - :margin-top        [nil           ] vertical offset from anchor after position
        - :arrow-length      [11            ] length in pixels of arrow (from pointy part to middle of arrow base)
        - :arrow-width       [22            ] length in pixels of arrow base"
-
   (let [rendered-once           (reagent/atom false)
         pop-id                  (gensym "popover-")
         [orientation arrow-pos] (split-keyword position "-")
@@ -186,7 +182,6 @@
        - :backdrop-callback if specified, add a backdrop div between the main screen (including element) and the popover.
                             when clicked, this callback is called (usually to close the popover)
        - :backdrop-opacity  0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)"
-
   (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
         place-anchor-before?    (case orientation (:left :above) false true)
         flex-flow               (case orientation (:left :right) "row" "column")
@@ -209,8 +204,7 @@
       (when @showing?
         [:div {:style {:position "relative" :display "inline-block"}} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
          [make-popover popover-params]])
-      (when-not place-anchor-before? anchor)
-      ]]))
+      (when-not place-anchor-before? anchor)]]))
 
 
 (defn make-button
