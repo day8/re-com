@@ -3,7 +3,7 @@
     [reagent.core :as reagent]
     [clojure.string :as cljstring]
     [re-com.box      :refer  [h-box gap]]
-    [re-com.util :refer [pad-zero-number]]))
+    [re-com.util :refer [pad-zero-number real-value]]))
 
 
 ; --- Private functions ---
@@ -36,7 +36,7 @@
         val))))
 
 (defn string->time-integer
-  "Return a TimeRecord from the passed string."
+  "Return a time integer from the passed string."
   [s]
   (let [matches (re-matches #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" s)
        vals (filter #(not (nil? %))(rest matches))]
@@ -151,16 +151,10 @@
     (reset! tmp-model (display-string (time-int->hour-minute (validated-time-integer time-int @min @max))))
   (when callback (callback time-int))))
 
-(defn dereffed-model
-  [model]
-  (if (satisfies? cljs.core/IDeref model)
-    @model
-    model))
-
 (defn atom-on
   [model default]
   (reagent/atom (if model
-                  (dereffed-model model)
+                  (real-value model)
                    default)))
 
 ;; --- Components ---
@@ -177,7 +171,7 @@
     on-change - function to call when model has changed - parameter will be the new value
     style - css"
   [& {:keys [model minimum maximum]}]
-  (let [deref-model (dereffed-model model)
+  (let [deref-model (real-value model)
         tmp-model (atom-on (display-string (time-int->hour-minute deref-model)) "")
         min (atom-on minimum 0)
         max (atom-on maximum 2359)]
