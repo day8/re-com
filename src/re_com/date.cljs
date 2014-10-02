@@ -248,8 +248,10 @@
       (let [collapse-on-select (fn [new-model]
                                  (reset! shown? false)
                                  (when on-change (on-change new-model))) ;; wrap callback to collapse popover
+            passthrough-args   (dissoc passthrough-args :format)         ;; :format is only valid at this API level
             passthrough-args   (->> (assoc passthrough-args :on-change collapse-on-select)
-                                    (merge {:hide-border true}) ;; apply defaults
+                                    (merge {:hide-border true})          ;; apply defaults
+                                    (dissoc)
                                     vec
                                     flatten)]
         [popover

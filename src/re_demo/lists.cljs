@@ -1,9 +1,10 @@
 (ns re-demo.lists
-  (:require [re-demo.util         :refer  [title]]
+  (:require [reagent.core         :as     r]
+            [re-demo.util         :refer  [title]]
             [re-com.core          :refer  [label checkbox]]
             [re-com.box           :refer  [h-box v-box box gap line border]]
             [re-com.dropdown      :refer  [single-dropdown]]
-            [reagent.core         :as     r]))
+            [re-com.list          :refer  [single-select-list]]))
 
 (defn- toggle-inclusion! [set-atom member]
   "convenience function to include/exclude member from"
@@ -32,7 +33,7 @@
 
 
 
-  (defn show-variant
+  (defn- show-variant
     [variation]
     (let [disabled?    (r/atom false)
           label-style  {:font-style "italic" :font-size "smaller" :color "#777"}]
@@ -43,11 +44,7 @@
                 [h-box
                  :gap "20px"
                  :align :start
-                 :children [[(fn []
-                               [v-box
-                                :gap "5px"
-                                :children [[label :style label-style :label "NOT YET IMPLEMENTED"]
-                                           ]])]]]
+                 :children [[single-select-list]]]
                 disabled?])]
         "2" [(fn
                []
@@ -62,7 +59,7 @@
                 disabled?])])))
 
 
-(defn notes
+(defn- notes
   [_]
   [v-box
    :width "500px"
