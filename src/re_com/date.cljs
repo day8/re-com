@@ -187,7 +187,7 @@
     (merge attributes {:enabled-days enabled-days
                        :today (now)})))
 
-(def api
+(def core-api
   #{:model        ; goog.date.UtcDateTime can be reagent/atom.
                   ; The calendar will be focused on corresponding date and the date represents selection.
    :on-change     ; function callback will be passed new selected goog.date.UtcDateTime
@@ -202,7 +202,7 @@
 
 (defn inline-picker
   [& {:keys [model] :as args}]
-  {:pre [(superset? api (keys args))]}
+  {:pre [(superset? core-api (keys args))]}
   (let [current (-> (real-value model) first-day-of-the-month reagent/atom)]
     (fn
       [& {:keys [model disabled hide-border on-change] :as properties}]
@@ -234,12 +234,14 @@
                [:span  {:class "dropdown-button activator input-group-addon"}
                 [:i {:class "glyphicon glyphicon-th"}]]]]])
 
+(def dropdown-api
+  (conj core-api
+        :format ; optional date format see cljs_time.format Default "yyyy MMM dd"
+  ))
 
 (defn dropdown-picker
-  ;; API
-  ;;  Same as inline-picker +
-  ;;  :format   - optional date format see cljs_time.format Default "yyyy MMM dd"
-  []
+  [& {:as args}]
+  {:pre [(superset? dropdown-api (keys args))]}
   (let [shown? (reagent/atom false)]
     (fn
       [& {:keys [model show-weeks on-change format] :as passthrough-args}]
