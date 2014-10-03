@@ -51,7 +51,7 @@
   (initialise-tour tour))
 
 
-(defn next-tour-step
+(defn- next-tour-step
   [tour]
   (let [steps     (:steps tour)
         old-step  @(:current-step tour)
@@ -63,7 +63,7 @@
       (reset! ((nth steps new-step) tour) true))))
 
 
-(defn prev-tour-step
+(defn- prev-tour-step
   [tour]
   (let [steps    (:steps tour)
         old-step @(:current-step tour)

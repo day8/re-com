@@ -8,12 +8,12 @@
             [reagent.core    :as    reagent]))
 
 
-(def demos [{:id "1" :label "Simple dropdown"}
-            {:id "2" :label "Dropdown with grouping"}
-            {:id "3" :label "Dropdown with filtering"}
-            {:id "4" :label "Keyboard support"}
-            {:id "5" :label "Other parameters"}
-            {:id "6" :label "Two dependent dropdowns"}])
+(def demos [{:id 1 :label "Simple dropdown"}
+            {:id 2 :label "Dropdown with grouping"}
+            {:id 3 :label "Dropdown with filtering"}
+            {:id 4 :label "Keyboard support"}
+            {:id 5 :label "Other parameters"}
+            {:id 6 :label "Two dependent dropdowns"}])
 
 
 (def countries [{:id "au" :label "Australia"}
@@ -293,50 +293,51 @@
   []
   [v-box
    :width    "500px"
-   :children [[:div.h4 "General notes:"]
+   :children [[:div.h4 "General notes"]
               [:ul
                [:li "To create a dropdown component, the following parameters are required:"
                 [:ul
-                 [:li.spacer [:strong ":options"] " - a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."]
-                 [:li.spacer [:strong ":model"] " - the :id of the initially selected option, or nil to have no initial selection (in which case, :placeholder will be shown)."]
-                 [:li.spacer [:strong ":on-select"] " - a callback function taking one parameter which will be the :id of the new selection."]]]
+                 [:li.spacer [:code ":options"] " - a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."]
+                 [:li.spacer [:code ":model"] " - the :id of the initially selected option, or nil to have no initial selection (in which case, :placeholder will be shown)."]
+                 [:li.spacer [:code ":on-select"] " - a callback function taking one parameter which will be the :id of the new selection."]]]
                [:li "The rest of the parameters are optional:"
                 [:ul
-                 [:li.spacer [:strong ":disabled"] " - a boolean indicating whether the control should be disabled. false if not specified."]
-                 [:li.spacer [:strong ":filter-box"] " - a boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified."]
-                 [:li.spacer [:strong ":regex-filter"] " - a boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified."]
-                 [:li.spacer [:strong ":placeholder"] " - the text to be displayed in the dropdown if no selection has yet been made."]
-                 [:li.spacer [:strong ":width"] " - the width of the component (e.g. \"500px\"). If not specified, all available width is taken."]
-                 [:li.spacer [:strong ":max-height"] " - maximum height the dropdown will grow to. If not specified, \"240px\" is used."]
-                 [:li.spacer [:strong ":tab-index"] " - the tabindex number of this component. -1 to remove from tab order. If not specified, use natural tab order."]]]]]])
+                 [:li.spacer [:code ":disabled"] " - a boolean indicating whether the control should be disabled. false if not specified."]
+                 [:li.spacer [:code ":filter-box"] " - a boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified."]
+                 [:li.spacer [:code ":regex-filter"] " - a boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified."]
+                 [:li.spacer [:code ":placeholder"] " - the text to be displayed in the dropdown if no selection has yet been made."]
+                 [:li.spacer [:code ":width"] " - the width of the component (e.g. \"500px\"). If not specified, all available width is taken."]
+                 [:li.spacer [:code ":max-height"] " - maximum height the dropdown will grow to. If not specified, \"240px\" is used."]
+                 [:li.spacer [:code ":tab-index"] " - the tabindex number of this component. -1 to remove from tab order. If not specified, use natural tab order."]]]]]])
 
 
 (defn panel
   []
-  (let [selected-demo-id (reagent/atom "1")]
-    (fn [] [v-box
-            :children [[:h3.page-header "Single Selection Dropdowns"]
-                       [h-box
-                        :gap      "50px"
-                        :children [[notes]
-                                   [v-box
-                                    :gap       "15px"
-                                    :size      "auto"
-                                    :min-width "500px"
-                                    :children  [[h-box
-                                                :gap      "10px"
-                                                :align    :center
-                                                :children [[label :label "Select a demo"]
-                                                           [single-dropdown
-                                                            :options   demos
-                                                            :model     selected-demo-id
-                                                            :width     "300px"
-                                                            :on-select #(reset! selected-demo-id %)]]]
-                                               [gap :size "0px"] ;; Force a bit more space here
-                                               (case @selected-demo-id
-                                                 "1" [demo1]
-                                                 "2" [demo2]
-                                                 "3" [demo3]
-                                                 "4" [demo4]
-                                                 "5" [demo5]
-                                                 "6" [demo6])]]]]]])))
+  (let [selected-demo-id (reagent/atom 1)]
+    (fn []
+      [v-box
+       :children [[:h3.page-header "Single Selection Dropdowns"]
+                  [h-box
+                   :gap      "50px"
+                   :children [[notes]
+                              [v-box
+                               :gap       "15px"
+                               :size      "auto"
+                               :min-width "500px"
+                               :children  [[h-box
+                                            :gap      "10px"
+                                            :align    :center
+                                            :children [[label :label "Select a demo"]
+                                                       [single-dropdown
+                                                        :options   demos
+                                                        :model     selected-demo-id
+                                                        :width     "300px"
+                                                        :on-select #(reset! selected-demo-id %)]]]
+                                           [gap :size "0px"] ;; Force a bit more space here
+                                           (case @selected-demo-id
+                                             1 [demo1]
+                                             2 [demo2]
+                                             3 [demo3]
+                                             4 [demo4]
+                                             5 [demo5]
+                                             6 [demo6])]]]]]])))

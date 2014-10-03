@@ -1,10 +1,10 @@
 (ns re-com.dropdown
   ;(:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
-  (:require
-    [re-com.util  :as util]
-    [clojure.string :as string]
-    ;[clairvoyant.core :refer [default-tracer]]
-    [reagent.core :as reagent]))
+  (:require [clojure.set      :refer [superset?]]
+            [re-com.util      :refer [deref-or-value]]
+            [clojure.string   :as    string]
+            ;[clairvoyant.core :refer [default-tracer]]
+            [reagent.core     :as    reagent]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
@@ -181,18 +181,42 @@
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
 
+;;--------------------------------------------------------------------------------------------------
+;; Component: single-dropdown
+;;--------------------------------------------------------------------------------------------------
+
+(def single-dropdown-api
+  #{:options        ; A vector of maps. Each map contains a unique :id and a :label and can optionally include a :group. An example:
+                    ;     [{:id "AU" :label "Australia"      :group "Group 1"}
+                    ;      {:id "US" :label "United States"  :group "Group 1"}
+                    ;      {:id "GB" :label "United Kingdom" :group "Group 1"}
+                    ;      {:id "AF" :label "Afghanistan"    :group "Group 2"}]
+    :model          ; The :id of the initially selected option, or nil to have no initial selection (in which case, :placeholder will be shown).
+    :on-select      ; A callback function taking one parameter which will be the :id of the new selection.
+    :disabled       ; A boolean indicating whether the control should be disabled. false if not specified.
+    :filter-box     ; A boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified.
+    :regex-filter   ; A boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified.
+    :placeholder    ; The text to be displayed in the dropdown if no selection has yet been made.
+    :width          ; The width of the component (e.g. "500px"). If not specified, all available width is taken.
+    :max-height     ; Maximum height the dropdown will grow to. If not specified, "240px" is used.
+    :tab-index      ; The tabindex number of this component. -1 to remove from tab order. If not specified, use natural tab order.
+    })
+
+
 (defn single-dropdown
-  [& {:keys [model]}]
+  [& {:keys [model] :as args}]
+  {:pre [(superset? single-dropdown-api (keys args))]}
   "Render a single dropdown component which emulates the bootstrap-choosen style."
-  (let [tmp-model     (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model)) ;; Create a new atom from the model value passed in for use with keyboard actions
+  (let [tmp-model     (reagent/atom (deref-or-value model)) ;; Create a new atom from the model value passed in for use with keyboard actions
         ext-model     (reagent/atom @tmp-model) ;; Holds the last known external value of model, to detect external model changes
         drop-showing? (reagent/atom false)
         filter-text   (reagent/atom "")]
-    (fn [& {:keys [options model on-select disabled filter-box regex-filter placeholder width max-height tab-index]}]
-      (let [options          (if (satisfies? cljs.core/IDeref options) @options options)
-            disabled         (if (satisfies? cljs.core/IDeref disabled) @disabled disabled)
-            regex-filter     (if (satisfies? cljs.core/IDeref regex-filter) @regex-filter regex-filter)
-            latest-model     (reagent/atom (if (satisfies? cljs.core/IDeref model) @model model))
+    (fn [& {:keys [options model on-select disabled filter-box regex-filter placeholder width max-height tab-index] :as args}]
+      {:pre [(superset? single-dropdown-api (keys args))]}
+      (let [options          (deref-or-value options)
+            disabled         (deref-or-value disabled)
+            regex-filter     (deref-or-value regex-filter)
+            latest-model     (reagent/atom (deref-or-value model))
             _                (when (not= @ext-model @latest-model) ;; Has model changed externally?
                                (reset! ext-model @latest-model)
                                (reset! tmp-model @latest-model))

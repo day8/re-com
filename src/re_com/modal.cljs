@@ -82,9 +82,11 @@
   [callback]
   "Render a cancel button"
   [:div {:style {:display "flex"}}
-   [button "Cancel" callback
-    :style {:margin "auto"}
-    :class "btn-info"]])
+   [button
+    :label    "Cancel"
+    :on-click callback
+    :style    {:margin "auto"}
+    :class    "btn-info"]])
 
 
 ;; ------------------------------------------------------------------------------------
