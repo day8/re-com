@@ -3,29 +3,56 @@
   (:require
     [clairvoyant.core     :refer [default-tracer]]
     [clojure.set          :refer [superset?]]
-    [re-com.box           :refer [box border h-box v-box]]
+    [re-com.core          :refer [checkbox]]
+    [re-com.box           :refer [box border scroller h-box v-box]]
     [re-com.util          :refer [deref-or-value]]
-    [reagent.core         :as    reagent]))
+    [reagent.core         :as    r]))
 
 ;; ----------------------------------------------------------------------------
 
 
 (defn- main-div-with
   [list-content hide-border]
-  [h-box
-   :children [[border
-               :radius "4px"
-               :size   "none"
-               :border (when hide-border "none")
-               :child [:div
-                       {:class ""
-                        ;; override inherrited body larger 14px font-size
-                        ;; override position from css because we are inline
-                        :style {:font-size "13px"
-                                :position "static"
-                                :-webkit-user-select "none" ;; only good on webkit/chrome what do we do for firefox etc
-                                }}
-                       list-content]]]])
+  (let [toggle (r/atom false)]
+
+  [border
+   :radius "4px"
+   :size   "none"
+   :child  [:div {:class "list-group"
+                    :style {:max-width "400px" :max-height "115px" ;;TODO This needs to be based on container
+                            :padding-left "5px" :padding-bottom "5px" :margin-bottom "auto"
+                            :overflow-x "hidden" :overflow-y "auto" ;;TODO this should be handled by scroller later
+                            :-webkit-user-select "none"}}
+              [:a {:class "list-group-item compact"}
+               [checkbox
+                :label-style {:flex "initial"}
+                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"
+                :model toggle :on-change #(reset! toggle %)]]
+              [:a {:class "list-group-item compact"}
+               [checkbox :label-style {:flex "initial"}
+                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
+              [:a {:class "list-group-item compact"}
+               [checkbox :label-style {:flex "initial"}
+                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
+              [:a {:class "list-group-item compact"}
+               [checkbox :label-style {:flex "initial"}
+                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
+              [:a {:class "list-group-item compact"}
+               [checkbox :label-style {:flex "initial"}
+                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
+              [:a {:class "list-group-item compact"}
+               [checkbox :label-style {:flex "initial"}
+                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
+              [:a {:class "list-group-item compact"}
+               [checkbox :label-style {:flex "initial"}
+                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
+              [:a {:class "list-group-item compact"}
+               [checkbox :label-style {:flex "initial"}
+                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
+              [:a {:class "list-group-item compact"}
+               [checkbox :label-style {:flex "initial"}
+                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
+              ]]))
 
 
 (defn- selection-changed

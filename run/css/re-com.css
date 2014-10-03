@@ -449,6 +449,18 @@
 }
 
 /*----------------------------------------------------------------------------------------
+/* Bootstrap list-group-item variation */
+.compact {
+    max-height: 20px;
+    white-space: nowrap;
+    border: none;
+    padding-top: 0px;
+    padding-left: 0px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/*----------------------------------------------------------------------------------------
   Custom scrollbars
    - http://css-tricks.com/custom-scrollbars-in-webkit
    - http://codemug.com/html/custom-scrollbars-using-css
