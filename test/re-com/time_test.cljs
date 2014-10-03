@@ -4,6 +4,11 @@
             [reagent.core :as reagent]
             [re-com.time :as time]))
 
+;; --- Utility functions ---
+
+
+;; --- Tests ---
+
 (deftest test-is-valid
   (are [expected actual] (= expected actual)
     true (time/valid-time-integer? 0 0 2359)

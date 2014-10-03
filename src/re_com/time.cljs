@@ -9,6 +9,10 @@
 
 ; --- Private functions ---
 
+;; TODO use re-com.util/deref-or-value instead of this local version
+(defn deref-or-value [val-or-atom]
+  (if (satisfies? IDeref val-or-atom) @val-or-atom val-or-atom))
+
 (defn- time-int->hour-minute
   "Convert the time integer (e.g. 930) to a vector of hour and minute."
   [time-int]
@@ -155,7 +159,7 @@
 (defn- atom-on
   [model default]
   (reagent/atom (if model
-                  (real-value model)
+                  (deref-or-value model)
                    default)))
 
 (def time-api
@@ -177,7 +181,7 @@
   "I return the markup for an input box which will accept and validate times.
   Parameters - refer time-api above."
   [& {:keys [model minimum maximum]}]
-  (let [deref-model (real-value model)
+  (let [deref-model (deref-or-value model)
         tmp-model (atom-on (display-string (time-int->hour-minute deref-model)) "")
         min (atom-on minimum 0)
         max (atom-on maximum 2359)]
@@ -196,7 +200,7 @@
          {:style {}}
           [:input.input-small
             {:type "text"
-             :disabled (if-let [dis (real-value disabled)] dis false)
+             :disabled (if-let [dis (deref-or-value disabled)] dis false)
              :class "time-entry"
              :value @tmp-model
              :style style
