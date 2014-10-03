@@ -10,7 +10,7 @@
     true (time/valid-time-integer? 600  0 2359)
     true (time/valid-time-integer? 130  0 2359)
     true (time/valid-time-integer? 2159 0 2359)
-    false (time/valid-time-integer? 2430 0 2359)
+    false (time/valid-time-integer? 2430 0 2359)     ;; After max
     true  (time/valid-time-integer? 1430 600 2200)
     false (time/valid-time-integer? 430 600 2200)    ;; Before min
     false (time/valid-time-integer? 2330 600 2200))) ;; After max
@@ -97,15 +97,6 @@
     false    (time/validate-time-range 500 600 2200)
     false    (time/validate-time-range 2345 600 2200)))
 
-(deftest test-time-input
- (is (fn? (time/time-input :model 1500)) "Expected a function.")
- (is (fn? (time/time-input :model 1500 :minimum 600 :maximum 2159)) "Expected a function.")
- (is (thrown? js/Error (time/time-input :model "abc") "should fail - model is invalid"))
- (is (thrown? js/Error (time/time-input :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
- (is (thrown? js/Error (time/time-input :model 930 :minimum 600 :maximum "fred") "should fail - maximum is invalid"))
- (is (thrown? js/Error (time/time-input :model 530 :minimum 600 :maximum 2159) "should fail - model is before range start"))
- (is (thrown? js/Error (time/time-input :model 2230 :minimum 600 :maximum 2159) "should fail - model is after range end")))
-
 (deftest test-atom-on
   (let [mdl (time/atom-on 123 nil)]
     (is (satisfies? cljs.core/IDeref mdl) "Expected an atom.")
@@ -116,3 +107,31 @@
   (let [mdl (time/atom-on nil 456)]
     (is (satisfies? cljs.core/IDeref mdl) "Expected an atom.")
     (is (= @mdl 456) "Expected value to be 456.")))
+
+(deftest test-time-input
+ (is (fn? (time/time-input :model 1500)) "Expected a function.")
+ (let [result  ((time/time-input :model 1500))]
+   (is (= :span.input-append.bootstrap-timepicker (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
+   (let [time-input (last result)
+         time-input-attrs (nth time-input 1)]
+   (is (= :input.input-small (first time-input)) "Expected time input start with :input.input-small")
+
+   (println (str (identity (:on-focus time-input-attrs))))
+   (println (re-matches #".*re_com.time.got_focus.*" (str (identity (:on-focus time-input-attrs)))))
+
+   (are [expected actual] (= expected actual)
+    false         (:disabled time-input-attrs)
+    "15:00"       (:value time-input-attrs)
+    "text"        (:type time-input-attrs)
+    "time-entry"  (:class time-input-attrs)
+    true     (fn? (:on-focus time-input-attrs))
+    true     (fn? (:on-blur time-input-attrs))
+    true     (fn? (:on-change time-input-attrs))
+    true     (fn? (:on-mouse-up time-input-attrs)))))
+ (is (fn? (time/time-input :model 1500 :minimum 600 :maximum 2159)) "Expected a function.")
+ (is (thrown? js/Error (time/time-input :model "abc") "should fail - model is invalid"))
+ (is (thrown? js/Error (time/time-input :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
+ (is (thrown? js/Error (time/time-input :model 930 :minimum 600 :maximum "fred") "should fail - maximum is invalid"))
+ (is (thrown? js/Error (time/time-input :model 530 :minimum 600 :maximum 2159) "should fail - model is before range start"))
+ (is (thrown? js/Error (time/time-input :model 2230 :minimum 600 :maximum 2159) "should fail - model is after range end")))
+

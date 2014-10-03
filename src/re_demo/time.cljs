@@ -3,7 +3,7 @@
             [re-com.core     :refer  [label]]
             [re-com.util     :refer  [pad-zero-number]]
             [re-com.time     :refer  [time-input]]
-            [re-com.box      :refer  [h-box v-box box gap line]]
+            [re-com.box      :refer  [h-box v-box box gap]]
             [re-com.dropdown :refer  [single-dropdown]]
             [reagent.core    :as     reagent]))
 
@@ -41,10 +41,12 @@
                   [:li.spacer [:code ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
                   [:li.spacer [:code ":on-change"] " - function to call upon change."]
                   [:li.spacer [:code ":disabled"] " - true if the component should be disabled - default false"]
+                  [:li.spacer [:code ":hide-border"] " - true if the time input should be displayed without a border - default false"]
                   [:li.spacer [:code ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
                   [:li.spacer [:code ":style"] " - css style"]]]]])
 
 ;; TODO write a macro to convert the demo source to actual code - see time-input-demo and time-input-code in each demo
+;; TODO is it possible to use time-api to define parameters?
 
 (defn demo1
   []
@@ -67,8 +69,8 @@
 (defn demo2
   []
   (let [model  (reagent/atom 600)
-        time-input-demo  [time-input :model model              :style {:border "none"}]
-        time-input-code "[time-input :model (reagent/atom 600) :style {:border \"none\"}]"]
+        time-input-demo  [time-input :model model              :hide-border true]
+        time-input-code "[time-input :model (reagent/atom 600) :hide-border true}]"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
@@ -78,7 +80,7 @@
                    [:pre [:code time-input-code]]
                    [:ul
                      [:li [:code ":model"] " - atom on 600"]
-                     [:li [:code ":style"] " - map with: {:border \"none\"}"]
+                     [:li [:code ":hide-border"] " - true"]
                      [:li [:code ":minimum"] " - nil - (default 0)"]
                      [:li [:code ":maximum"] " - nil - (default 2359)"]]
                    [:label "Demo -"]
