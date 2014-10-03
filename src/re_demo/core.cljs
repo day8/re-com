@@ -15,7 +15,7 @@
             [re-demo.lists      :as lists]
             [re-demo.time       :as time]
             [re-demo.layouts    :as layouts]
-            [re-demo.original   :as original]
+            [re-demo.original-code :as original]
             [re-demo.tour       :as tour]
             [re-demo.modals     :as modals]
             [re-demo.boxes      :as boxes]))

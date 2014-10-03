@@ -66,10 +66,21 @@
                    :children []]]])))
 
 
+(defn modal-popover-demo
+  []
+  (let [popover-showing?  (reagent/atom false)]
+    (fn []
+      [v-box
+       :children [[title "Modal Popover"]
+                  [h-box
+                   :gap "50px"
+                   :children []]]])))
+
 (defn panel
   []
   [v-box
    :children [[simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]
+              [modal-popover-demo]
               #_[complicated-form-popover]]])
