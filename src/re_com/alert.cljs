@@ -58,8 +58,9 @@
     :on-close       ; A callback function which knows how to close an alert based on the id passed to it.
                     ; Usually something like this:
                     ;     #(swap! alerts dissoc %)
-    :max-height     ; The initial height of this component is 0px and grows to this maximum as alerts are added.
-    :border-style   ; The border style around the outside of the component. e.g. "1px dashed lightgrey".
+    :max-height     ; The initial height of this component is 0px and grows to this maximum as alerts are added. Default is to expand forever.
+    :padding        ; Padding within the alert-list outer box. Default is 4px.
+    :border-style   ; The border style around the alert-list outer box. Default is "1px solid lightgrey".
     })
 
 
@@ -71,20 +72,20 @@
   "Displays a list of alert-box components in a v-box."
   [border
    :padding padding
-   :border  (when border-style border-style)
+   :border  border-style
    :child [scroller
            :v-scroll   :auto
-           :max-height max-height
+           :style      {:max-height max-height}
            :child      [v-box
                         :size "auto"
                         :children [(for [one-alert @alerts]
                                      (let [id (first one-alert)
                                            {:keys [alert-type heading body padding closeable]} (last one-alert)]
                                        ^{:key id} [alert-box
-                                                   :id id
+                                                   :id         id
                                                    :alert-type alert-type
-                                                   :heading heading
-                                                   :body body
-                                                   :padding padding
-                                                   :closeable closeable
-                                                   :on-close on-close]))]]]])
+                                                   :heading    heading
+                                                   :body       body
+                                                   :padding    padding
+                                                   :closeable  closeable
+                                                   :on-close   on-close]))]]]])
