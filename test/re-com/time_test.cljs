@@ -4,6 +4,11 @@
             [reagent.core :as reagent]
             [re-com.time :as time]))
 
+;; --- Utility functions ---
+
+
+;; --- Tests ---
+
 (deftest test-is-valid
   (are [expected actual] (= expected actual)
     true (time/valid-time-integer? 0 0 2359)
@@ -114,20 +119,16 @@
    (is (= :span.input-append.bootstrap-timepicker (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
    (let [time-input (last result)
          time-input-attrs (nth time-input 1)]
-   (is (= :input.input-small (first time-input)) "Expected time input start with :input.input-small")
-
-   (println (str (identity (:on-focus time-input-attrs))))
-   (println (re-matches #".*re_com.time.got_focus.*" (str (identity (:on-focus time-input-attrs)))))
-
-   (are [expected actual] (= expected actual)
-    false         (:disabled time-input-attrs)
-    "15:00"       (:value time-input-attrs)
-    "text"        (:type time-input-attrs)
-    "time-entry"  (:class time-input-attrs)
-    true     (fn? (:on-focus time-input-attrs))
-    true     (fn? (:on-blur time-input-attrs))
-    true     (fn? (:on-change time-input-attrs))
-    true     (fn? (:on-mouse-up time-input-attrs)))))
+     (is (= :input.input-small (first time-input)) "Expected time input start with :input.input-small")
+     (are [expected actual] (= expected actual)
+       false         (:disabled time-input-attrs)
+       "15:00"       (:value time-input-attrs)
+       "text"        (:type time-input-attrs)
+       "time-entry"  (:class time-input-attrs)
+       true     (fn? (:on-focus time-input-attrs))
+       true     (fn? (:on-blur time-input-attrs))
+       true     (fn? (:on-change time-input-attrs))
+       true     (fn? (:on-mouse-up time-input-attrs)))))
  (is (fn? (time/time-input :model 1500 :minimum 600 :maximum 2159)) "Expected a function.")
  (is (thrown? js/Error (time/time-input :model "abc") "should fail - model is invalid"))
  (is (thrown? js/Error (time/time-input :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
