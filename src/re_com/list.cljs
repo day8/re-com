@@ -3,7 +3,7 @@
   (:require
     [clairvoyant.core     :refer [default-tracer]]
     [clojure.set          :refer [superset?]]
-    [re-com.core          :refer [checkbox]]
+    [re-com.core          :refer [checkbox radio-button]]
     [re-com.box           :refer [box border scroller h-box v-box]]
     [re-com.util          :refer [deref-or-value]]
     [reagent.core         :as    r]))
@@ -21,20 +21,39 @@
     :label (:label element)]])
 
 
-(trace-forms {:tracer default-tracer}
+(defn- radio-clicked
+  [selections item]
+  (if (selections item)
+    selections  ;; we don't do unselect of radio button for now
+    #{item}))
+
+
+(defn- as-radio
+  [element selections on-change disabled]
+  [:a {:class "list-group-item compact"}
+   [radio-button
+    :model (selections element)
+    :value element
+    :on-change #(on-change (radio-clicked selections %))
+    :label-style {:flex "initial"}
+    :label (:label element)]])
+
+
 (defn- main-div-with
   [elements selections on-change multi-select disabled hide-border]
-  [(fn []
-     (let [items (map #(as-checked % selections on-change disabled) elements)]
-       [border
-        :radius "4px"
-        :size   "none"
-        :child  (into [:div {:class "list-group"
-                             :style {:max-width "400px" :max-height "115px"  ;;TODO height should be based on container
-                                     :padding-left "5px" :padding-bottom "5px" :margin-top "5px" :margin-bottom "5px"
-                                     :overflow-x "hidden" :overflow-y "auto" ;;TODO this should be handled by scroller later
-                                     :-webkit-user-select "none"}}] items)
-        ]))]))
+  (let [items (map (if @multi-select
+                     #(as-checked % selections on-change disabled)
+                     #(as-radio   % selections on-change disabled))
+                   elements)]
+    [border
+     :radius "4px"
+     :size   "none"
+     :child  (into [:div {:class "list-group"
+                          :style {:max-width "400px" :max-height "115px"  ;;TODO height should be based on container
+                                  :padding-left "5px" :padding-bottom "5px" :margin-top "5px" :margin-bottom "5px"
+                                  :overflow-x "hidden" :overflow-y "auto" ;;TODO this should be handled by scroller later
+                                  :-webkit-user-select "none"}}] items)
+     ]))
 
 
 (defn- configure
@@ -62,10 +81,10 @@
     (let [configuration (configure properties)
           elements (deref-or-value model)
           selected (deref-or-value selections)]
-      (main-div-with
+      [main-div-with
         elements
         selected
         on-change
         multi-select
         disabled
-        hide-border))))
+        hide-border])))

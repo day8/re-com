@@ -15,7 +15,7 @@
 
 
 (defn- parameters-with
-  [content disabled?]
+  [content multi-select? disabled?]
   (fn []
     [v-box
      :gap "20px"
@@ -27,7 +27,11 @@
                  :children [[checkbox
                              :label ":disabled"
                              :model disabled?
-                             :on-change #(reset! disabled? %)]]]
+                             :on-change #(reset! disabled? %)]
+                            [checkbox
+                             :label ":multi-select"
+                             :model multi-select?
+                             :on-change #(reset! multi-select? %)]]]
 
                 content]]))
 
@@ -35,24 +39,28 @@
 
 (defn- show-variant
   [variation]
-  (let [disabled?    (r/atom false)
-        label-style  {:font-style "italic" :font-size "smaller" :color "#777"}
-        elements (r/atom [{:id "1" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
-                          {:id "2" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
-                          {:id "3" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
-                          ]
-                         )
-        selections (r/atom (set [(second @elements)]))]
+  (let [disabled?     (r/atom false)
+        multi-select? (r/atom true)
+        label-style   {:font-style "italic" :font-size "smaller" :color "#777"}
+        elements      (r/atom [{:id "1" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
+                               {:id "2" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
+                               {:id "3" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}])
+        selections    (r/atom (set [(second @elements)]))]
     (case variation
-      "1" [parameters-with
-                [h-box
-                 :gap "20px"
-                 :align :start
-                 :children [[single-select-list
-                             :disabled disabled?
-                             :model elements
-                             :selections selections
-                             :on-change #(do (println %) (reset! selections %))]]]]
+      "1" [(fn
+             []
+             [parameters-with
+               [h-box
+                :gap "20px"
+                :align :start
+                :children [[single-select-list
+                            :multi-select  multi-select?
+                            :disabled      disabled?
+                            :model         elements
+                            :selections    selections
+                            :on-change     #(do (println %) (reset! selections %))]]]
+               multi-select?
+               disabled?])]
       "2" [(fn
              []
              [parameters-with
