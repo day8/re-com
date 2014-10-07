@@ -4,14 +4,7 @@
             [re-com.core          :refer  [label checkbox]]
             [re-com.box           :refer  [h-box v-box box gap line border]]
             [re-com.dropdown      :refer  [single-dropdown]]
-            [re-com.list          :refer  [single-select-list]]))
-
-(defn- toggle-inclusion! [set-atom member]
-  "convenience function to include/exclude member from"
-  (reset! set-atom
-          (if (contains? @set-atom member)
-            (disj @set-atom member)
-            (conj @set-atom member))))
+            [re-com.list          :refer  [inline-list]]))
 
 
 (defn- parameters-with
@@ -41,10 +34,14 @@
   [variation]
   (let [disabled?     (r/atom false)
         multi-select? (r/atom true)
-        label-style   {:font-style "italic" :font-size "smaller" :color "#777"}
-        elements      (r/atom [{:id "1" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
-                               {:id "2" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
-                               {:id "3" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}])
+        elements      (r/atom [{:id "1" :label "1 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 1"}
+                               {:id "2" :label "2 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 2"}
+                               {:id "3" :label "3 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 3"}
+                               {:id "4" :label "4 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 4"}
+                               {:id "5" :label "5 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 5"}
+                               {:id "6" :label "6 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 6"}
+                               {:id "7" :label "7 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 7"}
+                               ])
         selections    (r/atom (set [(second @elements)]))]
     (case variation
       "1" [(fn
@@ -53,25 +50,14 @@
                [h-box
                 :gap "20px"
                 :align :start
-                :children [[single-select-list
+                :children [[inline-list
                             :multi-select  multi-select?
                             :disabled      disabled?
                             :model         elements
                             :selections    selections
                             :on-change     #(do (println %) (reset! selections %))]]]
                multi-select?
-               disabled?])]
-      "2" [(fn
-             []
-             [parameters-with
-              [h-box
-               :size "auto"
-               :align :start
-               :children [[(fn []
-                             [v-box
-                              :gap "5px"
-                              :children [[label :style label-style :label "NOT YET IMPLEMENTED"]]])]]]
-              disabled?])])))
+               disabled?])])))
 
 
 (defn- notes
@@ -83,9 +69,13 @@
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
                  [:li.spacer [:code ":model"]
-                  " - TBA"]
+                  " - vector of maps selectable elements. Each should have :label property unless :label-fn provided"]
+                 [:li.spacer [:code ":selections"]
+                  " - set of selected elements."]
+                 [:li.spacer [:code ":multi-select"]
+                  " - boolean. When true, items use check boxes otherwise radio buttons."]
                  [:li.spacer [:code ":on-change"]
-                  " - callback will be passed vector of selected items"]
+                  " - callback will be passed set of selected items"]
                  ]
                [:label {:style {:font-variant "small-caps"}} "optional"]
                 [:ul
@@ -93,11 +83,14 @@
                   " - boolean can be reagent/atom. (default false) If true, scrolling is allowed but selection is disabled."]
                  [:li.spacer [:code ":hide-border"]
                   " - boolean. Default false."]
+                 [:li.spacer [:code ":required"]
+                  " - boolean. When true, at least one item must be selected. Default true."]
+                 [:li.spacer [:code ":label-fn"]
+                  " - function to call on element to get label string, default :label"]
                  ]]]])
 
 
-(def variations [{:id "1" :label "Single selection"}
-                 {:id "2" :label "Multiple selection"}])
+(def variations [{:id "1" :label "Toggle single/multiple selection"}])
 
 
 (defn panel
