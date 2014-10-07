@@ -16,11 +16,11 @@
          ":"
          (pad-zero-number min 2))))
 
-(def demos [{:id "1" :label "Time input, empty model"}
-            {:id "2" :label "Time input, no border"}
-            {:id "3" :label "Disabled time input"}
-            {:id "4" :label "Time with icon"}
-            {:id "5" :label "Time with range 06:00-21:59"}])
+(def demos [{:id "1" :label "Nil model"}
+            {:id "2" :label "No border"}
+            {:id "3" :label "Disabled"}
+            {:id "4" :label "With icon"}
+            {:id "5" :label "Custom range"}])
 
 (defn notes
   []
@@ -28,9 +28,14 @@
    :width    "500px"
    :children [[:div.h4 "General notes:"]
               [:div {:style {:font-size "small"}}
-               [:p "Accepts input of a time. The callback is triggered when the input loses focus. If the entered value is invalid it will be ignored."]
-               [:p "Times are passed to the component and returned in the callback as integers e.g. '18:30' is 1830."]
-               [:p "If invalid data is provided in the model or other parameters, an exception will be thrown."]
+               [:p "Accepts input of a time in 24hr format."]
+               [:p " Only allows input of numbers and ':'. Limits input to valid values (e.g. does not allow input of '999').
+               Also, attempts to interpret input e.g. '123' interpretted as '1:23'."]
+               [:p "The "[:code ":model"] " is expected to be an integer in HHMM form. e.g. a time of '18:30' is the integer 1830.
+                The same applies to "[:code ":minimum"] " and "[:code ":maximum"] "."]
+               [:p "When the component loses focus, the " [:code ":on-change"] " callback is called with an integer of the same form."]
+               [:p "If the entered value is invalid it will be ignored."] ;; TODO fix this
+               [:p "If "[:code ":model"] " is invalid an exception will be thrown."]
                [:div.h4 "Parameters"]
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
@@ -52,17 +57,16 @@
   []
   (let [model (reagent/atom nil)
         time-input-demo  [time-input :model model]
-        time-input-code "[time-input :model (reagent/atom nil)]"]
+        time-input-code "(let [model  (reagent/atom nil)]
+  [time-input :model model])"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
-          :children [[:div.h4 "Time input - empty model"]
+          :children [[:div.h4 "Nil model"]
                      [:label "Usage -"]
                      [:pre [:code time-input-code]]
                      [:ul
-                       [:li [:code ":model"] " - atom on nil"]
-                       [:li [:code ":minimum"] " - nil - (default 0)"]
-                       [:li [:code ":maximum"] " - nil - (default 2359)"]]
+                       [:li "Because "[:code ":model"] " is nil the input will initially be blank."]]
                      [:label "Demo -"]
                      time-input-demo]]])))
 
@@ -70,38 +74,34 @@
   []
   (let [model  (reagent/atom 600)
         time-input-demo  [time-input :model model              :hide-border true]
-        time-input-code "[time-input :model (reagent/atom 600) :hide-border true}]"]
+        time-input-code "(let [model  (reagent/atom 600)]
+  [time-input :model (reagent/atom 600) :hide-border true}])"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
           :style {:font-size "small"}
-          :children [[:div.h4 "Time input - model: 600"]
+          :children [[:div.h4 "No border"]
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li [:code ":model"] " - atom on 600"]
-                     [:li [:code ":hide-border"] " - true"]
-                     [:li [:code ":minimum"] " - nil - (default 0)"]
-                     [:li [:code ":maximum"] " - nil - (default 2359)"]]
+                     [:li [:code ":hide-border true"] " - hides the input border"]]
                    [:label "Demo -"]
                    time-input-demo]]])))
 
 (defn demo3
   []
-  (let [model  (reagent/atom 0)
-        time-input-demo  [time-input :model model            :disabled true]
-        time-input-code "[time-input :model (reagent/atom 0) :disabled true]"]
+  (let [model  (reagent/atom 923)
+        time-input-demo  [time-input :model model :disabled true]
+        time-input-code "(let [model  (reagent/atom 923)]
+  [time-input :model (reagent/atom 0) :disabled true])"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
-          :children [[:div.h4 "Disabled time input - model: 0"]
+          :children [[:div.h4 "Disabled"]
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li [:code ":model"] " - atom on nil"]
-                     [:li [:code ":disabled"] " - true"]
-                     [:li [:code ":minimum"] " - nil -(default 0)"]
-                     [:li [:code ":maximum"] " - nil - (default 2359)"]]
+                     [:li "Note use of "[:code ":disabled true"]]]
                    [:label "Demo -"]
                    time-input-demo]]])))
 
@@ -117,14 +117,11 @@
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
-          :children [[:div.h4 "Time input with icon - model: 900"]
+          :children [[:div.h4 "With icon"]
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li [:code ":model"] " - atom on 900"]
-                     [:li [:code ":on-change"] " - update the model with the new value"]
-                     [:li [:code ":minimum"] " - (default) 0"]
-                     [:li [:code ":maximum"] " - (default) 2359"]]
+                     [:li [:code ":show-time-icon true"] " - displays clock icon next to input"]]
                    [:label "Demo -"]
                    time-input-demo]]])))
 
@@ -145,14 +142,13 @@
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
-          :children [[:div.h4 "Time input - model: 900 - range: 06:00-21:59"]
+          :children [[:div.h4 "With custom range: 06:00-21:59"]
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li [:code ":model"] " - atom on 900"]
-                     [:li [:code ":on-change"] " - update the model with the new value"]
-                     [:li [:code ":minimum"] " - 600"]
-                     [:li [:code ":maximum"] " - 2159"]]
+                     [:li [:code ":on-change"] " - update the model's value"]
+                     [:li [:code ":minimum 600"] " - minimum time is '06:00'"]
+                     [:li [:code ":maximum 2159"] " - maximum time is '21:59'"]]
                    [:label "Demo -"]
                    [:p "Try typing a value outside the range."]
                    time-input-demo]]])))

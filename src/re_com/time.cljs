@@ -117,7 +117,7 @@
       false
       (validate-time-range time-integer min max))))
 
-(defn- got-focus
+#_(defn- got-focus
   "When the time input gets focus, select everything."
   [ev]
   (-> ev .-target .select))  ;; works, but requires fix for Chrome - see :on-mouse-up
@@ -140,7 +140,7 @@
       (throw (js/Error. (str "maximum " maximum " is less than minimum " minimum "."))))))
 
 (defn- time-changed
-  "Triggered whenever the input field changes via key press on cut & paste."
+  "Triggered whenever the input field changes via key press or cut & paste."
   [ev tmp-model]
   (let [input-val (-> ev .-target .-value)
         valid? (validate-string input-val)]
@@ -191,6 +191,7 @@
     (fn [& {:keys [on-change disabled show-time-icon hide-border style] :as args}]
         {:pre [(superset? time-api (keys args))]}
         (let [def-style {:margin-top "0px"
+                         :padding-left "2px"
                          :padding-top "0px"
                          :font-size "11px"
                          :width "35px"}
@@ -200,13 +201,13 @@
          {:style {}}
           [:input.input-small
             {:type "text"
-             :disabled (if-let [dis (deref-or-value disabled)] dis false)
+             :disabled (deref-or-value disabled)
              :class "time-entry"
              :value @tmp-model
              :style style
-             :on-focus #(got-focus %)
+             ;;:on-focus #(got-focus %)
              :on-change #(time-changed % tmp-model)
-             :on-mouse-up #(.preventDefault %)    ;; Chrome browser deselects on mouse up - prevent this from happening
+             ;;:on-mouse-up #(.preventDefault %)    ;; Chrome browser deselects on mouse up - prevent this from happening
              :on-blur #(time-updated % tmp-model min max on-change)}
             (when show-time-icon
               [:span.time-icon
