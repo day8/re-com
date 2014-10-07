@@ -182,9 +182,10 @@
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li "Note that "[:code ":model"] " is (optionally an atom on) a vector of TWO integers"]
+                     [:li "Note that "[:code ":model"] " must contain a vector of TWO integers"]
                      [:li [:code ":to-label \"-\""] " puts a dash between the From and To input boxes"]]
                    [:label "Demo -"]
+                   [:p "The From time must be less than or equal to the To time and both must be within min and max."]
                    time-input-demo]]])))
 
 (defn demo7
@@ -194,7 +195,7 @@
                           :model model
                           :on-change #(reset! model %)
                           :minimum 600
-                          :maximum 2359
+                          :maximum 2200
                           :from-label "From:"
                           :to-label "To:"]
         time-input-code "(let [model  (reagent/atom [1000 2159])]
@@ -202,7 +203,7 @@
     :model model
     :on-change #(reset! model %)
     :minimum 600
-    :maximum 2359]
+    :maximum 2200]
     :from-label \"From:\")
     :to-label \"To:\"])"]
     (fn []
@@ -212,10 +213,11 @@
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li "Note that "[:code ":model"] " is (optionally an atom on) a vector of TWO integers"]
+                     [:li "Note that "[:code ":model"] " must contain a vector of TWO integers"]
                      [:li [:code ":to-label \"From:\""] " puts a label before the From input box"]
                      [:li [:code ":to-label \"To:\""] " puts a label before the To input box"]]
                    [:label "Demo -"]
+                   [:p "The From time must be less than or equal to the To time and both must be within min and max."]
                    time-input-demo]]])))
 
 (defn panel

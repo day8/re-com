@@ -27,9 +27,15 @@
     hour, ':' or '' and minutes."
   [vals]
   (assert (= (count vals) 3) (str "Application error: re-com.time/time-integer-from-vector expected a vector of 3 values. Got " vals))
-  (let [hr (if (nil? (first vals)) 0 (first vals))
-        mi (if (nil? (last vals)) 0 (last vals))]
-  (+ (* hr 100) mi)))
+  (let [hr (first vals)
+        mi (last vals)]
+    (assert (or (number? hr) (nil? hr))
+            (str "Application error: re-com.time/time-integer-from-vector expected first value of vector to be nil or a number. Got " hr))
+    (assert (or (number? mi) (nil? mi))
+            (str "Application error: re-com.time/time-integer-from-vector expected last value of vector to be nil or a number. Got " mi))
+    (let [hr-int (if (nil? hr) 0 hr)
+          mi-int (if (nil? mi) 0 mi)]
+    (+ (* hr-int 100) mi-int))))
 
 (defn- int-from-string
   [s]
@@ -117,11 +123,6 @@
       false
       (validate-time-range time-integer min max))))
 
-#_(defn- got-focus
-  "When the time input gets focus, select everything."
-  [ev]
-  (-> ev .-target .select))  ;; works, but requires fix for Chrome - see :on-mouse-up
-
 (defn- validate-string
   "Return true if the passed string valdiates OK."
   [s]
@@ -201,16 +202,13 @@
                [:span.glyphicon.glyphicon-time]])
             ]]))
 
-(defn updated-from
-  [from-model]
-  (println "updated-from " @from-model))
-
-(defn updated-to
-  [to-model]
-  (println "updated-to " @to-model))
+(defn updated-range-time
+  [model max-or-min-model]
+  (reset! max-or-min-model (string->time-integer @model))
+  (println "changed max or min to " @max-or-min-model)  ;; TODO once issue resolved, remove this
+  )
 
 ;; --- Components ---
-
 
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
@@ -237,7 +235,7 @@
     callback - function to call when model has changed - parameter will be the new value
     gap - horizontal gap between time inputs - default '4px'
     style - css"
-  [& {:keys [model minimum maximum]}]
+  [& {:keys [model minimum maximum ]}]
   (let [deref-model (deref-or-value model)
         from-model  (atom-on (display-string (time-int->hour-minute(first deref-model))) nil)
         to-model    (atom-on (display-string (time-int->hour-minute(last  deref-model))) nil)
@@ -250,12 +248,24 @@
     (throw (js/Error. (str "model for TO time: " @to-model " is not a valid time integer."))))
   (if-not (< (first deref-model) (last deref-model))
       (throw (js/Error. (str "TO " @to-model " is less than FROM " @from-model "."))))
+  (let [from-max-model (atom-on (string->time-integer @to-model) nil)
+        to-min-model   (atom-on (string->time-integer @from-model) nil)]
 
   (fn [& {:keys [on-change from-label to-label gap style]}]
       [h-box
         :gap (if gap gap "4px")
         :children [(when from-label [:label from-label])
-                   [private-time-input from-model min (atom-on (string->time-integer @to-model) nil) :on-change #(updated-from from-model)]
+                   [private-time-input
+                     from-model
+                     min
+                     from-max-model
+                     :on-change #(updated-range-time from-model to-min-model)
+                     :style style]
                    (when to-label [:label to-label])
-                   [private-time-input to-model (atom-on (string->time-integer @from-model) nil) max  :on-change #(updated-to to-model)]
-                   ]])))
+                   [private-time-input
+                     to-model
+                     to-min-model
+                     max
+                     :on-change #(updated-range-time to-model from-max-model)
+                     :style style]
+                   ]]))))
