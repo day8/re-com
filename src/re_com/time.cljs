@@ -178,6 +178,7 @@
 (defn- private-time-input
   [model min max & {:keys [on-change disabled style hide-border show-time-icon :as args]}]
   {:pre [(superset? time-api (keys args))]}
+  (println (str "Time input - model: " @model " min: " (deref-or-value min) " max: " (deref-or-value max)))
     (let [def-style {:margin-top "0px"
                      :padding-left "2px"
                      :padding-top "0px"
@@ -245,7 +246,7 @@
       [h-box
         :gap (if gap gap "4px")
         :children [(when from-label [:label from-label])
-                   [private-time-input from-model min to-model]
+                   [private-time-input from-model min (atom-on (string->time-integer @to-model) nil)]
                    (when to-label [:label to-label])
-                   [private-time-input to-model from-model max]
+                   [private-time-input to-model (atom-on (string->time-integer @from-model) nil) max]
                    ]])))
