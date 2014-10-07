@@ -120,15 +120,15 @@
     (is (= @mdl 456) "Expected value to be 456.")))
 
 (deftest test-time-input
- (is (fn? (time/time-input :model 1500)) "Expected a function.")
- (let [result  ((time/time-input :model 1500))]
+ (is (fn? (first (time/time-input :model 1500))) "Expected a function.")
+ (let [result  ((first (time/time-input :model 1530 :minimum 0 :maximum 2359)))]
    (is (= :span.input-append.bootstrap-timepicker (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
    (let [time-input (last result)
          time-input-attrs (nth time-input 1)]
      (is (= :input.input-small (first time-input)) "Expected time input start with :input.input-small")
      (are [expected actual] (= expected actual)
        nil           (:disabled time-input-attrs)
-       "15:00"       (:value time-input-attrs)
+       "15:30"       (:value time-input-attrs)
        "text"        (:type time-input-attrs)
        "time-entry"  (:class time-input-attrs)
        true     (fn? (:on-blur time-input-attrs))

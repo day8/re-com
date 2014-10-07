@@ -2,7 +2,7 @@
   (:require [re-demo.util    :refer  [title]]
             [re-com.core     :refer  [label]]
             [re-com.util     :refer  [pad-zero-number]]
-            [re-com.time     :refer  [time-input]]
+            [re-com.time     :refer  [time-input time-range-input]]
             [re-com.box      :refer  [h-box v-box box gap]]
             [re-com.dropdown :refer  [single-dropdown]]
             [reagent.core    :as     reagent]))
@@ -20,7 +20,8 @@
             {:id "2" :label "No border"}
             {:id "3" :label "Disabled"}
             {:id "4" :label "With icon"}
-            {:id "5" :label "Custom range"}])
+            {:id "5" :label "Custom min & max"}
+            {:id "6" :label "Range"}])
 
 (defn notes
   []
@@ -153,6 +154,31 @@
                    [:p "Try typing a value outside the range."]
                    time-input-demo]]])))
 
+(defn demo6
+  []
+  (let [model  (reagent/atom [900 2300])
+        time-input-demo [time-range-input
+                          :model model
+                          :on-change #(reset! model %)
+                          :minimum 600
+                          :maximum 2359]
+        time-input-code "(let [model  (reagent/atom 900)]
+  [time-range-input
+    :model model
+    :on-change #(reset! model %)
+    :minimum 600
+    :maximum 2359])"]
+    (fn []
+      [:div {:style {:font-size "small"}}
+        [v-box
+          :children [[:div.h4 "Range"]
+                   [:label "Usage -"]
+                   [:pre [:code time-input-code]]
+                   [:ul
+                     [:li [:code ":mode"] " - vector of two integers"]
+                   [:label "Demo -"]
+                   time-input-demo]]]])))
+
 (defn panel
   []
   (let [selected-demo-id (reagent/atom "1")]
@@ -180,7 +206,8 @@
                                                  "2" [demo2]
                                                  "3" [demo3]
                                                  "4" [demo4]
-                                                 "5" [demo5])]]]]]])))
+                                                 "5" [demo5]
+                                                 "6" [demo6])]]]]]])))
 
 
 
