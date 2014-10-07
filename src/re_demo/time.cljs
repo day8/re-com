@@ -213,7 +213,8 @@
                    [:pre [:code time-input-code]]
                    [:ul
                      [:li "Note that "[:code ":model"] " is (optionally an atom on) a vector of TWO integers"]
-                     [:li [:code ":to-label \"-\""] " puts a dash between the From and To input boxes"]]
+                     [:li [:code ":to-label \"From:\""] " puts a label before the From input box"]
+                     [:li [:code ":to-label \"To:\""] " puts a label before the To input box"]]
                    [:label "Demo -"]
                    time-input-demo]]])))
 
