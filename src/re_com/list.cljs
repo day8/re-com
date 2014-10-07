@@ -10,49 +10,33 @@
 
 ;; ----------------------------------------------------------------------------
 
+(defn- item-click-handler [& args]
+  (println "clicked")
+  )
+
+(defn- as-checked
+  [element]
+  ;;TODO: pass model and handler logic
+  [:a {:class "list-group-item compact"}
+   [checkbox
+    :label-style {:flex "initial"}
+    :label (:label element)]])
+
 
 (defn- main-div-with
-  [list-content hide-border]
+  [elements selections multi-select disabled hide-border]
   (let [toggle (r/atom false)]
-
-  [border
-   :radius "4px"
-   :size   "none"
-   :child  [:div {:class "list-group"
-                    :style {:max-width "400px" :max-height "115px" ;;TODO This needs to be based on container
-                            :padding-left "5px" :padding-bottom "5px" :margin-bottom "auto"
-                            :overflow-x "hidden" :overflow-y "auto" ;;TODO this should be handled by scroller later
-                            :-webkit-user-select "none"}}
-              [:a {:class "list-group-item compact"}
-               [checkbox
-                :label-style {:flex "initial"}
-                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"
-                :model toggle :on-change #(reset! toggle %)]]
-              [:a {:class "list-group-item compact"}
-               [checkbox :label-style {:flex "initial"}
-                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
-              [:a {:class "list-group-item compact"}
-               [checkbox :label-style {:flex "initial"}
-                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
-              [:a {:class "list-group-item compact"}
-               [checkbox :label-style {:flex "initial"}
-                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
-              [:a {:class "list-group-item compact"}
-               [checkbox :label-style {:flex "initial"}
-                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
-              [:a {:class "list-group-item compact"}
-               [checkbox :label-style {:flex "initial"}
-                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
-              [:a {:class "list-group-item compact"}
-               [checkbox :label-style {:flex "initial"}
-                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
-              [:a {:class "list-group-item compact"}
-               [checkbox :label-style {:flex "initial"}
-                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
-              [:a {:class "list-group-item compact"}
-               [checkbox :label-style {:flex "initial"}
-                :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"]]
-              ]]))
+    (fn []
+      (let [items (map as-checked elements)]
+      [border
+       :radius "4px"
+       :size   "none"
+       :child  (into [:div {:class "list-group"
+                      :style {:max-width "400px" :max-height "115px"  ;;TODO height should be based on container
+                              :padding-left "5px" :padding-bottom "5px" :margin-top "5px" :margin-bottom "5px"
+                              :overflow-x "hidden" :overflow-y "auto" ;;TODO this should be handled by scroller later
+                              :-webkit-user-select "none"}}] items)
+                ]))))
 
 
 (defn- selection-changed
@@ -66,8 +50,11 @@
   (merge attributes {}))
 
 (def core-api
-  #{:model         ; list of elements to be selected.
-    :on-change     ; function callback will be passed list of selected items
+  #{:model         ; list of elements to be selected (atom supported).
+    :selections    ; set of selected elements (atom supported).
+    :multi-select  ; boolean (when true, items use check boxes otherwise radio buttons)
+    :required      ; boolean (when true, at least one item must be selected)
+    :on-change     ; function callback will be passed updated set of item(s)
     :disabled      ; optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
     :hide-border   ; boolean. Default false.
     })
@@ -78,10 +65,11 @@
   {:pre [(superset? core-api (keys args))]}
   (let [elements (deref-or-value model)]
     (fn
-      [& {:keys [model disabled hide-border on-change] :as properties}]
+      [& {:keys [disabled selections multi-select hide-border on-change] :as properties}]
       (let [configuration (configure properties)]
         (main-div-with
-          [v-box
-            :gap "5px"
-            :children [[:li "NOT YET IMPLEMENTED"]]]
+          elements
+          selections
+          multi-select
+          disabled
           hide-border)))))

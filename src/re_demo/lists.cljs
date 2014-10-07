@@ -33,30 +33,39 @@
 
 
 
-  (defn- show-variant
-    [variation]
-    (let [disabled?    (r/atom false)
-          label-style  {:font-style "italic" :font-size "smaller" :color "#777"}]
-      (case variation
-        "1" [(fn
-               []
+(defn- show-variant
+  [variation]
+  (let [disabled?    (r/atom false)
+        label-style  {:font-style "italic" :font-size "smaller" :color "#777"}]
+    (case variation
+      "1" [(fn
+             []
+             (let [elements (r/atom [{:id "1" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
+                                     {:id "2" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
+                                     {:id "3" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
+                                     ])
+                   selections (r/atom #{})]
                [parameters-with
                 [h-box
                  :gap "20px"
                  :align :start
-                 :children [[single-select-list]]]
-                disabled?])]
-        "2" [(fn
-               []
-               [parameters-with
-                [h-box
-                 :size "auto"
-                 :align :start
-                 :children [[(fn []
-                               [v-box
-                                :gap "5px"
-                                :children [[label :style label-style :label "NOT YET IMPLEMENTED"]]])]]]
-                disabled?])])))
+                 :children [[single-select-list
+                             :disabled disabled?
+                             :model elements
+                             :selections selections
+                             :on-change #(println "selections: " %)]]]]
+               ))]
+      "2" [(fn
+             []
+             [parameters-with
+              [h-box
+               :size "auto"
+               :align :start
+               :children [[(fn []
+                             [v-box
+                              :gap "5px"
+                              :children [[label :style label-style :label "NOT YET IMPLEMENTED"]]])]]]
+              disabled?])])))
 
 
 (defn- notes
