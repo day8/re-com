@@ -10,38 +10,31 @@
 
 ;; ----------------------------------------------------------------------------
 
-(defn- item-click-handler [& args]
-  (println "clicked")
-  )
 
 (defn- as-checked
-  [element]
-  ;;TODO: pass model and handler logic
+  [element selections on-change disabled]
   [:a {:class "list-group-item compact"}
    [checkbox
+    :model (selections element)
+    :on-change #(on-change (if % (conj selections element) (disj selections element)))
     :label-style {:flex "initial"}
     :label (:label element)]])
 
 
+(trace-forms {:tracer default-tracer}
 (defn- main-div-with
-  [elements selections multi-select disabled hide-border]
-  (let [toggle (r/atom false)]
-    (fn []
-      (let [items (map as-checked elements)]
-      [border
-       :radius "4px"
-       :size   "none"
-       :child  (into [:div {:class "list-group"
-                      :style {:max-width "400px" :max-height "115px"  ;;TODO height should be based on container
-                              :padding-left "5px" :padding-bottom "5px" :margin-top "5px" :margin-bottom "5px"
-                              :overflow-x "hidden" :overflow-y "auto" ;;TODO this should be handled by scroller later
-                              :-webkit-user-select "none"}}] items)
-                ]))))
-
-
-(defn- selection-changed
-  [selection change-callback]
-  (change-callback selection))
+  [elements selections on-change multi-select disabled hide-border]
+  [(fn []
+     (let [items (map #(as-checked % selections on-change disabled) elements)]
+       [border
+        :radius "4px"
+        :size   "none"
+        :child  (into [:div {:class "list-group"
+                             :style {:max-width "400px" :max-height "115px"  ;;TODO height should be based on container
+                                     :padding-left "5px" :padding-bottom "5px" :margin-top "5px" :margin-bottom "5px"
+                                     :overflow-x "hidden" :overflow-y "auto" ;;TODO this should be handled by scroller later
+                                     :-webkit-user-select "none"}}] items)
+        ]))]))
 
 
 (defn- configure
@@ -60,16 +53,19 @@
     })
 
 
+;;TODO discuss with others if we want to use same named argument passing through all function layers
 (defn single-select-list
-  [& {:keys [model] :as args}]
+  [& {:as args}]
   {:pre [(superset? core-api (keys args))]}
-  (let [elements (deref-or-value model)]
-    (fn
-      [& {:keys [disabled selections multi-select hide-border on-change] :as properties}]
-      (let [configuration (configure properties)]
-        (main-div-with
-          elements
-          selections
-          multi-select
-          disabled
-          hide-border)))))
+  (fn
+    [& {:keys [model selections multi-select hide-border on-change disabled] :as properties}]
+    (let [configuration (configure properties)
+          elements (deref-or-value model)
+          selected (deref-or-value selections)]
+      (main-div-with
+        elements
+        selected
+        on-change
+        multi-select
+        disabled
+        hide-border))))

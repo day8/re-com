@@ -36,16 +36,15 @@
 (defn- show-variant
   [variation]
   (let [disabled?    (r/atom false)
-        label-style  {:font-style "italic" :font-size "smaller" :color "#777"}]
+        label-style  {:font-style "italic" :font-size "smaller" :color "#777"}
+        elements (r/atom [{:id "1" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
+                          {:id "2" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
+                          {:id "3" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
+                          ]
+                         )
+        selections (r/atom (set [(second @elements)]))]
     (case variation
-      "1" [(fn
-             []
-             (let [elements (r/atom [{:id "1" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
-                                     {:id "2" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
-                                     {:id "3" :label "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit"}
-                                     ])
-                   selections (r/atom #{})]
-               [parameters-with
+      "1" [parameters-with
                 [h-box
                  :gap "20px"
                  :align :start
@@ -53,8 +52,7 @@
                              :disabled disabled?
                              :model elements
                              :selections selections
-                             :on-change #(println "selections: " %)]]]]
-               ))]
+                             :on-change #(do (println %) (reset! selections %))]]]]
       "2" [(fn
              []
              [parameters-with
@@ -113,7 +111,7 @@
                                                        [single-dropdown
                                                         :options   variations
                                                         :model     selected-variation
-                                                        :width     "300px"
+                                                        :width     "285px"
                                                         :on-select #(reset! selected-variation %)]]]
                                            [gap :size "0px"] ;; Force a bit more space here
                                            [show-variant @selected-variation]]]]]]])))
