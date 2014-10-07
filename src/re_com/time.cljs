@@ -201,7 +201,16 @@
                [:span.glyphicon.glyphicon-time]])
             ]]))
 
+(defn updated-from
+  [from-model]
+  (println "updated-from " @from-model))
+
+(defn updated-to
+  [to-model]
+  (println "updated-to " @to-model))
+
 ;; --- Components ---
+
 
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
@@ -223,8 +232,8 @@
   Required parameters -
     model - an atom of from and to times [from-int to-int]
   Optional parameters are -
-    minimum - default is 0} - a time integer
-    maximum - default is 2359 - time integer
+    minimum - default is 0 - a time integer
+    maximum - default is 2359 - a time integer
     callback - function to call when model has changed - parameter will be the new value
     gap - horizontal gap between time inputs - default '4px'
     style - css"
@@ -246,7 +255,7 @@
       [h-box
         :gap (if gap gap "4px")
         :children [(when from-label [:label from-label])
-                   [private-time-input from-model min (atom-on (string->time-integer @to-model) nil)]
+                   [private-time-input from-model min (atom-on (string->time-integer @to-model) nil) :on-change #(updated-from from-model)]
                    (when to-label [:label to-label])
-                   [private-time-input to-model (atom-on (string->time-integer @from-model) nil) max]
+                   [private-time-input to-model (atom-on (string->time-integer @from-model) nil) max  :on-change #(updated-to to-model)]
                    ]])))

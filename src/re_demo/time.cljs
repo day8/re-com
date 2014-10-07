@@ -21,7 +21,8 @@
             {:id "3" :label "Disabled"}
             {:id "4" :label "With icon"}
             {:id "5" :label "Custom min & max"}
-            {:id "6" :label "Range"}])
+            {:id "6" :label "Range"}
+            {:id "7" :label "Range with labels"}])
 
 (defn notes
   []
@@ -42,14 +43,18 @@
                 [:ul
                  [:li.spacer [:code ":model"] " - an integer time e.g. 930"]]
                [:label {:style {:font-variant "small-caps"}} "optional"]
-                [:ul
+               [:ul
                   [:li.spacer [:code ":minimum"] " - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
                   [:li.spacer [:code ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
                   [:li.spacer [:code ":on-change"] " - function to call upon change."]
                   [:li.spacer [:code ":disabled"] " - true if the component should be disabled - default false"]
                   [:li.spacer [:code ":hide-border"] " - true if the time input should be displayed without a border - default false"]
                   [:li.spacer [:code ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
-                  [:li.spacer [:code ":style"] " - css style"]]]]])
+                  [:li.spacer [:code ":style"] " - css style"]]
+               [:label {:style {:font-variant "small-caps"}} "optional (range only)"]
+               [:ul
+                  [:li.spacer [:code ":from-label"] " - label to appear before the From input."]
+                  [:li.spacer [:code ":to-label"] " - label to appear before the To input."]]]]])
 
 ;; TODO write a macro to convert the demo source to actual code - see time-input-demo and time-input-code in each demo
 ;; TODO is it possible to use time-api to define parameters?
@@ -161,13 +166,15 @@
                           :model model
                           :on-change #(reset! model %)
                           :minimum 600
-                          :maximum 2359]
-        time-input-code "(let [model  (reagent/atom 900)]
+                          :maximum 2359
+                          :to-label "-"]
+        time-input-code "(let [model  (reagent/atom [900 2300])]
   [time-range-input
     :model model
     :on-change #(reset! model %)
     :minimum 600
-    :maximum 2359])"]
+    :maximum 2359]
+    :to-label \"-\"])"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
@@ -175,9 +182,40 @@
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li [:code ":mode"] " - vector of two integers"]
+                     [:li "Note that "[:code ":model"] " is (optionally an atom on) a vector of TWO integers"]
+                     [:li [:code ":to-label \"-\""] " puts a dash between the From and To input boxes"]]
                    [:label "Demo -"]
-                   time-input-demo]]]])))
+                   time-input-demo]]])))
+
+(defn demo7
+  []
+  (let [model  (reagent/atom [1000 2159])
+        time-input-demo [time-range-input
+                          :model model
+                          :on-change #(reset! model %)
+                          :minimum 600
+                          :maximum 2359
+                          :from-label "From:"
+                          :to-label "To:"]
+        time-input-code "(let [model  (reagent/atom [1000 2159])]
+  [time-range-input
+    :model model
+    :on-change #(reset! model %)
+    :minimum 600
+    :maximum 2359]
+    :from-label \"From:\")
+    :to-label \"To:\"])"]
+    (fn []
+      [:div {:style {:font-size "small"}}
+        [v-box
+          :children [[:div.h4 "Range with labels"]
+                   [:label "Usage -"]
+                   [:pre [:code time-input-code]]
+                   [:ul
+                     [:li "Note that "[:code ":model"] " is (optionally an atom on) a vector of TWO integers"]
+                     [:li [:code ":to-label \"-\""] " puts a dash between the From and To input boxes"]]
+                   [:label "Demo -"]
+                   time-input-demo]]])))
 
 (defn panel
   []
@@ -207,7 +245,8 @@
                                                  "3" [demo3]
                                                  "4" [demo4]
                                                  "5" [demo5]
-                                                 "6" [demo6])]]]]]])))
+                                                 "6" [demo6]
+                                                 "7" [demo7])]]]]]])))
 
 
 
