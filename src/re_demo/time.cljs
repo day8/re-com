@@ -22,7 +22,8 @@
             {:id "4" :label "With icon"}
             {:id "5" :label "Custom min & max"}
             {:id "6" :label "Range"}
-            {:id "7" :label "Range with labels"}])
+            {:id "7" :label "Range with labels"}
+            {:id "8" :label "Range with other options"}])
 
 (defn notes
   []
@@ -57,7 +58,7 @@
                   [:li.spacer [:code ":to-label"] " - label to appear before the To input."]]]]])
 
 ;; TODO write a macro to convert the demo source to actual code - see time-input-demo and time-input-code in each demo
-;; TODO is it possible to use time-api to define parameters?
+;; TODO is it possible to use time-api to define demo parameter documentation?
 
 (defn demo1
   []
@@ -182,7 +183,7 @@
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li "Note that "[:code ":model"] " must contain a vector of TWO integers"]
+                     [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]
                      [:li [:code ":to-label \"-\""] " puts a dash between the From and To input boxes"]]
                    [:label "Demo -"]
                    [:p "The From time must be less than or equal to the To time and both must be within min and max."]
@@ -196,6 +197,7 @@
                           :on-change #(reset! model %)
                           :minimum 600
                           :maximum 2200
+                          :show-time-icon true
                           :from-label "From:"
                           :to-label "To:"]
         time-input-code "(let [model  (reagent/atom [1000 2159])]
@@ -204,6 +206,7 @@
     :on-change #(reset! model %)
     :minimum 600
     :maximum 2200]
+    :show-time-icon true
     :from-label \"From:\")
     :to-label \"To:\"])"]
     (fn []
@@ -213,11 +216,43 @@
                      [:label "Usage -"]
                      [:pre [:code time-input-code]]
                      [:ul
-                       [:li "Note that "[:code ":model"] " must contain a vector of TWO integers"]
+                       [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]
                        [:li [:code ":to-label \"From:\""] " puts a label before the From input box"]
                        [:li [:code ":to-label \"To:\""] " puts a label before the To input box"]]
                      [:label "Demo -"]
                      [:p "The From time must be less than or equal to the To time and both must be within min and max."]
+                     time-input-demo]]])))
+
+(defn demo8
+  []
+  (let [model  (reagent/atom [1000 2200])
+        time-input-demo [time-range-input
+                          :model model
+                          :on-change #(reset! model %)
+                          :minimum 1000
+                          :maximum 2200
+                          :hide-border true
+                          :disabled true
+                          :to-label "-"]
+        time-input-code "(let [model  (reagent/atom [1000 2200])]
+  [time-range-input
+    :model model
+    :on-change #(reset! model %)
+    :minimum 1000
+    :maximum 2200]
+    :hide-border true
+    :disabled true
+    :to-label \"-\"])"]
+    (fn []
+      [:div {:style {:font-size "small"}}
+        [v-box
+          :children [[:div.h4 "Range with other options"]
+                     [:label "Usage -"]
+                     [:pre [:code time-input-code]]
+                     [:ul
+                       [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]]
+                     [:label "Demo -"]
+                     [:p "This example shows how to set the other options."]
                      time-input-demo]]])))
 
 (defn panel
@@ -249,7 +284,8 @@
                                                  "4" [demo4]
                                                  "5" [demo5]
                                                  "6" [demo6]
-                                                 "7" [demo7])]]]]]])))
+                                                 "7" [demo7]
+                                                 "8" [demo8])]]]]]])))
 
 
 

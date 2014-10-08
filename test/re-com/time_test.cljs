@@ -96,7 +96,7 @@
   (are [expected actual] (= expected actual)
     600   (time/validated-time-integer 600 0 2359)
     630   (time/validated-time-integer 630 0 2359)
-    0     (time/validated-time-integer 2230 0 2210)
+    nil   (time/validated-time-integer 2230 0 2210)
     2359  (time/validated-time-integer 2359 0 2359)
     1500  (time/validated-time-integer 1575 600 2200)    ;; invalid minutes
     nil   (time/validated-time-integer 500 600 2200)     ;; Too early

@@ -159,6 +159,14 @@
     (reset! tmp-model (display-string (time-int->hour-minute (validated-time-integer time-int @min @max))))
   (when callback (callback time-int))))
 
+(defn updated-range-time
+  [model max-or-min-model]
+  (let [new-time-int (string->time-integer @model)]
+    (when (> new-time-int 0)
+      (reset! max-or-min-model new-time-int)
+      (println "changed max or min to " @max-or-min-model)  ;; TODO remove this
+  )))
+
 (defn- atom-on
   [model default]
   (reagent/atom (if model
@@ -174,7 +182,7 @@
     :on-change      ;; function - callback will be passed new result - a time integer or nil
     :disabled       ;; boolean or reagent/atom on boolean - when true, navigation is allowed but selection is disabled.
     :show-time-icon ;; boolean - if true display a clock icon to the right of the
-    :style          ;;  map - optional css style information
+    :style          ;; map - optional css style information
     :hide-border    ;; boolean - hide border of the input box - default false.
     })
 
@@ -203,14 +211,6 @@
                {:style {}}
                [:span.glyphicon.glyphicon-time]])
             ]]))
-
-(defn updated-range-time
-  [model max-or-min-model]
-  (let [new-time-int (string->time-integer @model)]
-    (when (> new-time-int 0)
-      (reset! max-or-min-model new-time-int)
-      (println "changed max or min to " @max-or-min-model)  ;; TODO once issue resolved, remove this
-  )))
 
 ;; --- Components ---
 
@@ -255,7 +255,7 @@
   (let [from-max-model (atom-on (string->time-integer @to-model) nil)
         to-min-model   (atom-on (string->time-integer @from-model) nil)]
 
-  (fn [& {:keys [on-change from-label to-label gap style]}]
+  (fn [& {:keys [on-change from-label to-label disabled hide-border show-time-icon gap style]}]
       [h-box
         :gap (if gap gap "4px")
         :children [(when from-label [:label from-label])
@@ -264,6 +264,9 @@
                      min
                      from-max-model
                      :on-change #(updated-range-time from-model to-min-model)
+                     :disabled disabled
+                     :hide-border hide-border
+                     :show-time-icon show-time-icon
                      :style style]
                    (when to-label [:label to-label])
                    [private-time-input
@@ -271,5 +274,8 @@
                      to-min-model
                      max
                      :on-change #(updated-range-time to-model from-max-model)
+                     :disabled disabled
+                     :hide-border hide-border
+                     :show-time-icon show-time-icon
                      :style style]
                    ]]))))
