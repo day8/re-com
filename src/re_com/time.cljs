@@ -97,7 +97,7 @@
 
 (defn- validated-time-integer
   "Validate the values in the vector.
-  If any are invalid replace them and the following values with nil."
+  If any are invalid replace them with the previous valid value."
   [time-integer min max previous-val]
   (let [tm-string   (time-int->display-string time-integer)
         range-str   (str (time-int->display-string min) "-" (time-int->display-string max))]
@@ -254,14 +254,7 @@
 
 (defn time-range-input
   "I return the markup for a pair input boxes which will accept and validate times.
-  Required parameters -
-    model - an atom of from and to times [from-int to-int]
-  Optional parameters are -
-    minimum - default is 0 - a time integer
-    maximum - default is 2359 - a time integer
-    callback - function to call when model has changed - parameter will be the new value
-    gap - horizontal gap between time inputs - default '4px'
-    style - css"
+  Parameters - refer time-api above."
   [& {:keys [model minimum maximum ]}]
   (let [deref-model (deref-or-value model)
         tmp-from-model  (atom-on (display-string (time-int->hour-minute(first deref-model))) nil)

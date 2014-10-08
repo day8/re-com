@@ -22,7 +22,7 @@
             {:id "4" :label "With icon"}
             {:id "5" :label "Custom min & max"}
             {:id "6" :label "Range"}
-            {:id "7" :label "Range with labels"}
+            {:id "7" :label "Range with labels and icons"}
             {:id "8" :label "Range with other options"}])
 
 (defn notes
@@ -31,14 +31,15 @@
    :width    "500px"
    :children [[:div.h4 "General notes:"]
               [:div {:style {:font-size "small"}}
-               [:p "Accepts input of a time in 24hr format."]
-               [:p " Only allows input of numbers and ':'. Limits input to valid values (e.g. does not allow input of '999').
-               Also, attempts to interpret input e.g. '123' interpretted as '1:23'."]
-               [:p "The "[:code ":model"] " is expected to be an integer in HHMM form. e.g. a time of '18:30' is the integer 1830.
-                The same applies to "[:code ":minimum"] " and "[:code ":maximum"] "."]
-               [:p "When the component loses focus, the " [:code ":on-change"] " callback is called with an integer of the same form."]
-               [:p "If the entered value is invalid it will be replaced with the last valid value."]
-               [:p "If "[:code ":model"] " is invalid an exception will be thrown."]
+               [:ul
+                 [:li "Accepts input of a time in 24hr format."
+                   " Only allows input of numbers and ':'. Limits input to valid values (e.g. does not allow input of '999').
+                   Also, attempts to interpret input e.g. '123' interpretted as '1:23'."]
+                 [:li "The "[:code ":model"] " is expected to be an integer in HHMM form. e.g. a time of '18:30' is the integer 1830.
+                  The same applies to "[:code ":minimum"] " and "[:code ":maximum"] "."]
+                  [:li "When the component loses focus, the " [:code ":on-change"] " callback is called with an integer of the same form."]
+                  [:li "If the entered value is invalid it will be replaced with the last valid value."]
+                  [:li "If "[:code ":model"] " is invalid an exception will be thrown."]]
                [:div.h4 "Parameters"]
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
@@ -64,9 +65,9 @@
 (defn demo1
   []
   (let [model (reagent/atom nil)
-        time-input-demo  [time-input :model model]
+        time-input-demo  [time-input :model model :on-change #(reset! model %)]
         time-input-code "(let [model  (reagent/atom nil)]
-  [time-input :model model])"]
+  [time-input :model model :on-change #(reset! model %)])"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
@@ -81,9 +82,15 @@
 (defn demo2
   []
   (let [model  (reagent/atom 600)
-        time-input-demo  [time-input :model model              :hide-border true]
+        time-input-demo  [time-input
+                           :model model
+                           :on-change #(reset! model %)
+                           :hide-border true]
         time-input-code "(let [model  (reagent/atom 600)]
-  [time-input :model (reagent/atom 600) :hide-border true}])"]
+  [time-input
+    :model (reagent/atom 600)
+    :on-change #(reset! model %)
+    :hide-border true}])"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
@@ -188,6 +195,7 @@
                    [:pre [:code time-input-code]]
                    [:ul
                      [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]
+                     [:li "The call to " [:code ":on-change"] " will pass a new vector with 2 integers"]
                      [:li [:code ":to-label \"-\""] " puts a dash between the From and To input boxes"]]
                    [:label "Demo -"]
                    [:p "The From time must be less than or equal to the To time and both must be within min and max."]
@@ -216,11 +224,12 @@
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
-          :children [[:div.h4 "Range with labels"]
+          :children [[:div.h4 "Range with labels and icons"]
                      [:label "Usage -"]
                      [:pre [:code time-input-code]]
                      [:ul
                        [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]
+                       [:li "The call to " [:code ":on-change"] " will pass a new vector with 2 integers"]
                        [:li [:code ":to-label \"From:\""] " puts a label before the From input box"]
                        [:li [:code ":to-label \"To:\""] " puts a label before the To input box"]]
                      [:label "Demo -"]
@@ -254,7 +263,8 @@
                      [:label "Usage -"]
                      [:pre [:code time-input-code]]
                      [:ul
-                       [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]]
+                       [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]
+                       [:li "The call to " [:code ":on-change"] " will pass a new vector with 2 integers"]]
                      [:label "Demo -"]
                      [:p "This example shows how to set the other options."]
                      time-input-demo]]])))
