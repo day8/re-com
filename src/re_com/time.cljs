@@ -207,9 +207,9 @@
     })
 
 (defn- private-time-input
+  "This is the markup for the time input."
   [model previous-val min max & {:keys [on-change disabled style hide-border show-time-icon :as args]}]
   {:pre [(superset? time-api (keys args))]}
-  ;;(println (str "Time input - model: " (deref-or-value model) " min: " (deref-or-value min) " max: " (deref-or-value max))) ;; TODO remove this
   (let [def-style {:margin-top "0px"
                    :padding-left "2px"
                    :padding-top "0px"

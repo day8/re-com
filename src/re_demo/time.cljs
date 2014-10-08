@@ -37,7 +37,7 @@
                [:p "The "[:code ":model"] " is expected to be an integer in HHMM form. e.g. a time of '18:30' is the integer 1830.
                 The same applies to "[:code ":minimum"] " and "[:code ":maximum"] "."]
                [:p "When the component loses focus, the " [:code ":on-change"] " callback is called with an integer of the same form."]
-               [:p "If the entered value is invalid it will be ignored."] ;; TODO fix this
+               [:p "If the entered value is invalid it will be replaced with the last valid value."]
                [:p "If "[:code ":model"] " is invalid an exception will be thrown."]
                [:div.h4 "Parameters"]
                [:label {:style {:font-variant "small-caps"}} "required"]
