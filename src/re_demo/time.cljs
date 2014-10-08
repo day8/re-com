@@ -42,20 +42,20 @@
                [:div.h4 "Parameters"]
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
-                 [:li.spacer [:code ":model"] " - an integer time e.g. 930"]]
+                 [:li [:code ":model"] " - an integer time e.g. 930"]]
                [:label {:style {:font-variant "small-caps"}} "optional"]
                [:ul
-                  [:li.spacer [:code ":minimum"] " - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
-                  [:li.spacer [:code ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
-                  [:li.spacer [:code ":on-change"] " - function to call upon change."]
-                  [:li.spacer [:code ":disabled"] " - true if the component should be disabled - default false"]
-                  [:li.spacer [:code ":hide-border"] " - true if the time input should be displayed without a border - default false"]
-                  [:li.spacer [:code ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
-                  [:li.spacer [:code ":style"] " - css style"]]
+                  [:li [:code ":minimum"] " - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
+                  [:li [:code ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
+                  [:li [:code ":on-change"] " - function to call upon change."]
+                  [:li [:code ":disabled"] " - true if the component should be disabled - default false"]
+                  [:li [:code ":hide-border"] " - true if the time input should be displayed without a border - default false"]
+                  [:li [:code ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
+                  [:li [:code ":style"] " - css style"]]
                [:label {:style {:font-variant "small-caps"}} "optional (range only)"]
                [:ul
-                  [:li.spacer [:code ":from-label"] " - label to appear before the From input."]
-                  [:li.spacer [:code ":to-label"] " - label to appear before the To input."]]]]])
+                  [:li [:code ":from-label"] " - label to appear before the From input."]
+                  [:li [:code ":to-label"] " - label to appear before the To input."]]]]])
 
 ;; TODO write a macro to convert the demo source to actual code - see time-input-demo and time-input-code in each demo
 ;; TODO is it possible to use time-api to define demo parameter documentation?
@@ -115,7 +115,10 @@
 (defn demo4
   []
   (let [model  (reagent/atom 900)
-        time-input-demo  [time-input :model model              :on-change #(reset! model %) :show-time-icon true]
+        time-input-demo  [time-input
+                            :model model
+                            :on-change #(reset! model %)
+                            :show-time-icon true]
         time-input-code "(let [model  (reagent/atom 900)]
   [time-input
     :model model

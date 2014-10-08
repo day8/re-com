@@ -50,7 +50,8 @@
     (time-integer-from-vector (map int-from-string vals))))
 
 (defn display-string
-  "Return a string display of the time."
+  "Return a string display of the time.
+  The format will be HH:MM."
   [[hour minute]]
   (if (and (nil? hour)(nil? minute))
     ""
@@ -155,7 +156,7 @@
     (reset! tmp-model (display-string (time-int->hour-minute (validated-time-integer time-int (deref-or-value min) (deref-or-value max)))))
   (when callback (callback time-int))))
 
-(defn updated-range-time
+(defn- updated-range-time
   [model max-or-min-model]
   (let [new-time-int (string->time-integer (deref-or-value model))]
     (when (> new-time-int 0)
@@ -220,7 +221,13 @@
     (validate-max-min (deref-or-value min) (deref-or-value max))                  ;; This will throw an error if the parameters are invalid
     (if-not (valid-time-integer? deref-model (deref-or-value min) (deref-or-value max))
       (throw (js/Error. (str "model " deref-model " is not a valid time integer."))))
-    [private-time-input tmp-model min max]))
+     (fn [& {:keys [on-change disabled hide-border show-time-icon style]}]
+       [private-time-input tmp-model min max
+         :on-change on-change
+         :disabled disabled
+         :hide-border hide-border
+         :show-time-icon show-time-icon
+         :style style])))
 
 (defn time-range-input
   "This doesn't work because the model of time-input is a string, but the min and max are integers.
@@ -272,5 +279,4 @@
                      :disabled disabled
                      :hide-border hide-border
                      :show-time-icon show-time-icon
-                     :style style]
-                   ]]))))
+                     :style style]]]))))
