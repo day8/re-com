@@ -4,14 +4,10 @@
     [clojure.string :as cljstring]
     [clojure.set :refer [superset?]]
     [re-com.box      :refer  [h-box gap]]
-    [re-com.util :refer [pad-zero-number real-value]]))
+    [re-com.util :refer [pad-zero-number deref-or-value]]))
 
 
 ; --- Private functions ---
-
-;; TODO use re-com.util/deref-or-value instead of this local version
-(defn deref-or-value [val-or-atom]
-  (if (satisfies? IDeref val-or-atom) @val-or-atom val-or-atom))
 
 (defn- time-int->hour-minute
   "Convert the time integer (e.g. 930) to a vector of hour and minute."
@@ -156,15 +152,15 @@
   [ev tmp-model min max callback]
   (let [input-val (-> ev .-target .-value)
         time-int (string->time-integer input-val)]
-    (reset! tmp-model (display-string (time-int->hour-minute (validated-time-integer time-int @min @max))))
+    (reset! tmp-model (display-string (time-int->hour-minute (validated-time-integer time-int (deref-or-value min) (deref-or-value max)))))
   (when callback (callback time-int))))
 
 (defn updated-range-time
   [model max-or-min-model]
-  (let [new-time-int (string->time-integer @model)]
+  (let [new-time-int (string->time-integer (deref-or-value model))]
     (when (> new-time-int 0)
       (reset! max-or-min-model new-time-int)
-      (println "changed max or min to " @max-or-min-model)  ;; TODO remove this
+      ;;(println "changed max or min to " @max-or-min-model)  ;; TODO remove this
   )))
 
 (defn- atom-on
@@ -189,28 +185,27 @@
 (defn- private-time-input
   [model min max & {:keys [on-change disabled style hide-border show-time-icon :as args]}]
   {:pre [(superset? time-api (keys args))]}
-  (println (str "Time input - model: " @model " min: " (deref-or-value min) " max: " (deref-or-value max)))
-    (let [def-style {:margin-top "0px"
-                     :padding-left "2px"
-                     :padding-top "0px"
-                     :font-size "11px"
-                     :width "35px"}
-          add-style (when hide-border {:border "none"})
-          style (merge def-style add-style style)]
-        [:span.input-append.bootstrap-timepicker
-          [:input
-            {:type "text"
-             :disabled (deref-or-value disabled)
-             :class "time-entry"
-             :value @model
-             :style style
-             :on-change #(time-changed % model)
-             :on-blur #(time-updated % model min max on-change)}
-            (when show-time-icon
-              [:span.time-icon
-               {:style {}}
-               [:span.glyphicon.glyphicon-time]])
-            ]]))
+  ;;(println (str "Time input - model: " (deref-or-value model) " min: " (deref-or-value min) " max: " (deref-or-value max))) ;; TODO remove this
+  (let [def-style {:margin-top "0px"
+                   :padding-left "2px"
+                   :padding-top "0px"
+                   :font-size "11px"
+                   :width "35px"}
+        add-style (when hide-border {:border "none"})
+        style (merge def-style add-style style)]
+    [:span.input-append.bootstrap-timepicker
+      [:input
+        {:type "text"
+         :disabled (deref-or-value disabled)
+         :class "time-entry"
+         :value @model
+         :style style
+         :on-change #(time-changed % model)
+         :on-blur #(time-updated % model min max on-change)}
+         (when show-time-icon
+           [:span.time-icon
+           {:style {}}
+           [:span.glyphicon.glyphicon-time]])]]))
 
 ;; --- Components ---
 
@@ -222,8 +217,8 @@
         tmp-model (atom-on (display-string (time-int->hour-minute deref-model)) "")
         min (atom-on minimum 0)
         max (atom-on maximum 2359)]
-    (validate-max-min @min @max)                  ;; This will throw an error if the parameters are invalid
-    (if-not (valid-time-integer? deref-model @min @max)
+    (validate-max-min (deref-or-value min) (deref-or-value max))                  ;; This will throw an error if the parameters are invalid
+    (if-not (valid-time-integer? deref-model (deref-or-value min) (deref-or-value max))
       (throw (js/Error. (str "model " deref-model " is not a valid time integer."))))
     [private-time-input tmp-model min max]))
 
@@ -245,10 +240,10 @@
         to-model    (atom-on (display-string (time-int->hour-minute(last  deref-model))) nil)
         min (atom-on minimum 0)
         max (atom-on maximum 2359)]
-  (validate-max-min @min @max)                  ;; This will throw an error if the parameters are invalid
-  (if-not (valid-time-integer? (first deref-model) @min @max)
+  (validate-max-min (deref-or-value min) (deref-or-value @max))                  ;; This will throw an error if the parameters are invalid
+  (if-not (valid-time-integer? (first deref-model) (deref-or-value min)(deref-or-value max))
     (throw (js/Error. (str "model for FROM time: " @from-model " is not a valid time integer."))))
-  (if-not (valid-time-integer? (last deref-model) @min @max)
+  (if-not (valid-time-integer? (last deref-model) (deref-or-value min)(deref-or-value max))
     (throw (js/Error. (str "model for TO time: " @to-model " is not a valid time integer."))))
   (if-not (< (first deref-model) (last deref-model))
       (throw (js/Error. (str "TO " @to-model " is less than FROM " @from-model "."))))

@@ -121,20 +121,21 @@
     (is (= @mdl 456) "Expected value to be 456.")))
 
 (deftest test-time-input
- (is (fn? (first (time/time-input :model 1500))) "Expected a function.")
- (let [result  ((first (time/time-input :model 1530 :minimum 0 :maximum 2359)))]
-   (is (= :span.input-append.bootstrap-timepicker (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
-   (let [time-input (last result)
-         time-input-attrs (nth time-input 1)]
-     (is (= :input.input-small (first time-input)) "Expected time input start with :input.input-small")
-     (are [expected actual] (= expected actual)
-       nil           (:disabled time-input-attrs)
-       "15:30"       (:value time-input-attrs)
-       "text"        (:type time-input-attrs)
-       "time-entry"  (:class time-input-attrs)
-       true     (fn? (:on-blur time-input-attrs))
-       true     (fn? (:on-change time-input-attrs)))))
- (is (fn? (time/time-input :model 1500 :minimum 600 :maximum 2159)) "Expected a function.")
+ (is (fn? (first (time/time-input :model 1530 :minimum 600 :maximum 2159)) "Expected a function."))
+ (let [time-input-fn (first (time/time-input :model 1530))]
+   (is (fn? time-input-fn) "Expected a function.")
+   (let [result  (time-input-fn (time/atom-on "15:30" nil)600 2159 nil)]
+     (is (= :span.input-append.bootstrap-timepicker (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
+     (let [time-input-comp (last result)
+           time-input-attrs (nth time-input-comp 1)]
+       (is (= :input (first time-input-comp)) "Expected time input start with :input")
+       (are [expected actual] (= expected actual)
+         nil           (:disabled time-input-attrs)
+         "15:30"       (:value time-input-attrs)
+         "text"        (:type time-input-attrs)
+         "time-entry"  (:class time-input-attrs)
+         true     (fn? (:on-blur time-input-attrs))
+         true     (fn? (:on-change time-input-attrs))))))
  (is (thrown? js/Error (time/time-input :model "abc") "should fail - model is invalid"))
  (is (thrown? js/Error (time/time-input :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
  (is (thrown? js/Error (time/time-input :model 930 :minimum 600 :maximum "fred") "should fail - maximum is invalid"))
