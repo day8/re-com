@@ -226,7 +226,7 @@
     (if-not (valid-time-integer? deref-model (deref-or-value min) (deref-or-value max))
       (throw (js/Error. (str "model " deref-model " is not a valid time integer."))))
      (fn [& {:keys [on-change disabled hide-border show-time-icon style]}]
-       [private-time-input tmp-model deref-model min max
+       [private-time-input tmp-model (deref-or-value model) min max
          :on-change on-change
          :disabled disabled
          :hide-border hide-border
@@ -265,7 +265,7 @@
         :children [(when from-label [:label from-label])
                    [private-time-input
                      from-model
-                     (first deref-model)
+                     (first (deref-or-value model))
                      min
                      from-max-model
                      :on-change #(updated-range-time from-model to-min-model on-change)
@@ -276,7 +276,7 @@
                    (when to-label [:label to-label])
                    [private-time-input
                      to-model
-                     (last deref-model)
+                     (last (deref-or-value model))
                      to-min-model
                      max
                      :on-change #(updated-range-time to-model from-max-model on-change)
