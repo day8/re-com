@@ -106,13 +106,15 @@
         range-str   (str (time-int->display-string min) "-" (time-int->display-string max))]
     (if-not (validate-hours time-integer min max)
       (do
-        nil
-        (.info js/console (str "WARNING: Time " tm-string " is outside range " range-str)))
-      (if-not (validate-minutes time-integer)
-        (do
-          (.info js/console (str "WARNING: Minutes of " tm-string " are invalid."))
-          (time-integer-from-vector [(quot time-integer 100) "" 0]))
-        time-integer))))
+        (.info js/console (str "WARNING: Time " tm-string " is outside range " range-str))
+        nil)
+      (if (validate-minutes time-integer)
+        (if (validate-time-range time-integer min max)
+          time-integer
+          (do
+            (.info js/console (str "WARNING: " tm-string " is outside range " range-str))
+            nil))
+        (time-integer-from-vector [(quot time-integer 100) "" 0])))))
 
 (defn- valid-time-integer?
   "Return true if the passed time integer is valid."
@@ -204,9 +206,11 @@
 
 (defn updated-range-time
   [model max-or-min-model]
-  (reset! max-or-min-model (string->time-integer @model))
-  (println "changed max or min to " @max-or-min-model)  ;; TODO once issue resolved, remove this
-  )
+  (let [new-time-int (string->time-integer @model)]
+    (when (> new-time-int 0)
+      (reset! max-or-min-model new-time-int)
+      (println "changed max or min to " @max-or-min-model)  ;; TODO once issue resolved, remove this
+  )))
 
 ;; --- Components ---
 

@@ -138,23 +138,23 @@
                           :model model
                           :on-change #(reset! model %)
                           :minimum 600
-                          :maximum 2159]
+                          :maximum 2130]
         time-input-code "(let [model  (reagent/atom 900)]
   [time-input
     :model model
     :on-change #(reset! model %)
     :minimum 600
-    :maximum 2159])"]
+    :maximum 2130])"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
-          :children [[:div.h4 "With custom range: 06:00-21:59"]
+          :children [[:div.h4 "With custom range: 06:00-21:30"]
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
                      [:li [:code ":on-change"] " - update the model's value"]
                      [:li [:code ":minimum 600"] " - minimum time is '06:00'"]
-                     [:li [:code ":maximum 2159"] " - maximum time is '21:59'"]]
+                     [:li [:code ":maximum 2130"] " - maximum time is '21:30'"]]
                    [:label "Demo -"]
                    [:p "Try typing a value outside the range."]
                    time-input-demo]]])))
@@ -210,15 +210,15 @@
       [:div {:style {:font-size "small"}}
         [v-box
           :children [[:div.h4 "Range with labels"]
-                   [:label "Usage -"]
-                   [:pre [:code time-input-code]]
-                   [:ul
-                     [:li "Note that "[:code ":model"] " must contain a vector of TWO integers"]
-                     [:li [:code ":to-label \"From:\""] " puts a label before the From input box"]
-                     [:li [:code ":to-label \"To:\""] " puts a label before the To input box"]]
-                   [:label "Demo -"]
-                   [:p "The From time must be less than or equal to the To time and both must be within min and max."]
-                   time-input-demo]]])))
+                     [:label "Usage -"]
+                     [:pre [:code time-input-code]]
+                     [:ul
+                       [:li "Note that "[:code ":model"] " must contain a vector of TWO integers"]
+                       [:li [:code ":to-label \"From:\""] " puts a label before the From input box"]
+                       [:li [:code ":to-label \"To:\""] " puts a label before the To input box"]]
+                     [:label "Demo -"]
+                     [:p "The From time must be less than or equal to the To time and both must be within min and max."]
+                     time-input-demo]]])))
 
 (defn panel
   []
