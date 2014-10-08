@@ -55,7 +55,8 @@
                [:label {:style {:font-variant "small-caps"}} "optional (range only)"]
                [:ul
                   [:li [:code ":from-label"] " - label to appear before the From input."]
-                  [:li [:code ":to-label"] " - label to appear before the To input."]]]]])
+                  [:li [:code ":to-label"] " - label to appear before the To input."]
+                  [:li [:code ":gap"] " - gap between the input boxes (disregarding "[:code ":to-label"]"). Default is 4px."]]]]])
 
 ;; TODO write a macro to convert the demo source to actual code - see time-input-demo and time-input-code in each demo
 ;; TODO is it possible to use time-api to define demo parameter documentation?

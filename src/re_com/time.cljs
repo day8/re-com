@@ -98,20 +98,21 @@
 (defn- validated-time-integer
   "Validate the values in the vector.
   If any are invalid replace them and the following values with nil."
-  [time-integer min max]
+  [time-integer min max previous-val]
   (let [tm-string   (time-int->display-string time-integer)
         range-str   (str (time-int->display-string min) "-" (time-int->display-string max))]
     (if-not (validate-hours time-integer min max)
       (do
         (.info js/console (str "WARNING: Time " tm-string " is outside range " range-str))
-        nil)
+        previous-val)
       (if (validate-minutes time-integer)
         (if (validate-time-range time-integer min max)
           time-integer
           (do
             (.info js/console (str "WARNING: " tm-string " is outside range " range-str))
-            nil))
-        (time-integer-from-vector [(quot time-integer 100) "" 0])))))
+            previous-val))
+        #_(time-integer-from-vector [(quot time-integer 100) "" 0])
+        previous-val))))
 
 (defn- valid-time-integer?
   "Return true if the passed time integer is valid."
@@ -149,20 +150,23 @@
 
 (defn- time-updated
   "Triggered whenever the input field loses focus.
-  Re-validate been entered. Then update the model."
-  [ev tmp-model min max callback]
+  Re-validate what has been entered. Then update the model."
+  [ev tmp-model min max callback previous-val]
   (let [input-val (-> ev .-target .-value)
-        time-int (string->time-integer input-val)]
-    (reset! tmp-model (display-string (time-int->hour-minute (validated-time-integer time-int (deref-or-value min) (deref-or-value max)))))
+        time-int (string->time-integer input-val)
+        validated-int (validated-time-integer time-int (deref-or-value min) (deref-or-value max) previous-val)]
+    (reset! tmp-model (display-string (time-int->hour-minute validated-int)))
   (when callback (callback time-int))))
 
 (defn- updated-range-time
-  [model max-or-min-model]
+  "One of the values of a range has changed. Update the min or max of the other input.
+  Send the new value  to the caller using the callback."
+  [model max-or-min-model callback]
   (let [new-time-int (string->time-integer (deref-or-value model))]
     (when (> new-time-int 0)
       (reset! max-or-min-model new-time-int)
       ;;(println "changed max or min to " @max-or-min-model)  ;; TODO remove this
-  )))
+      (when callback (callback new-time-int)))))
 
 (defn- atom-on
   [model default]
@@ -184,7 +188,7 @@
     })
 
 (defn- private-time-input
-  [model min max & {:keys [on-change disabled style hide-border show-time-icon :as args]}]
+  [model previous-val min max & {:keys [on-change disabled style hide-border show-time-icon :as args]}]
   {:pre [(superset? time-api (keys args))]}
   ;;(println (str "Time input - model: " (deref-or-value model) " min: " (deref-or-value min) " max: " (deref-or-value max))) ;; TODO remove this
   (let [def-style {:margin-top "0px"
@@ -202,7 +206,7 @@
          :value @model
          :style style
          :on-change #(time-changed % model)
-         :on-blur #(time-updated % model min max on-change)}
+         :on-blur #(time-updated % model min max on-change previous-val)}
          (when show-time-icon
            [:span.time-icon
            {:style {}}
@@ -222,7 +226,7 @@
     (if-not (valid-time-integer? deref-model (deref-or-value min) (deref-or-value max))
       (throw (js/Error. (str "model " deref-model " is not a valid time integer."))))
      (fn [& {:keys [on-change disabled hide-border show-time-icon style]}]
-       [private-time-input tmp-model min max
+       [private-time-input tmp-model deref-model min max
          :on-change on-change
          :disabled disabled
          :hide-border hide-border
@@ -230,9 +234,7 @@
          :style style])))
 
 (defn time-range-input
-  "This doesn't work because the model of time-input is a string, but the min and max are integers.
-
-  I return the markup for a pair input boxes which will accept and validate times.
+  "I return the markup for a pair input boxes which will accept and validate times.
   Required parameters -
     model - an atom of from and to times [from-int to-int]
   Optional parameters are -
@@ -263,9 +265,10 @@
         :children [(when from-label [:label from-label])
                    [private-time-input
                      from-model
+                     (first deref-model)
                      min
                      from-max-model
-                     :on-change #(updated-range-time from-model to-min-model)
+                     :on-change #(updated-range-time from-model to-min-model on-change)
                      :disabled disabled
                      :hide-border hide-border
                      :show-time-icon show-time-icon
@@ -273,9 +276,10 @@
                    (when to-label [:label to-label])
                    [private-time-input
                      to-model
+                     (last deref-model)
                      to-min-model
                      max
-                     :on-change #(updated-range-time to-model from-max-model)
+                     :on-change #(updated-range-time to-model from-max-model on-change)
                      :disabled disabled
                      :hide-border hide-border
                      :show-time-icon show-time-icon
