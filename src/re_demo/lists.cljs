@@ -34,28 +34,31 @@
   [variation]
   (let [disabled?     (r/atom false)
         multi-select? (r/atom true)
-        elements      (r/atom [{:id "1" :label "1 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 1"}
+        items         (r/atom [{:id "1" :label "1 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 1"}
                                {:id "2" :label "2 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 2"}
                                {:id "3" :label "3 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 3"}
                                {:id "4" :label "4 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 4"}
                                {:id "5" :label "5 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 5"}
                                {:id "6" :label "6 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 6"}
-                               {:id "7" :label "7 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 7"}
-                               ])
-        selections    (r/atom (set [(second @elements)]))]
+                               {:id "7" :label "7 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 7"}])
+        selections    (r/atom (set [(second @items)]))]
     (case variation
       "1" [(fn
              []
              [parameters-with
-               [h-box
-                :gap "20px"
-                :align :start
+               [v-box
+                :gap      "20px"
+                :align    :start
                 :children [[inline-list
-                            :multi-select  multi-select?
-                            :disabled      disabled?
-                            :model         elements
-                            :selections    selections
-                            :on-change     #(do (println %) (reset! selections %))]]]
+                            :width        "400px"
+                            :height       "115px"
+                            :model        selections
+                            :choices      items
+                            :label-fn     :label
+                            :multi-select multi-select?
+                            :disabled     disabled?
+                            :required     true
+                            :on-change    #(do (println %) (reset! selections %))]]]
                multi-select?
                disabled?])])))
 
@@ -69,9 +72,9 @@
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
                  [:li.spacer [:code ":model"]
-                  " - vector of maps selectable elements. Each should have :label property unless :label-fn provided"]
-                 [:li.spacer [:code ":selections"]
-                  " - set of selected elements."]
+                  " - set of currently selected items. Note items are considered distinct."]
+                 [:li.spacer [:code ":choices"]
+                 " - list of selectable items. Elements can be just strings and will be sent str unless :label-fn provided."]
                  [:li.spacer [:code ":multi-select"]
                   " - boolean. When true, items use check boxes otherwise radio buttons."]
                  [:li.spacer [:code ":on-change"]
@@ -87,6 +90,10 @@
                   " - boolean. When true, at least one item must be selected. Default true."]
                  [:li.spacer [:code ":label-fn"]
                   " - function to call on element to get label string, default :label"]
+                 [:li.spacer [:code ":width"]
+                  " - optional CSS style value e.g. \"250px\""]
+                 [:li.spacer [:code ":height"]
+                  " - optional CSS style value e.g. \"150px\""]
                  ]]]])
 
 

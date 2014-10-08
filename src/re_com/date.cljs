@@ -190,14 +190,14 @@
 (def core-api
   #{:model        ; goog.date.UtcDateTime can be reagent/atom.
                   ; The calendar will be focused on corresponding date and the date represents selection.
-   :on-change     ; function callback will be passed new selected goog.date.UtcDateTime
-   :disabled      ; optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
-   :enabled-days  ; set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
-   :show-weeks    ; boolean. When true, first column shows week numbers.
-   :show-today    ; boolean. When true, today's date is highlighted. Selected day highlight takes precedence.
-   :minimum       ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
-   :maximum       ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
-   :hide-border   ; boolean. Default false.
+    :on-change    ; function callback will be passed new selected goog.date.UtcDateTime
+    :disabled     ; optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
+    :enabled-days ; set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
+    :show-weeks   ; boolean. When true, first column shows week numbers.
+    :show-today   ; boolean. When true, today's date is highlighted. Selected day highlight takes precedence.
+    :minimum      ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
+    :maximum      ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
+    :hide-border  ; boolean. Default false.
    })
 
 (defn inline-picker
