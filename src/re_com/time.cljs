@@ -243,43 +243,44 @@
     callback - function to call when model has changed - parameter will be the new value
     gap - horizontal gap between time inputs - default '4px'
     style - css"
-  [& {:keys [model minimum maximum ]}]
-  (let [deref-model (deref-or-value model)
-        from-model  (atom-on (display-string (time-int->hour-minute(first deref-model))) nil)
-        to-model    (atom-on (display-string (time-int->hour-minute(last  deref-model))) nil)
+  [& {:keys [from-model to-model minimum maximum ]}]
+  (let [deref-from-model (deref-or-value from-model)
+        deref-to-model   (deref-or-value to-model)
+        tmp-from-model  (atom-on (display-string (time-int->hour-minute deref-from-model)) nil)
+        tmp-to-model    (atom-on (display-string (time-int->hour-minute deref-to-model)) nil)
         min (atom-on minimum 0)
         max (atom-on maximum 2359)]
   (validate-max-min (deref-or-value min) (deref-or-value @max))                  ;; This will throw an error if the parameters are invalid
-  (if-not (valid-time-integer? (first deref-model) (deref-or-value min)(deref-or-value max))
-    (throw (js/Error. (str "model for FROM time: " @from-model " is not a valid time integer."))))
-  (if-not (valid-time-integer? (last deref-model) (deref-or-value min)(deref-or-value max))
-    (throw (js/Error. (str "model for TO time: " @to-model " is not a valid time integer."))))
-  (if-not (< (first deref-model) (last deref-model))
-      (throw (js/Error. (str "TO " @to-model " is less than FROM " @from-model "."))))
-  (let [from-max-model (atom-on (string->time-integer @to-model) nil)
-        to-min-model   (atom-on (string->time-integer @from-model) nil)]
+  (if-not (valid-time-integer? deref-from-model (deref-or-value min)(deref-or-value max))
+    (throw (js/Error. (str "model for FROM time: " @tmp-from-model " is not a valid time integer."))))
+  (if-not (valid-time-integer? deref-to-model (deref-or-value min)(deref-or-value max))
+    (throw (js/Error. (str "model for TO time: " @tmp-to-model " is not a valid time integer."))))
+  (if-not (< deref-from-model deref-to-model)
+      (throw (js/Error. (str "TO " @tmp-to-model " is less than FROM " @tmp-from-model "."))))
+  (let [from-max-model (atom-on (string->time-integer @tmp-to-model) nil)
+        to-min-model   (atom-on (string->time-integer @tmp-from-model) nil)]
 
-  (fn [& {:keys [on-change from-label to-label disabled hide-border show-time-icon gap style]}]
+  (fn [& {:keys [on-from-change on-to-change from-label to-label disabled hide-border show-time-icon gap style]}]
       [h-box
         :gap (if gap gap "4px")
         :children [(when from-label [:label from-label])
                    [private-time-input
-                     from-model
-                     (first (deref-or-value model))
+                     tmp-from-model
+                     (deref-or-value from-model)
                      min
                      from-max-model
-                     :on-change #(updated-range-time from-model to-min-model on-change)
+                     :on-change #(updated-range-time tmp-from-model to-min-model on-from-change)
                      :disabled disabled
                      :hide-border hide-border
                      :show-time-icon show-time-icon
                      :style style]
                    (when to-label [:label to-label])
                    [private-time-input
-                     to-model
-                     (last (deref-or-value model))
+                     tmp-to-model
+                     (deref-or-value to-model)
                      to-min-model
                      max
-                     :on-change #(updated-range-time to-model from-max-model on-change)
+                     :on-change #(updated-range-time tmp-to-model from-max-model on-to-change)
                      :disabled disabled
                      :hide-border hide-border
                      :show-time-icon show-time-icon

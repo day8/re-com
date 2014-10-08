@@ -39,7 +39,7 @@
                [:p "When the component loses focus, the " [:code ":on-change"] " callback is called with an integer of the same form."]
                [:p "If the entered value is invalid it will be ignored."] ;; TODO fix this
                [:p "If "[:code ":model"] " is invalid an exception will be thrown."]
-               [:div.h4 "Parameters"]
+               [:div.h4 "Parameters - Time"]
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
                  [:li [:code ":model"] " - an integer time e.g. 930"]]
@@ -52,8 +52,21 @@
                   [:li [:code ":hide-border"] " - true if the time input should be displayed without a border - default false"]
                   [:li [:code ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
                   [:li [:code ":style"] " - css style"]]
-               [:label {:style {:font-variant "small-caps"}} "optional (range only)"]
+               [:div.h4 "Parameters - Time Range"]
+               [:label {:style {:font-variant "small-caps"}} "required"]
+                [:ul
+                 [:li [:code ":from-model"] " - an integer time e.g. 930"]
+                 [:li [:code ":to-model"] " - an integer time e.g. 1230"]]
+               [:label {:style {:font-variant "small-caps"}} "optional"]
                [:ul
+                  [:li [:code ":minimum"] " - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
+                  [:li [:code ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
+                  [:li [:code ":on-from-change"] " - function to call upon change of From time."]
+                  [:li [:code ":on-to-change"] " - function to call upon change of To time."]
+                  [:li [:code ":disabled"] " - true if the component should be disabled - default false"]
+                  [:li [:code ":hide-border"] " - true if the time input should be displayed without a border - default false"]
+                  [:li [:code ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
+                  [:li [:code ":style"] " - css style"]
                   [:li [:code ":from-label"] " - label to appear before the From input."]
                   [:li [:code ":to-label"] " - label to appear before the To input."]
                   [:li [:code ":gap"] " - gap between the input boxes (disregarding "[:code ":to-label"]"). Default is 4px."]]]]])
@@ -166,17 +179,23 @@
 
 (defn demo6
   []
-  (let [model  (reagent/atom [900 2300])
+  (let [from-model  (reagent/atom 900)
+        to-model    (reagent/atom 2300)
         time-input-demo [time-range-input
-                          :model model
-                          :on-change #(reset! model %)
+                          :from-model from-model
+                          :to-model to-model
+                          :on-from-change #(reset! from-model %)
+                          :on-to-change #(reset! to-model %)
                           :minimum 600
                           :maximum 2359
                           :to-label "-"]
-        time-input-code "(let [model  (reagent/atom [900 2300])]
+        time-input-code "(let [from-model  (reagent/atom 900)
+     to-model    (reagent/atom 2300)]
   [time-range-input
-    :model model
-    :on-change #(reset! model %)
+    :from-model from-model
+    :to-model to-model
+    :on-from-change #(reset! from-model %)
+    :on-to-change #(reset! to-model %)
     :minimum 600
     :maximum 2359]
     :to-label \"-\"])"]
@@ -187,7 +206,7 @@
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]
+                     [:li "Note that "[:code ":from-model"] " and "[:code ":to-model"] " are times as integers"]
                      [:li [:code ":to-label \"-\""] " puts a dash between the From and To input boxes"]]
                    [:label "Demo -"]
                    [:p "The From time must be less than or equal to the To time and both must be within min and max."]
@@ -195,19 +214,25 @@
 
 (defn demo7
   []
-  (let [model  (reagent/atom [1000 2159])
+  (let [from-model  (reagent/atom 1000)
+        to-model    (reagent/atom 2159)
         time-input-demo [time-range-input
-                          :model model
-                          :on-change #(reset! model %)
+                          :from-model from-model
+                          :to-model to-model
+                          :on-from-change #(reset! from-model %)
+                          :on-to-change #(reset! to-model %)
                           :minimum 600
                           :maximum 2200
                           :show-time-icon true
                           :from-label "From:"
                           :to-label "To:"]
-        time-input-code "(let [model  (reagent/atom [1000 2159])]
+        time-input-code "(let [from-model  (reagent/atom 1000)
+     to-model    (reagent/atom 2159)]
   [time-range-input
-    :model model
-    :on-change #(reset! model %)
+    :from-model from-model
+    :to-model to-model
+    :on-from-change #(reset! from-model %)
+    :on-to-change #(reset! to-model %)
     :minimum 600
     :maximum 2200]
     :show-time-icon true
@@ -220,7 +245,7 @@
                      [:label "Usage -"]
                      [:pre [:code time-input-code]]
                      [:ul
-                       [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]
+                       [:li "Note that "[:code ":from-model"] " and "[:code ":to-model"] " are times as integers"]
                        [:li [:code ":to-label \"From:\""] " puts a label before the From input box"]
                        [:li [:code ":to-label \"To:\""] " puts a label before the To input box"]]
                      [:label "Demo -"]
@@ -229,19 +254,25 @@
 
 (defn demo8
   []
-  (let [model  (reagent/atom [1000 2200])
+  (let [from-model  (reagent/atom 1000)
+        to-model    (reagent/atom 2200)
         time-input-demo [time-range-input
-                          :model model
-                          :on-change #(reset! model %)
+                          :from-model from-model
+                          :to-model to-model
+                          :on-from-change #(reset! from-model %)
+                          :on-to-change #(reset! to-model %)
                           :minimum 1000
                           :maximum 2200
                           :hide-border true
                           :disabled true
                           :to-label "-"]
-        time-input-code "(let [model  (reagent/atom [1000 2200])]
+        time-input-code "(let [from-model  (reagent/atom 1000)
+     to-model    (reagent/atom 2159)]
   [time-range-input
-    :model model
-    :on-change #(reset! model %)
+    :from-model from-model
+    :to-model to-model
+    :on-from-change #(reset! from-model %)
+    :on-to-change #(reset! to-model %)
     :minimum 1000
     :maximum 2200]
     :hide-border true
