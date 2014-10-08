@@ -156,7 +156,7 @@
         time-int (string->time-integer input-val)
         validated-int (validated-time-integer time-int (deref-or-value min) (deref-or-value max) previous-val)]
     (reset! tmp-model (display-string (time-int->hour-minute validated-int)))
-  (when callback (callback time-int))))
+  (when callback (callback validated-int))))
 
 (defn- updated-range-time?
   "One of the values of a range has changed. Update the min or max of the other input.

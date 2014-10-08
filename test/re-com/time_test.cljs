@@ -8,7 +8,7 @@
 
 ;; --- Utility functions ---
 
-(defn div-app []
+#_(defn div-app []
   (let [div (.createElement js/document "div")]
     (set! (.-id div) "app")
     div))
