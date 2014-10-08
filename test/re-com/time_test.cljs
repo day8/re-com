@@ -94,13 +94,14 @@
 
 (deftest test-validated-time-integer
   (are [expected actual] (= expected actual)
-    600   (time/validated-time-integer 600 0 2359)
-    630   (time/validated-time-integer 630 0 2359)
-    nil   (time/validated-time-integer 2230 0 2210)
-    2359  (time/validated-time-integer 2359 0 2359)
-    1500  (time/validated-time-integer 1575 600 2200)    ;; invalid minutes
-    nil   (time/validated-time-integer 500 600 2200)     ;; Too early
-    nil   (time/validated-time-integer 2315 600 2200)))  ;; Too late
+    600   (time/validated-time-integer 600 0 2359 nil)
+    630   (time/validated-time-integer 630 0 2359 nil)
+    nil   (time/validated-time-integer 2230 0 2210 nil)
+    2359  (time/validated-time-integer 2359 0 2359 nil)
+    nil   (time/validated-time-integer 1575 600 2200 nil)    ;; invalid minutes - returns nil because no previous value provided
+    1500  (time/validated-time-integer 1575 600 2200 1500)   ;; invalid minutes - returns 1500 because that was previous value provided
+    nil   (time/validated-time-integer 500 600 2200 nil)     ;; Too early
+    nil   (time/validated-time-integer 2315 600 2200 nil)))  ;; Too late
 
 (deftest test-validate-time-range
   (are [expected actual] (= expected actual)
