@@ -1,12 +1,11 @@
 (ns re-demo.date
-  (:require [re-demo.util         :refer  [title]]
-            [cljs-time.core       :refer  [now]]
-            [cljs-time.predicates :refer  [sunday? monday?]]
-            [re-com.core          :refer  [label checkbox]]
-            [re-com.date          :refer  [inline-picker dropdown-picker previous iso8601->date]]
-            [re-com.box           :refer  [h-box v-box box gap line border]]
-            [re-com.dropdown      :refer  [single-dropdown]]
-            [reagent.core         :as     r]))
+  (:require
+    [reagent.core         :as     r]
+    [cljs-time.core       :refer  [now]]
+    [re-com.core          :refer  [label checkbox]]
+    [re-com.date          :refer  [inline-picker dropdown-picker iso8601->date]]
+    [re-com.box           :refer  [h-box v-box box gap border]]
+    [re-com.dropdown      :refer  [single-dropdown]]))
 
 (defn- toggle-inclusion! [set-atom member]
   "convenience function to include/exclude member from"
@@ -66,7 +65,7 @@
 
 
 
-  (defn show-variant
+  (defn- show-variant
     [variation]
     (let [model1       (r/atom (now))
           model2       (r/atom (iso8601->date "20140914"))
@@ -135,7 +134,7 @@
                 show-weeks?])])))
 
 
-(defn notes
+(defn- notes
   [selected-variation]
   [v-box
    :width "500px"
@@ -143,29 +142,29 @@
               [:div {:style {:font-size "small"}}
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
-                 [:li.spacer [:strong ":model"]
+                 [:li.spacer [:code ":model"]
                   " - goog.date.UtcDateTime can be reagent/atom. Represents displayed month and actual selected day. Must be one of :enabled-days"]
-                 [:li.spacer [:strong ":on-change"]
+                 [:li.spacer [:code ":on-change"]
                   " - callback will be passed single arg of the selected goog.date.UtcDateTime."]
                  ]
                [:label {:style {:font-variant "small-caps"}} "optional"]
                 [:ul
-                 [:li.spacer [:strong ":disabled"]
+                 [:li.spacer [:code ":disabled"]
                   " - boolean can be reagent/atom. (default false) If true, navigation is allowed but selection is disabled."]
-                 [:li.spacer [:strong ":enabled-days"]
+                 [:li.spacer [:code ":enabled-days"]
                   " - set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} If nil or empty, all days are enabled."]
-                 [:li.spacer [:strong ":show-weeks"]
+                 [:li.spacer [:code ":show-weeks"]
                   " - boolean. (default false) If true, first column shows week numbers."]
-                 [:li.spacer [:strong ":show-today"]
+                 [:li.spacer [:code ":show-today"]
                   " - boolean. (default false) If true, today's date is highlighted different to selection. When both today's date and selected day are the same, selected highlight takes precedence."]
-                 [:li.spacer [:strong ":minimum"]
+                 [:li.spacer [:code ":minimum"]
                   " - optional goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
-                 [:li.spacer [:strong ":maximum"]
+                 [:li.spacer [:code ":maximum"]
                   " - optional goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
-                 [:li.spacer [:strong ":hide-border"]
+                 [:li.spacer [:code ":hide-border"]
                   " - boolean. Default false."]
                  (when (= "2" @selected-variation)
-                   [:li.spacer [:strong ":format"]
+                   [:li.spacer [:code ":format"]
                     " - string format for dropdown label showing currently selected date see cljs_time.format Default \"yyyy MMM dd\""])]]]])
 
 

@@ -4,9 +4,7 @@
             [re-com.util        :as    util]
             [re-com.core        :as    core]
             [re-com.tabs]
-            [re-com.box         :refer [h-box v-box box
-                                        gap line scroller border]]
-
+            [re-com.box         :refer [h-box v-box box gap line scroller border]]
             [re-demo.welcome    :as welcome]
             [re-demo.basics     :as basics]
             [re-demo.dropdowns  :as dropdowns]
@@ -14,8 +12,10 @@
             [re-demo.tabs       :as tabs]
             [re-demo.popovers   :as popovers]
             [re-demo.date       :as date-chooser]
+            [re-demo.lists      :as lists]
             [re-demo.time       :as time]
             [re-demo.layouts    :as layouts]
+            [re-demo.original-code :as original]
             [re-demo.tour       :as tour]
             [re-demo.modals     :as modals]
             [re-demo.boxes      :as boxes]))
@@ -31,6 +31,8 @@
     {:id ::popovers  :label "Popovers"   :panel popovers/panel}
     {:id ::date      :label "Date"       :panel date-chooser/panel}
     {:id ::time      :label "Time"       :panel time/panel}
+    {:id ::original  :label "Original"   :panel original/test-harness-func}
+    {:id ::lists     :label "List"       :panel lists/panel}
     {:id ::tour      :label "Tour"       :panel tour/panel}
     {:id ::modals    :label "Modals"     :panel modals/panel}
     {:id ::boxes1    :label "Boxes-1"    :panel boxes/panel1}

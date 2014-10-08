@@ -2,15 +2,14 @@
 ;; depends: datepicker-bs3.css
 
 (ns re-com.date
-  (:require-macros [clairvoyant.core :refer [trace-forms]])
   (:require
-    [clairvoyant.core     :refer [default-tracer]]
+    [clojure.set          :refer [superset?]]
     [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month
                                   before? after?]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [box border h-box]]
-    [re-com.util          :refer [real-value]]
+    [re-com.util          :refer [deref-or-value]]
     [re-com.popover       :refer [popover make-button make-link]]
     [reagent.core         :as    reagent]))
 
@@ -69,19 +68,21 @@
 
 (defn- main-div-with
   [table-div hide-border]
-  [box
-   :child [border
-           :radius "4px"
-           :border (when hide-border "none")
-           :child [:div
-                   {:class "calendar-date datepicker"
-                           ;; override inherrited body larger 14px font-size
-                           ;; override position from css because we are inline
-                    :style {:font-size "13px"
-                            :position "static"
-                            :-webkit-user-select "none" ;; only good on webkit/chrome what do we do for firefox etc
-                            }}
-                   table-div]]])
+  ;;extra h-box is currently necessary so that calendar & border do not strecth to width of any containing v-box
+  [h-box
+   :children [[border
+               :radius "4px"
+               :size   "none"
+               :border (when hide-border "none")
+               :child [:div
+                       {:class "calendar-date datepicker"
+                        ;; override inherrited body larger 14px font-size
+                        ;; override position from css because we are inline
+                        :style {:font-size "13px"
+                                :position "static"
+                                :-webkit-user-select "none" ;; only good on webkit/chrome what do we do for firefox etc
+                                }}
+                       table-div]]]])
 
 
 (defn- table-thead
@@ -186,22 +187,23 @@
     (merge attributes {:enabled-days enabled-days
                        :today (now)})))
 
+(def core-api
+  #{:model        ; goog.date.UtcDateTime can be reagent/atom.
+                  ; The calendar will be focused on corresponding date and the date represents selection.
+   :on-change     ; function callback will be passed new selected goog.date.UtcDateTime
+   :disabled      ; optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
+   :enabled-days  ; set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
+   :show-weeks    ; boolean. When true, first column shows week numbers.
+   :show-today    ; boolean. When true, today's date is highlighted. Selected day highlight takes precedence.
+   :minimum       ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
+   :maximum       ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
+   :hide-border   ; boolean. Default false.
+   })
 
 (defn inline-picker
-  ;; API
-  ;;  :model         - goog.date.UtcDateTime can be reagent/atom.
-  ;;                   The calendar will be focused on corresponding date and the date represents selection.
-  ;;  :on-change     - function callback will be passed new selected goog.date.UtcDateTime
-  ;;  :disabled      - optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
-  ;;  :enabled-days  - set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
-  ;;  :show-weeks    - boolean. When true, first column shows week numbers.
-  ;;  :show-today    - boolean. When true, today's date is highlighted. Selected day highlight takes precedence.
-  ;;  :minimum       - optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
-  ;;  :maximum       - optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
-  ;;  :hide-border   - boolean. Default false.
-
-  [& {:keys [model]}]
-  (let [current (-> (real-value model) first-day-of-the-month reagent/atom)]
+  [& {:keys [model] :as args}]
+  {:pre [(superset? core-api (keys args))]}
+  (let [current (-> (deref-or-value model) first-day-of-the-month reagent/atom)]
     (fn
       [& {:keys [model disabled hide-border on-change] :as properties}]
       (let [configuration (configure properties)]
@@ -210,9 +212,9 @@
            [table-thead current configuration]
            [table-tbody
             @current
-            (real-value model)
+            (deref-or-value model)
             configuration
-            (if (nil? disabled) false (real-value disabled))
+            (if (nil? disabled) false (deref-or-value disabled))
             on-change]]
           hide-border)))))
 
@@ -232,20 +234,24 @@
                [:span  {:class "dropdown-button activator input-group-addon"}
                 [:i {:class "glyphicon glyphicon-th"}]]]]])
 
+(def dropdown-api
+  (conj core-api
+        :format ; optional date format see cljs_time.format Default "yyyy MMM dd"
+  ))
 
 (defn dropdown-picker
-  ;; API
-  ;;  Same as inline-picker +
-  ;;  :format   - optional date format see cljs_time.format Default "yyyy MMM dd"
-  []
+  [& {:as args}]
+  {:pre [(superset? dropdown-api (keys args))]}
   (let [shown? (reagent/atom false)]
     (fn
       [& {:keys [model show-weeks on-change format] :as passthrough-args}]
       (let [collapse-on-select (fn [new-model]
                                  (reset! shown? false)
                                  (when on-change (on-change new-model))) ;; wrap callback to collapse popover
+            passthrough-args   (dissoc passthrough-args :format)         ;; :format is only valid at this API level
             passthrough-args   (->> (assoc passthrough-args :on-change collapse-on-select)
-                                    (merge {:hide-border true}) ;; apply defaults
+                                    (merge {:hide-border true})          ;; apply defaults
+                                    (dissoc)
                                     vec
                                     flatten)]
         [popover

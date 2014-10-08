@@ -224,7 +224,7 @@
 
 (defn box-base
   [& {:keys [class f-child f-container size scroll h-scroll v-scroll width height min-width min-height justify align align-self
-             margin padding border l-border r-border t-border b-border radius bk-color child]}]
+             margin padding border l-border r-border t-border b-border radius bk-color child style]}]
   "This should generally NOT be used as it is the basis for the box, scroller and border components."
   (let [flex-child     (when f-child     (flex-child-style size))
         flex-container (when f-container {:display "flex" :flex-flow "inherit"})
@@ -250,7 +250,7 @@
                          {:background-color bk-color}
                          (if debug {:background-color "lightblue"} {}))
         s              (merge flex-child flex-container s-style sh-style sv-style w-style h-style mw-style mh-style j-style a-style as-style
-                              m-style p-style b-style bl-style br-style bt-style bb-style r-style c-style)]
+                              m-style p-style b-style bl-style br-style bt-style bb-style r-style c-style style)]
     [:div {:class class :style s}
      child]))
 
@@ -260,7 +260,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn box
-  [& {:keys [f-child f-container size width height min-width min-height justify align align-self margin padding child]
+  [& {:keys [f-child f-container size width height min-width min-height justify align align-self margin padding child style]
       :or   {f-child true f-container true size "none"}}]
   "Returns markup which produces a box, which is generally used as a child of a v-box or an h-box.
    By default, it also acts as a container for further child compenents, or another h-box or v-box."
@@ -287,7 +287,8 @@
             ;:b-border    b-border
             ;:bk-color    bk-color
             ;:radius      radius
-            :child       child))
+            :child       child
+            :style       style))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -295,7 +296,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn scroller
-  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height align-self margin padding child]
+  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height align-self margin padding child style]
       :or   {size "auto" scroll :auto}}]
   "Returns markup which produces a scoller component.
    This is the way scroll bars are added to boxes, in favour of adding the scroll attributes directly to the boxes themselves.
@@ -332,7 +333,8 @@
             ;:b-border    b-border
             ;:bk-color    bk-color
             ;:radius      radius
-            :child       child))
+            :child       child
+            :style       style))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -340,20 +342,20 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn border
-  [& {:keys [margin padding border l-border r-border t-border b-border radius child]
-      :or   {}}]
+  [& {:keys [size margin padding border l-border r-border t-border b-border radius child style]
+      :or   {size "auto"}}]
   "Returns markup which produces a border component.
    This is the way borders are added to boxes, in favour of adding the border attributes directly to the boxes themselves.
    border property syntax: '<border-width> || <border-style> || <color>'
     - border-width: thin, medium, thick or standard CSS size (e.g. 2px, 0.5em)
     - border-style: none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset
     - color:        standard CSS color (e.g. grey #88ffee)"
-  (let [no-border      (every? nil? [border l-border r-border t-border b-border])
+  (let [no-border (every? nil? [border l-border r-border t-border b-border])
         default-border "1px solid lightgrey"]
-    (box-base :class       "rc-border"
+    (box-base :class "rc-border"
               :f-child     true
               :f-container true
-              :size        "auto"
+              :size        size
               ;:scroll      scroll
               ;:h-scroll    h-scroll
               ;:v-scroll    v-scroll
@@ -373,4 +375,5 @@
               :b-border    b-border
               :radius      radius
               ;:bk-color    bk-color
-              :child       child)))
+              :child       child
+              :style       style)))
