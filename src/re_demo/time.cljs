@@ -16,17 +16,16 @@
          ":"
          (pad-zero-number min 2))))
 
-(def time-demos [{:id "1" :label "Nil model"}
-                 {:id "2" :label "No border"}
-                 {:id "3" :label "Disabled"}
-                 {:id "4" :label "With icon"}
-                 {:id "5" :label "Custom min & max"}])
+(def demos [{:id "1" :label "Nil model"}
+            {:id "2" :label "No border"}
+            {:id "3" :label "Disabled"}
+            {:id "4" :label "With icon"}
+            {:id "5" :label "Custom min & max"}
+            {:id "6" :label "Range"}
+            {:id "7" :label "Range with labels"}
+            {:id "8" :label "Range with other options"}])
 
-(def range-demos [{:id "1" :label "Range"}
-                  {:id "2" :label "Range with labels"}
-                  {:id "3" :label "Range with other options"}])
-
-(defn time-notes
+(defn notes
   []
   [v-box
    :width    "500px"
@@ -38,7 +37,7 @@
                [:p "The "[:code ":model"] " is expected to be an integer in HHMM form. e.g. a time of '18:30' is the integer 1830.
                 The same applies to "[:code ":minimum"] " and "[:code ":maximum"] "."]
                [:p "When the component loses focus, the " [:code ":on-change"] " callback is called with an integer of the same form."]
-               [:p "If the entered value is invalid it will be returned to the last valid value."]
+               [:p "If the entered value is invalid it will be ignored."] ;; TODO fix this
                [:p "If "[:code ":model"] " is invalid an exception will be thrown."]
                [:div.h4 "Parameters"]
                [:label {:style {:font-variant "small-caps"}} "required"]
@@ -52,38 +51,9 @@
                   [:li [:code ":disabled"] " - true if the component should be disabled - default false"]
                   [:li [:code ":hide-border"] " - true if the time input should be displayed without a border - default false"]
                   [:li [:code ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
-                  [:li [:code ":style"] " - css style"]]]]])
-
-
-(defn range-notes
-  []
-  [v-box
-   :width    "500px"
-   :children [[:div.h4 "General notes:"]
-              [:div {:style {:font-size "small"}}
-               [:p "Accepts input of a pair of times in 24hr format."]
-               [:p "Behaves as for time input but accepts input of a pair of times in 24hr format."]
-               [:p "Compares the From and To times."]
-               [:p "Both models "[:code ":from-model"] " and " [:code ":to-model"] " are expected to be an integer in HHMM form. e.g. a time of '18:30' is the integer 1830.
-                The same applies to "[:code ":minimum"] " and "[:code ":maximum"] "."]
-               [:p "When the component loses focus, the " [:code ":on-from-change"] " or " [:code ":on-to-change"] " callback is called with an integer of the same form."]
-               [:p "If the entered value is invalid it will be returned to the last valid value."]
-               [:p "If either model is invalid or the relationship between them is incorrect, an exception will be thrown."]
-               [:div.h4 "Parameters"]
-               [:label {:style {:font-variant "small-caps"}} "required"]
-                [:ul
-                 [:li [:code ":from-model"] " - an integer time e.g. 930"]
-                 [:li [:code ":to-model"] " - an integer time e.g. 1230"]]
-               [:label {:style {:font-variant "small-caps"}} "optional"]
+                  [:li [:code ":style"] " - css style"]]
+               [:label {:style {:font-variant "small-caps"}} "optional (range only)"]
                [:ul
-                  [:li [:code ":minimum"] " - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
-                  [:li [:code ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
-                  [:li [:code ":on-from-change"] " - function to call upon change of From time."]
-                  [:li [:code ":on-to-change"] " - function to call upon change of To time."]
-                  [:li [:code ":disabled"] " - true if the component should be disabled - default false"]
-                  [:li [:code ":hide-border"] " - true if the time input should be displayed without a border - default false"]
-                  [:li [:code ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
-                  [:li [:code ":style"] " - css style"]
                   [:li [:code ":from-label"] " - label to appear before the From input."]
                   [:li [:code ":to-label"] " - label to appear before the To input."]
                   [:li [:code ":gap"] " - gap between the input boxes (disregarding "[:code ":to-label"]"). Default is 4px."]]]]])
@@ -91,7 +61,7 @@
 ;; TODO write a macro to convert the demo source to actual code - see time-input-demo and time-input-code in each demo
 ;; TODO is it possible to use time-api to define demo parameter documentation?
 
-(defn time-demo1
+(defn demo1
   []
   (let [model (reagent/atom nil)
         time-input-demo  [time-input :model model]
@@ -108,7 +78,7 @@
                      [:label "Demo -"]
                      time-input-demo]]])))
 
-(defn time-demo2
+(defn demo2
   []
   (let [model  (reagent/atom 600)
         time-input-demo  [time-input :model model              :hide-border true]
@@ -126,7 +96,7 @@
                    [:label "Demo -"]
                    time-input-demo]]])))
 
-(defn time-demo3
+(defn demo3
   []
   (let [model  (reagent/atom 923)
         time-input-demo  [time-input :model model :disabled true]
@@ -143,7 +113,7 @@
                    [:label "Demo -"]
                    time-input-demo]]])))
 
-(defn time-demo4
+(defn demo4
   []
   (let [model  (reagent/atom 900)
         time-input-demo  [time-input
@@ -166,7 +136,7 @@
                    [:label "Demo -"]
                    time-input-demo]]])))
 
-(defn time-demo5
+(defn demo5
   []
   (let [model  (reagent/atom 900)
         time-input-demo [time-input
@@ -194,25 +164,19 @@
                    [:p "Try typing a value outside the range."]
                    time-input-demo]]])))
 
-(defn range-demo1
+(defn demo6
   []
-  (let [from-model  (reagent/atom 900)
-        to-model    (reagent/atom 2300)
+  (let [model  (reagent/atom [900 2300])
         time-input-demo [time-range-input
-                          :from-model from-model
-                          :to-model to-model
-                          :on-from-change #(reset! from-model %)
-                          :on-to-change #(reset! to-model %)
+                          :model model
+                          :on-change #(reset! model %)
                           :minimum 600
                           :maximum 2359
                           :to-label "-"]
-        time-input-code "(let [from-model  (reagent/atom 900)
-     to-model    (reagent/atom 2300)]
+        time-input-code "(let [model  (reagent/atom [900 2300])]
   [time-range-input
-    :from-model from-model
-    :to-model to-model
-    :on-from-change #(reset! from-model %)
-    :on-to-change #(reset! to-model %)
+    :model model
+    :on-change #(reset! model %)
     :minimum 600
     :maximum 2359]
     :to-label \"-\"])"]
@@ -223,33 +187,27 @@
                    [:label "Usage -"]
                    [:pre [:code time-input-code]]
                    [:ul
-                     [:li "Note that "[:code ":from-model"] " and "[:code ":to-model"] " are times as integers"]
+                     [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]
                      [:li [:code ":to-label \"-\""] " puts a dash between the From and To input boxes"]]
                    [:label "Demo -"]
                    [:p "The From time must be less than or equal to the To time and both must be within min and max."]
                    time-input-demo]]])))
 
-(defn range-demo2
+(defn demo7
   []
-  (let [from-model  (reagent/atom 1000)
-        to-model    (reagent/atom 2159)
+  (let [model  (reagent/atom [1000 2159])
         time-input-demo [time-range-input
-                          :from-model from-model
-                          :to-model to-model
-                          :on-from-change #(reset! from-model %)
-                          :on-to-change #(reset! to-model %)
+                          :model model
+                          :on-change #(reset! model %)
                           :minimum 600
                           :maximum 2200
                           :show-time-icon true
                           :from-label "From:"
                           :to-label "To:"]
-        time-input-code "(let [from-model  (reagent/atom 1000)
-     to-model    (reagent/atom 2159)]
+        time-input-code "(let [model  (reagent/atom [1000 2159])]
   [time-range-input
-    :from-model from-model
-    :to-model to-model
-    :on-from-change #(reset! from-model %)
-    :on-to-change #(reset! to-model %)
+    :model model
+    :on-change #(reset! model %)
     :minimum 600
     :maximum 2200]
     :show-time-icon true
@@ -262,34 +220,28 @@
                      [:label "Usage -"]
                      [:pre [:code time-input-code]]
                      [:ul
-                       [:li "Note that "[:code ":from-model"] " and "[:code ":to-model"] " are times as integers"]
+                       [:li "Note that "[:code ":model"] " for a range must contain a vector of TWO integers"]
                        [:li [:code ":to-label \"From:\""] " puts a label before the From input box"]
                        [:li [:code ":to-label \"To:\""] " puts a label before the To input box"]]
                      [:label "Demo -"]
                      [:p "The From time must be less than or equal to the To time and both must be within min and max."]
                      time-input-demo]]])))
 
-(defn range-demo3
+(defn demo8
   []
-  (let [from-model  (reagent/atom 1000)
-        to-model    (reagent/atom 2200)
+  (let [model  (reagent/atom [1000 2200])
         time-input-demo [time-range-input
-                          :from-model from-model
-                          :to-model to-model
-                          :on-from-change #(reset! from-model %)
-                          :on-to-change #(reset! to-model %)
+                          :model model
+                          :on-change #(reset! model %)
                           :minimum 1000
                           :maximum 2200
                           :hide-border true
                           :disabled true
                           :to-label "-"]
-        time-input-code "(let [from-model  (reagent/atom 1000)
-     to-model    (reagent/atom 2159)]
+        time-input-code "(let [model  (reagent/atom [1000 2200])]
   [time-range-input
-    :from-model from-model
-    :to-model to-model
-    :on-from-change #(reset! from-model %)
-    :on-to-change #(reset! to-model %)
+    :model model
+    :on-change #(reset! model %)
     :minimum 1000
     :maximum 2200]
     :hide-border true
@@ -309,53 +261,35 @@
 
 (defn panel
   []
-  (let [selected-time-demo-id (reagent/atom "1")
-        selected-range-demo-id (reagent/atom "1")]
+  (let [selected-demo-id (reagent/atom "1")]
     (fn [] [v-box
             :children [[:h3.page-header "Time Input"]
                        [h-box
-                        :gap "50px"
-                        :children [[time-notes]
+                        :gap      "50px"
+                        :children [[notes]
                                    [v-box
-                                    :gap "15px"
-                                    :size "auto"
+                                    :gap       "15px"
+                                    :size      "auto"
                                     :min-width "500px"
-                                    :children [[h-box
-                                                :gap "10px"
-                                                :align :center
+                                    :children  [[h-box
+                                                :gap      "10px"
+                                                :align    :center
                                                 :children [[label :label "Select a demo"]
                                                            [single-dropdown
-                                                            :options time-demos
-                                                            :model selected-time-demo-id
-                                                            :width "300px"
-                                                            :on-select #(reset! selected-time-demo-id %)]]]
-                                               (case @selected-time-demo-id
-                                                 "1" [time-demo1]
-                                                 "2" [time-demo2]
-                                                 "3" [time-demo3]
-                                                 "4" [time-demo4]
-                                                 "5" [time-demo5])]]]]
-                       [:h3.page-header "Time Range Input"]
-                       [h-box
-                        :gap "50px"
-                        :children [[range-notes]
-                                   [v-box
-                                    :gap "15px"
-                                    :size "auto"
-                                    :min-width "500px"
-                                    :children [[h-box
-                                                :gap "10px"
-                                                :align :center
-                                                :children [[label :label "Select a demo"]
-                                                           [single-dropdown
-                                                            :options range-demos
-                                                            :model selected-range-demo-id
-                                                            :width "300px"
-                                                            :on-select #(reset! selected-range-demo-id %)]]]
-                                               (case @selected-range-demo-id
-                                                 "1" [range-demo1]
-                                                 "2" [range-demo2]
-                                                 "3" [range-demo3])]]]]]])))
+                                                            :options   demos
+                                                            :model     selected-demo-id
+                                                            :width     "300px"
+                                                            :on-select #(reset! selected-demo-id %)]]]
+                                               [gap :size "0px"] ;; Force a bit more space here
+                                               (case @selected-demo-id
+                                                 "1" [demo1]
+                                                 "2" [demo2]
+                                                 "3" [demo3]
+                                                 "4" [demo4]
+                                                 "5" [demo5]
+                                                 "6" [demo6]
+                                                 "7" [demo7]
+                                                 "8" [demo8])]]]]]])))
 
 
 

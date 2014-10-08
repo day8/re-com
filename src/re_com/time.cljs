@@ -158,15 +158,34 @@
     (reset! tmp-model (display-string (time-int->hour-minute validated-int)))
   (when callback (callback time-int))))
 
-(defn- updated-range-time
+(defn- updated-range-time?
   "One of the values of a range has changed. Update the min or max of the other input.
-  Send the new value  to the caller using the callback."
-  [model max-or-min-model callback]
+  Return true if the value has been accepted."
+  [model max-or-min-model]
   (let [new-time-int (string->time-integer (deref-or-value model))]
-    (when (> new-time-int 0)
-      (reset! max-or-min-model new-time-int)
-      ;;(println "changed max or min to " @max-or-min-model)  ;; TODO remove this
-      (when callback (callback new-time-int)))))
+    (if (> new-time-int 0)
+      (do
+        (reset! max-or-min-model new-time-int)
+        true)
+      false)))
+
+(defn- updated-range-from-time
+  "The From of a range has changed. Update the min of the other input.
+  Send the new value to the caller using the callback."
+  [model max-or-min-model previous-vals callback]
+  (if (updated-range-time? model max-or-min-model)
+    (when callback
+      (let [new-vals [(deref-or-value max-or-min-model) (last previous-vals )]]
+        (callback new-vals)))))
+
+(defn- updated-range-to-time
+  "The To of a range has changed. Update the max of the other input.
+  Send the new value to the caller using the callback."
+  [model max-or-min-model previous-vals callback]
+  (if (updated-range-time? model max-or-min-model)
+    (when callback
+      (let [new-vals [(first previous-vals) (deref-or-value max-or-min-model)]]
+        (callback new-vals)))))
 
 (defn- atom-on
   [model default]
@@ -243,33 +262,32 @@
     callback - function to call when model has changed - parameter will be the new value
     gap - horizontal gap between time inputs - default '4px'
     style - css"
-  [& {:keys [from-model to-model minimum maximum ]}]
-  (let [deref-from-model (deref-or-value from-model)
-        deref-to-model   (deref-or-value to-model)
-        tmp-from-model  (atom-on (display-string (time-int->hour-minute deref-from-model)) nil)
-        tmp-to-model    (atom-on (display-string (time-int->hour-minute deref-to-model)) nil)
+  [& {:keys [model minimum maximum ]}]
+  (let [deref-model (deref-or-value model)
+        tmp-from-model  (atom-on (display-string (time-int->hour-minute(first deref-model))) nil)
+        tmp-to-model    (atom-on (display-string (time-int->hour-minute(last  deref-model))) nil)
         min (atom-on minimum 0)
         max (atom-on maximum 2359)]
   (validate-max-min (deref-or-value min) (deref-or-value @max))                  ;; This will throw an error if the parameters are invalid
-  (if-not (valid-time-integer? deref-from-model (deref-or-value min)(deref-or-value max))
+  (if-not (valid-time-integer? (first deref-model) (deref-or-value min)(deref-or-value max))
     (throw (js/Error. (str "model for FROM time: " @tmp-from-model " is not a valid time integer."))))
-  (if-not (valid-time-integer? deref-to-model (deref-or-value min)(deref-or-value max))
+  (if-not (valid-time-integer? (last deref-model) (deref-or-value min)(deref-or-value max))
     (throw (js/Error. (str "model for TO time: " @tmp-to-model " is not a valid time integer."))))
-  (if-not (< deref-from-model deref-to-model)
+  (if-not (< (first deref-model) (last deref-model))
       (throw (js/Error. (str "TO " @tmp-to-model " is less than FROM " @tmp-from-model "."))))
   (let [from-max-model (atom-on (string->time-integer @tmp-to-model) nil)
         to-min-model   (atom-on (string->time-integer @tmp-from-model) nil)]
 
-  (fn [& {:keys [on-from-change on-to-change from-label to-label disabled hide-border show-time-icon gap style]}]
+  (fn [& {:keys [on-change from-label to-label disabled hide-border show-time-icon gap style]}]
       [h-box
         :gap (if gap gap "4px")
         :children [(when from-label [:label from-label])
                    [private-time-input
                      tmp-from-model
-                     (deref-or-value from-model)
+                     (first (deref-or-value model))
                      min
                      from-max-model
-                     :on-change #(updated-range-time tmp-from-model to-min-model on-from-change)
+                     :on-change #(updated-range-from-time tmp-from-model to-min-model (deref-or-value model) on-change)
                      :disabled disabled
                      :hide-border hide-border
                      :show-time-icon show-time-icon
@@ -277,10 +295,10 @@
                    (when to-label [:label to-label])
                    [private-time-input
                      tmp-to-model
-                     (deref-or-value to-model)
+                     (last (deref-or-value model))
                      to-min-model
                      max
-                     :on-change #(updated-range-time tmp-to-model from-max-model on-to-change)
+                     :on-change #(updated-range-to-time tmp-to-model from-max-model (deref-or-value model) on-change)
                      :disabled disabled
                      :hide-border hide-border
                      :show-time-icon show-time-icon
