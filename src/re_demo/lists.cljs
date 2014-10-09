@@ -8,7 +8,7 @@
 
 
 (defn- parameters-with
-  [content multi-select? disabled?]
+  [content multi-select? disabled? required?]
   (fn []
     [v-box
      :gap "20px"
@@ -24,7 +24,11 @@
                             [checkbox
                              :label ":multi-select"
                              :model multi-select?
-                             :on-change #(reset! multi-select? %)]]]
+                             :on-change #(reset! multi-select? %)]
+                            [checkbox
+                             :label ":required"
+                             :model required?
+                             :on-change #(reset! required? %)]]]
 
                 content]]))
 
@@ -34,6 +38,7 @@
   [variation]
   (let [disabled?     (r/atom false)
         multi-select? (r/atom true)
+        required?     (r/atom true)
         items         (r/atom [{:id "1" :label "1 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 1"}
                                {:id "2" :label "2 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 2"}
                                {:id "3" :label "3 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 3"}
@@ -57,10 +62,11 @@
                             :label-fn     :label
                             :multi-select multi-select?
                             :disabled     disabled?
-                            :required     true
+                            :required     required?
                             :on-change    #(do (println %) (reset! selections %))]]]
                multi-select?
-               disabled?])])))
+               disabled?
+               required?])])))
 
 
 (defn- notes
@@ -70,31 +76,31 @@
    :children [[:div.h4 "Parameters:"]
               [:div {:style {:font-size "small"}}
                [:label {:style {:font-variant "small-caps"}} "required"]
-                [:ul
-                 [:li.spacer [:code ":model"]
+               [:div {:style {:padding-left "10px"}}
+                 [:p [:code ":model"]
                   " - set of currently selected items. Note items are considered distinct."]
-                 [:li.spacer [:code ":choices"]
+                 [:p [:code ":choices"]
                  " - list of selectable items. Elements can be just strings and will be sent str unless :label-fn provided."]
-                 [:li.spacer [:code ":multi-select"]
+                 [:p [:code ":multi-select"]
                   " - boolean. When true, items use check boxes otherwise radio buttons."]
-                 [:li.spacer [:code ":on-change"]
-                  " - callback will be passed set of selected items"]
-                 ]
+                 [:p [:code ":on-change"]
+                  " - callback will be passed set of selected items"]]
                [:label {:style {:font-variant "small-caps"}} "optional"]
-                [:ul
-                 [:li.spacer [:code ":width"]
-                  " - optional CSS style value e.g. \"250px\""]
-                 [:li.spacer [:code ":height"]
-                  " - optional CSS style value e.g. \"150px\""]
-                 [:li.spacer [:code ":disabled"]
-                  " - boolean can be reagent/atom. (default false) If true, scrolling is allowed but selection is disabled."]
-                 [:li.spacer [:code ":hide-border"]
-                  " - boolean. Default false."]
-                 [:li.spacer [:code ":required"]
-                  " - boolean. When true, at least one item must be selected. Default true."]
-                 [:li.spacer [:code ":label-fn"]
-                  " - IFn to call on each element to get label string, default (str ...)"]
-                 ]]]])
+               [:div {:style {:padding-left "10px"}}
+                [:p [:code ":required"]
+                 (str " - boolean. When true, at least one item must be selected. Default false. "
+                      "Note: being able to un-select a radio button is not a common use case,"
+                      " so this should probably be set to true when in single select mode.")]
+                [:p [:code ":width"]
+                 " - optional CSS style value e.g. \"250px\""]
+                [:p [:code ":height"]
+                 " - optional CSS style value e.g. \"150px\""]
+                [:p [:code ":disabled"]
+                 " - boolean can be reagent/atom. (default false) If true, scrolling is allowed but selection is disabled."]
+                [:p [:code ":hide-border"]
+                 " - boolean. Default false."]
+                [:p [:code ":label-fn"]
+                 " - IFn to call on each element to get label string, default (str ...)"]]]]])
 
 
 (def variations [{:id "1" :label "Toggle single/multiple selection"}])

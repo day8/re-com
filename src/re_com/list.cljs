@@ -10,34 +10,45 @@
 
 ;; ----------------------------------------------------------------------------
 
+(defn- check-clicked
+  [selections item ticked required]
+  (let [num-selected (count selections)
+        only-item    (when (= 1 num-selected) (first selections))]
+  (if (and required (= only-item item))
+    selections  ;; prevent unselect of last item
+    (if ticked (conj selections item) (disj selections item)))))
+
 (defn- as-checked
-  [element selections on-change disabled label-fn]
+  [item selections on-change disabled label-fn required]
   [:a {:class "list-group-item compact"}
    [checkbox
-    :model       (selections element)
-    :on-change   #(on-change (if % (conj selections element) (disj selections element)))
+    :model       (selections item)
+    :on-change   #(on-change (check-clicked selections item % required))
     :disabled    disabled
     :label-style {:flex "initial"}
-    :label       (label-fn element)]])
+    :label       (label-fn item)]])
+
 
 (defn- radio-clicked
-  [selections item]
-  (if (selections item)
-    selections  ;; we ignore unselect of radio button for now
-    #{item}))
+  [selections item required]
+  (if (and required (selections item))
+    selections  ;; prevent unselect of radio
+    (if (selections item) #{} #{item})))
 
 (defn- as-radio
-  [element selections on-change disabled label-fn]
+  [item selections on-change disabled label-fn required]
   [:a {:class "list-group-item compact"}
    [radio-button
     :model       (first selections)
-    :value       element
-    :on-change   #(on-change (radio-clicked selections %))
+    :value       item
+    :on-change   #(on-change (radio-clicked selections % required))
     :disabled    disabled
     :label-style {:flex "initial"}
-    :label       (label-fn element)]])
+    :label       (label-fn item)]])
+
 
 (def list-style
+  ;;TODO: These should be in CSS resource
   {:padding-left   "5px"
    :padding-bottom "5px"
    :margin-top     "5px"
@@ -49,11 +60,11 @@
 
 ;;TODO hide hover highlights for links when disabled
 (defn- list-container
-  [{:keys [choices model on-change multi-select disabled hide-border label-fn]:as args}]
+  [{:keys [choices model on-change multi-select disabled hide-border label-fn required]:as args}]
   (let [selected (if multi-select model (-> model first vector set))
         items    (map (if multi-select
-                        #(as-checked % selected on-change disabled label-fn)
-                        #(as-radio   % selected on-change disabled label-fn))
+                        #(as-checked % selected on-change disabled label-fn required)
+                        #(as-radio   % selected on-change disabled label-fn required))
                       choices)
         bounds   (select-keys args [:width :height])]
     ;; In single select mode force selections to one. This causes a second render
@@ -80,7 +91,7 @@
   #{:model         ; set of selected elements (atom supported).
     :choices       ; list of elements to be selected (atom supported).
     :multi-select  ; boolean (when true, items use check boxes otherwise radio buttons)
-    :required      ; boolean (when true, at least one item must be selected) TODO:
+    :required      ; boolean (when true, at least one item must be selected)
     :on-change     ; function callback will be passed updated set of item(s)
     :disabled      ; optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
     :hide-border   ; boolean. Default false.
