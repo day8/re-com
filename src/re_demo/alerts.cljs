@@ -3,13 +3,13 @@
             [re-com.core     :refer [button label input-text checkbox]]
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown find-option filter-options-by-keyword]]
-            [re-com.alert    :refer [alert alert-list]]
+            [re-com.alert    :refer [alert-box alert-list]]
             [reagent.core    :as     reagent]))
 
 
-(def demos [{:id 1 :label "Single alert with close button"}
-            {:id 2 :label "More sample alerts"}
-            {:id 3 :label "Alert list"}])
+(def demos [{:id 1 :label ":alert-box - simple example"}
+            {:id 2 :label ":alert-box - more examples"}
+            {:id 3 :label ":alert-list - example"}])
 
 
 (defn demo1
@@ -19,11 +19,11 @@
       [:div
        [:p "The alert below is of type 'info' and includes a heading, body text and a close button to remove it."]
        (if @show-alert
-         [alert
-          :id 1
+         [alert-box
+          :id         1
           :alert-type "info"
           :heading    "Sample Alert Heading"
-          :body "This is the body of an info-styled alert. Click the x to close it."
+          :body       "This is the body of an info-styled alert. Click the x to close it."
           :closeable  true
           :on-close   #(reset! show-alert false)]
          [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])])))
@@ -37,27 +37,23 @@
       [:div
        (when @show-alert1
          [:div
-          [:p "The alert below has a heading but no body, allowing it to really stand out."]
-          [alert
+          [alert-box
            :alert-type "info"
-           :heading "Information Heading"
-           :closeable true
-           :on-close #(reset! show-alert1 false)]])
+           :heading    "Alert with :heading but no :body"
+           :closeable  true
+           :on-close   #(reset! show-alert1 false)]])
        (when @show-alert2
          [:div
-          [:p "The warning-styled alert below only has a body so takes up a minimum amount of space (padding set to 4px)."]
-          [alert
+          [alert-box
            :alert-type "warning"
-           :body "This is the body of an warning-styled alert."
-           :padding "4px"
-           :closeable true
-           :on-close #(reset! show-alert2 false)]])
-       [:p "The alert below has is a danger-styled alert. The closeable parameter is omitted so it doesn't have a close button.
-            It also contains a link to demonstrate the general markup capability."]
-       [alert
+           :body       "Alert with :body but no :heading (:padding set to 4px)"
+           :padding    "4px"
+           :closeable  true
+           :on-close   #(reset! show-alert2 false)]])
+       [alert-box
         :alert-type "danger"
-        :heading    "Danger"
-        :body [:span "This is the body of an danger-styled alert. " [:a {:href "http://google.com" :target "_blank"} "Link to Google"]]]])))
+        :heading    ":alert-type is \"danger\""
+        :body       [:span "This is the :body of an danger-styled alert with :closeable omitted (defaults to false). " [:a {:href "http://google.com" :target "_blank"} "Link to Google"]]]])))
 
 
 (defn add-alert
@@ -77,11 +73,12 @@
     (fn []
       [v-box
        :gap "10px"
-       :children [[:p "The component below is an alert-list. It can contain any number of alerts, with the most recently added alert at the top.
-                       Press the 'Add alert' button to add some more. It is wrapped in a scroller (height 300px) and a border. Padding is set to 8px."]
+       :children [[:p "An alert-list displays any number of alert-box components vertically. Press the 'Add alert' button to add some more."]
+                  [:p ":max-height is set to 300px and a custom :border-style is set."]
                   [alert-list
                    :alerts       alerts
                    :on-close     #(swap! alerts dissoc %)
+                   :max-height   "300px"
                    :border-style "1px dashed lightgrey"]
                   [button
                    :label "Add alert"
@@ -93,20 +90,25 @@
   []
   [v-box
    :width    "500px"
-   :children [[:div.h4 "General notes"]
+   :children [[:div.h4 "[alert-box ..."]
               [:ul
-               [:li "To create an alert component, the following parameter is required:"
-                [:ul
-                 [:li.spacer [:code ":alert-type"] " - a Bootstrap CSS string determining the style. Either \"info\", \"warning\" or \"danger\"."]]]
-               [:li "The rest of the parameters are optional:"
-                [:ul
-                 [:li.spacer [:code ":id"] " - A unique identifier, usually an integer or string. This is optional for single alerts. It's main use is in alert-list component."]
-                 [:li.spacer "Note: Although heading and body are optional, you really need to specify at least one of them."]
-                 [:li.spacer [:code ":heading"] " - the heading section (hiccup markup or a string)."]
-                 [:li.spacer [:code ":body"] " - the body of the alert (hiccup markup or a string)."]
-                 [:li.spacer [:code ":padding"] " - the amount of padding within the alert (default is 15px)."]
-                 [:li.spacer [:code ":closeable"] " - A boolean which determines if the close button is rendered (on-close must also be specified)."]
-                 [:li.spacer [:code ":on-close"] " - A callback function which knows how to close the alert."]]]]]])
+               [:li "All parameter are optional."]
+               [:li.spacer [:code ":id"] " - A unique identifier, usually an integer or string. This is optional for single alerts. It's main use is in alert-list component."]
+               [:li.spacer [:code ":alert-type"] " - a Bootstrap CSS string determining the style. Either \"info\", \"warning\" or \"danger\"."]
+               [:li.spacer "Note: Although heading and body are optional, you really need to specify at least one of them."]
+               [:li.spacer [:code ":heading"] " - the heading section (hiccup markup or a string)."]
+               [:li.spacer [:code ":body"] " - the body of the alert (hiccup markup or a string)."]
+               [:li.spacer [:code ":padding"] " - the amount of padding within the alert (default is 15px)."]
+               [:li.spacer [:code ":closeable"] " - A boolean which determines if the close button is rendered (on-close must also be specified)."]
+               [:li.spacer [:code ":on-close"] " - A callback function which knows how to close the alert."]]
+              [:div.h4 "[alert-list ..."]
+              [:ul
+               [:li.spacer "Renders an alert-list component which is a container for alert-boxes."]
+               [:li.spacer [:code ":alerts"] " - A vector containing alert maps to be rendered. The order is specified by the calling app."]
+               [:li.spacer [:code ":on-close"] " - A function called with the :id of the alert to be closed when the X is clicked."]
+               [:li.spacer [:code ":max-height"] " - The initial height of this component is 0px and grows to this maximum as alerts are added. Default is to expand forever."]
+               [:li.spacer [:code ":padding"] " - Padding inside the alert-list outer box. Default is 4px."]
+               [:li.spacer [:code ":border-style"] " - The border style around the alert-list outer box. Default is \"1px solid lightgrey\"."]]]])
 
 
 (defn panel

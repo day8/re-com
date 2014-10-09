@@ -56,7 +56,7 @@
 
 (def grouped-countries [{:id "AU" :label "Australia"                :group "POPULAR COUNTRIES"}
                         {:id "US" :label "United States"            :group "POPULAR COUNTRIES"}
-                        {:id "GB" :label [:code "United Kingdom"] :group "POPULAR COUNTRIES"}
+                        {:id "GB" :label [:strong "United Kingdom"] :group "POPULAR COUNTRIES"}
                         {:id "AF" :label "Afghanistan"              :group "'A' COUNTRIES"}
                         {:id "AB" :label "Albania"                  :group "'A' COUNTRIES"}
                         {:id "AG" :label "Algeria"                  :group "'A' COUNTRIES"}
@@ -123,7 +123,7 @@
                                :filter-box  false
                                :on-select   #(reset! selected-country-id %)]
                               [:div
-                               [:code "Selected country: "]
+                               [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
@@ -150,7 +150,7 @@
                                :filter-box true
                                :on-select  #(reset! selected-country-id %)]
                               [:div
-                               [:code "Selected country: "]
+                               [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
@@ -182,7 +182,7 @@
                                :filter-box true
                                :on-select  #(reset! selected-country-id %)]
                               [:div
-                               [:code "Selected country: "]
+                               [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
@@ -242,7 +242,7 @@
                                :width        (when @width? dropdown-width)
                                :on-select    #(reset! selected-country-id %)]
                               [:div
-                               [:code "Selected country: "]
+                               [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
@@ -269,7 +269,7 @@
                                             (reset! filtered-cities (filter-options-by-keyword cities :country-id @selected-country-id))
                                             (reset! selected-city-id nil))]
                               [:div
-                               [:code "Selected country: "]
+                               [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (find-option countries @selected-country-id)) " [" @selected-country-id "]"))]]]
@@ -283,7 +283,7 @@
                                :width     "300px"
                                :on-select #(reset! selected-city-id %)]
                               [:div
-                               [:code "Selected city: "]
+                               [:strong "Selected city: "]
                                (if (nil? @selected-city-id)
                                  "None"
                                  (str (:label (find-option cities @selected-city-id)) " [" @selected-city-id "]"))]]]]])))

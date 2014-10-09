@@ -29,18 +29,7 @@
    :width    "500px"
    :children [[:div.h4 "General notes"]
               [:ul
-               [:li "To create an alert component, the following parameter is required:"
-                [:ul
-                 [:li.spacer [:strong ":alert-type"] " - a Bootstrap CSS string determining the style. Either \"info\", \"warning\" or \"danger\"."]]]
-               [:li "The rest of the parameters are optional:"
-                [:ul
-                 [:li.spacer [:strong ":id"] " - A unique identifier, usually an integer or string. This is optional for single alerts. It's main use is in alert-list component."]
-                 [:li.spacer "Note: Although heading and body are optional, you really need to specify at least one of them."]
-                 [:li.spacer [:strong ":heading"] " - the heading section (hiccup markup or a string)."]
-                 [:li.spacer [:strong ":body"] " - the body of the alert (hiccup markup or a string)."]
-                 [:li.spacer [:strong ":padding"] " - the amount of padding within the alert (default is 15px)."]
-                 [:li.spacer [:strong ":closeable"] " - A boolean which determines if the close button is rendered (on-close must also be specified)."]
-                 [:li.spacer [:strong ":on-close"] " - A callback function which knows how to close the alert."]]]]]])
+               [:li "*** TODO ***"]]]])
 
 
 (defn panel

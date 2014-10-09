@@ -494,3 +494,19 @@ html, body {
     padding: 0px;
     color:  #666366
 }
+
+/*----------------------------------------------------------------------------------------
+  Time component
+----------------------------------------------------------------------------------------*/
+.time-icon {
+  border: 1px solid #bbb;
+  border-radius: 0 4px 4px 0;
+  background-color: #ddd;
+  display: inline-block;
+  height: 20px;
+  line-height: 20px;
+  margin-top: 1px;
+  text-align: center;
+  vertical-align: middle;
+  width: 20px;
+}
