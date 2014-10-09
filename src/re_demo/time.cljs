@@ -40,7 +40,7 @@
                   [:li "When the component loses focus, the " [:code ":on-change"] " callback is called with an integer of the same form."]
                   [:li "If the entered value is invalid it will be replaced with the last valid value."]
                   [:li "If "[:code ":model"] " is invalid an exception will be thrown."]]
-               [:div.h4 "Parameters"]
+               [:div.h4 "[time-input ..."]
                [:label {:style {:font-variant "small-caps"}} "required"]
                 [:ul
                  [:li [:code ":model"] " - an integer time e.g. 930"]]
@@ -53,7 +53,9 @@
                   [:li [:code ":hide-border"] " - true if the time input should be displayed without a border - default false"]
                   [:li [:code ":show-time-icon"] " - true if the clock icon should be displayed - default false"]
                   [:li [:code ":style"] " - css style"]]
-               [:label {:style {:font-variant "small-caps"}} "optional (range only)"]
+               [:div.h4 "[time-range-input ..."]
+               [:p "Same as for [time-input] except for these additional -"]
+               [:label {:style {:font-variant "small-caps"}} "optional"]
                [:ul
                   [:li [:code ":from-label"] " - label to appear before the From input."]
                   [:li [:code ":to-label"] " - label to appear before the To input."]
@@ -64,10 +66,8 @@
 
 (defn demo1
   []
-  (let [model (reagent/atom nil)
-        time-input-demo  [time-input :model model :on-change #(reset! model %)]
-        time-input-code "(let [model  (reagent/atom nil)]
-  [time-input :model model :on-change #(reset! model %)])"]
+  (let [time-input-demo  [time-input :model nil]
+        time-input-code "[time-input :model nil]"]
     (fn []
       [:div {:style {:font-size "small"}}
         [v-box
@@ -207,7 +207,7 @@
         time-input-demo [time-range-input
                           :model model
                           :on-change #(reset! model %)
-                          :minimum 600
+                          :minimum 0
                           :maximum 2200
                           :show-time-icon true
                           :from-label "From:"
@@ -216,7 +216,7 @@
   [time-range-input
     :model model
     :on-change #(reset! model %)
-    :minimum 600
+    :minimum 0
     :maximum 2200]
     :show-time-icon true
     :from-label \"From:\")

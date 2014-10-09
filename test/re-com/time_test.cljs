@@ -6,12 +6,6 @@
             [clairvoyant.core :refer [default-tracer]]
             [re-com.time :as time]))
 
-;; --- Utility functions ---
-
-#_(defn div-app []
-  (let [div (.createElement js/document "div")]
-    (set! (.-id div) "app")
-    div))
 
 ;; --- Tests ---
 
@@ -144,9 +138,36 @@
  (is (thrown? js/Error (time/time-input :model 530 :minimum 600 :maximum 2159) "should fail - model is before range start"))
  (is (thrown? js/Error (time/time-input :model 2230 :minimum 600 :maximum 2159) "should fail - model is after range end")))
 
+
+;; --- WIP ---
+
+#_(defn div-app []
+  (let [div (.createElement js/document "div")]
+    (set! (.-id div) "app")
+    div))
+
 #_(trace-forms
   {:tracer default-tracer}
   (deftest test-test-time-input-gen
     (let [tm-input (time/time-input :model 1500)
           result (reagent/render-component [tm-input] (div-app))]
-      (println result))))
+      (println (-> result .-_renderedComponent .-props)))))
+
+;; The above statement results in -
+;; #js {:cljsArgv
+;;   [#<function (model,previous_val,min,max,var_args){
+;;     var p__60249 = null;
+;;     if (arguments.length > 4) {
+;;       p__60249 = cljs.core.array_seq(Array.prototype.slice.call(arguments, 4),0);
+;;     }
+;;     return private_time_input__delegate.call(this,model,previous_val,min,max,p__60249);
+;;   }>
+;;   #<Atom: 15:00> 1500
+;;   #<Atom: 0>
+;;   #<Atom: 2359>
+;;   :on-change nil
+;;   :disabled nil
+;;   :hide-border nil
+;;   :show-time-icon nil
+;;   :style nil],
+;; :cljsLevel 0}
