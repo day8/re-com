@@ -82,6 +82,10 @@
                  ]
                [:label {:style {:font-variant "small-caps"}} "optional"]
                 [:ul
+                 [:li.spacer [:code ":width"]
+                  " - optional CSS style value e.g. \"250px\""]
+                 [:li.spacer [:code ":height"]
+                  " - optional CSS style value e.g. \"150px\""]
                  [:li.spacer [:code ":disabled"]
                   " - boolean can be reagent/atom. (default false) If true, scrolling is allowed but selection is disabled."]
                  [:li.spacer [:code ":hide-border"]
@@ -90,10 +94,6 @@
                   " - boolean. When true, at least one item must be selected. Default true."]
                  [:li.spacer [:code ":label-fn"]
                   " - function to call on element to get label string, default :label"]
-                 [:li.spacer [:code ":width"]
-                  " - optional CSS style value e.g. \"250px\""]
-                 [:li.spacer [:code ":height"]
-                  " - optional CSS style value e.g. \"150px\""]
                  ]]]])
 
 

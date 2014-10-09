@@ -38,26 +38,32 @@
     :label-style {:flex "initial"}
     :label       (label-fn element)]])
 
+(def list-style
+  {:padding-left   "5px"
+   :padding-bottom "5px"
+   :margin-top     "5px"
+   :margin-bottom  "5px"
+   :overflow-x     "hidden"
+   :overflow-y     "auto" ;;TODO this should be handled by scroller later
+   :-webkit-user-select "none"})
+
 
 ;;TODO hide hover highlights for links when disabled
 (defn- list-container
-  [choices model on-change multi-select disabled hide-border label-fn]
+  [{:keys [choices model on-change multi-select disabled hide-border label-fn]:as args}]
   (let [selected (if multi-select model (-> model first vector set))
         items    (map (if multi-select
                         #(as-checked % selected on-change disabled label-fn)
                         #(as-radio   % selected on-change disabled label-fn))
-                      choices)]
+                      choices)
+        bounds   (select-keys args [:width :height])]
     ;; In single select mode force selections to one. This causes a second render
     (when-not (= selected model) (on-change selected))
     [border
      :radius "4px"
      :border (when hide-border "none")
      :size   "none"
-     :child  (into [:div {:class "list-group"
-                          :style {:max-width "400px" :max-height "115px"  ;;TODO height should be based on container
-                                  :padding-left "5px" :padding-bottom "5px" :margin-top "5px" :margin-bottom "5px"
-                                  :overflow-x "hidden" :overflow-y "auto" ;;TODO this should be handled by scroller later
-                                  :-webkit-user-select "none"}}] items)]))
+     :child  (into [:div {:class "list-group" :style (merge list-style bounds)}] items)]))
 
 
 (defn- configure
@@ -84,19 +90,8 @@
     :height        ; optional CSS style value e.g. "150px"
     })
 
-
 (defn inline-list
   [& {:as args}]
   {:pre [(superset? core-api (keys args))]}
-  (fn
-    [& {:as passthrough-args}]
-    (let [passthrough-args (configure passthrough-args)]
-      ;;TODO pass passthrough-args as named arguments for consistency
-      [list-container
-       (:choices      passthrough-args)
-       (:model        passthrough-args)
-       (:on-change    passthrough-args)
-       (:multi-select passthrough-args)
-       (:disabled     passthrough-args)
-       (:hide-border  passthrough-args)
-       (:label-fn     passthrough-args)])))
+  (fn [& {:as args}]
+    [list-container (configure args)]))
