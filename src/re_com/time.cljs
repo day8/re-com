@@ -153,37 +153,35 @@
   "Triggered whenever the input field loses focus.
   Re-validate what has been entered. Then update the model."
   [ev input-model min max callback previous-val]
-  (let [input-val (-> ev .-target .-value)
-        time-int (string->time-integer input-val)
-        validated-int (validated-time-integer time-int (deref-or-value min) (deref-or-value max) previous-val)]
+  (let [time-int (string->time-integer @input-model)
+        validated-int (validated-time-integer time-int @min @max previous-val)]
     (reset! input-model (display-string (time-int->hour-minute validated-int)))
     (when (and callback (not (= validated-int previous-val)))
       (callback validated-int))))
 
-(defn- updated-range-time
-  "One of the values of a range has changed. Update the min or max of the other input.
-  Return true if the value has been accepted."
-  [model max-or-min-model]
-  (let [new-time-int (string->time-integer @model)]
-    (reset! max-or-min-model new-time-int)))
-
 (defn- updated-range-from-time
-  "The From of a range has changed. Update the min of the other input.
-  Send the new value to the caller using the callback."
-  [model max-or-min-model previous-vals callback]
-  (updated-range-time model max-or-min-model)
-  (when callback
-    (let [new-vals [@max-or-min-model (last previous-vals )]]
-      (callback new-vals))))
+  "The From of a range has changed. If necessary, update the model of the other input.
+  Send the new values to the caller using the callback."
+  [from-model to-model previous-vals callback]
+  (let [from-int (string->time-integer @from-model)
+        to-int   (string->time-integer @to-model)]
+    (if (> from-int to-int)
+      (reset! to-model @from-model))
+    (when callback
+      (let [new-vals [(string->time-integer @from-model)(last previous-vals)]]
+        (callback new-vals)))))
 
 (defn- updated-range-to-time
-  "The To of a range has changed. Update the max of the other input.
-  Send the new value to the caller using the callback."
-  [model max-or-min-model previous-vals callback]
-  (updated-range-time model max-or-min-model)
-  (when callback
-    (let [new-vals [(first previous-vals) @max-or-min-model]]
-      (callback new-vals))))
+  "The To of a range has changed. If necessary, update the model of the other input.
+  Send the new values to the caller using the callback."
+  [from-model to-model previous-vals callback]
+  (let [from-int (string->time-integer @from-model)
+        to-int   (string->time-integer @to-model)]
+    (if (< to-int from-int )
+      (reset! from-model @to-model))
+    (when callback
+      (let [new-vals [(first previous-vals)(string->time-integer @to-model)]]
+        (callback new-vals)))))
 
 (defn- atom-on
   [model default]
@@ -206,8 +204,9 @@
 
 (defn- private-time-input
   "This is the markup for the time input."
-  [model previous-val min max & {:keys [on-change disabled style hide-border show-time-icon :as args]}]
+  [ & {:keys [model previous-val min max on-change disabled style hide-border show-time-icon :as args]}]
   {:pre [(superset? time-api (keys args))]}
+  (println (str "model: " @model " prev: " previous-val " min: " @min " max: " @max)) ;; TODO remove this
   (let [def-style {:flex "none"
                    :margin-top "0px"
                    :padding-left "2px"
@@ -243,7 +242,11 @@
     (if-not (valid-time-integer? deref-model @min @max)
       (throw (js/Error. (str "model " deref-model " is not a valid time integer or is outside the min/max range."))))
      (fn [& {:keys [model disabled hide-border show-time-icon style]}]
-       [private-time-input input-model (deref-or-value model) min max
+       [private-time-input
+         :model input-model
+         :previous-val (deref-or-value model)
+         :min min
+         :max max
          :on-change on-change
          :disabled disabled
          :hide-border hide-border
@@ -266,8 +269,6 @@
     (throw (js/Error. (str "model for TO time: " @input-to-model " is not a valid time integer."))))
   (if-not (< (first deref-model) (last deref-model))
       (throw (js/Error. (str "TO " @input-to-model " is less than FROM " @input-from-model "."))))
-  (let [from-max-model (atom-on (string->time-integer @input-to-model) nil)
-        to-min-model   (atom-on (string->time-integer @input-from-model) nil)]
 
   (fn [& {:keys [model disabled]}]
       [h-box
@@ -275,23 +276,23 @@
         :align :center
         :children [(when from-label [label :label from-label])
                    [private-time-input
-                    input-from-model
-                    (first (deref-or-value model))
-                    min
-                    from-max-model
-                    :on-change #(updated-range-from-time input-from-model to-min-model (deref-or-value model) on-change)
-                    :disabled disabled
-                    :hide-border hide-border
-                    :show-time-icon show-time-icon
-                    :style style]
+                      :model input-from-model
+                      :previous-val (first (deref-or-value model))
+                      :min min
+                      :max max
+                      :on-change #(updated-range-from-time input-from-model input-to-model (deref-or-value model) on-change)
+                      :disabled disabled
+                      :hide-border hide-border
+                      :show-time-icon show-time-icon
+                      :style style]
                    (when to-label [label :label to-label])
                    [private-time-input
-                    input-to-model
-                    (last (deref-or-value model))
-                    to-min-model
-                    max
-                    :on-change #(updated-range-to-time input-to-model from-max-model (deref-or-value model) on-change)
-                    :disabled disabled
-                    :hide-border hide-border
-                    :show-time-icon show-time-icon
-                    :style style]]]))))
+                      :model input-to-model
+                      :previous-val (last (deref-or-value model))
+                      :min min
+                      :max max
+                      :on-change #(updated-range-to-time input-from-model input-to-model (deref-or-value model) on-change)
+                      :disabled disabled
+                      :hide-border hide-border
+                      :show-time-icon show-time-icon
+                      :style style]]])))
