@@ -154,7 +154,7 @@
   Re-validate what has been entered. Then update the model."
   [ev input-model min max callback previous-val]
   (let [time-int (string->time-integer @input-model)
-        validated-int (validated-time-integer time-int @min @max previous-val)]
+        validated-int (validated-time-integer time-int min max previous-val)]
     (reset! input-model (display-string (time-int->hour-minute validated-int)))
     (when (and callback (not (= validated-int previous-val)))
       (callback validated-int))))
@@ -206,7 +206,7 @@
   "This is the markup for the time input."
   [ & {:keys [model previous-val min max on-change disabled style hide-border show-time-icon :as args]}]
   {:pre [(superset? time-api (keys args))]}
-  (println (str "model: " @model " prev: " previous-val " min: " @min " max: " @max)) ;; TODO remove this
+  ;;(println (str "model: " @model " prev: " previous-val " min: " min " max: " max))
   (let [def-style {:flex "none"
                    :margin-top "0px"
                    :padding-left "2px"
@@ -236,10 +236,10 @@
   [& {:keys [model minimum maximum on-change]}]
   (let [deref-model (deref-or-value model)
         input-model (atom-on (display-string (time-int->hour-minute deref-model)) "")
-        min (atom-on minimum 0)
-        max (atom-on maximum 2359)]
-    (validate-max-min @min @max)                  ;; This will throw an error if the parameters are invalid
-    (if-not (valid-time-integer? deref-model @min @max)
+        min (if minimum minimum 0)
+        max (if maximum maximum 2359)]
+    (validate-max-min min max)                  ;; This will throw an error if the parameters are invalid
+    (if-not (valid-time-integer? deref-model min max)
       (throw (js/Error. (str "model " deref-model " is not a valid time integer or is outside the min/max range."))))
      (fn [& {:keys [model disabled hide-border show-time-icon style]}]
        [private-time-input
@@ -260,12 +260,12 @@
   (let [deref-model (deref-or-value model)
         input-from-model  (atom-on (display-string (time-int->hour-minute(first deref-model))) nil)
         input-to-model    (atom-on (display-string (time-int->hour-minute(last  deref-model))) nil)
-        min (atom-on minimum 0)
-        max (atom-on maximum 2359)]
-  (validate-max-min @min @max)                  ;; This will throw an error if the parameters are invalid
-  (if-not (valid-time-integer? (first deref-model) @min @max)
+        min (if minimum minimum 0)
+        max (if maximum maximum 2359)]
+  (validate-max-min min max)                  ;; This will throw an error if the parameters are invalid
+  (if-not (valid-time-integer? (first deref-model) min max)
     (throw (js/Error. (str "model for FROM time: " @input-from-model " is not a valid time integer."))))
-  (if-not (valid-time-integer? (last deref-model) @min @max)
+  (if-not (valid-time-integer? (last deref-model) min max)
     (throw (js/Error. (str "model for TO time: " @input-to-model " is not a valid time integer."))))
   (if-not (< (first deref-model) (last deref-model))
       (throw (js/Error. (str "TO " @input-to-model " is less than FROM " @input-from-model "."))))
