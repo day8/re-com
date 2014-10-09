@@ -93,7 +93,7 @@
                  [:li.spacer [:code ":required"]
                   " - boolean. When true, at least one item must be selected. Default true."]
                  [:li.spacer [:code ":label-fn"]
-                  " - function to call on element to get label string, default :label"]
+                  " - IFn to call on each element to get label string, default (str ...)"]
                  ]]]])
 
 

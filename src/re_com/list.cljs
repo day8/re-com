@@ -10,7 +10,6 @@
 
 ;; ----------------------------------------------------------------------------
 
-
 (defn- as-checked
   [element selections on-change disabled label-fn]
   [:a {:class "list-group-item compact"}
@@ -73,7 +72,7 @@
           :required     false
           :disabled     false
           :hide-border  false
-          :label-fn     str}
+          :label-fn     (partial str)}
          (fmap deref-or-value attributes)))
 
 
@@ -91,7 +90,11 @@
     })
 
 (defn inline-list
+  "Produce a list box with items arranged vertically"
   [& {:as args}]
   {:pre [(superset? core-api (keys args))]}
+  ;;NOTE: Consumer has complete control over what is selected or not. A current design tradeoff
+  ;;      causes all selection changes to trigger a complete list re-render as a result of on-change callback.
+  ;;      this approach may be not ideal for very large list choices.
   (fn [& {:as args}]
     [list-container (configure args)]))
