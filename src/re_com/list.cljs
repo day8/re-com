@@ -25,7 +25,7 @@
     :model       (selections item)
     :on-change   #(on-change (check-clicked selections item % required))
     :disabled    disabled
-    :label-style {:flex "initial"}
+    :label-style {:margin-top "auto"}
     :label       (label-fn item)]])
 
 
@@ -43,14 +43,16 @@
     :value       item
     :on-change   #(on-change (radio-clicked selections % required))
     :disabled    disabled
-    :label-style {:flex "initial"}
+    :label-style {:margin-top "auto"}
     :label       (label-fn item)]])
 
 
 (def list-style
   ;;TODO: These should be in CSS resource
   {:padding-left   "5px"
-   :padding-bottom "5px"
+   :padding-right  "5px"
+   :padding-top    "0px"
+   :padding-bottom "0px"
    :margin-top     "5px"
    :margin-bottom  "5px"
    :overflow-x     "hidden"
@@ -66,7 +68,7 @@
                         #(as-checked % selected on-change disabled label-fn required)
                         #(as-radio   % selected on-change disabled label-fn required))
                       choices)
-        bounds   (select-keys args [:width :height])]
+        bounds   (select-keys args [:width :height :max-height])]
     ;; In single select mode force selections to one. This causes a second render
     (when-not (= selected model) (on-change selected))
     [border
@@ -98,6 +100,7 @@
     :label-fn      ; optional function to call on element to get label string, default :label
     :width         ; optional CSS style value e.g. "250px"
     :height        ; optional CSS style value e.g. "150px"
+    :max-height    ; optional CSS style value e.g. "150px" Height will shring/grow based on elements up to this, then scroll
     })
 
 (defn inline-list

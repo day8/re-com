@@ -451,11 +451,10 @@
 /*----------------------------------------------------------------------------------------
 /* Bootstrap list-group-item variation */
 .compact {
-    max-height: 20px;
+    margin: 0;
     white-space: nowrap;
     border: none;
-    padding-top: 0px;
-    padding-left: 0px;
+    padding: 0;
     overflow: hidden;
     cursor: pointer;
 }

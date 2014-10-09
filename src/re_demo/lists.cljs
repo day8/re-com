@@ -56,7 +56,7 @@
                 :align    :start
                 :children [[inline-list
                             :width        "400px"
-                            :height       "115px"
+                            :max-height   "7em"
                             :model        selections
                             :choices      items
                             :label-fn     :label
@@ -92,9 +92,11 @@
                       "Note: being able to un-select a radio button is not a common use case,"
                       " so this should probably be set to true when in single select mode.")]
                 [:p [:code ":width"]
-                 " - optional CSS style value e.g. \"250px\""]
+                 " - optional CSS style value e.g. \"250px\" Fixed, when specified item labels will be clipped. Otherwise width base on largest label."]
                 [:p [:code ":height"]
-                 " - optional CSS style value e.g. \"150px\""]
+                 " - optional CSS style value e.g. \"150px\" Fixed, beyond which items will scroll."]
+                [:p [:code ":max-height"]
+                 " - optional CSS style value e.g. \"150px\" Variable, beyond which items will scroll. If there are less items then this height, box will shrink."]
                 [:p [:code ":disabled"]
                  " - boolean can be reagent/atom. (default false) If true, scrolling is allowed but selection is disabled."]
                 [:p [:code ":hide-border"]
