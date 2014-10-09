@@ -100,7 +100,7 @@
     :label-fn      ; optional function to call on element to get label string, default :label
     :width         ; optional CSS style value e.g. "250px"
     :height        ; optional CSS style value e.g. "150px"
-    :max-height    ; optional CSS style value e.g. "150px" Height will shring/grow based on elements up to this, then scroll
+    :max-height    ; optional CSS style value e.g. "150px" Height will shrink/grow based on elements up to this, then scroll
     })
 
 (defn inline-list
