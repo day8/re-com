@@ -452,11 +452,13 @@
 /* Bootstrap list-group-item variation */
 .compact {
     margin: 0;
+    height: 19px;
     white-space: nowrap;
     border: none;
     padding: 0;
     overflow: hidden;
     cursor: pointer;
+    font-size: small;
 }
 
 /*----------------------------------------------------------------------------------------

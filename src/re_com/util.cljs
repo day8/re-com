@@ -38,3 +38,16 @@
 (defn pad-zero-number [subject-num max-chars]
   "If subject-num zero pad subject-str from left up to max-chars."
   (pad-zero (str subject-num) max-chars))
+
+;; ----------- G O L D E N  R A T I O -----------------------------------------
+;; https://en.wikipedia.org/wiki/Golden_ratio
+
+(defn golden-ratio-a [b-segment]
+  "Answer the A segment using golden ratio"
+  (let [Phi 1.618]
+    (/ b-segment Phi)))
+
+(defn golden-ratio-b [segment]
+  "Answer the B segment using golden ratio"
+  (- segment (golden-ratio-a segment)))
+;; ----------------------------------------------------------------------------

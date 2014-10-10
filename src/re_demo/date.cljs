@@ -158,9 +158,9 @@
                  [:li.spacer [:code ":show-today"]
                   " - boolean. (default false) If true, today's date is highlighted different to selection. When both today's date and selected day are the same, selected highlight takes precedence."]
                  [:li.spacer [:code ":minimum"]
-                  " - optional goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
+                  " - goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
                  [:li.spacer [:code ":maximum"]
-                  " - optional goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
+                  " - goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
                  [:li.spacer [:code ":hide-border"]
                   " - boolean. Default false."]
                  (when (= "2" @selected-variation)
