@@ -2,6 +2,7 @@
   (:require [reagent.core :as reagent]
             [re-com.util  :as util]
             [re-com.core  :refer [button]]
+            [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [re-com.popover :refer [popover make-button make-link]]))
 
 
@@ -29,6 +30,13 @@
                               :listbox-multi  ["Item 2" "Item 4" "Item 7"]}))
 
 
+(def demos [{:id 1 :label "Simple dropdown"}
+            {:id 2 :label "Dropdown with grouping"}
+            {:id 3 :label "Dropdown with filtering"}
+            {:id 4 :label "Keyboard support"}
+            {:id 5 :label "Other parameters"}
+            {:id 6 :label "Two dependent dropdowns"}])
+
 (defn pform-initialise
   []
   (reset! initial-form-data @form-data)
@@ -55,175 +63,188 @@
 
 (defn primary-form
   []
-  [:div {:style {:padding "5px" :background-color "cornsilk" :border "1px solid #eee"}} ;; [:form {:name "pform" :on-submit pform-submit}
-   [:div.form-group
-    [:label {:for "pf-email"} "Email address"]
-    [:input#pf-email.form-control
-     {:name        "email"
-      :type        "text"
-      :placeholder "Type email"
-      :value       (:email @form-data)
-      :on-change   #(swap! form-data assoc :email (-> % .-target .-value))}]
-    ]
-   [:div.form-group
-    [:label {:for "pf-password"} "Password"]
-    [:input#pf-password.form-control
-     {:name        "password"
-      :type        "password"
-      :placeholder "Type password"
-      :value       (:password @form-data)
-      :on-change   #(swap! form-data assoc :password (-> % .-target .-value))}]
-    ]
-   [:div.form-group
-    [:label {:for "pf-desc"} "Description"]
-    [:textarea#pf-desc.form-control
-     {:name        "description"
-      :placeholder "Write a description here"
-      :rows        5
-      :value       (:description @form-data)
-      :on-change   #(swap! form-data assoc :description (-> % .-target .-value))}]
-    ]
-   [:div.form-group
-    [:label {:for "pf-range"} "Range (0-100)"]
-    [:input#pf-range
-     {:name      "range"
-      :type      "range"
-      :min       "0"
-      :max       "100"
-      :value     (:range @form-data)
-      :on-change #(swap! form-data assoc :range (-> % .-target .-value))}]
-    ]
-   [:div.form-group
-    [:label {:for "pf-datetime"} "Date/Time"]
-    [:span " "]
-    [:input#pf-datetime
-     {:name      "datetime"
-      :type      "datetime-local"
-      :style     {:font-family "Consolas"}
-      :value     (:datetime @form-data)
-      :on-change #(swap! form-data assoc :datetime (-> % .-target .-value))}]
-    ]
-   [:div.form-group
-    [:label {:for "pf-file"} "File input"]
-    [:input#pf-file
-     {:name "file"
-      :type "file"}] ;; Can't do ":value (:file @form-data)" because it's read-only. Need to just read the value in the submit function
-    [:p.help-block "This is the Bootstrap help text style."]
-    ]
+  (let [selected-demo-id (reagent/atom 1)]
+    [:div {:style {:padding "5px" :background-color "cornsilk" :border "1px solid #eee"}} ;; [:form {:name "pform" :on-submit pform-submit}
+     [:h4 "Dropdown"]
+     [:div.container-fluid
+      [:div.row
+       [:div.col-lg-4
+        [:p "Our very own drop-down"]
+        [single-dropdown
+         :choices demos
+         :model selected-demo-id
+         :width "300px"
+         :on-change #(reset! selected-demo-id %)]
+        ]]]
 
-   [:h4 "Checkboxes and Radio buttons"]
-   [:div.container-fluid
-    [:div.row
-     [:div.col-lg-4
-      [:div.checkbox
-       [:label
-        [:input
-         {:type      "checkbox"
-          :name      "cb1"
-          :checked   (:checkbox1 @form-data)
-          :on-change #(swap! form-data assoc :checkbox1 (-> % .-target .-checked))}
-         "Red (toggle disabled)"]]]
-      [:div.checkbox
-       [:label
-        [:input
-         {:type      "checkbox"
-          :name      "cb2"
-          :checked   (:checkbox2 @form-data)
-          :on-change #(swap! form-data assoc :checkbox2 (-> % .-target .-checked))}
-         "Green (initially checked)"]]]
-      [:div.checkbox
-       [:label
-        [:input
-         {:type      "checkbox"
-          :name      "cb3"
-          :disabled  (not (:checkbox1 @form-data))
-          :checked   (:checkbox3 @form-data)
-          :on-change #(swap! form-data assoc :checkbox3 (-> % .-target .-checked))}
-         (if (:checkbox1 @form-data) "Blue" "Blue (disabled)")]]] ;; (str "Blue" (when-not (:checkbox1 @form-data) " (disabled)"))
+     [:div.form-group
+      [:label {:for "pf-email"} "Email address"]
+      [:input#pf-email.form-control
+       {:name        "email"
+        :type        "text"
+        :placeholder "Type email"
+        :value       (:email @form-data)
+        :on-change   #(swap! form-data assoc :email (-> % .-target .-value))}]
       ]
-     [:div.col-lg-4
-      [:div.radio
-       [:label {:for "pf-radio1"}
-        [:input#pf-radio1
-         {:type      "radio"
-          :name      "rgroup" ;; TODO: REMOVE ???????????
-          :value     "1"  ;; TODO: REMOVE??????
-          :checked   (= (:radio-group @form-data) "1") ;; TODO: A bit nasty, ideally get from value
-          :on-change #(swap! form-data assoc :radio-group (-> % .-target .-value))} ;; (-> % .-target .-value) ==> "1" ???????????
-         "Hue"]]]
-      [:div.radio
-       [:label {:for "pf-radio2"}
-        [:input#pf-radio2
-         {:type      "radio"
-          :name      "rgroup"
-          :value     "2"
-          :checked   (= (:radio-group @form-data) "2")
-          :on-change #(swap! form-data assoc :radio-group (-> % .-target .-value))}
-         "Saturation (initially checked)"]]]
-      [:div.radio
-       [:label {:for "pf-radio3"}
-        [:input#pf-radio3
-         {:type      "radio"
-          :name      "rgroup"
-          :value     "3"
-          :disabled  (not (:checkbox1 @form-data))
-          :checked   (= (:radio-group @form-data) "3")
-          :on-change #(swap! form-data assoc :radio-group (-> % .-target .-value))}
-         (str "Luminance" (when-not (:checkbox1 @form-data) " (disabled)"))]]]
-      ]]]
-
-   ;; NOTE: Can't use "selected" attribute on <option>s in React/Reagent
-   ;;       Must set "value" property on <select>
-   ;;       See http://facebook.github.io/react/docs/forms.html#why-select-value
-
-   [:h4 "Selects"]
-   [:div.container-fluid
-    [:div.row
-     [:div.col-lg-4
-      [:p "Drop-down List (Combo Box)"]
-      [:select.form-control {:value     (:drop-down @form-data)
-                             :on-change #(swap! form-data assoc :drop-down (-> % .-target .-value))}
-       ^{:key 0} [:option {:value ""} "-- Select an option --"]
-       (for [line (range 1 21)]
-         ^{:key line} [:option {:value line} (str "Item " line)]) ;; value will be "1" to "20"
-       ]
+     [:div.form-group
+      [:label {:for "pf-password"} "Password"]
+      [:input#pf-password.form-control
+       {:name        "password"
+        :type        "password"
+        :placeholder "Type password"
+        :value       (:password @form-data)
+        :on-change   #(swap! form-data assoc :password (-> % .-target .-value))}]
       ]
-     [:div.col-lg-4
-      [:p "Single-select List Box"]
-      [:select.form-control {:size      8
-                             :value     (:listbox-single @form-data)
-                             :on-change #(swap! form-data assoc :listbox-single (-> % .-target .-value))}
-       (for [line (range 1 21)]
-         ^{:key line} [:option (str "Item " line)])               ;; value will be "Item 1" to "Item 20" because value not explicitly set
-       ]
+     [:div.form-group
+      [:label {:for "pf-desc"} "Description"]
+      [:textarea#pf-desc.form-control
+       {:name        "description"
+        :placeholder "Write a description here"
+        :rows        5
+        :value       (:description @form-data)
+        :on-change   #(swap! form-data assoc :description (-> % .-target .-value))}]
       ]
-     [:div.col-lg-4
-      [:p "Multi-select List Box"]
-      [:select.form-control
-       {:size      8
-        :multiple  true
-        :value     (:listbox-multi @form-data)
-        :on-change #(let [selected-nodes  (-> % .-target .-selectedOptions) ;; HTMLElement array is not ISeq-able (could make a fucntion out of this) TODO: TRY ################ js->cljs
-                          count           (.-length selected-nodes)
-                          selected-values (for [index (range count)
-                                                :let [item (.-value (aget selected-nodes index))]]
-                                            item)]
-                      (swap! form-data assoc :listbox-multi (vec selected-values)))}
-       (for [line (range 1 21)]
-         ^{:key line} [:option (str "Item " line)])
-       ]
-      ]]]
+     [:div.form-group
+      [:label {:for "pf-range"} "Range (0-100)"]
+      [:input#pf-range
+       {:name      "range"
+        :type      "range"
+        :min       "0"
+        :max       "100"
+        :value     (:range @form-data)
+        :on-change #(swap! form-data assoc :range (-> % .-target .-value))}]
+      ]
+     [:div.form-group
+      [:label {:for "pf-datetime"} "Date/Time"]
+      [:span " "]
+      [:input#pf-datetime
+       {:name      "datetime"
+        :type      "datetime-local"
+        :style     {:font-family "Consolas"}
+        :value     (:datetime @form-data)
+        :on-change #(swap! form-data assoc :datetime (-> % .-target .-value))}]
+      ]
+     [:div.form-group
+      [:label {:for "pf-file"} "File input"]
+      [:input#pf-file
+       {:name "file"
+        :type "file"}]                                      ;; Can't do ":value (:file @form-data)" because it's read-only. Need to just read the value in the submit function
+      [:p.help-block "This is the Bootstrap help text style."]
+      ]
 
-   [:hr {:style {:margin "10px 0 10px"}}]
-   [button
-    :label    [:span [:span.glyphicon.glyphicon-ok] " Apply"]
-    :on-click pform-submit
-    :class    "btn-primary"]
-   [:span " "]
-   [button
-    :label    [:span [:span.glyphicon.glyphicon-remove] " Cancel"]
-    :on-click pform-cancel]
-   ])
+     [:h4 "Checkboxes and Radio buttons"]
+     [:div.container-fluid
+      [:div.row
+       [:div.col-lg-4
+        [:div.checkbox
+         [:label
+          [:input
+           {:type      "checkbox"
+            :name      "cb1"
+            :checked   (:checkbox1 @form-data)
+            :on-change #(swap! form-data assoc :checkbox1 (-> % .-target .-checked))}
+           "Red (toggle disabled)"]]]
+        [:div.checkbox
+         [:label
+          [:input
+           {:type      "checkbox"
+            :name      "cb2"
+            :checked   (:checkbox2 @form-data)
+            :on-change #(swap! form-data assoc :checkbox2 (-> % .-target .-checked))}
+           "Green (initially checked)"]]]
+        [:div.checkbox
+         [:label
+          [:input
+           {:type      "checkbox"
+            :name      "cb3"
+            :disabled  (not (:checkbox1 @form-data))
+            :checked   (:checkbox3 @form-data)
+            :on-change #(swap! form-data assoc :checkbox3 (-> % .-target .-checked))}
+           (if (:checkbox1 @form-data) "Blue" "Blue (disabled)")]]] ;; (str "Blue" (when-not (:checkbox1 @form-data) " (disabled)"))
+        ]
+       [:div.col-lg-4
+        [:div.radio
+         [:label {:for "pf-radio1"}
+          [:input#pf-radio1
+           {:type      "radio"
+            :name      "rgroup"                             ;; TODO: REMOVE ???????????
+            :value     "1"                                  ;; TODO: REMOVE??????
+            :checked   (= (:radio-group @form-data) "1")    ;; TODO: A bit nasty, ideally get from value
+            :on-change #(swap! form-data assoc :radio-group (-> % .-target .-value))} ;; (-> % .-target .-value) ==> "1" ???????????
+           "Hue"]]]
+        [:div.radio
+         [:label {:for "pf-radio2"}
+          [:input#pf-radio2
+           {:type      "radio"
+            :name      "rgroup"
+            :value     "2"
+            :checked   (= (:radio-group @form-data) "2")
+            :on-change #(swap! form-data assoc :radio-group (-> % .-target .-value))}
+           "Saturation (initially checked)"]]]
+        [:div.radio
+         [:label {:for "pf-radio3"}
+          [:input#pf-radio3
+           {:type      "radio"
+            :name      "rgroup"
+            :value     "3"
+            :disabled  (not (:checkbox1 @form-data))
+            :checked   (= (:radio-group @form-data) "3")
+            :on-change #(swap! form-data assoc :radio-group (-> % .-target .-value))}
+           (str "Luminance" (when-not (:checkbox1 @form-data) " (disabled)"))]]]
+        ]]]
+
+                                                                                          ;; NOTE: Can't use "selected" attribute on <option>s in React/Reagent
+                                                                                          ;;       Must set "value" property on <select>
+                                                                                          ;;       See http://facebook.github.io/react/docs/forms.html#why-select-value
+
+     [:h4 "Selects"]
+     [:div.container-fluid
+      [:div.row
+       [:div.col-lg-4
+        [:p "Drop-down List (Combo Box)"]
+        [:select.form-control {:value     (:drop-down @form-data)
+                               :on-change #(swap! form-data assoc :drop-down (-> % .-target .-value))}
+         ^{:key 0} [:option {:value ""} "-- Select an option --"]
+         (for [line (range 1 21)]
+           ^{:key line} [:option {:value line} (str "Item " line)]) ;; value will be "1" to "20"
+         ]
+        ]
+       [:div.col-lg-4
+        [:p "Single-select List Box"]
+        [:select.form-control {:size      8
+                               :value     (:listbox-single @form-data)
+                               :on-change #(swap! form-data assoc :listbox-single (-> % .-target .-value))}
+         (for [line (range 1 21)]
+           ^{:key line} [:option (str "Item " line)])       ;; value will be "Item 1" to "Item 20" because value not explicitly set
+         ]
+        ]
+       [:div.col-lg-4
+        [:p "Multi-select List Box"]
+        [:select.form-control
+         {:size      8
+          :multiple  true
+          :value     (:listbox-multi @form-data)
+          :on-change #(let [selected-nodes (-> % .-target .-selectedOptions) ;; HTMLElement array is not ISeq-able (could make a fucntion out of this) TODO: TRY ################ js->cljs
+                            count (.-length selected-nodes)
+                            selected-values (for [index (range count)
+                                                  :let [item (.-value (aget selected-nodes index))]]
+                                              item)]
+                       (swap! form-data assoc :listbox-multi (vec selected-values)))}
+         (for [line (range 1 21)]
+           ^{:key line} [:option (str "Item " line)])
+         ]
+        ]]]
+
+     [:hr {:style {:margin "10px 0 10px"}}]
+     [button
+      :label [:span [:span.glyphicon.glyphicon-ok] " Apply"]
+      :on-click pform-submit
+      :class "btn-primary"]
+     [:span " "]
+     [button
+      :label [:span [:span.glyphicon.glyphicon-remove] " Cancel"]
+      :on-click pform-cancel]
+     ]))
 
 
 ;; ----- SECONDARY FORM

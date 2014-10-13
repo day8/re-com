@@ -10,58 +10,53 @@
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
 
 
-(defn find-option-index
-  [options id]
+(defn find-choice-index
+  [choices id]
   "In a vector of maps (where each map has an :id), return the index of the first map containing the id parameter.
    Returns nil if id not found."
   (let [index-fn (fn [index item] (when (= (:id item) id) index))
-        index-of-id (first (keep-indexed index-fn options))]
+        index-of-id (first (keep-indexed index-fn choices))]
     index-of-id))
 
 
-(defn- move-to-new-option
-  [options id offset]
-  "In a vector of maps (where each map has an :id), return the id of the option offset posititions away
+(defn- move-to-new-choice
+  [choices id offset]
+  "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
    from id (usually +1 or -1 to go to next/previous). Also accepts :start and :end."
-  (let [current-index (find-option-index options id)
+  (let [current-index (find-choice-index choices id)
         new-index (cond
                     (= offset :start) 0
-                    (= offset :end) (dec (count options))
+                    (= offset :end) (dec (count choices))
                     (nil? current-index) 0
-                    :else (mod (+ current-index offset) (count options)))]
-    (:id (nth options new-index))))
+                    :else (mod (+ current-index offset) (count choices)))]
+    (:id (nth choices new-index))))
 
 
-(defn find-option
-  [options id]
+(defn find-choice
+  [choices id]
   "In a vector of maps (where each map has an :id), return the first map containing the id parameter."
-  (let [current-index (find-option-index options id)
-        _ (assert ((complement nil?) current-index) (str "Can't find option index '" id "' in options vector"))]
-    (nth options current-index)))
+  (let [current-index (find-choice-index choices id)
+        _ (assert ((complement nil?) current-index) (str "Can't find choice index '" id "' in choices vector"))]
+    (nth choices current-index)))
 
 
-(defn- options-with-headings
+(defn- choices-with-group-headings
   [opts]
-  "Converts the user specified data for the dropdown into a form that this code can better work with. The main thing it
-   does is to split heading boundaries into two lines, one for the heading and one for the item."
-  (let [new-opts   (atom [])
-        last-group (atom nil)]
-    (doall
-      (for [opt opts]
-        (let [new-group (not= (:group opt) @last-group)
-              _         (reset! last-group (:group opt))]
-          (when new-group
-            (swap! new-opts conj {:id    (str (:id opt) "##")
-                                  :group (:group opt)}))
-          (swap! new-opts conj {:id    (:id opt)
-                                :label (:label opt)}))))
-    @new-opts))
+  "If necessary, inserts group headings entries into the choices"
+  (let [groups         (partition-by :group opts)
+        group-headers  (->> groups
+                            (map first)
+                            (map :group)
+                            (map #(hash-map :id % :group % :group-header? true)))]
+    (if (= 1 (count groups))
+      opts
+      (flatten (interleave group-headers groups)))))
 
 
-(defn filter-options
-  "Filter a list of options based on a filter string using plain string searches (case insensitive). Less powerful
+(defn filter-choices
+  "Filter a list of choices based on a filter string using plain string searches (case insensitive). Less powerful
    than regex's but no confusion with reserved characters."
-  [options filter-text]
+  [choices filter-text]
   (let [lower-filter-text (string/lower-case filter-text)
         filter-fn         (fn [opt]
                             (let [group (if (nil? (:group opt)) "" (:group opt))
@@ -69,13 +64,13 @@
                               (or
                                 (>= (.indexOf (string/lower-case group) lower-filter-text) 0)
                                 (>= (.indexOf (string/lower-case label) lower-filter-text) 0))))]
-    (filter filter-fn options)))
+    (filter filter-fn choices)))
 
 
-(defn filter-options-regex
-  "Filter a list of options based on a filter string using regex's (case insensitive). More powerful but can cause
+(defn filter-choices-regex
+  "Filter a list of choices based on a filter string using regex's (case insensitive). More powerful but can cause
    confusion for users entering reserved characters such as [ ] * + . ( ) etc."
-  [options filter-text]
+  [choices filter-text]
   (let [re        (try
                     (js/RegExp. filter-text "i")
                     (catch js/Object e nil))
@@ -83,27 +78,27 @@
                              (when-not (nil? re)
                                (or (.test re (:group opt)) (.test re (:label opt)))))
                            re)]
-    (filter filter-fn options)))
+    (filter filter-fn choices)))
 
 
-(defn filter-options-by-keyword
-  "Filter a list of options extra data within the options vector."
-  [options keyword value]
+(defn filter-choices-by-keyword
+  "Filter a list of choices extra data within the choices vector."
+  [choices keyword value]
   (let [filter-fn (fn [opt] (>= (.indexOf (keyword opt) value) 0))]
-    (filter filter-fn options)))
+    (filter filter-fn choices)))
 
 
-(defn- option-group-heading
+(defn- choice-group-heading
   [opt]
-  "Render a group option item."
+  "Render a group choice item."
   [:li.group-result
    {:value (:value opt)}
    (:group opt)])
 
 
-(defn- option-item
+(defn- choice-item
   [opt on-click tmp-model]
-  "Render an option item and set up appropriate mouse events."
+  "Render a choice item and set up appropriate mouse events."
   (let [mouse-over? (reagent/atom false)]
     (reagent/create-class
       {:component-did-mount
@@ -162,7 +157,7 @@
   "Render the top part of the dropdown, with the clickable area and the up/down arrow."
   (let [ignore-click (atom false)]
     (fn
-      [tmp-model options tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
+      [tmp-model choices tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
       (let [_ (reagent/set-state (reagent/current-component) {:filter-box filter-box})]
         [:a.chosen-single.chosen-default
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
@@ -176,7 +171,7 @@
                            (when (= (.-which %) 13) (reset! ignore-click true)))} ;; Pressing enter on an anchor also triggers click event, which we don't want
          [:span
           (if @tmp-model
-            (:label (find-option options @tmp-model))
+            (:label (find-choice choices @tmp-model))
             placeholder)]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
@@ -185,14 +180,14 @@
 ;; Component: single-dropdown
 ;;--------------------------------------------------------------------------------------------------
 
-(def single-dropdown-api
-  #{:options        ; A vector of maps. Each map contains a unique :id and a :label and can optionally include a :group. An example:
+(def single-dropdown-args
+  #{:choices        ; A vector of maps. Each map contains a unique :id and a :label and can optionally include a :group. An example:
                     ;     [{:id "AU" :label "Australia"      :group "Group 1"}
                     ;      {:id "US" :label "United States"  :group "Group 1"}
                     ;      {:id "GB" :label "United Kingdom" :group "Group 1"}
                     ;      {:id "AF" :label "Afghanistan"    :group "Group 2"}]
-    :model          ; The :id of the initially selected option, or nil to have no initial selection (in which case, :placeholder will be shown).
-    :on-select      ; A callback function taking one parameter which will be the :id of the new selection.
+    :model          ; The :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown).
+    :on-change      ; A callback function taking one parameter which will be the :id of the new selection.
     :disabled       ; A boolean indicating whether the control should be disabled. false if not specified.
     :filter-box     ; A boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified.
     :regex-filter   ; A boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified.
@@ -205,25 +200,25 @@
 
 (defn single-dropdown
   [& {:keys [model] :as args}]
-  {:pre [(superset? single-dropdown-api (keys args))]}
+  {:pre [(superset? single-dropdown-args (keys args))]}
   "Render a single dropdown component which emulates the bootstrap-choosen style."
   (let [tmp-model     (reagent/atom (deref-or-value model)) ;; Create a new atom from the model value passed in for use with keyboard actions
         ext-model     (reagent/atom @tmp-model) ;; Holds the last known external value of model, to detect external model changes
         drop-showing? (reagent/atom false)
         filter-text   (reagent/atom "")]
-    (fn [& {:keys [options model on-select disabled filter-box regex-filter placeholder width max-height tab-index] :as args}]
-      {:pre [(superset? single-dropdown-api (keys args))]}
-      (let [options          (deref-or-value options)
+    (fn [& {:keys [choices model on-change disabled filter-box regex-filter placeholder width max-height tab-index] :as args}]
+      {:pre [(superset? single-dropdown-args (keys args))]}
+      (let [choices          (deref-or-value choices)
             disabled         (deref-or-value disabled)
             regex-filter     (deref-or-value regex-filter)
             latest-model     (reagent/atom (deref-or-value model))
             _                (when (not= @ext-model @latest-model) ;; Has model changed externally?
                                (reset! ext-model @latest-model)
                                (reset! tmp-model @latest-model))
-            changeable       (and on-select (not disabled))
+            changeable       (and on-change (not disabled))
             callback         #(do
                                (reset! tmp-model %)
-                               (when changeable (on-select @tmp-model))
+                               (when changeable (on-change @tmp-model))
                                (reset! drop-showing? (not @drop-showing?)) ;; toggle to allow opening dropdown on Enter key
                                (reset! filter-text ""))
             cancel           #(do
@@ -232,9 +227,9 @@
                                (reset! tmp-model @ext-model)) ;; Was save-model
             dropdown-click   #(when-not disabled
                                (reset! drop-showing? (not @drop-showing?)))
-            filtered-options (if regex-filter
-                               (filter-options-regex options @filter-text)
-                               (filter-options options @filter-text))
+            filtered-choices (if regex-filter
+                               (filter-choices-regex choices @filter-text)
+                               (filter-choices choices @filter-text))
             press-enter      (fn []
                                (if disabled
                                  (cancel)
@@ -247,26 +242,26 @@
                                 (if disabled
                                   (cancel)
                                   (do                ;; Was (callback @tmp-model) but needed a customised version
-                                    (when changeable (on-select @tmp-model))
+                                    (when changeable (on-change @tmp-model))
                                     (reset! drop-showing? false)
                                     (reset! filter-text "")))
                                 (reset! drop-showing? false)
                                 true)
             press-up          (fn []
                                 (if @drop-showing?  ;; Up arrow
-                                  (reset! tmp-model (move-to-new-option filtered-options @tmp-model -1))
+                                  (reset! tmp-model (move-to-new-choice filtered-choices @tmp-model -1))
                                   (reset! drop-showing? true))
                                 true)
             press-down        (fn []
                                 (if @drop-showing?  ;; Down arrow
-                                  (reset! tmp-model (move-to-new-option filtered-options @tmp-model 1))
+                                  (reset! tmp-model (move-to-new-choice filtered-choices @tmp-model 1))
                                   (reset! drop-showing? true))
                                 true)
             press-home        (fn []
-                                (reset! tmp-model (move-to-new-option filtered-options @tmp-model :start))
+                                (reset! tmp-model (move-to-new-choice filtered-choices @tmp-model :start))
                                 true)
             press-end         (fn []
-                                (reset! tmp-model (move-to-new-option filtered-options @tmp-model :end))
+                                (reset! tmp-model (move-to-new-choice filtered-choices @tmp-model :end))
                                 true)
             key-handler      #(if disabled
                                false
@@ -281,18 +276,18 @@
                                  filter-box))] ;; Use this boolean to allow/prevent the key from being processed by the text box
         [:div
          {:class (str "chosen-container chosen-container-single" (when @drop-showing? " chosen-container-active chosen-with-drop"))
-          :style {:flex  (if width (str "0 0 " width) "auto")
+          :style {:flex  (if width "0 0 auto" "auto")
                   :width (when width width)
                   :-webkit-user-select "none"}} ;; Prevent user text selection
-         [dropdown-top tmp-model options tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
+         [dropdown-top tmp-model choices tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
          (when (and @drop-showing? (not disabled))
            [:div.chosen-drop
             [filter-text-box filter-box filter-text key-handler drop-showing?]
             [:ul.chosen-results
              (when max-height {:style {:max-height max-height}})
-             (if (-> filtered-options count pos?)
-               (for [opt (options-with-headings filtered-options)]
-                 (if (:group opt)
-                   ^{:key (:id opt)} [option-group-heading opt]
-                   ^{:key (:id opt)} [option-item opt callback tmp-model]))
+             (if (-> filtered-choices count pos?)
+               (for [opt (choices-with-group-headings filtered-choices)]
+                 (if (:group-header? opt)
+                   ^{:key (:id opt)} [choice-group-heading opt]
+                   ^{:key (:id opt)} [choice-item opt callback tmp-model]))
                [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))

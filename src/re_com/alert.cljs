@@ -9,7 +9,7 @@
 ;; Component: alert
 ;;--------------------------------------------------------------------------------------------------
 
-(def alert-box-api
+(def alert-box-args
   #{:id           ; A unique identifier, usually an integer or string, but could be any complex data structure
                   ; This is optional for single alerts. It's main use is in alert-list below
     :alert-type   ; A Bootstrap string determining the style. Either 'info', 'warning' or 'danger'
@@ -25,7 +25,7 @@
   [& {:keys [id alert-type heading body padding closeable on-close]
       :or   {alert-type "info"}
       :as   args}]
-  {:pre [(superset? alert-box-api (keys args))]}
+  {:pre [(superset? alert-box-args (keys args))]}
   "Displays one alert box. A close button allows the message to be removed."
   [:div.alert.fade.in
    {:class (str "alert-" alert-type)
@@ -43,7 +43,7 @@
 ;; Component: alert-list
 ;;--------------------------------------------------------------------------------------------------
 
-(def alert-list-api
+(def alert-list-args
   #{:alerts         ; An atom containing a vector of alert maps. A typical alerts vector will look like:
                     ;     [{:id 2
                     ;       :alert-type "warning"
@@ -68,7 +68,7 @@
   [& {:keys [alerts on-close max-height padding border-style]
       :or   {padding "4px"}
       :as   args}]
-  {:pre [(superset? alert-list-api (keys args))]}
+  {:pre [(superset? alert-list-args (keys args))]}
   "Displays a list of alert-box components in a v-box."
   [border
    :padding padding
