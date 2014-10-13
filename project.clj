@@ -1,4 +1,4 @@
-(defproject re-com "0.1.3"
+(defproject re-com "0.1.5"
   :description  "Reusable UI components for Reagent"
 
   :url          "https://github.com/Day8/re-com.git"
@@ -13,10 +13,10 @@
 
   :profiles     {:debug {:debug true}
                  :dev {:dependencies [[clj-stacktrace "0.2.8"]
-                                      [spellhouse/clairvoyant "0.0-33-g771b57f"]]
+                                      [spellhouse/clairvoyant "0.0-39-gb64d916"]]
                        :plugins      [[lein-cljsbuild "1.0.4-SNAPSHOT"]
                                       [com.cemerick/clojurescript.test "0.3.1"]]}}
-
+  :resource-paths ["run/resources"]
   ;:jvm-opts     ^:replace ["-Xms2g" "-Xmx2g" "-server"]
 
   :source-paths ["src"]
@@ -34,7 +34,6 @@
                                             :output-dir    "run/compiled/demo"
                                             :optimizations :none
                                             :pretty-print  true}}
-
                           {:id "prod"
                            :source-paths   ["src/re_com"]
                            :compiler       {:output-to     "compiled/prod.js"

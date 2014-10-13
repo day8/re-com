@@ -3,7 +3,7 @@
     [reagent.core         :as     r]
     [cljs-time.core       :refer  [now]]
     [re-com.core          :refer  [label checkbox]]
-    [re-com.date          :refer  [inline-picker dropdown-picker iso8601->date]]
+    [re-com.datepicker    :refer  [datepicker datepicker-dropdown iso8601->date]]
     [re-com.box           :refer  [h-box v-box box gap border]]
     [re-com.dropdown      :refer  [single-dropdown]]))
 
@@ -85,7 +85,7 @@
                                [v-box
                                 :gap "5px"
                                 :children [[label :style label-style :label ":minimum or :maximum not specified"]
-                                           [inline-picker
+                                           [datepicker
                                             :model model1
                                             :disabled disabled?
                                             :show-today @show-today?
@@ -98,7 +98,7 @@
                                [v-box
                                 :gap "5px"
                                 :children [[label :style label-style :label ":minimum \"20140831\" :maximum \"20141019\""]
-                                           [inline-picker
+                                           [datepicker
                                             :model model2
                                             :minimum (iso8601->date "20140831")
                                             :maximum (iso8601->date "20141019")
@@ -120,7 +120,7 @@
                  :align :start
                  :children [[gap :size "120px"]
                             [(fn []
-                               [dropdown-picker
+                               [datepicker-dropdown
                                 :model model1
                                 :show-today @show-today?
                                 :show-weeks @show-weeks?
@@ -158,9 +158,9 @@
                  [:li.spacer [:code ":show-today"]
                   " - boolean. (default false) If true, today's date is highlighted different to selection. When both today's date and selected day are the same, selected highlight takes precedence."]
                  [:li.spacer [:code ":minimum"]
-                  " - optional goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
+                  " - goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
                  [:li.spacer [:code ":maximum"]
-                  " - optional goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
+                  " - goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
                  [:li.spacer [:code ":hide-border"]
                   " - boolean. Default false."]
                  (when (= "2" @selected-variation)

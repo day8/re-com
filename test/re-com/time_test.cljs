@@ -1,10 +1,10 @@
 (ns re-com-test.time-test
-  (:require-macros [cemerick.cljs.test :refer (is are deftest with-test run-tests testing test-var)])
+  (:require-macros [cemerick.cljs.test :refer (is are deftest with-test run-tests testing test-var)]
+                   [clairvoyant.core :refer [trace-forms]])
   (:require [cemerick.cljs.test]
             [reagent.core :as reagent]
+            [clairvoyant.core :refer [default-tracer]]
             [re-com.time :as time]))
-
-;; --- Utility functions ---
 
 
 ;; --- Tests ---
@@ -88,12 +88,14 @@
 
 (deftest test-validated-time-integer
   (are [expected actual] (= expected actual)
-    600   (time/validated-time-integer 600 0 2359)
-    630   (time/validated-time-integer 630 0 2359)
-    2359  (time/validated-time-integer 2359 0 2359)
-    1500  (time/validated-time-integer 1575 600 2200)    ;; invalid minutes
-    nil   (time/validated-time-integer 500 600 2200)     ;; Too early
-    nil   (time/validated-time-integer 2315 600 2200)))  ;; Too late
+    600   (time/validated-time-integer 600 0 2359 nil)
+    630   (time/validated-time-integer 630 0 2359 nil)
+    nil   (time/validated-time-integer 2230 0 2210 nil)
+    2359  (time/validated-time-integer 2359 0 2359 nil)
+    nil   (time/validated-time-integer 1575 600 2200 nil)    ;; invalid minutes - returns nil because no previous value provided
+    1500  (time/validated-time-integer 1575 600 2200 1500)   ;; invalid minutes - returns 1500 because that was previous value provided
+    nil   (time/validated-time-integer 500 600 2200 nil)     ;; Too early
+    nil   (time/validated-time-integer 2315 600 2200 nil)))  ;; Too late
 
 (deftest test-validate-time-range
   (are [expected actual] (= expected actual)
@@ -114,25 +116,58 @@
     (is (= @mdl 456) "Expected value to be 456.")))
 
 (deftest test-time-input
- (is (fn? (time/time-input :model 1500)) "Expected a function.")
- (let [result  ((time/time-input :model 1500))]
-   (is (= :span.input-append.bootstrap-timepicker (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
-   (let [time-input (last result)
-         time-input-attrs (nth time-input 1)]
-     (is (= :input.input-small (first time-input)) "Expected time input start with :input.input-small")
-     (are [expected actual] (= expected actual)
-       false         (:disabled time-input-attrs)
-       "15:00"       (:value time-input-attrs)
-       "text"        (:type time-input-attrs)
-       "time-entry"  (:class time-input-attrs)
-       true     (fn? (:on-focus time-input-attrs))
-       true     (fn? (:on-blur time-input-attrs))
-       true     (fn? (:on-change time-input-attrs))
-       true     (fn? (:on-mouse-up time-input-attrs)))))
- (is (fn? (time/time-input :model 1500 :minimum 600 :maximum 2159)) "Expected a function.")
+ (is (fn? (time/time-input :model 1530 :minimum 600 :maximum 2159) "Expected a function."))
+ (let [time-input-fn (time/time-input :model 1530)]
+   (is (fn? time-input-fn) "Expected a function.")
+   (let [anon-fn (time-input-fn (time/atom-on "15:30" nil) 600 2159)
+         result  (apply (first anon-fn)(rest anon-fn))]
+     (is (= :span.input-append.bootstrap-timepicker (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
+     (let [time-input-comp (last result)
+           time-input-attrs (nth time-input-comp 1)]
+       (is (= :input (first time-input-comp)) "Expected time input start with :input")
+       (are [expected actual] (= expected actual)
+         nil           (:disabled time-input-attrs)
+         "15:30"       (:value time-input-attrs)
+         "text"        (:type time-input-attrs)
+         "time-entry"  (:class time-input-attrs)
+         true     (fn? (:on-blur time-input-attrs))
+         true     (fn? (:on-change time-input-attrs))))))
  (is (thrown? js/Error (time/time-input :model "abc") "should fail - model is invalid"))
  (is (thrown? js/Error (time/time-input :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
  (is (thrown? js/Error (time/time-input :model 930 :minimum 600 :maximum "fred") "should fail - maximum is invalid"))
  (is (thrown? js/Error (time/time-input :model 530 :minimum 600 :maximum 2159) "should fail - model is before range start"))
  (is (thrown? js/Error (time/time-input :model 2230 :minimum 600 :maximum 2159) "should fail - model is after range end")))
 
+
+;; --- WIP ---
+
+#_(defn div-app []
+  (let [div (.createElement js/document "div")]
+    (set! (.-id div) "app")
+    div))
+
+#_(trace-forms
+  {:tracer default-tracer}
+  (deftest test-test-time-input-gen
+    (let [tm-input (time/time-input :model 1500)
+          result (reagent/render-component [tm-input] (div-app))]
+      (println (-> result .-_renderedComponent .-props)))))
+
+;; The above statement results in -
+;; #js {:cljsArgv
+;;   [#<function (model,previous_val,min,max,var_args){
+;;     var p__60249 = null;
+;;     if (arguments.length > 4) {
+;;       p__60249 = cljs.core.array_seq(Array.prototype.slice.call(arguments, 4),0);
+;;     }
+;;     return private_time_input__delegate.call(this,model,previous_val,min,max,p__60249);
+;;   }>
+;;   #<Atom: 15:00> 1500
+;;   #<Atom: 0>
+;;   #<Atom: 2359>
+;;   :on-change nil
+;;   :disabled nil
+;;   :hide-border nil
+;;   :show-time-icon nil
+;;   :style nil],
+;; :cljsLevel 0}

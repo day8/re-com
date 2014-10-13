@@ -1,7 +1,7 @@
 ;; Loosly based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
 ;; depends: datepicker-bs3.css
 
-(ns re-com.date
+(ns re-com.datepicker
   (:require
     [clojure.set          :refer [superset?]]
     [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month
@@ -187,22 +187,22 @@
     (merge attributes {:enabled-days enabled-days
                        :today (now)})))
 
-(def core-api
+(def datepicker-args
   #{:model        ; goog.date.UtcDateTime can be reagent/atom.
                   ; The calendar will be focused on corresponding date and the date represents selection.
-   :on-change     ; function callback will be passed new selected goog.date.UtcDateTime
-   :disabled      ; optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
-   :enabled-days  ; set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
-   :show-weeks    ; boolean. When true, first column shows week numbers.
-   :show-today    ; boolean. When true, today's date is highlighted. Selected day highlight takes precedence.
-   :minimum       ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
-   :maximum       ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
-   :hide-border   ; boolean. Default false.
+    :on-change    ; function callback will be passed new selected goog.date.UtcDateTime
+    :disabled     ; optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
+    :enabled-days ; set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
+    :show-weeks   ; boolean. When true, first column shows week numbers.
+    :show-today   ; boolean. When true, today's date is highlighted. Selected day highlight takes precedence.
+    :minimum      ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
+    :maximum      ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
+    :hide-border  ; boolean. Default false.
    })
 
-(defn inline-picker
+(defn datepicker
   [& {:keys [model] :as args}]
-  {:pre [(superset? core-api (keys args))]}
+  {:pre [(superset? datepicker-args (keys args))]}
   (let [current (-> (deref-or-value model) first-day-of-the-month reagent/atom)]
     (fn
       [& {:keys [model disabled hide-border on-change] :as properties}]
@@ -234,14 +234,14 @@
                [:span  {:class "dropdown-button activator input-group-addon"}
                 [:i {:class "glyphicon glyphicon-th"}]]]]])
 
-(def dropdown-api
-  (conj core-api
+(def datepicker-dropdown-args
+  (conj datepicker-args
         :format ; optional date format see cljs_time.format Default "yyyy MMM dd"
   ))
 
-(defn dropdown-picker
+(defn datepicker-dropdown
   [& {:as args}]
-  {:pre [(superset? dropdown-api (keys args))]}
+  {:pre [(superset? datepicker-dropdown-args (keys args))]}
   (let [shown? (reagent/atom false)]
     (fn
       [& {:keys [model show-weeks on-change format] :as passthrough-args}]
@@ -251,7 +251,6 @@
             passthrough-args   (dissoc passthrough-args :format)         ;; :format is only valid at this API level
             passthrough-args   (->> (assoc passthrough-args :on-change collapse-on-select)
                                     (merge {:hide-border true})          ;; apply defaults
-                                    (dissoc)
                                     vec
                                     flatten)]
         [popover
@@ -265,5 +264,5 @@
                    :backdrop-callback #(reset! shown? false)
                    :backdrop-opacity  0}
          :anchor  [anchor-button shown? model format]
-         :popover {:body  (into [inline-picker] passthrough-args)
+         :popover {:body  (into [datepicker] passthrough-args)
                    :width "auto"}]))))

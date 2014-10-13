@@ -449,6 +449,19 @@
 }
 
 /*----------------------------------------------------------------------------------------
+/* Bootstrap list-group-item variation */
+.compact {
+    margin: 0;
+    height: 19px;
+    white-space: nowrap;
+    border: none;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    font-size: small;
+}
+
+/*----------------------------------------------------------------------------------------
   Custom scrollbars
    - http://css-tricks.com/custom-scrollbars-in-webkit
    - http://codemug.com/html/custom-scrollbars-using-css
@@ -478,9 +491,10 @@
 ----------------------------------------------------------------------------------------*/
 
 html, body {
-  height: 100%;
-  margin: 0px;
-  padding: 0px;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    color:  #666366
 }
 
 /*----------------------------------------------------------------------------------------
