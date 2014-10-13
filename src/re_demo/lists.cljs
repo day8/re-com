@@ -152,8 +152,8 @@
                                             :children [[label :label "Choose variation"]
                                                        [single-dropdown
                                                         :width     "auto"
-                                                        :options   variations
+                                                        :choices   variations
                                                         :model     selected-variation
-                                                        :on-select #(reset! selected-variation %)]]]
+                                                        :on-change #(reset! selected-variation %)]]]
                                            [gap :size "0px"] ;; Force a bit more space here
                                            [show-variant @selected-variation]]]]]]]))))
