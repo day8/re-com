@@ -1,10 +1,10 @@
 (ns re-demo.alerts
-  (:require [re-com.util     :as     util]
+  (:require [re-com.util     :as    util]
             [re-com.core     :refer [button label input-text checkbox]]
             [re-com.box      :refer [h-box v-box box gap]]
-            [re-com.dropdown :refer [single-dropdown find-option filter-options-by-keyword]]
+            [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [re-com.alert    :refer [alert-box alert-list]]
-            [reagent.core    :as     reagent]))
+            [reagent.core    :as    reagent]))
 
 
 (def demos [{:id 1 :label ":alert-box - simple example"}
@@ -129,10 +129,10 @@
                                             :align    :center
                                             :children [[label :label "Select a demo"]
                                                        [single-dropdown
-                                                        :options   demos
+                                                        :choices   demos
                                                         :model     selected-demo-id
                                                         :width     "300px"
-                                                        :on-select #(reset! selected-demo-id %)]]]
+                                                        :on-change #(reset! selected-demo-id %)]]]
                                            [gap :size "0px"] ;; Force a bit more space here
                                            (case @selected-demo-id
                                              1 [demo1]

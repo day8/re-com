@@ -189,9 +189,9 @@
                                             :align    :center
                                             :children [[label :label "Select a variation"]
                                                        [single-dropdown
-                                                        :options   variations
+                                                        :choices   variations
                                                         :model     selected-variation
                                                         :width     "300px"
-                                                        :on-select #(reset! selected-variation %)]]]
+                                                        :on-change #(reset! selected-variation %)]]]
                                            [gap :size "0px"] ;; Force a bit more space here
                                            [show-variant @selected-variation]]]]]]])))

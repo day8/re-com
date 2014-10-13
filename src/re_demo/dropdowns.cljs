@@ -3,7 +3,7 @@
   (:require [re-com.util     :as    util]
             [re-com.core     :refer [button label input-text checkbox]]
             [re-com.box      :refer [h-box v-box box gap]]
-            [re-com.dropdown :refer [single-dropdown find-option filter-options-by-keyword]]
+            [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [cljs.core.async :refer [<! >! chan close! put! take! alts! timeout]]
             [reagent.core    :as    reagent]))
 
@@ -97,7 +97,7 @@
   (let []
     (fn []
       [:div
-       [:p "The simple dropdown above presents a list of options and allows one to be selected, via mouse or keyboard."]])))
+       [:p "The simple dropdown above presents a list of choices and allows one to be selected, via mouse or keyboard."]])))
 
 
 (defn demo2
@@ -106,8 +106,8 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[:p "The dropdown below shows how related options can be displayed in groups. In this case, several country related groups. e.g. 'POPULAR COUNTRIES'."]
-                  [:p "This feature is triggered if any option has a :group attribute. Typically all options will have a :group or none will. It's up to you to ensure that options with the same :group are adjacent together in the vector."]
+       :children [[:p "The dropdown below shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'POPULAR COUNTRIES'."]
+                  [:p "This feature is triggered if any choice has a :group attribute. Typically all choices will have a :group or none will. It's up to you to ensure that choices with the same :group are adjacent together in the vector."]
                   [:p "Because it is created with a nil model, the :placeholder text is initially displayed."]
                   [:p ":max-width is set to make the dropdown taller."]
                   [:p ":label can be a string or arbitrary markup. See 'United Kingdom' in this example."]
@@ -115,18 +115,18 @@
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
-                               :options     grouped-countries
+                               :choices     grouped-countries
                                :model       selected-country-id
                                :placeholder "Choose a country"
                                :width       "300px"
                                :max-height  "400px"
                                :filter-box  false
-                               :on-select   #(reset! selected-country-id %)]
+                               :on-change   #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (find-choice grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
 
 
 (defn demo3
@@ -135,25 +135,25 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[:p "The dropdown below adds a filter text box to the dropdown section which is convenient for when there are many options."]
+       :children [[:p "The dropdown below adds a filter text box to the dropdown section which is convenient for when there are many choices."]
                   [:p "The filter text is searched for in both the :group and the :label values. If the text matches the :group, then all
-                       options under that group are considered to be 'matched'."]
+                       choices under that group are considered to be 'matched'."]
                   [:p "The initial model value has been set to 'US'."]
                   [h-box
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
-                               :options    grouped-countries
+                               :choices    grouped-countries
                                :model      selected-country-id
                                :width      "300px"
                                :max-height "400px"
                                :filter-box true
-                               :on-select  #(reset! selected-country-id %)]
+                               :on-change  #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (find-choice grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
 
 
 (defn demo4
@@ -168,7 +168,7 @@
                        or it can be removed from the tab order using a value of -1."]
                   [:p "Up-arrow and Down-arrow do sensible things."]
                   [:p "Home and End keys move to the beginning and end of the list."]
-                  [:p "Enter, Tab and Shift+Tab trigger selection of the currently highlighted option."]
+                  [:p "Enter, Tab and Shift+Tab trigger selection of the currently highlighted choice."]
                   [:p "Esc closes the dropdown without making a selection."]
                   [h-box
                    :gap      "10px"
@@ -176,16 +176,16 @@
                    :children [[label :label "Test tabbing"]
                               [input-text @text-val #(reset! text-val (-> % .-target .-value)) :style {:width "80px"}]
                               [single-dropdown
-                               :options    grouped-countries
+                               :choices    grouped-countries
                                :model      selected-country-id
                                :width      "300px"
                                :filter-box true
-                               :on-select  #(reset! selected-country-id %)]
+                               :on-change  #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (find-choice grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
 
 
 (defn demo5
@@ -208,7 +208,7 @@
                                :on-change #(reset! disabled? %)]
                               [:span (str @disabled? " - " (if @disabled?
                                                              "the dropwdown is locked and cannot be changed."
-                                                             "the dropdown is enabled and an option can be selected."))]]]
+                                                             "the dropdown is enabled and a choice can be selected."))]]]
                   [h-box
                    :align    :center
                    :children [[checkbox
@@ -234,18 +234,18 @@
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
-                               :options      grouped-countries
+                               :choices      grouped-countries
                                :model        selected-country-id
                                :disabled     @disabled?
                                :filter-box   true
                                :regex-filter @regex?
                                :width        (when @width? dropdown-width)
-                               :on-select    #(reset! selected-country-id %)]
+                               :on-change    #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (find-option grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (find-choice grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
 
 
 (defn demo6
@@ -261,32 +261,32 @@
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
-                               :options   countries
+                               :choices   countries
                                :model     selected-country-id
                                :width     "300px"
-                               :on-select #(do
+                               :on-change #(do
                                             (reset! selected-country-id %)
-                                            (reset! filtered-cities (filter-options-by-keyword cities :country-id @selected-country-id))
+                                            (reset! filtered-cities (filter-choices-by-keyword cities :country-id @selected-country-id))
                                             (reset! selected-city-id nil))]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (find-option countries @selected-country-id)) " [" @selected-country-id "]"))]]]
+                                 (str (:label (find-choice countries @selected-country-id)) " [" @selected-country-id "]"))]]]
                   [gap :size "10px"]
                   [h-box
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
-                               :options   filtered-cities
+                               :choices   filtered-cities
                                :model     selected-city-id
                                :width     "300px"
-                               :on-select #(reset! selected-city-id %)]
+                               :on-change #(reset! selected-city-id %)]
                               [:div
                                [:strong "Selected city: "]
                                (if (nil? @selected-city-id)
                                  "None"
-                                 (str (:label (find-option cities @selected-city-id)) " [" @selected-city-id "]"))]]]]])))
+                                 (str (:label (find-choice cities @selected-city-id)) " [" @selected-city-id "]"))]]]]])))
 
 
 (defn notes
@@ -297,9 +297,9 @@
               [:ul
                [:li "To create a dropdown component, the following parameters are required:"
                 [:ul
-                 [:li.spacer [:code ":options"] " - a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."]
-                 [:li.spacer [:code ":model"] " - the :id of the initially selected option, or nil to have no initial selection (in which case, :placeholder will be shown)."]
-                 [:li.spacer [:code ":on-select"] " - a callback function taking one parameter which will be the :id of the new selection."]]]
+                 [:li.spacer [:code ":choices"] " - a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."]
+                 [:li.spacer [:code ":model"] " - the :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown)."]
+                 [:li.spacer [:code ":on-change"] " - a callback function taking one parameter which will be the :id of the new selection."]]]
                [:li "The rest of the parameters are optional:"
                 [:ul
                  [:li.spacer [:code ":disabled"] " - a boolean indicating whether the control should be disabled. false if not specified."]
@@ -329,10 +329,10 @@
                                             :align    :center
                                             :children [[label :label "Select a demo"]
                                                        [single-dropdown
-                                                        :options   demos
+                                                        :choices   demos
                                                         :model     selected-demo-id
                                                         :width     "300px"
-                                                        :on-select #(reset! selected-demo-id %)]]]
+                                                        :on-change #(reset! selected-demo-id %)]]]
                                            [gap :size "0px"] ;; Force a bit more space here
                                            (case @selected-demo-id
                                              1 [demo1]
