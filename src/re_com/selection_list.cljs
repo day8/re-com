@@ -1,4 +1,4 @@
-(ns re-com.list
+(ns re-com.selection-list
   (:require-macros [clairvoyant.core :refer [trace-forms]])
   (:require
     [clairvoyant.core     :refer [default-tracer]]
@@ -97,7 +97,7 @@
          (fmap deref-or-value attributes)))
 
 
-(def core-api
+(def selection-list-args
   #{:model         ; set of selected elements (atom supported).
     :choices       ; list of elements to be selected (atom supported).
     :multi-select  ; boolean (when true, items use check boxes otherwise radio buttons)
@@ -112,10 +112,10 @@
     :max-height    ; optional CSS style value e.g. "150px" Height will shrink/grow based on elements up to this, then scroll
     })
 
-(defn inline-list
+(defn selection-list
   "Produce a list box with items arranged vertically"
   [& {:as args}]
-  {:pre [(superset? core-api (keys args))]}
+  {:pre [(superset? selection-list-args (keys args))]}
   ;;NOTE: Consumer has complete control over what is selected or not. A current design tradeoff
   ;;      causes all selection changes to trigger a complete list re-render as a result of on-change callback.
   ;;      this approach may be not ideal for very large list choices.

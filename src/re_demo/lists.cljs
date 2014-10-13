@@ -1,11 +1,11 @@
 (ns re-demo.lists
-  (:require [reagent.core         :as     r]
-            [re-demo.util         :refer  [title]]
-            [re-com.core          :refer  [label checkbox]]
-            [re-com.box           :refer  [h-box v-box box gap line border]]
-            [re-com.dropdown      :refer  [single-dropdown]]
-            [re-com.list          :refer  [inline-list]]
-            [re-com.util          :refer  [golden-ratio-a golden-ratio-b]]))
+  (:require [reagent.core          :as     r]
+            [re-demo.util          :refer  [title]]
+            [re-com.core           :refer  [label checkbox]]
+            [re-com.box            :refer  [h-box v-box box gap line border]]
+            [re-com.dropdown       :refer  [single-dropdown]]
+            [re-com.selection-list :refer  [selection-list]]
+            [re-com.util           :refer  [golden-ratio-a golden-ratio-b]]))
 
 
 (defn- parameters-with
@@ -64,7 +64,7 @@
                [v-box
                 :gap      "20px"
                 :align    :start
-                :children [[inline-list
+                :children [[selection-list
                             :width         "391px"      ;; manual hack for width of variation panel A+B 1024px
                             :max-height    "95px"       ;; based on compact style @ 19px x 5 rows
                             :model         selections
