@@ -55,17 +55,27 @@
     :label       (label-fn item)]])
 
 
-(def list-style
+(def list-style ^:private
   ;;TODO: These should be in CSS resource
-  {:padding-left   "5px"
+  {:overflow-x     "hidden"
+   :overflow-y     "auto" ;;TODO this should be handled by scroller later
+   :-webkit-user-select "none"})
+
+(def spacing-bordered ^:private
+  {:padding-top         "0px"
+   :padding-bottom      "0px"
+   :padding-left        "5px"
+   :padding-right       "5px"
+   :margin-top          "5px"
+   :margin-bottom       "5px"})
+
+(def spacing-unbordered ^:private
+  {:padding-left   "0px"
    :padding-right  "5px"
    :padding-top    "0px"
    :padding-bottom "0px"
-   :margin-top     "5px"
-   :margin-bottom  "5px"
-   :overflow-x     "hidden"
-   :overflow-y     "auto" ;;TODO this should be handled by scroller later
-   :-webkit-user-select "none"})
+   :margin-top     "0px"
+   :margin-bottom  "0px"})
 
 
 ;;TODO hide hover highlights for links when disabled
@@ -76,13 +86,14 @@
                         #(as-checked % selected on-change disabled label-fn required as-exclusions)
                         #(as-radio   % selected on-change disabled label-fn required as-exclusions))
                       choices)
-        bounds   (select-keys args [:width :height :max-height])]
+        bounds   (select-keys args [:width :height :max-height])
+        spacing  (if hide-border spacing-unbordered spacing-bordered)]
     ;; In single select mode force selections to one. This causes a second render
     (when-not (= selected model) (on-change selected))
     [border
      :radius "4px"
      :border (when hide-border "none")
-     :child  (into [:div {:class "list-group" :style (merge list-style bounds)}] items)]))
+     :child  (into [:div {:class "list-group" :style (merge list-style bounds spacing)}] items)]))
 
 
 (defn- configure

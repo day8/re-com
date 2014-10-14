@@ -1,4 +1,4 @@
-(defproject re-com "0.1.5"
+(defproject re-com "0.1.6"
   :description  "Reusable UI components for Reagent"
 
   :url          "https://github.com/Day8/re-com.git"
