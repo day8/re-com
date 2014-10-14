@@ -4,14 +4,14 @@
 (ns re-com.datepicker
   (:require
     [clojure.set          :refer [superset?]]
+    [reagent.core         :as    reagent]
     [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month
                                   before? after?]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
-    [re-com.box           :refer [box border h-box]]
+    [re-com.box           :refer [border h-box]]
     [re-com.util          :refer [deref-or-value]]
-    [re-com.popover       :refer [popover make-button make-link]]
-    [reagent.core         :as    reagent]))
+    [re-com.popover       :refer [popover]]))
 
 ;; --- cljs-time facades ------------------------------------------------------
 ;; TODO: from day8date should be a common lib
