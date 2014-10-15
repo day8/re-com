@@ -1,8 +1,7 @@
 (ns re-demo.lists
   (:require [reagent.core          :as     r]
-            [re-demo.util          :refer  [title]]
             [re-com.core           :refer  [label checkbox]]
-            [re-com.box            :refer  [h-box v-box box gap line border]]
+            [re-com.box            :refer  [h-box v-box gap]]
             [re-com.dropdown       :refer  [single-dropdown]]
             [re-com.selection-list :refer  [selection-list]]
             [re-com.util           :refer  [golden-ratio-a golden-ratio-b]]))
@@ -13,32 +12,32 @@
   (fn []
     (let [check-style {:font-size "small" :margin-top "1px"}]
       [v-box
-       :gap "20px"
-       :align :start
+       :gap      "20px"
+       :align    :start
        :children [[label :style {:font-style "italic"} :label "boolean parameters:"]
                   [h-box
-                   :gap "15px"
-                   :align :start
+                   :gap      "15px"
+                   :align    :start
                    :children [[checkbox
-                               :label ":disabled"
+                               :label       ":disabled"
                                :label-style check-style
-                               :model disabled?
-                               :on-change #(reset! disabled? %)]
+                               :model       disabled?
+                               :on-change   #(reset! disabled? %)]
                               [checkbox
-                               :label ":multi-select"
+                               :label       ":multi-select"
                                :label-style check-style
-                               :model multi-select?
-                               :on-change #(reset! multi-select? %)]
+                               :model       multi-select?
+                               :on-change   #(reset! multi-select? %)]
                               [checkbox
-                               :label ":required"
+                               :label       ":required"
                                :label-style check-style
-                               :model required?
-                               :on-change #(reset! required? %)]
+                               :model       required?
+                               :on-change   #(reset! required? %)]
                               [checkbox
-                               :label ":as-exclusions"
+                               :label       ":as-exclusions"
                                :label-style check-style
-                               :model as-exclusions?
-                               :on-change #(reset! as-exclusions? %)]]]
+                               :model       as-exclusions?
+                               :on-change   #(reset! as-exclusions? %)]]]
                   content]])))
 
 
@@ -126,8 +125,7 @@
                  " - IFn to call on each element to get label string, default #(str %)"]]]]])
 
 
-(def variations [{:id "1" :label "Toggle single/multiple selection"}])
-
+(def variations ^:private [{:id "1" :label "Toggle single/multiple selection"}])
 
 (defn panel
   []
@@ -138,22 +136,22 @@
             a-width     (- (golden-ratio-a panel-width) h-gap)
             b-width     (golden-ratio-b panel-width)]
         [v-box
-       :width    (str panel-width "px")
-       :children [[:h3.page-header "Multiple & Single Selection List"]
-                  [h-box
-                   :gap      (str h-gap "px")
-                   :children [[notes selected-variation a-width]
-                              [v-box
-                               :gap "15px"
-                               :width (str b-width "px")
-                               :children  [[h-box
-                                            :align    :center
-                                            :justify  :between
-                                            :children [[label :label "Choose variation"]
-                                                       [single-dropdown
-                                                        :width     "auto"
-                                                        :choices   variations
-                                                        :model     selected-variation
-                                                        :on-change #(reset! selected-variation %)]]]
-                                           [gap :size "0px"] ;; Force a bit more space here
-                                           [show-variant @selected-variation]]]]]]]))))
+         :width    (str panel-width "px")
+         :children [[:h3.page-header "Multiple & Single Selection List"]
+                    [h-box
+                     :gap      (str h-gap "px")
+                     :children [[notes selected-variation a-width]
+                                [v-box
+                                 :gap       "15px"
+                                 :width     (str b-width "px")
+                                 :children  [[h-box
+                                              :align    :center
+                                              :justify  :between
+                                              :children [[label :label "Choose variation"]
+                                                         [single-dropdown
+                                                          :width     "auto"
+                                                          :choices   variations
+                                                          :model     selected-variation
+                                                          :on-change #(reset! selected-variation %)]]]
+                                             [gap :size "0px"] ;; Force a bit more space here
+                                             [show-variant @selected-variation]]]]]]]))))
