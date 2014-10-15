@@ -11,7 +11,7 @@
 ;; ----------------------------------------------------------------------------
 (defn label-style [selected? as-exclusions?]
   ;;TODO: margin-top required because currently checkbox & radio-button don't center label
-  (let [base-style {:margin-top "1px"}]
+  (let [base-style {:margin-top "1px" :width "100%"}]
     (if (and selected? as-exclusions?)
       (merge base-style {:text-decoration "line-through"})
       base-style)))
