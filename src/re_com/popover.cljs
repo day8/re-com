@@ -16,7 +16,7 @@
 
 
 (defn split-keyword
-  [kw delimiter] ;; TODO: Possibly move to util
+  [kw delimiter] ;; TODO: Move to util?
   "I return the vector of the two keywords formed by splitting
    another keyword 'kw' on an internal delimiter (usually '-').
    (split-keyword  :above-left  \"-\")
@@ -27,11 +27,11 @@
 
 (defn close-button
   [showing?]
-  "A button with a big X in it. Too right of the popup."
+  "A button with a big X in it, placed to the right of the popup."
   [button
    :label    "×"
    :on-click #(reset! showing? false)
-   :class    "close"                                    ;; TODO: we seems to have both a class and embedded CSS styles ??
+   :class    "close"
    :style    {:font-size "36px" :margin-top "-8px"}])
 
 

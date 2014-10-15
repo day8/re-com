@@ -6,32 +6,34 @@
             [re-com.popover  :refer [popover make-button make-link]]))
 
 
-(def show-this-popover? (reagent/atom false))
+(def show-popover?     (reagent/atom false))
+(def show-tooltip?     (reagent/atom false))
 (def initial-form-data (reagent/atom {}))
-(def form-data (reagent/atom {:checkbox1      false
-                              :checkbox2      true
-                              :checkbox3      false
-                              :radio-group    "2"}))
+(def form-data         (reagent/atom {:checkbox1      false
+                                      :checkbox2      true
+                                      :checkbox3      false
+                                      :radio-group    "2"}))
 
 
 (defn form-initialise
   []
   (reset! initial-form-data @form-data)
-  (reset! show-this-popover? true))
+  (reset! show-popover? true))
 
 
 (defn form-submit
   []
   (let [selected-file ""] ;; (aget (.-target event) "file")
     (swap! form-data assoc :file (.-value selected-file))
-    (reset! show-this-popover? false)
+    (reset! show-popover? false)
     false)) ;; Prevent default "GET" form submission to server
 
 
 (defn form-cancel
   []
   (reset! form-data @initial-form-data)
-  (reset! show-this-popover? false)
+  (reset! show-popover? false)
+  (reset! show-tooltip? false)
   false) ;; Returning false prevent default "GET" form submission to server in on-click event for forms
 
 
@@ -80,9 +82,18 @@
                            :label [:span [:span.glyphicon.glyphicon-ok] " Apply"]
                            :on-click form-submit
                            :class "btn-primary"]
-                          [button
-                           :label [:span [:span.glyphicon.glyphicon-remove] " Cancel"]
-                           :on-click form-cancel]]]]])
+                          [popover
+                           :position :right-below
+                           :showing? show-tooltip?
+                           :anchor   [:button
+                                      {:class    "btn"
+                                       :style    {:flex "none"}
+                                       :on-click form-cancel
+                                       :on-mouse-over #(reset! show-tooltip? true)
+                                       :on-mouse-out  #(reset! show-tooltip? false)}
+                                      [:span [:span.glyphicon.glyphicon-remove] " Cancel"]]
+                           :popover {:title "Tooltip"
+                                     :body  "You can even have a popover over a popover!"}]]]]])
 
 
 (defn popover-title
@@ -107,10 +118,10 @@
                          :backdrop-opacity  0.3}]
     [popover
      :position :below-center
-     :showing? show-this-popover?
+     :showing? show-popover?
      :anchor   [button
                 :label    "Popover Form"
-                :on-click #(if @show-this-popover?
+                :on-click #(if @show-popover?
                             (form-cancel)
                             (form-initialise))
                 :class    "btn btn-danger"]
