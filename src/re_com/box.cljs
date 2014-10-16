@@ -128,135 +128,137 @@
 
 
 ;; ------------------------------------------------------------------------------------
-;;  gap (debug colour: chocolate)
+;;  Private Component: box-base (debug colour: lightblue)
 ;; ------------------------------------------------------------------------------------
 
-(defn gap
-  [& {:keys [size width height]}]
-  "Returns markup which produces a gap between children in a v-box/h-box along the main axis.
-   Specify size in any sizing amount, usually px or % or perhaps em. Defaults to 20px."
-  (let [g-style (when size {:flex (str "0 0 " size)})
-        w-style (when width {:width width})
-        h-style (when height {:height height})
-        d-style (when debug {:background-color "chocolate"})
-        s       (merge g-style w-style h-style d-style)]
-    [:div {:class "rc-gap" :style s}]))
-
-
-;; ------------------------------------------------------------------------------------
-;;  line
-;; ------------------------------------------------------------------------------------
-
-(defn line
-  [& {:keys [size color]
-      :or {size "1px" color "lightgray"}}]
-  "Returns markup which produces a line between children in a v-box/h-box along the main axis.
-   Specify size in pixels and a stancard CSS colour. Defaults to a 1px red line."
-  (let [flex-child {:flex (str "0 0 " size)}
-        c-style    {:background-color color}
-        s          (merge flex-child c-style)]
-    [:div {:class "rc-line" :style s}]))
-
-
-;; ------------------------------------------------------------------------------------
-;;  h-box (debug colour: gold)
-;; ------------------------------------------------------------------------------------
-
-(defn h-box
-  [& {:keys [f-child size width height min-width min-height justify align margin padding gap children]
-      :or   {f-child true size "none" justify :start align :stretch}}]
-  "Returns markup which produces a horizontal box.
-   It's primary role is to act as a container for child components and lays it's children from left to right.
-   By default, it also acts as a child under it's parent."
-  (let [flex-container {:display "flex" :flex-flow "row nowrap"}
-        flex-child     (when f-child (flex-child-style size))
-        w-style        (if width {:width width})
-        h-style        (when height {:height height})
-        mw-style       (when min-width {:min-width min-width})
-        mh-style       (when min-height {:min-height min-height})
-        j-style        (justify-style justify)
-        a-style        (align-style :align-items align)
-        m-style        (when margin {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
-        p-style        (when padding {:padding padding})
-        d-style        (when debug {:background-color "gold"})
-        s              (merge flex-container flex-child w-style h-style mw-style mh-style j-style a-style m-style p-style d-style)
-        gap-form       (when gap [re-com.box/gap :size gap :width gap])
-        children       (if gap
-                         (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
-                         children)]
-    (into [:div {:class "rc-h-box" :style s}] children)))
-
-
-;; ------------------------------------------------------------------------------------
-;;  v-box (debug colour: antiquewhite)
-;; ------------------------------------------------------------------------------------
-
-(defn v-box
-  [& {:keys [f-child size width height min-width min-height justify align margin padding gap children]
-      :or   {f-child true size "none" justify :start align :stretch}}]
-  "Returns markup which produces a vertical box.
-   It's primary role is to act as a container for child components and lays it's children from top to bottom.
-   By default, it also acts as a child under it's parent."
-  (let [flex-container {:display "flex" :flex-flow "column nowrap"}
-        flex-child     (when f-child    (flex-child-style size))
-        w-style        (when width      {:width width})
-        h-style        (if height
-                         {:height height}
-                         {:height "inherit"})
-        mw-style       (when min-width  {:min-width min-width})
-        mh-style       (when min-height {:min-height min-height})
-        j-style        (justify-style justify)
-        a-style        (align-style :align-items align)
-        m-style        (when margin     {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
-        p-style        (when padding    {:padding padding})
-        d-style        (when debug      {:background-color "antiquewhite"})
-        s              (merge flex-container flex-child w-style h-style mw-style mh-style j-style a-style m-style p-style d-style)
-        gap-form       (when gap [re-com.box/gap :size gap :height gap])
-        children       (if gap
-                         (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
-                         children)]
-    (into [:div {:class "rc-v-box" :style s}] children)))
-
-
-;; ------------------------------------------------------------------------------------
-;;  box-base (debug colour: lightblue)
-;; ------------------------------------------------------------------------------------
-
-(defn box-base
+(defn- box-base
   [& {:keys [class f-child f-container size scroll h-scroll v-scroll width height min-width min-height justify align align-self
              margin padding border l-border r-border t-border b-border radius bk-color child style]}]
   "This should generally NOT be used as it is the basis for the box, scroller and border components."
-  (let [flex-child     (when f-child     (flex-child-style size))
-        flex-container (when f-container {:display "flex" :flex-flow "inherit"})
-        s-style        (when scroll      (scroll-style :overflow scroll))
-        sh-style       (when h-scroll    (scroll-style :overflow-x h-scroll))
-        sv-style       (when v-scroll    (scroll-style :overflow-y v-scroll))
-        w-style        (when width       {:width width})
-        h-style        (when height      {:height height})
-        mw-style       (when min-width   {:min-width min-width})
-        mh-style       (when min-height  {:min-height min-height})
-        j-style        (when (and f-container justify) (justify-style justify))
-        a-style        (when (and f-container align) (align-style :align-items align))
-        as-style       (when align-self  (align-style :align-self align-self))
-        m-style        (when margin      {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
-        p-style        (when padding     {:padding padding})
-        b-style        (when border      {:border        border})
-        bl-style       (when l-border    {:border-left   l-border})
-        br-style       (when r-border    {:border-right  r-border})
-        bt-style       (when t-border    {:border-top    t-border})
-        bb-style       (when b-border    {:border-bottom b-border})
-        r-style        (when radius      {:border-radius   radius})
-        c-style        (if bk-color
-                         {:background-color bk-color}
-                         (if debug {:background-color "lightblue"} {}))
-        s              (merge flex-child flex-container s-style sh-style sv-style w-style h-style mw-style mh-style j-style a-style as-style
-                              m-style p-style b-style bl-style br-style bt-style bb-style r-style c-style style)]
+  (let [s (merge
+            (when f-child     (flex-child-style size))
+            (when f-container {:display "flex" :flex-flow "inherit"})
+            (when scroll      (scroll-style :overflow scroll))
+            (when h-scroll    (scroll-style :overflow-x h-scroll))
+            (when v-scroll    (scroll-style :overflow-y v-scroll))
+            (when width       {:width width})
+            (when height      {:height height})
+            (when min-width   {:min-width min-width})
+            (when min-height  {:min-height min-height})
+            (when (and f-container justify) (justify-style justify))
+            (when (and f-container align) (align-style :align-items align))
+            (when align-self  (align-style :align-self align-self))
+            (when margin      {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
+            (when padding     {:padding padding})
+            (when border      {:border        border})
+            (when l-border    {:border-left   l-border})
+            (when r-border    {:border-right  r-border})
+            (when t-border    {:border-top    t-border})
+            (when b-border    {:border-bottom b-border})
+            (when radius      {:border-radius   radius})
+            (if bk-color
+              {:background-color bk-color}
+              (if debug {:background-color "lightblue"} {}))
+            style)]
     [:div {:class class :style s}
      child]))
 
 
 ;; ------------------------------------------------------------------------------------
-;;  box
+;;  Component: gap (debug colour: chocolate)
+;; ------------------------------------------------------------------------------------
+
+(defn gap
+  [& {:keys [size width height style]}]
+  "Returns markup which produces a gap between children in a v-box/h-box along the main axis.
+   Specify size in any sizing amount, usually px or % or perhaps em. Defaults to 20px."
+  (let [s (merge
+            (when size {:flex (str "0 0 " size)})
+            (when width {:width width})
+            (when height {:height height})
+            (when debug {:background-color "chocolate"})
+            style)]
+    [:div {:class "rc-gap" :style s}]))
+
+
+;; ------------------------------------------------------------------------------------
+;;  Component: line
+;; ------------------------------------------------------------------------------------
+
+(defn line
+  [& {:keys [size color style]
+      :or {size "1px" color "lightgray"}}]
+  "Returns markup which produces a line between children in a v-box/h-box along the main axis.
+   Specify size in pixels and a stancard CSS colour. Defaults to a 1px red line."
+  (let [s (merge
+            {:flex (str "0 0 " size)}
+            {:background-color color}
+            style)]
+    [:div {:class "rc-line" :style s}]))
+
+
+;; ------------------------------------------------------------------------------------
+;;  Component: h-box (debug colour: gold)
+;; ------------------------------------------------------------------------------------
+
+(defn h-box
+  [& {:keys [f-child size width height min-width min-height justify align margin padding gap children style]
+      :or   {f-child true size "none" justify :start align :stretch}}]
+  "Returns markup which produces a horizontal box.
+   It's primary role is to act as a container for child components and lays it's children from left to right.
+   By default, it also acts as a child under it's parent."
+  (let [s        (merge
+                   {:display "flex" :flex-flow "row nowrap"}
+                   (when f-child (flex-child-style size))
+                   (if width {:width width})
+                   (when height {:height height})
+                   (when min-width {:min-width min-width})
+                   (when min-height {:min-height min-height})
+                   (justify-style justify)
+                   (align-style :align-items align)
+                   (when margin {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
+                   (when padding {:padding padding})
+                   (when debug {:background-color "gold"})
+                   style)
+        gap-form (when gap [re-com.box/gap :size gap :width gap])
+        children (if gap
+                   (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
+                   children)]
+    (into [:div {:class "rc-h-box" :style s}] children)))
+
+
+;; ------------------------------------------------------------------------------------
+;;  Component: v-box (debug colour: antiquewhite)
+;; ------------------------------------------------------------------------------------
+
+(defn v-box
+  [& {:keys [f-child size width height min-width min-height justify align margin padding gap children style]
+      :or   {f-child true size "none" justify :start align :stretch}}]
+  "Returns markup which produces a vertical box.
+   It's primary role is to act as a container for child components and lays it's children from top to bottom.
+   By default, it also acts as a child under it's parent."
+  (let [s        (merge
+                   {:display "flex" :flex-flow "column nowrap"}
+                   (when f-child    (flex-child-style size))
+                   (when width      {:width width})
+                   {:height (if height height "inherit")}
+                   (when min-width  {:min-width min-width})
+                   (when min-height {:min-height min-height})
+                   (justify-style justify)
+                   (align-style :align-items align)
+                   (when margin     {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
+                   (when padding    {:padding padding})
+                   (when debug      {:background-color "antiquewhite"})
+                   style)
+        gap-form (when gap [re-com.box/gap :size gap :height gap])
+        children (if gap
+                   (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
+                   children)]
+    (into [:div {:class "rc-v-box" :style s}] children)))
+
+
+;; ------------------------------------------------------------------------------------
+;;  Component: box
 ;; ------------------------------------------------------------------------------------
 
 (defn box
@@ -292,7 +294,7 @@
 
 
 ;; ------------------------------------------------------------------------------------
-;;  scroller
+;;  Component: scroller
 ;; ------------------------------------------------------------------------------------
 
 (defn scroller
@@ -338,7 +340,7 @@
 
 
 ;; ------------------------------------------------------------------------------------
-;;  border
+;;  Component: border
 ;; ------------------------------------------------------------------------------------
 
 (defn border
@@ -350,7 +352,7 @@
     - border-width: thin, medium, thick or standard CSS size (e.g. 2px, 0.5em)
     - border-style: none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset
     - color:        standard CSS color (e.g. grey #88ffee)"
-  (let [no-border (every? nil? [border l-border r-border t-border b-border])
+  (let [no-border      (every? nil? [border l-border r-border t-border b-border])
         default-border "1px solid lightgrey"]
     (box-base :class "rc-border"
               :f-child     true
