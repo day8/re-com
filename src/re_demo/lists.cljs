@@ -1,17 +1,17 @@
 (ns re-demo.lists
   (:require [reagent.core          :as     r]
             [re-com.core           :refer  [label checkbox]]
-            [re-com.box            :refer  [h-box v-box gap]]
-            [re-com.dropdown       :refer  [single-dropdown]]
+            [re-com.box            :refer  [h-box v-box]]
             [re-com.selection-list :refer  [selection-list]]
             [re-com.util           :refer  [golden-ratio-a golden-ratio-b]]))
 
 
-(defn- parameters-with
-  [content multi-select? disabled? required? as-exclusions?]
+(defn- options-with
+  [width content multi-select? disabled? required? as-exclusions?]
   (fn []
     (let [check-style {:font-size "small" :margin-top "1px"}]
       [v-box
+       :width (str width "px")
        :gap      "20px"
        :align    :start
        :children [[label :style {:font-style "italic"} :label "boolean parameters:"]
@@ -42,8 +42,8 @@
 
 
 
-(defn- show-variant
-  [variation]
+(defn- list-with-options
+  [width]
   (let [disabled?     (r/atom false)
         multi-select? (r/atom true)
         required?     (r/atom true)
@@ -56,32 +56,28 @@
                                {:id "6" :label "6 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 6"}
                                {:id "7" :label "7 Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit" :short "Short label 7"}])
         selections    (r/atom (set [(second @items)]))]
-    (case variation
-      "1" [(fn
-             []
-             [parameters-with
-               [v-box
-                :gap      "20px"
-                :align    :start
-                :children [[selection-list
-                            :width         "391px"      ;; manual hack for width of variation panel A+B 1024px
-                            :max-height    "95px"       ;; based on compact style @ 19px x 5 rows
-                            :model         selections
-                            :choices       items
-                            :label-fn      :label
-                            :as-exclusions as-exlcusion?
-                            :multi-select  multi-select?
-                            :disabled      disabled?
-                            :required      required?
-                            :on-change     #(do (println %) (reset! selections %))]]]
-               multi-select?
-               disabled?
-               required?
-               as-exlcusion?])])))
+    [options-with
+     width
+     [v-box ;; TODO: v-box required to constrain height of internal border.
+      :children [[selection-list
+                  :width         "391px"      ;; manual hack for width of variation panel A+B 1024px
+                  :max-height    "95px"       ;; based on compact style @ 19px x 5 rows
+                  :model         selections
+                  :choices       items
+                  :label-fn      :label
+                  :as-exclusions as-exlcusion?
+                  :multi-select  multi-select?
+                  :disabled      disabled?
+                  :required      required?
+                  :on-change     #(do (println %) (reset! selections %))]]]
+     multi-select?
+     disabled?
+     required?
+     as-exlcusion?]))
 
 
 (defn- notes
-  [_ width]
+  [width]
   [v-box
    :width (str width "px")
    :children [[:div.h4 "Parameters:"]
@@ -125,33 +121,16 @@
                  " - IFn to call on each element to get label string, default #(str %)"]]]]])
 
 
-(def variations ^:private [{:id "1" :label "Toggle single/multiple selection"}])
-
 (defn panel
   []
-  (let [selected-variation (r/atom "1")]
-    (fn []
-      (let [panel-width 1024
-            h-gap         70
-            a-width     (- (golden-ratio-a panel-width) h-gap)
-            b-width     (golden-ratio-b panel-width)]
-        [v-box
-         :width    (str panel-width "px")
-         :children [[:h3.page-header "Multiple & Single Selection List"]
-                    [h-box
-                     :gap      (str h-gap "px")
-                     :children [[notes selected-variation a-width]
-                                [v-box
-                                 :gap       "15px"
-                                 :width     (str b-width "px")
-                                 :children  [[h-box
-                                              :align    :center
-                                              :justify  :between
-                                              :children [[label :label "Choose variation"]
-                                                         [single-dropdown
-                                                          :width     "auto"
-                                                          :choices   variations
-                                                          :model     selected-variation
-                                                          :on-change #(reset! selected-variation %)]]]
-                                             [gap :size "0px"] ;; Force a bit more space here
-                                             [show-variant @selected-variation]]]]]]]))))
+  (let [panel-width 1024
+        h-gap       70
+        a-width     (- (golden-ratio-a panel-width) h-gap)
+        b-width     (golden-ratio-b panel-width)]
+    [v-box
+     :width    (str panel-width "px")
+     :children [[:h3.page-header "Multiple & Single Selection List"]
+                [h-box
+                 :gap      (str h-gap "px")
+                 :children [[notes a-width]
+                            [list-with-options b-width]]]]]))
