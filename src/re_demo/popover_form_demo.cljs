@@ -6,35 +6,31 @@
             [re-com.popover  :refer [popover make-button make-link]]))
 
 
-(def show-popover?     (reagent/atom false))
-(def show-tooltip?     (reagent/atom false))
-(def initial-form-data (reagent/atom {}))
-(def form-data         (reagent/atom {:checkbox1      false
-                                      :checkbox2      true
-                                      :checkbox3      false
-                                      :radio-group    "2"}))
-
-
-(defn form-initialise
-  []
-  (reset! initial-form-data @form-data)
-  (reset! show-popover? true))
-
-
-(defn form-submit
-  []
-  (let [selected-file ""] ;; (aget (.-target event) "file")
-    (swap! form-data assoc :file (.-value selected-file))
-    (reset! show-popover? false)
-    false)) ;; Prevent default "GET" form submission to server
-
-
-(defn form-cancel
-  []
-  (reset! form-data @initial-form-data)
-  (reset! show-popover? false)
-  (reset! show-tooltip? false)
-  false) ;; Returning false prevent default "GET" form submission to server in on-click event for forms
+;(def show-popover?     (reagent/atom false))
+;(def show-tooltip?     (reagent/atom false))
+;(def initial-form-data (reagent/atom {}))
+;(def form-data         (reagent/atom {:checkbox1      false
+;                                      :checkbox2      true
+;                                      :checkbox3      false
+;                                      :radio-group    "2"}))
+;
+;
+;(defn form-initialise
+;  []
+;  (reset! initial-form-data @form-data)
+;  (reset! show-popover? true))
+;
+;
+;(defn form-submit
+;  []
+;  (reset! show-popover? false))
+;
+;
+;(defn form-cancel
+;  []
+;  (reset! form-data @initial-form-data)
+;  (reset! show-popover? false)
+;  (reset! show-tooltip? false))
 
 
 (defn popover-form
@@ -106,23 +102,55 @@
     :style {:font-size "36px" :margin-top "-8px"}]])
 
 
-(defn show
+(defn popover-form-demo
   []
-  (let [popover-content {:width             500
-                         :title             [popover-title]
-                         :close-button?     false            ;; We have to add our own close button because it does more than simply close the popover
-                         :body              [popover-form]}
-        popover-options {:arrow-length      15
-                         :arrow-width       10
-                         :backdrop-callback form-cancel
-                         :backdrop-opacity  0.3}]
+  (let [popover-form-showing? (reagent/atom false)
+
+        ;; NEW STUFF START
+
+        show-tooltip2?        (reagent/atom false)
+        initial-form-data2    (reagent/atom {})
+        form-data2            (reagent/atom {:checkbox1      false
+                                             :checkbox2      true
+                                             :checkbox3      false
+                                             :radio-group    "2"})
+        form-initialise2      (fn []
+                                (reset! initial-form-data2 @form-data2)
+                                (reset! popover-form-showing? true))
+
+        form-submit2          (fn []
+                                (reset! popover-form-showing? false))
+        form-cancel2          (fn []
+                                (reset! form-data2 @initial-form-data2)
+                                (reset! popover-form-showing? false)
+                                (reset! show-tooltip2? false))
+
+        ;; NEW STUFF END
+
+        popover-content       {:width             500
+                               :title             [popover-title]
+                               :close-button?     false            ;; We have to add our own close button because it does more than simply close the popover
+                               :body              [popover-form]}
+        popover-options       {:arrow-length      15
+                               :arrow-width       10
+
+                               :backdrop-callback form-cancel
+                               ;; ADD...
+                               :close-callback    form-cancel
+                               :cancel-callback   form-cancel ;; This would be specific for forms in popovers
+                               :submit-callback   form-submit ;; This would be specific for forms in popovers
+
+                               ;; OR REPLACE ALL WITH...
+                               ;:submit-callback   form-submit
+                               ;:cancel-callback   form-cancel
+
+                               :backdrop-opacity  0.3}]
     [popover
      :position :below-center
-     :showing? show-popover?
+     :showing? popover-form-showing?
      :anchor   [button
                 :label    "Popover Form"
-                :on-click #(if @show-popover?
-                            (form-cancel)
+                :on-click #(if-not @popover-form-showing?
                             (form-initialise))
                 :class    "btn btn-danger"]
      :popover  popover-content

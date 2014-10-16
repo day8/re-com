@@ -189,15 +189,15 @@
         backdrop-callback       (:backdrop-callback popover-params)
         backdrop-opacity        (:backdrop-opacity popover-params)]
 
-    [:div {:style {:display "inline-block"}}
+    [:div {:style {:display "inline-flex"}}
      (when (and @showing? backdrop-callback)
-       [:div {:style    {:position "fixed"
-                         :left "0px"
-                         :top "0px"
-                         :width "100%"
-                         :height "100%"
+       [:div {:style    {:position         "fixed"
+                         :left             "0px"
+                         :top              "0px"
+                         :width            "100%"
+                         :height           "100%"
                          :background-color "black"
-                         :opacity backdrop-opacity}
+                         :opacity          backdrop-opacity}
               :on-click backdrop-callback}])
      [:div {:style {:display "inline-flex" :flex-flow flex-flow :align-items "center"}}
       (when place-anchor-before? anchor)

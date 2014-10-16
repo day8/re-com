@@ -9,7 +9,7 @@
 
 (defn simple-popover-demo
   []
-  (let [popover-showing?       (reagent/atom false)]
+  (let [popover-showing? (reagent/atom false)]
     (fn []
       [v-box
        :children [[title "Button Popover"]
@@ -39,8 +39,7 @@
                                                       :body     "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}
                                            ;:options  {:arrow-length 30}
                                            ]
-                                          [popover-form-demo/show]
-                                          ]]]]]])))
+                                          [popover-form-demo/popover-form-demo]]]]]]])))
 
 
 
