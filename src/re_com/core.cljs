@@ -51,7 +51,7 @@
                 See: http://getbootstrap.com/css/#buttons"
   [:button
    {:class    (str "btn " class)
-    :style    (merge {:flex "none"} style)
+    :style    (merge {:flex "none" :align-self "flex-start"} style)
     :on-click on-click}
    label])
 
@@ -117,7 +117,7 @@
   "Render an animated gif spinner"
   [:div {:style {:display "flex"
                  :margin "10px"}}
-   [:img {:src "img/spinner.gif"
+   [:img {:src "resources/img/spinner.gif"
           :style {:margin "auto"}}]])
 
 
