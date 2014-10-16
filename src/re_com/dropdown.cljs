@@ -275,9 +275,10 @@
                                  35 (press-end)
                                  filter-box))] ;; Use this boolean to allow/prevent the key from being processed by the text box
         [:div
-         {:class (str "chosen-container chosen-container-single" (when @drop-showing? " chosen-container-active chosen-with-drop"))
-          :style {:flex  (if width "0 0 auto" "auto")
-                  :width (when width width)
+         {:class (str "rc-dropdown chosen-container chosen-container-single" (when @drop-showing? " chosen-container-active chosen-with-drop"))
+          :style {:flex       (if width "0 0 auto" "auto")
+                  :align-self "flex-start"
+                  :width      (when width width)
                   :-webkit-user-select "none"}} ;; Prevent user text selection
          [dropdown-top tmp-model choices tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
          (when (and @drop-showing? (not disabled))
