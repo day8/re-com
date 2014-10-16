@@ -80,45 +80,50 @@
   [width]
   [v-box
    :width (str width "px")
-   :children [[:div.h4 "Parameters:"]
-              [:div {:style {:font-size "small"}}
-               [:label {:style {:font-variant "small-caps"}} "general"]
-               [:div {:style {:padding-left "10px"}}
-                 [:p "All parameters are passed as named arguments using keyword value pairs in the component vector e.g."]
-                 [:pre {:style {:font-size "smaller"}} [:code "[inline-list :choices [\"pick 1\" \"pick 2\"] :model #{\"pick 2\"} :required false]"]]
-                 [:p "Any parameter can optionally be a reagent atom and will be derefed."]]
-               [:label {:style {:font-variant "small-caps"}} "required"]
-               [:div {:style {:padding-left "10px"}}
-                [:p [:code ":choices"]
-                 (str " - list of selectable items. Elements can be strings or "
-                      " more interesting data items like {:label \"some name\" :sort 5}"
-                      " can be used. Also see :label-fn bellow.")]
-                [:p [:code ":model"]
-                  " - set of currently selected items. Note: items are considered distinct."]
-                 [:p [:code ":on-change"]
-                  " - callback will be passed set of selected items"]]
-               [:label {:style {:font-variant "small-caps"}} "optional"]
-               [:div {:style {:padding-left "10px"}}
-                [:p [:code ":multi-select"]
-                 " - boolean. When true, items use check boxes otherwise radio buttons. (default: true)"]
-                [:p [:code ":as-exclusions"]
-                 " - boolean. When true, selected items are shown with struck-out labels. (default: false)"]
-                [:p [:code ":required"]
-                 (str " - boolean. When true, at least one item must be selected. (default: false) "
-                      "Note: being able to un-select a radio button is not a common use case,"
-                      " so this should probably be set to true when in single select mode.")]
-                [:p [:code ":width"]
-                 " - CSS style value e.g. \"250px\" Fixed, when specified item labels will be clipped. Otherwise based on widest label."]
-                [:p [:code ":height"]
-                 " - CSS style value e.g. \"150px\" Fixed, beyond which items will scroll."]
-                [:p [:code ":max-height"]
-                 " - CSS style value e.g. \"150px\" Variable, beyond which items will scroll. If there are less items then this height, box will shrink."]
-                [:p [:code ":disabled"]
-                 " - boolean. When true, scrolling is allowed but selection is disabled. (default: false)"]
-                [:p [:code ":hide-border"]
-                 " - boolean. (default: false)"]
-                [:p [:code ":label-fn"]
-                 " - IFn to call on each element to get label string, default #(str %)"]]]]])
+   :children [[:h4 "Parameters:"]
+              [v-box
+               :style {:font-size "small"}
+               :children [
+                           [label     :style {:font-variant "small-caps"} :label "general"]
+                           [v-box
+                            :style    {:padding-left "10px"}
+                            :children [[:p "All parameters are passed as named arguments using keyword value pairs in the component vector e.g."]
+                                       [:pre {:style {:font-size "smaller"}} [:code "[inline-list :choices [\"pick 1\" \"pick 2\"] :model #{\"pick 2\"} :required false]"]]
+                                       [:p "Any parameter can optionally be a reagent atom and will be derefed."]]]
+                           [label     :style {:font-variant "small-caps"} :label "required"]
+                           [v-box
+                            :style    {:padding-left "10px"}
+                            :children [[:p [:code ":choices"]
+                                        (str " - list of selectable items. Elements can be strings or "
+                                             " more interesting data items like {:label \"some name\" :sort 5}"
+                                             " can be used. Also see :label-fn bellow.")]
+                                       [:p [:code ":model"]
+                                        " - set of currently selected items. Note: items are considered distinct."]
+                                       [:p [:code ":on-change"]
+                                        " - callback will be passed set of selected items"]]]
+                           [label     :style {:font-variant "small-caps"} :label "optional"]
+                           [v-box
+                            :style    {:padding-left "10px"}
+                            :children [[:p [:code ":multi-select"]
+                                        " - boolean. When true, items use check boxes otherwise radio buttons. (default: true)"]
+                                       [:p [:code ":as-exclusions"]
+                                        " - boolean. When true, selected items are shown with struck-out labels. (default: false)"]
+                                       [:p [:code ":required"]
+                                        (str " - boolean. When true, at least one item must be selected. (default: false) "
+                                             "Note: being able to un-select a radio button is not a common use case,"
+                                             " so this should probably be set to true when in single select mode.")]
+                                       [:p [:code ":width"]
+                                        " - CSS style value e.g. \"250px\" Fixed, when specified item labels will be clipped. Otherwise based on widest label."]
+                                       [:p [:code ":height"]
+                                        " - CSS style value e.g. \"150px\" Fixed, beyond which items will scroll."]
+                                       [:p [:code ":max-height"]
+                                        " - CSS style value e.g. \"150px\" Variable, beyond which items will scroll. If there are less items then this height, box will shrink."]
+                                       [:p [:code ":disabled"]
+                                        " - boolean. When true, scrolling is allowed but selection is disabled. (default: false)"]
+                                       [:p [:code ":hide-border"]
+                                        " - boolean. (default: false)"]
+                                       [:p [:code ":label-fn"]
+                                        " - IFn to call on each element to get label string, default #(str %)"]]]]]]])
 
 
 (defn panel
