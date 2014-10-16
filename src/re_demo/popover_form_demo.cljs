@@ -33,8 +33,8 @@
 ;  (reset! show-tooltip? false))
 
 
-(defn popover-form
-  []
+(defn popover-body
+  [form-data form-submit form-cancel show-tooltip?]
   [v-box
    :children [[:h4 "Checkboxes and Radio buttons"]
               [h-box
@@ -93,7 +93,7 @@
 
 
 (defn popover-title
-  []
+  [form-cancel]
   [:div "Arbitrary " [:strong "markup "] [:span {:style {:color "red"}} "title"]
    [button
     :label "×"
@@ -106,43 +106,43 @@
   []
   (let [popover-form-showing? (reagent/atom false)
 
-        ;; NEW STUFF START
+        ;; ========================= NEW STUFF START
 
-        show-tooltip2?        (reagent/atom false)
-        initial-form-data2    (reagent/atom {})
-        form-data2            (reagent/atom {:checkbox1      false
+        show-tooltip?         (reagent/atom false)
+        initial-form-data     (reagent/atom {})
+        form-data             (reagent/atom {:checkbox1      false
                                              :checkbox2      true
                                              :checkbox3      false
                                              :radio-group    "2"})
-        form-initialise2      (fn []
-                                (reset! initial-form-data2 @form-data2)
+        form-initialise       (fn []
+                                (reset! initial-form-data @form-data)
                                 (reset! popover-form-showing? true))
 
-        form-submit2          (fn []
+        form-submit           (fn []
                                 (reset! popover-form-showing? false))
-        form-cancel2          (fn []
-                                (reset! form-data2 @initial-form-data2)
+        form-cancel           (fn []
+                                (reset! form-data @initial-form-data)
                                 (reset! popover-form-showing? false)
-                                (reset! show-tooltip2? false))
+                                (reset! show-tooltip? false))
 
-        ;; NEW STUFF END
+        ;; ========================= NEW STUFF END
 
         popover-content       {:width             500
-                               :title             [popover-title]
+                               :title             [popover-title form-cancel]
                                :close-button?     false            ;; We have to add our own close button because it does more than simply close the popover
-                               :body              [popover-form]}
+                               :body              [popover-body form-data form-submit form-cancel show-tooltip?]}
         popover-options       {:arrow-length      15
                                :arrow-width       10
 
                                :backdrop-callback form-cancel
                                ;; ADD...
-                               :close-callback    form-cancel
-                               :cancel-callback   form-cancel ;; This would be specific for forms in popovers
-                               :submit-callback   form-submit ;; This would be specific for forms in popovers
+                               ;:close-callback    form--cancel
+                               ;:cancel-callback   form--cancel ;; This would be specific for forms in popovers
+                               ;:submit-callback   form-submit ;; This would be specific for forms in popovers
 
                                ;; OR REPLACE ALL WITH...
                                ;:submit-callback   form-submit
-                               ;:cancel-callback   form-cancel
+                               ;:cancel-callback   form--cancel
 
                                :backdrop-opacity  0.3}]
     [popover
