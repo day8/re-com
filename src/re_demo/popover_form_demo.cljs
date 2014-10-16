@@ -6,33 +6,6 @@
             [re-com.popover  :refer [popover make-button make-link]]))
 
 
-;(def show-popover?     (reagent/atom false))
-;(def show-tooltip?     (reagent/atom false))
-;(def initial-form-data (reagent/atom {}))
-;(def form-data         (reagent/atom {:checkbox1      false
-;                                      :checkbox2      true
-;                                      :checkbox3      false
-;                                      :radio-group    "2"}))
-;
-;
-;(defn form-initialise
-;  []
-;  (reset! initial-form-data @form-data)
-;  (reset! show-popover? true))
-;
-;
-;(defn form-submit
-;  []
-;  (reset! show-popover? false))
-;
-;
-;(defn form-cancel
-;  []
-;  (reset! form-data @initial-form-data)
-;  (reset! show-popover? false)
-;  (reset! show-tooltip? false))
-
-
 (defn popover-body
   [form-data form-submit form-cancel show-tooltip?]
   [v-box
@@ -81,69 +54,43 @@
                           [popover
                            :position :right-below
                            :showing? show-tooltip?
-                           :anchor   [:button
-                                      {:class    "btn"
-                                       :style    {:flex "none"}
-                                       :on-click form-cancel
+                           :anchor   [:button         ;; Standard [button] can't handle mousr-over/out
+                                      {:class         "btn"
+                                       :style         {:flex "none"}
+                                       :on-click      form-cancel
                                        :on-mouse-over #(reset! show-tooltip? true)
                                        :on-mouse-out  #(reset! show-tooltip? false)}
                                       [:span [:span.glyphicon.glyphicon-remove] " Cancel"]]
-                           :popover {:title "Tooltip"
-                                     :body  "You can even have a popover over a popover!"}]]]]])
-
-
-(defn popover-title
-  [form-cancel]
-  [:div "Arbitrary " [:strong "markup "] [:span {:style {:color "red"}} "title"]
-   [button
-    :label "×"
-    :on-click form-cancel
-    :class "close"
-    :style {:font-size "36px" :margin-top "-8px"}]])
+                           :popover {:title         "Tooltip"
+                                     :close-button? false
+                                     :body          "You can even have a popover over a popover!"}]]]]])
 
 
 (defn popover-form-demo
   []
   (let [popover-form-showing? (reagent/atom false)
-
-        ;; ========================= NEW STUFF START
-
-        show-tooltip?         (reagent/atom false)
+        show-tooltip?         (reagent/atom false)        ;; Ideally should be in [popover-body] but tooltip won't close when the parent closes, so have to close it in form-cancel
         initial-form-data     (reagent/atom {})
-        form-data             (reagent/atom {:checkbox1      false
-                                             :checkbox2      true
-                                             :checkbox3      false
-                                             :radio-group    "2"})
+        form-data             (reagent/atom {:checkbox1   false
+                                             :checkbox2   true
+                                             :checkbox3   false
+                                             :radio-group "2"})
         form-initialise       (fn []
                                 (reset! initial-form-data @form-data)
                                 (reset! popover-form-showing? true))
-
         form-submit           (fn []
                                 (reset! popover-form-showing? false))
         form-cancel           (fn []
                                 (reset! form-data @initial-form-data)
                                 (reset! popover-form-showing? false)
                                 (reset! show-tooltip? false))
-
-        ;; ========================= NEW STUFF END
-
         popover-content       {:width             500
-                               :title             [popover-title form-cancel]
-                               :close-button?     false            ;; We have to add our own close button because it does more than simply close the popover
+                               :title             [:div "Arbitrary " [:strong "markup "] [:span {:style {:color "red"}} "title"]]
                                :body              [popover-body form-data form-submit form-cancel show-tooltip?]}
         popover-options       {:arrow-length      15
                                :arrow-width       10
-
                                :backdrop-callback form-cancel
-                               ;; ADD...
-                               ;:close-callback    form--cancel
-                               ;:cancel-callback   form--cancel ;; This would be specific for forms in popovers
-                               ;:submit-callback   form-submit ;; This would be specific for forms in popovers
-
-                               ;; OR REPLACE ALL WITH...
-                               ;:submit-callback   form-submit
-                               ;:cancel-callback   form--cancel
-
+                               :close-callback    form-cancel
                                :backdrop-opacity  0.3}]
     [popover
      :position :below-center

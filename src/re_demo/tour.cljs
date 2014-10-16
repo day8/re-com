@@ -29,7 +29,6 @@
                              :style {:font-weight "bold" :color "yellow"}
                              :class "btn-info"]
                     :popover {:title         [:strong "Tour 1 of 4"]
-                              :close-button? true
                               :body          [:div "So this is the first tour popover"
                                               [make-tour-nav demo-tour]]}]
                    [popover
@@ -37,7 +36,6 @@
                     :showing? (:step2 demo-tour)
                     :anchor [make-button (:step2 demo-tour) "info" "Tour 2"]
                     :popover {:title         [:strong "Tour 2 of 4"]
-                              :close-button? true
                               :body          [:div "And this is the second tour popover"
                                               [make-tour-nav demo-tour]]}]
                    [popover
@@ -45,7 +43,6 @@
                     :showing? (:step3 demo-tour)
                     :anchor [make-button (:step3 demo-tour) "info" "Tour 3"]
                     :popover {:title         [:strong "Tour 3 of 4"]
-                              :close-button? true
                               :body          [:div "Penultimate tour popover"
                                               [make-tour-nav demo-tour]]}]
                    [popover
@@ -53,7 +50,6 @@
                     :showing? (:step4 demo-tour)
                     :anchor [make-button (:step4 demo-tour) "info" "Tour 4"]
                     :popover {:title         [:strong "Tour 4 of 4"]
-                              :close-button? true
                               :body          [:div "Lucky last tour popover"
                                               [make-tour-nav demo-tour]]}]]]
        ])))

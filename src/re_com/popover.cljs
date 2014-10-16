@@ -26,13 +26,15 @@
 
 
 (defn close-button
-  [showing?]
+  [showing? close-callback]
   "A button with a big X in it, placed to the right of the popup."
   [button
    :label    "×"
-   :on-click #(reset! showing? false)
+   :on-click #(if close-callback
+               (close-callback)
+               (reset! showing? false))
    :class    "close"
-   :style    {:font-size "36px" :margin-top "-8px"}])
+   :style    {:font-size "36px" :height "26px" :margin-top "-8px"}])
 
 
 (defn calc-popover-pos
@@ -97,8 +99,10 @@
 
 
 (defn make-popover
-  [{:keys [showing? close-button? position title body width height arrow-length arrow-width]
-    :or {close-button? false position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22}
+  ;TODO: Args being passed but not used: anchor backdrop-callback backdrop-opacity
+  ;TODO: Args being used but not declared: padding margin-left margin-top
+  [{:keys [showing? close-button? position title body width height close-callback arrow-length arrow-width]
+    :or {close-button? true position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22}
     :as popover-params}]
   "Renders an element or control along with a Bootstrap popover
    Parameters:
@@ -113,6 +117,7 @@
        - :padding           [nil           ] override the inner padding of the popover
        - :margin-left       [nil           ] horiztonal offset from anchor after position
        - :margin-top        [nil           ] vertical offset from anchor after position
+       - :close-callback    [nil           ] function called when the close button is pressed (overrides the default close behaviour)
        - :arrow-length      [11            ] length in pixels of arrow (from pointy part to middle of arrow base)
        - :arrow-width       [22            ] length in pixels of arrow base"
   (let [rendered-once           (reagent/atom false)
@@ -155,7 +160,11 @@
                           ;; optional override offsets
                           (select-keys popover-params [:margin-left :margin-top]))}
            [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
-           (when title [:h3.popover-title [:div title (when close-button? [close-button showing?])]])
+           ;(when title [:h3.popover-title [:div title (when close-button? [close-button showing? close-callback])]])
+           (when title [:h3.popover-title
+                        [:div {:style {:display "flex" :flex-flow "row nowrap" :justify-content "space-between" :align-items "center"}}
+                         title
+                         (when close-button? [close-button showing? close-callback])]])
            [:div.popover-content {:style (select-keys popover-params [:padding])} body]]))})))
 
 
@@ -164,16 +173,16 @@
       :or {}}]
   "Renders an element or control along with a Bootstrap popover
    Parameters:
-    - position              place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
-    - showing?              a reagent atom with boolean, which controls whether the popover is showing or not
-    - anchor                the hiccup markup which the popover is attached to
-    - content map
+    - :position             place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
+    - :showing?             a reagent atom with boolean, which controls whether the popover is showing or not
+    - :anchor               the hiccup markup which the popover is attached to
+    - :popover content map
        - :width             a CSS string representing the popover width in pixels (or nil or omit parameter for auto)
        - :height            a CSS string representing the popover height in pixels (or nil or omit parameter for auto)
        - :title             popover title (nil for no title)
        - :close-button?     a boolean indicating whether a close button will be added to the popover title
        - :body              popover body (a string or a hiccup vector or function returning a hiccup vector)
-      options map
+      :options map
        - :arrow-length      length in pixels of arrow (from pointy part to middle of arrow base)
        - :arrow-width       length in pixels of arrow base
        - :padding           override the inner padding of the popover
@@ -181,6 +190,7 @@
        - :margin-top        vertical offset from anchor after position
        - :backdrop-callback if specified, add a backdrop div between the main screen (including element) and the popover.
                             when clicked, this callback is called (usually to close the popover)
+       - :close-callback    function called when the close button is pressed (overrides the default close behaviour)
        - :backdrop-opacity  0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)"
   (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
         place-anchor-before?    (case orientation (:left :above) false true)

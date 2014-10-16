@@ -32,11 +32,12 @@
                                            :position :right-below
                                            :showing? popover-showing?
                                            :anchor   [button
-                                                      :label    (if @popover-showing? "Pop-down" "Click me")
-                                                      :on-click #(reset! popover-showing? (not @popover-showing?))
-                                                      :class    "btn-success"]
-                                           :popover  {:title    "A Popover Is Happening"
-                                                      :body     "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}
+                                                      :label         (if @popover-showing? "Pop-down" "Click me")
+                                                      :on-click      #(reset! popover-showing? (not @popover-showing?))
+                                                      :class         "btn-success"]
+                                           :popover  {:title         "A Popover Is Happening"
+                                                      :close-button? false
+                                                      :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}
                                            ;:options  {:arrow-length 30}
                                            ]
                                           [popover-form-demo/popover-form-demo]]]]]]])))
