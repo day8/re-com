@@ -97,9 +97,9 @@
                                            :gap "10px"
                                            :align :center
                                            :children [[button
-                                                       :label "7am"
+                                                       :label "11am"
                                                        :class "btn btn-xs"
-                                                       :on-click #(reset! an-int-time 700)]
+                                                       :on-click #(reset! an-int-time 1100)]
                                                       [button
                                                        :label "5pm"
                                                        :class "btn btn-xs"
