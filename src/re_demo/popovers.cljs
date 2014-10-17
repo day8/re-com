@@ -2,7 +2,7 @@
   (:require [re-com.core               :refer  [button]]
             [re-demo.util              :refer  [title]]
             [re-com.box                :refer  [h-box v-box box gap line]]
-            [re-com.popover            :refer  [popover make-button make-link]]
+            [re-com.popover            :refer  [popover]]
             [re-demo.popover-form-demo :as     popover-form-demo]
             [reagent.core              :as     reagent]))
 

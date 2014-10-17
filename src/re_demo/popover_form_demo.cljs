@@ -3,13 +3,14 @@
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.core    :refer  [button checkbox radio-button]]
             [re-com.dropdown :refer [single-dropdown]]
-            [re-com.popover  :refer [popover make-button make-link]]))
+            [re-com.popover  :refer [popover]]))
 
 
 (defn popover-body
   [form-data form-submit form-cancel show-tooltip?]
   [v-box
-   :children [[:h4 "Checkboxes and Radio buttons"]
+   :children [[:span "This popover contains an embedded form..."]
+              [:h4 "Checkboxes and Radio buttons"]
               [h-box
                :children [[v-box
                            :size     "auto"
@@ -44,6 +45,7 @@
                                        :model     (:radio-group @form-data)
                                        :disabled  (:checkbox1 @form-data)
                                        :on-change #(swap! form-data assoc :radio-group "3")]]]]]
+              [:em [:small "Note: Hover over the cancel button to see a popover over a popover"]]
               [:hr {:style {:margin "10px 0 10px"}}]
               [h-box
                :gap      "10px"
@@ -83,22 +85,19 @@
         form-cancel           (fn []
                                 (reset! form-data @initial-form-data)
                                 (reset! popover-form-showing? false)
-                                (reset! show-tooltip? false))
-        popover-content       {:width             500
-                               :title             [:div "Arbitrary " [:strong "markup "] [:span {:style {:color "red"}} "title"]]
-                               :body              [popover-body form-data form-submit form-cancel show-tooltip?]}
-        popover-options       {:arrow-length      15
-                               :arrow-width       10
-                               :backdrop-callback form-cancel
-                               :close-callback    form-cancel
-                               :backdrop-opacity  0.3}]
+                                (reset! show-tooltip? false))]
     [popover
      :position :below-center
      :showing? popover-form-showing?
      :anchor   [button
-                :label    "Popover Form"
-                :on-click #(if-not @popover-form-showing?
-                            (form-initialise))
-                :class    "btn btn-danger"]
-     :popover  popover-content
-     :options  popover-options]))
+                :label             "Popover Form"
+                :on-click          #(if-not @popover-form-showing? (form-initialise))
+                :class             "btn btn-danger"]
+     :popover  {:width             500
+                :title             [:div "Arbitrary " [:strong "markup "] [:span {:style {:color "red"}} "title"]]
+                :body              [popover-body form-data form-submit form-cancel show-tooltip?]}
+     :options  {:arrow-length      15
+                :arrow-width       10
+                :backdrop-callback form-cancel
+                :close-callback    form-cancel
+                :backdrop-opacity  0.3}]))

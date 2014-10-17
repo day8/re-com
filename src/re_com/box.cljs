@@ -1,5 +1,6 @@
 (ns re-com.box
-  (:require [reagent.core :as reagent]
+  (:require [clojure.set    :refer [superset?]]
+            [reagent.core :as reagent]
             [clojure.string :as string]))
 
 (def debug false)
@@ -40,7 +41,7 @@
 ;;
 
 ;; ------------------------------------------------------------------------------------
-;;  helper functions
+;;  Helper functions
 ;; ------------------------------------------------------------------------------------
 
 (defn flex-child-style
@@ -168,8 +169,18 @@
 ;;  Component: gap (debug colour: chocolate)
 ;; ------------------------------------------------------------------------------------
 
+(def gap-args
+  #{:size     ;
+    :width    ;
+    :height   ;
+    :style    ;
+    })
+
+
 (defn gap
-  [& {:keys [size width height style]}]
+  [& {:keys [size width height style]
+      :as args}]
+  {:pre [(superset? gap-args (keys args))]}
   "Returns markup which produces a gap between children in a v-box/h-box along the main axis.
    Specify size in any sizing amount, usually px or % or perhaps em. Defaults to 20px."
   (let [s (merge
@@ -184,6 +195,11 @@
 ;; ------------------------------------------------------------------------------------
 ;;  Component: line
 ;; ------------------------------------------------------------------------------------
+
+(def XXX-args
+  #{:x 1
+    })
+
 
 (defn line
   [& {:keys [size color style]
@@ -200,6 +216,11 @@
 ;; ------------------------------------------------------------------------------------
 ;;  Component: h-box (debug colour: gold)
 ;; ------------------------------------------------------------------------------------
+
+(def XXX-args
+  #{:x 1
+    })
+
 
 (defn h-box
   [& {:keys [f-child size width height min-width min-height justify align margin padding gap children style]
@@ -231,6 +252,11 @@
 ;;  Component: v-box (debug colour: antiquewhite)
 ;; ------------------------------------------------------------------------------------
 
+(def XXX-args
+  #{:x 1
+    })
+
+
 (defn v-box
   [& {:keys [f-child size width height min-width min-height justify align margin padding gap children style]
       :or   {f-child true size "none" justify :start align :stretch}}]
@@ -260,6 +286,11 @@
 ;; ------------------------------------------------------------------------------------
 ;;  Component: box
 ;; ------------------------------------------------------------------------------------
+
+(def XXX-args
+  #{:x 1
+    })
+
 
 (defn box
   [& {:keys [f-child f-container size width height min-width min-height justify align align-self margin padding child style]
@@ -296,6 +327,11 @@
 ;; ------------------------------------------------------------------------------------
 ;;  Component: scroller
 ;; ------------------------------------------------------------------------------------
+
+(def XXX-args
+  #{:x 1
+    })
+
 
 (defn scroller
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height align-self margin padding child style]
@@ -342,6 +378,11 @@
 ;; ------------------------------------------------------------------------------------
 ;;  Component: border
 ;; ------------------------------------------------------------------------------------
+
+(def XXX-args
+  #{:x 1
+    })
+
 
 (defn border
   [& {:keys [size margin padding border l-border r-border t-border b-border radius child style]

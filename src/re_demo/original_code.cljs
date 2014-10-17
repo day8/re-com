@@ -791,7 +791,7 @@
                   :body  "Popover body. Can be a simple string or in-line hiccup or a function returning hiccup"}]
 
                                                             ;; Popover form demo - :right-below
-       [popover-form-demo/show]
+       [popover-form-demo/popover-form-demo]
 
                                                             ;; Button #4 - :below-left
        [popover
@@ -833,21 +833,30 @@
        [popover
         :position :above-left
         :showing? show-but6-popover?
-        :anchor [make-button show-but6-popover? "info" ":above-left"]
+        :anchor [make-button
+                 :showing? show-but6-popover?
+                 :type     "info"
+                 :label    ":above-left"]
         :popover {:title [:strong "BUTTON Popover Title"]
                   :body  "This was created using a call to create-button-popover"}]
 
        [popover
         :position :left-below
         :showing? show-but7-popover?
-        :anchor [make-button show-but7-popover? "default" ":left-below"]
+        :anchor [make-button
+                 :showing? show-but7-popover?
+                 :type     "default"
+                 :label    ":left-below"]
         :popover {:title [:strong "BUTTON Popover Title"]
                   :body  "This is another button created using a call to create-button-popover"}]
 
        [popover
         :position :below-right
         :showing? show-but8-popover?
-        :anchor [make-button show-but8-popover? "link" ":below-right"]
+        :anchor [make-button
+                 :showing? show-but8-popover?
+                 :type     "link"
+                 :label    ":below-right"]
         :popover {:title [:strong "BUTTON Popover Title"]
                   :body  "This is another button created using a call to create-button-popover"}]
 
@@ -861,9 +870,14 @@
        [popover
         :position :above-center
         :showing? show-link1-popover?
-        :anchor [make-link show-link1-popover? :mouse "create-link-popover"]
-        {:title [:strong "LINK Popover Title"]
-         :body  "This is the body of the link popover. This is the body of the link popover. This is the body of the link popover. This is the body of the link popover."}]
+        :anchor   [make-link
+                   :showing?      show-link1-popover?
+                   :toggle-on     :mouse
+                   :label         "create-link-popover"]
+        :popover  {:title         [:strong "LINK Popover Title"]
+                   :close-button? false
+                   :body          "This is the body of the link popover. This is the body of the link popover.
+                                   This is the body of the link popover. This is the body of the link popover."}]
        " with " [:strong "mouseover/mouseout"] " used to show/hide the popover. "]
 
       [:div {:style {:margin-top "1em"}}
@@ -871,9 +885,13 @@
        [popover
         :position :above-center
         :showing? show-link2-popover?
-        :anchor [make-link show-link2-popover? :click "create-link-popover"]
-        :popover {:title [:strong "LINK Popover Title"]
-                  :body  "This is the body of the link popover. This is the body of the link popover. This is the body of the link popover. This is the body of the link popover."}]
+        :anchor   [make-link
+                   :showing?  show-link2-popover?
+                   :toggle-on :click
+                   :label     "create-link-popover"]
+        :popover  {:title     [:strong "LINK Popover Title"]
+                   :body      "This is the body of the link popover. This is the body of the link popover.
+                               This is the body of the link popover. This is the body of the link popover."}]
        " with " [:strong "click"] " used to show/hide the popover. "]
 
 
@@ -959,7 +977,10 @@
        [popover
         :position :above-center
         :showing? (:step2 demo-tour)
-        :anchor [make-button (:step2 demo-tour) "info" "Tour 2"]
+        :anchor [make-button
+                 :showing? (:step2 demo-tour)
+                 :type     "info"
+                 :label    "Tour 2"]
         :popover {:title         [:strong "Tour 2 of 4"]
                   :close-button? true
                   :body          [:div "And this is the second tour popover"
@@ -968,7 +989,10 @@
        [popover
         :position :above-center
         :showing? (:step3 demo-tour)
-        :anchor [make-button (:step3 demo-tour) "info" "Tour 3"]
+        :anchor [make-button
+                 :showing? (:step3 demo-tour)
+                 :type     "info"
+                 :label    "Tour 3"]
         :popover {:title         [:strong "Tour 3 of 4"]
                   :close-button? true
                   :body          [:div "Penultimate tour popover"
@@ -977,7 +1001,10 @@
        [popover
         :position :above-right
         :showing? (:step4 demo-tour)
-        :anchor [make-button (:step4 demo-tour) "info" "Tour 4"]
+        :anchor [make-button
+                 :showing? (:step4 demo-tour)
+                 :type     "info"
+                 :label    "Tour 4"]
         :popover {:title         [:strong "Tour 4 of 4"]
                   :close-button? true
                   :body          [:div "Lucky last tour popover"
