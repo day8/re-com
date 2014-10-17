@@ -512,3 +512,13 @@ html, body {
   vertical-align: middle;
   width: 20px;
 }
+.time-entry {
+  flex:  none;
+  padding-left: 2px;
+  padding-top:  0px;
+  font-size:    11px;
+  width:        35px;
+}
+.test-time {
+  font-size:    16px;
+}

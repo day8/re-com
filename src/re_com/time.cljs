@@ -4,295 +4,182 @@
     [clojure.string :as cljstring]
     [clojure.set :refer [superset?]]
     [re-com.core :refer [label]]
-    [re-com.box      :refer  [h-box gap]]
+    [re-com.box :refer [h-box gap]]
     [re-com.util :refer [pad-zero-number deref-or-value]]))
 
 
-; --- Private functions ---
+(defn- time->mins
+  [time]
+  (rem time 100))
 
-(defn- time-int->hour-minute
-  "Convert the time integer (e.g. 930) to a vector of hour and minute."
-  [time-int]
-  (if (nil? time-int)
-    [nil nil]
-    [(quot time-int 100)
-     (rem time-int 100)]))
 
-(defn- time-integer-from-vector
-  "Return a time integer.
-  ASSUMPTION: the vector contains 3 values which are -
-    hour, ':' or '' and minutes."
-  [vals]
-  (assert (= (count vals) 3) (str "Application error: re-com.time/time-integer-from-vector expected a vector of 3 values. Got " vals))
-  (let [hr (first vals)
-        mi (last vals)]
-    (assert (or (number? hr) (nil? hr))
-            (str "Application error: re-com.time/time-integer-from-vector expected first value of vector to be nil or a number. Got " hr))
-    (assert (or (number? mi) (nil? mi))
-            (str "Application error: re-com.time/time-integer-from-vector expected last value of vector to be nil or a number. Got " mi))
-    (let [hr-int (if (nil? hr) 0 hr)
-          mi-int (if (nil? mi) 0 mi)]
-    (+ (* hr-int 100) mi-int))))
+(defn- time->hrs
+  [time]
+  (quot time 100))
 
-(defn- int-from-string
+(defn- to-int
+  "Parse the string 's' to a valid int. On parse failure, return 0."
   [s]
-  (if (nil? s)
-    nil
-    (let [val (js/parseInt s)]
-      (if (js/isNaN val)
-        nil
-        val))))
+  (let [val (js/parseInt s)]
+    (if (js/isNaN val) 0 val)))
 
-(defn- string->time-integer
-  "Return a time integer from the passed string."
-  [s]
-  (let [matches (re-matches #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" s)
-    vals (filter (comp not nil?)(rest matches))]
-    (time-integer-from-vector (map int-from-string vals))))
+(defn- triple->time
+  "Return a time integer from a triple int vector of form  [H  _  M]"
+  [[hr _ mi]]
+  (+ (* hr 100) mi))                                        ;; a four digit integer:  HHMM
 
-(defn display-string
-  "Return a string display of the time.
-  The format will be HH:MM."
-  [[hour minute]]
-  (if (and (nil? hour)(nil? minute))
-    ""
-    (str
-      (if hour
-        (pad-zero-number hour 2)
-        "00")
-      ":"
-      (if minute
-        (str (pad-zero-number minute 2))
-        "00"))))
 
-(defn- time-int->display-string
-  "Return a string display of the time integer."
-  [time-integer]
-  (if (nil? time-integer)
-    (display-string [nil nil])
-    (display-string (time-int->hour-minute time-integer))))
+;; This regular expression matchs all valid forms of time entry, including partial
+;; forms which happen during user entry.
+;; It is composed of 3 'or' options, seperated by '|',  and within each, is a sub-re which
+;; attempts to match the HH ':' MM parts.
+;; So any attempt to match against this re, using "re-matches" will return
+;; a vector of 10 items:
+;;   - the 1st item will be the entire string matched
+;;   - followed by 3 groups of 3.
+(def ^{:private true}
+  triple-seeking-re #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$")
 
-;; --- Validation ---
+(defn- extract-triple-from-text
+  [text]
+  (->> text
+       (re-matches triple-seeking-re)                       ;; looks for different ways of matching triples   H : M
+       (rest)                                               ;; get rid of the first value. It is the entire matched string.
+       (filter (comp not nil?))))                           ;; of the 9 items, there should be only 3 non-nil matches coresponding to  H : M
 
-(defn- validate-hours
-  "Validate the first element of a time vector. Return true if it is valid."
-  [time-integer min max]
-  (let [hr (quot time-integer 100)]
-    (if hr
-      (and (if (nil? min) true (>= hr (quot min 100)))(if (nil? max) true (<= hr (quot max 100))))
-      true)))
 
-(defn- validate-minutes
-  "Validate the second element of a time vector. Return true if it is valid."
-  [time-integer]
-  (let [mi (rem time-integer 100)]
-    (if mi
-      (< mi 60)
-      true)))
+(defn- text->time
+  "return as a time int, the contents of 'text'"
+  [text]
+  (->> text
+       extract-triple-from-text
+       (map to-int)                                         ;; make them ints (or 0)
+       triple->time))                                       ;; turn the triple of values into a single int
 
-(defn- validate-time-range
-  "Validate the time in comparison to the min and max values. Return true if it is valid."
-  [time-integer min max]
-  (and (if (nil? min) true (>= time-integer min))
-       (if (nil? max) true (<= time-integer max))))
 
-(defn- validated-time-integer
-  "Validate the values in the vector.
-  If any are invalid replace them with the previous valid value."
-  [time-integer min max previous-val]
-  (let [tm-string   (time-int->display-string time-integer)
-        range-str   (str (time-int->display-string min) "-" (time-int->display-string max))]
-    (if-not (validate-hours time-integer min max)
-      (do
-        (.info js/console (str "WARNING: Time " tm-string " is outside range " range-str))
-        previous-val)
-      (if (validate-minutes time-integer)
-        (if (validate-time-range time-integer min max)
-          time-integer
-          (do
-            (.info js/console (str "WARNING:  Time " tm-string " is outside range " range-str))
-            previous-val))
-        #_(time-integer-from-vector [(quot time-integer 100) "" 0])
-        previous-val))))
+(defn- time->text
+  "Return a string of format HH:MM for time"
+  [time]
+  (let [hrs (time->hrs time)
+        mins (time->mins time)]
+    (str (pad-zero-number hrs 2) ":" (pad-zero-number mins 2))))
 
-(defn- valid-time-integer?
-  "Return true if the passed time integer is valid."
-  [time-integer min max]
-  (if-not (validate-hours time-integer min max)
-    false
-    (if-not (validate-minutes time-integer)
-      false
-      (validate-time-range time-integer min max))))
+(defn- valid-text?
+  "Return true if text passes basic time validation.
+  Can't do to much validation because user input might not be finished.
+  Why?  On the way to entering 6:30, you must pass through the invalid state of '63'.
+  So we only really check against the triple-extracting regular expression."
+  [text]
+  (= 3 (count (extract-triple-from-text text))))
 
-(defn- validate-string
-  "Return true if the passed string valdiates OK."
-  [s]
-  (let [matches (re-matches #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" s)
-       vals (filter #(not (nil? %))(rest matches))]
-    (= (count vals) 3)))  ;; Cannot do any further validation here - input must be finished first (why? because when entering 6:30, "63" is not valid)
+(defn- valid-time?
+  [time]
+  (cond
+    (nil? time) false                                       ;; can't be nil
+    (> 0 time) false                                        ;; must be a poistive number
+    (< 60 (time->mins time)) false                          ;; too many mins
+    :else true))
 
-(defn- validate-max-min
-  [minimum maximum]
-  (if-not (valid-time-integer? minimum nil nil)
-    (throw (js/Error. (str "minimum " minimum " is not a valid time integer."))))
-  (if-not (valid-time-integer? maximum nil nil)
-    (throw (js/Error. (str "maximum " maximum " is not a valid time integer."))))
-  (if (and minimum maximum)
-    (if-not (< minimum maximum)
-      (throw (js/Error. (str "maximum " maximum " is less than minimum " minimum "."))))))
+(defn- validate-arg-times
+  [model minimum maximum]
+  (assert (and (number? model) (valid-time? model)) (str "[time-input] given an invalid :model - " model))
+  (assert (and (number? minimum) (valid-time? minimum)) (str "[time-input] given an invalid :minimum - " minimum))
+  (assert (and (number? maximum) (valid-time? maximum)) (str "[time-input] given an invalid :maximum - " maximum))
+  (assert (<= minimum maximum) (str "[time-input] :minimum " minimum " > :maximum  " maximum))
+  true)
 
-(defn- time-changed
-  "Triggered whenever the input field changes via key press or cut & paste."
-  [ev input-model]
-  (let [input-val (-> ev .-target .-value)
-        valid? (validate-string input-val)]
-    (when valid?
-      (reset! input-model input-val))))
+(defn- force-valid-time
+  "Validate the time supplied.
+  Return either the time or, if it is invalid, return something valid."
+  [time min max previous]
+  (cond
+    (nil? time) previous
+    (not (valid-time? time)) previous
+    (< time min) min
+    (< max time) max
+    :else time))
 
-(defn- time-updated
-  "Triggered whenever the input field loses focus.
-  Re-validate what has been entered. Then update the model."
-  [ev input-model min max callback previous-val]
-  (let [time-int (string->time-integer @input-model)
-        validated-int (validated-time-integer time-int min max previous-val)]
-    (reset! input-model (display-string (time-int->hour-minute validated-int)))
-    (when (and callback (not (= validated-int previous-val)))
-      (callback validated-int))))
+(defn- on-new-keypress
+  "Called each time the <input> field gets a keypress, or paste operation.
+  Rests  the text-model only if the new text is valid."
+  [event text-model]
+  (let [current-text (-> event .-target .-value)]           ;; gets the current input field text
+    (when (valid-text? current-text)
+      (reset! text-model current-text))))
 
-(defn- updated-range-from-time
-  "The From of a range has changed. If necessary, update the model of the other input.
-  Send the new values to the caller using the callback."
-  [from-model to-model previous-vals callback]
-  (let [from-int (string->time-integer @from-model)
-        to-int   (string->time-integer @to-model)]
-    (if (> from-int to-int)
-      (reset! to-model @from-model))
-    (when callback
-      (let [new-vals [(string->time-integer @from-model)(last previous-vals)]]
-        (callback new-vals)))))
+(defn- lose-focus-if-enter
+  "When Enter is pressed, force the component to lose focus."
+  [ev]
+  (when (= (.-keyCode ev) 13)
+    (-> ev .-target .blur)
+    true))
 
-(defn- updated-range-to-time
-  "The To of a range has changed. If necessary, update the model of the other input.
-  Send the new values to the caller using the callback."
-  [from-model to-model previous-vals callback]
-  (let [from-int (string->time-integer @from-model)
-        to-int   (string->time-integer @to-model)]
-    (if (< to-int from-int )
-      (reset! from-model @to-model))
-    (when callback
-      (let [new-vals [(first previous-vals)(string->time-integer @to-model)]]
-        (callback new-vals)))))
+(defn- on-defocus
+  "Called when the field looses focus.
+  Re-validate what has been entered, comparing to mins and maxs.
+  Invoke the callback as necessary."
+  [text-model min max callback previous-val]
+  (let [time (text->time @text-model)
+        time (force-valid-time time min max previous-val)]
+    (reset! text-model (time->text time))
+    (when (and callback (not= time previous-val))
+      (callback time))))
 
-(defn- atom-on
-  [model default]
-  (reagent/atom (if model
-                  (deref-or-value model)
-                   default)))
+;; TODO: should we add "class" as an arg
 
-(def time-api
+(def time-input-args
   #{;; REQUIRED
-    :model          ;; Integer - a time integer e.g. 930 for '09:30'
+    :model                               ;; Integer - a time integer e.g. 930 for '09:30'
     ;; OPTIONAL
-    :minimum        ;; Integer - a time integer - times less than this will not be allowed - default is 0.
-    :maximum        ;; Integer - a time integer - times more than this will not be allowed - default is 2359.
-    :on-change      ;; function - callback will be passed new result - a time integer or nil
-    :disabled       ;; boolean or reagent/atom on boolean - when true, navigation is allowed but selection is disabled.
-    :show-time-icon ;; boolean - if true display a clock icon to the right of the
-    :style          ;; map - optional css style information
-    :hide-border    ;; boolean - hide border of the input box - default false.
+    :minimum                             ;; Integer - a time integer - times less than this will not be allowed - default is 0.
+    :maximum                             ;; Integer - a time integer - times more than this will not be allowed - default is 2359.
+    :on-change                           ;; function - callback will be passed new result - a time integer or nil
+    :disabled                            ;; boolean or reagent/atom on boolean - when true, navigation is allowed but selection is disabled.
+    :show-icon                           ;; boolean - if true display a clock icon to the right of the
+    :style                               ;; map - optional css style information
+    :hide-border                         ;; boolean - hide border of the input box - default false.
+    :class                               ;; string - class for css styling
     })
 
-(defn- private-time-input
-  "This is the markup for the time input."
-  [ & {:keys [model previous-val min max on-change disabled style hide-border show-time-icon :as args]}]
-  {:pre [(superset? time-api (keys args))]}
-  ;;(println (str "model: " @model " prev: " previous-val " min: " min " max: " max))
-  (let [def-style {:flex "none"
-                   :margin-top "0px"
-                   :padding-left "2px"
-                   :padding-top "0px"
-                   :font-size "11px"
-                   :width "35px"}
-        add-style (when hide-border {:border "none"})
-        style (merge def-style add-style style)]
-    [:span.input-append.bootstrap-timepicker
-      [:input
-        {:type "text"
-         :disabled (deref-or-value disabled)
-         :class "time-entry"
-         :value @model
-         :style style
-         :on-change #(time-changed % model)
-         :on-blur #(time-updated % model min max on-change previous-val)}
-         (when show-time-icon
-           [:span.time-icon
-             [:span.glyphicon.glyphicon-time]])]]))
-
-;; --- Components ---
 
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
-  Parameters - refer time-api above."
-  [& {:keys [model minimum maximum on-change]}]
-  (let [deref-model (deref-or-value model)
-        input-model (atom-on (display-string (time-int->hour-minute deref-model)) "")
-        min (if minimum minimum 0)
-        max (if maximum maximum 2359)]
-    (validate-max-min min max)                  ;; This will throw an error if the parameters are invalid
-    (if-not (valid-time-integer? deref-model min max)
-      (throw (js/Error. (str "model " deref-model " is not a valid time integer or is outside the min/max range."))))
-     (fn [& {:keys [model disabled hide-border show-time-icon style]}]
-       [private-time-input
-         :model input-model
-         :previous-val (deref-or-value model)
-         :min min
-         :max max
-         :on-change on-change
-         :disabled disabled
-         :hide-border hide-border
-         :show-time-icon show-time-icon
-         :style style])))
+  Parameters - refer time-input-args above."
+  [& {:keys [model on-change class style] :as args
+      :or   {minimum 0 maximum 2359}}]
 
-(defn time-range-input
-  "I return the markup for a pair input boxes which will accept and validate times.
-  Parameters - refer time-api above."
-  [& {:keys [model minimum maximum on-change from-label to-label  hide-border show-time-icon gap style]}]
-  (let [deref-model (deref-or-value model)
-        input-from-model  (atom-on (display-string (time-int->hour-minute(first deref-model))) nil)
-        input-to-model    (atom-on (display-string (time-int->hour-minute(last  deref-model))) nil)
-        min (if minimum minimum 0)
-        max (if maximum maximum 2359)]
-  (validate-max-min min max)                  ;; This will throw an error if the parameters are invalid
-  (if-not (valid-time-integer? (first deref-model) min max)
-    (throw (js/Error. (str "model for FROM time: " @input-from-model " is not a valid time integer."))))
-  (if-not (valid-time-integer? (last deref-model) min max)
-    (throw (js/Error. (str "model for TO time: " @input-to-model " is not a valid time integer."))))
-  (if-not (< (first deref-model) (last deref-model))
-      (throw (js/Error. (str "TO " @input-to-model " is less than FROM " @input-from-model "."))))
+  {:pre [(superset? time-input-args (keys args))]}
 
-  (fn [& {:keys [model disabled]}]
-      [h-box
-        :gap (if gap gap "4px")
-        :align :center
-        :children [(when from-label [label :label from-label])
-                   [private-time-input
-                      :model input-from-model
-                      :previous-val (first (deref-or-value model))
-                      :min min
-                      :max max
-                      :on-change #(updated-range-from-time input-from-model input-to-model (deref-or-value model) on-change)
-                      :disabled disabled
-                      :hide-border hide-border
-                      :show-time-icon show-time-icon
-                      :style style]
-                   (when to-label [label :label to-label])
-                   [private-time-input
-                      :model input-to-model
-                      :previous-val (last (deref-or-value model))
-                      :min min
-                      :max max
-                      :on-change #(updated-range-to-time input-from-model input-to-model (deref-or-value model) on-change)
-                      :disabled disabled
-                      :hide-border hide-border
-                      :show-time-icon show-time-icon
-                      :style style]]])))
+  (let [deref-model (deref-or-value model)
+        text-model (reagent/atom (time->text deref-model))
+        previous-model (reagent/atom deref-model)]
+
+    (fn [& {:keys [model minimum maximum disabled hide-border show-icon] :as passthrough-args}]
+
+      {:pre [(and (superset? time-input-args (keys passthrough-args))
+                  (validate-arg-times deref-model minimum maximum))]}
+
+      (let [style (merge (when hide-border {:border "none"})
+                         style)
+            new-val (deref-or-value model)
+            new-val (if (< new-val minimum) minimum new-val)
+            new-val (if (> new-val maximum) maximum new-val)]
+        ;; if the model is different to that currently shown in text, then reset the text to match
+        ;; other than that we want to keep the current text, because the user is probably typing
+        (when (not= @previous-model new-val)
+          (reset! text-model (time->text new-val))
+          (reset! previous-model new-val))
+
+        [:span.input-append {:style {:flex "none"}}
+         [:input
+          {:type      "text"
+           :disabled  (deref-or-value disabled)
+           :class     (if class (str "time-entry " class) "time-entry")
+           :value     @text-model
+           :style     style
+           :on-change #(on-new-keypress % text-model)
+           :on-blur   #(on-defocus text-model minimum maximum on-change @previous-model)
+           :on-key-up #(lose-focus-if-enter %)}]
+         (when show-icon
+           [:span.time-icon [:span.glyphicon.glyphicon-time]])]))))
+
