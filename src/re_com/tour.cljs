@@ -1,7 +1,7 @@
 (ns re-com.tour
-  (:require [reagent.core   :as reagent]
-            [re-com.util    :as util]
-            [re-com.popover :refer [popover make-button make-link]]))
+  (:require [reagent.core   :as    reagent]
+            [re-com.util    :as    util]
+            [re-com.core    :refer [button]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@
     (reduce #(assoc %1 %2 (reagent/atom false)) tour-map tour-spec))) ;; Old way: (merge {} (map #(hash-map % (reagent/atom false)) tour-spec))
 
 
-(defn initialise-tour
+(defn- initialise-tour
   "Resets all poover atoms to false."
   [tour]
   (doall (for [step (:steps tour)] (reset! (step tour) false))))
@@ -56,7 +56,6 @@
   (let [steps     (:steps tour)
         old-step  @(:current-step tour)
         new-step  (inc old-step)]
-
     (when (< new-step (count (:steps tour)))
       (reset! (:current-step tour) new-step)
       (reset! ((nth steps old-step) tour) false)
@@ -68,7 +67,6 @@
   (let [steps    (:steps tour)
         old-step @(:current-step tour)
         new-step (dec old-step)]
-
     (when (>= new-step 0)
       (reset! (:current-step tour) new-step)
       (reset! ((nth steps old-step) tour) false)
@@ -82,19 +80,17 @@
   If last button in tour, change Next button to a Finish button."
   (let [on-first-button (= @(:current-step tour) 0)
         on-last-button  (= @(:current-step tour) (dec (count (:steps tour))))]
-
     [:div
      [:hr {:style {:margin "10px 0 10px"}}]
-     (when-not on-first-button
-       [:input.btn.btn-default
-        {:type "button"
-         :value "Previous"
-         :style {:margin-right "15px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-         :on-click #(prev-tour-step tour)}])
-     [:input.btn.btn-default
-      {:type "button"
-       :value (if on-last-button "Finish" "Next")
+      (when-not on-first-button
+        [button
+         :label    "Previous"
+         :on-click #(prev-tour-step tour)
+         :style    {:margin-right "15px"}
+         :class     "btn-default"])
+      [button
+       :label    (if on-last-button "Finish" "Next")
        :on-click #(if on-last-button
-                    (finish-tour tour)
-                    (next-tour-step tour))}]]
-    ))
+                   (finish-tour tour)
+                   (next-tour-step tour))
+       :class     "btn-default"]]))

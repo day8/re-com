@@ -72,11 +72,11 @@
 
 (defn serious-process-1-chunk
   [chunk-index chunks percent]
-  (util/console-log (str "START serious-processing 1: " chunk-index " of " chunks " (" percent "%)"))
+  (println (str "START serious-processing 1: " chunk-index " of " chunks " (" percent "%)"))
   (reset! progress-percent percent)
   (if (= @serious-process-1-status :running)
     (cpu-delay 10)
-    (util/console-log "CANCELLED!")))
+    (println "CANCELLED!")))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -96,11 +96,11 @@
 
 (defn serious-process-2-chunk
   [chunk-index chunks percent]
-  (util/console-log (str "START serious-processing 2: " chunk-index " of " chunks " (" percent "%)"))
+  (println (str "START serious-processing 2: " chunk-index " of " chunks " (" percent "%)"))
   (reset! progress-percent percent)
   (if (= @serious-process-2-status :running)
     (cpu-delay 10)
-    (util/console-log "CANCELLED!")))
+    (println "CANCELLED!")))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -130,22 +130,22 @@
 (defn load-url
   [url loading?]
   "Load some data from the remote server"
-  (util/console-log (str "*** Loading data from: " url))
+  (println (str "*** Loading data from: " url))
   (system-load-url
     url
     (fn [err data]
       (if err
         (do
-          (util/console-log (str "*** ERROR: " err))
+          (println (str "*** ERROR: " err))
           ;; ***** HANDLE ERROR HERE
           )
         (do
           (if @loading?
             (do
-              (util/console-log (str "*** Data returned: " data))
+              (println (str "*** Data returned: " data))
               ;; ***** PROCESS THE RETURNED DATA HERE
               )
-            (util/console-log "*** CANCELLED!"))
+            (println "*** CANCELLED!"))
           (reset! loading? false))))))
 
 
@@ -194,24 +194,24 @@
 
 (defn write-disk
   [path writing?]
-  (util/console-log (str "*** Saving data to: " path))
+  (println (str "*** Saving data to: " path))
   (system-write-path
     path
     "data to write to path"
     (fn [err data]
       (if err
         (do
-          (util/console-log (str "*** ERROR: " err))
+          (println (str "*** ERROR: " err))
           ;; ***** PROCESS THE RETURNED DATA HERE
           (reset! writing? false)
           )
         (do
           (if writing?
             (do
-              (util/console-log (str "*** SAVED!"))
+              (println (str "*** SAVED!"))
               ;; FURTHER PROCESSING HERE IF REQUIRED
               )
-            (util/console-log "*** CANCELLED!"))
+            (println "*** CANCELLED!"))
           (reset! writing? false))))))
 
 
@@ -247,10 +247,10 @@
 ;(defn calc-pivot-totals
 ;  [calculating?]
 ;  "Calculate pivot totals"
-;  (util/console-log "calc-pivot-totals START")
+;  (println "calc-pivot-totals START")
 ;  (cpu-delay 500)
 ;  ;; ***** PROCESS THE RETURNED DATA HERE
-;  (util/console-log "calc-pivot-totals END")
+;  (println "calc-pivot-totals END")
 ;  (reset! calculating? false))
 ;
 ;
@@ -299,7 +299,7 @@
 ;            new-p2       (+ new-p1 (last chunk-result))
 ;            next-params  [new-p1 new-p2]]
 ;
-;        (util/console-log (str "(fib " p1 " "  p2 ") = " chunk-result " next = " next-params))
+;        (println (str "(fib " p1 " "  p2 ") = " chunk-result " next = " next-params))
 ;        ;; ***** PROCESS THE RETURNED DATA HERE
 ;        (cpu-delay 50)
 ;        (if (< new-p1 420196140727489660)
@@ -330,25 +330,25 @@
 
 ;(defn mwi-step-2-1
 ;  []
-;  (util/console-log "IN: mwi-step-2-1")
+;  (println "IN: mwi-step-2-1")
 ;  (cpu-delay 200)
 ;  true) ;; true to continue the process, false to cancel it
 ;
 ;(defn mwi-step-2-2
 ;  [p1 p2]
-;  (util/console-log (str "IN: mwi-step-2-2. Params=" p1 "," p2))
+;  (println (str "IN: mwi-step-2-2. Params=" p1 "," p2))
 ;  (cpu-delay 300)
 ;  true) ;; continue
 ;
 ;(defn mwi-step-2-3
 ;  []
-;  (util/console-log "IN: mwi-step-2-3")
+;  (println "IN: mwi-step-2-3")
 ;  (cpu-delay 400)
 ;  true) ;; continue
 ;
 ;(defn progress-msg-2 ;; msg doesn't update if it's placed directly in mwi-steps-modal-2
 ;  [progress-msg]
-;  (util/console-log (str "progress-msg: " @progress-msg))
+;  (println (str "progress-msg: " @progress-msg))
 ;  [:span @progress-msg])
 ;
 ;(defn mwi-steps-modal-2
@@ -373,13 +373,13 @@
 ;        (if-not @ui-updated?
 ;          (do
 ;            (swap! ui-updated? not)
-;            (util/console-log (str "mwi-steps-2 UPDATE-UI step " step-to-process ": " (:msg this-step)))
+;            (println (str "mwi-steps-2 UPDATE-UI step " step-to-process ": " (:msg this-step)))
 ;            (reset! progress-msg (:msg this-step))
 ;            (reset! progress-percent (:percent this-step))
 ;            [step-to-process progress-msg progress-percent ui-updated?]) ;; Go again, run SAME step
 ;          (do
 ;            (swap! ui-updated? not)
-;            (util/console-log (str "mwi-steps-2 step " step-to-process ": " (:msg this-step)))
+;            (println (str "mwi-steps-2 step " step-to-process ": " (:msg this-step)))
 ;            (let [step-result (apply (:fn this-step) (:params this-step))]
 ;              (if (and step-result (< step-to-process (dec (count steps))))
 ;                [(inc step-to-process) progress-msg progress-percent ui-updated?] ;; Go again, run next step
@@ -443,7 +443,7 @@
                       :initial-value {:params [1 1] :results []}
                       :func          (cancellable-step calculating? fib-step)
                       :when-done     (fn [] (reset! calculating? false)))
-                    (util/console-log "FINISHED!!!!"))]
+                    (println "FINISHED!!!!"))]
        (when @calculating?
          [modal-window
           :markup [:div {:style {:width "300px"}}
@@ -458,19 +458,19 @@
 
 (defn do-stuff
   [payload]
-  (util/console-log (str "do-stuff - payload = " payload))
+  (println (str "do-stuff - payload = " payload))
   (cpu-delay 200)
   (assoc payload :do-stuff-result 100))
 
 (defn do-more-stuff
   [payload]
-  (util/console-log (str "do-more-stuff - payload = " payload))
+  (println (str "do-more-stuff - payload = " payload))
   (cpu-delay 300)
   (assoc payload :do-more-stuff-result 200))
 
 (defn do-even-more-stuff
   [payload]
-  (util/console-log (str "do-even-more-stuff - payload = " payload))
+  (println (str "do-even-more-stuff - payload = " payload))
   (cpu-delay 400)
   (assoc payload :do-even-more-stuff-result 300 :a 99 :b 99))
 
@@ -497,7 +497,7 @@
        #(set-atoms "Finished" 100)
        #(do
          (reset! calculating? false)
-         (util/console-log (str "RESULT = " %1))
+         (println (str "RESULT = " %1))
          nil)])))
 
 #_(defn do-processing
@@ -519,7 +519,7 @@
               (reset! progress-percent 67)
               (let [pause  (<! (timeout 20))
                     result (do-even-more-stuff result)]
-                (util/console-log (str "RESULT = " result))
+                (println (str "RESULT = " result))
                 (reset! calculating? false))))))))
 
 (defn test-core-async
@@ -561,7 +561,7 @@
 ;            new-p2       (+ new-p1 (last chunk-result))
 ;            next-params  [new-p1 new-p2]]
 ;
-;        (util/console-log (str "(fib " p1 " "  p2 ") = " chunk-result " next = " next-params))
+;        (println (str "(fib " p1 " "  p2 ") = " chunk-result " next = " next-params))
 ;        ;; ***** PROCESS THE RETURNED DATA HERE
 ;        (cpu-delay 50)
 ;        (if (< new-p1 420196140727489660)
@@ -571,29 +571,29 @@
 ;
 ;(defn write-disk-in-sequence
 ;  [path writing?]
-;  (util/console-log (str "*** Saving data to: " path))
+;  (println (str "*** Saving data to: " path))
 ;  (system-write-path
 ;   path
 ;   "data to write to path"
 ;   (fn [err data]
 ;     (if err
 ;       (do
-;         (util/console-log (str "*** ERROR: " err))
+;         (println (str "*** ERROR: " err))
 ;         ;; ***** PROCESS THE RETURNED DATA HERE
 ;         (reset! writing? false)
 ;         )
 ;       (do
 ;         (if writing?
 ;           (do
-;             (util/console-log (str "*** SAVED!"))
+;             (println (str "*** SAVED!"))
 ;             ;; FURTHER PROCESSING HERE IF REQUIRED
 ;             )
-;           (util/console-log "*** CANCELLED!"))
+;           (println "*** CANCELLED!"))
 ;         (reset! writing? false))))))
 ;
 ;(defn update-chunked-json-ui
 ;  [msg percent]
-;  (util/console-log (str "update-chunked-json-ui: " msg))
+;  (println (str "update-chunked-json-ui: " msg))
 ;  (reset! chunked-json-progress-msg msg)
 ;  (reset! chunked-json-progress-percent percent)
 ;  true) ;; continue
@@ -620,7 +620,7 @@
 ;
 ;    (fn [step-to-process]
 ;      (let [this-step (get steps step-to-process)]
-;        (util/console-log (str "chunked-json step " step-to-process ": " (:msg this-step)))
+;        (println (str "chunked-json step " step-to-process ": " (:msg this-step)))
 ;        (let [step-result ((:fn this-step) (:params this-step))]
 ;          (if (and step-result (< step-to-process (dec (count steps))))
 ;            (inc step-to-process)
@@ -699,13 +699,13 @@
         save-form-data (reagent/atom nil)
         process-ok     (fn [event]
                          (reset! showing? false)
-                         (util/console-log-prstr "Submitted form data: " @form-data)
+                         (println "Submitted form data: " @form-data)
                          ;; ***** PROCESS THE RETURNED DATA HERE
                          false) ;; Prevent default "GET" form submission (if used)
         process-cancel (fn [event]
                          (reset! form-data @save-form-data)
                          (reset! showing? false)
-                         (util/console-log-prstr "Cancelled form data: " @form-data)
+                         (println "Cancelled form data: " @form-data)
                          false)]
     (fn []
       [:div
@@ -791,7 +791,7 @@
                   :body  "Popover body. Can be a simple string or in-line hiccup or a function returning hiccup"}]
 
                                                             ;; Popover form demo - :right-below
-       [popover-form-demo/show]
+       [popover-form-demo/popover-form-demo]
 
                                                             ;; Button #4 - :below-left
        [popover
@@ -833,21 +833,30 @@
        [popover
         :position :above-left
         :showing? show-but6-popover?
-        :anchor [make-button show-but6-popover? "info" ":above-left"]
+        :anchor [make-button
+                 :showing? show-but6-popover?
+                 :type     "info"
+                 :label    ":above-left"]
         :popover {:title [:strong "BUTTON Popover Title"]
                   :body  "This was created using a call to create-button-popover"}]
 
        [popover
         :position :left-below
         :showing? show-but7-popover?
-        :anchor [make-button show-but7-popover? "default" ":left-below"]
+        :anchor [make-button
+                 :showing? show-but7-popover?
+                 :type     "default"
+                 :label    ":left-below"]
         :popover {:title [:strong "BUTTON Popover Title"]
                   :body  "This is another button created using a call to create-button-popover"}]
 
        [popover
         :position :below-right
         :showing? show-but8-popover?
-        :anchor [make-button show-but8-popover? "link" ":below-right"]
+        :anchor [make-button
+                 :showing? show-but8-popover?
+                 :type     "link"
+                 :label    ":below-right"]
         :popover {:title [:strong "BUTTON Popover Title"]
                   :body  "This is another button created using a call to create-button-popover"}]
 
@@ -861,9 +870,14 @@
        [popover
         :position :above-center
         :showing? show-link1-popover?
-        :anchor [make-link show-link1-popover? :mouse "create-link-popover"]
-        {:title [:strong "LINK Popover Title"]
-         :body  "This is the body of the link popover. This is the body of the link popover. This is the body of the link popover. This is the body of the link popover."}]
+        :anchor   [make-link
+                   :showing?      show-link1-popover?
+                   :toggle-on     :mouse
+                   :label         "create-link-popover"]
+        :popover  {:title         [:strong "LINK Popover Title"]
+                   :close-button? false
+                   :body          "This is the body of the link popover. This is the body of the link popover.
+                                   This is the body of the link popover. This is the body of the link popover."}]
        " with " [:strong "mouseover/mouseout"] " used to show/hide the popover. "]
 
       [:div {:style {:margin-top "1em"}}
@@ -871,9 +885,13 @@
        [popover
         :position :above-center
         :showing? show-link2-popover?
-        :anchor [make-link show-link2-popover? :click "create-link-popover"]
-        :popover {:title [:strong "LINK Popover Title"]
-                  :body  "This is the body of the link popover. This is the body of the link popover. This is the body of the link popover. This is the body of the link popover."}]
+        :anchor   [make-link
+                   :showing?  show-link2-popover?
+                   :toggle-on :click
+                   :label     "create-link-popover"]
+        :popover  {:title     [:strong "LINK Popover Title"]
+                   :body      "This is the body of the link popover. This is the body of the link popover.
+                               This is the body of the link popover. This is the body of the link popover."}]
        " with " [:strong "click"] " used to show/hide the popover. "]
 
 
@@ -959,7 +977,10 @@
        [popover
         :position :above-center
         :showing? (:step2 demo-tour)
-        :anchor [make-button (:step2 demo-tour) "info" "Tour 2"]
+        :anchor [make-button
+                 :showing? (:step2 demo-tour)
+                 :type     "info"
+                 :label    "Tour 2"]
         :popover {:title         [:strong "Tour 2 of 4"]
                   :close-button? true
                   :body          [:div "And this is the second tour popover"
@@ -968,7 +989,10 @@
        [popover
         :position :above-center
         :showing? (:step3 demo-tour)
-        :anchor [make-button (:step3 demo-tour) "info" "Tour 3"]
+        :anchor [make-button
+                 :showing? (:step3 demo-tour)
+                 :type     "info"
+                 :label    "Tour 3"]
         :popover {:title         [:strong "Tour 3 of 4"]
                   :close-button? true
                   :body          [:div "Penultimate tour popover"
@@ -977,7 +1001,10 @@
        [popover
         :position :above-right
         :showing? (:step4 demo-tour)
-        :anchor [make-button (:step4 demo-tour) "info" "Tour 4"]
+        :anchor [make-button
+                 :showing? (:step4 demo-tour)
+                 :type     "info"
+                 :label    "Tour 4"]
         :popover {:title         [:strong "Tour 4 of 4"]
                   :close-button? true
                   :body          [:div "Lucky last tour popover"

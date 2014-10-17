@@ -2,14 +2,14 @@
   (:require [re-com.core               :refer  [button]]
             [re-demo.util              :refer  [title]]
             [re-com.box                :refer  [h-box v-box box gap line]]
-            [re-com.popover            :refer  [popover make-button make-link]]
+            [re-com.popover            :refer  [popover]]
             [re-demo.popover-form-demo :as     popover-form-demo]
             [reagent.core              :as     reagent]))
 
 
 (defn simple-popover-demo
   []
-  (let [popover-showing?       (reagent/atom false)]
+  (let [popover-showing? (reagent/atom false)]
     (fn []
       [v-box
        :children [[title "Button Popover"]
@@ -32,15 +32,15 @@
                                            :position :right-below
                                            :showing? popover-showing?
                                            :anchor   [button
-                                                      :label    (if @popover-showing? "Pop-down" "Click me")
-                                                      :on-click #(reset! popover-showing? (not @popover-showing?))
-                                                      :class    "btn-success"]
-                                           :popover  {:title    "A Popover Is Happening"
-                                                      :body     "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}
+                                                      :label         (if @popover-showing? "Pop-down" "Click me")
+                                                      :on-click      #(reset! popover-showing? (not @popover-showing?))
+                                                      :class         "btn-success"]
+                                           :popover  {:title         "A Popover Is Happening"
+                                                      :close-button? false
+                                                      :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}
                                            ;:options  {:arrow-length 30}
                                            ]
-                                          [popover-form-demo/show]
-                                          ]]]]]])))
+                                          [popover-form-demo/popover-form-demo]]]]]]])))
 
 
 

@@ -78,9 +78,8 @@
            :style      {:max-height max-height}
            :child      [v-box
                         :size "auto"
-                        :children [(for [one-alert @alerts]
-                                     (let [id (first one-alert)
-                                           {:keys [alert-type heading body padding closeable]} (last one-alert)]
+                        :children [(for [alert @alerts]
+                                     (let [{:keys [id alert-type heading body padding closeable]} alert]
                                        ^{:key id} [alert-box
                                                    :id         id
                                                    :alert-type alert-type

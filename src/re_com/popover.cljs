@@ -1,5 +1,6 @@
 (ns re-com.popover
-  (:require [re-com.util    :as    util]
+  (:require [clojure.set    :refer [superset?]]
+            [re-com.util    :as    util]
             [re-com.core    :refer [button]]
             [clojure.string :as    string]
             [reagent.core   :as    reagent]))
@@ -15,8 +16,8 @@
   (str (when negative "-") val "px"))
 
 
-(defn split-keyword
-  [kw delimiter] ;; TODO: Possibly move to util
+(defn- split-keyword
+  [kw delimiter] ;; TODO: Move to util?
   "I return the vector of the two keywords formed by splitting
    another keyword 'kw' on an internal delimiter (usually '-').
    (split-keyword  :above-left  \"-\")
@@ -25,17 +26,19 @@
     [(keyword (keywords 1)) (keyword (keywords 2))]))
 
 
-(defn close-button
-  [showing?]
-  "A button with a big X in it. Too right of the popup."
+(defn- close-button
+  [showing? close-callback]
+  "A button with a big X in it, placed to the right of the popup."
   [button
    :label    "×"
-   :on-click #(reset! showing? false)
-   :class    "close"                                    ;; TODO: we seems to have both a class and embedded CSS styles ??
-   :style    {:font-size "36px" :margin-top "-8px"}])
+   :on-click #(if close-callback
+               (close-callback)
+               (reset! showing? false))
+   :class    "close"
+   :style    {:font-size "36px" :height "26px" :margin-top "-8px"}])
 
 
-(defn calc-popover-pos
+(defn- calc-popover-pos
   [pop-id pop-orient pop-offset]
   (if-let [popover-elem (util/get-element-by-id pop-id)]
     (let [p-width        (.-clientWidth popover-elem)
@@ -61,7 +64,7 @@
       {:left popover-left :top popover-top :right popover-right :bottom popover-bottom})))
 
 
-(defn popover-arrow
+(defn- popover-arrow
   [orientation pop-offset arrow-length arrow-width grey-arrow]
   (let [half-arrow-width (/ arrow-width 2)
         arrow-shape {:left  (str (point 0 0)            (point arrow-length half-arrow-width) (point 0 arrow-width))
@@ -96,9 +99,11 @@
                          :stroke-width "1"}}]]))
 
 
-(defn make-popover
-  [{:keys [showing? close-button? position title body width height arrow-length arrow-width]
-    :or {close-button? false position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22}
+(defn- make-popover
+  ;TODO: Args being passed but not used: anchor backdrop-callback backdrop-opacity
+  ;TODO: Args being used but not declared: padding margin-left margin-top
+  [{:keys [showing? close-button? position title body width height close-callback arrow-length arrow-width]
+    :or {close-button? true position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22}
     :as popover-params}]
   "Renders an element or control along with a Bootstrap popover
    Parameters:
@@ -113,6 +118,7 @@
        - :padding           [nil           ] override the inner padding of the popover
        - :margin-left       [nil           ] horiztonal offset from anchor after position
        - :margin-top        [nil           ] vertical offset from anchor after position
+       - :close-callback    [nil           ] function called when the close button is pressed (overrides the default close behaviour)
        - :arrow-length      [11            ] length in pixels of arrow (from pointy part to middle of arrow base)
        - :arrow-width       [22            ] length in pixels of arrow base"
   (let [rendered-once           (reagent/atom false)
@@ -155,33 +161,47 @@
                           ;; optional override offsets
                           (select-keys popover-params [:margin-left :margin-top]))}
            [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
-           (when title [:h3.popover-title [:div title (when close-button? [close-button showing?])]])
+           ;(when title [:h3.popover-title [:div title (when close-button? [close-button showing? close-callback])]])
+           (when title [:h3.popover-title
+                        [:div {:style {:display "flex" :flex-flow "row nowrap" :justify-content "space-between" :align-items "center"}}
+                         title
+                         (when close-button? [close-button showing? close-callback])]])
            [:div.popover-content {:style (select-keys popover-params [:padding])} body]]))})))
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: popover
+;;--------------------------------------------------------------------------------------------------
+
+(def popover-args
+  #{:position   ; Place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
+    :showing?   ; A reagent atom with boolean, which controls whether the popover is showing or not
+    :anchor     ; The hiccup markup which the popover is attached to
+    :popover    ; Content map:
+                ;  - :width             a CSS string representing the popover width in pixels (or nil or omit parameter for auto)
+                ;  - :height            a CSS string representing the popover height in pixels (or nil or omit parameter for auto)
+                ;  - :title             popover title (nil for no title)
+                ;  - :close-button?     a boolean indicating whether a close button will be added to the popover title
+                ;  - :body              popover body (a string or a hiccup vector or function returning a hiccup vector)
+    :options    ; Options map:
+                ;  - :arrow-length      length in pixels of arrow (from pointy part to middle of arrow base)
+                ;  - :arrow-width       length in pixels of arrow base
+                ;  - :padding           override the inner padding of the popover
+                ;  - :margin-left       horiztonal offset from anchor after position
+                ;  - :margin-top        vertical offset from anchor after position
+                ;  - :backdrop-callback if specified, add a backdrop div between the main screen (including element) and the popover.
+                ;                       when clicked, this callback is called (usually to close the popover)
+                ;  - :close-callback    function called when the close button is pressed (overrides the default close behaviour)
+                ;  - :backdrop-opacity  0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)
+    })
 
 
 (defn popover
   [& {:keys [position showing? anchor popover options]
-      :or {}}]
-  "Renders an element or control along with a Bootstrap popover
-   Parameters:
-    - position              place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
-    - showing?              a reagent atom with boolean, which controls whether the popover is showing or not
-    - anchor                the hiccup markup which the popover is attached to
-    - content map
-       - :width             a CSS string representing the popover width in pixels (or nil or omit parameter for auto)
-       - :height            a CSS string representing the popover height in pixels (or nil or omit parameter for auto)
-       - :title             popover title (nil for no title)
-       - :close-button?     a boolean indicating whether a close button will be added to the popover title
-       - :body              popover body (a string or a hiccup vector or function returning a hiccup vector)
-      options map
-       - :arrow-length      length in pixels of arrow (from pointy part to middle of arrow base)
-       - :arrow-width       length in pixels of arrow base
-       - :padding           override the inner padding of the popover
-       - :margin-left       horiztonal offset from anchor after position
-       - :margin-top        vertical offset from anchor after position
-       - :backdrop-callback if specified, add a backdrop div between the main screen (including element) and the popover.
-                            when clicked, this callback is called (usually to close the popover)
-       - :backdrop-opacity  0 = transparent, 1 = black (http://jsfiddle.net/Rt9BJ/1)"
+      :or {}
+      :as args}]
+  {:pre [(superset? popover-args (keys args))]}
+  "Renders an element or control along with a Bootstrap popover."
   (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
         place-anchor-before?    (case orientation (:left :above) false true)
         flex-flow               (case orientation (:left :right) "row" "column")
@@ -189,45 +209,77 @@
         backdrop-callback       (:backdrop-callback popover-params)
         backdrop-opacity        (:backdrop-opacity popover-params)]
 
-    [:div {:style {:display "inline-block"}}
+    [:div {:class  "rc-popover"
+            :style {:display "inline-flex"
+                   :flex     "inherit"}}
      (when (and @showing? backdrop-callback)
-       [:div {:style    {:position "fixed"
-                         :left "0px"
-                         :top "0px"
-                         :width "100%"
-                         :height "100%"
+       [:div {:style    {:position         "fixed"
+                         :left             "0px"
+                         :top              "0px"
+                         :width            "100%"
+                         :height           "100%"
                          :background-color "black"
-                         :opacity backdrop-opacity}
+                         :opacity          backdrop-opacity}
               :on-click backdrop-callback}])
      [:div {:style {:display "inline-flex" :flex-flow flex-flow :align-items "center"}}
       (when place-anchor-before? anchor)
       (when @showing?
-        [:div {:style {:position "relative" :display "inline-block"}} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
+        [:div {:style {:position "relative" :display "inline-flex"}} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
          [make-popover popover-params]])
       (when-not place-anchor-before? anchor)]]))
 
 
+;;--------------------------------------------------------------------------------------------------
+;; Component: make-button
+;;--------------------------------------------------------------------------------------------------
+
+(def make-button-args
+  #{:showing?   ; The atom used to hide/show the popover
+    :type       ; Button type (string): default, primary, success, info, warning, danger, link
+    :label      ; Label for the button
+    :style      ; Custom style for the button
+    })
+
+
 (defn make-button
-  [showing? type text]
+  [& {:keys [showing? type label style] :as args}]
+  {:pre [(superset? make-button-args (keys args))]}
+  "Renders a button designed to go into a popover.
+   It provides the functionality to toggle the popover when the button is pressed."
   [button
-   :label    text
+   :label    label
    :on-click #(reset! showing? (not @showing?))
-   :style    {:margin-left "2px"} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-   :class    (str "btn-" type)])
+   :style    (merge {:margin-left "2px"} style)
+   :class    (str "rc-make-button btn-" type)])
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: make-link
+;;--------------------------------------------------------------------------------------------------
+
+(def make-link-args
+  #{:showing?   ; The atom used to hide/show the popover
+    :toggle-on  ; Determine how to show popover:
+                ;  - :mouse  Make this a hover popover (tooltip)
+                ;  - :click  Make it a click popover
+    :label      ; Label for the link
+    :style      ; Custom style for the link
+    })
 
 
 (defn make-link
-  [showing? toggle-on text]
+  [& {:keys [showing? toggle-on label style] :as args}]
+  {:pre [(superset? make-link-args (keys args))]}
+  "Renders a link designed to go into a popover.
+   It provides the functionality to toggle the popover when the button is pressed."
   (let [show   #(reset! showing? true)
         hide   #(reset! showing? false)
         toggle #(reset! showing? (not @showing?))]
     [:a
-     (merge {;; :value text
-             ;; :style {} ;; :flex-grow 0 :flex-shrink 1 :flex-basis "auto"
-             }
+     (merge {:class "rc-make-link"}
+            {:style (merge {:flex "inherit"} style)}
             (if (= toggle-on :mouse)
               {:on-mouse-over show
                :on-mouse-out  hide}
-              {:on-click      toggle}
-              ))
-     text]))
+              {:on-click      toggle}))
+     label]))

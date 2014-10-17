@@ -1,7 +1,7 @@
 (ns re-com.dropdown
   ;(:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
   (:require [clojure.set      :refer [superset?]]
-            [re-com.util      :refer [deref-or-value]]
+            [re-com.util      :refer [deref-or-value find-map-index]]
             [clojure.string   :as    string]
             ;[clairvoyant.core :refer [default-tracer]]
             [reagent.core     :as    reagent]))
@@ -10,20 +10,11 @@
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
 
 
-(defn find-choice-index
-  [choices id]
-  "In a vector of maps (where each map has an :id), return the index of the first map containing the id parameter.
-   Returns nil if id not found."
-  (let [index-fn (fn [index item] (when (= (:id item) id) index))
-        index-of-id (first (keep-indexed index-fn choices))]
-    index-of-id))
-
-
 (defn- move-to-new-choice
   [choices id offset]
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
    from id (usually +1 or -1 to go to next/previous). Also accepts :start and :end."
-  (let [current-index (find-choice-index choices id)
+  (let [current-index (find-map-index choices id)
         new-index (cond
                     (= offset :start) 0
                     (= offset :end) (dec (count choices))
@@ -35,7 +26,7 @@
 (defn find-choice
   [choices id]
   "In a vector of maps (where each map has an :id), return the first map containing the id parameter."
-  (let [current-index (find-choice-index choices id)
+  (let [current-index (find-map-index choices id)
         _ (assert ((complement nil?) current-index) (str "Can't find choice index '" id "' in choices vector"))]
     (nth choices current-index)))
 

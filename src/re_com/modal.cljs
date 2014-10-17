@@ -109,7 +109,7 @@
               :height "100%"
               :background-color "rgba(0,0,0,0.85)"
               :z-index 1020
-              :on-click #(util/console-log "clicked backdrop") ;; Gobble up clicks so they don't go to the main window (TODO: Doesn't work)
+              :on-click #(println "clicked backdrop") ;; Gobble up clicks so they don't go to the main window (TODO: Doesn't work)
               }}
      [:div                         ;; Modal window containing div
       {:style {:margin "auto"

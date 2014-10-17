@@ -1,5 +1,5 @@
 (ns re-demo.alerts
-  (:require [re-com.util     :as    util]
+  (:require [re-com.util     :refer [insert-nth remove-nth find-map-index]]
             [re-com.core     :refer [button label input-text checkbox]]
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
@@ -58,13 +58,14 @@
 
 (defn add-alert
   [alerts alerts-count alert-type {:keys [heading body]}]
-  (let [id (swap! alerts-count inc)]
-    (swap! alerts assoc id {:alert-type alert-type :heading heading :body body :padding "8px" :closeable true})))
+  (let [id    (swap! alerts-count inc)
+        alert {:id id :alert-type alert-type :heading heading :body body :padding "8px" :closeable true}]
+    (reset! alerts (insert-nth @alerts 0 alert))))
 
 
 (defn demo3
   []
-  (let [alerts       (reagent/atom (sorted-map-by >))
+  (let [alerts       (reagent/atom [])
         alerts-count (reagent/atom 0)]
     (add-alert alerts alerts-count "danger" {:heading "Unfortunately something bad happened" :body "Next time you should take more care! Next time you should take more care! Next time you should take more care! Next time you should take more care! Next time you should take more care!"})
     (add-alert alerts alerts-count "info" {:heading "Here's some info" :body "The rain in Spain falls mainly on the plain"})
@@ -77,7 +78,7 @@
                   [:p ":max-height is set to 300px and a custom :border-style is set."]
                   [alert-list
                    :alerts       alerts
-                   :on-close     #(swap! alerts dissoc %)
+                   :on-close     #(reset! alerts (remove-nth @alerts (find-map-index @alerts %)))
                    :max-height   "300px"
                    :border-style "1px dashed lightgrey"]
                   [button
