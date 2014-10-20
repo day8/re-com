@@ -145,20 +145,17 @@
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
   Parameters - refer time-input-args above."
-  [& {:keys [model on-change class style] :as args
+  [& {:keys [model minimum maximum on-change class style] :as args
       :or   {minimum 0 maximum 2359}}]
 
-  {:pre [(superset? time-input-args (keys args))]}
+  {:pre [(and (superset? time-input-args (keys args))
+              (validate-arg-times (deref-or-value model) minimum maximum))]}
 
   (let [deref-model (deref-or-value model)
         text-model (reagent/atom (time->text deref-model))
         previous-model (reagent/atom deref-model)]
 
     (fn [& {:keys [model minimum maximum disabled hide-border show-icon] :as passthrough-args}]
-
-      {:pre [(and (superset? time-input-args (keys passthrough-args))
-                  (validate-arg-times deref-model minimum maximum))]}
-
       (let [style (merge (when hide-border {:border "none"})
                          style)
             new-val (deref-or-value model)
