@@ -1,5 +1,6 @@
 (ns re-com.layout
-  (:require [reagent.core :as reagent]))
+  (:require [clojure.set  :refer [superset?]]
+            [reagent.core :as    reagent]))
 
 
 ;; CSS
@@ -15,16 +16,25 @@
 
 
 ;; ------------------------------------------------------------------------------------
-;;  h-layout
+;;  Component: h-layout
 ;; ------------------------------------------------------------------------------------
+
+(def h-layout-args
+  #{:left-panel       ;; Markup to go in the left panel.
+    :right-panel      ;; Markup to go in the right panel.
+    :splitter-size    ;; Thickness of the splitter. Defaults to 8px.
+    :margin           ;; Thickness of the margin around the panels. Defaults to 8px.
+    })
+
 
 (defn h-layout
   [& {:keys [left-panel right-panel splitter-size margin]
-      :or {splitter-size "8px" margin "8px"}}]
+      :or   {splitter-size "8px" margin "8px"}
+      :as   args}]
+  {:pre [(superset? h-layout-args (keys args))]}
+  "Returns markup for a horizontal layout component."
   (let [container-id (gensym "h-layout-")
-
         this        (reagent/current-component)
-
         split-perc  (reagent/atom 50)                ;; splitter position as a percentage of width
         dragging?   (reagent/atom false)             ;; is the user dragging the splitter (mouse is down)?
         over?       (reagent/atom false)             ;; is the mouse over the splitter, if so, highlight it
@@ -70,7 +80,7 @@
                            {:class class
                             :style (merge {:display "flex"
                                            :flex (str percentage " 1 0px")
-                                           :overflow "hidden" ;; TODO: Shouldn't have this...tyest removing it
+                                           :overflow "hidden" ;; TODO: Shouldn't have this...test removing it
                                            }
                                           (when in-drag? {:pointer-events "none"}))})
 
@@ -93,16 +103,25 @@
 
 
 ;; ------------------------------------------------------------------------------------
-;;  v-layout
+;;  Component: v-layout
 ;; ------------------------------------------------------------------------------------
+
+(def v-layout-args
+  #{:top-panel        ;; Markup to go in the top panel.
+    :bottom-panel     ;; Markup to go in the bottom panel.
+    :splitter-size    ;; Thickness of the splitter. Defaults to 8px.
+    :margin           ;; Thickness of the margin around the panels. Defaults to 8px.
+    })
+
 
 (defn v-layout
   [& {:keys [top-panel bottom-panel splitter-size margin]
-      :or {splitter-size "8px" margin "8px"}}]
+      :or   {splitter-size "8px" margin "8px"}
+      :as   args}]
+  {:pre [(superset? v-layout-args (keys args))]}
+  "Returns markup for a vertical layout component."
   (let [container-id (gensym "v-layout-")
-
         this        (reagent/current-component)
-
         split-perc  (reagent/atom 50)                ;; splitter position as a percentage of height
         dragging?   (reagent/atom false)             ;; is the user dragging the splitter (mouse is down)?
         over?       (reagent/atom false)             ;; is the mouse over the splitter, if so, highlight it
@@ -148,7 +167,7 @@
                            {:class class
                             :style (merge {:display "flex"
                                            :flex (str percentage " 1 0px")
-                                           :overflow "hidden" ;; TODO: Shouldn't have this...tyest removing it
+                                           :overflow "hidden" ;; TODO: Shouldn't have this...test removing it
                                            }
                                           (when in-drag? {:pointer-events "none"}))})
 

@@ -3,8 +3,15 @@
              [alandipert.storage-atom :refer [local-storage]]
              [re-demo.util :refer  [title]]
              [re-com.box   :refer [h-box v-box box gap line scroller border]]
-             [re-com.core  :refer [button]]
+             [re-com.dropdown :refer [single-dropdown]]
+             [re-com.core  :refer [button label]]
              [re-com.tabs  :as tabs]))
+
+
+(def demos [{:id 1 :label "Horizontal Tabs"}
+            {:id 2 :label "A Persistent Tab Selection"}
+            {:id 3 :label "Dynamic Tabs"}
+            {:id 4 :label "Vertical Tabs"}])
 
 
 ;; Define some tabs.
@@ -19,7 +26,7 @@
 
 (defn horizontal-tabs-demo
   []
-  (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]     ;; holds the id of the selected tab
+  (let [selected-tab-id (reagent/atom (:id :blah))]              ;;(first tabs-definition)   ;; holds the id of the selected tab
     (fn []
       [v-box
        :children [[title "Horizontal Tabs"]
@@ -146,10 +153,32 @@
          [:li "XXX Not Done yet"]]]])))
 
 
+
 (defn panel
   []
-  [v-box
-   :children [[horizontal-tabs-demo]
-              [remembers-demo]
-              [adding-tabs-demo]
-              #_[vertical-tabs-demo]]])
+  (let [selected-demo-id (reagent/atom 1)]
+    (fn []
+      [v-box
+       :children [[:h3.page-header "Tour"]
+                  [h-box
+                   :gap      "50px"
+                   :children [                              ;;[notes]
+                              [v-box
+                               :gap       "15px"
+                               :size      "auto"
+                               :min-width "500px"
+                               :children  [[h-box
+                                            :gap      "10px"
+                                            :align    :center
+                                            :children [[label :label "Select a demo"]
+                                                       [single-dropdown
+                                                        :choices   demos
+                                                        :model     selected-demo-id
+                                                        :width     "300px"
+                                                        :on-change #(reset! selected-demo-id %)]]]
+                                           [gap :size "0px"] ;; Force a bit more space here
+                                           (case @selected-demo-id
+                                             1 [horizontal-tabs-demo]
+                                             2 [remembers-demo]
+                                             3 [adding-tabs-demo]
+                                             4 [vertical-tabs-demo])]]]]]])))

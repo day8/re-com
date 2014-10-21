@@ -359,7 +359,7 @@
 ;            [:p {:style {:text-align "center"}}
 ;             [:strong "Recalculating..."] [:br]
 ;             [:strong "Current step: "] [progress-msg-2 progress-msg]]
-;            [progress-bar progress-percent]
+;            [progress-bar :model progress-percent]
 ;            [cancel-button #(reset! calculating? false)]]])
 ;
 ;(defn mwi-steps-2
@@ -539,7 +539,8 @@
                    [:p {:style {:text-align "center"}}
                     [:strong "Recalculating..."] [:br]
                     [:strong "Current step: "] [(fn [] [:span @progress-msg])]]
-                   [progress-bar progress-percent]
+                   [progress-bar
+                    :model progress-percent]
                    [cancel-button #(reset! calculating? false)]]])])))
 
 
@@ -606,7 +607,7 @@
 ;            [:p {:style {:text-align "center"}}
 ;             [:strong "Recalculating..."] [:br]
 ;             [:strong "Current step: "] [progress-msg progress-msg]]
-;            [progress-bar progress-percent]
+;            [progress-bar :model progress-percent]
 ;            [cancel-button #(reset! calculating? false)]]])
 ;
 ;(defn chunked-json

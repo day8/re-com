@@ -71,7 +71,8 @@
                      :right (str (point arrow-length 0) (point 0 half-arrow-width)            (point arrow-length arrow-width))
                      :above (str (point 0 0)            (point half-arrow-width arrow-length) (point arrow-width 0))
                      :below (str (point 0 arrow-length) (point half-arrow-width 0)            (point arrow-width arrow-length))}]
-    [:svg {:style {:position "absolute"
+    [:svg {:class "popover-arrow"
+           :style {:position "absolute"
                    (case orientation ;; Connect arrow to edge of popover
                      :left  :right
                      :right :left
@@ -213,13 +214,14 @@
             :style {:display "inline-flex"
                    :flex     "inherit"}}
      (when (and @showing? backdrop-callback)
-       [:div {:style    {:position         "fixed"
-                         :left             "0px"
-                         :top              "0px"
-                         :width            "100%"
-                         :height           "100%"
-                         :background-color "black"
-                         :opacity          backdrop-opacity}
+       [:div {:class    "popover-backdrop"
+               :style   {:position        "fixed"
+                        :left             "0px"
+                        :top              "0px"
+                        :width            "100%"
+                        :height           "100%"
+                        :background-color "black"
+                        :opacity          backdrop-opacity}
               :on-click backdrop-callback}])
      [:div {:style {:display "inline-flex" :flex-flow flex-flow :align-items "center"}}
       (when place-anchor-before? anchor)
