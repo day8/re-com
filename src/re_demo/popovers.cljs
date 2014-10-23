@@ -28,19 +28,33 @@
                               [v-box
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
-                               :children [[popover
-                                           :position :right-below
-                                           :showing? popover-showing?
-                                           :anchor   [button
-                                                      :label         (if @popover-showing? "Pop-down" "Click me")
-                                                      :on-click      #(reset! popover-showing? (not @popover-showing?))
-                                                      :class         "btn-success"]
-                                           :popover  {:title         "A Popover Is Happening"
-                                                      :close-button? false
-                                                      :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}
-                                           ;:options  {:arrow-length 30}
-                                           ]
-                                          [popover-form-demo/popover-form-demo]]]]]]])))
+                               :children [[h-box
+                                           :gap      "10px"
+                                           :children [[popover
+                                                       :position :right-below
+                                                       :showing? popover-showing?
+                                                       :anchor   [button
+                                                                  :label         (if @popover-showing? "Pop-down" "Click me")
+                                                                  :on-click      #(reset! popover-showing? (not @popover-showing?))
+                                                                  :class         "btn-success"]
+                                                       :popover  {:title         "A Popover Is Happening"
+                                                                  :close-button? false
+                                                                  :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}]
+                                                      [popover
+                                                       :position :right-below
+                                                       :showing? popover-showing?
+                                                       :anchor   [button
+                                                                  :label         (if @popover-showing? "Pop-down" "Click me (new)")
+                                                                  :on-click      #(reset! popover-showing? (not @popover-showing?))
+                                                                  :class         "btn-success"]
+                                                       :popover  {:title         "A Popover Is Happening"
+                                                                  :close-button? false
+                                                                  :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}]]]
+                                          [h-box
+                                           :gap      "10px"
+                                           :children [[popover-form-demo/popover-form-demo]
+                                                      [popover-form-demo/popover-form-demo-new]
+                                                      [popover-form-demo/popover-form-demo-new-2]]]]]]]]])))
 
 
 
