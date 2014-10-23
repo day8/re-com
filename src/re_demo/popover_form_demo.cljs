@@ -15,64 +15,62 @@
                                 (reset! popover-form-showing? false)
                                 (on-change new-form-data))
         cancel-popover-form   #(reset! popover-form-showing? false)
-        show-tooltip?         (reagent/atom false)]
+        show-tooltip?         (reagent/atom (= (:show-tooltip? @form-data) "2"))]
     (fn []
       (println "         Render: " @form-data)
       [popover-content
-       :showing?  popover-form-showing?
-       :on-cancel cancel-popover-form
-       :position  position
-       :width     500
-       :title     "This is the title"
-       :body      [(fn []                                   ;; NOTE: THIS IS NASTY BUT REQUIRED (OTHERWISE FORM WILL NOT BE UPDATED WHEN ATOMS CHANGES)
-                     [v-box
-                      :children [[:span "The body of a popover can act like a dialog box containg standard input controls."]
-                                 #_[label ;; TODO: asdlaldsjalksd
-                                  :label "This popover contains an embedded form..."]
-                                 [gap :size "15px"]
-                                 [h-box
-                                  :children [[v-box
-                                              :size "auto"
-                                              :children [[radio-button
-                                                          :label "Don't show extra popover"
-                                                          :value "1"
-                                                          :model (:colour-spec @form-data)
-                                                          :on-change #(swap! form-data assoc :colour-spec "1")]
-                                                         [radio-button
-                                                          :label "Show extra popover"
-                                                          :value "2"
-                                                          :model (:colour-spec @form-data)
-                                                          :on-change #(swap! form-data assoc :colour-spec "2")]]]]]
-                                 [gap :size "15px"]
-                                 [:hr {:style {:margin "10px 0 10px"}}] ;; TODO: Change to line
-                                 [h-box
-                                  :gap "10px"
-                                  :children [[button
-                                              :label [:span [:span.glyphicon.glyphicon-ok] " Apply"]
-                                              :on-click #(submit-popover-form @form-data)
-                                              :class "btn-primary"]
-                                             [popover
-                                              :position :right-below
-                                              :showing? show-tooltip?
-                                              :anchor [:button ;; Standard [button] can't handle mouse-over/out
-                                                       {:class         "btn"
-                                                        :style         {:flex "none"}
-                                                        :on-click      cancel-popover-form
-                                                        :on-mouse-over #(reset! show-tooltip? true)
-                                                        :on-mouse-out  #(reset! show-tooltip? false)}
-                                                       [:span [:span.glyphicon.glyphicon-remove] " Cancel"]]
-                                              :popover {:title         "This is the cancel button"
-                                                        :close-button? false
-                                                        :body          "You can even have a popover over a popover!"}]]]]])]])))
+       :showing?         popover-form-showing?
+       :on-cancel        cancel-popover-form
+       :position         position
+       :width            500
+       :backdrop-opacity 0.3
+       :title            "This is the title"
+       :body             [(fn []                                   ;; NOTE: THIS IS NASTY BUT REQUIRED (OTHERWISE FORM WILL NOT BE UPDATED WHEN ATOMS CHANGES)
+                            [v-box
+                             :children [[:span "The body of a popover can act like a dialog box containg standard input controls."]
+                                        #_[label ;; TODO: asdlaldsjalksd
+                                         :label "This popover contains an embedded form..."]
+                                        [gap :size "15px"]
+                                        [h-box
+                                         :children [[v-box
+                                                     :size "auto"
+                                                     :children [[radio-button
+                                                                 :label "Don't show extra popover"
+                                                                 :value "1"
+                                                                 :model (:show-tooltip? @form-data)
+                                                                 :on-change (fn []
+                                                                              (swap! form-data assoc :show-tooltip? "1")
+                                                                              (reset! show-tooltip? false))]
+                                                                [radio-button
+                                                                 :label "Show extra popover"
+                                                                 :value "2"
+                                                                 :model (:show-tooltip? @form-data)
+                                                                 :on-change (fn []
+                                                                              (swap! form-data assoc :show-tooltip? "2")
+                                                                              (reset! show-tooltip? true))]]]]]
+                                        [gap :size "15px"]
+                                        [:hr {:style {:margin "10px 0 10px"}}] ;; TODO: Change to line
+                                        [h-box
+                                         :gap "10px"
+                                         :children [[button
+                                                     :label [:span [:span.glyphicon.glyphicon-ok] " Apply"]
+                                                     :on-click #(submit-popover-form @form-data)
+                                                     :class "btn-primary"]
+                                                    [popover
+                                                     :position :right-below
+                                                     :showing? show-tooltip?
+                                                     :anchor   [button
+                                                                :label [:span [:span.glyphicon.glyphicon-remove] " Cancel"]
+                                                                :on-click cancel-popover-form]
+                                                     :popover {:title         "This is the cancel button"
+                                                               :close-button? false
+                                                               :body          "You can even have a popover over a popover!"}]]]]])]])))
 
 
 (defn popover-form-demo
   []
   (let [popover-form-showing? (reagent/atom false)
-        form-data             (reagent/atom {:red         false
-                                             :green       true
-                                             :blue        false
-                                             :colour-spec "2"})
+        form-data             (reagent/atom {:show-tooltip? "2"})
         on-change             (fn [new-form-data]
                                 (reset! form-data new-form-data)
                                 (println "Data changed to: " @form-data))

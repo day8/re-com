@@ -17,7 +17,7 @@
                    :gap "50px"
                    :children [[v-box
                                :width   "500px"
-                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :margin  "20px 0px 0px 0px"
                                :children [
                                            [:div.h4 "Notes:"]
                                            [:ul
@@ -28,7 +28,7 @@
                                             [:li "If window contents change while popped-up, it stays glued. "]]]]
                               [v-box
                                :gap     "30px"
-                               :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
+                               :margin  "20px 0px 0px 0px"
                                :children [[h-box
                                            :gap      "10px"
                                            :children [[popover
@@ -50,8 +50,7 @@
                                                                   :class         "btn-success"]
                                                        :popover  {:title         "A Popover Is Happening"
                                                                   :close-button? false
-                                                                  :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}]]]
-                                          ]]]]]])))
+                                                                  :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}]]]]]]]]])))
 
 
 (defn hyperlink-popover-demo
@@ -64,14 +63,13 @@
                    :gap "50px"
                    :children [[v-box
                                :width   "500px"
-                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :margin  "20px 0px 0px 0px"
                                :children [[:ul
                                            [:li "Notes go here."]]]]
                               [v-box
                                :gap     "30px"
-                               :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
-                               :children [[:span "TODO"]
-                                          ]]]]]])))
+                               :margin  "20px 0px 0px 0px"
+                               :children [[:span "TODO"]]]]]]])))
 
 
 (defn proximity-popover-demo
@@ -90,8 +88,7 @@
                               [v-box
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"
-                               :children [[:span "TODO"]
-                                          ]]]]]])))
+                               :children [[:span "TODO"]]]]]]])))
 
 
 (defn complex-popover-demo
@@ -104,14 +101,13 @@
                    :gap "50px"
                    :children [[v-box
                                :width   "500px"
-                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :margin  "20px 0px 0px 0px"
                                :children [[:ul
                                            [:li "Notes go here."]]]]
                               [v-box
                                :gap     "30px"
-                               :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
-                               :children [[popover-form-demo/popover-form-demo]]]]]
-                  ]])))
+                               :margin  "20px 0px 0px 0px"
+                               :children [[popover-form-demo/popover-form-demo]]]]]]])))
 
 
 (defn panel
