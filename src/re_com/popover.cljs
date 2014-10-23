@@ -255,31 +255,6 @@
 
 
 ;;--------------------------------------------------------------------------------------------------
-;; Component: popover-title
-;;--------------------------------------------------------------------------------------------------
-
-(def popover-title-args
-  #{:title            ;;
-    :showing?         ;;
-    :close-button?    ;;
-    :close-callback   ;;
-    })
-
-
-(defn popover-title
-  [& {:keys [title showing? close-button? close-callback]
-      :or {close-button? true}
-      :as args}]
-  {:pre [(superset? popover-title-args (keys args))]}
-  "Renders an element or control along with a Bootstrap popover."
-  (let []
-    [:h3.popover-title
-     [:div {:style {:display "flex" :flex-flow "row nowrap" :justify-content "space-between" :align-items "center"}}
-      title
-      (when close-button? [close-button showing? close-callback])]]))
-
-
-;;--------------------------------------------------------------------------------------------------
 ;; Component: popover-border
 ;;--------------------------------------------------------------------------------------------------
 
@@ -343,7 +318,69 @@
                             {:margin-left margin-left :margin-top margin-top})}
              [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
              (when title title)
-             (into [:div.popover-content {:style {:padding padding}}] children)]))})))
+             ;(into [:div.popover-content {:style {:padding padding}}] children)
+             [:div.popover-content {:style {:padding padding}} children]
+             ]))})))
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: popover-title
+;;--------------------------------------------------------------------------------------------------
+
+(def popover-title-args
+  #{:title            ;; ;; TODO: fill this in AND validate that either close-callback is passed or showing? is passed (otherwise error)
+    :showing?         ;; ;; TODO: If close-button is true then validate that ONE of the options is passed
+    :close-button?    ;;
+    :close-callback   ;;
+    })
+
+
+(defn popover-title
+  [& {:keys [title showing? close-button? close-callback]
+      :or {close-button? true}
+      :as args}]
+  {:pre [(superset? popover-title-args (keys args))]}
+  "Renders a title at the top of a popover with an optional close button on the far right."
+  [:h3.popover-title
+   [:div {:style {:display "flex" :flex-flow "row nowrap" :justify-content "space-between" :align-items "center"}}
+    title
+    (when close-button? [close-button showing? close-callback])]])
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: popover-content
+;;--------------------------------------------------------------------------------------------------
+
+(def popover-content-args
+  #{:showing?    ;;
+    :position   ;;
+    :width      ;;
+    :on-cancel  ;;
+    :title      ;;
+    :body       ;;
+    })
+
+
+(defn popover-content
+  [& {:keys [showing? position width on-cancel title body] :as args}]
+  {:pre [(superset? popover-content-args (keys args))]}
+  "..............................................."         ;; TODO:
+  [:div
+   [backdrop
+    :opacity  0.3
+    :on-click on-cancel]
+   [popover-border
+    :position      position
+    :width         width
+    :title         [popover-title
+                    :title          title
+                    :showing?       showing?
+                    :close-button?  true
+                    :close-callback on-cancel]
+    ;; TODO: Rename to :child in popover-border ?
+    ;:children       [(fn [] body)]
+    :children       body
+    ]])
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -354,16 +391,7 @@
   #{:position   ; Place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below
     :showing?   ; A reagent atom with boolean, which controls whether the popover is showing or not
     :anchor     ; The markup which the popover is attached to
-    :popover    ; Popover body markup (including title if required)
-    :options    ; Options map:
-                ;  - :width             a CSS string representing the popover width in pixels (or nil or omit parameter for auto)
-                ;  - :height            a CSS string representing the popover height in pixels (or nil or omit parameter for auto)
-                ;  - :arrow-length      length in pixels of arrow (from pointy part to middle of arrow base)
-                ;  - :arrow-width       length in pixels of arrow base
-                ;  - :padding           override the inner padding of the popover
-                ;  - :margin-left       horiztonal offset from anchor after position
-                ;  - :margin-top        vertical offset from anchor after position
-                ;  - :close-callback    function called when the close button is pressed (overrides the default close behaviour)
+    :popover    ; Popover body component
     })
 
 
