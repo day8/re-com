@@ -16,7 +16,8 @@
                   [h-box
                    :gap "50px"
                    :children [[v-box
-                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :width   "500px"
+                               :margin  "20px 0px 0px 0px"
                                :children [
                                            [:div.h4 "Notes:"]
                                            [:ul
@@ -27,21 +28,29 @@
                                             [:li "If window contents change while popped-up, it stays glued. "]]]]
                               [v-box
                                :gap     "30px"
-                               :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
-                               :children [[popover
-                                           :position :right-below
-                                           :showing? popover-showing?
-                                           :anchor   [button
-                                                      :label         (if @popover-showing? "Pop-down" "Click me")
-                                                      :on-click      #(reset! popover-showing? (not @popover-showing?))
-                                                      :class         "btn-success"]
-                                           :popover  {:title         "A Popover Is Happening"
-                                                      :close-button? false
-                                                      :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}
-                                           ;:options  {:arrow-length 30}
-                                           ]
-                                          [popover-form-demo/popover-form-demo]]]]]]])))
-
+                               :margin  "20px 0px 0px 0px"
+                               :children [[h-box
+                                           :gap      "10px"
+                                           :children [[popover
+                                                       :position :right-below
+                                                       :showing? popover-showing?
+                                                       :anchor   [button
+                                                                  :label         (if @popover-showing? "Pop-down" "Click me")
+                                                                  :on-click      #(reset! popover-showing? (not @popover-showing?))
+                                                                  :class         "btn-success"]
+                                                       :popover  {:title         "A Popover Is Happening"
+                                                                  :close-button? false
+                                                                  :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}]
+                                                      [popover
+                                                       :position :right-below
+                                                       :showing? popover-showing?
+                                                       :anchor   [button
+                                                                  :label         (if @popover-showing? "Pop-down" "Click me (new)")
+                                                                  :on-click      #(reset! popover-showing? (not @popover-showing?))
+                                                                  :class         "btn-success"]
+                                                       :popover  {:title         "A Popover Is Happening"
+                                                                  :close-button? false
+                                                                  :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}]]]]]]]]])))
 
 
 (defn hyperlink-popover-demo
@@ -52,7 +61,15 @@
        :children [[title "Hyperlink Popover"]
                   [h-box
                    :gap "50px"
-                   :children []]]])))
+                   :children [[v-box
+                               :width   "500px"
+                               :margin  "20px 0px 0px 0px"
+                               :children [[:ul
+                                           [:li "Notes go here."]]]]
+                              [v-box
+                               :gap     "30px"
+                               :margin  "20px 0px 0px 0px"
+                               :children [[:span "TODO"]]]]]]])))
 
 
 (defn proximity-popover-demo
@@ -60,21 +77,38 @@
   (let [popover-showing?  (reagent/atom false)]
     (fn []
       [v-box
-       :children [[title "Proximity Popover"]
+       :children [[title "Proximity Popover (tooltip)"]
                   [h-box
                    :gap "50px"
-                   :children []]]])))
+                   :children [[v-box
+                               :width   "500px"
+                               :margin  "20px 0px 0px 0px"
+                               :children [[:ul
+                                           [:li "Notes go here."]]]]
+                              [v-box
+                               :gap     "30px"
+                               :margin  "20px 0px 0px 0px"
+                               :children [[:span "TODO"]]]]]]])))
 
 
-(defn modal-popover-demo
+(defn complex-popover-demo
   []
   (let [popover-showing?  (reagent/atom false)]
     (fn []
       [v-box
-       :children [[title "Modal Popover"]
+       :children [[title "Complex Popover (dialog box)"]
                   [h-box
                    :gap "50px"
-                   :children []]]])))
+                   :children [[v-box
+                               :width   "500px"
+                               :margin  "20px 0px 0px 0px"
+                               :children [[:ul
+                                           [:li "Notes go here."]]]]
+                              [v-box
+                               :gap     "30px"
+                               :margin  "20px 0px 0px 0px"
+                               :children [[popover-form-demo/popover-form-demo]]]]]]])))
+
 
 (defn panel
   []
@@ -82,5 +116,4 @@
    :children [[simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]
-              [modal-popover-demo]
-              #_[complicated-form-popover]]])
+              [complex-popover-demo]]])

@@ -44,7 +44,7 @@
     (let [p-width        (.-clientWidth popover-elem)
           p-height       (.-clientHeight popover-elem)
           popover-left   (case pop-orient
-                           :left           "initial" ;; TODO: Remove this pollution (must have NO :left which is in Bootstrap .popover class)
+                           :left           "initial" ;; TODO: Ultimately remove this (must have NO :left which is in Bootstrap .popover class)
                            :right          "100%"
                            (:above :below) (px (if pop-offset pop-offset (/ p-width 2)) :negative))
           popover-top    (case pop-orient
@@ -65,7 +65,7 @@
 
 
 (defn- popover-arrow
-  [orientation pop-offset arrow-length arrow-width grey-arrow]
+  [orientation pop-offset arrow-length arrow-width grey-arrow?]
   (let [half-arrow-width (/ arrow-width 2)
         arrow-shape {:left  (str (point 0 0)            (point arrow-length half-arrow-width) (point 0 arrow-width))
                      :right (str (point arrow-length 0) (point 0 half-arrow-width)            (point arrow-length arrow-width))
@@ -95,14 +95,12 @@
                                  (:left  :right) arrow-width
                                  (:above :below) arrow-length))}}
      [:polyline {:points (arrow-shape orientation)
-                 :style {:fill (if grey-arrow "#f7f7f7" "white")
+                 :style {:fill (if grey-arrow? "#f7f7f7" "white")
                          :stroke "rgba(0, 0, 0, .2)"
                          :stroke-width "1"}}]]))
 
 
 (defn- make-popover
-  ;TODO: Args being passed but not used: anchor backdrop-callback backdrop-opacity
-  ;TODO: Args being used but not declared: padding margin-left margin-top
   [{:keys [showing? close-button? position title body width height close-callback arrow-length arrow-width]
     :or {close-button? true position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22}
     :as popover-params}]
@@ -125,7 +123,7 @@
   (let [rendered-once           (reagent/atom false)
         pop-id                  (gensym "popover-")
         [orientation arrow-pos] (split-keyword position "-")
-        grey-arrow              (and title (or (= orientation :below) (= arrow-pos :below)))]
+        grey-arrow?             (and title (or (= orientation :below) (= arrow-pos :below)))]
     (reagent/create-class
      {:component-did-mount
       (fn []
@@ -140,8 +138,7 @@
                                :right  20
                                :below  20
                                :left   (if width (- width 25) width)
-                               :above  (if p-height (- p-height 25) p-height)
-                               )]
+                               :above  (if p-height (- p-height 25) p-height))]
 
           [:div.popover.fade.in
            {:id pop-id
@@ -161,7 +158,7 @@
                           {:display "block" :max-width "none" :padding (px 0)}
                           ;; optional override offsets
                           (select-keys popover-params [:margin-left :margin-top]))}
-           [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow]
+           [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow?]
            ;(when title [:h3.popover-title [:div title (when close-button? [close-button showing? close-callback])]])
            (when title [:h3.popover-title
                         [:div {:style {:display "flex" :flex-flow "row nowrap" :justify-content "space-between" :align-items "center"}}
@@ -232,14 +229,206 @@
 
 
 ;;--------------------------------------------------------------------------------------------------
+;; Component: backdrop
+;;--------------------------------------------------------------------------------------------------
+
+(def backdrop-args
+  #{:opacity    ; The opacity of the backdrop (0 for transparent to 1 for fully opaque).
+    :on-click   ; Callback function for when the backdrop is clicked.
+    })
+
+
+(defn backdrop
+  [& {:keys [opacity on-click] :as args}]
+  {:pre [(superset? backdrop-args (keys args))]}
+  (println opacity)
+  "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be."
+  [:div {:class     "rc-backdrop"
+         :style    {:position         "fixed"
+                    :left             "0px"
+                    :top              "0px"
+                    :width            "100%"
+                    :height           "100%"
+                    :background-color "black"
+                    :opacity          (if opacity opacity 0.0)}
+         :on-click on-click}])
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: popover-border
+;;--------------------------------------------------------------------------------------------------
+
+(def popover-border-args
+  #{:position         ;; Place popover relative to the anchor :above-left/center/right,
+                      ;; :below-left/center/right, :left-above/center/below, :right-above/center/below (default is :right-below).
+    :width            ;; A CSS string representing the popover width in pixels or nil or omit parameter for auto (default 250px).
+    :height           ;; A CSS string representing the popover height in pixels (or nil or omit parameter for auto (default "auto").
+    :arrow-length     ;; Length in pixels of arrow (from pointy part to middle of arrow base).
+    :arrow-width      ;; Length in pixels of arrow base.
+    :padding          ;; Override the inner padding of the popover.
+    :margin-left      ;; Horiztonal offset from anchor after position.
+    :margin-top       ;; Vertical offset from anchor after position.
+    :title            ;; Markup for a title. Can of course be a simple string.
+    :children         ;; A vector of components.
+    })
+
+
+(defn popover-border
+  [& {:keys [position width height arrow-length arrow-width padding margin-left margin-top title children]
+      :or {position :right-below width 250 arrow-length 11 arrow-width 22}
+      :as args}]
+  {:pre [(superset? popover-border-args (keys args))]}
+  "Renders an element or control along with a Bootstrap popover."
+  (let [rendered-once           (reagent/atom false)
+        pop-id                  (gensym "popover-")
+        [orientation arrow-pos] (split-keyword position "-")
+        grey-arrow?             (and title (or (= orientation :below) (= arrow-pos :below)))]
+    (reagent/create-class
+      {:component-did-mount
+        (fn []
+          (reset! rendered-once true))
+
+       :render
+        (fn []
+          (let [popover-elem   (util/get-element-by-id pop-id)
+                p-height       (if popover-elem (.-clientHeight popover-elem) 0) ;; height is optional (with no default) so we need to calculate it
+                pop-offset     (case arrow-pos
+                                 :center nil
+                                 :right  20
+                                 :below  20
+                                 :left   (if width (- width 25) width)
+                                 :above  (if p-height (- p-height 25) p-height))]
+            [:div.popover.fade.in
+             {:id pop-id
+              :class (case orientation :left "left" :right "right" :above "top" :below "bottom")
+              :style (merge (if @rendered-once
+                              (calc-popover-pos pop-id orientation pop-offset)
+                              {:top (px -10000) :left (px -10000)})
+                            (if width {:width width})
+                            (if height {:height height})
+                            {(case orientation
+                               (:left  :right) :margin-left
+                               (:above :below) :margin-top) (px (case orientation
+                                                                  :left           (str "-" (+ arrow-length width))
+                                                                  :above          (str "-" (+ arrow-length p-height))
+                                                                  (:right :below) arrow-length))}
+                            ;; make it visible and turn off BS max-width and remove BS padding which adds an internal white border
+                            {:display "block" :max-width "none" :padding (px 0)}
+                            ;; optional override offsets
+                            {:margin-left margin-left :margin-top margin-top})}
+             [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow?]
+             (when title title)
+             (into [:div.popover-content {:style {:padding padding}}] children)]))})))
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: popover-title
+;;--------------------------------------------------------------------------------------------------
+
+(def popover-title-args
+  #{:title            ;; The title of the popover. Can be a string or markup. Defaul font size is 18px to make it stand out.
+    :showing?         ;; The showing? atom used to show/hide the popover, required for close button.
+                      ;; NOTE: Not required if close-button? set to false OR close-callback specified.
+    :close-button?    ;; A boolean indicating whether to display the close button or now. Defaults to true.
+    :close-callback   ;; Call this function if the close buton is pressed.
+                      ;; NOTE: Not required if showing? atom passed in OR close-button? set to false.
+    })
+
+
+(defn popover-title
+  [& {:keys [title showing? close-button? close-callback]
+      :or {close-button? true}
+      :as args}]
+  {:pre [(superset? popover-title-args (keys args))]}
+  "Renders a title at the top of a popover with an optional close button on the far right."
+  (assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback")
+  [:h3.popover-title {:style {:font-size "18px"}}
+   [:div {:style {:display "flex"
+                  :flex-flow "row nowrap"
+                  :justify-content "space-between"
+                  :align-items "center"}}
+    title
+    (when close-button? [close-button showing? close-callback])]])
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: popover-content
+;;--------------------------------------------------------------------------------------------------
+
+(def popover-content-args
+  #{:showing?           ;; The atom used to dhow/hide the popover.
+    :position           ;; Place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below.
+    :width              ;; A CSS string representing the popover width in pixels or nil or omit parameter for auto (default 250px).
+    :backdrop-opacity   ;; A float number indicating the opacity of the backdrop  0 = transparent, 1 = black.
+    :on-cancel          ;; THe callback used when a cancel event is detected (close-button pressed or backdrop clicked).
+    :title              ;; Markup for a title. Can of course be a simple string.
+    :body               ;; Markup for the popover body. Must be a single component.
+    })
+
+
+(defn popover-content
+  [& {:keys [showing? position width backdrop-opacity on-cancel title body] :as args}]
+  {:pre [(superset? popover-content-args (keys args))]}
+  "Abstracts several components to handle the 90% case for general popovers and dialog boxes."
+  [:div
+   [backdrop
+    :opacity  backdrop-opacity
+    :on-click on-cancel]
+   [popover-border
+    :position position
+    :width    width
+    :title    [popover-title
+               :title          title
+               :showing?       showing?
+               :close-button?  true
+               :close-callback on-cancel]
+    :children  [body]]])
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: popover-anchor-wrapper
+;;--------------------------------------------------------------------------------------------------
+
+(def popover-anchor-wrapper-args
+  #{:position   ; Place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below.
+    :showing?   ; A reagent atom with boolean, which controls whether the popover is showing or not.
+    :anchor     ; The markup which the popover is attached to.
+    :popover    ; Popover body component.
+    })
+
+
+(defn popover-anchor-wrapper
+  [& {:keys [position showing? anchor popover] :as args}]
+  {:pre [(superset? popover-anchor-wrapper-args (keys args))]}
+  "Renders an element or control along with a Bootstrap popover."
+  (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
+        place-anchor-before?    (case orientation (:left :above) false true)
+        flex-flow               (case orientation (:left :right) "row" "column")]
+    (println "RENDER: popover-anchor-wrapper")
+    [:div {:class  "rc-popover"
+            :style {:display "inline-flex"
+                   :flex     "inherit"}}
+     [:div {:class "rc-point-wrapper"
+            :style {:display "inline-flex"
+                    :flex-flow flex-flow
+                    :align-items "center"}} ;; Wrapper around the anchor and the "point"
+      (when place-anchor-before? anchor)
+      (when @showing?
+        [:div {:class "re-popover-point"
+               :style {:position "relative" :display "inline-flex"}} ;; This is the "point" that connects the anchor to the popover
+         popover])
+      (when-not place-anchor-before? anchor)]]))
+
+
+;;--------------------------------------------------------------------------------------------------
 ;; Component: make-button
 ;;--------------------------------------------------------------------------------------------------
 
 (def make-button-args
-  #{:showing?   ; The atom used to hide/show the popover
-    :type       ; Button type (string): default, primary, success, info, warning, danger, link
-    :label      ; Label for the button
-    :style      ; Custom style for the button
+  #{:showing?   ; The atom used to hide/show the popover.
+    :type       ; Button type (string): default, primary, success, info, warning, danger, link.
+    :label      ; Label for the button.
+    :style      ; Custom style for the button.
     })
 
 
@@ -260,12 +449,12 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def make-link-args
-  #{:showing?   ; The atom used to hide/show the popover
+  #{:showing?   ; The atom used to hide/show the popover.
     :toggle-on  ; Determine how to show popover:
                 ;  - :mouse  Make this a hover popover (tooltip)
                 ;  - :click  Make it a click popover
-    :label      ; Label for the link
-    :style      ; Custom style for the link
+    :label      ; Label for the link.
+    :style      ; Custom style for the link.
     })
 
 

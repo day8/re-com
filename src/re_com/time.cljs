@@ -134,10 +134,10 @@
     :minimum                             ;; Integer - a time integer - times less than this will not be allowed - default is 0.
     :maximum                             ;; Integer - a time integer - times more than this will not be allowed - default is 2359.
     :on-change                           ;; function - callback will be passed new result - a time integer or nil
-    :disabled                            ;; boolean or reagent/atom on boolean - when true, navigation is allowed but selection is disabled.
+    :disabled?                           ;; boolean or reagent/atom on boolean - when true, navigation is allowed but selection is disabled?.
     :show-icon                           ;; boolean - if true display a clock icon to the right of the
     :style                               ;; map - optional css style information
-    :hide-border                         ;; boolean - hide border of the input box - default false.
+    :hide-border?                        ;; boolean - hide border of the input box - default false.
     :class                               ;; string - class for css styling
     })
 
@@ -145,21 +145,18 @@
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
   Parameters - refer time-input-args above."
-  [& {:keys [model on-change class style] :as args
+  [& {:keys [model minimum maximum on-change class style] :as args
       :or   {minimum 0 maximum 2359}}]
 
-  {:pre [(superset? time-input-args (keys args))]}
+  {:pre [(superset? time-input-args (keys args))
+         (validate-arg-times (deref-or-value model) minimum maximum)]}
 
   (let [deref-model (deref-or-value model)
         text-model (reagent/atom (time->text deref-model))
         previous-model (reagent/atom deref-model)]
 
-    (fn [& {:keys [model minimum maximum disabled hide-border show-icon] :as passthrough-args}]
-
-      {:pre [(and (superset? time-input-args (keys passthrough-args))
-                  (validate-arg-times deref-model minimum maximum))]}
-
-      (let [style (merge (when hide-border {:border "none"})
+    (fn [& {:keys [model minimum maximum disabled? hide-border? show-icon] :as passthrough-args}]
+      (let [style (merge (when hide-border? {:border "none"})
                          style)
             new-val (deref-or-value model)
             new-val (if (< new-val minimum) minimum new-val)
@@ -173,7 +170,7 @@
         [:span.input-append {:style {:flex "none"}}
          [:input
           {:type      "text"
-           :disabled  (deref-or-value disabled)
+           :disabled  (deref-or-value disabled?)
            :class     (if class (str "time-entry " class) "time-entry")
            :value     @text-model
            :style     style
