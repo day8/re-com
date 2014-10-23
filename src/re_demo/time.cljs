@@ -29,8 +29,8 @@
                 [:li [:code ":minimum"] " - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
                 [:li [:code ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
                 [:li [:code ":on-change"] " - function to call upon change."]
-                [:li [:code ":disabled"] " - true if the component should be disabled - default false. Can also be an atom containing a boolean."]
-                [:li [:code ":hide-border"] " - true if the time input should be displayed without a border - default false"]
+                [:li [:code ":disabled?"] " - true if the component should be disabled - default false. Can also be an atom containing a boolean."]
+                [:li [:code ":hide-border?"] " - true if the time input should be displayed without a border - default false"]
                 [:li [:code ":show-icon"] " - true if the clock icon should be displayed - default false"]
                 [:li [:code ":class"] " - class for styling"]
                 [:li [:code ":style"] " - css style"]]]]])
@@ -46,12 +46,12 @@
                :gap "15px"
                :align :start
                :children [[checkbox
-                           :label ":disabled"
+                           :label ":disabled?"
                            :label-style check-style
                            :model @disabled?
                            :on-change #(reset! disabled? %)]
                           [checkbox
-                           :label ":hide-border"
+                           :label ":hide-border?"
                            :label-style check-style
                            :model @hide-border?
                            :on-change #(reset! hide-border? %)]
@@ -63,15 +63,14 @@
 
 (defn basics-demo
   []
-  (let [disabled? (reagent/atom false)
+  (let [disabled?    (reagent/atom false)
         hide-border? (reagent/atom false)
-        show-icon? (reagent/atom false)
-        an-int-time (reagent/atom 900)                      ;; starts at 9am
+        show-icon?   (reagent/atom false)
+        an-int-time  (reagent/atom 900)                      ;; starts at 9am
         init-minimum 0
-        minimum (reagent/atom init-minimum)
+        minimum      (reagent/atom init-minimum)
         init-maximum 2359
-        maximum (reagent/atom init-maximum)
-        ]
+        maximum      (reagent/atom init-maximum)]
     (fn []
       [v-box
        :gap "20px"
@@ -84,15 +83,15 @@
                                :minimum @minimum
                                :maximum @maximum
                                :on-change #(reset! an-int-time %)
-                               :disabled disabled?
-                               :hide-border @hide-border?
+                               :disabled? disabled?
+                               :hide-border? @hide-border?
                                :show-icon @show-icon?]
                               [v-box
                                :gap "10px"
                                :children [[label :style {:font-style "italic"} :label "simulated boolean parameters:"]
                                           [simulated-bools disabled? hide-border? show-icon?]
                                           [gap :size "20px"]
-                                          [label :style {:font-style "italic"} :label "simulated model changes:"]
+                                          [label :style {:font-style "italic"} :label "simulated model resets:"]
                                           [h-box
                                            :gap "10px"
                                            :align :center
