@@ -10,19 +10,18 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def alert-box-args
-  #{:id           ; A unique identifier, usually an integer or string, but could be any complex data structure
-                  ; This is optional for single alerts. It's main use is in alert-list below
-    :alert-type   ; A Bootstrap string determining the style. Either 'info', 'warning' or 'danger'
+  #{:id           ; A unique identifier for the alert, usually an integer or string, but could be anything.
+    :alert-type   ; A string contining a bootstrap style: 'info', 'warning' or 'danger'
     :heading      ; Hiccup markup or a string containing the heading text
     :body         ; Hiccup markup or a string containing the body of the alert
     :padding      ; The amount of padding within the alert (default is 15px)
-    :closeable    ; A boolean which determines if the close button is rendered (on-close must also be specified)
-    :on-close     ; A callback function which knows how to close the alert"
+    :closeable?   ; Should a close 'X' button is rendered (:on-close must also be supplied)
+    :on-close     ; The function to call back when the user clicks the close 'X'. Invoked with the single :id parameter"
     })
 
 
 (defn alert-box
-  [& {:keys [id alert-type heading body padding closeable on-close]
+  [& {:keys [id alert-type heading body padding closeable? on-close]
       :or   {alert-type "info"}
       :as   args}]
   {:pre [(superset? alert-box-args (keys args))]}
@@ -30,7 +29,7 @@
   [:div.alert.fade.in
    {:class (str "alert-" alert-type)
     :style {:flex "none" :padding (when padding padding)}}
-   (when (and closeable on-close)
+   (when (and closeable? on-close)
      [button
       :label "×"
       :on-click #(on-close id)
@@ -50,14 +49,12 @@
                     ;       :heading "Heading"
                     ;       :body "Body"
                     ;       :padding "8px"
-                    ;       :closeable true}
+                    ;       :closeable? true}
                     ;      {:id 1
                     ;        :alert-type "info"
                     ;       :heading "Heading"
                     ;       :body "Body"}]
-    :on-close       ; A callback function which knows how to close an alert based on the id passed to it.
-                    ; Usually something like this:
-                    ;     #(swap! alerts dissoc %)
+    :on-close       ; The function to call back when the user clicks the close 'X' of an item. Invoked with the a single :id parameter.
     :max-height     ; The initial height of this component is 0px and grows to this maximum as alerts are added. Default is to expand forever.
     :padding        ; Padding within the alert-list outer box. Default is 4px.
     :border-style   ; The border style around the alert-list outer box. Default is "1px solid lightgrey".
@@ -79,12 +76,12 @@
            :child      [v-box
                         :size "auto"
                         :children [(for [alert @alerts]
-                                     (let [{:keys [id alert-type heading body padding closeable]} alert]
+                                     (let [{:keys [id alert-type heading body padding closeable?]} alert]
                                        ^{:key id} [alert-box
                                                    :id         id
                                                    :alert-type alert-type
                                                    :heading    heading
                                                    :body       body
                                                    :padding    padding
-                                                   :closeable  closeable
+                                                   :closeable?  closeable?
                                                    :on-close   on-close]))]]]])
