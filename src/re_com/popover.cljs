@@ -44,7 +44,7 @@
     (let [p-width        (.-clientWidth popover-elem)
           p-height       (.-clientHeight popover-elem)
           popover-left   (case pop-orient
-                           :left           "initial" ;; TODO: Remove this pollution (must have NO :left which is in Bootstrap .popover class)
+                           :left           "initial" ;; TODO: Ultimately remove this (must have NO :left which is in Bootstrap .popover class)
                            :right          "100%"
                            (:above :below) (px (if pop-offset pop-offset (/ p-width 2)) :negative))
           popover-top    (case pop-orient
@@ -100,8 +100,6 @@
 
 
 (defn- make-popover
-  ;TODO: Args being passed but not used: anchor backdrop-callback backdrop-opacity
-  ;TODO: Args being used but not declared: padding margin-left margin-top
   [{:keys [showing? close-button? position title body width height close-callback arrow-length arrow-width]
     :or {close-button? true position :right-below body "{empty body}" width 250 arrow-length 11 arrow-width 22}
     :as popover-params}]
@@ -242,7 +240,7 @@
 (defn backdrop
   [& {:keys [opacity on-click] :as args}]
   {:pre [(superset? backdrop-args (keys args))]}
-  "Renders a backdrop............."                         ;; TODO
+  "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be."
   [:div {:class     "rc-backdrop"
          :style    {:position         "fixed"
                     :left             "0px"

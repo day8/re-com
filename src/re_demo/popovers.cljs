@@ -16,6 +16,7 @@
                   [h-box
                    :gap "50px"
                    :children [[v-box
+                               :width   "500px"
                                :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
                                :children [
                                            [:div.h4 "Notes:"]
@@ -50,12 +51,7 @@
                                                        :popover  {:title         "A Popover Is Happening"
                                                                   :close-button? false
                                                                   :body          "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."}]]]
-                                          [h-box
-                                           :gap      "10px"
-                                           :children [[popover-form-demo/popover-form-demo]
-                                                      [popover-form-demo/popover-form-demo-new]
-                                                      [popover-form-demo/popover-form-demo-new-2]]]]]]]]])))
-
+                                          ]]]]]])))
 
 
 (defn hyperlink-popover-demo
@@ -66,7 +62,16 @@
        :children [[title "Hyperlink Popover"]
                   [h-box
                    :gap "50px"
-                   :children []]]])))
+                   :children [[v-box
+                               :width   "500px"
+                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :children [[:ul
+                                           [:li "Notes go here."]]]]
+                              [v-box
+                               :gap     "30px"
+                               :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
+                               :children [[:span "TODO"]
+                                          ]]]]]])))
 
 
 (defn proximity-popover-demo
@@ -74,21 +79,40 @@
   (let [popover-showing?  (reagent/atom false)]
     (fn []
       [v-box
-       :children [[title "Proximity Popover"]
+       :children [[title "Proximity Popover (tooltip)"]
                   [h-box
                    :gap "50px"
-                   :children []]]])))
+                   :children [[v-box
+                               :width   "500px"
+                               :margin  "20px 0px 0px 0px"
+                               :children [[:ul
+                                           [:li "Notes go here."]]]]
+                              [v-box
+                               :gap     "30px"
+                               :margin  "20px 0px 0px 0px"
+                               :children [[:span "TODO"]
+                                          ]]]]]])))
 
 
-(defn modal-popover-demo
+(defn complex-popover-demo
   []
   (let [popover-showing?  (reagent/atom false)]
     (fn []
       [v-box
-       :children [[title "Modal Popover"]
+       :children [[title "Complex Popover (dialog box)"]
                   [h-box
                    :gap "50px"
-                   :children []]]])))
+                   :children [[v-box
+                               :width   "500px"
+                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
+                               :children [[:ul
+                                           [:li "Notes go here."]]]]
+                              [v-box
+                               :gap     "30px"
+                               :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
+                               :children [[popover-form-demo/popover-form-demo]]]]]
+                  ]])))
+
 
 (defn panel
   []
@@ -96,5 +120,4 @@
    :children [[simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]
-              [modal-popover-demo]
-              #_[complicated-form-popover]]])
+              [complex-popover-demo]]])
