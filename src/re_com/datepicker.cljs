@@ -255,30 +255,6 @@
                                     (merge {:hide-border? true})         ;; apply defaults
                                     vec
                                     flatten)]
-
-        #_[popover
-         :position :below-center
-         :showing? shown?
-         :options {:arrow-length      0
-                   :arrow-width       0
-                   :margin-left       (if show-weeks? "-24px" "-11px")
-                   :margin-top        "3px"
-                   :padding           "0px"
-                   :backdrop-callback #(reset! shown? false)
-                   :backdrop-opacity  0}
-         :anchor  [anchor-button shown? model format]
-         :popover {:body  (into [datepicker] passthrough-args)
-                   :width "auto"}]
-
-        #_[popover-anchor-wrapper
-         :showing? shown?
-         :position position
-         :anchor   [anchor-button shown? model format]
-         :popover  [popover-content-wrapper
-                    :showing? shown?
-                    :position position
-                    :body     (into [datepicker] passthrough-args)]]
-
         [popover-anchor-wrapper
          :showing? shown?
          :position position
@@ -290,7 +266,7 @@
                      :width        "auto"                       ;; TODO: Sort this mess out!
                      :arrow-length 0
                      :arrow-width  0
-                     :margin-left  (if show-weeks? "-24px" "-11px")
+                     :margin-left  (if show-weeks? "-26px" "-13px")
                      :margin-top   "3px"
                      :padding      "0px"
                      :children     [(into [datepicker] passthrough-args)]]]]))))
