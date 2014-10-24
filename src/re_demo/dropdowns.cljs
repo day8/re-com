@@ -174,7 +174,9 @@
                    :gap      "10px"
                    :align    :center
                    :children [[label :label "Test tabbing"]
-                              [input-text @text-val #(reset! text-val (-> % .-target .-value)) :style {:width "80px"}]
+                              [input-text
+                               :text      @text-val
+                               :on-change #(reset! text-val (-> % .-target .-value)) :style {:width "80px"}]
                               [single-dropdown
                                :choices    grouped-countries
                                :model      selected-country-id

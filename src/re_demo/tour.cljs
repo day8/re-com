@@ -4,7 +4,7 @@
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [re-com.tour     :refer [make-tour start-tour make-tour-nav]]
-            [re-com.popover  :refer [popover make-button make-link]]
+            [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper make-button]]
             [reagent.core    :as    reagent]))
 
 
@@ -20,47 +20,61 @@
        [:p "The four buttons below are all part of this tour. Click on the first button to start the tour, then use the navigation buttons to move through the tour."]
        [:p "Any individual component can be the included in the tour, as long as you wrap it in a popover and conform the instrucitons on the left."]
        [h-box
-        :children [[popover
-                    :position :above-center
+        :children [[popover-anchor-wrapper
                     :showing? (:step1 demo-tour)
-                    :anchor [button
-                             :label "Start Tour!"
-                             :on-click #(start-tour demo-tour)
-                             :style {:font-weight "bold" :color "yellow"}
-                             :class "btn-info"]
-                    :popover {:title         [:strong "Tour 1 of 4"]
-                              :body          [:div "So this is the first tour popover"
-                                              [make-tour-nav demo-tour]]}]
-                   [popover
                     :position :above-center
+                    :anchor   [button
+                               :label "Start Tour!"
+                               :on-click #(start-tour demo-tour)
+                               :style {:font-weight "bold" :color "yellow"}
+                               :class "btn-info"]
+                    :popover [popover-content-wrapper
+                              :showing?         (:step1 demo-tour)
+                              :position         :above-center
+                              :title            [:strong "Tour 1 of 4"]
+                              :body             [:div "So this is the first tour popover"
+                                                 [make-tour-nav demo-tour]]]]
+                   [popover-anchor-wrapper
                     :showing? (:step2 demo-tour)
-                    :anchor [make-button
-                             :showing? (:step2 demo-tour)
-                             :type     "info"
-                             :label    "Tour 2"]
-                    :popover {:title         [:strong "Tour 2 of 4"]
-                              :body          [:div "And this is the second tour popover"
-                                              [make-tour-nav demo-tour]]}]
-                   [popover
                     :position :above-center
+                    :anchor   [make-button
+                               :showing? (:step2 demo-tour)
+                               :type     "info"
+                               :label    "Tour 2"]
+                    :popover [popover-content-wrapper
+                              :showing?         (:step2 demo-tour)
+                              :position         :above-center
+                              :title            [:strong "Tour 2 of 4"]
+                              :body             [:div "nd this is the second tour popover"
+                                                 [make-tour-nav demo-tour]]]]
+                   [popover-anchor-wrapper
                     :showing? (:step3 demo-tour)
-                    :anchor [make-button
-                             :showing? (:step3 demo-tour)
-                             :type     "info"
-                             :label    "Tour 3"]
-                    :popover {:title         [:strong "Tour 3 of 4"]
-                              :body          [:div "Penultimate tour popover"
-                                              [make-tour-nav demo-tour]]}]
-                   [popover
-                    :position :above-right
+                    :position :above-center
+                    :anchor   [make-button
+                               :showing? (:step3 demo-tour)
+                               :type     "info"
+                               :label    "Tour 3"]
+                    :popover [popover-content-wrapper
+                              :showing?         (:step3 demo-tour)
+                              :position         :above-center
+                              :title            [:strong "Tour 3 of 4"]
+                              :body             [:div "Penultimate tour popover"
+                                                 [make-tour-nav demo-tour]]]]
+                   [popover-anchor-wrapper
                     :showing? (:step4 demo-tour)
-                    :anchor [make-button
-                             :showing? (:step4 demo-tour)
-                             :type     "info"
-                             :label    "Tour 4"]
-                    :popover {:title         [:strong "Tour 4 of 4"]
-                              :body          [:div "Lucky last tour popover"
-                                              [make-tour-nav demo-tour]]}]]]])))
+                    :position :above-center
+                    :anchor   [make-button
+                               :showing? (:step4 demo-tour)
+                               :type     "info"
+                               :label    "Tour 4"]
+                    :popover [popover-content-wrapper
+                              :showing?         (:step4 demo-tour)
+                              :position         :above-center
+                              :title            [:strong "Tour 4 of 4"]
+                              :body             [:div "Lucky last tour popover"
+                                                 [make-tour-nav demo-tour]]]]
+
+                   ]]])))
 
 
 (defn demo2
@@ -71,47 +85,8 @@
        [:p "Tour popovers can be attched to any."]
        [:p "Any individual component can be the included in the tour, as long as you wrap it in a popover and conform the instrucitons on the left."]
        [h-box
-        :children [[popover
-                    :position :above-center
-                    :showing? (:step1 demo-tour)
-                    :anchor [button
-                             :label "Start Tour!"
-                             :on-click #(start-tour demo-tour)
-                             :style {:font-weight "bold" :color "yellow"}
-                             :class "btn-info"]
-                    :popover {:title         [:strong "Tour 1 of 4"]
-                              :body          [:div "So this is the first tour popover"
-                                              [make-tour-nav demo-tour]]}]
-                   [popover
-                    :position :above-center
-                    :showing? (:step2 demo-tour)
-                    :anchor [make-button
-                             :showing? (:step2 demo-tour)
-                             :type     "info"
-                             :label    "Tour 2"]
-                    :popover {:title         [:strong "Tour 2 of 4"]
-                              :body          [:div "And this is the second tour popover"
-                                              [make-tour-nav demo-tour]]}]
-                   [popover
-                    :position :above-center
-                    :showing? (:step3 demo-tour)
-                    :anchor [make-button
-                             :showing? (:step3 demo-tour)
-                             :type     "info"
-                             :label    "Tour 3"]
-                    :popover {:title         [:strong "Tour 3 of 4"]
-                              :body          [:div "Penultimate tour popover"
-                                              [make-tour-nav demo-tour]]}]
-                   [popover
-                    :position :above-right
-                    :showing? (:step4 demo-tour)
-                    :anchor [make-button
-                             :showing? (:step4 demo-tour)
-                             :type     "info"
-                             :label    "Tour 4"]
-                    :popover {:title         [:strong "Tour 4 of 4"]
-                              :body          [:div "Lucky last tour popover"
-                                              [make-tour-nav demo-tour]]}]]]])))
+        :children [[:p "Tour popovers can be attched to any."]
+                   ]]])))
 
 
 (defn notes

@@ -4,11 +4,11 @@
             [re-com.core               :refer [button spinner progress-bar]]
             [re-com.layout             :refer [h-layout v-layout]]
             [re-com.alert              :refer [alert-box alert-list]]
-            [re-com.popover            :refer [popover make-button make-link]]
+            [re-com.popover            :refer [popover-content-wrapper popover-anchor-wrapper make-button make-link]]
             [re-com.tour               :refer [make-tour start-tour make-tour-nav]]
             [re-com.modal              :refer [modal-window cancel-button looper domino-process]]
             [re-com.tabs               :refer [horizontal-tabs horizontal-pills]]
-            [re-demo.popover-form-demo :as    popover-form-demo]
+            [re-demo.popover-dialog-demo :as    popover-form-demo]
             [cljs.core.async           :refer [<! >! chan close! put! take! alts! timeout]]
             [reagent.core              :as    reagent]))
 
@@ -40,6 +40,8 @@
 
 (def demo-tour (make-tour [:step1 :step2 :step3 :step4]))
 
+
+(defn popover [])
 
 (defn cpu-delay
   [num-times]
@@ -359,7 +361,7 @@
 ;            [:p {:style {:text-align "center"}}
 ;             [:strong "Recalculating..."] [:br]
 ;             [:strong "Current step: "] [progress-msg-2 progress-msg]]
-;            [progress-bar progress-percent]
+;            [progress-bar :model progress-percent]
 ;            [cancel-button #(reset! calculating? false)]]])
 ;
 ;(defn mwi-steps-2
@@ -539,7 +541,8 @@
                    [:p {:style {:text-align "center"}}
                     [:strong "Recalculating..."] [:br]
                     [:strong "Current step: "] [(fn [] [:span @progress-msg])]]
-                   [progress-bar progress-percent]
+                   [progress-bar
+                    :model progress-percent]
                    [cancel-button #(reset! calculating? false)]]])])))
 
 
@@ -606,7 +609,7 @@
 ;            [:p {:style {:text-align "center"}}
 ;             [:strong "Recalculating..."] [:br]
 ;             [:strong "Current step: "] [progress-msg progress-msg]]
-;            [progress-bar progress-percent]
+;            [progress-bar :model progress-percent]
 ;            [cancel-button #(reset! calculating? false)]]])
 ;
 ;(defn chunked-json
