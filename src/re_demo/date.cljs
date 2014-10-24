@@ -38,15 +38,15 @@
                    :gap      "20px"
                    :align    :start
                    :children [[checkbox
-                               :label     ":disabled"
+                               :label     ":disabled?"
                                :model     disabled?
                                :on-change #(reset! disabled? %)]
                               [checkbox
-                               :label     ":show-today"
+                               :label     ":show-today?"
                                :model     show-today?
                                :on-change #(reset! show-today? %)]
                               [checkbox
-                               :label     ":show-weeks"
+                               :label     ":show-weeks?"
                                :model     show-weeks?
                                :on-change #(reset! show-weeks? %)]]]
                   [h-box
@@ -94,9 +94,9 @@
                                   :children [[label :style label-style :label ":minimum or :maximum not specified"]
                                              [datepicker
                                               :model        model1
-                                              :disabled     disabled?
-                                              :show-today   @show-today?
-                                              :show-weeks   @show-weeks?
+                                              :disabled?    disabled?
+                                              :show-today?  @show-today?
+                                              :show-weeks?  @show-weeks?
                                               :enabled-days @enabled-days
                                               :on-change    #(reset! model1 %)]
                                              [label :style label-style :label (str "selected: " (date->string @model1))]]])]
@@ -109,10 +109,10 @@
                                               :model        model2
                                               :minimum      (iso8601->date "20140831")
                                               :maximum      (iso8601->date "20141019")
-                                              :show-today   @show-today?
-                                              :show-weeks   @show-weeks?
+                                              :show-today?  @show-today?
+                                              :show-weeks?  @show-weeks?
                                               :enabled-days @enabled-days
-                                              :disabled     disabled?
+                                              :disabled?     disabled?
                                               :on-change    #(reset! model2 %)]
                                              [label :style label-style :label (str "selected: " (date->string @model2))]]])]]]
                   enabled-days
@@ -130,11 +130,11 @@
                                 [(fn []
                                    [datepicker-dropdown
                                     :model        model1
-                                    :show-today   @show-today?
-                                    :show-weeks   @show-weeks?
+                                    :show-today?  @show-today?
+                                    :show-weeks?  @show-weeks?
                                     :enabled-days @enabled-days
                                     :format       "dd MMM, yyyy"
-                                    :disabled     disabled?
+                                    :disabled?    disabled?
                                     :on-change    #(reset! model1 %)])]]]
                     enabled-days
                     disabled?
@@ -154,10 +154,10 @@
                            :style {:padding-left "10px"}
                            :children [[:p "All parameters are passed as named arguments using keyword value pairs in the component vector e.g."]
                                       (if (= :inline @selected-variation)
-                                        [:pre {:style {:font-size "smaller"}} [:code "[datepicker :model (iso8601->date \"20140914\") :show-today false]"]]
-                                        [:pre {:style {:font-size "smaller"}} [:code "[datepicker-dropdown :model (now) :show-today false]"]]
+                                        [:pre {:style {:font-size "smaller"}} [:code "[datepicker :model (iso8601->date \"20140914\") :show-today? false]"]]
+                                        [:pre {:style {:font-size "smaller"}} [:code "[datepicker-dropdown :model (now) :show-today? false]"]]
                                         )
-                                      [:p ":model & :disabled can optionally be a reagent atom and will be derefed."]]]
+                                      [:p ":model & :disabled? can optionally be a reagent atom and will be derefed."]]]
                           [label :style {:font-variant "small-caps"} :label "required"]
                           [v-box
                            :style {:padding-left "10px"}
@@ -168,19 +168,19 @@
                           [label :style {:font-variant "small-caps"} :label "optional"]
                           [v-box
                            :style {:padding-left "10px"}
-                           :children [[:p [:code ":disabled"]
+                           :children [[:p [:code ":disabled?"]
                                        " - boolean can be reagent/atom. (default false) If true, navigation is allowed but selection is disabled."]
                                       [:p [:code ":enabled-days"]
                                        " - set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} If nil or empty, all days are enabled."]
-                                      [:p [:code ":show-weeks"]
+                                      [:p [:code ":show-weeks?"]
                                        " - boolean. (default false) If true, first column shows week numbers."]
-                                      [:p [:code ":show-today"]
+                                      [:p [:code ":show-today?"]
                                        " - boolean. (default false) If true, today's date is highlighted different to selection. When both today's date and selected day are the same, selected highlight takes precedence."]
                                       [:p [:code ":minimum"]
                                        " - goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
                                       [:p [:code ":maximum"]
                                        " - goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
-                                      [:p [:code ":hide-border"]
+                                      [:p [:code ":hide-border?"]
                                        " - boolean. Default false."]
                                       (when (= "2" @selected-variation)
                                         [:p [:code ":format"]
