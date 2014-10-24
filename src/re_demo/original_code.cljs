@@ -8,7 +8,7 @@
             [re-com.tour               :refer [make-tour start-tour make-tour-nav]]
             [re-com.modal              :refer [modal-window cancel-button looper domino-process]]
             [re-com.tabs               :refer [horizontal-tabs horizontal-pills]]
-            [re-demo.popover-form-demo :as    popover-form-demo]
+            [re-demo.popover-dialog-demo :as    popover-form-demo]
             [cljs.core.async           :refer [<! >! chan close! put! take! alts! timeout]]
             [reagent.core              :as    reagent]))
 

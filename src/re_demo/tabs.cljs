@@ -26,7 +26,7 @@
 
 (defn horizontal-tabs-demo
   []
-  (let [selected-tab-id (reagent/atom (:id :blah))]              ;;(first tabs-definition)   ;; holds the id of the selected tab
+    (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]   ;; holds the id of the selected tab
     (fn []
       [v-box
        :children [[title "Horizontal Tabs"]
