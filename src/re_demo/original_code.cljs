@@ -4,7 +4,7 @@
             [re-com.core               :refer [button spinner progress-bar]]
             [re-com.layout             :refer [h-layout v-layout]]
             [re-com.alert              :refer [alert-box alert-list]]
-            [re-com.popover            :refer [popover make-button make-link]]
+            [re-com.popover            :refer [popover-content-wrapper popover-anchor-wrapper make-button make-link]]
             [re-com.tour               :refer [make-tour start-tour make-tour-nav]]
             [re-com.modal              :refer [modal-window cancel-button looper domino-process]]
             [re-com.tabs               :refer [horizontal-tabs horizontal-pills]]
@@ -40,6 +40,8 @@
 
 (def demo-tour (make-tour [:step1 :step2 :step3 :step4]))
 
+
+(defn popover [])
 
 (defn cpu-delay
   [num-times]
