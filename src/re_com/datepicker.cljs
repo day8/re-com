@@ -11,7 +11,7 @@
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box]]
     [re-com.util          :refer [deref-or-value]]
-    [re-com.popover       :refer [popover]]))
+    [re-com.popover       :refer [popover-content-wrapper popover-anchor-wrapper make-button backdrop popover-border]]))
 
 ;; --- cljs-time facades ------------------------------------------------------
 ;; TODO: from day8date should be a common lib
@@ -242,7 +242,9 @@
 (defn datepicker-dropdown
   [& {:as args}]
   {:pre [(superset? datepicker-dropdown-args (keys args))]}
-  (let [shown? (reagent/atom false)]
+  (let [shown?         (reagent/atom false)
+        cancel-popover #(reset! shown? false)
+        position       :below-center]
     (fn
       [& {:keys [model show-weeks? on-change format] :as passthrough-args}]
       (let [collapse-on-select (fn [new-model]
@@ -253,7 +255,8 @@
                                     (merge {:hide-border? true})         ;; apply defaults
                                     vec
                                     flatten)]
-        [popover
+
+        #_[popover
          :position :below-center
          :showing? shown?
          :options {:arrow-length      0
@@ -265,4 +268,29 @@
                    :backdrop-opacity  0}
          :anchor  [anchor-button shown? model format]
          :popover {:body  (into [datepicker] passthrough-args)
-                   :width "auto"}]))))
+                   :width "auto"}]
+
+        #_[popover-anchor-wrapper
+         :showing? shown?
+         :position position
+         :anchor   [anchor-button shown? model format]
+         :popover  [popover-content-wrapper
+                    :showing? shown?
+                    :position position
+                    :body     (into [datepicker] passthrough-args)]]
+
+        [popover-anchor-wrapper
+         :showing? shown?
+         :position position
+         :anchor   [anchor-button shown? model format]
+         :popover  [:div {:style {:flex "inherit"}}
+                    (when shown? [backdrop :on-click cancel-popover])
+                    [popover-border
+                     :position     position
+                     :width        "auto"                       ;; TODO: Sort this mess out!
+                     :arrow-length 0
+                     :arrow-width  0
+                     :margin-left  (if show-weeks? "-24px" "-11px")
+                     :margin-top   "3px"
+                     :padding      "0px"
+                     :children     [(into [datepicker] passthrough-args)]]]]))))
