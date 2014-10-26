@@ -81,7 +81,7 @@
   (let [on-first-button (= @(:current-step tour) 0)
         on-last-button  (= @(:current-step tour) (dec (count (:steps tour))))]
     [:div
-     [:hr {:style {:margin "10px 0 10px"}}]
+     [:hr {:style {:margin "10px 0 10px" :flex "none"}}]
       (when-not on-first-button
         [button
          :label    "Previous"

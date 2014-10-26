@@ -19,22 +19,22 @@
                    :gap      "15px"
                    :align    :start
                    :children [[checkbox
-                               :label       ":disabled"
+                               :label       ":disabled?"
                                :label-style check-style
                                :model       disabled?
                                :on-change   #(reset! disabled? %)]
                               [checkbox
-                               :label       ":multi-select"
+                               :label       ":multi-select?"
                                :label-style check-style
                                :model       multi-select?
                                :on-change   #(reset! multi-select? %)]
                               [checkbox
-                               :label       ":required"
+                               :label       ":required?"
                                :label-style check-style
                                :model       required?
                                :on-change   #(reset! required? %)]
                               [checkbox
-                               :label       ":as-exclusions"
+                               :label       ":as-exclusions?"
                                :label-style check-style
                                :model       as-exclusions?
                                :on-change   #(reset! as-exclusions? %)]]]
@@ -60,16 +60,16 @@
      width
      [v-box ;; TODO: v-box required to constrain height of internal border.
       :children [[selection-list
-                  :width         "391px"      ;; manual hack for width of variation panel A+B 1024px
-                  :max-height    "95px"       ;; based on compact style @ 19px x 5 rows
-                  :model         selections
-                  :choices       items
-                  :label-fn      :label
-                  :as-exclusions as-exlcusion?
-                  :multi-select  multi-select?
-                  :disabled      disabled?
-                  :required      required?
-                  :on-change     #(do (println %) (reset! selections %))]]]
+                  :width          "391px"      ;; manual hack for width of variation panel A+B 1024px
+                  :max-height     "95px"       ;; based on compact style @ 19px x 5 rows
+                  :model          selections
+                  :choices        items
+                  :label-fn       :label
+                  :as-exclusions? as-exlcusion?
+                  :multi-select?  multi-select?
+                  :disabled?      disabled?
+                  :required?      required?
+                  :on-change      #(do (println %) (reset! selections %))]]]
      multi-select?
      disabled?
      required?
@@ -87,7 +87,7 @@
                           [v-box
                            :style    {:padding-left "10px"}
                            :children [[:p "All parameters are passed as named arguments using keyword value pairs in the component vector e.g."]
-                                      [:pre {:style {:font-size "smaller"}} [:code "[selection-list :choices [\"pick 1\" \"pick 2\"] :model #{\"pick 2\"} :required false]"]]
+                                      [:pre {:style {:font-size "smaller"}} [:code "[selection-list :choices [\"pick1\" \"pick2\"] :model #{\"pick2\"} :required? true]"]]
                                       [:p "Any parameter can optionally be a reagent atom and will be derefed."]]]
                           [label     :style {:font-variant "small-caps"} :label "required"]
                           [v-box
@@ -103,11 +103,11 @@
                           [label     :style {:font-variant "small-caps"} :label "optional"]
                           [v-box
                            :style    {:padding-left "10px"}
-                           :children [[:p [:code ":multi-select"]
+                           :children [[:p [:code ":multi-select?"]
                                        " - boolean. When true, items use check boxes otherwise radio buttons. (default: true)"]
-                                      [:p [:code ":as-exclusions"]
+                                      [:p [:code ":as-exclusions?"]
                                        " - boolean. When true, selected items are shown with struck-out labels. (default: false)"]
-                                      [:p [:code ":required"]
+                                      [:p [:code ":required?"]
                                        (str " - boolean. When true, at least one item must be selected. (default: false) "
                                             "Note: being able to un-select a radio button is not a common use case,"
                                             " so this should probably be set to true when in single select mode.")]
@@ -117,9 +117,9 @@
                                        " - CSS style value e.g. \"150px\" Fixed, beyond which items will scroll."]
                                       [:p [:code ":max-height"]
                                        " - CSS style value e.g. \"150px\" Variable, beyond which items will scroll. If there are less items then this height, box will shrink."]
-                                      [:p [:code ":disabled"]
+                                      [:p [:code ":disabled?"]
                                        " - boolean. When true, scrolling is allowed but selection is disabled. (default: false)"]
-                                      [:p [:code ":hide-border"]
+                                      [:p [:code ":hide-border?"]
                                        " - boolean. (default: false)"]
                                       [:p [:code ":label-fn"]
                                        " - IFn to call on each element to get label string, default #(str %)"]]]]]]])

@@ -1,5 +1,7 @@
 (ns re-com.tabs
-   (:require [reagent.core :as reagent]))
+   (:require [clojure.set  :refer [superset?]]
+             [re-com.util  :refer [deref-or-value]]
+             [reagent.core :as    reagent]))
 
 ;; Below there are three different stylings for horizontal tabs
 ;; In each case they take two parameters.
@@ -9,9 +11,6 @@
 ;;     - an atom containing a map
 ;; Either way, the map should look like this:
 ;;        { ::id1  {:label "1" } ::id2  {:label "2" } ::anotherId  {:label "3" }
-;;
-;; TODO:  can tabs ever be "disabled" ?
-
 
 ;; utility function for finding a tab definition with a given id
 ;; 'tab-defs' is a vector of definitions
@@ -22,11 +21,31 @@
   [id tab-defs]
   (first (filter #(= id (:id %)) tab-defs)))
 
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: horizontal-bar-tabs
+;;--------------------------------------------------------------------------------------------------
+
+(def tabs-args
+  #{:model      ;; Sets/holds/returns the currently selected tab - model can be atom
+    :tabs       ;; The tabs object defined as a vector of maps:   TODO: document that it can be atom or not
+                ;;   [{:id ::tab1  :label "Tab1" :disabled false}
+                ;;    {:id ::tab2  :label "Tab2" :disabled false}
+                ;;    {:id ::tab3  :label "Tab3" :disabled false}]
+    :disabled   ;; A boolean indicating whether the control should be disabled. false if not specified.
+    })
+
+
 (defn horizontal-bar-tabs
-  [& {:keys [model tabs]}]
-  (let [current  @model
-        tabs     (if (satisfies? cljs.core/IDeref tabs) @tabs tabs)]     ;; if it's an atom we want the vector inside
-    [:div.btn-group
+  [& {:keys [model tabs disabled]
+      :as   args}]
+  {:pre [(superset? tabs-args (keys args))]}
+  (let [current  (deref-or-value model)
+        tabs     (deref-or-value tabs)
+        _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
+    [:div
+     {:class "rc-tabs btn-group"
+      :style {:flex "none"}}
      (for [t tabs]
        (let [id        (:id t)
              label     (:label t)
@@ -39,12 +58,20 @@
           label]))]))
 
 
+;;--------------------------------------------------------------------------------------------------
+;; Component: horizontal-pills
+;;--------------------------------------------------------------------------------------------------
+
 (defn horizontal-pills    ;; tabs-like in action
-  [& {:keys [model tabs]}]
+  [& {:keys [model tabs disabled]
+      :as   args}]
+  {:pre [(superset? tabs-args (keys args))]}
   (let [current  @model
-        tabs     (if (satisfies? cljs.core/IDeref tabs) @tabs tabs)] ;;      ;; if it's an atom we want the map inside
-    [:ul.nav.nav-pills
-     {:role "tabslist"}
+        tabs     (deref-or-value tabs)]
+    [:ul
+     {:class "rc-tabs nav nav-pills"
+      :style {:flex "none"}
+      :role  "tabslist"}
      (for [t tabs]
        (let [id        (:id t)
              label     (:label t)
@@ -57,11 +84,19 @@
            label]]))]))
 
 
+;;--------------------------------------------------------------------------------------------------
+;; Component: horizontal-tabs
+;;--------------------------------------------------------------------------------------------------
+
 (defn horizontal-tabs
-  [& {:keys [model tabs]}]
+  [& {:keys [model tabs disabled]
+      :as   args}]
+  {:pre [(superset? tabs-args (keys args))]}
   (let [current  @model
-        tabs     (if (satisfies? cljs.core/IDeref tabs) @tabs tabs)]     ;; if it's an atom we want the map inside
-    [:ul.nav.nav-tabs
+        tabs     (deref-or-value tabs)]
+    [:ul
+     {:class "rc-tabs nav nav-tabs"
+      :style {:flex "none"}}
      (for [t tabs]
        (let [id        (:id t)
              label     (:label t)

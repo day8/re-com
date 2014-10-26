@@ -31,7 +31,7 @@
     {:id ::popovers  :label "Popovers"   :panel popovers/panel}
     {:id ::date      :label "Date"       :panel date-chooser/panel}
     {:id ::time      :label "Time"       :panel time/panel}
-    {:id ::original  :label "Original"   :panel original/test-harness-func}
+    ;{:id ::original  :label "Original"   :panel original/test-harness-func}
     {:id ::lists     :label "List"       :panel lists/panel}
     {:id ::tour      :label "Tour"       :panel tour/panel}
     {:id ::modals    :label "Modals"     :panel modals/panel}

@@ -5,46 +5,12 @@
 
 (def debug false)
 
-;; ------------------------------------------------------------------------------------
-;;  Boxes
-;; ------------------------------------------------------------------------------------
-
-;; Use Cases
-;;
-;; Case 1:
-;;   - fixed LHS ... certain px ?
-;;    - one or more growable compents, perctage based
-;;
-;; Case 2:
-;;    - fixed left and right
-;;    - growable middle
-;;
-;; Case 3:
-;;    - one of the box components is a vbox inside an hbox.
-;;
-;; Will ask for "perc" but underneath that's just ratios
-;;
-;; Align stuff, we will ignore.
-;; max-size contraints
-;;
-;; [scrolling XXXX]  contins a box
-;; [border XXXX]     contains a box for the children
-;;
-;; Let's use HBox and VBox as the names
-;;
-;; Notes
-;;  - Center object in 
-;;  - Override h1 to h6? with {:style {:display: inline}} in a .css file
-;;  - Names for children: wrap, content, inside, inner, elements
-;;
-;;
-;;
 
 ;; ------------------------------------------------------------------------------------
-;;  Helper functions
+;;  Private Helper functions
 ;; ------------------------------------------------------------------------------------
 
-(defn flex-child-style
+(defn- flex-child-style
   [size]
   "Determines the value for the 'flex' attribute (which has grow, shrink and basis), based on the size parameter.
    IMPORTANT: The term 'size' means width of the item in the case of flex-direction 'row' OR height of the item in the case of flex-direction 'column'.
@@ -88,7 +54,7 @@
     {:flex flex}))
 
 
-(defn justify-style
+(defn- justify-style
   [justify]
   "Determines the value for the flex 'justify-content' attribute.
    This parameter determines how children are aligned along the main axis.
@@ -102,7 +68,7 @@
                       :around  "space-around")})
 
 
-(defn align-style
+(defn- align-style
   [attribute align]
   "Determines the value for the flex align type attributes.
    This parameter determines how children are aligned on the cross axis.
@@ -116,7 +82,7 @@
                :stretch  "stretch")})
 
 
-(defn scroll-style
+(defn- scroll-style
   [attribute scroll]
   "Determines the value for the 'overflow' attribute.
    The scroll parameter is a keyword.
@@ -132,9 +98,40 @@
 ;;  Private Component: box-base (debug colour: lightblue)
 ;; ------------------------------------------------------------------------------------
 
+(def box-base-args
+  #{:class        ;;
+    :f-child      ;;
+    :f-container  ;;
+    :size         ;;
+    :scroll       ;;
+    :h-scroll     ;;
+    :v-scroll     ;;
+    :width        ;;
+    :height       ;;
+    :min-width    ;;
+    :min-height   ;;
+    :justify      ;;
+    :align        ;;
+    :align-self   ;;
+    :margin       ;;
+    :padding      ;;
+    :border       ;;
+    :l-border     ;;
+    :r-border     ;;
+    :t-border     ;;
+    :b-border     ;;
+    :radius       ;;
+    :bk-color     ;;
+    :child        ;;
+    :style        ;;
+    })
+
+
 (defn- box-base
   [& {:keys [class f-child f-container size scroll h-scroll v-scroll width height min-width min-height justify align align-self
-             margin padding border l-border r-border t-border b-border radius bk-color child style]}]
+             margin padding border l-border r-border t-border b-border radius bk-color child style]
+      :as   args}]
+  {:pre [(superset? box-base-args (keys args))]}
   "This should generally NOT be used as it is the basis for the box, scroller and border components."
   (let [s (merge
             (when f-child     (flex-child-style size))
@@ -170,19 +167,18 @@
 ;; ------------------------------------------------------------------------------------
 
 (def gap-args
-  #{:size     ;
-    :width    ;
-    :height   ;
-    :style    ;
+  #{:size     ;; Specify size in any sizing amount, usually px or % or perhaps em.
+    :width    ;; Width will overrise size, but best to use size as it knows if it should be width or height .
+    :height   ;; As per width above.
+    :style    ;; If you really need to style this then go for it, but this is supposed to be layout, not content/styling.
     })
 
 
 (defn gap
   [& {:keys [size width height style]
-      :as args}]
+      :as   args}]
   {:pre [(superset? gap-args (keys args))]}
-  "Returns markup which produces a gap between children in a v-box/h-box along the main axis.
-   Specify size in any sizing amount, usually px or % or perhaps em. Defaults to 20px."
+  "Returns markup which produces a gap between children in a v-box/h-box along the main axis."
   (let [s (merge
             (when size {:flex (str "0 0 " size)})
             (when width {:width width})
@@ -196,14 +192,18 @@
 ;;  Component: line
 ;; ------------------------------------------------------------------------------------
 
-(def XXX-args
-  #{:x 1
+(def line-args
+  #{:size   ;; Specify size in any sizing amount, usually px. Defaults to 1px.
+    :color  ;; Specify colour using CSS colour methods. Defaults to lightgray.
+    :style  ;; Extra style specification, but generally shouldn't need this.
     })
 
 
 (defn line
   [& {:keys [size color style]
-      :or {size "1px" color "lightgray"}}]
+      :or   {size "1px" color "lightgray"}
+      :as   args}]
+  {:pre [(superset? line-args (keys args))]}
   "Returns markup which produces a line between children in a v-box/h-box along the main axis.
    Specify size in pixels and a stancard CSS colour. Defaults to a 1px red line."
   (let [s (merge
@@ -217,14 +217,28 @@
 ;;  Component: h-box (debug colour: gold)
 ;; ------------------------------------------------------------------------------------
 
-(def XXX-args
-  #{:x 1
+(def h-box-args
+  #{:f-child      ;;
+    :size         ;;
+    :width        ;;
+    :height       ;;
+    :min-width    ;;
+    :min-height   ;;
+    :justify      ;;
+    :align        ;;
+    :margin       ;;
+    :padding      ;;
+    :gap          ;;
+    :children     ;;
+    :style        ;;
     })
 
 
 (defn h-box
   [& {:keys [f-child size width height min-width min-height justify align margin padding gap children style]
-      :or   {f-child true size "none" justify :start align :stretch}}]
+      :or   {f-child true size "none" justify :start align :stretch}
+      :as   args}]
+  {:pre [(superset? h-box-args (keys args))]}
   "Returns markup which produces a horizontal box.
    It's primary role is to act as a container for child components and lays it's children from left to right.
    By default, it also acts as a child under it's parent."
@@ -252,14 +266,28 @@
 ;;  Component: v-box (debug colour: antiquewhite)
 ;; ------------------------------------------------------------------------------------
 
-(def XXX-args
-  #{:x 1
+(def v-box-args
+  #{:f-child      ;;
+    :size         ;;
+    :width        ;;
+    :height       ;;
+    :min-width    ;;
+    :min-height   ;;
+    :justify      ;;
+    :align        ;;
+    :margin       ;;
+    :padding      ;;
+    :gap          ;;
+    :children     ;;
+    :style        ;;
     })
 
 
 (defn v-box
   [& {:keys [f-child size width height min-width min-height justify align margin padding gap children style]
-      :or   {f-child true size "none" justify :start align :stretch}}]
+      :or   {f-child true size "none" justify :start align :stretch}
+      :as   args}]
+  {:pre [(superset? v-box-args (keys args))]}
   "Returns markup which produces a vertical box.
    It's primary role is to act as a container for child components and lays it's children from top to bottom.
    By default, it also acts as a child under it's parent."
@@ -287,14 +315,29 @@
 ;;  Component: box
 ;; ------------------------------------------------------------------------------------
 
-(def XXX-args
-  #{:x 1
+(def box-args
+  #{:f-child      ;;
+    :f-container  ;;
+    :size         ;;
+    :width        ;;
+    :height       ;;
+    :min-width    ;;
+    :min-height   ;;
+    :justify      ;;
+    :align        ;;
+    :align-self   ;;
+    :margin       ;;
+    :padding      ;;
+    :child        ;;
+    :style        ;;
     })
 
 
 (defn box
   [& {:keys [f-child f-container size width height min-width min-height justify align align-self margin padding child style]
-      :or   {f-child true f-container true size "none"}}]
+      :or   {f-child true f-container true size "none"}
+      :as   args}]
+  {:pre [(superset? box-args (keys args))]}
   "Returns markup which produces a box, which is generally used as a child of a v-box or an h-box.
    By default, it also acts as a container for further child compenents, or another h-box or v-box."
   (box-base :class       "rc-box"
@@ -328,14 +371,28 @@
 ;;  Component: scroller
 ;; ------------------------------------------------------------------------------------
 
-(def XXX-args
-  #{:x 1
+(def scroller-args
+  #{:size         ;;
+    :scroll       ;;
+    :h-scroll     ;;
+    :v-scroll     ;;
+    :width        ;;
+    :height       ;;
+    :min-width    ;;
+    :min-height   ;;
+    :align-self   ;;
+    :margin       ;;
+    :padding      ;;
+    :child        ;;
+    :style        ;;
     })
 
 
 (defn scroller
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height align-self margin padding child style]
-      :or   {size "auto" scroll :auto}}]
+      :or   {size "auto" scroll :auto}
+      :as   args}]
+  {:pre [(superset? scroller-args (keys args))]}
   "Returns markup which produces a scoller component.
    This is the way scroll bars are added to boxes, in favour of adding the scroll attributes directly to the boxes themselves.
    IMPORTANT: Because this component becomes the flex child in place of the component it is wrapping, you must copy the size attibutes to this componenet.
@@ -379,14 +436,26 @@
 ;;  Component: border
 ;; ------------------------------------------------------------------------------------
 
-(def XXX-args
-  #{:x 1
+(def border-args
+  #{:size       ;;
+    :margin     ;;
+    :padding    ;;
+    :border     ;;
+    :l-border   ;;
+    :r-border   ;;
+    :t-border   ;;
+    :b-border   ;;
+    :radius     ;;
+    :child      ;;
+    :style      ;;
     })
 
 
 (defn border
   [& {:keys [size margin padding border l-border r-border t-border b-border radius child style]
-      :or   {size "auto"}}]
+      :or   {size "auto"}
+      :as   args}]
+  {:pre [(superset? border-args (keys args))]}
   "Returns markup which produces a border component.
    This is the way borders are added to boxes, in favour of adding the border attributes directly to the boxes themselves.
    border property syntax: '<border-width> || <border-style> || <color>'
