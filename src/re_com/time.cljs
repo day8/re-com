@@ -135,7 +135,7 @@
     :maximum                             ;; Integer - a time integer - times more than this will not be allowed - default is 2359.
     :on-change                           ;; function - callback will be passed new result - a time integer or nil
     :disabled?                           ;; boolean or reagent/atom on boolean - when true, navigation is allowed but selection is disabled?.
-    :show-icon                           ;; boolean - if true display a clock icon to the right of the
+    :show-icon?                          ;; boolean - if true display a clock icon to the right of the
     :style                               ;; map - optional css style information
     :hide-border?                        ;; boolean - hide border of the input box - default false.
     :class                               ;; string - class for css styling
@@ -155,7 +155,7 @@
         text-model (reagent/atom (time->text deref-model))
         previous-model (reagent/atom deref-model)]
 
-    (fn [& {:keys [model minimum maximum disabled? hide-border? show-icon] :as passthrough-args}]
+    (fn [& {:keys [model minimum maximum disabled? hide-border? show-icon?] :as passthrough-args}]
       (let [style (merge (when hide-border? {:border "none"})
                          style)
             new-val (deref-or-value model)
@@ -177,6 +177,6 @@
            :on-change #(on-new-keypress % text-model)
            :on-blur   #(on-defocus text-model minimum maximum on-change @previous-model)
            :on-key-up #(lose-focus-if-enter %)}]
-         (when show-icon
+         (when show-icon?
            [:span.time-icon [:span.glyphicon.glyphicon-time]])]))))
 
