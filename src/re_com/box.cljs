@@ -390,7 +390,7 @@
 
 (defn scroller
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height align-self margin padding child style]
-      :or   {size "auto" scroll :auto}
+      :or   {size "auto"}
       :as   args}]
   {:pre [(superset? scroller-args (keys args))]}
   "Returns markup which produces a scoller component.
@@ -405,31 +405,34 @@
            :off    Never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen.
            :spill  Never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place.
    Note:   If scroll is set, then setting h-scroll or v-scroll overrides the scroll value."
-  (box-base :class       "rc-scroller"
-            :f-child     true
-            :f-container true
-            :size        size
-            :scroll      scroll
-            :h-scroll    h-scroll
-            :v-scroll    v-scroll
-            :width       width
-            :height      height
-            :min-width   min-width
-            :min-height  min-height
-            ;:justify     justify
-            ;:align       align
-            :align-self  align-self
-            :margin      margin
-            :padding     padding
-            ;:border      border
-            ;:l-border    l-border
-            ;:r-border    r-border
-            ;:t-border    t-border
-            ;:b-border    b-border
-            ;:bk-color    bk-color
-            ;:radius      radius
-            :child       child
-            :style       style))
+  (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
+        scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)
+        _          (+)]
+    (box-base :class "rc-scroller"
+              :f-child true
+              :f-container true
+              :size size
+              :scroll scroll
+              :h-scroll h-scroll
+              :v-scroll v-scroll
+              :width width
+              :height height
+              :min-width min-width
+              :min-height min-height
+              ;:justify     justify
+              ;:align       align
+              :align-self align-self
+              :margin margin
+              :padding padding
+              ;:border      border
+              ;:l-border    l-border
+              ;:r-border    r-border
+              ;:t-border    t-border
+              ;:b-border    b-border
+              ;:bk-color    bk-color
+              ;:radius      radius
+              :child child
+              :style style)))
 
 
 ;; ------------------------------------------------------------------------------------

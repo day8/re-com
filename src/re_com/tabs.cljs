@@ -80,7 +80,8 @@
           {:class    (if selected? "active" "")
            :key      (str id)}
           [:a
-           {:on-click  #(reset! model id)}
+           {:style     {:cursor "pointer"}
+            :on-click  #(reset! model id)}
            label]]))]))
 
 
@@ -105,5 +106,6 @@
           {:class  (if selected? "active")
            :key    (str id)}
           [:a
-           {:on-click  #(reset! model id)}
+           {:style     {:cursor "pointer"}
+            :on-click  #(reset! model id)}
            label]]))]))

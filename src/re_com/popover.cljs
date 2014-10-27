@@ -296,10 +296,10 @@
       (when place-anchor-before? anchor)
       (when @showing?
         [:div                             ;; The "point" that connects the anchor to the popover
-         {:class "re-popover-point"
+         {:class "rc-popover-point"
           :style {:position "relative"
                   :display  "inline-flex"
-                  :flex     ""}}
+                  :flex     "auto"}}
          popover])
       (when-not place-anchor-before? anchor)]]))
 
@@ -346,13 +346,16 @@
   [& {:keys [showing? toggle-on label style] :as args}]
   {:pre [(superset? make-link-args (keys args))]}
   "Renders a link designed to go into a popover.
-   It provides the functionality to toggle the popover when the button is pressed."
+   It provides the functionality to either toggle the popover when the button is pressed or show/hide
+   on houseover/mouseout."
   (let [show   #(reset! showing? true)
         hide   #(reset! showing? false)
         toggle #(reset! showing? (not @showing?))]
     [:a
      (merge {:class "rc-make-link"}
-            {:style (merge {:flex "inherit"} style)}
+            {:style (merge {:flex "inherit"
+                           :cursor (if (= toggle-on :mouse) "help" "pointer")}
+                           style)}
             (if (= toggle-on :mouse)
               {:on-mouse-over show
                :on-mouse-out  hide}

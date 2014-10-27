@@ -1,8 +1,8 @@
 (ns re-demo.popovers
   (:require [re-com.core                 :refer [label button checkbox]]
             [re-demo.util                :refer [title]]
-            [re-com.box                  :refer [h-box v-box box gap line]]
-            [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper]]
+            [re-com.box                  :refer [h-box v-box box gap line scroller border]]
+            [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper make-link]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
             [re-com.dropdown             :refer [single-dropdown]]
             [reagent.core                :as    reagent]))
@@ -34,20 +34,34 @@
         [v-box
          :children [[title "Button Popover"]
                     [h-box
-                     :gap "50px"
+                     :gap      "50px"
                      :children [[v-box
-                                 :width "500px"
-                                 :margin "20px 0px 0px 0px"
+                                 :width    "500px"
+                                 :margin   "20px 0px 0px 0px"
+                                 :style    {:font-size "small"}
                                  :children [[:div.h4 "Notes:"]
                                             [:ul
                                              [:li "You can link (anchor) a popover to arbitrary markup."]
-                                             [:li "On the right, is a popup linked to the button."]
-                                             [:li "Initially, it is configured to show below-right of the anchor button."]
-                                             [:li "Marvel at what happens if you resize the browser window. It stays on its anchor."]
-                                             [:li "If window contents change while popped-up, it stays glued. "]]]]
+                                             #_[:li "On the right, is a popover linked to the button."]
+                                             #_[:li "Initially, it is configured to show below-center of the anchor button but you can
+                                                   configure this and other common parameters using the supplied controls."]
+                                             [:li "The connection between the anchor and the popover is achieved exclusively using CSS.
+                                                   No matter how dramitcally the window is re-sized and/or controls repositioned while popped-up, it stays glued."]
+                                             [:li "To create a popover, wrap your desired anchor with the " [:code "popover-anchor-wrapper"] " function. The arguments are:"]
+                                             [:ul
+                                              [:li  [:code ":showing?"] " - The atom used to show/hide the popover."]
+                                              [:li  [:code ":position"] " - A position keyword specifying where the popover is attached to the anchor. See the demo to the right for the values."]
+                                              [:li  [:code ":anchor"] " - The markup of the anchor to wrap."]
+                                              [:li  [:code ":popover"] " - The markup of the popover body."]]
+                                             [:li "A helper function is available for the body, called " [:code "popover-body-wrapper"] ". The main arguments are:"]
+                                             [:ul
+                                              [:li  [:code ":title"] " - Title of the popover. Can be ommitted."]
+                                              [:li  [:code ":close-button?"] " - Add close button functionality. Default is true."]
+                                              [:li  [:code ":body"] " - Body markup of the popover."]
+                                              [:li  [:code ":on-cancel"] " - The callback for when any cancel event is triggered."]]]]]
                                 [v-box
-                                 :gap "30px"
-                                 :margin "20px 0px 0px 0px"
+                                 :gap      "30px"
+                                 :margin   "20px 0px 0px 0px"
                                  :children [[h-box
                                              :gap "10px"
                                              :children [[box
@@ -127,40 +141,115 @@
 
 (defn hyperlink-popover-demo
   []
-  (let [showing? (reagent/atom false)]
+  (let [showing? (reagent/atom false)
+        pos      :right-below]
     (fn []
       [v-box
        :children [[title "Hyperlink Popover"]
                   [h-box
-                   :gap "50px"
+                   :gap      "50px"
                    :children [[v-box
-                               :width   "500px"
-                               :margin  "20px 0px 0px 0px"
+                               :width    "500px"
+                               :margin   "20px 0px 0px 0px"
+                               :style    {:font-size "small"}
                                :children [[:ul
-                                           [:li "Notes go here."]]]]
+                                           [:li "A " [:code "make-link"] " helper function is provided to make creating popover links easy. Use this for the anchor."]
+                                           [:li "This one has the " [:code ":toggle-on"] " argument of " [:code "make-link"] " set to " [:code ":click"] "."]]]]
                               [v-box
-                               :gap     "30px"
-                               :margin  "20px 0px 0px 0px"
-                               :children [[label :label "TODO"]]]]]]])))
+                               :gap      "30px"
+                               :margin   "20px 0px 0px 0px"
+                               :children [[popover-anchor-wrapper
+                                           :showing? showing?
+                                           :position pos
+                                           :anchor   [make-link
+                                                      :showing?  showing?
+                                                      :toggle-on :click
+                                                      :label     "click link popover"]
+                                           :popover [popover-content-wrapper
+                                                     :showing? showing?
+                                                     :position pos
+                                                     :title    "Popover Title"
+                                                     :body     "popover body"]]]]]]]])))
 
 
 (defn proximity-popover-demo
   []
-  (let [showing? (reagent/atom false)]
+  (let [showing? (reagent/atom false)
+        pos      :above-center]
     (fn []
       [v-box
        :children [[title "Proximity Popover (tooltip)"]
                   [h-box
-                   :gap "50px"
+                   :gap      "50px"
                    :children [[v-box
-                               :width   "500px"
-                               :margin  "20px 0px 0px 0px"
+                               :width    "500px"
+                               :margin   "20px 0px 0px 0px"
+                               :style    {:font-size "small"}
                                :children [[:ul
-                                           [:li "Notes go here."]]]]
+                                           [:li "This one has the " [:code ":toggle-on"] " argument of the helper function set to " [:code ":mouse"] "."]
+                                           [:li "Also note that the  " [:code ":title"] " argument of the  " [:code "popover-content-wrapper"]
+                                            " function is omitted, so none is shown."]]]]
                               [v-box
-                               :gap     "30px"
-                               :margin  "20px 0px 0px 0px"
-                               :children [[label :label "TODO"]]]]]]])))
+                               :gap      "30px"
+                               :margin   "20px 0px 0px 0px"
+                               :children [[popover-anchor-wrapper
+                                           :showing? showing?
+                                           :position pos
+                                           :anchor   [make-link
+                                                      :showing?  showing?
+                                                      :toggle-on :mouse
+                                                      :label     "tooltip popover"]
+                                           :popover [popover-content-wrapper
+                                                     :showing?      showing?
+                                                     :position      pos
+                                                     :body          "popover body (without a title specified) makes a create tooltip component"]]]]]]]])))
+
+
+(defn popover-in-scroller-demo
+  []
+  (let [showing? (reagent/atom false)
+        pos      :above-center]
+    (fn []
+      [v-box
+       :children [[title "Popover in scroller"]
+                  [h-box
+                   :gap      "50px"
+                   :children [[v-box
+                               :width    "500px"
+                               :margin   "20px 0px 0px 0px"
+                               :style    {:font-size "small"}
+                               :children [[:ul
+                                           [:li "Testing a show stopper!"]]]]
+                              [v-box
+                               :gap      "30px"
+                               :margin   "20px 0px 0px 0px"
+                               :children [[border
+                                           :child [scroller
+                                                   :width "400px"
+                                                   :height "400px"
+                                                   :scroll :auto
+                                                   ;:h-scroll :auto
+                                                   ;:v-scroll :auto
+                                                   :child [v-box
+                                                           :padding "8px"
+                                                           :children [[popover-anchor-wrapper
+                                                                       :showing? showing?
+                                                                       :position :below-right
+                                                                       :anchor   [button
+                                                                                  :label    "Show popover"
+                                                                                  :on-click #(reset! showing? (not @showing?))
+                                                                                  :class    "btn-success"]
+                                                                       :popover [popover-content-wrapper
+                                                                                 :showing?         showing?
+                                                                                 :position         :below-right
+                                                                                 :width            "400px"
+                                                                                 :height           "400px"
+                                                                                 ;:backdrop-opacity 0.3
+                                                                                 ;:on-cancel        #(reset! showing? false)
+                                                                                 :title            "Title"
+                                                                                 :body             (clojure.string/join (repeat 100 "popover "))]]
+                                                                      (clojure.string/join (repeat 200 "scroller "))
+                                                                      ]]]]]]]]]])))
 
 
 (defn complex-popover-demo
@@ -168,22 +257,27 @@
   [v-box
    :children [[title "Complex Popover (dialog box)"]
               [h-box
-               :gap "50px"
+               :gap      "50px"
                :children [[v-box
-                           :width   "500px"
-                           :margin  "20px 0px 0px 0px"
+                           :width    "500px"
+                           :margin   "20px 0px 0px 0px"
+                           :style    {:font-size "small"}
                            :children [[:ul
-                                       [:li "Notes go here."]]]]
+                                       [:li "Popover-based dialogs are also possible, allowing for any number and any type of input fields or cutom input components. Here is a simple example."]
+                                       [:li "The " [:code "popover-content-wrapper"] " function is friendly to dialog coding patterns, so the cancel event code can be defined once and used
+                                             for the Cancel button, the close button in the title and when the backdrop is clicked."]]]]
                           [v-box
-                           :gap     "30px"
-                           :margin  "20px 0px 0px 0px"
+                           :gap      "30px"
+                           :margin   "20px 0px 0px 0px"
                            :children [[popover-dialog-demo/popover-dialog-demo]]]]]]])
 
 
 (defn panel
   []
   [v-box
-   :children [[simple-popover-demo]
+   :children [[popover-in-scroller-demo]
+              [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]
-              [complex-popover-demo]]])
+              [complex-popover-demo]
+              [gap :height "180px"]]])
