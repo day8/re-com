@@ -1,12 +1,10 @@
 (ns re-com.selection-list
-  (:require-macros [clairvoyant.core :refer [trace-forms]])
   (:require
-    [clairvoyant.core     :refer [default-tracer]]
     [clojure.set          :refer [superset?]]
-    [re-com.core          :refer [checkbox radio-button]]
-    [re-com.box           :refer [box border scroller h-box v-box]]
-    [re-com.util          :refer [fmap deref-or-value]]
-    [reagent.core         :as    r]))
+    [reagent.core         :as    r]
+    [re-com.core          :refer [label checkbox radio-button]]
+    [re-com.box           :refer [box border h-box v-box]]
+    [re-com.util          :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
 (defn label-style [selected? as-exclusions?]
@@ -16,13 +14,14 @@
       (merge base-style {:text-decoration "line-through"})
       base-style)))
 
-  (defn- check-clicked
+
+(defn- check-clicked
   [selections item ticked? required?]
   (let [num-selected (count selections)
         only-item    (when (= 1 num-selected) (first selections))]
-  (if (and required? (= only-item item))
-    selections  ;; prevent unselect of last item
-    (if ticked? (conj selections item) (disj selections item)))))
+    (if (and required? (= only-item item))
+      selections  ;; prevent unselect of last item
+      (if ticked? (conj selections item) (disj selections item)))))
 
 (defn- as-checked
   [item selections on-change disabled? label-fn required? as-exclusions?]
@@ -44,7 +43,6 @@
 
 (defn- as-radio
   [item selections on-change disabled? label-fn required? as-exclusions?]
-  ;;TODO: Do we realy need an anchor now that bootstrap styles not realy being used ?
   [:a {:class "list-group-item compact"}
    [radio-button
     :model       (first selections)
@@ -80,11 +78,14 @@
 
 ;;TODO hide hover highlights for links when disabled
 (defn- list-container
-  [{:keys [choices model on-change multi-select? disabled? hide-border? label-fn required? as-exclusions?] :as args}]
+  [{:keys [choices model on-change multi-select? disabled? hide-border? label-fn required? as-exclusions? item-renderer]
+    :as   args}]
   (let [selected (if multi-select? model (-> model first vector set))
-        items    (map (if multi-select?
-                        #(as-checked % selected on-change disabled? label-fn required? as-exclusions?)
-                        #(as-radio   % selected on-change disabled? label-fn required? as-exclusions?))
+        items    (map (if item-renderer
+                        #(item-renderer % selected on-change disabled? label-fn required? as-exclusions?)
+                        (if multi-select?
+                          #(as-checked % selected on-change disabled? label-fn required? as-exclusions?)
+                          #(as-radio % selected on-change disabled? label-fn required? as-exclusions?)))
                       choices)
         bounds   (select-keys args [:width :height :max-height])
         spacing  (if hide-border? spacing-unbordered spacing-bordered)]
@@ -121,6 +122,9 @@
     :width          ; optional CSS style value e.g. "250px"
     :height         ; optional CSS style value e.g. "150px"
     :max-height     ; optional CSS style value e.g. "150px" Height will shrink/grow based on elements up to this, then scroll
+    :item-renderer  ; optional component function as alternate rendering to default check & radio.
+                    ; function will be passed following args:
+                    ; [item selections on-change disabled? label-fn required? as-exclusions?]
     })
 
 (defn selection-list
