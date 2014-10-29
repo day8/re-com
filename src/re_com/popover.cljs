@@ -100,6 +100,24 @@
                          :stroke-width "1"}}]]))
 
 
+(defn sum-scroll-offsets
+  [node]
+  "Given a DOM node, I traverse through all ascendant nodes (until I reach body), summing any scrollLeft and scrollTop values
+   and return these sums in a map."
+  (let [popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
+        point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
+        point-top          (.-offsetTop  popover-point-node)]
+    (loop [current-node    popover-point-node
+           sum-scroll-left 0
+           sum-scroll-top  0]
+      (if (not= (.-tagName current-node) "BODY")
+        (recur (.-parentNode current-node)
+               (+ sum-scroll-left (.-scrollLeft current-node))
+               (+ sum-scroll-top  (.-scrollTop  current-node)))
+        {:left (- point-left sum-scroll-left)
+         :top  (- point-top  sum-scroll-top)}))))
+
+
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: backdrop
 ;;--------------------------------------------------------------------------------------------------
@@ -222,21 +240,6 @@
                     :align-items     "center"}}
       title
       (when close-button? [close-button showing? close-callback])]]))
-
-
-(defn sum-scroll-offsets
-  [node]
-  (let [popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
-        point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
-        point-top          (.-offsetTop popover-point-node)
-        current-node       (atom popover-point-node)
-        sum-scroll-left    (atom 0)
-        sum-scroll-top     (atom 0)]
-    (while (not= (.-tagName @current-node) "BODY")
-      (swap! sum-scroll-left + (.-scrollLeft @current-node))
-      (swap! sum-scroll-top  + (.-scrollTop  @current-node))
-      (reset! current-node (.-parentNode @current-node)))
-    {:left (- point-left @sum-scroll-left) :top (- point-top @sum-scroll-top)}))
 
 
 ;;--------------------------------------------------------------------------------------------------

@@ -222,14 +222,11 @@
                                :style    {:font-size "small"}
                                :children [[:ul
                                            [:li "Testing a show stopper!"]]]]
-                              #_[scroller
-                               :height "270px"
-                               :child  ]
                               [v-box
-                               :gap "30px"
-                               :margin "20px 0px 0px 0px"
+                               :gap      "30px"
+                               :margin   "20px 0px 0px 0px"
                                :children [[h-box
-                                           :gap "40px"
+                                           :gap      "40px"
                                            :children [[border
                                                        :child [scroller
                                                                :width  "200px"
@@ -238,7 +235,6 @@
                                                                :child [v-box
                                                                        :padding "8px"
                                                                        :children [[:div {:style {:flex "none"}} (clojure.string/join (repeat 8 "scroller top "))]
-
                                                                                   [popover-anchor-wrapper
                                                                                    :showing? showing?
                                                                                    :position pos
@@ -254,13 +250,10 @@
                                                                                              ;:on-cancel        cancel-popover
                                                                                              :title "Title"
                                                                                              :body (clojure.string/join (repeat 30 "popover "))]]
-
-                                                                                  [:div {:style {:flex "none"}} (clojure.string/join (repeat 15 "scroller bottom "))]
-
-                                                                                  ]]]]
+                                                                                  [:div {:style {:flex "none"}} (clojure.string/join (repeat 15 "scroller bottom "))]]]]]
                                                       [v-box
-                                                       :gap "15px"
-                                                       :align :start
+                                                       :gap      "15px"
+                                                       :align    :start
                                                        :children [[label :style {:font-style "italic"} :label "parameters:"]
                                                                   [h-box
                                                                    :gap "20px"
@@ -272,42 +265,32 @@
                                                                                             (reset! no-clip? val)
                                                                                             (cancel-popover))]]]]]]]
                                           [border
-                                           :width  "200px"
+                                           :width      "200px"
                                            :min-height "200px"
-                                           :child [scroller
-                                                   :width  "200px"
-                                                   :height "200px"
-                                                   ;:min-height "200px"
-                                                   :scroll :auto
-                                                   :child [v-box
-                                                           :padding "8px"
-                                                           :children [;;[:div {:style {:flex "none" :position "absolute" :width "350px" :background-color "red" :opacity 0.4}} (clojure.string/join (repeat 26 "abs "))]
-
-                                                                       [:div {:style {:flex "none"}} (clojure.string/join (repeat 8 "scroller top "))]
-
-                                                                       [:div {:style {:flex "none" :position "relative" :height "50px"}}
-                                                                        [:div {:style {:flex "none" :position "absolute" :width "350px" :background-color "yellow" :opacity 0.4}} (clojure.string/join (repeat 15 "rel abs "))]]
-
-                                                                       [popover-anchor-wrapper
-                                                                        :showing? showing?
-                                                                        :position pos
-                                                                        :anchor [button
-                                                                                 :label "Show popover"
-                                                                                 :on-click #(reset! showing? (not @showing?))]
-                                                                        :popover [popover-content-wrapper
-                                                                                  :showing? showing?
-                                                                                  :position pos
-                                                                                  :no-clip @no-clip?
-                                                                                  :width "200px"
-                                                                                  ;:backdrop-opacity 0.3
-                                                                                  ;:on-cancel        cancel-popover
-                                                                                  :title "Title"
-                                                                                  :body (clojure.string/join (repeat 30 "popover "))]]
-
-                                                                       [:div {:style {:flex "none"}} (clojure.string/join (repeat 15 "scroller bottom "))]
-
-                                                                       ]]]]]]
-                              ]]]])))
+                                           :child      [scroller
+                                                        :width  "200px"
+                                                        :height "200px"
+                                                        :scroll :auto
+                                                        :child  [v-box
+                                                                 :padding "8px"
+                                                                 :children [[:div {:style {:flex "none"}} (clojure.string/join (repeat 8 "scroller top "))]
+                                                                            [popover-anchor-wrapper
+                                                                             :showing? showing?
+                                                                             :position pos
+                                                                             :anchor [button
+                                                                                      :label "Show popover"
+                                                                                      :on-click #(reset! showing? (not @showing?))]
+                                                                             :popover [popover-content-wrapper
+                                                                                       :showing? showing?
+                                                                                       :position pos
+                                                                                       :no-clip @no-clip?
+                                                                                       :width "200px"
+                                                                                       ;:backdrop-opacity 0.3
+                                                                                       ;:on-cancel        cancel-popover
+                                                                                       :title "Title"
+                                                                                       :body (clojure.string/join (repeat 30 "popover "))]]
+                                                                            [:div {:style {:flex "none"}} (clojure.string/join (repeat 15 "scroller bottom "))]
+                                                                            [box :width "400px" :height "20px"]]]]]]]]]]])))
 
 
 (defn complex-popover-demo
