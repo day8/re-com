@@ -159,7 +159,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[:h3.page-header "Tour"]
+       :children [[:h3.page-header "Tabs"]
                   [h-box
                    :gap      "50px"
                    :children [                              ;;[notes]

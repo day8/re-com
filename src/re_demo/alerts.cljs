@@ -98,6 +98,7 @@
   []
   [v-box
    :width    "500px"
+   :style    {:font-size "small"}
    :children [[:div.h4 "[alert-box ..."]
               [:ul
                [:li "All parameter are optional."]

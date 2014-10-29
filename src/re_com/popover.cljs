@@ -100,6 +100,24 @@
                          :stroke-width "1"}}]]))
 
 
+(defn sum-scroll-offsets
+  [node]
+  "Given a DOM node, I traverse through all ascendant nodes (until I reach body), summing any scrollLeft and scrollTop values
+   and return these sums in a map."
+  (let [popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
+        point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
+        point-top          (.-offsetTop  popover-point-node)]
+    (loop [current-node    popover-point-node
+           sum-scroll-left 0
+           sum-scroll-top  0]
+      (if (not= (.-tagName current-node) "BODY")
+        (recur (.-parentNode current-node)
+               (+ sum-scroll-left (.-scrollLeft current-node))
+               (+ sum-scroll-top  (.-scrollTop  current-node)))
+        {:left (- point-left sum-scroll-left)
+         :top  (- point-top  sum-scroll-top)}))))
+
+
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: backdrop
 ;;--------------------------------------------------------------------------------------------------
@@ -228,9 +246,10 @@
 ;; Component: popover-content
 ;;--------------------------------------------------------------------------------------------------
 
-(def popover-content-args
+(def popover-content-wrapper-args
   #{:showing?           ;; The atom used to dhow/hide the popover.
     :position           ;; Place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below.
+    :no-clip            ;; Prevents clipping within a scroller (trade-off is that the popover remains fixed on screen when other elements scroll, move, resize)
     :width              ;; A CSS string representing the popover width in pixels or nil or omit parameter for auto (default 250px).
     :height             ;; A CSS string representing the popover height in pixels (or nil or omit parameter for auto)
     :backdrop-opacity   ;; A float number indicating the opacity of the backdrop  0 = transparent, 1 = black.
@@ -242,14 +261,57 @@
 
 
 (defn popover-content-wrapper
-  [& {:keys [showing? position width height backdrop-opacity on-cancel title close-button? body]
+  [& {:keys [showing? position no-clip width height backdrop-opacity on-cancel title close-button? body]
       :or {position :right-below}
       :as args}]
-  {:pre [(superset? popover-content-args (keys args))]}
-  "Abstracts several components to handle the 90% case for general popovers and dialog boxes."
+  {:pre [(superset? popover-content-wrapper-args (keys args))]}
+  "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes."
+  (assert ((complement nil?) showing?) "Must specify a showing? atom")
+  (let [left-offset (reagent/atom 0)
+        top-offset  (reagent/atom 0)]
+    (reagent/create-class
+      {:component-did-mount
+        (fn [me]
+          (when no-clip
+            (let [offsets (sum-scroll-offsets (reagent/dom-node me))]
+              (reset! left-offset (:left offsets))
+              (reset! top-offset  (:top  offsets)))))
+
+       :render
+        (fn []
+          [:div
+           {:style (merge {:flex "inherit"}
+                          (when no-clip {:position "fixed"
+                                         :left     (px @left-offset)
+                                         :top      (px @top-offset)}))}
+           (when (and @showing? on-cancel)
+             [backdrop
+              :opacity backdrop-opacity
+              :on-click on-cancel])
+           [popover-border
+            :position position
+            :width width
+            :height height
+            :title (when title [popover-title
+                                :title title
+                                :showing? showing?
+                                :close-button? close-button?
+                                :close-callback on-cancel])
+            :children [body]]])}))
+  )
+
+#_(defn popover-content-wrapper
+  [& {:keys [showing? position no-clip width height backdrop-opacity on-cancel title close-button? body]
+      :or {position :right-below}
+      :as args}]
+  {:pre [(superset? popover-content-wrapper-args (keys args))]}
+  "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes."
   (assert ((complement nil?) showing?) "Must specify a showing? atom")
   [:div
-   {:style {:flex "inherit"}}
+   {:style (merge {:flex "inherit"}
+                  (when no-clip {:position "fixed"
+                                 :left "20px"
+                                 :top "20px"}))}
    (when (and @showing? on-cancel)
      [backdrop
       :opacity backdrop-opacity
@@ -296,10 +358,10 @@
       (when place-anchor-before? anchor)
       (when @showing?
         [:div                             ;; The "point" that connects the anchor to the popover
-         {:class "re-popover-point"
+         {:class "rc-popover-point"
           :style {:position "relative"
                   :display  "inline-flex"
-                  :flex     ""}}
+                  :flex     "auto"}}
          popover])
       (when-not place-anchor-before? anchor)]]))
 
@@ -346,13 +408,16 @@
   [& {:keys [showing? toggle-on label style] :as args}]
   {:pre [(superset? make-link-args (keys args))]}
   "Renders a link designed to go into a popover.
-   It provides the functionality to toggle the popover when the button is pressed."
+   It provides the functionality to either toggle the popover when the button is pressed or show/hide
+   on houseover/mouseout."
   (let [show   #(reset! showing? true)
         hide   #(reset! showing? false)
         toggle #(reset! showing? (not @showing?))]
     [:a
      (merge {:class "rc-make-link"}
-            {:style (merge {:flex "inherit"} style)}
+            {:style (merge {:flex "inherit"
+                           :cursor (if (= toggle-on :mouse) "help" "pointer")}
+                           style)}
             (if (= toggle-on :mouse)
               {:on-mouse-over show
                :on-mouse-out  hide}

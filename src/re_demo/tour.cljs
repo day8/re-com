@@ -93,6 +93,7 @@
   []
   [v-box
    :width    "500px"
+   :style    {:font-size "small"}
    :children [[:div.h4 "General notes"]
               [:ul
                [:li "To create a tour component, do the following:"
