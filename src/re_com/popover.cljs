@@ -249,7 +249,7 @@
 (def popover-content-wrapper-args
   #{:showing?           ;; The atom used to dhow/hide the popover.
     :position           ;; Place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below.
-    :no-clip            ;; Prevents clipping within a scroller (trade-off is that the popover remains fixed on screen when other elements scroll, move, resize)
+    :no-clip?           ;; Prevents clipping within a scroller (trade-off is that the popover remains fixed on screen when other elements scroll, move, resize)
     :width              ;; A CSS string representing the popover width in pixels or nil or omit parameter for auto (default 250px).
     :height             ;; A CSS string representing the popover height in pixels (or nil or omit parameter for auto)
     :backdrop-opacity   ;; A float number indicating the opacity of the backdrop  0 = transparent, 1 = black.
@@ -261,7 +261,7 @@
 
 
 (defn popover-content-wrapper
-  [& {:keys [showing? position no-clip width height backdrop-opacity on-cancel title close-button? body]
+  [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body]
       :or {position :right-below}
       :as args}]
   {:pre [(superset? popover-content-wrapper-args (keys args))]}
@@ -272,7 +272,7 @@
     (reagent/create-class
       {:component-did-mount
         (fn [me]
-          (when no-clip
+          (when no-clip?
             (let [offsets (sum-scroll-offsets (reagent/dom-node me))]
               (reset! left-offset (:left offsets))
               (reset! top-offset  (:top  offsets)))))
@@ -281,7 +281,7 @@
         (fn []
           [:div
            {:style (merge {:flex "inherit"}
-                          (when no-clip {:position "fixed"
+                          (when no-clip? {:position "fixed"
                                          :left     (px @left-offset)
                                          :top      (px @top-offset)}))}
            (when (and @showing? on-cancel)
@@ -299,34 +299,6 @@
                                 :close-callback on-cancel])
             :children [body]]])}))
   )
-
-#_(defn popover-content-wrapper
-  [& {:keys [showing? position no-clip width height backdrop-opacity on-cancel title close-button? body]
-      :or {position :right-below}
-      :as args}]
-  {:pre [(superset? popover-content-wrapper-args (keys args))]}
-  "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes."
-  (assert ((complement nil?) showing?) "Must specify a showing? atom")
-  [:div
-   {:style (merge {:flex "inherit"}
-                  (when no-clip {:position "fixed"
-                                 :left "20px"
-                                 :top "20px"}))}
-   (when (and @showing? on-cancel)
-     [backdrop
-      :opacity backdrop-opacity
-      :on-click on-cancel])
-   [popover-border
-    :position position
-    :width    width
-    :height   height
-    :title    (when title [popover-title
-                           :title title
-                           :showing? showing?
-                           :close-button? close-button?
-                           :close-callback on-cancel])
-    :children [body]]])
-
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: popover-anchor-wrapper

@@ -244,7 +244,7 @@
                                                                                    :popover [popover-content-wrapper
                                                                                              :showing? showing?
                                                                                              :position pos
-                                                                                             :no-clip @no-clip?
+                                                                                             :no-clip? @no-clip?
                                                                                              :width "200px"
                                                                                              ;:backdrop-opacity 0.3
                                                                                              ;:on-cancel        cancel-popover
@@ -259,7 +259,7 @@
                                                                    :gap "20px"
                                                                    :align :start
                                                                    :children [[checkbox
-                                                                               :label ":no-clip"
+                                                                               :label ":no-clip?"
                                                                                :model no-clip?
                                                                                :on-change (fn [val]
                                                                                             (reset! no-clip? val)
@@ -283,7 +283,7 @@
                                                                              :popover [popover-content-wrapper
                                                                                        :showing? showing?
                                                                                        :position pos
-                                                                                       :no-clip @no-clip?
+                                                                                       :no-clip? @no-clip?
                                                                                        :width "200px"
                                                                                        ;:backdrop-opacity 0.3
                                                                                        ;:on-cancel        cancel-popover
