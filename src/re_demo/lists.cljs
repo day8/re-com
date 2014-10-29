@@ -1,9 +1,10 @@
 (ns re-demo.lists
-  (:require [reagent.core          :as     r]
-            [re-com.core           :refer  [label checkbox]]
-            [re-com.box            :refer  [h-box v-box]]
-            [re-com.selection-list :refer  [selection-list]]
-            [re-com.util           :refer  [golden-ratio-a golden-ratio-b]]))
+  (:require
+    [reagent.core          :as    r]
+    [re-com.core           :refer [label checkbox]]
+    [re-com.box            :refer [h-box v-box]]
+    [re-com.selection-list :refer [selection-list]]
+    [re-com.util           :refer [golden-ratio-a golden-ratio-b]]))
 
 
 (defn- options-with
@@ -122,7 +123,15 @@
                                       [:p [:code ":hide-border?"]
                                        " - boolean. (default: false)"]
                                       [:p [:code ":label-fn"]
-                                       " - IFn to call on each element to get label string, default #(str %)"]]]]]]])
+                                       " - IFn to call on each element to get label string, default #(str %)"]
+                                      [:p [:code ":item-renderer"]
+                                       (str " - IFn to call on each element during setup, the returned component renders the element, respond to clicks etc"
+                                            " Following example renders plain label")]
+                                      [:pre {:style {:font-size "smaller"}}
+                                       [:code (str "(defn as-label\n"
+                                                   "  [item selections on-change disabled? label-fn required? as-exclusions?]\n"
+                                                   "  [label :label (label-fn item) :style {:width \"200px\" :color \"#428bca\"}])")]]]
+                           ]]]]])
 
 
 (defn panel
