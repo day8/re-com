@@ -31,7 +31,7 @@
                 [:li [:code ":on-change"] " - function to call upon change."]
                 [:li [:code ":disabled?"] " - true if the component should be disabled - default false. Can also be an atom containing a boolean."]
                 [:li [:code ":hide-border?"] " - true if the time input should be displayed without a border - default false"]
-                [:li [:code ":show-icon"] " - true if the clock icon should be displayed - default false"]
+                [:li [:code ":show-icon?"] " - true if the clock icon should be displayed - default false"]
                 [:li [:code ":class"] " - class for styling"]
                 [:li [:code ":style"] " - css style"]]]]])
 
@@ -56,7 +56,7 @@
                            :model @hide-border?
                            :on-change #(reset! hide-border? %)]
                           [checkbox
-                           :label ":show-icon"
+                           :label ":show-icon?"
                            :label-style check-style
                            :model @show-icon?
                            :on-change #(reset! show-icon? %)]]]]])
@@ -85,7 +85,7 @@
                                :on-change #(reset! an-int-time %)
                                :disabled? disabled?
                                :hide-border? @hide-border?
-                               :show-icon @show-icon?]
+                               :show-icon? @show-icon?]
                               [v-box
                                :gap "10px"
                                :children [[label :style {:font-style "italic"} :label "simulated boolean parameters:"]
