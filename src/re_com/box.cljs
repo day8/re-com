@@ -441,6 +441,10 @@
 
 (def border-args
   #{:size       ;;
+    :width      ;;
+    :height     ;;
+    :min-width  ;;
+    :min-height ;;
     :margin     ;;
     :padding    ;;
     :border     ;;
@@ -455,7 +459,7 @@
 
 
 (defn border
-  [& {:keys [size margin padding border l-border r-border t-border b-border radius child style]
+  [& {:keys [size width height min-width min-height margin padding border l-border r-border t-border b-border radius child style]
       :or   {size "auto"}
       :as   args}]
   {:pre [(superset? border-args (keys args))]}
@@ -474,10 +478,10 @@
               ;:scroll      scroll
               ;:h-scroll    h-scroll
               ;:v-scroll    v-scroll
-              ;:width       width
-              ;:height      height
-              ;:min-width   min-width
-              ;:min-height  min-height
+              :width       width
+              :height      height
+              :min-width   min-width
+              :min-height  min-height
               ;:justify     justify
               ;:align       align
               ;:align-self  align-self

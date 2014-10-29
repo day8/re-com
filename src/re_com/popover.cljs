@@ -224,13 +224,29 @@
       (when close-button? [close-button showing? close-callback])]]))
 
 
+(defn sum-scroll-offsets
+  [node]
+  (let [popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
+        point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
+        point-top          (.-offsetTop popover-point-node)
+        current-node       (atom popover-point-node)
+        sum-scroll-left    (atom 0)
+        sum-scroll-top     (atom 0)]
+    (while (not= (.-tagName @current-node) "BODY")
+      (swap! sum-scroll-left + (.-scrollLeft @current-node))
+      (swap! sum-scroll-top  + (.-scrollTop  @current-node))
+      (reset! current-node (.-parentNode @current-node)))
+    {:left (- point-left @sum-scroll-left) :top (- point-top @sum-scroll-top)}))
+
+
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: popover-content
 ;;--------------------------------------------------------------------------------------------------
 
-(def popover-content-args
+(def popover-content-wrapper-args
   #{:showing?           ;; The atom used to dhow/hide the popover.
     :position           ;; Place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below.
+    :no-clip            ;; Prevents clipping within a scroller (trade-off is that the popover remains fixed on screen when other elements scroll, move, resize)
     :width              ;; A CSS string representing the popover width in pixels or nil or omit parameter for auto (default 250px).
     :height             ;; A CSS string representing the popover height in pixels (or nil or omit parameter for auto)
     :backdrop-opacity   ;; A float number indicating the opacity of the backdrop  0 = transparent, 1 = black.
@@ -242,14 +258,57 @@
 
 
 (defn popover-content-wrapper
-  [& {:keys [showing? position width height backdrop-opacity on-cancel title close-button? body]
+  [& {:keys [showing? position no-clip width height backdrop-opacity on-cancel title close-button? body]
       :or {position :right-below}
       :as args}]
-  {:pre [(superset? popover-content-args (keys args))]}
-  "Abstracts several components to handle the 90% case for general popovers and dialog boxes."
+  {:pre [(superset? popover-content-wrapper-args (keys args))]}
+  "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes."
+  (assert ((complement nil?) showing?) "Must specify a showing? atom")
+  (let [left-offset (reagent/atom 0)
+        top-offset  (reagent/atom 0)]
+    (reagent/create-class
+      {:component-did-mount
+        (fn [me]
+          (when no-clip
+            (let [offsets (sum-scroll-offsets (reagent/dom-node me))]
+              (reset! left-offset (:left offsets))
+              (reset! top-offset  (:top  offsets)))))
+
+       :render
+        (fn []
+          [:div
+           {:style (merge {:flex "inherit"}
+                          (when no-clip {:position "fixed"
+                                         :left     (px @left-offset)
+                                         :top      (px @top-offset)}))}
+           (when (and @showing? on-cancel)
+             [backdrop
+              :opacity backdrop-opacity
+              :on-click on-cancel])
+           [popover-border
+            :position position
+            :width width
+            :height height
+            :title (when title [popover-title
+                                :title title
+                                :showing? showing?
+                                :close-button? close-button?
+                                :close-callback on-cancel])
+            :children [body]]])}))
+  )
+
+#_(defn popover-content-wrapper
+  [& {:keys [showing? position no-clip width height backdrop-opacity on-cancel title close-button? body]
+      :or {position :right-below}
+      :as args}]
+  {:pre [(superset? popover-content-wrapper-args (keys args))]}
+  "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes."
   (assert ((complement nil?) showing?) "Must specify a showing? atom")
   [:div
-   {:style {:flex "inherit"}}
+   {:style (merge {:flex "inherit"}
+                  (when no-clip {:position "fixed"
+                                 :left "20px"
+                                 :top "20px"}))}
    (when (and @showing? on-cancel)
      [backdrop
       :opacity backdrop-opacity
