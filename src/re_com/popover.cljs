@@ -280,7 +280,8 @@
        :render
         (fn []
           [:div
-           {:style (merge {:flex "inherit"}
+           {:class "popover-content-wrapper"
+            :style (merge {:flex "inherit"}
                           (when no-clip? {:position "fixed"
                                          :left     (px @left-offset)
                                          :top      (px @top-offset)}))}
@@ -319,7 +320,7 @@
   (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
         place-anchor-before?    (case orientation (:left :above) false true)
         flex-flow               (case orientation (:left :right) "row" "column")]
-    [:div {:class  "rc-popover"
+    [:div {:class  "rc-popover-anchor-wrapper"
             :style {:display "inline-flex"
                    :flex     "inherit"}}
      [:div                                ;; Wrapper around the anchor and the "point"

@@ -18,6 +18,7 @@
         add-scroller?     (reagent/atom false)
         on-cancel?        (reagent/atom false)
         backdrop-opacity? (reagent/atom false)
+        curr-position     (reagent/atom :below-center)
         positions         [{:id :above-left   :label ":above-left  "}
                            {:id :above-center :label ":above-center"}
                            {:id :above-right  :label ":above-right "}
@@ -29,8 +30,7 @@
                            {:id :left-below   :label ":left-below  "}
                            {:id :right-above  :label ":right-above "}
                            {:id :right-center :label ":right-center"}
-                           {:id :right-below  :label ":right-below "}]
-        curr-position     (reagent/atom :below-center)]
+                           {:id :right-below  :label ":right-below "}]]
     (fn []
       (let [cancel-popover #(reset! showing? false)]
         [v-box
@@ -63,32 +63,38 @@
                                  :gap      "30px"
                                  :margin   "20px 0px 0px 0px"
                                  :children [[h-box
-                                             :gap "10px"
-                                             :children [[box
-                                                         :width "180px"
+                                             :gap "30px"
+                                             :children [[v-box
+                                                         :width "200px"
+                                                         :height "300px"
                                                          :align :center
-                                                         :child [popover-anchor-wrapper
-                                                                 :showing? showing?
-                                                                 :position @curr-position
-                                                                 :anchor [button
-                                                                          :label (if @showing? "Pop-down" "Click me")
-                                                                          :on-click #(reset! showing? (not @showing?))
-                                                                          :class "btn-success"]
-                                                                 :popover [popover-content-wrapper
-                                                                           :showing? showing?
-                                                                           :position @curr-position
-                                                                           :no-clip? @no-clip?
-                                                                           :backdrop-opacity (when @backdrop-opacity? 0.3)
-                                                                           :on-cancel (when @on-cancel? cancel-popover)
-                                                                           :title (when @title? (if @no-clip? "no-clip? popover" "Popover happening"))
-                                                                           :close-button? @close-button?
-                                                                           :body (when @body?
-                                                                                   (if @no-clip?
-                                                                                     [:span [:strong "NOTE:"] " In this mode, the popover will not be clipped within the scroller but it
-                                                                                      will also not move when scrolling occurs while it's popped up. However, the next time it is popped up,
-                                                                                      the correct position will be recalculated."]
-                                                                                     "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup.
-                                                                                      Click the button again to cause a pop-down."))]]]
+                                                         :style {:border "1px solid lightgrey"
+                                                                 :overflow (when @add-scroller? "overlay")}
+                                                         :children [[:span {:style {:flex "inherit" :color "lightgrey"}} (clojure.string/join (repeat 42 "text "))]
+                                                                    [popover-anchor-wrapper
+                                                                     :showing? showing?
+                                                                     :position @curr-position
+                                                                     :anchor [button
+                                                                              :label (if @showing? "Pop-down" "Click me")
+                                                                              :on-click #(reset! showing? (not @showing?))
+                                                                              :class "btn-success"]
+                                                                     :popover [popover-content-wrapper
+                                                                               :showing? showing?
+                                                                               :position @curr-position
+                                                                               :no-clip? @no-clip?
+                                                                               :backdrop-opacity (when @backdrop-opacity? 0.3)
+                                                                               :on-cancel (when @on-cancel? cancel-popover)
+                                                                               :title (when @title? (if @no-clip? "no-clip? popover" "Popover happening"))
+                                                                               :close-button? @close-button?
+                                                                               :body (when @body?
+                                                                                       (if @no-clip?
+                                                                                         [:span {:style {:color "brown"}} [:strong "NOTE: "]
+                                                                                          "In this mode, the popover will not be clipped within the scroller but it
+                                                                                           will also not move when scrolling occurs while it's popped up. However, the next time it is popped up,
+                                                                                           the correct position will be recalculated."]
+                                                                                         "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup.
+                                                                                          Click the button again to cause a pop-down."))]]
+                                                                    [:span {:style {:flex "inherit" :color "lightgrey"}} (clojure.string/join (repeat (if @add-scroller? 98 49) "text "))]]]
                                                         [v-box
                                                          :gap      "15px"
                                                          :align    :start
@@ -134,7 +140,7 @@
                                                                      :gap "20px"
                                                                      :align :start
                                                                      :children [[checkbox
-                                                                                 :label "add scroller around popover"
+                                                                                 :label "add scroll bars to box"
                                                                                  :model add-scroller?
                                                                                  :on-change (fn [val]
                                                                                               (reset! add-scroller? val)
