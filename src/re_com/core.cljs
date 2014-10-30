@@ -2,7 +2,7 @@
   (:require [clojure.set  :refer [superset?]]
             [reagent.core :as reagent]
             [re-com.util  :refer [deref-or-value]]
-            [re-com.box   :refer [h-box box gap]]))
+            [re-com.box   :refer [h-box v-box box gap line]]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -196,3 +196,16 @@
                  :margin "10px"}}
    [:img {:src "resources/img/spinner.gif"
           :style {:margin "auto"}}]])
+
+
+;; ------------------------------------------------------------------------------------
+;;  Component: title
+;; ------------------------------------------------------------------------------------
+
+(defn title
+  [text]
+  "An underlined, left justified, H3 Title"
+  [box
+   :child  [v-box
+            :children [[h-box :children [[:h3 text]]]
+                       [line :size "1px"]]]])

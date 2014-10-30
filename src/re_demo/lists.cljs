@@ -1,7 +1,7 @@
 (ns re-demo.lists
   (:require
     [reagent.core          :as    r]
-    [re-com.core           :refer [label checkbox]]
+    [re-com.core           :refer [label checkbox title]]
     [re-com.box            :refer [h-box v-box]]
     [re-com.selection-list :refer [selection-list]]
     [re-com.util           :refer [golden-ratio-a golden-ratio-b]]))
@@ -15,6 +15,7 @@
        :width (str width "px")
        :gap      "20px"
        :align    :start
+       :margin   "20px 0px 0px 0px"
        :children [[label :style {:font-style "italic"} :label "boolean parameters:"]
                   [h-box
                    :gap      "15px"
@@ -143,7 +144,7 @@
         b-width     (golden-ratio-b panel-width)]
     [v-box
      :width    (str panel-width "px")
-     :children [[:h3.page-header "Multiple & Single Selection List"]
+     :children [[title "Multiple & Single Selection List"]
                 [h-box
                  :gap      (str h-gap "px")
                  :children [[notes a-width]

@@ -1,10 +1,9 @@
 (ns re-demo.tabs
    (:require [reagent.core :as reagent]
              [alandipert.storage-atom :refer [local-storage]]
-             [re-demo.util :refer  [title]]
              [re-com.box   :refer [h-box v-box box gap line scroller border]]
              [re-com.dropdown :refer [single-dropdown]]
-             [re-com.core  :refer [button label]]
+             [re-com.core  :refer [button label title]]
              [re-com.tabs  :as tabs]))
 
 
@@ -133,7 +132,7 @@
                  [:li.spacer [:code ":on-change"] " - a callback function taking one parameter which will be the :id of the new selection."]]]]
               (case @selected-demo-id
                 1 [:div
-                   [:div.h4 "Horizontal tab notes:"]
+                   [:div.h4 "Horizontal tabs notes:"]
                    [:ul
                     [:li "Tab-like controls can be styled in the 3 ways shown to the right."]
                     [:li "All 3 share the same state so they change in lockstep."]
@@ -142,17 +141,17 @@
                     [:li "The code for this page can be found in /src/re_demo/tabs.cljs"]
                     [:li "For another demonstration, also look in /src/re_demo/core.cljs. After all, this entire demo app is just a series of tabs."]]]
                 2 [:div
-                   [:div.h4 "Peristent tab notes:"]
+                   [:div.h4 "Peristent tabs notes:"]
                    [:ul
                     [:li "Any tab selection you make on the right will persist."]
                     [:li "It is stored using HTML5's local-storage."]
                     [:li "Even if you refresh the entire browser page, you'll see the same selection."]]]
                 3 [:div
-                   [:div.h4 "Dynamic tab notes:"]
+                   [:div.h4 "Dynamic tabs notes:"]
                    [:ul
                     [:li "Click  \"Add\" for more tabs."]]]
                 4 [:div
-                   [:div.h4 "Vertical tab notes:"]
+                   [:div.h4 "Vertical tabs notes:"]
                    [:ul
                     [:li "TBA"]]])]])
 
@@ -162,7 +161,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[:h3.page-header "Tabs"]
+       :children [[title "Tabs"]
                   [h-box
                    :gap      "50px"
                    :children [[notes selected-demo-id]
@@ -170,6 +169,7 @@
                                :gap       "15px"
                                :size      "auto"
                                :min-width "500px"
+                               :margin    "20px 0px 0px 0px"
                                :children  [[h-box
                                             :gap      "10px"
                                             :align    :center

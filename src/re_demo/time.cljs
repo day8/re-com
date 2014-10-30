@@ -1,6 +1,5 @@
 (ns re-demo.time
-  (:require [re-demo.util    :refer  [title]]
-            [re-com.core     :refer  [label button checkbox input-text]]
+  (:require [re-com.core     :refer  [label button checkbox input-text title]]
             [re-com.time     :refer  [time-input]]
             [re-com.box      :refer  [h-box v-box box gap]]
             [reagent.core    :as     reagent]))
@@ -131,7 +130,7 @@
 (defn panel
   []
   [v-box
-   :children [[:h3.page-header "Time Input"]
+   :children [[title "Time Input"]
               [h-box
                :gap "50px"
                :children [[notes]

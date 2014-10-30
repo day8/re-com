@@ -1,6 +1,5 @@
 (ns re-demo.basics
-  (:require [re-demo.util   :refer  [title]]
-            [re-com.core    :refer  [button label spinner progress-bar checkbox radio-button]]
+  (:require [re-com.core    :refer  [button label spinner progress-bar checkbox radio-button title]]
             [re-com.box     :refer  [h-box v-box box gap line]]
             [reagent.core   :as     reagent]))
 

@@ -1,6 +1,5 @@
 (ns re-demo.popovers
-  (:require [re-com.core                 :refer [label button checkbox]]
-            [re-demo.util                :refer [title]]
+  (:require [re-com.core                 :refer [label button checkbox title]]
             [re-com.box                  :refer [h-box v-box box gap line scroller border]]
             [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper make-link]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]

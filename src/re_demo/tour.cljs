@@ -1,6 +1,6 @@
 (ns re-demo.tour
   (:require [re-com.util     :as    util]
-            [re-com.core     :refer [button label input-text checkbox]]
+            [re-com.core     :refer [button label input-text checkbox title]]
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [re-com.tour     :refer [make-tour start-tour make-tour-nav]]
@@ -112,7 +112,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[:h3.page-header "Tour"]
+       :children [[title "Tour"]
                   [h-box
                    :gap      "50px"
                    :children [[notes]
@@ -120,6 +120,7 @@
                                :gap       "15px"
                                :size      "auto"
                                :min-width "500px"
+                               :margin    "20px 0px 0px 0px"
                                :children  [[h-box
                                             :gap      "10px"
                                             :align    :center

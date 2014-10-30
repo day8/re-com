@@ -3,7 +3,7 @@
     [reagent.core         :as     r]
     [cljs-time.core       :refer  [now days minus]]
     [cljs-time.format     :refer  [formatter unparse]]
-    [re-com.core          :refer  [label checkbox]]
+    [re-com.core          :refer  [label checkbox title]]
     [re-com.datepicker    :refer  [datepicker datepicker-dropdown iso8601->date]]
     [re-com.box           :refer  [h-box v-box gap]]
     [re-com.dropdown      :refer  [single-dropdown]]
@@ -202,13 +202,14 @@
     (fn []
       [v-box
        :width (str panel-width "px")
-       :children [[:h3.page-header "Date Picker"]
+       :children [[title "Date Picker"]
                   [h-box
                    :gap      "50px"
                    :children [[notes a-width selected-variation]
                               [v-box
                                :gap       "15px"
                                :size      "auto"
+                               :margin    "20px 0px 0px 0px"
                                :children  [[h-box
                                             :gap      "10px"
                                             :align    :center

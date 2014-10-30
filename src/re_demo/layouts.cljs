@@ -1,10 +1,8 @@
 (ns re-demo.layouts
-  (:require [re-demo.util      :refer [title]]
-            [re-com.box               :refer [h-box v-box box
-                                              gap line scroller border]]
-            [re-com.layout            :refer [h-layout v-layout]]
-            [re-com.core              :refer [button]]
-            [reagent.core             :as    reagent]))
+  (:require [re-com.box    :refer [h-box v-box box gap line scroller border]]
+            [re-com.layout :refer [h-layout v-layout]]
+            [re-com.core   :refer [button title]]
+            [reagent.core  :as    reagent]))
 
 
 (def rounded-panel {:background-color "#fff4f4"

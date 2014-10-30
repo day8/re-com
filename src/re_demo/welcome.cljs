@@ -1,6 +1,6 @@
 (ns re-demo.welcome
   (:require [reagent.core :as reagent]
-            [re-demo.util :refer [title]]
+            [re-com.core  :refer [title]]
             [re-com.box   :refer [h-box v-box box gap]]))
 
 (defn hyperlink

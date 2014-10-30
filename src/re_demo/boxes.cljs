@@ -1,9 +1,8 @@
 (ns re-demo.boxes
-  (:require [re-com.util              :as    util]
-            [re-com.box               :refer [h-box v-box box
-                                              gap line scroller border]]
-            [re-com.core              :refer [button]]
-            [reagent.core             :as    reagent]))
+  (:require [re-com.util  :as    util]
+            [re-com.box   :refer [h-box v-box box gap line scroller border]]
+            [re-com.core  :refer [button title]]
+            [reagent.core :as    reagent]))
 
 
 (def rounded-panel {:background-color "#fff4f4"
@@ -28,8 +27,8 @@
    :size "auto"
    :children [[box
                :child [h-box
-                       :justify :center
-                       :children [[:h3 "Boxes (simple, with scrollers)"]]]]
+                       ;:justify :center
+                       :children [[title "Boxes (simple, with scrollers)"]]]]
               [gap  :size "30px"]
               [line :size "2px"]
               [h-box
@@ -85,8 +84,8 @@
   [v-box
    :size     "auto"
    :children [[h-box
-               :justify :center
-               :children [[:h3 "Boxes (min-width/height)"]]]
+               :align :stretch
+               :children [[title "Boxes (min-width/height)"]]]
               [gap  :size "30px"]
               [line :size "2px"]
               [v-box
