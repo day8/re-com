@@ -459,6 +459,7 @@
     overflow: hidden;
     cursor: pointer;
     font-size: small;
+    text-overflow: ellipsis;
 }
 
 /*----------------------------------------------------------------------------------------
