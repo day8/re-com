@@ -8,7 +8,7 @@
                  [org.clojure/clojurescript "0.0-2322"]
                  [org.clojure/core.async "0.1.338.0-5c5012-alpha"]
                  [alandipert/storage-atom "1.2.3"]
-                 [reagent "0.4.2"]
+                 [reagent "0.4.3"]
                  [com.andrewmcveigh/cljs-time "0.1.6"]]
 
   :profiles     {:debug {:debug true}
