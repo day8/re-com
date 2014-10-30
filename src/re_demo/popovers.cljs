@@ -14,6 +14,8 @@
         title?            (reagent/atom true)
         close-button?     (reagent/atom false)
         body?             (reagent/atom true)
+        no-clip?          (reagent/atom false)
+        add-scroller?     (reagent/atom false)
         on-cancel?        (reagent/atom false)
         backdrop-opacity? (reagent/atom false)
         positions         [{:id :above-left   :label ":above-left  "}
@@ -42,9 +44,6 @@
                                  :children [[:div.h4 "Notes:"]
                                             [:ul
                                              [:li "You can link (anchor) a popover to arbitrary markup."]
-                                             #_[:li "On the right, is a popover linked to the button."]
-                                             #_[:li "Initially, it is configured to show below-center of the anchor button but you can
-                                                   configure this and other common parameters using the supplied controls."]
                                              [:li "The connection between the anchor and the popover is achieved exclusively using CSS.
                                                    No matter how dramitcally the window is re-sized and/or controls repositioned while popped-up, it stays glued."]
                                              [:li "To create a popover, wrap your desired anchor with the " [:code "popover-anchor-wrapper"] " function. The arguments are:"]
@@ -58,7 +57,8 @@
                                               [:li  [:code ":title"] " - Title of the popover. Can be ommitted."]
                                               [:li  [:code ":close-button?"] " - Add close button functionality. Default is true."]
                                               [:li  [:code ":body"] " - Body markup of the popover."]
-                                              [:li  [:code ":on-cancel"] " - The callback for when any cancel event is triggered."]]]]]
+                                              [:li  [:code ":on-cancel"] " - The callback for when any cancel event is triggered."]
+                                              [:li  [:code ":no-clip?"] " - Prevents clipping and offset issues when popover is in scrollers. Trade-off is that it is fixed while it's popped up."]]]]]
                                 [v-box
                                  :gap      "30px"
                                  :margin   "20px 0px 0px 0px"
@@ -70,20 +70,25 @@
                                                          :child [popover-anchor-wrapper
                                                                  :showing? showing?
                                                                  :position @curr-position
-                                                                 :anchor   [button
-                                                                            :label    (if @showing? "Pop-down" "Click me")
-                                                                            :on-click #(reset! showing? (not @showing?))
-                                                                            :class    "btn-success"]
+                                                                 :anchor [button
+                                                                          :label (if @showing? "Pop-down" "Click me")
+                                                                          :on-click #(reset! showing? (not @showing?))
+                                                                          :class "btn-success"]
                                                                  :popover [popover-content-wrapper
-                                                                           :showing?         showing?
-                                                                           :position         @curr-position
+                                                                           :showing? showing?
+                                                                           :position @curr-position
+                                                                           :no-clip? @no-clip?
                                                                            :backdrop-opacity (when @backdrop-opacity? 0.3)
-                                                                           :on-cancel        (when @on-cancel? cancel-popover)
-                                                                           :title            (when @title? "Popover happening")
-                                                                           :close-button?    @close-button?
-                                                                           :body             (when @body?
-                                                                                               "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup.
-                                                                                                Click the button again to cause a pop-down.")]]]
+                                                                           :on-cancel (when @on-cancel? cancel-popover)
+                                                                           :title (when @title? (if @no-clip? "no-clip? popover" "Popover happening"))
+                                                                           :close-button? @close-button?
+                                                                           :body (when @body?
+                                                                                   (if @no-clip?
+                                                                                     [:span [:strong "NOTE:"] " In this mode, the popover will not be clipped within the scroller but it
+                                                                                      will also not move when scrolling occurs while it's popped up. However, the next time it is popped up,
+                                                                                      the correct position will be recalculated."]
+                                                                                     "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup.
+                                                                                      Click the button again to cause a pop-down."))]]]
                                                         [v-box
                                                          :gap      "15px"
                                                          :align    :start
@@ -125,6 +130,21 @@
                                                                                    :on-change (fn [val]
                                                                                                 (reset! backdrop-opacity? val)
                                                                                                 (cancel-popover))])]]
+                                                                    [h-box
+                                                                     :gap "20px"
+                                                                     :align :start
+                                                                     :children [[checkbox
+                                                                                 :label "add scroller around popover"
+                                                                                 :model add-scroller?
+                                                                                 :on-change (fn [val]
+                                                                                              (reset! add-scroller? val)
+                                                                                              (cancel-popover))]
+                                                                                [checkbox
+                                                                                 :label ":no-clip?"
+                                                                                 :model no-clip?
+                                                                                 :on-change (fn [val]
+                                                                                              (reset! no-clip? val)
+                                                                                              (cancel-popover))]]]
                                                                     [h-box
                                                                      :gap "20px"
                                                                      :align :center
@@ -205,7 +225,7 @@
                                                      :body          "popover body (without a title specified) makes a great tooltip component"]]]]]]]])))
 
 
-(defn popover-in-scroller-demo
+#_(defn popover-in-scroller-demo-REMOVE!
   []
   (let [showing? (reagent/atom false)
         no-clip? (reagent/atom false)
@@ -316,8 +336,7 @@
 (defn panel
   []
   [v-box
-   :children [[popover-in-scroller-demo]
-              [simple-popover-demo]
+   :children [[simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]
               [complex-popover-demo]
