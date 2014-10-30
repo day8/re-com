@@ -9,7 +9,7 @@
                  [org.clojure/core.async "0.1.338.0-5c5012-alpha"]
                  [alandipert/storage-atom "1.2.3"]
                  [reagent "0.4.3"]
-                 [com.andrewmcveigh/cljs-time "0.1.6"]]
+                 [com.andrewmcveigh/cljs-time "0.2.3"]]
 
   :profiles     {:debug {:debug true}
                  :dev {:dependencies [[clj-stacktrace "0.2.8"]
