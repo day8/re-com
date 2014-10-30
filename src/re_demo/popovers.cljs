@@ -63,60 +63,60 @@
                                  :gap      "30px"
                                  :margin   "20px 0px 0px 0px"
                                  :children [[h-box
-                                             :gap "30px"
+                                             :gap      "30px"
                                              :children [[v-box
-                                                         :width "200px"
-                                                         :height "300px"
-                                                         :align :center
-                                                         :style {:border "1px solid lightgrey"
-                                                                 :overflow (when @add-scroller? "overlay")}
+                                                         :width    "200px"
+                                                         :height   "300px"
+                                                         :align    :center
+                                                         :style    {:border   "1px solid lightgrey"             ;; turn a v-box into a border-scroller - this is a special case
+                                                                    :overflow (when @add-scroller? "overlay")}  ;; Use overlay instead of scroll, otherwise things jump around
                                                          :children [[:span {:style {:flex "inherit" :color "lightgrey"}} (clojure.string/join (repeat 42 "text "))]
                                                                     [popover-anchor-wrapper
                                                                      :showing? showing?
                                                                      :position @curr-position
-                                                                     :anchor [button
-                                                                              :label (if @showing? "Pop-down" "Click me")
-                                                                              :on-click #(reset! showing? (not @showing?))
-                                                                              :class "btn-success"]
-                                                                     :popover [popover-content-wrapper
-                                                                               :showing? showing?
-                                                                               :position @curr-position
-                                                                               :no-clip? @no-clip?
-                                                                               :backdrop-opacity (when @backdrop-opacity? 0.3)
-                                                                               :on-cancel (when @on-cancel? cancel-popover)
-                                                                               :title (when @title? (if @no-clip? "no-clip? popover" "Popover happening"))
-                                                                               :close-button? @close-button?
-                                                                               :body (when @body?
-                                                                                       (if @no-clip?
-                                                                                         [:span {:style {:color "brown"}} [:strong "NOTE: "]
-                                                                                          "In this mode, the popover will not be clipped within the scroller but it
-                                                                                           will also not move when scrolling occurs while it's popped up. However, the next time it is popped up,
-                                                                                           the correct position will be recalculated."]
-                                                                                         "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup.
-                                                                                          Click the button again to cause a pop-down."))]]
+                                                                     :anchor   [button
+                                                                                :label (if @showing? "Pop-down" "Click me")
+                                                                                :on-click #(reset! showing? (not @showing?))
+                                                                                :class "btn-success"]
+                                                                     :popover  [popover-content-wrapper
+                                                                                :showing?         showing?
+                                                                                :position         @curr-position
+                                                                                :no-clip?         @no-clip?
+                                                                                :backdrop-opacity (when @backdrop-opacity? 0.3)
+                                                                                :on-cancel        (when @on-cancel? cancel-popover)
+                                                                                :title            (when @title? (if @no-clip? "no-clip? popover" "Popover happening"))
+                                                                                :close-button?    @close-button?
+                                                                                :body             (when @body?
+                                                                                                    (if @no-clip?
+                                                                                                      [:span {:style {:color "brown"}} [:strong "NOTE: "]
+                                                                                                       "In this mode, the popover will not be clipped within the scroller but it
+                                                                                                        will also not move when scrolling occurs while it's popped up. However, the next time it is popped up,
+                                                                                                        the correct position will be recalculated."]
+                                                                                                      "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup.
+                                                                                                       Click the button again to cause a pop-down."))]]
                                                                     [:span {:style {:flex "inherit" :color "lightgrey"}} (clojure.string/join (repeat (if @add-scroller? 98 49) "text "))]]]
                                                         [v-box
                                                          :gap      "15px"
                                                          :align    :start
                                                          :children [[label :style {:font-style "italic"} :label "parameters:"]
                                                                     [h-box
-                                                                     :gap "20px"
-                                                                     :align :start
+                                                                     :gap      "20px"
+                                                                     :align    :start
                                                                      :children [[checkbox
-                                                                                 :label ":title"
-                                                                                 :model title?
+                                                                                 :label     ":title"
+                                                                                 :model     title?
                                                                                  :on-change (fn [val]
                                                                                               (reset! title? val)
                                                                                               (cancel-popover))]
                                                                                 [checkbox
-                                                                                 :label ":close-button?"
-                                                                                 :model close-button?
+                                                                                 :label     ":close-button?"
+                                                                                 :model     close-button?
                                                                                  :on-change (fn [val]
                                                                                               (reset! close-button? val)
                                                                                               (cancel-popover))]
                                                                                 [checkbox
-                                                                                 :label ":body"
-                                                                                 :model body?
+                                                                                 :label     ":body"
+                                                                                 :model     body?
                                                                                  :on-change (fn [val]
                                                                                               (reset! body? val)
                                                                                               (cancel-popover))]]]
@@ -124,15 +124,15 @@
                                                                      :gap "20px"
                                                                      :align :start
                                                                      :children [[checkbox
-                                                                                 :label "add backdrop (catches clicks away from popover)"
-                                                                                 :model on-cancel?
+                                                                                 :label     "add backdrop (catches clicks away from popover)"
+                                                                                 :model     on-cancel?
                                                                                  :on-change (fn [val]
                                                                                               (reset! on-cancel? val)
                                                                                               (cancel-popover))]
                                                                                 (when @on-cancel?
                                                                                   [checkbox
-                                                                                   :label (str ":backdrop-opacity " (if @backdrop-opacity? "(0.3)" "(0.0)"))
-                                                                                   :model backdrop-opacity?
+                                                                                   :label     (str ":backdrop-opacity " (if @backdrop-opacity? "(0.3)" "(0.0)"))
+                                                                                   :model     backdrop-opacity?
                                                                                    :on-change (fn [val]
                                                                                                 (reset! backdrop-opacity? val)
                                                                                                 (cancel-popover))])]]
@@ -140,14 +140,14 @@
                                                                      :gap "20px"
                                                                      :align :start
                                                                      :children [[checkbox
-                                                                                 :label "add scroll bars to box"
-                                                                                 :model add-scroller?
+                                                                                 :label     "add scroll bars to box"
+                                                                                 :model     add-scroller?
                                                                                  :on-change (fn [val]
                                                                                               (reset! add-scroller? val)
                                                                                               (cancel-popover))]
                                                                                 [checkbox
-                                                                                 :label ":no-clip?"
-                                                                                 :model no-clip?
+                                                                                 :label     ":no-clip?"
+                                                                                 :model     no-clip?
                                                                                  :on-change (fn [val]
                                                                                               (reset! no-clip? val)
                                                                                               (cancel-popover))]]]
@@ -229,94 +229,6 @@
                                                      :showing?      showing?
                                                      :position      pos
                                                      :body          "popover body (without a title specified) makes a great tooltip component"]]]]]]]])))
-
-
-#_(defn popover-in-scroller-demo-REMOVE!
-  []
-  (let [showing? (reagent/atom false)
-        no-clip? (reagent/atom false)
-        pos      :right-below
-        cancel-popover #(reset! showing? false)]
-    (fn []
-      [v-box
-       :children [[title "Popover in scroller"]
-                  [h-box
-                   :gap      "50px"
-                   :children [[v-box
-                               :width    "500px"
-                               :margin   "20px 0px 0px 0px"
-                               :style    {:font-size "small"}
-                               :children [[:ul
-                                           [:li "Testing a show stopper!"]]]]
-                              [v-box
-                               :gap      "30px"
-                               :margin   "20px 0px 0px 0px"
-                               :children [[h-box
-                                           :gap      "40px"
-                                           :children [[border
-                                                       :child [scroller
-                                                               :width  "200px"
-                                                               :height "200px"
-                                                               :scroll :auto
-                                                               :child [v-box
-                                                                       :padding "8px"
-                                                                       :children [[:div {:style {:flex "none"}} (clojure.string/join (repeat 8 "scroller top "))]
-                                                                                  [popover-anchor-wrapper
-                                                                                   :showing? showing?
-                                                                                   :position pos
-                                                                                   :anchor [button
-                                                                                            :label "Show popover"
-                                                                                            :on-click #(reset! showing? (not @showing?))]
-                                                                                   :popover [popover-content-wrapper
-                                                                                             :showing? showing?
-                                                                                             :position pos
-                                                                                             :no-clip? @no-clip?
-                                                                                             :width "200px"
-                                                                                             ;:backdrop-opacity 0.3
-                                                                                             ;:on-cancel        cancel-popover
-                                                                                             :title "Title"
-                                                                                             :body (clojure.string/join (repeat 30 "popover "))]]
-                                                                                  [:div {:style {:flex "none"}} (clojure.string/join (repeat 15 "scroller bottom "))]]]]]
-                                                      [v-box
-                                                       :gap      "15px"
-                                                       :align    :start
-                                                       :children [[label :style {:font-style "italic"} :label "parameters:"]
-                                                                  [h-box
-                                                                   :gap "20px"
-                                                                   :align :start
-                                                                   :children [[checkbox
-                                                                               :label ":no-clip?"
-                                                                               :model no-clip?
-                                                                               :on-change (fn [val]
-                                                                                            (reset! no-clip? val)
-                                                                                            (cancel-popover))]]]]]]]
-                                          [border
-                                           :width      "200px"
-                                           :min-height "200px"
-                                           :child      [scroller
-                                                        :width  "200px"
-                                                        :height "200px"
-                                                        :scroll :auto
-                                                        :child  [v-box
-                                                                 :padding "8px"
-                                                                 :children [[:div {:style {:flex "none"}} (clojure.string/join (repeat 8 "scroller top "))]
-                                                                            [popover-anchor-wrapper
-                                                                             :showing? showing?
-                                                                             :position pos
-                                                                             :anchor [button
-                                                                                      :label "Show popover"
-                                                                                      :on-click #(reset! showing? (not @showing?))]
-                                                                             :popover [popover-content-wrapper
-                                                                                       :showing? showing?
-                                                                                       :position pos
-                                                                                       :no-clip? @no-clip?
-                                                                                       :width "200px"
-                                                                                       ;:backdrop-opacity 0.3
-                                                                                       ;:on-cancel        cancel-popover
-                                                                                       :title "Title"
-                                                                                       :body (clojure.string/join (repeat 30 "popover "))]]
-                                                                            [:div {:style {:flex "none"}} (clojure.string/join (repeat 15 "scroller bottom "))]
-                                                                            [box :width "400px" :height "20px"]]]]]]]]]]])))
 
 
 (defn complex-popover-demo

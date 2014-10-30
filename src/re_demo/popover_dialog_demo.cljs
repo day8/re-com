@@ -32,16 +32,16 @@
                                          :children [[v-box
                                                      :size "auto"
                                                      :children [[radio-button
-                                                                 :label "Don't show extra popover"
-                                                                 :value "1"
-                                                                 :model (:tooltip-state @dialog-data)
+                                                                 :label     "Don't show extra popover"
+                                                                 :value     "1"
+                                                                 :model     (:tooltip-state @dialog-data)
                                                                  :on-change (fn []
                                                                               (swap! dialog-data assoc :tooltip-state "1")
                                                                               (reset! show-tooltip? false))]
                                                                 [radio-button
-                                                                 :label "Show extra popover"
-                                                                 :value "2"
-                                                                 :model (:tooltip-state @dialog-data)
+                                                                 :label     "Show extra popover"
+                                                                 :value     "2"
+                                                                 :model     (:tooltip-state @dialog-data)
                                                                  :on-change (fn []
                                                                               (swap! dialog-data assoc :tooltip-state "2")
                                                                               (reset! show-tooltip? true))]]]]]
@@ -49,38 +49,38 @@
                                         [line]
                                         [gap :size "10px"]
                                         [h-box
-                                         :gap "10px"
+                                         :gap      "10px"
                                          :children [[button
-                                                     :label [:span [:span.glyphicon.glyphicon-ok] " Apply"]
+                                                     :label    [:span [:span.glyphicon.glyphicon-ok] " Apply"]
                                                      :on-click #(submit-dialog @dialog-data)
-                                                     :class "btn-primary"]
+                                                     :class    "btn-primary"]
                                                     [popover-anchor-wrapper
                                                      :showing? show-tooltip?
                                                      :position :right-below
                                                      :anchor   [button
-                                                                :label [:span [:span.glyphicon.glyphicon-remove] " Cancel"]
+                                                                :label    [:span [:span.glyphicon.glyphicon-remove] " Cancel"]
                                                                 :on-click cancel-dialog]
                                                      :popover  [popover-content-wrapper ;; NOTE: didn't specify on-cancel here (handled properly)
-                                                                :showing?         show-tooltip?
-                                                                :position         :right-below
-                                                                :title            "This is the cancel button"
-                                                                :close-button?    false
-                                                                :body             "You can even have a popover over a popover!"]]]]]])]])))
+                                                                :showing?      show-tooltip?
+                                                                :position      :right-below
+                                                                :title         "This is the cancel button"
+                                                                :close-button? false
+                                                                :body          "You can even have a popover over a popover!"]]]]]])]])))
 
 
 (defn popover-dialog-demo
   []
-  (let [showing? (reagent/atom false)
-        dialog-data             (reagent/atom {:tooltip-state "2"})
-        on-change               (fn [new-dialog-data]
-                                  (reset! dialog-data new-dialog-data))
-        position                :right-center]
+  (let [showing?    (reagent/atom false)
+        dialog-data (reagent/atom {:tooltip-state "2"})
+        on-change   (fn [new-dialog-data]
+                      (reset! dialog-data new-dialog-data))
+        position    :right-center]
     (fn []
       [popover-anchor-wrapper
        :showing? showing?
        :position position
        :anchor   [button
-                  :label "Dialog box"
+                  :label    "Dialog box"
                   :on-click #(reset! showing? true)
-                  :class "btn btn-danger"]
+                  :class    "btn btn-danger"]
        :popover  [popover-body showing? position dialog-data on-change]])))

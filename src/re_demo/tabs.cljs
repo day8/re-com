@@ -9,7 +9,7 @@
 
 
 (def demos [{:id 1 :label "Horizontal Tabs"}
-            {:id 2 :label "A Persistent Tab Selection"}
+            {:id 2 :label "Persistent Tab Selection"}
             {:id 3 :label "Dynamic Tabs"}
             {:id 4 :label "Vertical Tabs"}])
 
@@ -29,23 +29,10 @@
     (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]   ;; holds the id of the selected tab
     (fn []
       [v-box
-       :children [[title "Horizontal Tabs"]
-                  [h-box
+       :children [[h-box
                    :gap "50px"
                    :min-width "1200px"
                    :children [[v-box
-                               :size "450px"
-                               :margin  "20px 0px 0px 0px"        ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
-                               :children [[:div.h4 "Notes:"]
-                                          [:ul
-                                           [:li "Tab-like controls can be styled in the 3 ways shown to the right."]
-                                           [:li "All 3 share the same state so they change in lockstep."]
-                                           [:li "Placeholder  \"Tab Contents\" (a string of text) is shown in the dotted border below. Just for effect."]
-                                           [:li "The implementation here is simple. As a result, your selection is forgotten when you change to another panel, like Welcome (look top left)."]
-                                           [:li "The code for this page can be found in /src/re_demo/tabs.cljs"]
-                                           [:li "For another demonstration, also look in /src/re_demo/core.cljs. After all, this entire demo app is just a series of tabs."]]]]
-
-                              [v-box
                                :size "100%"
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
@@ -85,21 +72,10 @@
         _               (add-watch selected-tab-id nil #(reset! id-store %4))]                   ;; put into local-store for later
     (fn []
       [v-box
-       :children [[title "A Persistent Tab Selection"]
-                  [h-box
+       :children [[h-box
                    :gap "50px"
                    :min-width "1000px"
                    :children [[v-box
-                               :size "50%"
-                               :margin  "20px 0px 0px 0px"       ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
-                               :children [
-                                           [:div.h4 "Notes:"]
-                                           [:ul
-                                            [:li "Any tab selection you make on the right will persist."]
-                                            [:li "It is stored using HTML5's local-storage."]
-                                            [:li "Even if you refresh the entire browser page, you'll see the same selection."]]]]
-
-                              [v-box
                                :size "50%"
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"       ;; TODO:  decide would we prefer to use :top-margin??
@@ -116,8 +92,7 @@
         selected-tab-id (reagent/atom (:id (first @tab-defs)))]
     (fn []
       [v-box
-       :children [[title "Dynamic Tabs"]
-                  [h-box
+       :children [[h-box
                    :gap "50px"
                    :children [[v-box
                                :size    "auto"
@@ -128,11 +103,7 @@
                                            :on-click (fn []
                                                        (let [c       (str (inc (count @tab-defs)))
                                                              new-tab {:id (keyword c) :label c}]
-                                                         (swap! tab-defs conj new-tab)))]
-                                          [:div.h4 "Notes:"]
-                                          [:ul
-                                           [:li "Click  \"Add\" for more tabs."]]]]
-
+                                                         (swap! tab-defs conj new-tab)))]]]
                               [v-box
                                :size "50%"
                                :gap     "30px"
@@ -146,12 +117,44 @@
   (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]     ;; this atom holds the id of the selected
     (fn []
       [:div
-       [:h3.page-header "Vertical Tabs"]
-       [:div.col-md-4
-        [:div.h4 "Notes:"]
-        [:ul
-         [:li "XXX Not Done yet"]]]])))
+       "TBA"])))
 
+(defn notes
+  [selected-demo-id]
+  [v-box
+   :width    "500px"
+   :style    {:font-size "small"}
+   :children [[:div.h4 "General notes"]
+              [:ul
+               [:li "To create a dropdown component, the following parameters are required:"
+                [:ul
+                 [:li.spacer [:code ":choices"] " - a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."]
+                 [:li.spacer [:code ":model"] " - the :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown)."]
+                 [:li.spacer [:code ":on-change"] " - a callback function taking one parameter which will be the :id of the new selection."]]]]
+              (case @selected-demo-id
+                1 [:div
+                   [:div.h4 "Horizontal tab notes:"]
+                   [:ul
+                    [:li "Tab-like controls can be styled in the 3 ways shown to the right."]
+                    [:li "All 3 share the same state so they change in lockstep."]
+                    [:li "Placeholder  \"Tab Contents\" (a string of text) is shown in the dotted border below. Just for effect."]
+                    [:li "The implementation here is simple. As a result, your selection is forgotten when you change to another panel, like Welcome (look top left)."]
+                    [:li "The code for this page can be found in /src/re_demo/tabs.cljs"]
+                    [:li "For another demonstration, also look in /src/re_demo/core.cljs. After all, this entire demo app is just a series of tabs."]]]
+                2 [:div
+                   [:div.h4 "Peristent tab notes:"]
+                   [:ul
+                    [:li "Any tab selection you make on the right will persist."]
+                    [:li "It is stored using HTML5's local-storage."]
+                    [:li "Even if you refresh the entire browser page, you'll see the same selection."]]]
+                3 [:div
+                   [:div.h4 "Dynamic tab notes:"]
+                   [:ul
+                    [:li "Click  \"Add\" for more tabs."]]]
+                4 [:div
+                   [:div.h4 "Vertical tab notes:"]
+                   [:ul
+                    [:li "TBA"]]])]])
 
 
 (defn panel
@@ -162,7 +165,7 @@
        :children [[:h3.page-header "Tabs"]
                   [h-box
                    :gap      "50px"
-                   :children [                              ;;[notes]
+                   :children [[notes selected-demo-id]
                               [v-box
                                :gap       "15px"
                                :size      "auto"
