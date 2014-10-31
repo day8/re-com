@@ -23,21 +23,48 @@
 
 
 ;;--------------------------------------------------------------------------------------------------
-;; Component: horizontal-bar-tabs
+;; Component: horizontal-tabs
 ;;--------------------------------------------------------------------------------------------------
 
 (def tabs-args
   #{:model      ;; Sets/holds/returns the currently selected tab - model can be atom
-    :tabs       ;; The tabs object defined as a vector of maps:   TODO: document that it can be atom or not
-                ;;   [{:id ::tab1  :label "Tab1" :disabled false}
-                ;;    {:id ::tab2  :label "Tab2" :disabled false}
-                ;;    {:id ::tab3  :label "Tab3" :disabled false}]
-    :disabled   ;; A boolean indicating whether the control should be disabled. false if not specified.
+    :tabs       ;; The tabs object defined as a vector of maps (can be literal/variable/atom):
+                ;;   [{:id ::tab1  :label "Tab1"}
+                ;;    {:id ::tab2  :label "Tab2"}
+                ;;    {:id ::tab3  :label "Tab3"}]
+    :vertical?  ;; Only applicable for pills (others ignore this)
     })
 
 
+(defn horizontal-tabs
+  [& {:keys [model tabs]
+      :as   args}]
+  {:pre [(superset? tabs-args (keys args))]}
+  (let [current  (deref-or-value model)
+        tabs     (deref-or-value tabs)
+        _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
+    [:ul
+     {:class "rc-tabs nav nav-tabs"
+      :style {:flex "none"}}
+     (for [t tabs]
+       (let [id        (:id t)
+             label     (:label t)
+             selected? (= id current)]                   ;; must use current instead of @model to avoid reagent warnings
+         [:li
+          {:class  (if selected? "active")
+           :key    (str id)}
+          [:a
+           {:style     {:cursor "pointer"}
+            :on-click  #(reset! model id)}
+           label]]))]))
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: horizontal-bar-tabs
+;;--------------------------------------------------------------------------------------------------
+
 (defn horizontal-bar-tabs
-  [& {:keys [model tabs disabled]
+  [& {:keys [model tabs]
       :as   args}]
   {:pre [(superset? tabs-args (keys args))]}
   (let [current  (deref-or-value model)
@@ -59,17 +86,18 @@
 
 
 ;;--------------------------------------------------------------------------------------------------
-;; Component: horizontal-pills
+;; Component: pill-tabs
 ;;--------------------------------------------------------------------------------------------------
 
-(defn horizontal-pills    ;; tabs-like in action
-  [& {:keys [model tabs disabled]
+(defn pill-tabs    ;; tabs-like in action
+  [& {:keys [model tabs vertical?]
       :as   args}]
   {:pre [(superset? tabs-args (keys args))]}
-  (let [current  @model
-        tabs     (deref-or-value tabs)]
+  (let [current  (deref-or-value model)
+        tabs     (deref-or-value tabs)
+        _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
     [:ul
-     {:class "rc-tabs nav nav-pills"
+     {:class (str "rc-tabs nav nav-pills" (when vertical? " nav-stacked"))
       :style {:flex "none"}
       :role  "tabslist"}
      (for [t tabs]
@@ -86,26 +114,30 @@
 
 
 ;;--------------------------------------------------------------------------------------------------
-;; Component: horizontal-tabs
+;; Component: arrow-tabs
 ;;--------------------------------------------------------------------------------------------------
 
-(defn horizontal-tabs
-  [& {:keys [model tabs disabled]
+(defn arrow-tabs
+  [& {:keys [model tabs vertical?]
       :as   args}]
   {:pre [(superset? tabs-args (keys args))]}
-  (let [current  @model
-        tabs     (deref-or-value tabs)]
+  (let [current  (deref-or-value model)
+        tabs     (deref-or-value tabs)
+        _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
     [:ul
-     {:class "rc-tabs nav nav-tabs"
-      :style {:flex "none"}}
+     {:class (str "rc-tabs nav nav-pills" (when vertical? " nav-stacked"))
+      :style {:flex "none"}
+      :role  "tabslist"}
      (for [t tabs]
        (let [id        (:id t)
              label     (:label t)
-             selected? (= id current)]                   ;; must use current instead of @model to avoid reagent warnings
+             selected? (= id current)]                   ;; must use 'current' instead of @model to avoid reagent warnings
          [:li
-          {:class  (if selected? "active")
-           :key    (str id)}
+          {:class    (if selected? "active" "")
+           :key      (str id)}
           [:a
            {:style     {:cursor "pointer"}
             :on-click  #(reset! model id)}
            label]]))]))
+
+

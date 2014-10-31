@@ -38,7 +38,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[title "Tour"]
+       :children [[title "Modals"]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

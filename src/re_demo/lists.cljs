@@ -83,7 +83,7 @@
   [width]
   [v-box
    :width (str width "px")
-   :children [[:h4 "Parameters:"]
+   :children [[:h4 "Parameters"]
               [v-box
                :style {:font-size "small"}
                :children [[label :style {:font-variant "small-caps"} :label "general"]

@@ -55,7 +55,7 @@
        :height   "100%"
        :children [[box
                    :padding "10px"
-                   :child   [re-com.tabs/horizontal-pills ;; tabs across the top
+                   :child   [re-com.tabs/pill-tabs ;; tabs across the top
                              :model selected-tab-id
                              :tabs  tabs-definition]]
                   [scroller

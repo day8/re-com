@@ -38,9 +38,8 @@
                      :gap      "50px"
                      :children [[v-box
                                  :width    "500px"
-                                 :margin   "20px 0px 0px 0px"
                                  :style    {:font-size "small"}
-                                 :children [[:div.h4 "Notes:"]
+                                 :children [[:div.h4 "Notes"]
                                             [:ul
                                              [:li "You can link (anchor) a popover to arbitrary markup."]
                                              [:li "The connection between the anchor and the popover is achieved exclusively using CSS.
