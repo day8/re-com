@@ -319,7 +319,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[title "Single Selection Dropdowns"]
+       :children [[title :label "Single Selection Dropdowns"]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

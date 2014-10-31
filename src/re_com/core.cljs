@@ -202,10 +202,18 @@
 ;;  Component: title
 ;; ------------------------------------------------------------------------------------
 
+(def title-args
+  #{:label        ;; Text of the title
+    :underline?   ;; Boolean determines whether an underline is placed under the title
+    })
+
+
 (defn title
-  [text]
+  [& {:keys [label underline?]
+      :or   {underline? true}
+      :as   args}]
+  {:pre [(superset? title-args (keys args))]}
   "An underlined, left justified, H3 Title"
-  [box
-   :child  [v-box
-            :children [[h-box :children [[:h3 text]]]
-                       [line :size "1px"]]]])
+  [v-box
+   :children [[:h3 label]
+              (when underline? [line :size "1px"])]])

@@ -53,7 +53,7 @@
    :size "auto"
    :children [[v-box
                :size     "auto"
-               :children [[title "Horizontal Layout"]
+               :children [[title :label "Horizontal Layout"]
                           [h-layout
                            :left-panel  left-panel
                            :right-panel right-panel]]]
@@ -62,7 +62,7 @@
               [gap :size "10px"]
               [v-box
                :size     "auto"
-               :children [[title "Vertical Layout"]
+               :children [[title :label "Vertical Layout"]
                           [v-layout
                            :top-panel    top-panel
                            :bottom-panel bottom-panel]]]]])

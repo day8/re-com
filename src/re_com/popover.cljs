@@ -257,11 +257,12 @@
     :title              ;; Markup for a title. Can of course be a simple string.
     :close-button?      ;; A boolean indicating whether to display the close button or now. Defaults to true.
     :body               ;; Markup for the popover body. Must be a single component.
+    :style              ;; Override component style(s) with a style map, only use in case of emergency.
     })
 
 
 (defn popover-content-wrapper
-  [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body]
+  [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body style]
       :or {position :right-below}
       :as args}]
   {:pre [(superset? popover-content-wrapper-args (keys args))]}
@@ -284,7 +285,8 @@
             :style (merge {:flex "inherit"}
                           (when no-clip? {:position "fixed"
                                          :left     (px @left-offset)
-                                         :top      (px @top-offset)}))}
+                                         :top      (px @top-offset)})
+                          style)}
            (when (and @showing? on-cancel)
              [backdrop
               :opacity backdrop-opacity
@@ -306,23 +308,25 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-anchor-wrapper-args
-  #{:showing?   ; A reagent atom with boolean, which controls whether the popover is showing or not.
-    :position   ; Place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below.
-    :anchor     ; The markup which the popover is attached to.
-    :popover    ; Popover body component.
+  #{:showing?   ;; A reagent atom with boolean, which controls whether the popover is showing or not.
+    :position   ;; Place popover relative to the anchor :above-left/center/right, :below-left/center/right, :left-above/center/below, :right-above/center/below.
+    :anchor     ;; The markup which the popover is attached to.
+    :popover    ;; Popover body component.
+    :style      ;; Override component style(s) with a style map, only use in case of emergency.
     })
 
 
 (defn popover-anchor-wrapper
-  [& {:keys [showing? position anchor popover] :as args}]
+  [& {:keys [showing? position anchor popover style] :as args}]
   {:pre [(superset? popover-anchor-wrapper-args (keys args))]}
   "Renders an element or control along with a Bootstrap popover."
   (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
         place-anchor-before?    (case orientation (:left :above) false true)
         flex-flow               (case orientation (:left :right) "row" "column")]
     [:div {:class  "rc-popover-anchor-wrapper"
-            :style {:display "inline-flex"
-                   :flex     "inherit"}}
+           :style (merge {:display "inline-flex"
+                          :flex    "inherit"}
+                         style)}
      [:div                                ;; Wrapper around the anchor and the "point"
       {:class "rc-point-wrapper"
        :style {:display     "inline-flex"
@@ -344,10 +348,10 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def make-button-args
-  #{:showing?   ; The atom used to hide/show the popover.
-    :type       ; Button type (string): default, primary, success, info, warning, danger, link.
-    :label      ; Label for the button.
-    :style      ; Custom style for the button.
+  #{:showing?   ;; The atom used to hide/show the popover.
+    :type       ;; Button type (string): default, primary, success, info, warning, danger, link.
+    :label      ;; Label for the button.
+    :style      ;; Custom style for the button.
     })
 
 
@@ -359,8 +363,8 @@
   [button
    :label    label
    :on-click #(reset! showing? (not @showing?))
-   :style    (merge {:margin-left "2px"} style)
-   :class    (str "rc-make-button btn-" type)])
+   :class    (str "rc-make-button btn-" type)
+   :style    (merge {:margin-left "2px"} style)])
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -368,12 +372,12 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def make-link-args
-  #{:showing?   ; The atom used to hide/show the popover.
-    :toggle-on  ; Determine how to show popover:
-                ;  - :mouse  Make this a hover popover (tooltip)
-                ;  - :click  Make it a click popover
-    :label      ; Label for the link.
-    :style      ; Custom style for the link.
+  #{:showing?   ;; The atom used to hide/show the popover.
+    :toggle-on  ;; Determine how to show popover:
+                ;;  - :mouse  Make this a hover popover (tooltip)
+                ;;  - :click  Make it a click popover
+    :label      ;; Label for the link.
+    :style      ;; Custom style for the link.
     })
 
 

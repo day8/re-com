@@ -33,7 +33,7 @@
     (fn []
       (let [cancel-popover #(reset! showing? false)]
         [v-box
-         :children [[title "Button Popover"]
+         :children [[title :label "Button Popover"]
                     [h-box
                      :gap      "50px"
                      :children [[v-box
@@ -169,7 +169,7 @@
         pos      :right-below]
     (fn []
       [v-box
-       :children [[title "Hyperlink Popover"]
+       :children [[title :label "Hyperlink Popover"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
@@ -202,7 +202,7 @@
         pos      :above-center]
     (fn []
       [v-box
-       :children [[title "Proximity Popover (tooltip)"]
+       :children [[title :label "Proximity Popover (tooltip)"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
@@ -232,7 +232,7 @@
 (defn complex-popover-demo
   []
   [v-box
-   :children [[title "Complex Popover (dialog box)"]
+   :children [[title :label "Complex Popover (dialog box)"]
               [h-box
                :gap      "50px"
                :children [[v-box

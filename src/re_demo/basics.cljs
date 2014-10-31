@@ -22,7 +22,7 @@
   []
   (fn []
     [v-box
-     :children [[title "Buttons"]
+     :children [[title :label "Buttons"]
                 [gap :size "20px"]
                 [h-box
                  :children [[button
@@ -74,7 +74,7 @@
       []
       [v-box
        :gap "15px"
-       :children [[title "Checkboxes"]
+       :children [[title :label "Checkboxes"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [checkbox
                    :label "always ticked (state stays true when you click)"
@@ -129,7 +129,7 @@
       []
       [v-box
        :gap "15px"
-       :children [[title "Radio Buttons"]
+       :children [[title :label "Radio Buttons"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [v-box
                    :gap "0px"

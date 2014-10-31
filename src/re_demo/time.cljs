@@ -130,7 +130,7 @@
 (defn panel
   []
   [v-box
-   :children [[title "Time Input"]
+   :children [[title :label "Time Input"]
               [h-box
                :gap "50px"
                :children [[notes]

@@ -172,7 +172,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[title "Tabs"]
+       :children [[title :label "Tabs"]
                   [h-box
                    :gap      "50px"
                    :children [[notes selected-demo-id]

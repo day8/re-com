@@ -202,7 +202,7 @@
     (fn []
       [v-box
        :width (str panel-width "px")
-       :children [[title "Date Picker"]
+       :children [[title :label "Date Picker"]
                   [h-box
                    :gap      "50px"
                    :children [[notes a-width selected-variation]
