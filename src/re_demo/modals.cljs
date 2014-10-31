@@ -13,17 +13,17 @@
 (def demos [{:id 1 :label "Basic example"}
             {:id 2 :label "Other variations"}])
 
-
-(def show-modal-popover? (reagent/atom false))
-(def progress-percent    (reagent/atom 0))
-
+(def progress-percent (reagent/atom 0))                     ;; TODO: Remove this dirty global!
 
 (defn cpu-delay
   [num-times]
   (let [waste-time  #(Math.tan (Math.tan (+ %1 %2)))         ;; tan is a time consuming operation
         iterations  (if (nil? num-times) 10 num-times)]
+    (println "starting cpu-delay")
     (dotimes [n iterations]
-      (doall (reduce waste-time n (range 1000000))))))
+      ;(doall (reduce waste-time n (range 1000000)))
+      (reduce waste-time n (range 1000))
+      (println "finished cpu-delay"))))
 
 
 
@@ -33,8 +33,9 @@
   [button
    :label    label
    :on-click on-click
-   :style {:font-weight "bold" :color "red" :margin "1px" :height "39px"}
+   :style {:margin "1px" :height "39px"}
    :class "btn-info"])
+
 
 ;; ------------------------------------------------------------------------------------
 ;;  MODAL PROCESSING #1 - Long running with progress and cancel
@@ -163,7 +164,7 @@
             [:p (str "Saving '" path "'...")]
             [:div {:style {:display "flex"}}
              [:div {:style {:margin "auto"}}
-              [:img {:src "img/spinner.gif" :style {:margin-right "12px"}}]
+              [:img {:src "resources/img/spinner.gif" :style {:margin-right "12px"}}]
               [button
                :label    "STOP!"
                :on-click #(reset! writing? false)
@@ -388,7 +389,6 @@
 ;;  core.async tests
 ;; ------------------------------------------------------------------------------------
 
-
 (defn cancellable-step
   [continue? func]
   (fn [val]
@@ -400,6 +400,7 @@
 (defn fib-step
   [{:keys [step-num] :as params}]
   (cpu-delay step-num)
+  (+)
   [(< step-num 10)
    (assoc params :step-num (inc step-num))])
 
@@ -667,6 +668,7 @@
     :label    "Cancel"
     :on-click process-cancel]])
 
+
 (defn test-modal-dialog
   []
   "Create a button to test the modal component for modal dialogs"
@@ -702,9 +704,7 @@
 
 (defn demo1
   []
-  (let []
-    ;; Modal component
-
+  (let [show-modal-popover? (reagent/atom false)]
     [:div.container
      {:style {:width "100%" :margin-top "20px" :margin-left "0px" :margin-right "0px"}}
      [:div.row
@@ -713,21 +713,21 @@
 
         [popover-anchor-wrapper
          :showing? show-modal-popover?
-         :position :right-center
+         :position :left-center
          :anchor   [:input.btn.btn-info
-                    {:style         {:font-weight "bold" :color "red" :margin "1px" :height "39px"}
+                    {:style         {:margin "1px" :height "39px"}
                      :type          "button"
                      :value         "Long"
                      :on-mouse-over #(reset! show-modal-popover? true)
                      :on-mouse-out  #(reset! show-modal-popover? false)
-                     :on-click      #()
+                     :on-click      #(cpu-delay 10)
                     #_#(chunk-runner
                       serious-process-1-chunk
                       serious-process-1-status
                       250)}]
          :popover  [popover-content-wrapper
                     :showing?         show-modal-popover?
-                    :position         :right-center
+                    :position         :left-center
                     :width            "300px"
                     :body             [:div
                                        [:p "Click on this button to launch a modal demo. The demo will start an intensive operation and..."]
@@ -737,30 +737,6 @@
                                          {:role  "progressbar"
                                           :style {:width "60%"}}
                                          "60%"]]]]]
-        #_[popover
-         :position :right-center
-         :showing? show-modal-popover?
-         :anchor   [:input.btn.btn-info
-                    {:style         {:font-weight "bold" :color "red" :margin "1px" :height "39px"}
-                     :type          "button"
-                     :value         "Long"
-                     :on-mouse-over #(reset! show-modal-popover? true)
-                     :on-mouse-out  #(reset! show-modal-popover? false)
-                     :on-click      #()
-                    #_#(chunk-runner
-                      serious-process-1-chunk
-                      serious-process-1-status
-                      250)}]
-         :popover  {:body  [:div
-                            [:p "Click on this button to launch a modal demo. The demo will start an intensive operation and..."]
-                            [:p "It will have a progress bar which looks something like this:"]
-                            [:div.progress
-                             [:div.progress-bar
-                              {:role  "progressbar"
-                               :style {:width "60%"}}
-                              "60%"]]]
-                    :width 300}]
-
         [test-load-url]          ;; 1 - Loading URL
         [test-write-disk]        ;; 2 - Writing to disk
         ;[test-calc-pivot-totals] ;; 3 - Calculating pivot totals
