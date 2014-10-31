@@ -33,14 +33,13 @@
     (fn []
       (let [cancel-popover #(reset! showing? false)]
         [v-box
-         :children [[title "Button Popover"]
+         :children [[title :label "Button Popover"]
                     [h-box
                      :gap      "50px"
                      :children [[v-box
                                  :width    "500px"
-                                 :margin   "20px 0px 0px 0px"
                                  :style    {:font-size "small"}
-                                 :children [[:div.h4 "Notes:"]
+                                 :children [[:div.h4 "Notes"]
                                             [:ul
                                              [:li "You can link (anchor) a popover to arbitrary markup."]
                                              [:li "The connection between the anchor and the popover is achieved exclusively using CSS.
@@ -170,7 +169,7 @@
         pos      :right-below]
     (fn []
       [v-box
-       :children [[title "Hyperlink Popover"]
+       :children [[title :label "Hyperlink Popover"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
@@ -203,7 +202,7 @@
         pos      :above-center]
     (fn []
       [v-box
-       :children [[title "Proximity Popover (tooltip)"]
+       :children [[title :label "Proximity Popover (tooltip)"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
@@ -233,7 +232,7 @@
 (defn complex-popover-demo
   []
   [v-box
-   :children [[title "Complex Popover (dialog box)"]
+   :children [[title :label "Complex Popover (dialog box)"]
               [h-box
                :gap      "50px"
                :children [[v-box

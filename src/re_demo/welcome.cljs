@@ -11,7 +11,8 @@
 (defn panel
   []
   [v-box
-   :children [[title "Re-Com"]
+   :children [[title :label "Re-Com"]
+              [gap :size "20px"]
 
               [:p "Re-com is a high level ClojureScript UI framework. It builts on top of "
                [hyperlink "Reagent" "https://github.com/holmsand/reagent"]

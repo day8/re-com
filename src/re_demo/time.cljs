@@ -9,7 +9,7 @@
   []
   [v-box
    :width    "500px"
-   :children [[:div.h4 "General notes:"]
+   :children [[:div.h4 "General notes"]
               [:div {:style {:font-size "small"}}
                [:ul
                 [:li "Accepts input of a time in 24hr format."
@@ -130,7 +130,7 @@
 (defn panel
   []
   [v-box
-   :children [[title "Time Input"]
+   :children [[title :label "Time Input"]
               [h-box
                :gap "50px"
                :children [[notes]

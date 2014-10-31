@@ -4,11 +4,11 @@
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [re-com.tour     :refer [make-tour start-tour make-tour-nav]]
-            [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper make-button]]
+            [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
             [reagent.core    :as    reagent]))
 
 
-(def demos [{:id 1 :label "Basic example"}
+(def demos [{:id 1 :label "Basic example (remove this popover?)"}
             {:id 2 :label "Other variations"}])
 
 
@@ -20,6 +20,9 @@
        [:p "The four buttons below are all part of this tour. Click on the first button to start the tour, then use the navigation buttons to move through the tour."]
        [:p "Any individual component can be the included in the tour, as long as you wrap it in a popover and conform the instrucitons on the left."]
        [h-box
+        :height   "150px"
+        :gap      "30px"
+        :align    :start
         :children [[popover-anchor-wrapper
                     :showing? (:step1 demo-tour)
                     :position :above-center
@@ -32,49 +35,54 @@
                               :showing?         (:step1 demo-tour)
                               :position         :above-center
                               :title            [:strong "Tour 1 of 4"]
-                              :body             [:div "So this is the first tour popover"
-                                                 [make-tour-nav demo-tour]]]]
+                              :body             [:div "So, you clicked the button below and the tour started.
+                                                       Click the 'Next' button to proceed to the next step."
+                                                 [make-tour-nav demo-tour]]]
+                    :style   {:align-self "center"}]
                    [popover-anchor-wrapper
                     :showing? (:step2 demo-tour)
-                    :position :above-center
-                    :anchor   [make-button
-                               :showing? (:step2 demo-tour)
-                               :type     "info"
-                               :label    "Tour 2"]
+                    :position :below-center
+                    :anchor   [button
+                               :label  "another element in the tour"
+                               :class "btn-info"]
                     :popover [popover-content-wrapper
                               :showing?         (:step2 demo-tour)
-                              :position         :above-center
+                              :position         :below-center
                               :title            [:strong "Tour 2 of 4"]
-                              :body             [:div "nd this is the second tour popover"
-                                                 [make-tour-nav demo-tour]]]]
+                              :body             [:div "Here's the second tour popover. Now you can advance to the next one, or go back
+                                                       to the first, or finish the tour by clicking the close 'X' button above."
+                                                 [make-tour-nav demo-tour]]]
+                    :style   {:align-self "flex-end"}]
                    [popover-anchor-wrapper
                     :showing? (:step3 demo-tour)
-                    :position :above-center
-                    :anchor   [make-button
-                               :showing? (:step3 demo-tour)
-                               :type     "info"
-                               :label    "Tour 3"]
+                    :position :right-below
+                    :anchor   [button
+                               :label "and another"
+                               :class "btn-info"
+                               :style (when (:step3 demo-tour) {:position "relative" :z-index 1})] ;; Make the anchor appear above the backdrop
                     :popover [popover-content-wrapper
                               :showing?         (:step3 demo-tour)
-                              :position         :above-center
+                              :position         :right-below
+                              :on-cancel        #(reset! (:step3 demo-tour) false)
+                              :backdrop-opacity 0.5
                               :title            [:strong "Tour 3 of 4"]
-                              :body             [:div "Penultimate tour popover"
-                                                 [make-tour-nav demo-tour]]]]
+                              :body             [:div "This is the penultimate tour popover. Using the backdrop feature,
+                                                       you can focus attention on the item you are explaining."
+                                                 [make-tour-nav demo-tour]]]
+                    :style   {:align-self "center"}]
                    [popover-anchor-wrapper
                     :showing? (:step4 demo-tour)
                     :position :above-center
-                    :anchor   [make-button
-                               :showing? (:step4 demo-tour)
-                               :type     "info"
-                               :label    "Tour 4"]
+                    :anchor   [button
+                               :label "last one"
+                               :class "btn-info"]
                     :popover [popover-content-wrapper
                               :showing?         (:step4 demo-tour)
                               :position         :above-center
                               :title            [:strong "Tour 4 of 4"]
-                              :body             [:div "Lucky last tour popover"
-                                                 [make-tour-nav demo-tour]]]]
-
-                   ]]])))
+                              :body             [:div "Lucky last tour popover. The tour component renders a 'Finish' button instead
+                                                       of a 'Next button for the last popover."
+                                                 [make-tour-nav demo-tour]]]]]]])))
 
 
 (defn demo2
@@ -112,7 +120,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[title "Tour"]
+       :children [[title :label "Tour"]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

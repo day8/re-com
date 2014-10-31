@@ -27,9 +27,8 @@
    :size "auto"
    :children [[box
                :child [h-box
-                       ;:justify :center
-                       :children [[title "Boxes (simple, with scrollers)"]]]]
-              [gap  :size "30px"]
+                       :children [[title :label "Boxes (simple, with scrollers)"]]]]
+              [gap  :size "15px"]
               [line :size "2px"]
               [h-box
                :size "auto"
@@ -85,8 +84,8 @@
    :size     "auto"
    :children [[h-box
                :align :stretch
-               :children [[title "Boxes (min-width/height)"]]]
-              [gap  :size "30px"]
+               :children [[title :label "Boxes (min-width/height)"]]]
+              [gap  :size "15px"]
               [line :size "2px"]
               [v-box
                :size     "auto"

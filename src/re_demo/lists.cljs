@@ -83,7 +83,7 @@
   [width]
   [v-box
    :width (str width "px")
-   :children [[:h4 "Parameters:"]
+   :children [[:h4 "Parameters"]
               [v-box
                :style {:font-size "small"}
                :children [[label :style {:font-variant "small-caps"} :label "general"]
@@ -144,7 +144,7 @@
         b-width     (golden-ratio-b panel-width)]
     [v-box
      :width    (str panel-width "px")
-     :children [[title "Multiple & Single Selection List"]
+     :children [[title :label "Multiple & Single Selection List"]
                 [h-box
                  :gap      (str h-gap "px")
                  :children [[notes a-width]

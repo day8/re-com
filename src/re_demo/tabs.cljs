@@ -1,16 +1,15 @@
 (ns re-demo.tabs
-   (:require [reagent.core :as reagent]
-             [alandipert.storage-atom :refer [local-storage]]
-             [re-com.box   :refer [h-box v-box box gap line scroller border]]
-             [re-com.dropdown :refer [single-dropdown]]
-             [re-com.core  :refer [button label title]]
-             [re-com.tabs  :as tabs]))
+  (:require [reagent.core            :as    reagent]
+            [alandipert.storage-atom :refer [local-storage]]
+            [re-com.box              :refer [h-box v-box box gap line scroller border]]
+            [re-com.dropdown         :refer [single-dropdown]]
+            [re-com.core             :refer [button label title checkbox]]
+            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs pill-tabs arrow-tabs find-tab]]))
 
 
-(def demos [{:id 1 :label "Horizontal Tabs"}
+(def demos [{:id 1 :label "Tab Styles"}
             {:id 2 :label "Persistent Tab Selection"}
-            {:id 3 :label "Dynamic Tabs"}
-            {:id 4 :label "Vertical Tabs"}])
+            {:id 3 :label "Dynamic Tabs"}])
 
 
 ;; Define some tabs.
@@ -18,47 +17,70 @@
 ;; Below, you'll note that all ids are namespaced keywords, but they can be anything.
 ;;
 (def tabs-definition
-  [ {:id ::tab1  :label "Tab1"   :say-this  "I don't like my tab siblings, they smell."}
-    {:id ::tab2  :label "Tab2"   :say-this  "Don't listen to Tab1, he's just jealous of my train set."}
-    {:id ::tab3  :label "Tab3"   :say-this  "I'm telling Mum on you two !!"}])
+  [ {:id ::tab1  :label "Tab1"  :say-this "I don't like my tab siblings, they smell."}
+    {:id ::tab2  :label "Tab2"  :say-this "Don't listen to Tab1, he's just jealous of my train set."}
+    {:id ::tab3  :label "Tab3"  :say-this "I'm telling Mum on you two !!"}])
 
 
 (defn horizontal-tabs-demo
   []
-    (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]   ;; holds the id of the selected tab
+  (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))     ;; holds the id of the selected tab
+        vert?           (reagent/atom false)
+        fn-name-width   "180px"]
     (fn []
       [v-box
        :children [[h-box
                    :gap "50px"
-                   :min-width "1200px"
                    :children [[v-box
                                :size "100%"
-                               :gap     "30px"
-                               :margin  "20px 0px 0px 0px"        ;; TODO:  decide would we prefer to use :top-margin??
-                               :children [
-                                           ;; Three visual variations on tabs follow
-                                           [tabs/horizontal-pills
-                                            :model selected-tab-id
-                                            :tabs  tabs-definition]
-
-                                           [tabs/horizontal-bar-tabs
-                                            :model selected-tab-id
-                                            :tabs  tabs-definition]
-
-                                           [tabs/horizontal-tabs
-                                            :model selected-tab-id
-                                            :tabs  tabs-definition]
-
-                                           ;; Display the tab content which, in this case, is a string
-                                           ;; extracted from the tab definition.
-                                           ;; We out a dotted border around it for dramatic effect.
-                                           [border
-                                            :border  "1px dashed grey"
-                                            :radius  "10px"
-                                            :padding "20px"
-                                            ;;:margin  "4px"
-                                            ;:size    "50%"
-                                            :child [:p (:say-this (tabs/find-tab @selected-tab-id tabs-definition))]]]]]]]])))
+                               :gap "30px"
+                               :margin "20px 0px 0px 0px"
+                               :children [[h-box
+                                           :gap      "20px"
+                                           :children [[label :style {:font-style "italic"} :label "parameters:"]
+                                                      [checkbox
+                                                       :label     ":vertical?"
+                                                       :model     vert?
+                                                       :on-change (fn [val] (reset! vert? val))]]]
+                                          [h-box
+                                           :align    :center
+                                           :children [[box
+                                                       :width fn-name-width
+                                                       :child [:code "horizontal-tabs"]]
+                                                      [horizontal-tabs
+                                                       :model selected-tab-id
+                                                       :tabs  tabs-definition]]]
+                                          [h-box
+                                           :align    :center
+                                           :children [[box
+                                                       :width fn-name-width
+                                                       :child [:code "horizontal-bar-tabs"]]
+                                                      [horizontal-bar-tabs
+                                                       :model selected-tab-id
+                                                       :tabs  tabs-definition]]]
+                                          [h-box
+                                           :align    :center
+                                           :children [[box
+                                                       :width fn-name-width
+                                                       :child [:code "pill-tabs"]]
+                                                      [pill-tabs
+                                                       :model     selected-tab-id
+                                                       :tabs      tabs-definition
+                                                       :vertical? @vert?]]]
+                                          [h-box
+                                           :align    :center
+                                           :children [[box
+                                                       :width fn-name-width
+                                                       :child [:span [:code "arrow-tabs"] " *TODO*"]]
+                                                      [arrow-tabs
+                                                       :model     selected-tab-id
+                                                       :tabs      tabs-definition
+                                                       :vertical? @vert?]]]
+                                          [border         ;; Display the tab content which, in this case, is a string extracted from the tab definition.
+                                           :border  "1px dashed grey"
+                                           :radius  "10px"
+                                           :padding "20px"
+                                           :child   [:p (:say-this (find-tab @selected-tab-id tabs-definition))]]]]]]]])))
 
 
 (defn remembers-demo
@@ -78,7 +100,7 @@
                                :size "50%"
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"       ;; TODO:  decide would we prefer to use :top-margin??
-                               :children [[tabs/horizontal-tabs
+                               :children [[horizontal-tabs
                                            :model  selected-tab-id
                                            :tabs  tab-defs]]]]]]])))
 
@@ -107,16 +129,9 @@
                                :size "50%"
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"       ;; TODO:  decide would we prefer to use :top-margin??
-                               :children [[tabs/horizontal-tabs
+                               :children [[horizontal-tabs
                                            :model  selected-tab-id
                                            :tabs  tab-defs]]]]]]])))
-
-(defn vertical-tabs-demo
-  []
-  (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]     ;; this atom holds the id of the selected
-    (fn []
-      [:div
-       "TBA"])))
 
 (defn notes
   [selected-demo-id]
@@ -125,14 +140,14 @@
    :style    {:font-size "small"}
    :children [[:div.h4 "General notes"]
               [:ul
-               [:li "To create a dropdown component, the following parameters are required:"
+               [:li "To create a tab component, the following parameters are available:"
                 [:ul
-                 [:li.spacer [:code ":choices"] " - a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."]
-                 [:li.spacer [:code ":model"] " - the :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown)."]
-                 [:li.spacer [:code ":on-change"] " - a callback function taking one parameter which will be the :id of the new selection."]]]]
+                 [:li.spacer [:code ":model"] " - sets/holds/returns the currently selected tab - can be literal/variable or atom."]
+                 [:li.spacer [:code ":tabs"] " - the tabs object defined as a vector of maps - can be literal/variable or atom."]
+                 [:li.spacer [:code ":vertical?"] " - stack vertically? - only applicable for " [:code "pill-tabs"] " and " [:code "arrow-tabs"] "."]]]]
               (case @selected-demo-id
                 1 [:div
-                   [:div.h4 "Horizontal tabs notes:"]
+                   [:div.h4 "Horizontal tabs notes"]
                    [:ul
                     [:li "Tab-like controls can be styled in the 3 ways shown to the right."]
                     [:li "All 3 share the same state so they change in lockstep."]
@@ -141,19 +156,15 @@
                     [:li "The code for this page can be found in /src/re_demo/tabs.cljs"]
                     [:li "For another demonstration, also look in /src/re_demo/core.cljs. After all, this entire demo app is just a series of tabs."]]]
                 2 [:div
-                   [:div.h4 "Peristent tabs notes:"]
+                   [:div.h4 "Peristent tabs notes"]
                    [:ul
                     [:li "Any tab selection you make on the right will persist."]
                     [:li "It is stored using HTML5's local-storage."]
                     [:li "Even if you refresh the entire browser page, you'll see the same selection."]]]
                 3 [:div
-                   [:div.h4 "Dynamic tabs notes:"]
+                   [:div.h4 "Dynamic tabs notes"]
                    [:ul
-                    [:li "Click  \"Add\" for more tabs."]]]
-                4 [:div
-                   [:div.h4 "Vertical tabs notes:"]
-                   [:ul
-                    [:li "TBA"]]])]])
+                    [:li "Click  \"Add\" for more tabs."]]])]])
 
 
 (defn panel
@@ -161,7 +172,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[title "Tabs"]
+       :children [[title :label "Tabs"]
                   [h-box
                    :gap      "50px"
                    :children [[notes selected-demo-id]
@@ -177,11 +188,10 @@
                                                        [single-dropdown
                                                         :choices   demos
                                                         :model     selected-demo-id
-                                                        :width     "300px"
+                                                        :width     "200px"
                                                         :on-change #(reset! selected-demo-id %)]]]
                                            [gap :size "0px"] ;; Force a bit more space here
                                            (case @selected-demo-id
                                              1 [horizontal-tabs-demo]
                                              2 [remembers-demo]
-                                             3 [adding-tabs-demo]
-                                             4 [vertical-tabs-demo])]]]]]])))
+                                             3 [adding-tabs-demo])]]]]]])))

@@ -7,8 +7,8 @@
             [reagent.core    :as    reagent]))
 
 
-(def demos [{:id 1 :label ":alert-box"}
-            {:id 3 :label ":alert-list"}])
+(def demos [{:id 1 :label "alert-box"}
+            {:id 3 :label "alert-list"}])
 
 
 (defn demo1
@@ -102,22 +102,22 @@
    :children [[:div.h4 "[alert-box ..."]
               [:ul
                [:li "All parameter are optional."]
-               [:li.spacer [:code ":id"] " - A unique identifier, usually an integer or string."]
-               [:li.spacer [:code ":alert-type"] " - A string contining a bootstrap style: \"info\", \"warning\" or \"danger\"."]
+               [:li.spacer [:code ":id"] " - a unique identifier, usually an integer or string."]
+               [:li.spacer [:code ":alert-type"] " - a string contining a bootstrap style: \"info\", \"warning\" or \"danger\"."]
                [:li.spacer "Note: while heading and body are both optional, you'll need to supply at least one of them."]
                [:li.spacer [:code ":heading"] " - the heading section (hiccup markup or a string)."]
                [:li.spacer [:code ":body"] " - the body of the alert (hiccup markup or a string)."]
                [:li.spacer [:code ":padding"] " - the amount of padding within the alert (default is 15px)."]
-               [:li.spacer [:code ":closeable?"] " - Should a close 'X' button is rendered (on-close must also be supplied)."]
-               [:li.spacer [:code ":on-close"] " - The function to call back when the user clicks the close 'X'. Invoked with the single :id parameter."]]
+               [:li.spacer [:code ":closeable?"] " - a boolean indicating if a close button 'X' is rendered (on-close must also be supplied)."]
+               [:li.spacer [:code ":on-close"] " - the call back when the user clicks the close 'X'. Invoked with the single :id parameter."]]
               [:div.h4 "[alert-list ..."]
               [:ul
                [:li.spacer "A component which renders a list of alert-boxes."]
-               [:li.spacer [:code ":alerts"] " - A vector containing alert maps to be rendered. The order is specified by the calling app."]
-               [:li.spacer [:code ":on-close"] " - The function to call back when the user clicks the close 'X' of an item. Invoked with the single :id parameter."]
-               [:li.spacer [:code ":max-height"] " - The initial height of this component is 0px and grows to this maximum as alerts are added. Default is to expand forever."]
-               [:li.spacer [:code ":padding"] " - Padding inside the alert-list outer box. Default is 4px."]
-               [:li.spacer [:code ":border-style"] " - The border style around the alert-list outer box. Default is \"1px solid lightgrey\"."]]]])
+               [:li.spacer [:code ":alerts"] " - a vector containing alert maps to be rendered. The order is specified by the calling app."]
+               [:li.spacer [:code ":on-close"] " - a call back when the user clicks the close 'X' of an item. Invoked with the single :id parameter."]
+               [:li.spacer [:code ":max-height"] " - the initial height of this component is 0px and grows to this maximum as alerts are added. Default is to expand forever."]
+               [:li.spacer [:code ":padding"] " - padding inside the alert-list outer box. Default is 4px."]
+               [:li.spacer [:code ":border-style"] " - border style around the alert-list outer box. Default is \"1px solid lightgrey\"."]]]])
 
 
 (defn panel
@@ -125,7 +125,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[title "Alerts"]
+       :children [[title :label "Alerts"]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

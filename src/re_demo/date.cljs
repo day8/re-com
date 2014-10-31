@@ -146,7 +146,7 @@
   [width selected-variation]
   [v-box
    :width (str width "px")
-   :children [[:h4 "Parameters:"]
+   :children [[:h4 "Parameters"]
               [v-box
                :style    {:font-size "small"}
                :children [[label :style {:font-variant "small-caps"} :label "general"]
@@ -202,7 +202,7 @@
     (fn []
       [v-box
        :width (str panel-width "px")
-       :children [[title "Date Picker"]
+       :children [[title :label "Date Picker"]
                   [h-box
                    :gap      "50px"
                    :children [[notes a-width selected-variation]
