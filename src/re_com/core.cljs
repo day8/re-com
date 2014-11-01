@@ -54,7 +54,7 @@
     :class (str "rc-input-text " class)
     :style (merge {:flex "none"} style)
     :value text
-    :on-change on-change}])
+    :on-change #(on-change (-> % .-target .-value))}])
 
 
 ;; ------------------------------------------------------------------------------------
