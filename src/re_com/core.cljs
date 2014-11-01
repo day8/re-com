@@ -18,10 +18,11 @@
 
 
 (defn label
+  "Returns markup for a basic label"
   [& {:keys [label style class on-click]
       :as   args}]
   {:pre [(superset? label-args (keys args))]}
-  "Returns markup for a basic label"
+
   [:span
    (merge
      {:class (str "rc-label " class)
@@ -43,10 +44,11 @@
 
 
 (defn input-text
+  "returns markup for a basic text imput label"
   [& {:keys [text on-change style class]
       :as   args}]
   {:pre [(superset? input-text-args (keys args))]}
-  "returns markup for a basic text imput label"
+
   [:input
    {:type "text"
     :class (str "rc-input-text " class)
@@ -68,11 +70,12 @@
 
 
 (defn button
+  "Returns the markup for a basic button."
   [& {:keys [label on-click style class]
       :or   {:class "btn-default"}
       :as   args}]
   {:pre [(superset? button-args (keys args))]}
-  "Returns the markup for a basic button."
+
   [:button
    {:class    (str "rc-button btn " class)
     :style    (merge {:flex "none" :align-self "flex-start"} style)
@@ -97,10 +100,11 @@
 
 ;; TODO: when disabled, should the text appear "disabled".
 (defn checkbox
+  "I return the markup for a checkbox, with an optional RHS label."
   [& {:keys [model on-change label disabled style label-class label-style]
       :as   args}]
   {:pre [(superset? checkbox-args (keys args))]}
-  "I return the markup for a checkbox, with an optional RHS label."
+
   (let [model       (deref-or-value model)
         disabled    (deref-or-value disabled)
         callback-fn (if (and on-change (not disabled)) #(on-change (not model)))]     ;; call on-change with either true or false
@@ -137,10 +141,11 @@
 
 
 (defn radio-button
+  "I return the markup for a radio button, with an optional RHS label."
   [& {:keys [model value label on-change disabled style label-class label-style]
       :as   args}]
   {:pre [(superset? radio-button-args (keys args))]}
-  "I return the markup for a radio button, with an optional RHS label."
+
   (let [model       (deref-or-value model)
         disabled    (deref-or-value disabled)
         callback-fn (if (and on-change (not disabled)) #(on-change value))]
@@ -170,10 +175,11 @@
 
 
 (defn progress-bar
+  "Render a bootstrap styled progress bar"
   [& {:keys [model]
       :as   args}]
   {:pre [(superset? progress-bar-args (keys args))]}
-  "Render a bootstrap styled progress bar"
+
   [:div
    {:class "rc-progress-bar progress"
     :style {:flex "none"}}
@@ -189,8 +195,9 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn spinner
-  []
   "Render an animated gif spinner"
+  []
+
   [:div {:style {:display "flex"
                  :flex    "none"
                  :margin "10px"}}
@@ -209,11 +216,12 @@
 
 
 (defn title
+  "An underlined, left justified, H3 Title"
   [& {:keys [label underline?]
       :or   {underline? true}
       :as   args}]
   {:pre [(superset? title-args (keys args))]}
-  "An underlined, left justified, H3 Title"
+
   [v-box
    :children [[:h3 label]
               (when underline? [line :size "1px"])]])
