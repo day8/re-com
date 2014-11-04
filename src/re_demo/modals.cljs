@@ -28,8 +28,8 @@
 
 
 (defn modal-button
-  [& {:keys [label on-click]}]
   "Render a button to launch a modal window"
+  [& {:keys [label on-click]}]
   [button
    :label    label
    :on-click on-click
@@ -86,9 +86,8 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn system-load-url
+  "Simulate the system's load-url functionality (will call back in 3 seconds)."
   [url callback]
-  "Simulate the system's load-url functionality (will call back in 3 seconds)
-  "
   (let [err  nil
         data "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>here it is!</data>"]
     (js/setTimeout #(callback err data) 3000)))
@@ -96,8 +95,8 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn loading-url-modal
-  [url loading?]
   "Show this modal window when loading a url"
+  [url loading?]
   [modal-window
    :markup [:div {:style {:max-width "600px"}}
             [:p (str "Loading data from '" url "'...")]
@@ -106,8 +105,8 @@
 
 
 (defn load-url
-  [url loading?]
   "Load some data from the remote server"
+  [url loading?]
   (println (str "*** Loading data from: " url))
   (system-load-url
     url
@@ -128,8 +127,8 @@
 
 
 (defn test-load-url
-  []
   "Create a button to test the modal component for loading a url"
+  []
   (let [loading? (reagent/atom false)
         url      "http://static.day8.com.au/locations.xml"]
     (fn []
@@ -148,8 +147,8 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn system-write-path
+  "Simulate the system's load-url functionality (will call back in 3 seconds)."
   [path data callback]
-  "Simulate the system's load-url functionality (will call back in 3 seconds)"
   (let [err  "The file could not be saved - Disk Full!"
         data nil]
     (js/setTimeout #(callback err data) 3000)))
@@ -157,8 +156,8 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn writing-disk-modal
-  [path writing?]
   "Show this modal window when saving to disk"
+  [path writing?]
   [modal-window
    :markup [:div {:style {:max-width "600px"}}
             [:p (str "Saving '" path "'...")]
@@ -194,8 +193,8 @@
 
 
 (defn test-write-disk
-  []
   "Create a button to test the modal component for writing to disk"
+  []
   (let [writing? (reagent/atom false)
         mwi-file "C:\\Day8\\MWIEnhancer\\test.mwi"]
     (fn []
@@ -400,14 +399,13 @@
 (defn fib-step
   [{:keys [step-num] :as params}]
   (cpu-delay step-num)
-  (+)
   [(< step-num 10)
    (assoc params :step-num (inc step-num))])
 
 
 (defn test-core-async-looper
-  []
   "Create a button to test looper"
+  []
   (let [calculating? (reagent/atom false)
         progress-percent (reagent/atom 0)]
     (fn []
@@ -501,8 +499,8 @@
                 (reset! calculating? false))))))))
 
 (defn test-core-async
-  []
   "Create a button to test the core.async version"
+  []
   (let [calculating? (reagent/atom false)
         progress-msg     (reagent/atom "{initial-value}")
         progress-percent (reagent/atom 0)]
@@ -670,8 +668,8 @@
 
 
 (defn test-modal-dialog
-  []
   "Create a button to test the modal component for modal dialogs"
+  []
   (let [showing?       (reagent/atom false)
         form-data      (reagent/atom {:email       "gregg.ramsey@day8.com.au"
                                       :password    "abc123"

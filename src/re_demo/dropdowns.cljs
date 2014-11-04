@@ -158,8 +158,7 @@
 
 (defn demo4
   []
-  (let [selected-country-id (reagent/atom "US")
-        text-val            (reagent/atom "")]
+  (let [selected-country-id (reagent/atom "US")]
     (fn []
       [v-box
        :gap      "10px"
@@ -175,8 +174,10 @@
                    :align    :center
                    :children [[label :label "Test tabbing"]
                               [input-text
-                               :text      @text-val
-                               :on-change #(reset! text-val (-> % .-target .-value)) :style {:width "80px"}]
+                               :model      ""
+                               :on-change #()
+                               :width     "80px"
+                               ]
                               [single-dropdown
                                :choices    grouped-countries
                                :model      selected-country-id
@@ -204,7 +205,7 @@
                   [h-box
                    :align    :center
                    :children [[checkbox
-                               :label ":disabled"
+                               :label ":disabled?"
                                :model disabled?
                                :label-style {:width "100px"}
                                :on-change #(reset! disabled? %)]
@@ -238,7 +239,7 @@
                    :children [[single-dropdown
                                :choices      grouped-countries
                                :model        selected-country-id
-                               :disabled     @disabled?
+                               :disabled?    @disabled?
                                :filter-box   true
                                :regex-filter @regex?
                                :width        (when @width? dropdown-width)
@@ -305,7 +306,7 @@
                  [:li.spacer [:code ":on-change"] " - a callback function taking one parameter which will be the :id of the new selection."]]]
                [:li "The rest of the parameters are optional:"
                 [:ul
-                 [:li.spacer [:code ":disabled"] " - a boolean indicating whether the control should be disabled. false if not specified."]
+                 [:li.spacer [:code ":disabled?"] " - a boolean indicating whether the control should be disabled. false if not specified."]
                  [:li.spacer [:code ":filter-box"] " - a boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified."]
                  [:li.spacer [:code ":regex-filter"] " - a boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified."]
                  [:li.spacer [:code ":placeholder"] " - the text to be displayed in the dropdown if no selection has yet been made."]

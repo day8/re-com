@@ -11,7 +11,6 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn- flex-child-style
-  [size]
   "Determines the value for the 'flex' attribute (which has grow, shrink and basis), based on the size parameter.
    IMPORTANT: The term 'size' means width of the item in the case of flex-direction 'row' OR height of the item in the case of flex-direction 'column'.
    Flex property explanation:
@@ -36,6 +35,7 @@
    If number of words is not 1 or 3, an exception is thrown.
    Reference: http://www.w3.org/TR/css3-flexbox/#flexibility
    Regex101 testing: ^(initial|auto|none)|(\\d+)(px|%|em)|(\\d+)\\w(\\d+)\\w(.*) - remove double backslashes"
+  [size]
   ;; TODO: Could make initial/auto/none into keywords???
   (let [split-size      (string/split (string/trim size) #"\s+")                  ;; Split into words separated by whitespace
         split-count     (count split-size)
@@ -55,11 +55,11 @@
 
 
 (defn- justify-style
-  [justify]
   "Determines the value for the flex 'justify-content' attribute.
    This parameter determines how children are aligned along the main axis.
    The justify parameter is a keyword.
    Reference: http://www.w3.org/TR/css3-flexbox/#justify-content-property"
+  [justify]
   {:justify-content (case justify
                       :start   "flex-start"
                       :end     "flex-end"
@@ -69,11 +69,11 @@
 
 
 (defn- align-style
-  [attribute align]
   "Determines the value for the flex align type attributes.
    This parameter determines how children are aligned on the cross axis.
    The justify parameter is a keyword.
    Reference: http://www.w3.org/TR/css3-flexbox/#align-items-property"
+  [attribute align]
   {attribute (case align
                :start    "flex-start"
                :end      "flex-end"
@@ -83,10 +83,10 @@
 
 
 (defn- scroll-style
-  [attribute scroll]
   "Determines the value for the 'overflow' attribute.
    The scroll parameter is a keyword.
    Because we're translating scroll into overflow, the keyword doesn't appear to match the attribute value."
+  [attribute scroll]
   {attribute (case scroll
                   :auto  "auto"
                   :off   "hidden"
@@ -128,11 +128,11 @@
 
 
 (defn- box-base
+  "This should generally NOT be used as it is the basis for the box, scroller and border components."
   [& {:keys [class f-child f-container size scroll h-scroll v-scroll width height min-width min-height justify align align-self
              margin padding border l-border r-border t-border b-border radius bk-color child style]
       :as   args}]
   {:pre [(superset? box-base-args (keys args))]}
-  "This should generally NOT be used as it is the basis for the box, scroller and border components."
   (let [s (merge
             (when f-child     (flex-child-style size))
             (when f-container {:display "flex" :flex-flow "inherit"})
@@ -175,10 +175,10 @@
 
 
 (defn gap
+  "Returns markup which produces a gap between children in a v-box/h-box along the main axis."
   [& {:keys [size width height style]
       :as   args}]
   {:pre [(superset? gap-args (keys args))]}
-  "Returns markup which produces a gap between children in a v-box/h-box along the main axis."
   (let [s (merge
             (when size {:flex (str "0 0 " size)})
             (when width {:width width})
@@ -200,12 +200,12 @@
 
 
 (defn line
+  "Returns markup which produces a line between children in a v-box/h-box along the main axis.
+   Specify size in pixels and a stancard CSS colour. Defaults to a 1px red line."
   [& {:keys [size color style]
       :or   {size "1px" color "lightgray"}
       :as   args}]
   {:pre [(superset? line-args (keys args))]}
-  "Returns markup which produces a line between children in a v-box/h-box along the main axis.
-   Specify size in pixels and a stancard CSS colour. Defaults to a 1px red line."
   (let [s (merge
             {:flex (str "0 0 " size)}
             {:background-color color}
@@ -235,13 +235,13 @@
 
 
 (defn h-box
+  "Returns markup which produces a horizontal box.
+   It's primary role is to act as a container for child components and lays it's children from left to right.
+   By default, it also acts as a child under it's parent."
   [& {:keys [f-child size width height min-width min-height justify align margin padding gap children style]
       :or   {f-child true size "none" justify :start align :stretch}
       :as   args}]
   {:pre [(superset? h-box-args (keys args))]}
-  "Returns markup which produces a horizontal box.
-   It's primary role is to act as a container for child components and lays it's children from left to right.
-   By default, it also acts as a child under it's parent."
   (let [s        (merge
                    {:display "flex" :flex-flow "row nowrap"}
                    (when f-child (flex-child-style size))
@@ -284,13 +284,13 @@
 
 
 (defn v-box
+  "Returns markup which produces a vertical box.
+   It's primary role is to act as a container for child components and lays it's children from top to bottom.
+   By default, it also acts as a child under it's parent."
   [& {:keys [f-child size width height min-width min-height justify align margin padding gap children style]
       :or   {f-child true size "none" justify :start align :stretch}
       :as   args}]
   {:pre [(superset? v-box-args (keys args))]}
-  "Returns markup which produces a vertical box.
-   It's primary role is to act as a container for child components and lays it's children from top to bottom.
-   By default, it also acts as a child under it's parent."
   (let [s        (merge
                    {:display "flex" :flex-flow "column nowrap"}
                    (when f-child    (flex-child-style size))
@@ -334,12 +334,12 @@
 
 
 (defn box
+  "Returns markup which produces a box, which is generally used as a child of a v-box or an h-box.
+   By default, it also acts as a container for further child compenents, or another h-box or v-box."
   [& {:keys [f-child f-container size width height min-width min-height justify align align-self margin padding child style]
       :or   {f-child true f-container true size "none"}
       :as   args}]
   {:pre [(superset? box-args (keys args))]}
-  "Returns markup which produces a box, which is generally used as a child of a v-box or an h-box.
-   By default, it also acts as a container for further child compenents, or another h-box or v-box."
   (box-base :class       "rc-box"
             :f-child     f-child
             :f-container f-container
@@ -389,10 +389,6 @@
 
 
 (defn scroller
-  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height align-self margin padding child style]
-      :or   {size "auto"}
-      :as   args}]
-  {:pre [(superset? scroller-args (keys args))]}
   "Returns markup which produces a scoller component.
    This is the way scroll bars are added to boxes, in favour of adding the scroll attributes directly to the boxes themselves.
    IMPORTANT: Because this component becomes the flex child in place of the component it is wrapping, you must copy the size attibutes to this componenet.
@@ -405,6 +401,10 @@
            :off    Never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen.
            :spill  Never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place.
    Note:   If scroll is set, then setting h-scroll or v-scroll overrides the scroll value."
+  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height align-self margin padding child style]
+      :or   {size "auto"}
+      :as   args}]
+  {:pre [(superset? scroller-args (keys args))]}
   (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
         scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)
         _          (+)]
@@ -459,16 +459,16 @@
 
 
 (defn border
-  [& {:keys [size width height min-width min-height margin padding border l-border r-border t-border b-border radius child style]
-      :or   {size "auto"}
-      :as   args}]
-  {:pre [(superset? border-args (keys args))]}
   "Returns markup which produces a border component.
    This is the way borders are added to boxes, in favour of adding the border attributes directly to the boxes themselves.
    border property syntax: '<border-width> || <border-style> || <color>'
     - border-width: thin, medium, thick or standard CSS size (e.g. 2px, 0.5em)
     - border-style: none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset
     - color:        standard CSS color (e.g. grey #88ffee)"
+  [& {:keys [size width height min-width min-height margin padding border l-border r-border t-border b-border radius child style]
+      :or   {size "auto"}
+      :as   args}]
+  {:pre [(superset? border-args (keys args))]}
   (let [no-border      (every? nil? [border l-border r-border t-border b-border])
         default-border "1px solid lightgrey"]
     (box-base :class "rc-border"

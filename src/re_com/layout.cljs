@@ -28,11 +28,11 @@
 
 
 (defn h-layout
+  "Returns markup for a horizontal layout component."
   [& {:keys [left-panel right-panel splitter-size margin]
       :or   {splitter-size "8px" margin "8px"}
       :as   args}]
   {:pre [(superset? h-layout-args (keys args))]}
-  "Returns markup for a horizontal layout component."
   (let [container-id (gensym "h-layout-")
         this        (reagent/current-component)
         split-perc  (reagent/atom 50)                ;; splitter position as a percentage of width
@@ -115,11 +115,11 @@
 
 
 (defn v-layout
+  "Returns markup for a vertical layout component."
   [& {:keys [top-panel bottom-panel splitter-size margin]
       :or   {splitter-size "8px" margin "8px"}
       :as   args}]
   {:pre [(superset? v-layout-args (keys args))]}
-  "Returns markup for a vertical layout component."
   (let [container-id (gensym "v-layout-")
         this        (reagent/current-component)
         split-perc  (reagent/atom 50)                ;; splitter position as a percentage of height

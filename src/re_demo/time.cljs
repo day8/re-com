@@ -34,7 +34,9 @@
                 [:li [:code ":class"] " - class for styling"]
                 [:li [:code ":style"] " - css style"]]]]])
 
+
 (def check-style {:font-size "small" :margin-top "1px"})
+
 
 (defn- simulated-bools
   [disabled? hide-border? show-icon?]

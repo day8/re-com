@@ -11,9 +11,9 @@
 
 
 (defn- move-to-new-choice
-  [choices id offset]
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
    from id (usually +1 or -1 to go to next/previous). Also accepts :start and :end."
+  [choices id offset]
   (let [current-index (find-map-index choices id)
         new-index (cond
                     (= offset :start) 0
@@ -24,16 +24,16 @@
 
 
 (defn find-choice
-  [choices id]
   "In a vector of maps (where each map has an :id), return the first map containing the id parameter."
+  [choices id]
   (let [current-index (find-map-index choices id)
         _ (assert ((complement nil?) current-index) (str "Can't find choice index '" id "' in choices vector"))]
     (nth choices current-index)))
 
 
 (defn- choices-with-group-headings
-  [opts]
   "If necessary, inserts group headings entries into the choices"
+  [opts]
   (let [groups         (partition-by :group opts)
         group-headers  (->> groups
                             (map first)
@@ -80,33 +80,33 @@
 
 
 (defn- choice-group-heading
-  [opt]
   "Render a group choice item."
+  [opt]
   [:li.group-result
    {:value (:value opt)}
    (:group opt)])
 
 
 (defn- choice-item
-  [opt on-click tmp-model]
   "Render a choice item and set up appropriate mouse events."
+  [opt on-click internal-model]
   (let [mouse-over? (reagent/atom false)]
     (reagent/create-class
       {:component-did-mount
         (fn [me]
           (let [node     (reagent/dom-node me)
-                selected (= @tmp-model (:id opt))]
+                selected (= @internal-model (:id opt))]
             (when selected (.scrollIntoView node false))))
 
        :component-did-update
         (fn [me]
           (let [node     (reagent/dom-node me)
-                selected (= @tmp-model (:id opt))]
+                selected (= @internal-model (:id opt))]
             (when selected (.scrollIntoView node false))))
 
        :render
         (fn []
-          (let [selected (= @tmp-model (:id opt))
+          (let [selected (= @internal-model (:id opt))
                 class    (if selected
                            "highlighted"
                            (when @mouse-over? "mouseover"))]
@@ -119,8 +119,8 @@
 
 
 (defn- filter-text-box-base
-  []
   "Base function (before lifecycle metadata) to render a filter text box."
+  []
   (fn [filter-box filter-text key-handler drop-showing?]
     [:div.chosen-search
      [:input
@@ -144,11 +144,11 @@
                                       (.focus node))}))
 
 (defn- dropdown-top
-  []
   "Render the top part of the dropdown, with the clickable area and the up/down arrow."
+  []
   (let [ignore-click (atom false)]
     (fn
-      [tmp-model choices tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
+      [internal-model choices tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
       (let [_ (reagent/set-state (reagent/current-component) {:filter-box filter-box})]
         [:a.chosen-single.chosen-default
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
@@ -161,8 +161,8 @@
                            (key-handler %)
                            (when (= (.-which %) 13) (reset! ignore-click true)))} ;; Pressing enter on an anchor also triggers click event, which we don't want
          [:span
-          (if @tmp-model
-            (:label (find-choice choices @tmp-model))
+          (if @internal-model
+            (:label (find-choice choices @internal-model))
             placeholder)]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
@@ -179,7 +179,7 @@
                     ;      {:id "AF" :label "Afghanistan"    :group "Group 2"}]
     :model          ; The :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown).
     :on-change      ; A callback function taking one parameter which will be the :id of the new selection.
-    :disabled       ; A boolean indicating whether the control should be disabled. false if not specified.
+    :disabled?      ; A boolean indicating whether the control should be disabled. false if not specified.
     :filter-box     ; A boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified.
     :regex-filter   ; A boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified.
     :placeholder    ; The text to be displayed in the dropdown if no selection has yet been made.
@@ -190,71 +190,71 @@
 
 
 (defn single-dropdown
+  "Render a single dropdown component which emulates the bootstrap-choosen style."
   [& {:keys [model] :as args}]
   {:pre [(superset? single-dropdown-args (keys args))]}
-  "Render a single dropdown component which emulates the bootstrap-choosen style."
-  (let [tmp-model     (reagent/atom (deref-or-value model)) ;; Create a new atom from the model value passed in for use with keyboard actions
-        ext-model     (reagent/atom @tmp-model) ;; Holds the last known external value of model, to detect external model changes
-        drop-showing? (reagent/atom false)
-        filter-text   (reagent/atom "")]
-    (fn [& {:keys [choices model on-change disabled filter-box regex-filter placeholder width max-height tab-index] :as args}]
+  (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
+        internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
+        drop-showing?  (reagent/atom false)
+        filter-text    (reagent/atom "")]
+    (fn [& {:keys [choices model on-change disabled? filter-box regex-filter placeholder width max-height tab-index] :as args}]
       {:pre [(superset? single-dropdown-args (keys args))]}
       (let [choices          (deref-or-value choices)
-            disabled         (deref-or-value disabled)
+            disabled?        (deref-or-value disabled?)
             regex-filter     (deref-or-value regex-filter)
-            latest-model     (reagent/atom (deref-or-value model))
-            _                (when (not= @ext-model @latest-model) ;; Has model changed externally?
-                               (reset! ext-model @latest-model)
-                               (reset! tmp-model @latest-model))
-            changeable       (and on-change (not disabled))
+            latest-ext-model (reagent/atom (deref-or-value model))
+            _                (when (not= @external-model @latest-ext-model) ;; Has model changed externally?
+                               (reset! external-model @latest-ext-model)
+                               (reset! internal-model @latest-ext-model))
+            changeable       (and on-change (not disabled?))
             callback         #(do
-                               (reset! tmp-model %)
-                               (when changeable (on-change @tmp-model))
+                               (reset! internal-model %)
+                               (when changeable (on-change @internal-model))
                                (reset! drop-showing? (not @drop-showing?)) ;; toggle to allow opening dropdown on Enter key
                                (reset! filter-text ""))
             cancel           #(do
                                (reset! drop-showing? false)
                                (reset! filter-text "")
-                               (reset! tmp-model @ext-model)) ;; Was save-model
-            dropdown-click   #(when-not disabled
+                               (reset! internal-model @external-model))
+            dropdown-click   #(when-not disabled?
                                (reset! drop-showing? (not @drop-showing?)))
             filtered-choices (if regex-filter
                                (filter-choices-regex choices @filter-text)
                                (filter-choices choices @filter-text))
             press-enter      (fn []
-                               (if disabled
+                               (if disabled?
                                  (cancel)
-                                 (callback @tmp-model))
+                                 (callback @internal-model))
                                true)
             press-escape      (fn []
                                 (cancel)
                                 true)
             press-tab         (fn []
-                                (if disabled
+                                (if disabled?
                                   (cancel)
-                                  (do                ;; Was (callback @tmp-model) but needed a customised version
-                                    (when changeable (on-change @tmp-model))
+                                  (do                ;; Was (callback @internal-model) but needed a customised version
+                                    (when changeable (on-change @internal-model))
                                     (reset! drop-showing? false)
                                     (reset! filter-text "")))
                                 (reset! drop-showing? false)
                                 true)
             press-up          (fn []
                                 (if @drop-showing?  ;; Up arrow
-                                  (reset! tmp-model (move-to-new-choice filtered-choices @tmp-model -1))
+                                  (reset! internal-model (move-to-new-choice filtered-choices @internal-model -1))
                                   (reset! drop-showing? true))
                                 true)
             press-down        (fn []
                                 (if @drop-showing?  ;; Down arrow
-                                  (reset! tmp-model (move-to-new-choice filtered-choices @tmp-model 1))
+                                  (reset! internal-model (move-to-new-choice filtered-choices @internal-model 1))
                                   (reset! drop-showing? true))
                                 true)
             press-home        (fn []
-                                (reset! tmp-model (move-to-new-choice filtered-choices @tmp-model :start))
+                                (reset! internal-model (move-to-new-choice filtered-choices @internal-model :start))
                                 true)
             press-end         (fn []
-                                (reset! tmp-model (move-to-new-choice filtered-choices @tmp-model :end))
+                                (reset! internal-model (move-to-new-choice filtered-choices @internal-model :end))
                                 true)
-            key-handler      #(if disabled
+            key-handler      #(if disabled?
                                false
                                (case (.-which %)
                                  13 (press-enter)
@@ -271,8 +271,8 @@
                   :align-self "flex-start"
                   :width      (when width width)
                   :-webkit-user-select "none"}} ;; Prevent user text selection
-         [dropdown-top tmp-model choices tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
-         (when (and @drop-showing? (not disabled))
+         [dropdown-top internal-model choices tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
+         (when (and @drop-showing? (not disabled?))
            [:div.chosen-drop
             [filter-text-box filter-box filter-text key-handler drop-showing?]
             [:ul.chosen-results
@@ -281,5 +281,5 @@
                (for [opt (choices-with-group-headings filtered-choices)]
                  (if (:group-header? opt)
                    ^{:key (:id opt)} [choice-group-heading opt]
-                   ^{:key (:id opt)} [choice-item opt callback tmp-model]))
+                   ^{:key (:id opt)} [choice-item opt callback internal-model]))
                [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))

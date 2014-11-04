@@ -21,11 +21,11 @@
 
 
 (defn alert-box
+  "Displays one alert box. A close button allows the message to be removed."
   [& {:keys [id alert-type heading body padding closeable? on-close]
       :or   {alert-type "info"}
       :as   args}]
   {:pre [(superset? alert-box-args (keys args))]}
-  "Displays one alert box. A close button allows the message to be removed."
   [:div.alert.fade.in
    {:class (str "alert-" alert-type)
     :style {:flex "none" :padding (when padding padding)}}
@@ -62,11 +62,11 @@
 
 
 (defn alert-list
+  "Displays a list of alert-box components in a v-box."
   [& {:keys [alerts on-close max-height padding border-style]
       :or   {padding "4px"}
       :as   args}]
   {:pre [(superset? alert-list-args (keys args))]}
-  "Displays a list of alert-box components in a v-box."
   [border
    :padding padding
    :border  border-style

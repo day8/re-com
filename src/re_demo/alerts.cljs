@@ -99,7 +99,7 @@
   [v-box
    :width    "500px"
    :style    {:font-size "small"}
-   :children [[:div.h4 "[alert-box ..."]
+   :children [[:div.h4 "[alert-box ... ]"]
               [:ul
                [:li "All parameter are optional."]
                [:li.spacer [:code ":id"] " - a unique identifier, usually an integer or string."]
@@ -110,7 +110,7 @@
                [:li.spacer [:code ":padding"] " - the amount of padding within the alert (default is 15px)."]
                [:li.spacer [:code ":closeable?"] " - a boolean indicating if a close button 'X' is rendered (on-close must also be supplied)."]
                [:li.spacer [:code ":on-close"] " - the call back when the user clicks the close 'X'. Invoked with the single :id parameter."]]
-              [:div.h4 "[alert-list ..."]
+              [:div.h4 "[alert-list ... ]"]
               [:ul
                [:li.spacer "A component which renders a list of alert-boxes."]
                [:li.spacer [:code ":alerts"] " - a vector containing alert maps to be rendered. The order is specified by the calling app."]

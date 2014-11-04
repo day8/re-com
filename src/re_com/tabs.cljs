@@ -12,12 +12,11 @@
 ;; Either way, the map should look like this:
 ;;        { ::id1  {:label "1" } ::id2  {:label "2" } ::anotherId  {:label "3" }
 
-;; utility function for finding a tab definition with a given id
-;; 'tab-defs' is a vector of definitions
-;; 'id' is the id of one of them
-;; returns nil if no definition found
-;; otherwise returns the first match found
 (defn find-tab
+  "utility function for finding a tab definition with a given id
+  'tab-defs' is a vector of definitions
+  'id' is the id of one of them
+  returns nil if no definition found otherwise returns the first match found"
   [id tab-defs]
   (first (filter #(= id (:id %)) tab-defs)))
 

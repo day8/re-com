@@ -15,7 +15,7 @@
 ;; Define some tabs.
 ;; A tab definition need only consist of an :id and a :label. The rest is up to you
 ;; Below, you'll note that all ids are namespaced keywords, but they can be anything.
-;;
+
 (def tabs-definition
   [ {:id ::tab1  :label "Tab1"  :say-this "I don't like my tab siblings, they smell."}
     {:id ::tab2  :label "Tab2"  :say-this "Don't listen to Tab1, he's just jealous of my train set."}
@@ -26,7 +26,7 @@
   []
   (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))     ;; holds the id of the selected tab
         vert?           (reagent/atom false)
-        fn-name-width   "180px"]
+        fn-name-width   "240px"]
     (fn []
       [v-box
        :children [[h-box
@@ -46,7 +46,7 @@
                                            :align    :center
                                            :children [[box
                                                        :width fn-name-width
-                                                       :child [:code "horizontal-tabs"]]
+                                                       :child [:code "[horizontal-tabs ... ]"]]
                                                       [horizontal-tabs
                                                        :model selected-tab-id
                                                        :tabs  tabs-definition]]]
@@ -54,7 +54,7 @@
                                            :align    :center
                                            :children [[box
                                                        :width fn-name-width
-                                                       :child [:code "horizontal-bar-tabs"]]
+                                                       :child [:code "[horizontal-bar-tabs ... ]"]]
                                                       [horizontal-bar-tabs
                                                        :model selected-tab-id
                                                        :tabs  tabs-definition]]]
@@ -62,7 +62,7 @@
                                            :align    :center
                                            :children [[box
                                                        :width fn-name-width
-                                                       :child [:code "pill-tabs"]]
+                                                       :child [:code "[pill-tabs ... ]"]]
                                                       [pill-tabs
                                                        :model     selected-tab-id
                                                        :tabs      tabs-definition
@@ -71,7 +71,7 @@
                                            :align    :center
                                            :children [[box
                                                        :width fn-name-width
-                                                       :child [:span [:code "arrow-tabs"] " *TODO*"]]
+                                                       :child [:span [:code "[arrow-tabs ... ]"] " *TODO*"]]
                                                       [arrow-tabs
                                                        :model     selected-tab-id
                                                        :tabs      tabs-definition
@@ -140,29 +140,27 @@
    :style    {:font-size "small"}
    :children [[:div.h4 "General notes"]
               [:ul
-               [:li "To create a tab component, the following parameters are available:"
+               [:li "Tab components take the following parameters:"
                 [:ul
-                 [:li.spacer [:code ":model"] " - sets/holds/returns the currently selected tab - can be literal/variable or atom."]
-                 [:li.spacer [:code ":tabs"] " - the tabs object defined as a vector of maps - can be literal/variable or atom."]
-                 [:li.spacer [:code ":vertical?"] " - stack vertically? - only applicable for " [:code "pill-tabs"] " and " [:code "arrow-tabs"] "."]]]]
+                 [:li.spacer [:code ":model"] " - the :id of the currently selected tab - can be a value or an atom."]
+                 [:li.spacer [:code ":tabs"] " - a vector of maps, one for each tab - can be a value or an atom. Each map must have an :id and :label."]
+                 [:li.spacer [:code ":vertical?"] " - should tabs be arranged horizontally or vertically - only the following tab styles support vertical: " [:code "pill-tabs"] ", " [:code "arrow-tabs"] "."]]]]
               (case @selected-demo-id
                 1 [:div
-                   [:div.h4 "Horizontal tabs notes"]
+                   [:div.h4 "Notes"]
                    [:ul
                     [:li "Tab-like controls can be styled in the 3 ways shown to the right."]
                     [:li "All 3 share the same state so they change in lockstep."]
                     [:li "Placeholder  \"Tab Contents\" (a string of text) is shown in the dotted border below. Just for effect."]
-                    [:li "The implementation here is simple. As a result, your selection is forgotten when you change to another panel, like Welcome (look top left)."]
-                    [:li "The code for this page can be found in /src/re_demo/tabs.cljs"]
-                    [:li "For another demonstration, also look in /src/re_demo/core.cljs. After all, this entire demo app is just a series of tabs."]]]
+                    [:li "The implementation here is simple. As a result, your selection is forgotten when you change to another panel, like Welcome (look top left)."]]]
                 2 [:div
-                   [:div.h4 "Peristent tabs notes"]
+                   [:div.h4 "Notes"]
                    [:ul
                     [:li "Any tab selection you make on the right will persist."]
                     [:li "It is stored using HTML5's local-storage."]
                     [:li "Even if you refresh the entire browser page, you'll see the same selection."]]]
                 3 [:div
-                   [:div.h4 "Dynamic tabs notes"]
+                   [:div.h4 "Notes"]
                    [:ul
                     [:li "Click  \"Add\" for more tabs."]]])]])
 

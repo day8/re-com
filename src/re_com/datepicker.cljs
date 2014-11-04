@@ -220,8 +220,8 @@
 
 
 (defn- anchor-button
-  [shown? model format]
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
+  [shown? model format]
   [:div {:class    "input-group"
          :style    {:display             "flex"
                     :flex                "none"

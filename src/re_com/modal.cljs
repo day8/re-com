@@ -79,8 +79,8 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn cancel-button ;; TODO: Only currently used in modal
-  [callback]
   "Render a cancel button"
+  [callback]
   [:div {:style {:display "flex"}}
    [button
     :label    "Cancel"
@@ -94,11 +94,11 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn modal-window
-  [& {:keys [markup]}]
   "Renders a modal window centered on screen. A dark transparent backdrop sits between this and the underlying
    main window to prevent UI interactivity and place user focus on the modal window.
    Parameters:
     - markup  The message to display in the modal (a string or a hiccup vector or function returning a hiccup vector)"
+  [& {:keys [markup]}]
   (fn []
     [:div
      {:style {:display "flex"      ;; Semi-transparent backdrop
@@ -126,7 +126,6 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn looper
-  [& {:keys [initial-value func when-done]}]
   "Parameters:
     - func           A function to repeatedly call. On each call, something else happens, could be the
                      same funciton, could be a different function.
@@ -134,6 +133,7 @@
                      After that, each successive function call is responsible for returning the parameters
                      to be used for the subsequent function call and so on.
     - running?       A reagent boolean atom indicating if the processing is running"
+  [& {:keys [initial-value func when-done]}]
   (go (loop [pause (<! (timeout 20))
              val   initial-value]
         (let [[continue? out]  (func val)]

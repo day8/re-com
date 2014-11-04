@@ -11,15 +11,15 @@
 
 (def label-args
   #{:label      ;; Label to display
-    :style      ;; A map. Standard hicckup style map values. e.g. {:color "blue" :margin "4px"}
-    :class      ;; Class string
     :on-click   ;; Callback when label is clicked
+    :class      ;; Class string
+    :style      ;; A map. Standard hicckup style map values. e.g. {:color "blue" :margin "4px"}
     })
 
 
 (defn label
   "Returns markup for a basic label"
-  [& {:keys [label style class on-click]
+  [& {:keys [label on-click class style]
       :as   args}]
   {:pre [(superset? label-args (keys args))]}
 
@@ -36,25 +36,56 @@
 ;; ------------------------------------------------------------------------------------
 
 (def input-text-args
-  #{:text       ;; Text of the input
-    :on-change  ;; Callback when the text is changed in any way
-    :style      ;; CSS style map
-    :class      ;; Class string
+  #{:model           ;; Text of the input (can be atom or value).
+    :placeholder     ;; Text to show when there is no under text in the component.
+    :width           ;; Standard CSS width setting for this input.
+    :on-change       ;; A function which takes one parameter, which is the new text (see :change-on-blur?).
+    :change-on-blur? ;; When true, invoke on-change function on blur, otherwise on every change (character by character).
+    :disabled?       ;; Set to true to disable the input box (can be atom or value).
+    :class           ;; Class string.
+    :style           ;; CSS style map.
     })
 
 
 (defn input-text
-  "returns markup for a basic text imput label"
-  [& {:keys [text on-change style class]
-      :as   args}]
+  "Returns markup for a basic text imput label"
+  [& {:keys [model] :as args}]
   {:pre [(superset? input-text-args (keys args))]}
-
-  [:input
-   {:type "text"
-    :class (str "rc-input-text " class)
-    :style (merge {:flex "none"} style)
-    :value text
-    :on-change #(on-change (-> % .-target .-value))}])
+  (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
+        internal-model (reagent/atom @external-model)]        ;; Create a new atom from the model to be used internally
+    (fn
+      [& {:keys [model placeholder width on-change change-on-blur? disabled? class style]
+          :or   {change-on-blur? true}
+          :as   args}]
+      {:pre [(superset? input-text-args (keys args))]}
+      (let [disabled?        (deref-or-value disabled?)
+            change-on-blur?  (deref-or-value change-on-blur?)
+            latest-ext-model (deref-or-value model)]
+        (when (not= @external-model latest-ext-model) ;; Has model changed externally?
+          (reset! external-model latest-ext-model)
+          (reset! internal-model latest-ext-model))
+        [:input
+         {:type        "text"
+          :placeholder placeholder
+          :value       @internal-model
+          :disabled    (when disabled? true)
+          :class       (str "rc-input-text form-control " class)
+          :style       (merge
+                         {:flex "none"}
+                         {:width (if width width "250px")}
+                         style)
+          :on-change   #(when (and on-change (not disabled?))
+                         (reset! internal-model (-> % .-target .-value))
+                         (when-not change-on-blur?
+                           (on-change @internal-model)))
+          :on-blur     #(when change-on-blur?
+                         (on-change @internal-model))
+          :on-key-up   #(if disabled?
+                         false
+                         (case (.-which %)
+                           13 (on-change @internal-model)
+                           27 (reset! internal-model @external-model)
+                           true))}]))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -64,23 +95,25 @@
 (def button-args
   #{:label      ;; Label for the button (can be artitrary markup)
     :on-click   ;; Callback when the button is clicked
-    :style      ;; CSS style map
+    :disabled?  ;; Set to true to disable the button
     :class      ;; Class string. e.g. "btn-info" (see: http://getbootstrap.com/css/#buttons)
+    :style      ;; CSS style map
     })
 
 
 (defn button
   "Returns the markup for a basic button."
-  [& {:keys [label on-click style class]
+  [& {:keys [label on-click disabled? class style]
       :or   {:class "btn-default"}
       :as   args}]
   {:pre [(superset? button-args (keys args))]}
-
-  [:button
-   {:class    (str "rc-button btn " class)
-    :style    (merge {:flex "none" :align-self "flex-start"} style)
-    :on-click on-click}
-   label])
+  (let [disabled?   (deref-or-value disabled?)
+        callback-fn (if (and on-click (not disabled?)) #(on-click))]
+    [:button
+     {:class    (str "rc-button btn " class)
+      :style    (merge {:flex "none" :align-self "flex-start"} style)
+      :on-click callback-fn}
+     label]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -91,30 +124,30 @@
   #{:model          ;; Holds state of the checkbox when it is called
     :on-change      ;; When model state is changed, call back with new state
     :label          ;; Checkbox label
-    :disabled       ;; Set to true to disable the checkbox
+    :disabled?      ;; Set to true to disable the checkbox
     :style          ;; Checkbox style map
     :label-class    ;; Label class string
     :label-style    ;; Label style map
     })
 
 
-;; TODO: when disabled, should the text appear "disabled".
+;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
   "I return the markup for a checkbox, with an optional RHS label."
-  [& {:keys [model on-change label disabled style label-class label-style]
+  [& {:keys [model on-change label disabled? style label-class label-style]
       :as   args}]
   {:pre [(superset? checkbox-args (keys args))]}
 
   (let [model       (deref-or-value model)
-        disabled    (deref-or-value disabled)
-        callback-fn (if (and on-change (not disabled)) #(on-change (not model)))]     ;; call on-change with either true or false
+        disabled?   (deref-or-value disabled?)
+        callback-fn (if (and on-change (not disabled?)) #(on-change (not model)))]     ;; call on-change with either true or false
     [h-box
      :gap "8px"     ;; between the tickbox and the label
      :children [[:input
                  {:class     "rc-checkbox"
                   :type      "checkbox"
                   :style     (merge {:flex "none"} style)
-                  :disabled  disabled
+                  :disabled  disabled?
                   :checked   model
                   :on-change callback-fn}]
                 (when label [re-com.core/label
@@ -133,7 +166,7 @@
     :value          ;; Value of the radio button OR button group
     :label          ;; Checkbox label
     :on-change      ;; When model state is changed, call back with new state
-    :disabled       ;; Set to true to disable the checkbox
+    :disabled?      ;; Set to true to disable the checkbox
     :style          ;; Checkbox style map
     :label-class    ;; Label class string
     :label-style    ;; Label style map
@@ -142,20 +175,20 @@
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label."
-  [& {:keys [model value label on-change disabled style label-class label-style]
+  [& {:keys [model value label on-change disabled? style label-class label-style]
       :as   args}]
   {:pre [(superset? radio-button-args (keys args))]}
 
   (let [model       (deref-or-value model)
-        disabled    (deref-or-value disabled)
-        callback-fn (if (and on-change (not disabled)) #(on-change value))]
+        disabled?   (deref-or-value disabled?)
+        callback-fn (if (and on-change (not disabled?)) #(on-change value))]
     [h-box
      :gap "8px"     ;; between the tickbox and the label
      :children [[:input
                  {:class     "rc-radio-button"
                   :type      "radio"
                   :style     (merge {:flex "none"} style)     ;; add in flex child style, so it can sit in a vbox
-                  :disabled  disabled
+                  :disabled  disabled?
                   :checked   (= model value)
                   :on-change callback-fn}]
                 (when label [re-com.core/label

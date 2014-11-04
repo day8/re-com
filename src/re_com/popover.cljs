@@ -17,18 +17,18 @@
 
 
 (defn- split-keyword
-  [kw delimiter] ;; TODO: Move to util?
   "I return the vector of the two keywords formed by splitting
    another keyword 'kw' on an internal delimiter (usually '-').
    (split-keyword  :above-left  \"-\")
    =>  [:above :left]"
+  [kw delimiter] ;; TODO: Move to util?
   (let [keywords (string/split (str kw) (re-pattern (str "[" delimiter ":]")))]
     [(keyword (keywords 1)) (keyword (keywords 2))]))
 
 
 (defn- close-button
-  [showing? close-callback]
   "A button with a big X in it, placed to the right of the popup."
+  [showing? close-callback]
   [button
    :label    "×"
    :on-click #(if close-callback
@@ -101,9 +101,9 @@
 
 
 (defn sum-scroll-offsets
-  [node]
   "Given a DOM node, I traverse through all ascendant nodes (until I reach body), summing any scrollLeft and scrollTop values
    and return these sums in a map."
+  [node]
   (let [popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
         point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
         point-top          (.-offsetTop  popover-point-node)]
@@ -129,9 +129,9 @@
 
 
 (defn backdrop
+  "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be."
   [& {:keys [opacity on-click] :as args}]
   {:pre [(superset? backdrop-args (keys args))]}
-  "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be."
   [:div {:class     "rc-backdrop"
          :style    {:position         "fixed"
                     :left             "0px"
@@ -163,11 +163,11 @@
 
 
 (defn popover-border
+  "Renders an element or control along with a Bootstrap popover."
   [& {:keys [position width height arrow-length arrow-width padding margin-left margin-top title children]
       :or {position :right-below arrow-length 11 arrow-width 22}
       :as args}]
   {:pre [(superset? popover-border-args (keys args))]}
-  "Renders an element or control along with a Bootstrap popover."
   (let [width                   (if (nil? width) 250 width) ;; Moved here from :or above as sometimes we pass width in as null and :or doesn't work in this case
         rendered-once           (reagent/atom false)
         pop-id                  (gensym "popover-")
@@ -226,10 +226,10 @@
 
 
 (defn popover-title
+  "Renders a title at the top of a popover with an optional close button on the far right."
   [& {:keys [title showing? close-button? close-callback]
       :as args}]
   {:pre [(superset? popover-title-args (keys args))]}
-  "Renders a title at the top of a popover with an optional close button on the far right."
   (assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback")
   (let [close-button? (if (nil? close-button?) true close-button?)]
     [:h3.popover-title {:style {:font-size "18px"
@@ -262,11 +262,11 @@
 
 
 (defn popover-content-wrapper
+  "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes."
   [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body style]
       :or {position :right-below}
       :as args}]
   {:pre [(superset? popover-content-wrapper-args (keys args))]}
-  "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes."
   (assert ((complement nil?) showing?) "Must specify a showing? atom")
   (let [left-offset (reagent/atom 0)
         top-offset  (reagent/atom 0)]
@@ -317,9 +317,9 @@
 
 
 (defn popover-anchor-wrapper
+  "Renders an element or control along with a Bootstrap popover."
   [& {:keys [showing? position anchor popover style] :as args}]
   {:pre [(superset? popover-anchor-wrapper-args (keys args))]}
-  "Renders an element or control along with a Bootstrap popover."
   (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
         place-anchor-before?    (case orientation (:left :above) false true)
         flex-flow               (case orientation (:left :right) "row" "column")]
@@ -356,13 +356,13 @@
 
 
 (defn make-button
-  [& {:keys [showing? type label style] :as args}]
-  {:pre [(superset? make-button-args (keys args))]}
   "Renders a button designed to go into a popover.
    It provides the functionality to toggle the popover when the button is pressed."
+  [& {:keys [showing? type label style] :as args}]
+  {:pre [(superset? make-button-args (keys args))]}
   [button
    :label    label
-   :on-click #(reset! showing? (not @showing?))
+   :on-click #(swap! showing? not)
    :class    (str "rc-make-button btn-" type)
    :style    (merge {:margin-left "2px"} style)])
 
@@ -382,11 +382,11 @@
 
 
 (defn make-link
-  [& {:keys [showing? toggle-on label style] :as args}]
-  {:pre [(superset? make-link-args (keys args))]}
   "Renders a link designed to go into a popover.
    It provides the functionality to either toggle the popover when the button is pressed or show/hide
    on houseover/mouseout."
+  [& {:keys [showing? toggle-on label style] :as args}]
+  {:pre [(superset? make-link-args (keys args))]}
   (let [show   #(reset! showing? true)
         hide   #(reset! showing? false)
         toggle #(reset! showing? (not @showing?))]

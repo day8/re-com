@@ -30,7 +30,7 @@
    [checkbox
     :model       (selections item)
     :on-change   #(on-change (check-clicked selections item % required?))
-    :disabled    disabled?
+    :disabled?   disabled?
     :label-style (label-style (selections item) as-exclusions?)
     :label       (label-fn item)]])
 
@@ -48,7 +48,7 @@
     :model       (first selections)
     :value       item
     :on-change   #(on-change (radio-clicked selections % required?))
-    :disabled    disabled?
+    :disabled?   disabled?
     :label-style (label-style (selections item) as-exclusions?)
     :label       (label-fn item)]])
 

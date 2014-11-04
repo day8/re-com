@@ -1,5 +1,5 @@
 (ns re-demo.basics
-  (:require [re-com.core    :refer  [button label spinner progress-bar checkbox radio-button title]]
+  (:require [re-com.core    :refer  [input-text button label spinner progress-bar checkbox radio-button title]]
             [re-com.box     :refer  [h-box v-box box gap line]]
             [reagent.core   :as     reagent]))
 
@@ -20,7 +20,8 @@
 
 (defn buttons-demo
   []
-  (fn []
+  (fn
+    []
     [v-box
      :children [[title :label "Buttons"]
                 [gap :size "20px"]
@@ -78,40 +79,40 @@
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [checkbox
                    :label "always ticked (state stays true when you click)"
-                   :model   (= 1 1)]    ;; true means always ticked
+                   :model (= 1 1)]    ;; true means always ticked
 
                   [checkbox
                    :label "untickable (state stays false when you click)"
-                   :model   always-false]
+                   :model always-false]
 
                   [h-box
                    :gap "10px"
                    :children [[checkbox
-                               :label "tick me  "
-                               :model  ticked?
-                               :on-change  #(reset! ticked? %)]
+                               :label     "tick me  "
+                               :model     ticked?
+                               :on-change #(reset! ticked? %)]
                               (when @ticked? [left-arrow])
                               (when @ticked? [label :label " is ticked"])]]
 
                   [h-box
                    :gap "15px"
                    :children [[checkbox
-                               :label "when you tick this one, this other one is \"disabled\""
-                               :model  disabled?
-                               :on-change  #(reset! disabled? %)]
+                               :label     "when you tick this one, this other one is \"disabled\""
+                               :model     disabled?
+                               :on-change #(reset! disabled? %)]
                               [right-arrow]
                               [checkbox
-                               :label (if @disabled? "disabled" "enabled")
-                               :model  something1?
-                               :disabled disabled?
+                               :label       (if @disabled? "disabled" "enabled")
+                               :model       something1?
+                               :disabled?   disabled?
                                :label-style (if @disabled?  {:color "#888"})
-                               :on-change  #(reset! something1? %)]]]
+                               :on-change   #(reset! something1? %)]]]
 
                   [h-box
                    :gap "1px"
                    :children [[checkbox
-                               :model  something2?
-                               :on-change  #(reset! something2? %)]
+                               :model     something2?
+                               :on-change #(reset! something2? %)]
                               [gap :width "50px"]
                               [left-arrow]
                               [gap :width "5px"]
@@ -124,7 +125,7 @@
 
 (defn radios-demo
   []
-  (let [colour       (reagent/atom "green")]
+  (let [colour (reagent/atom "green")]
     (fn
       []
       [v-box
@@ -132,36 +133,57 @@
        :children [[title :label "Radio Buttons"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [v-box
-                   :gap "0px"
                    :children [(doall (for [c ["red" "green" "blue"]]       ;; Notice the ugly "doall"
                                        ^{:key c}                 ;; key should be unique within this compenent
                                        [radio-button
-                                        :label c
-                                        :value c
-                                        :model colour
-                                        :label-style  (if (= c @colour) {:color c})     ;; could use label-class
-                                        :on-change  #(reset! colour c)]))]]]])))
+                                        :label       c
+                                        :value       c
+                                        :model       colour
+                                        :label-style (if (= c @colour) {:color c})     ;; could use label-class
+                                        :on-change   #(reset! colour c)]))]]]])))
 
 (defn inputs-demo
   []
-  (fn []
-    [v-box
-     :children [[:h3.page-header "Inputs"]
-                 [:p]
-                 [:p "Should show buttons and input fields in here"]
-                 [:p "Perhaps typography"]
-                 [:p "XXX Explain that bootstrap has to be included into the html"]]]))
+  (let [text-val        (reagent/atom "text ")
+        disabled?       (reagent/atom false)
+        change-on-blur? (reagent/atom true)
+        ]
+    (fn
+      []
+      [v-box
+       :gap      "15px"
+       :children [[title :label "Inputs"]
+                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
+                  [h-box
+                   :gap      "15px"
+                   :align    :center
+                   :children [[input-text
+                               :model           text-val
+                               :placeholder     "Type something"
+                               :on-change       #(reset! text-val %)
+                               :change-on-blur? change-on-blur?
+                               :disabled?       disabled?]
+                              [checkbox
+                               :label     ":change-on-blur?"
+                               :model     change-on-blur?
+                               :on-change (fn [val]
+                                            (reset! change-on-blur? val))]
+                              [checkbox
+                               :label     ":disabled?"
+                               :model     disabled?
+                               :on-change (fn [val]
+                                            (reset! disabled? val))]
+                              [button
+                               :label    "Set model to 'blah'"
+                               :on-click #(reset! text-val "blah")]
+                              [label :label (str "'" @text-val "'")]]]]])))
 
 (defn panel
   []
   [v-box
+   :gap      "30px"
    :children [[buttons-demo]
-              [gap :height "30px"]
               [checkboxes-demo]
-              [gap :height "30px"]
               [radios-demo]
-              [gap :height "30px"]
-              [inputs-demo]]])
-
-
-
+              [inputs-demo]
+              [gap :size "50px"]]])

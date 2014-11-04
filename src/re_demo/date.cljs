@@ -9,8 +9,9 @@
     [re-com.dropdown      :refer  [single-dropdown]]
     [re-com.util          :refer  [golden-ratio-a golden-ratio-b]]))
 
-(defn- toggle-inclusion! [set-atom member]
+(defn- toggle-inclusion!
   "convenience function to include/exclude member from"
+  [set-atom member]
   (reset! set-atom
           (if (contains? @set-atom member)
             (disj @set-atom member)
@@ -68,7 +69,8 @@
                   content]])))
 
 
-(defn- date->string [date]
+(defn- date->string
+  [date]
   (unparse (formatter "dd MMM, yyyy") date))
 
 (defn- show-variant

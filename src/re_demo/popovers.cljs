@@ -41,22 +41,24 @@
                                  :style    {:font-size "small"}
                                  :children [[:div.h4 "Notes"]
                                             [:ul
-                                             [:li "You can link (anchor) a popover to arbitrary markup."]
-                                             [:li "The connection between the anchor and the popover is achieved exclusively using CSS.
-                                                   No matter how dramitcally the window is re-sized and/or controls repositioned while popped-up, it stays glued."]
-                                             [:li "To create a popover, wrap your desired anchor with the " [:code "popover-anchor-wrapper"] " function. The arguments are:"]
+                                             [:li "Popovers appear above other components, and point to an anchor."]
+                                             [:li "In the simplest case, we're talking tooltips. In more complex cases, detailed dialog boxes."]
+                                             [:li "Even when the absolute position of the anchor changes, the popover stays pointing at it."]
+                                             [:li "To create a popover, wrap the anchor with " [:code "popover-anchor-wrapper"] ". The arguments are:"]
                                              [:ul
-                                              [:li  [:code ":showing?"] " - The atom used to show/hide the popover."]
-                                              [:li  [:code ":position"] " - A position keyword specifying where the popover is attached to the anchor. See the demo to the right for the values."]
-                                              [:li  [:code ":anchor"] " - The markup of the anchor to wrap."]
-                                              [:li  [:code ":popover"] " - The markup of the popover body."]]
-                                             [:li "A helper function is available for the body, called " [:code "popover-body-wrapper"] ". The main arguments are:"]
+                                              [:li  [:code ":showing?"] " - An atom. When true, the popover shows."]
+                                              [:li  [:code ":position"] " - A keyword specifying the popover's position relative to the anchor. See the demo to the right for the values."]
+                                              [:li  [:code ":anchor"] " - The anchor component to wrap."]
+                                              [:li  [:code ":popover"] " - The popover body component (what gets shown in the popover)."]]
+                                             [:li "You should use the " [:code "popover-body-wrapper"] " component to wrap the body content. The main arguments are:"]
                                              [:ul
                                               [:li  [:code ":title"] " - Title of the popover. Can be ommitted."]
-                                              [:li  [:code ":close-button?"] " - Add close button functionality. Default is true."]
-                                              [:li  [:code ":body"] " - Body markup of the popover."]
-                                              [:li  [:code ":on-cancel"] " - The callback for when any cancel event is triggered."]
-                                              [:li  [:code ":no-clip?"] " - Prevents clipping and offset issues when popover is in scrollers. Trade-off is that it is fixed while it's popped up."]]]]]
+                                              [:li  [:code ":close-button?"] " - Add close button in the top right. Default is true."]
+                                              [:li  [:code ":body"] " - Body component of the popover."]
+                                              [:li  [:code ":on-cancel"] " - A function taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."]
+                                              [:li  [:code ":no-clip?"] " - When an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped.
+                                                                         By passing true for this parameter, re-com will use a different CSS method to show the popover.
+                                                                         This method is slightly inferior because the popover can't track the anchor if it is repositioned."]]]]]
                                 [v-box
                                  :gap      "30px"
                                  :margin   "20px 0px 0px 0px"
@@ -96,7 +98,9 @@
                                                         [v-box
                                                          :gap      "15px"
                                                          :align    :start
-                                                         :children [[label :style {:font-style "italic"} :label "parameters:"]
+                                                         :children [[label
+                                                                     :style {:font-style "italic"}
+                                                                     :label "parameters:"]
                                                                     [h-box
                                                                      :gap      "20px"
                                                                      :align    :start
@@ -152,7 +156,8 @@
                                                                     [h-box
                                                                      :gap "20px"
                                                                      :align :center
-                                                                     :children [[label :label ":position"]
+                                                                     :children [[label
+                                                                                 :label ":position"]
                                                                                 [single-dropdown
                                                                                  :choices    positions
                                                                                  :model      curr-position
@@ -169,7 +174,7 @@
         pos      :right-below]
     (fn []
       [v-box
-       :children [[title :label "Hyperlink Popover"]
+       :children [[title :label "With [hyperlink ... ] Anchor"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
@@ -177,7 +182,7 @@
                                :margin   "20px 0px 0px 0px"
                                :style    {:font-size "small"}
                                :children [[:ul
-                                           [:li "A " [:code "make-link"] " helper function is provided to make creating popover links easy. Use this for the anchor."]
+                                           [:li "The " [:code "make-link"] " component is provided to make creating popover links easy. Use this for the anchor."]
                                            [:li "This one has the " [:code ":toggle-on"] " argument of " [:code "make-link"] " set to " [:code ":click"] "."]]]]
                               [v-box
                                :gap      "30px"
@@ -240,9 +245,8 @@
                            :margin   "20px 0px 0px 0px"
                            :style    {:font-size "small"}
                            :children [[:ul
-                                       [:li "Popover-based dialogs are also possible, allowing for any number and any type of input fields or cutom input components. Here is a simple example."]
-                                       [:li "The " [:code "popover-content-wrapper"] " function is friendly to dialog coding patterns, so the cancel event code can be defined once and used
-                                             for the Cancel button, the close button in the title and when the backdrop is clicked."]]]]
+                                       [:li "Popovers can be arbitrarilary complex."]
+                                       [:li [:code "popover-content-wrapper"] " is friendly to dialog coding patterns."]]]]
                           [v-box
                            :gap      "30px"
                            :margin   "20px 0px 0px 0px"

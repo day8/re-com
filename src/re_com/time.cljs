@@ -60,15 +60,15 @@
 (defn- time->text
   "Return a string of format HH:MM for time"
   [time]
-  (let [hrs (time->hrs time)
+  (let [hrs  (time->hrs  time)
         mins (time->mins time)]
     (str (pad-zero-number hrs 2) ":" (pad-zero-number mins 2))))
 
 (defn- valid-text?
   "Return true if text passes basic time validation.
-  Can't do to much validation because user input might not be finished.
-  Why?  On the way to entering 6:30, you must pass through the invalid state of '63'.
-  So we only really check against the triple-extracting regular expression."
+   Can't do to much validation because user input might not be finished.
+   Why?  On the way to entering 6:30, you must pass through the invalid state of '63'.
+   So we only really check against the triple-extracting regular expression."
   [text]
   (= 3 (count (extract-triple-from-text text))))
 
@@ -90,7 +90,7 @@
 
 (defn- force-valid-time
   "Validate the time supplied.
-  Return either the time or, if it is invalid, return something valid."
+   Return either the time or, if it is invalid, return something valid."
   [time min max previous]
   (cond
     (nil? time) previous
@@ -101,7 +101,7 @@
 
 (defn- on-new-keypress
   "Called each time the <input> field gets a keypress, or paste operation.
-  Rests  the text-model only if the new text is valid."
+   Rests  the text-model only if the new text is valid."
   [event text-model]
   (let [current-text (-> event .-target .-value)]           ;; gets the current input field text
     (when (valid-text? current-text)
@@ -116,8 +116,8 @@
 
 (defn- on-defocus
   "Called when the field looses focus.
-  Re-validate what has been entered, comparing to mins and maxs.
-  Invoke the callback as necessary."
+   Re-validate what has been entered, comparing to mins and maxs.
+   Invoke the callback as necessary."
   [text-model min max callback previous-val]
   (let [time (text->time @text-model)
         time (force-valid-time time min max previous-val)]
@@ -144,18 +144,19 @@
 
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
-  Parameters - refer time-input-args above."
+   Parameters - refer time-input-args above."
   [& {:keys [model minimum maximum on-change class style] :as args
       :or   {minimum 0 maximum 2359}}]
 
   {:pre [(superset? time-input-args (keys args))
          (validate-arg-times (deref-or-value model) minimum maximum)]}
 
-  (let [deref-model (deref-or-value model)
-        text-model (reagent/atom (time->text deref-model))
+  (let [deref-model    (deref-or-value model)
+        text-model     (reagent/atom (time->text deref-model))
         previous-model (reagent/atom deref-model)]
 
-    (fn [& {:keys [model minimum maximum disabled? hide-border? show-icon?] :as passthrough-args}]
+    (fn
+      [& {:keys [model minimum maximum disabled? hide-border? show-icon?] :as passthrough-args}]
       (let [style (merge (when hide-border? {:border "none"})
                          style)
             new-val (deref-or-value model)
