@@ -202,21 +202,35 @@
     (let [showing? (reagent/atom false)
           pos      :right-below]
       [v-box
+       :gap      "20px"
        :children [[title :label "Hyperlinks"]
-                  [gap :size "20px"]
                   [h-box
+                   :gap      "20px"
                    :children [[popover-anchor-wrapper
                                :showing? showing?
                                :position pos
                                :anchor   [hyperlink
                                           :showing?  showing?
                                           :toggle-on :click
-                                          :label     "click link popover"]
+                                          :label     "using hyperlink"]
                                :popover [popover-content-wrapper
                                          :showing? showing?
                                          :position pos
                                          :title    "Popover Title"
                                          :body     "popover body"]]
+                              [popover-anchor-wrapper
+                               :showing? showing?
+                               :position pos
+                               :anchor   [button
+                                          :label    "using button"
+                                          :class    "btn-link"
+                                          :on-click #()]
+                               :popover [popover-content-wrapper
+                                         :showing? showing?
+                                         :position pos
+                                         :title    "Popover Title"
+                                         :body     "popover body"]]
+
                               ]]
                   ]])))
 
