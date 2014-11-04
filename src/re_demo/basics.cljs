@@ -23,7 +23,7 @@
   (fn
     []
     [v-box
-     :children [[title :label "Buttons"]
+     :children [[title :label "[button ... ]"]
                 [gap :size "20px"]
                 [h-box
                  :children [[button
@@ -70,12 +70,13 @@
         disabled?    (reagent/atom false)
         ticked?      (reagent/atom false)
         something1?  (reagent/atom false)
-        something2?  (reagent/atom true)]
+        something2?  (reagent/atom true)
+        all-for-one? (reagent/atom true)]
     (fn
       []
       [v-box
        :gap "15px"
-       :children [[title :label "Checkboxes"]
+       :children [[title :label "[checkbox ... ]"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [checkbox
                    :label "always ticked (state stays true when you click)"
@@ -95,6 +96,12 @@
                               (when @ticked? [label :label " is ticked"])]]
 
                   [h-box
+                   :gap "1px"
+                   :children [[checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)]
+                              [checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)]
+                              [checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)  :label  "all for one, and one for all.  "]]]
+
+                  [h-box
                    :gap "15px"
                    :children [[checkbox
                                :label     "when you tick this one, this other one is \"disabled\""
@@ -102,7 +109,7 @@
                                :on-change #(reset! disabled? %)]
                               [right-arrow]
                               [checkbox
-                               :label       (if @disabled? "disabled" "enabled")
+                               :label       (if @disabled? "now disabled" "enabled")
                                :model       something1?
                                :disabled?   disabled?
                                :label-style (if @disabled?  {:color "#888"})
@@ -120,9 +127,6 @@
                                :label "no label on this one"]]]]])))
 
 
-
-
-
 (defn radios-demo
   []
   (let [colour (reagent/atom "green")]
@@ -130,7 +134,7 @@
       []
       [v-box
        :gap "15px"
-       :children [[title :label "Radio Buttons"]
+       :children [[title :label "[radio-button ... ]"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [v-box
                    :children [(doall (for [c ["red" "green" "blue"]]       ;; Notice the ugly "doall"
@@ -139,44 +143,48 @@
                                         :label       c
                                         :value       c
                                         :model       colour
-                                        :label-style (if (= c @colour) {:color c})     ;; could use label-class
+                                        :label-style (if (= c @colour) {:background-color c  :color "white"})
                                         :on-change   #(reset! colour c)]))]]]])))
 
 (defn inputs-demo
   []
-  (let [text-val        (reagent/atom "text ")
+  (let [text-val        (reagent/atom nil)
         disabled?       (reagent/atom false)
-        change-on-blur? (reagent/atom true)
+        change-on-blur? (reagent/atom false)
         ]
     (fn
       []
       [v-box
        :gap      "15px"
-       :children [[title :label "Inputs"]
+       :children [[title :label "[input-text ... ]"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [h-box
-                   :gap      "15px"
-                   :align    :center
+                   :gap      "20px"
+
                    :children [[input-text
                                :model           text-val
-                               :placeholder     "Type something"
+                               :placeholder     "placeholder message"
                                :on-change       #(reset! text-val %)
                                :change-on-blur? change-on-blur?
                                :disabled?       disabled?]
-                              [checkbox
-                               :label     ":change-on-blur?"
-                               :model     change-on-blur?
-                               :on-change (fn [val]
-                                            (reset! change-on-blur? val))]
-                              [checkbox
-                               :label     ":disabled?"
-                               :model     disabled?
-                               :on-change (fn [val]
-                                            (reset! disabled? val))]
-                              [button
-                               :label    "Set model to 'blah'"
-                               :on-click #(reset! text-val "blah")]
-                              [label :label (str "'" @text-val "'")]]]]])))
+
+                              [v-box
+                               :gap "15px"
+                               :children [[label :label (str ":model is currently: '" (if @text-val @text-val "nil") "'")]
+                                          [checkbox
+                                            :label     ":change-on-blur? (when should on-change be called?  On each key press OR on-blur)"
+                                            :model     change-on-blur?
+                                            :on-change (fn [val]
+                                                         (reset! change-on-blur? val))]
+                                           [checkbox
+                                            :label     ":disabled?"
+                                            :model     disabled?
+                                            :on-change (fn [val]
+                                                         (reset! disabled? val))]
+                                           [button
+                                            :label    "Set :model to 'blah'"
+                                            :on-click #(reset! text-val "blah")]
+                                           ]]]]]])))
 
 (defn panel
   []

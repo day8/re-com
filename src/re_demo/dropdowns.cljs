@@ -54,9 +54,13 @@
 
 
 
-(def grouped-countries [{:id "AU" :label "Australia"                :group "POPULAR COUNTRIES"}
-                        {:id "US" :label "United States"            :group "POPULAR COUNTRIES"}
-                        {:id "GB" :label [:strong "United Kingdom"] :group "POPULAR COUNTRIES"}
+(def grouped-countries [{:id "AU" :label "Australia"                :group "EN Speakers"}
+                        {:id "US" :label "United States"            :group "EN Speakers"}
+                        {:id "GB" :label "United Kingdom"           :group "EN Speakers"}
+                        {:id "E1" :label "Iraq"                     :group "Updated Axis Of Evil"}
+                        {:id "E4" :label [:strong "New Zealand"]    :group "Updated Axis Of Evil"}
+                        {:id "E2" :label "Iran"                     :group "Updated Axis Of Evil"}
+                        {:id "E3" :label "North Korea"              :group "Updated Axis Of Evil"}
                         {:id "AF" :label "Afghanistan"              :group "'A' COUNTRIES"}
                         {:id "AB" :label "Albania"                  :group "'A' COUNTRIES"}
                         {:id "AG" :label "Algeria"                  :group "'A' COUNTRIES"}
@@ -94,10 +98,9 @@
 
 (defn demo1
   []
-  (let []
-    (fn []
-      [:div
-       [:p "The simple dropdown above presents a list of choices and allows one to be selected, via mouse or keyboard."]])))
+  [:div
+   [:p "The dropdown above is the simple case."]
+   [:p "It presents a list of choices and allows one to be selected, via mouse or keyboard."]])
 
 
 (defn demo2
@@ -106,11 +109,11 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[:p "The dropdown below shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'POPULAR COUNTRIES'."]
-                  [:p "This feature is triggered if any choice has a :group attribute. Typically all choices will have a :group or none will. It's up to you to ensure that choices with the same :group are adjacent together in the vector."]
-                  [:p "Because it is created with a nil model, the :placeholder text is initially displayed."]
-                  [:p ":max-width is set to make the dropdown taller."]
-                  [:p ":label can be a string or arbitrary markup. See 'United Kingdom' in this example."]
+       :children [[:p "The dropdown below shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'EN COUNTRIES'."]
+                  [:p "This feature is triggered if any choice has a :group attribute. Typically all choices will have a :group or none will. It's up to you to ensure that choices with the same :group are adjacent in the vector."]
+                  [:p "Because :model is initially nil, the :placeholder text is initially displayed."]
+                  [:p ":max-width is set here to make the dropdown taller."]
+                  [:p ":label can be a string or arbitrary markup. Notice the boldness of the 'New Zealand'."]
                   [h-box
                    :gap      "10px"
                    :align    :center
@@ -162,7 +165,7 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[:p "The dropdown component supports tab key navigation."]
+       :children [[:p "[single-dropdown ...] supports tab key navigation."]
                   [:p "The :tab-index parameter specifies position in the tab order,
                        or it can be removed from the tab order using a value of -1."]
                   [:p "Up-arrow and Down-arrow do sensible things."]
@@ -297,22 +300,22 @@
   [v-box
    :width    "500px"
    :style    {:font-size "small"}
-   :children [[:div.h4 "General notes"]
+   :children [[:div.h4 "[single-dropdown ... ]"]
               [:ul
-               [:li "To create a dropdown component, the following parameters are required:"
+               [:li "Required parameters:"
                 [:ul
-                 [:li.spacer [:code ":choices"] " - a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."]
+                 [:li.spacer [:code ":choices"] " - a vector of maps, one map for each choice. Each map contains a unique :id and a :label and can optionally include a :group."]
                  [:li.spacer [:code ":model"] " - the :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown)."]
-                 [:li.spacer [:code ":on-change"] " - a callback function taking one parameter which will be the :id of the new selection."]]]
-               [:li "The rest of the parameters are optional:"
+                 [:li.spacer [:code ":on-change"] " - a function taking one parameter which will be the :id for the new choice."]]]
+               [:li "Optional:"
                 [:ul
-                 [:li.spacer [:code ":disabled?"] " - a boolean indicating whether the control should be disabled. false if not specified."]
-                 [:li.spacer [:code ":filter-box"] " - a boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified."]
-                 [:li.spacer [:code ":regex-filter"] " - a boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified."]
-                 [:li.spacer [:code ":placeholder"] " - the text to be displayed in the dropdown if no selection has yet been made."]
+                 [:li.spacer [:code ":disabled?"] " - a boolean indicating whether the control should be disabled. Defaults to false."]
+                 [:li.spacer [:code ":filter-box"] " - a boolean. If true a filter text box is available at the top of the dropped down section. Defaults to false."]
+                 [:li.spacer [:code ":regex-filter"] " - a boolean. If true the filter text box will support JavaScript regular expressions. If false plain text searches.  Defaults to false."]
+                 [:li.spacer [:code ":placeholder"] " - the text to display in the dropdown if :model is nil."]
                  [:li.spacer [:code ":width"] " - the width of the component (e.g. \"500px\"). If not specified, all available width is taken."]
-                 [:li.spacer [:code ":max-height"] " - maximum height the dropdown will grow to. If not specified, \"240px\" is used."]
-                 [:li.spacer [:code ":tab-index"] " - the tabindex number of this component. -1 to remove from tab order. If not specified, use natural tab order."]]]]]])
+                 [:li.spacer [:code ":max-height"] " - maximum height the dropdown will grow to. Defaults to \"240px\"."]
+                 [:li.spacer [:code ":tab-index"] " - the tabindex number of this component. -1 to remove from tab order. Defaults to use natural tab order."]]]]]])
 
 
 (defn panel
@@ -320,7 +323,8 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[title :label "Single Selection Dropdowns"]
+       :gap "10px"
+       :children [[title :label "Dropdown Components"]
                   [h-box
                    :gap      "50px"
                    :children [[notes]
