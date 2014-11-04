@@ -1,6 +1,7 @@
 (ns re-demo.basics
-  (:require [re-com.core    :refer  [input-text button label spinner progress-bar checkbox radio-button title]]
+  (:require [re-com.core    :refer  [input-text button label spinner progress-bar checkbox radio-button title hyperlink]]
             [re-com.box     :refer  [h-box v-box box gap line]]
+            [re-com.popover :refer  [popover-content-wrapper popover-anchor-wrapper]]
             [reagent.core   :as     reagent]))
 
 
@@ -198,21 +199,26 @@
   []
   (fn
     []
-    [v-box
-     :children [[title :label "Hyperlinks"]
-                [gap :size "20px"]
-                [h-box
-                 :children [[button
-                             :label    "No Clicking!"
-                             ;:disabled? true
-                             :on-click #(swap! state update-in [:outcome-index] inc)
-                             :class    "btn-danger"]
-                            [box
-                             :align :center      ;; note: centered text wrt the button
-                             :child  [label
-                                      :label (nth click-outcomes (:outcome-index @state))
-                                      :style {:margin-left "15px"}]]]]
-                ]]))
+    (let [showing? (reagent/atom false)
+          pos      :right-below]
+      [v-box
+       :children [[title :label "Hyperlinks"]
+                  [gap :size "20px"]
+                  [h-box
+                   :children [[popover-anchor-wrapper
+                               :showing? showing?
+                               :position pos
+                               :anchor   [hyperlink
+                                          :showing?  showing?
+                                          :toggle-on :click
+                                          :label     "click link popover"]
+                               :popover [popover-content-wrapper
+                                         :showing? showing?
+                                         :position pos
+                                         :title    "Popover Title"
+                                         :body     "popover body"]]
+                              ]]
+                  ]])))
 
 
 (defn panel
@@ -224,4 +230,4 @@
               [radios-demo]
               [inputs-demo]
               [hyperlink-demo]
-              [gap :size "50px"]]])
+              [gap :size "100px"]]])

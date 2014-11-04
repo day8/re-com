@@ -227,7 +227,7 @@
                                                       {:style         {:background-color "lightblue"
                                                                        :border           "2px solid blue"
                                                                        :padding          "8px"
-                                                                       :cursor           "pointer"}
+                                                                       :cursor           "default"}
                                                        :on-mouse-over #(reset! showing? true)
                                                        :on-mouse-out  #(reset! showing? false)}
                                                       "hover over me"]
