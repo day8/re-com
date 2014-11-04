@@ -1,7 +1,6 @@
 (ns re-demo.basics
-  (:require [re-com.core    :refer  [input-text button label spinner progress-bar checkbox radio-button title hyperlink]]
+  (:require [re-com.core    :refer  [input-text button label spinner progress-bar checkbox radio-button title]]
             [re-com.box     :refer  [h-box v-box box gap line]]
-            [re-com.popover :refer  [popover-content-wrapper popover-anchor-wrapper]]
             [reagent.core   :as     reagent]))
 
 
@@ -29,7 +28,6 @@
                 [h-box
                  :children [[button
                              :label    "No Clicking!"
-                             ;:disabled? true
                              :on-click #(swap! state update-in [:outcome-index] inc)
                              :class    "btn-danger"]
                             [box
@@ -39,11 +37,10 @@
                                       :style {:margin-left "15px"}]]]]
 
                 [gap :size "20px"]
-                [h-box
+                [h-box             ;; I had to put the button in an h-box or else it streached out horizontally
                  :gap "50px"
                  :children [[button
                              :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
-                             ;:disabled? true
                              :on-click #(swap! state update-in [:see-spinner] not)]
                             (when (:see-spinner @state)  [spinner])]]]]))
 
@@ -78,8 +75,8 @@
       []
       [v-box
        :gap "15px"
-       :children [[title :label "Checkboxes"]
-                  [gap :size "0px"]
+       :children [[title :label "[checkbox ... ]"]
+                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [checkbox
                    :label "always ticked (state stays true when you click)"
                    :model (= 1 1)]    ;; true means always ticked
@@ -133,11 +130,11 @@
       []
       [v-box
        :gap "15px"
-       :children [[title :label "Radio Buttons"]
-                  [gap :size "0px"]
+       :children [[title :label "[radio-button ... ]"]
+                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [v-box
-                   :children [(doall (for [c ["red" "green" "blue"]]    ;; Notice the ugly "doall"
-                                       ^{:key c}                        ;; key should be unique within this compenent
+                   :children [(doall (for [c ["red" "green" "blue"]]       ;; Notice the ugly "doall"
+                                       ^{:key c}                 ;; key should be unique within this compenent
                                        [radio-button
                                         :label       c
                                         :value       c
@@ -154,6 +151,8 @@
       []
       [v-box
        :gap      "15px"
+       :children [[title :label "[input-text ... ]"]
+                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
        :children [[title :label "Inputs"]
                   [gap :size "0px"]
                   [h-box
@@ -195,45 +194,45 @@
                                            :on-click #(reset! text-val "blah")]]]]]]])))
 
 
-(defn hyperlink-demo
+(defn inputs-demo
   []
-  (fn
-    []
-    (let [showing? (reagent/atom false)
-          pos      :right-below]
+  (let [text-val        (reagent/atom nil)
+        disabled?       (reagent/atom false)
+        change-on-blur? (reagent/atom false)
+        ]
+    (fn
+      []
       [v-box
-       :gap      "20px"
-       :children [[title :label "Hyperlinks"]
+       :gap      "15px"
+       :children [[title :label "[input-text ... ]"]
+                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
                   [h-box
                    :gap      "20px"
-                   :children [[popover-anchor-wrapper
-                               :showing? showing?
-                               :position pos
-                               :anchor   [hyperlink
-                                          :showing?  showing?
-                                          :toggle-on :click
-                                          :label     "using hyperlink"]
-                               :popover [popover-content-wrapper
-                                         :showing? showing?
-                                         :position pos
-                                         :title    "Popover Title"
-                                         :body     "popover body"]]
-                              [popover-anchor-wrapper
-                               :showing? showing?
-                               :position pos
-                               :anchor   [button
-                                          :label    "using button"
-                                          :class    "btn-link"
-                                          :on-click #()]
-                               :popover [popover-content-wrapper
-                                         :showing? showing?
-                                         :position pos
-                                         :title    "Popover Title"
-                                         :body     "popover body"]]
 
-                              ]]
-                  ]])))
+                   :children [[input-text
+                               :model           text-val
+                               :placeholder     "placeholder message"
+                               :on-change       #(reset! text-val %)
+                               :change-on-blur? change-on-blur?
+                               :disabled?       disabled?]
 
+                              [v-box
+                               :gap "15px"
+                               :children [[label :label (str ":model is currently: '" (if @text-val @text-val "nil") "'")]
+                                          [checkbox
+                                           :label     ":change-on-blur? (when should on-change be called?  On each key press OR on-blur)"
+                                           :model     change-on-blur?
+                                           :on-change (fn [val]
+                                                        (reset! change-on-blur? val))]
+                                          [checkbox
+                                           :label     ":disabled?"
+                                           :model     disabled?
+                                           :on-change (fn [val]
+                                                        (reset! disabled? val))]
+                                          [button
+                                           :label    "Set :model to 'blah'"
+                                           :on-click #(reset! text-val "blah")]
+                                          ]]]]]])))
 
 (defn panel
   []
@@ -243,5 +242,4 @@
               [checkboxes-demo]
               [radios-demo]
               [inputs-demo]
-              [hyperlink-demo]
-              [gap :size "100px"]]])
+              [gap :size "50px"]]])
