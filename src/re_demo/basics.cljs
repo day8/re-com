@@ -28,6 +28,7 @@
                 [h-box
                  :children [[button
                              :label    "No Clicking!"
+                             ;:disabled? true
                              :on-click #(swap! state update-in [:outcome-index] inc)
                              :class    "btn-danger"]
                             [box
@@ -37,10 +38,11 @@
                                       :style {:margin-left "15px"}]]]]
 
                 [gap :size "20px"]
-                [h-box             ;; I had to put the button in an h-box or else it streached out horizontally
+                [h-box
                  :gap "50px"
                  :children [[button
                              :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
+                             ;:disabled? true
                              :on-click #(swap! state update-in [:see-spinner] not)]
                             (when (:see-spinner @state)  [spinner])]]]]))
 
@@ -76,7 +78,7 @@
       [v-box
        :gap "15px"
        :children [[title :label "Checkboxes"]
-                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
+                  [gap :size "0px"]
                   [checkbox
                    :label "always ticked (state stays true when you click)"
                    :model (= 1 1)]    ;; true means always ticked
@@ -131,10 +133,10 @@
       [v-box
        :gap "15px"
        :children [[title :label "Radio Buttons"]
-                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
+                  [gap :size "0px"]
                   [v-box
-                   :children [(doall (for [c ["red" "green" "blue"]]       ;; Notice the ugly "doall"
-                                       ^{:key c}                 ;; key should be unique within this compenent
+                   :children [(doall (for [c ["red" "green" "blue"]]    ;; Notice the ugly "doall"
+                                       ^{:key c}                        ;; key should be unique within this compenent
                                        [radio-button
                                         :label       c
                                         :value       c
@@ -146,37 +148,72 @@
   []
   (let [text-val        (reagent/atom "text ")
         disabled?       (reagent/atom false)
-        change-on-blur? (reagent/atom true)
-        ]
+        change-on-blur? (reagent/atom true)]
     (fn
       []
       [v-box
        :gap      "15px"
        :children [[title :label "Inputs"]
-                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
+                  [gap :size "0px"]
                   [h-box
-                   :gap      "15px"
-                   :align    :center
+                   :gap      "30px"
+                   :align    :start
                    :children [[input-text
                                :model           text-val
                                :placeholder     "Type something"
                                :on-change       #(reset! text-val %)
                                :change-on-blur? change-on-blur?
                                :disabled?       disabled?]
-                              [checkbox
-                               :label     ":change-on-blur?"
-                               :model     change-on-blur?
-                               :on-change (fn [val]
-                                            (reset! change-on-blur? val))]
-                              [checkbox
-                               :label     ":disabled?"
-                               :model     disabled?
-                               :on-change (fn [val]
-                                            (reset! disabled? val))]
-                              [button
-                               :label    "Set model to 'blah'"
-                               :on-click #(reset! text-val "blah")]
-                              [label :label (str "'" @text-val "'")]]]]])))
+                              [v-box
+                               :gap      "15px"
+                               :children [[label
+                                           :label (str "Caller value: '" @text-val "'")
+                                           :style {:margin-top "8px"}]
+                                          [label :label "parameters:"]
+                                          [v-box
+                                           :children [[label :label ":change-on-blur?"]
+                                                      [radio-button
+                                                       :label     "false - Call on-change on every keystroke"
+                                                       :value     false
+                                                       :model     @change-on-blur?
+                                                       :on-change #(reset! change-on-blur? false)
+                                                       :style     {:margin-left "20px"}]
+                                                      [radio-button
+                                                       :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
+                                                       :value     true
+                                                       :model     @change-on-blur?
+                                                       :on-change #(reset! change-on-blur? true)
+                                                       :style     {:margin-left "20px"}]]]
+                                          [checkbox
+                                           :label     ":disabled?"
+                                           :model     disabled?
+                                           :on-change (fn [val]
+                                                        (reset! disabled? val))]
+                                          [button
+                                           :label    "Set model to 'blah'"
+                                           :on-click #(reset! text-val "blah")]]]]]]])))
+
+
+(defn hyperlink-demo
+  []
+  (fn
+    []
+    [v-box
+     :children [[title :label "Hyperlinks"]
+                [gap :size "20px"]
+                [h-box
+                 :children [[button
+                             :label    "No Clicking!"
+                             ;:disabled? true
+                             :on-click #(swap! state update-in [:outcome-index] inc)
+                             :class    "btn-danger"]
+                            [box
+                             :align :center      ;; note: centered text wrt the button
+                             :child  [label
+                                      :label (nth click-outcomes (:outcome-index @state))
+                                      :style {:margin-left "15px"}]]]]
+                ]]))
+
 
 (defn panel
   []
@@ -186,4 +223,5 @@
               [checkboxes-demo]
               [radios-demo]
               [inputs-demo]
+              [hyperlink-demo]
               [gap :size "50px"]]])

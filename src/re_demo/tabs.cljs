@@ -4,7 +4,7 @@
             [re-com.box              :refer [h-box v-box box gap line scroller border]]
             [re-com.dropdown         :refer [single-dropdown]]
             [re-com.core             :refer [button label title checkbox]]
-            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs pill-tabs arrow-tabs find-tab]]))
+            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs pill-tabs find-tab]]))
 
 
 (def demos [{:id 1 :label "Tab Styles"}
@@ -31,7 +31,17 @@
       [v-box
        :children [[h-box
                    :gap "50px"
-                   :children [[v-box
+                   :children [[box
+                               :width "400px"
+                               :child [:div
+                                       [:div.h4 "Notes"]
+                                       [:ul
+                                        [:li "Tab-like controls can be styled in the 3 ways shown to the right."]
+                                        [:li "All 3 share the same state so they change in lockstep."]
+                                        [:li "Placeholder  \"Tab Contents\" (a string of text) is shown in the dotted border below. Just for effect."]
+                                        [:li "The implementation here is simple. As a result, your selection is forgotten when you change to
+                                              another panel, like Welcome (look top left)."]]]]
+                              [v-box
                                :size "100%"
                                :gap "30px"
                                :margin "20px 0px 0px 0px"
@@ -71,16 +81,12 @@
                                            :align    :center
                                            :children [[box
                                                        :width fn-name-width
-                                                       :child [:span [:code "[arrow-tabs ... ]"] " *TODO*"]]
-                                                      [arrow-tabs
-                                                       :model     selected-tab-id
-                                                       :tabs      tabs-definition
-                                                       :vertical? @vert?]]]
-                                          [border         ;; Display the tab content which, in this case, is a string extracted from the tab definition.
-                                           :border  "1px dashed grey"
-                                           :radius  "10px"
-                                           :padding "20px"
-                                           :child   [:p (:say-this (find-tab @selected-tab-id tabs-definition))]]]]]]]])))
+                                                       :child [:span ""]]
+                                                      [border         ;; Display the tab content which, in this case, is a string extracted from the tab definition.
+                                                       :border  "1px dashed grey"
+                                                       :radius  "10px"
+                                                       :padding "20px"
+                                                       :child   [:p (:say-this (find-tab @selected-tab-id tabs-definition))]]]]]]]]]])))
 
 
 (defn remembers-demo
@@ -95,8 +101,15 @@
       [v-box
        :children [[h-box
                    :gap "50px"
-                   :min-width "1000px"
-                   :children [[v-box
+                   :children [[box
+                               :width "400px"
+                               :child [:div
+                                       [:div.h4 "Notes"]
+                                       [:ul
+                                        [:li "Any tab selection you make on the right will persist."]
+                                        [:li "It is stored using HTML5's local-storage."]
+                                        [:li "Even if you refresh the entire browser page, you'll see the same selection."]]]]
+                              [v-box
                                :size "50%"
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"       ;; TODO:  decide would we prefer to use :top-margin??
@@ -115,7 +128,13 @@
       [v-box
        :children [[h-box
                    :gap "50px"
-                   :children [[v-box
+                   :children [[box
+                               :width "400px"
+                               :child [:div
+                                       [:div.h4 "Notes"]
+                                       [:ul
+                                        [:li "Click  \"Add\" for more tabs."]]]]
+                              [v-box
                                :size    "auto"
                                :margin  "20px 0px 0px 0px"        ;; TODO:  i supplied "start" (string) instead of :start and got runtime errors ... better protection
                                :align   :start
@@ -136,7 +155,7 @@
 (defn notes
   [selected-demo-id]
   [v-box
-   :width    "500px"
+   :width    "300px"
    :style    {:font-size "small"}
    :children [[:div.h4 "General notes"]
               [:ul
@@ -144,25 +163,7 @@
                 [:ul
                  [:li.spacer [:code ":model"] " - the :id of the currently selected tab - can be a value or an atom."]
                  [:li.spacer [:code ":tabs"] " - a vector of maps, one for each tab - can be a value or an atom. Each map must have an :id and :label."]
-                 [:li.spacer [:code ":vertical?"] " - should tabs be arranged horizontally or vertically - only the following tab styles support vertical: " [:code "pill-tabs"] ", " [:code "arrow-tabs"] "."]]]]
-              (case @selected-demo-id
-                1 [:div
-                   [:div.h4 "Notes"]
-                   [:ul
-                    [:li "Tab-like controls can be styled in the 3 ways shown to the right."]
-                    [:li "All 3 share the same state so they change in lockstep."]
-                    [:li "Placeholder  \"Tab Contents\" (a string of text) is shown in the dotted border below. Just for effect."]
-                    [:li "The implementation here is simple. As a result, your selection is forgotten when you change to another panel, like Welcome (look top left)."]]]
-                2 [:div
-                   [:div.h4 "Notes"]
-                   [:ul
-                    [:li "Any tab selection you make on the right will persist."]
-                    [:li "It is stored using HTML5's local-storage."]
-                    [:li "Even if you refresh the entire browser page, you'll see the same selection."]]]
-                3 [:div
-                   [:div.h4 "Notes"]
-                   [:ul
-                    [:li "Click  \"Add\" for more tabs."]]])]])
+                 [:li.spacer [:code ":vertical?"] " - should tabs be arranged horizontally or vertically - only " [:code "pill-tabs"] " support vertical."]]]]]])
 
 
 (defn panel
@@ -177,7 +178,7 @@
                               [v-box
                                :gap       "15px"
                                :size      "auto"
-                               :min-width "500px"
+                               ;:min-width "500px"
                                :margin    "20px 0px 0px 0px"
                                :children  [[h-box
                                             :gap      "10px"

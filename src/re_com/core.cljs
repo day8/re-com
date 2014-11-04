@@ -65,15 +65,15 @@
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model))
         [:input
-         {:type        "text"
-          :placeholder placeholder
-          :value       @internal-model
-          :disabled    (when disabled? true)
-          :class       (str "rc-input-text form-control " class)
+         {:class       (str "rc-input-text form-control " class)
+          :type        "text"
           :style       (merge
                          {:flex "none"}
                          {:width (if width width "250px")}
                          style)
+          :placeholder placeholder
+          :value       @internal-model
+          :disabled    disabled?
           :on-change   #(when (and on-change (not disabled?))
                          (reset! internal-model (-> % .-target .-value))
                          (when-not change-on-blur?
@@ -107,12 +107,15 @@
       :or   {:class "btn-default"}
       :as   args}]
   {:pre [(superset? button-args (keys args))]}
-  (let [disabled?   (deref-or-value disabled?)
-        callback-fn (if (and on-click (not disabled?)) #(on-click))]
+  (let [disabled?   (deref-or-value disabled?)]
     [:button
      {:class    (str "rc-button btn " class)
-      :style    (merge {:flex "none" :align-self "flex-start"} style)
-      :on-click callback-fn}
+      :style    (merge
+                  {:flex "none" :align-self "flex-start"}
+                  style)
+      :disabled disabled?
+      :on-click #(if (and on-click (not disabled?))
+                  (on-click))}
      label]))
 
 
@@ -196,6 +199,41 @@
                              :class label-class
                              :style label-style
                              :on-click callback-fn])]]))
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: hyperlink
+;;--------------------------------------------------------------------------------------------------
+
+(def hyperlink-args
+  #{:showing?   ;; The atom used to hide/show the popover.
+    :toggle-on  ;; Determine how to show popover:
+                ;;  - :mouse  Make this a hover popover (tooltip)
+                ;;  - :click  Make it a click popover
+    :label      ;; Label for the link.
+    :style      ;; Custom style for the link.
+    })
+
+
+(defn hyperlink
+  "Renders a link designed to go into a popover.
+   It provides the functionality to either toggle the popover when the button is pressed or show/hide
+   on houseover/mouseout."
+  [& {:keys [showing? toggle-on label style] :as args}]
+  {:pre [(superset? hyperlink-args (keys args))]}
+  (let [show   #(reset! showing? true)
+        hide   #(reset! showing? false)
+        toggle #(swap! showing? not)]
+    [:a
+     (merge {:class "rc-hyperlink"}
+            {:style (merge {:flex "inherit"
+                            :cursor (if (= toggle-on :mouse) "help" "pointer")}
+                           style)}
+            (if (= toggle-on :mouse)
+              {:on-mouse-over show
+               :on-mouse-out  hide}
+              {:on-click      toggle}))
+     label]))
 
 
 ;; ------------------------------------------------------------------------------------
