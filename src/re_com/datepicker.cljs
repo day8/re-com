@@ -11,7 +11,7 @@
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box]]
     [re-com.util          :refer [deref-or-value]]
-    [re-com.popover       :refer [popover-content-wrapper popover-anchor-wrapper make-button backdrop popover-border]]))
+    [re-com.popover       :refer [popover-content-wrapper popover-anchor-wrapper backdrop popover-border]]))
 
 ;; --- cljs-time facades ------------------------------------------------------
 ;; TODO: from day8date should be a common lib

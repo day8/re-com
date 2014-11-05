@@ -210,14 +210,14 @@
             callback         #(do
                                (reset! internal-model %)
                                (when changeable (on-change @internal-model))
-                               (reset! drop-showing? (not @drop-showing?)) ;; toggle to allow opening dropdown on Enter key
+                               (swap! drop-showing? not) ;; toggle to allow opening dropdown on Enter key
                                (reset! filter-text ""))
             cancel           #(do
                                (reset! drop-showing? false)
                                (reset! filter-text "")
                                (reset! internal-model @external-model))
             dropdown-click   #(when-not disabled?
-                               (reset! drop-showing? (not @drop-showing?)))
+                               (swap! drop-showing? not))
             filtered-choices (if regex-filter
                                (filter-choices-regex choices @filter-text)
                                (filter-choices choices @filter-text))

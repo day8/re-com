@@ -1,7 +1,7 @@
 (ns re-demo.popovers
-  (:require [re-com.core                 :refer [label button checkbox title]]
+  (:require [re-com.core                 :refer [label button checkbox title hyperlink]]
             [re-com.box                  :refer [h-box v-box box gap line scroller border]]
-            [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper make-link]]
+            [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
             [re-com.dropdown             :refer [single-dropdown]]
             [reagent.core                :as    reagent]))
@@ -76,7 +76,7 @@
                                                                      :position @curr-position
                                                                      :anchor   [button
                                                                                 :label (if @showing? "Pop-down" "Click me")
-                                                                                :on-click #(reset! showing? (not @showing?))
+                                                                                :on-click #(swap! showing? not)
                                                                                 :class "btn-success"]
                                                                      :popover  [popover-content-wrapper
                                                                                 :showing?         showing?
@@ -182,15 +182,15 @@
                                :margin   "20px 0px 0px 0px"
                                :style    {:font-size "small"}
                                :children [[:ul
-                                           [:li "The " [:code "make-link"] " component is provided to make creating popover links easy. Use this for the anchor."]
-                                           [:li "This one has the " [:code ":toggle-on"] " argument of " [:code "make-link"] " set to " [:code ":click"] "."]]]]
+                                           [:li "The " [:code "hyperlink"] " component is provided to make creating popover links easy. Use this for the anchor."]
+                                           [:li "This one has the " [:code ":toggle-on"] " argument of " [:code "hyperlink"] " set to " [:code ":click"] "."]]]]
                               [v-box
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
                                :children [[popover-anchor-wrapper
                                            :showing? showing?
                                            :position pos
-                                           :anchor   [make-link
+                                           :anchor   [hyperlink
                                                       :showing?  showing?
                                                       :toggle-on :click
                                                       :label     "click link popover"]
@@ -215,23 +215,26 @@
                                :margin   "20px 0px 0px 0px"
                                :style    {:font-size "small"}
                                :children [[:ul
-                                           [:li "This one has the " [:code ":toggle-on"] " argument of the helper function set to " [:code ":mouse"] "."]
-                                           [:li "Also note that the  " [:code ":title"] " argument of the  " [:code "popover-content-wrapper"]
-                                            " function is omitted, so none is shown."]]]]
+                                           [:li "TBA..."]
+                                           ]]]
                               [v-box
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
                                :children [[popover-anchor-wrapper
                                            :showing? showing?
                                            :position pos
-                                           :anchor   [make-link
-                                                      :showing?  showing?
-                                                      :toggle-on :mouse
-                                                      :label     "tooltip popover"]
+                                           :anchor   [:div
+                                                      {:style         {:background-color "lightblue"
+                                                                       :border           "2px solid blue"
+                                                                       :padding          "8px"
+                                                                       :cursor           "default"}
+                                                       :on-mouse-over #(reset! showing? true)
+                                                       :on-mouse-out  #(reset! showing? false)}
+                                                      "hover over me"]
                                            :popover [popover-content-wrapper
-                                                     :showing?      showing?
-                                                     :position      pos
-                                                     :body          "popover body (without a title specified) makes a great tooltip component"]]]]]]]])))
+                                                     :showing? showing?
+                                                     :position pos
+                                                     :body     "popover body (without a title specified) makes a great tooltip component"]]]]]]]])))
 
 
 (defn complex-popover-demo

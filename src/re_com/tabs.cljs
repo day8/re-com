@@ -116,7 +116,7 @@
 ;; Component: arrow-tabs
 ;;--------------------------------------------------------------------------------------------------
 
-(defn arrow-tabs
+#_(defn arrow-tabs
   [& {:keys [model tabs vertical?]
       :as   args}]
   {:pre [(superset? tabs-args (keys args))]}
