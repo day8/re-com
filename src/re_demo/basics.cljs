@@ -79,13 +79,8 @@
       []
       [v-box
        :gap "15px"
-<<<<<<< Temporary merge branch 1
        :children [[title :label "[checkbox ... ]"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
-=======
-       :children [[title :label "Checkboxes"]
-                  [gap :size "0px"]
->>>>>>> Temporary merge branch 2
                   [checkbox
                    :label "always ticked (state stays true when you click)"
                    :model (= 1 1)]    ;; true means always ticked
@@ -142,13 +137,8 @@
       []
       [v-box
        :gap "15px"
-<<<<<<< Temporary merge branch 1
        :children [[title :label "[radio-button ... ]"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
-=======
-       :children [[title :label "Radio Buttons"]
-                  [gap :size "0px"]
->>>>>>> Temporary merge branch 2
                   [v-box
                    :children [(doall (for [c ["red" "green" "blue"]]    ;; Notice the ugly "doall"
                                        ^{:key c}                        ;; key should be unique within this compenent
@@ -161,57 +151,24 @@
 
 (defn inputs-demo
   []
-  (let [text-val        (reagent/atom nil)
+  (let [text-val        (reagent/atom "text ")
         disabled?       (reagent/atom false)
-<<<<<<< Temporary merge branch 1
-        change-on-blur? (reagent/atom false)
-        ]
-=======
         change-on-blur? (reagent/atom true)]
->>>>>>> Temporary merge branch 2
     (fn
       []
       [v-box
        :gap      "15px"
-<<<<<<< Temporary merge branch 1
-       :children [[title :label "[input-text ... ]"]
-                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
-                  [h-box
-                   :gap      "20px"
-
-=======
        :children [[title :label "Inputs"]
                   [gap :size "0px"]
                   [h-box
-                   :gap      "30px"
-                   :align    :start
->>>>>>> Temporary merge branch 2
+                   :gap      "15px"
+                   :align    :center
                    :children [[input-text
                                :model           text-val
-                               :placeholder     "placeholder message"
+                               :placeholder     "Type something"
                                :on-change       #(reset! text-val %)
                                :change-on-blur? change-on-blur?
                                :disabled?       disabled?]
-<<<<<<< Temporary merge branch 1
-
-                              [v-box
-                               :gap "15px"
-                               :children [[label :label (str ":model is currently: '" (if @text-val @text-val "nil") "'")]
-                                          [checkbox
-                                            :label     ":change-on-blur? (when should on-change be called?  On each key press OR on-blur)"
-                                            :model     change-on-blur?
-                                            :on-change (fn [val]
-                                                         (reset! change-on-blur? val))]
-                                           [checkbox
-                                            :label     ":disabled?"
-                                            :model     disabled?
-                                            :on-change (fn [val]
-                                                         (reset! disabled? val))]
-                                           [button
-                                            :label    "Set :model to 'blah'"
-                                            :on-click #(reset! text-val "blah")]
-                                           ]]]]]])))
-=======
                               [v-box
                                :gap      "15px"
                                :children [[label
@@ -240,6 +197,48 @@
                                           [button
                                            :label    "Set model to 'blah'"
                                            :on-click #(reset! text-val "blah")]]]]]]])))
+
+
+(defn inputs-demo-mike
+  []
+  (let [text-val        (reagent/atom nil)
+        disabled?       (reagent/atom false)
+        change-on-blur? (reagent/atom false)
+        ]
+    (fn
+      []
+      [v-box
+       :gap      "15px"
+       :children [[title :label "[input-text ... ]"]
+                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
+                  [h-box
+                   :gap      "20px"
+
+                   :children [[input-text
+                               :model           text-val
+                               :placeholder     "placeholder message"
+                               :on-change       #(reset! text-val %)
+                               :change-on-blur? change-on-blur?
+                               :disabled?       disabled?]
+
+                              [v-box
+                               :gap "15px"
+                               :children [[label :label (str ":model is currently: '" (if @text-val @text-val "nil") "'")]
+                                          [checkbox
+                                           :label     ":change-on-blur? (when should on-change be called?  On each key press OR on-blur)"
+                                           :model     change-on-blur?
+                                           :on-change (fn [val]
+                                                        (reset! change-on-blur? val))]
+                                          [checkbox
+                                           :label     ":disabled?"
+                                           :model     disabled?
+                                           :on-change (fn [val]
+                                                        (reset! disabled? val))]
+                                          [button
+                                           :label    "Set :model to 'blah'"
+                                           :on-click #(reset! text-val "blah")]
+                                          ]]]]]])))
+
 
 
 (defn hyperlink-demo
@@ -281,7 +280,6 @@
                               ]]
                   ]])))
 
->>>>>>> Temporary merge branch 2
 
 (defn panel
   []
@@ -291,5 +289,6 @@
               [checkboxes-demo]
               [radios-demo]
               [inputs-demo]
+              [inputs-demo-mike]
               [hyperlink-demo]
               [gap :size "100px"]]])
