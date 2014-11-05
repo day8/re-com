@@ -14,8 +14,8 @@
    :children [[title :label "Re-Com"]
               [gap :size "20px"]
 
-              [:p "Re-com is a high level ClojureScript UI framework. It builts on top of "
-               [hyperlink "Reagent" "https://github.com/holmsand/reagent"]
+              [:p "Re-com is a library of ClojureScript UI components."
+               [hyperlink "Github Repo" "https://github.com/holmsand/reagent"]
                ", which is itself built atop "
                [hyperlink "React" "http://facebook.github.io/react/"]
                "."]
