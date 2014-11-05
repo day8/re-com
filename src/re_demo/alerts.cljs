@@ -8,7 +8,7 @@
 
 
 (def demos [{:id 1 :label "alert-box"}
-            {:id 3 :label "alert-list"}])
+            {:id 2 :label "alert-list"}])
 
 
 (defn demo1
@@ -54,15 +54,6 @@
         :body       [:span "This is the :body of an danger-styled alert with :closeable? omitted (defaults to false). " [:a {:href "http://google.com" :target "_blank"} "Link to Google"]]]])))
 
 
-(defn demo2
-  []
-  (let []
-    (fn []
-      [:div
-
-       ])))
-
-
 (defn add-alert
   [alerts alerts-count alert-type {:keys [heading body]}]
   (let [id    (swap! alerts-count inc)
@@ -70,7 +61,7 @@
     (reset! alerts (insert-nth @alerts 0 alert))))
 
 
-(defn demo3
+(defn demo2
   []
   (let [alerts       (reagent/atom [])
         alerts-count (reagent/atom 0)]
@@ -146,5 +137,4 @@
                                            [gap :size "0px"]       ;; will cause double the normal gap
                                            (case @selected-demo-id
                                              1 [demo1]
-                                             2 [demo2]
-                                             3 [demo3])]]]]]])))
+                                             2 [demo2])]]]]]])))

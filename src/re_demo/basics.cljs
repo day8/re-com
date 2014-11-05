@@ -1,8 +1,7 @@
 (ns re-demo.basics
-  (:require [re-com.core    :refer  [input-text button label spinner progress-bar checkbox radio-button title hyperlink]]
-            [re-com.box     :refer  [h-box v-box box gap line]]
-            [re-com.popover :refer  [popover-content-wrapper popover-anchor-wrapper]]
-            [reagent.core   :as     reagent]))
+  (:require [re-com.core  :refer [input-text button label spinner progress-bar checkbox radio-button title hyperlink]]
+            [re-com.box   :refer [h-box v-box box gap line]]
+            [reagent.core :as    reagent]))
 
 
 (def click-outcomes
@@ -64,7 +63,6 @@
    [:line {:x1 "5" :y1 "10" :x2 "20" :y2 "10"
            :style {:stroke "#888"}}]
    [:polygon {:points "5,6 5,14 0,10" :style {:stroke "#888" :fill "#888"}}]])
-
 
 
 (defn checkboxes-demo
@@ -149,6 +147,7 @@
                                         :label-style (if (= c @colour) {:background-color c  :color "white"})
                                         :on-change   #(reset! colour c)]))]]]])))
 
+
 (defn inputs-demo
   []
   (let [text-val        (reagent/atom nil)
@@ -194,49 +193,128 @@
                                            :on-change (fn [val]
                                                         (reset! disabled? val))]
                                           [button
-                                           :label    "Set model to 'blah'"
+                                           :label    "Set external model to 'blah'"
                                            :on-click #(reset! text-val "blah")]]]]]]])))
 
 
 (defn hyperlink-demo
   []
-  (fn
-    []
-    (let [showing? (reagent/atom false)
-          showing2? (reagent/atom false)
-          pos      :right-below]
+  (let [disabled? (reagent/atom false)
+        target    (reagent/atom "_blank")
+        href?     (reagent/atom true)]
+    (fn
+      []
       [v-box
-       :gap      "20px"
-       :children [[title :label "[hyperlink ...]"]
+       :gap "15px"
+       :children [[title :label "[hyperlink ... ]"]
+                  [gap :size "0px"]
                   [h-box
-                   :gap      "20px"
-                   :children [[popover-anchor-wrapper
-                               :showing? showing?
-                               :position pos
-                               :anchor   [hyperlink
-                                          :showing?  showing?
-                                          :toggle-on :click
-                                          :label     "using hyperlink"]
-                               :popover [popover-content-wrapper
-                                         :showing? showing?
-                                         :position pos
-                                         :title    "Popover Title"
-                                         :body     "popover body"]]
-                              [popover-anchor-wrapper
-                               :showing? showing2?
-                               :position pos
-                               :anchor   [button
-                                          :label    "using button"
-                                          :class    "btn-link"
-                                          :on-click #(swap! showing2? not)]
-                               :popover [popover-content-wrapper
-                                         :showing? showing2?
-                                         :position pos
-                                         :title    "Popover Title"
-                                         :body     "popover body"]]
+                   :gap "15px"
+                   :children [[box
+                               :width "100px"
+                               :child [hyperlink
+                                       :label     (if @disabled? "now disabled" (if @href? "Launch Google" "Call back"))
+                                       :href      (when href? "http://google.com")
+                                       :target    (when href? target)
+                                       :on-click  #(when-not href? println "CLICKED!")
+                                       :disabled? disabled?]]
+                              [v-box
+                               :gap "15px"
+                               :children [[label :label "parameters:"]
+                                          [v-box
+                                           :children [[label :label "When clicked:"]
+                                                      [radio-button
+                                                       :label "href - load a URL"
+                                                       :value true
+                                                       :model @href?
+                                                       :on-change #(reset! href? true)
+                                                       :style {:margin-left "20px"}]
+                                                      [radio-button
+                                                       :label "on-click - call back"
+                                                       :value false
+                                                       :model @href?
+                                                       :on-change #(reset! href? false)
+                                                       :style {:margin-left "20px"}]]]
+                                          (when @href?
+                                            [v-box
+                                             :children [[label :label ":target"]
+                                                        [radio-button
+                                                         :label "_self - load link into same tab"
+                                                         :value "_self"
+                                                         :model @target
+                                                         :on-change #(reset! target "_self")
+                                                         :style {:margin-left "20px"}]
+                                                        [radio-button
+                                                         :label "_blank - load link inot new tab"
+                                                         :value "_blank"
+                                                         :model @target
+                                                         :on-change #(reset! target "_blank")
+                                                         :style {:margin-left "20px"}]]])
+                                          [checkbox
+                                           :label ":disabled?"
+                                           :model disabled?
+                                           :on-change (fn [val]
+                                                        (reset! disabled? val))]]]]]]])))
 
-                              ]]
-                  ]])))
+
+(defn slider-demo
+  []
+  (let [disabled? (reagent/atom false)
+        target    (reagent/atom "_blank")
+        href?     (reagent/atom true)]
+    (fn
+      []
+      [v-box
+       :gap "15px"
+       :children [[title :label "[slider ... ] TBA..."]
+                  [gap :size "0px"]
+                  [h-box
+                   :gap "15px"
+                   :children [[box
+                               :width "100px"
+                               :child [hyperlink
+                                       :label     (if @disabled? "now disabled" (if @href? "Launch Google" "Call back"))
+                                       :href      (when href? "http://google.com")
+                                       :target    (when href? target)
+                                       :on-click  #(when-not href? println "CLICKED!")
+                                       :disabled? disabled?]]
+                              [v-box
+                               :gap "15px"
+                               :children [[label :label "parameters:"]
+                                          [v-box
+                                           :children [[label :label "When clicked:"]
+                                                      [radio-button
+                                                       :label "href - load a URL"
+                                                       :value true
+                                                       :model @href?
+                                                       :on-change #(reset! href? true)
+                                                       :style {:margin-left "20px"}]
+                                                      [radio-button
+                                                       :label "on-click - call back"
+                                                       :value false
+                                                       :model @href?
+                                                       :on-change #(reset! href? false)
+                                                       :style {:margin-left "20px"}]]]
+                                          (when @href?
+                                            [v-box
+                                             :children [[label :label ":target"]
+                                                        [radio-button
+                                                         :label "_self - load link into same tab"
+                                                         :value "_self"
+                                                         :model @target
+                                                         :on-change #(reset! target "_self")
+                                                         :style {:margin-left "20px"}]
+                                                        [radio-button
+                                                         :label "_blank - load link inot new tab"
+                                                         :value "_blank"
+                                                         :model @target
+                                                         :on-change #(reset! target "_blank")
+                                                         :style {:margin-left "20px"}]]])
+                                          [checkbox
+                                           :label ":disabled?"
+                                           :model disabled?
+                                           :on-change (fn [val]
+                                                        (reset! disabled? val))]]]]]]])))
 
 
 (defn panel
@@ -248,4 +326,5 @@
               [radios-demo]
               [inputs-demo]
               [hyperlink-demo]
+              [slider-demo]
               [gap :size "100px"]]])

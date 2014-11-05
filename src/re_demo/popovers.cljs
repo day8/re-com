@@ -33,7 +33,7 @@
     (fn []
       (let [cancel-popover #(reset! showing? false)]
         [v-box
-         :children [[title :label "Button Popover"]
+         :children [[title :label "With [button ... ] Anchor"]
                     [h-box
                      :gap      "50px"
                      :children [[v-box
@@ -75,7 +75,7 @@
                                                                      :showing? showing?
                                                                      :position @curr-position
                                                                      :anchor   [button
-                                                                                :label (if @showing? "Pop-down" "Click me")
+                                                                                :label (if @showing? "pop-down" "click me")
                                                                                 :on-click #(swap! showing? not)
                                                                                 :class "btn-success"]
                                                                      :popover  [popover-content-wrapper
@@ -182,8 +182,7 @@
                                :margin   "20px 0px 0px 0px"
                                :style    {:font-size "small"}
                                :children [[:ul
-                                           [:li "The " [:code "hyperlink"] " component is provided to make creating popover links easy. Use this for the anchor."]
-                                           [:li "This one has the " [:code ":toggle-on"] " argument of " [:code "hyperlink"] " set to " [:code ":click"] "."]]]]
+                                           [:li "The " [:code "hyperlink"] " component is useful for creating link popovers. Use it as the anchor."]]]]
                               [v-box
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
@@ -191,14 +190,13 @@
                                            :showing? showing?
                                            :position pos
                                            :anchor   [hyperlink
-                                                      :showing?  showing?
-                                                      :toggle-on :click
-                                                      :label     "click link popover"]
-                                           :popover [popover-content-wrapper
-                                                     :showing? showing?
-                                                     :position pos
-                                                     :title    "Popover Title"
-                                                     :body     "popover body"]]]]]]]])))
+                                                      :label     "click me for popover"
+                                                      :on-click  #(swap! showing? not)]
+                                           :popover  [popover-content-wrapper
+                                                      :showing? showing?
+                                                      :position pos
+                                                      :title    "Popover Title"
+                                                      :body     "popover body"]]]]]]]])))
 
 
 (defn proximity-popover-demo
@@ -215,8 +213,8 @@
                                :margin   "20px 0px 0px 0px"
                                :style    {:font-size "small"}
                                :children [[:ul
-                                           [:li "TBA..."]
-                                           ]]]
+                                           [:li "Popovers can be used to create hover tooltips on any component. This example uses a " [:code "[:div]"] "."]
+                                           [:li "Simply set the " [:code "on-mouse-over"] " and " [:code "on-mouse-out"] " events to show/hide the popover."]]]]
                               [v-box
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
@@ -230,7 +228,7 @@
                                                                        :cursor           "default"}
                                                        :on-mouse-over #(reset! showing? true)
                                                        :on-mouse-out  #(reset! showing? false)}
-                                                      "hover over me"]
+                                                      "hover here for tooltip"]
                                            :popover [popover-content-wrapper
                                                      :showing? showing?
                                                      :position pos

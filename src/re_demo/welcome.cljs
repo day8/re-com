@@ -1,36 +1,46 @@
 (ns re-demo.welcome
   (:require [reagent.core :as reagent]
-            [re-com.core  :refer [title]]
+            [re-com.core  :refer [title hyperlink]]
             [re-com.box   :refer [h-box v-box box gap]]))
-
-(defn hyperlink
-  [text href]
-  [:a {:href href :target "_blank"} text])
 
 
 (defn panel
   []
   [v-box
    :children [[title :label "Re-Com"]
-              [gap :size "20px"]
-
+              [gap :size "15px"]
               [:p "Re-com is a high level ClojureScript UI framework. It builts on top of "
-               [hyperlink "Reagent" "https://github.com/holmsand/reagent"]
+               [hyperlink
+                :label  "Reagent"
+                :href   "https://github.com/holmsand/reagent"
+                :target "_blank"]
                ", which is itself built atop "
-               [hyperlink "React" "http://facebook.github.io/react/"]
+               [hyperlink
+                :label  "React"
+                :href   "http://facebook.github.io/react/"
+                :target "_blank"]
                "."]
               [:p "In a nutshell, Re-com contains the kind of layout and widgetry you'd need to build a desktop-class app
-               in an environment like "
-               [hyperlink "node-webkit" "https://github.com/rogerwang/node-webkit"]
+                   in an environment like "
+               [hyperlink
+                :label  "node-webkit"
+                :href   "https://github.com/rogerwang/node-webkit"
+                :target "_blank"]
                " or "
-               [hyperlink "atom-shell" "https://github.com/atom/atom-shell" ]
+               [hyperlink
+                :label  "atom-shell"
+                :href   "https://github.com/atom/atom-shell"
+                :target "_blank"]
                ". It may even be useful for Chrome app developement."]
 
               [:p "What Re-com Is currently missing:"]
               [:ul
                [:li
                 "A good \"combobox\" widget - think  "
-                [hyperlink "Bootstrap + Choosen" "http://alxlit.name/bootstrap-chosen/" ]]
+                [hyperlink
+                 :label  "Bootstrap + Choosen"
+                 :href   "http://alxlit.name/bootstrap-chosen/"
+                 :target "_blank"]]
                [:li "A tree widget"]
                [:li
                 "A grid.  HTML is excellent at small grids, so no problem there. "
@@ -50,39 +60,45 @@
                 "time"]
                [:li
                 "how do we do testing?  Look in inspiration in "
-                [hyperlink "omchaya" "https://github.com/sgrove/omchaya/"]
-                ]]
+                [hyperlink
+                 :label  "omchaya"
+                 :href   "https://github.com/sgrove/omchaya/"
+                 :target "_blank"]]]
 
-
-               [:p "What Re-com Is Not:"]
+              [:p "What Re-com Is Not:"]
               [:ul
                [:li
                 "Because it rellies heavily on "
-                [hyperlink "Flex Box" "https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Flexible_boxes" ]
+                [hyperlink
+                 :label  "Flex Box"
+                 :href   "https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Flexible_boxes"
+                 :target "_blank"]
                 " , re-com currently only works on Chrome, Firefox or IE11. So, for the next few years, that makes it a poor fit for apps targeting"
                 " the retail web which is rife with flexbox-less wastelands like IE10 and IE9."]
 
                [:li "None of the components have been designed with mobile in mind and there's certainly no attempt to morph based on media queries etc."]]
 
-              [gap :height 15]
+              [gap :size "15px"]
               [:p "It makes use of:"]
               [:ul
-               [:li "CSS from " [hyperlink "Bootstrap" "http://getbootstrap.com/" ]]
-               [:li "CSS from " [hyperlink "Bootstrap + Choosen" "http://alxlit.name/bootstrap-chosen/" ]]]
+               [:li "CSS from " [hyperlink
+                                 :label  "Bootstrap"
+                                 :href   "http://getbootstrap.com/"
+                                 :target "_blank"]]
+               [:li "CSS from " [hyperlink
+                                 :label  "Bootstrap + Choosen"
+                                 :href   "http://alxlit.name/bootstrap-chosen/"
+                                 :target "_blank"]]]
 
-
-
-              [gap :height 20]
-
+              [gap :size "15px"]
               [:p "Reagent tutorials and further explanation:"]
 
               [:ul
-               [:li [:a
-                     {:href "https://github.com/holmsand/reagent/tree/master/examples"
-                      :target "_blank"}
-                     "The official examples"]]
-               [:li [:p
-                     [:a
-                      {:href "https://github.com/jonase/reagent-tutorial"
-                       :target "_blank"}
-                      "The om tutorial port - By Jonas Enlund"]]]]]])
+               [:li [hyperlink
+                     :label  "The official examples"
+                     :href   "https://github.com/holmsand/reagent/tree/master/examples"
+                     :target "_blank"]]
+               [:li [hyperlink
+                     :label  "The om tutorial port - By Jonas Enlund"
+                     :href   "https://github.com/jonase/reagent-tutorial"
+                     :target "_blank"]]]]])

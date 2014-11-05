@@ -121,12 +121,12 @@
 (defn- filter-text-box-base
   "Base function (before lifecycle metadata) to render a filter text box."
   []
-  (fn [filter-box filter-text key-handler drop-showing?]
+  (fn [filter-box? filter-text key-handler drop-showing?]
     [:div.chosen-search
      [:input
       {:type          "text"
        :auto-complete "off"
-       :style         (when-not filter-box {:position "absolute" ;; When no filter box required, use it but hide it off screen
+       :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
                                             :left     "0px"
                                             :top      "-7770px"})
        :value         @filter-text
@@ -148,8 +148,8 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
-      (let [_ (reagent/set-state (reagent/current-component) {:filter-box filter-box})]
+      [internal-model choices tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
+      (let [_ (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})]
         [:a.chosen-single.chosen-default
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
           :tab-index     (when tab-index tab-index)
@@ -180,8 +180,8 @@
     :model          ; The :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown).
     :on-change      ; A callback function taking one parameter which will be the :id of the new selection.
     :disabled?      ; A boolean indicating whether the control should be disabled. false if not specified.
-    :filter-box     ; A boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified.
-    :regex-filter   ; A boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified.
+    :filter-box?    ; A boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified.
+    :regex-filter?  ; A boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified.
     :placeholder    ; The text to be displayed in the dropdown if no selection has yet been made.
     :width          ; The width of the component (e.g. "500px"). If not specified, all available width is taken.
     :max-height     ; Maximum height the dropdown will grow to. If not specified, "240px" is used.
@@ -197,19 +197,19 @@
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
         filter-text    (reagent/atom "")]
-    (fn [& {:keys [choices model on-change disabled? filter-box regex-filter placeholder width max-height tab-index] :as args}]
+    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index] :as args}]
       {:pre [(superset? single-dropdown-args (keys args))]}
       (let [choices          (deref-or-value choices)
             disabled?        (deref-or-value disabled?)
-            regex-filter     (deref-or-value regex-filter)
+            regex-filter?    (deref-or-value regex-filter?)
             latest-ext-model (reagent/atom (deref-or-value model))
             _                (when (not= @external-model @latest-ext-model) ;; Has model changed externally?
                                (reset! external-model @latest-ext-model)
                                (reset! internal-model @latest-ext-model))
-            changeable       (and on-change (not disabled?))
+            changeable?      (and on-change (not disabled?))
             callback         #(do
                                (reset! internal-model %)
-                               (when changeable (on-change @internal-model))
+                               (when changeable? (on-change @internal-model))
                                (swap! drop-showing? not) ;; toggle to allow opening dropdown on Enter key
                                (reset! filter-text ""))
             cancel           #(do
@@ -218,7 +218,7 @@
                                (reset! internal-model @external-model))
             dropdown-click   #(when-not disabled?
                                (swap! drop-showing? not))
-            filtered-choices (if regex-filter
+            filtered-choices (if regex-filter?
                                (filter-choices-regex choices @filter-text)
                                (filter-choices choices @filter-text))
             press-enter      (fn []
@@ -233,7 +233,7 @@
                                 (if disabled?
                                   (cancel)
                                   (do                ;; Was (callback @internal-model) but needed a customised version
-                                    (when changeable (on-change @internal-model))
+                                    (when changeable? (on-change @internal-model))
                                     (reset! drop-showing? false)
                                     (reset! filter-text "")))
                                 (reset! drop-showing? false)
@@ -264,17 +264,17 @@
                                  40 (press-down)
                                  36 (press-home)
                                  35 (press-end)
-                                 filter-box))] ;; Use this boolean to allow/prevent the key from being processed by the text box
+                                 filter-box?))] ;; Use this boolean to allow/prevent the key from being processed by the text box
         [:div
          {:class (str "rc-dropdown chosen-container chosen-container-single" (when @drop-showing? " chosen-container-active chosen-with-drop"))
           :style {:flex       (if width "0 0 auto" "auto")
                   :align-self "flex-start"
                   :width      (when width width)
                   :-webkit-user-select "none"}} ;; Prevent user text selection
-         [dropdown-top internal-model choices tab-index placeholder dropdown-click key-handler filter-box drop-showing?]
+         [dropdown-top internal-model choices tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
          (when (and @drop-showing? (not disabled?))
            [:div.chosen-drop
-            [filter-text-box filter-box filter-text key-handler drop-showing?]
+            [filter-text-box filter-box? filter-text key-handler drop-showing?]
             [:ul.chosen-results
              (when max-height {:style {:max-height max-height}})
              (if (-> filtered-choices count pos?)
