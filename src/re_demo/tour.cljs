@@ -2,17 +2,12 @@
   (:require [re-com.util     :as    util]
             [re-com.core     :refer [button label input-text checkbox title]]
             [re-com.box      :refer [h-box v-box box gap]]
-            [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [re-com.tour     :refer [make-tour start-tour make-tour-nav]]
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
             [reagent.core    :as    reagent]))
 
 
-(def demos [{:id 1 :label "Basic example (remove this popover?)"}
-            {:id 2 :label "Other variations"}])
-
-
-(defn demo1
+(defn demo
   []
   (let [demo-tour (make-tour [:step1 :step2 :step3 :step4])]
     (fn []
@@ -23,6 +18,7 @@
         :height   "150px"
         :gap      "30px"
         :align    :start
+        :margin   "80px 0px 0px 0px"
         :children [[popover-anchor-wrapper
                     :showing? (:step1 demo-tour)
                     :position :above-center
@@ -107,12 +103,13 @@
                [:li "To create a tour component, do the following:"
                 [:ul
                  [:li.spacer "Make a tour object, declaring all the steps in your tour."]
-                 [:li.spacer "For example: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"]]
+                 [:li.spacer "For example: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
                  [:li.spacer "Wrap all the components in your tour with a popover component."]
-                 [:li.spacer "The popover " [:code ":showing?"] " parameter should look like this: " [:br] [:code ":showing? (:step1 demo-tour)"]]
-                 [:li.spacer "To add navigation buttons to the popover, add the following component to the end of your popover's " [:code ":body"] " markup: " [:br] [:code "[make-tour-nav demo-tour]"]]
-                 [:li.spacer "To start the tour, call: " [:code "(start-tour demo-tour)"]]
-                 [:li.spacer "To finish the tour, call: " [:code "(finish-tour demo-tour)"]]]]]]])
+                 [:li.spacer "The popover " [:code ":showing?"] " parameter should look like this: " [:br] [:code ":showing? (:step1 demo-tour)"] "."]
+                 [:li.spacer "To add navigation buttons to the popover, add the following component to the end of your popover's "
+                  [:code ":body"] " markup: " [:br] [:code "[make-tour-nav demo-tour]"] "."]
+                 [:li.spacer "To start the tour, call: " [:code "(start-tour demo-tour)"] "."]
+                 [:li.spacer "To finish the tour, call: " [:code "(finish-tour demo-tour)"] "."]]]]]])
 
 
 (defn panel
@@ -125,20 +122,8 @@
                    :gap      "50px"
                    :children [[notes]
                               [v-box
-                               :gap       "15px"
+                               :gap       "150px"
                                :size      "auto"
                                :min-width "500px"
                                :margin    "20px 0px 0px 0px"
-                               :children  [[h-box
-                                            :gap      "10px"
-                                            :align    :center
-                                            :children [[label :label "Select a demo"]
-                                                       [single-dropdown
-                                                        :choices   demos
-                                                        :model     selected-demo-id
-                                                        :width     "300px"
-                                                        :on-change #(reset! selected-demo-id %)]]]
-                                           [gap :size "0px"] ;; Force a bit more space here
-                                           (case @selected-demo-id
-                                             1 [demo1]
-                                             2 [demo2])]]]]]])))
+                               :children  [[demo]]]]]]])))

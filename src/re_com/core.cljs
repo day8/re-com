@@ -22,12 +22,11 @@
   [& {:keys [label on-click class style]
       :as   args}]
   {:pre [(superset? label-args (keys args))]}
-
   [:span
    (merge
      {:class (str "rc-label " class)
       :style (merge {:flex "none"} style)}
-     (when on-click {:on-click #(do (println "click") (on-click))}))
+     (when on-click {:on-click #(on-click)}))
    label])
 
 
@@ -93,11 +92,11 @@
 ;; ------------------------------------------------------------------------------------
 
 (def button-args
-  #{:label      ;; Label for the button (can be artitrary markup)
-    :on-click   ;; Callback when the button is clicked
-    :disabled?  ;; Set to true to disable the button
-    :class      ;; Class string. e.g. "btn-info" (see: http://getbootstrap.com/css/#buttons)
-    :style      ;; CSS style map
+  #{:label      ;; Label for the button (can be artitrary markup).
+    :on-click   ;; Callback when the button is clicked.
+    :disabled?  ;; Set to true to disable the button.
+    :class      ;; Class string. e.g. "btn-info" (see: http://getbootstrap.com/css/#buttons).
+    :style      ;; CSS style map.
     })
 
 
@@ -111,11 +110,55 @@
     [:button
      {:class    (str "rc-button btn " class)
       :style    (merge
-                  {:flex "none" :align-self "flex-start"}
+                  {:flex       "none"
+                   :align-self "flex-start"}
                   style)
       :disabled disabled?
       :on-click #(if (and on-click (not disabled?))
                   (on-click))}
+     label]))
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: hyperlink
+;;--------------------------------------------------------------------------------------------------
+
+(def hyperlink-args
+  #{:label      ;; Label for the button (can be artitrary markup).
+    :href       ;; If specified, which URL to jump to when clicked.
+    :target     ;; A string representing where to load href:
+                ;;   - _self   - open in same window/tab (the default).
+                ;;   - _blank  - open in new window/tab.
+                ;;   - _parent - open in parent window.
+    :on-click   ;; Callback when the hyperlink is clicked.
+    :disabled?  ;; Set to true to disable the hyperlink.
+    :class      ;; Class string.
+    :style      ;; CSS style map.
+    })
+
+
+(defn hyperlink
+  "Renders an underlined text hyperlink component.
+   This is very similar to the button component above but styled to looks like a hyperlink.
+   Useful for providing button functionality for less important functions, e.g. Cancel."
+  [& {:keys [label href target on-click disabled? class style] :as args}]
+  {:pre [(superset? hyperlink-args (keys args))]}
+  (let [label     (deref-or-value label)
+        href      (deref-or-value href)
+        target    (deref-or-value target)
+        disabled? (deref-or-value disabled?)]
+    [:a
+     (merge
+       {:class    (str "rc-hyperlink " class)
+        :style    (merge
+                    {:flex       "inherit"
+                     :align-self "flex-start"
+                     :cursor     (if disabled? "not-allowed" "pointer")}
+                    style)}
+       (when-not disabled? {:href     (when-not disabled? href) ;; Move back out of merge if can't get working.
+                            :target   target
+                            :on-click #(if (and on-click (not disabled?))
+                                        (on-click))}))
      label]))
 
 
@@ -140,23 +183,26 @@
   [& {:keys [model on-change label disabled? style label-class label-style]
       :as   args}]
   {:pre [(superset? checkbox-args (keys args))]}
-
-  (let [model       (deref-or-value model)
+  (let [cursor      "default"
+        model       (deref-or-value model)
         disabled?   (deref-or-value disabled?)
         callback-fn (if (and on-change (not disabled?)) #(on-change (not model)))]     ;; call on-change with either true or false
     [h-box
-     :gap "8px"     ;; between the tickbox and the label
+     :gap      "8px"     ;; between the tickbox and the label
+     :style    {:-webkit-user-select "none"} ;; Prevent user text selection
      :children [[:input
                  {:class     "rc-checkbox"
                   :type      "checkbox"
-                  :style     (merge {:flex "none"} style)
+                  :style     (merge {:flex "none"
+                                     :cursor cursor}
+                                    style)
                   :disabled  disabled?
                   :checked   model
                   :on-change callback-fn}]
                 (when label [re-com.core/label
                              :label label
                              :class label-class
-                             :style label-style
+                             :style (merge {:cursor cursor} label-style)
                              :on-click callback-fn])]]))    ;; ticking on the label is the same as clicking on the checkbox
 
 
@@ -181,59 +227,28 @@
   [& {:keys [model value label on-change disabled? style label-class label-style]
       :as   args}]
   {:pre [(superset? radio-button-args (keys args))]}
-
-  (let [model       (deref-or-value model)
+  (let [cursor      "default"
+        model       (deref-or-value model)
         disabled?   (deref-or-value disabled?)
         callback-fn (if (and on-change (not disabled?)) #(on-change value))]
     [h-box
-     :gap "8px"     ;; between the tickbox and the label
+     :gap      "8px"     ;; between the tickbox and the label
+     :style    {:-webkit-user-select "none"} ;; Prevent user text selection
      :children [[:input
                  {:class     "rc-radio-button"
                   :type      "radio"
-                  :style     (merge {:flex "none"} style)     ;; add in flex child style, so it can sit in a vbox
+                  :style     (merge
+                               {:flex   "none"  ;; add in flex child style, so it can sit in a vbox
+                                :cursor cursor}
+                               style)
                   :disabled  disabled?
                   :checked   (= model value)
                   :on-change callback-fn}]
                 (when label [re-com.core/label
                              :label label
                              :class label-class
-                             :style label-style
+                             :style (merge {:cursor cursor} label-style)
                              :on-click callback-fn])]]))
-
-
-;;--------------------------------------------------------------------------------------------------
-;; Component: hyperlink
-;;--------------------------------------------------------------------------------------------------
-
-(def hyperlink-args
-  #{:showing?   ;; The atom used to hide/show the popover.
-    :toggle-on  ;; Determine how to show popover:
-                ;;  - :mouse  Make this a hover popover (tooltip)
-                ;;  - :click  Make it a click popover
-    :label      ;; Label for the link.
-    :style      ;; Custom style for the link.
-    })
-
-
-(defn hyperlink
-  "Renders a link designed to go into a popover.
-   It provides the functionality to either toggle the popover when the button is pressed or show/hide
-   on houseover/mouseout."
-  [& {:keys [showing? toggle-on label style] :as args}]
-  {:pre [(superset? hyperlink-args (keys args))]}
-  (let [show   #(reset! showing? true)
-        hide   #(reset! showing? false)
-        toggle #(swap! showing? not)]
-    [:a
-     (merge {:class "rc-hyperlink"}
-            {:style (merge {:flex "inherit"
-                            :cursor (if (= toggle-on :mouse) "help" "pointer")}
-                           style)}
-            (if (= toggle-on :mouse)
-              {:on-mouse-over show
-               :on-mouse-out  hide}
-              {:on-click      toggle}))
-     label]))
 
 
 ;; ------------------------------------------------------------------------------------
