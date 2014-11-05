@@ -1,6 +1,7 @@
 (ns re-demo.basics
-  (:require [re-com.core    :refer  [input-text button label spinner progress-bar checkbox radio-button title]]
+  (:require [re-com.core    :refer  [input-text button label spinner progress-bar checkbox radio-button title hyperlink]]
             [re-com.box     :refer  [h-box v-box box gap line]]
+            [re-com.popover :refer  [popover-content-wrapper popover-anchor-wrapper]]
             [reagent.core   :as     reagent]))
 
 
@@ -23,11 +24,12 @@
   (fn
     []
     [v-box
-     :children [[title :label "Buttons"]
+     :children [[title :label "[button ... ]"]
                 [gap :size "20px"]
                 [h-box
                  :children [[button
                              :label    "No Clicking!"
+                             ;:disabled? true
                              :on-click #(swap! state update-in [:outcome-index] inc)
                              :class    "btn-danger"]
                             [box
@@ -37,10 +39,11 @@
                                       :style {:margin-left "15px"}]]]]
 
                 [gap :size "20px"]
-                [h-box             ;; I had to put the button in an h-box or else it streached out horizontally
+                [h-box
                  :gap "50px"
                  :children [[button
                              :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
+                             ;:disabled? true
                              :on-click #(swap! state update-in [:see-spinner] not)]
                             (when (:see-spinner @state)  [spinner])]]]]))
 
@@ -70,13 +73,19 @@
         disabled?    (reagent/atom false)
         ticked?      (reagent/atom false)
         something1?  (reagent/atom false)
-        something2?  (reagent/atom true)]
+        something2?  (reagent/atom true)
+        all-for-one? (reagent/atom true)]
     (fn
       []
       [v-box
        :gap "15px"
+<<<<<<< Temporary merge branch 1
        :children [[title :label "[checkbox ... ]"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
+=======
+       :children [[title :label "Checkboxes"]
+                  [gap :size "0px"]
+>>>>>>> Temporary merge branch 2
                   [checkbox
                    :label "always ticked (state stays true when you click)"
                    :model (= 1 1)]    ;; true means always ticked
@@ -95,6 +104,12 @@
                               (when @ticked? [label :label " is ticked"])]]
 
                   [h-box
+                   :gap "1px"
+                   :children [[checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)]
+                              [checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)]
+                              [checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)  :label  "all for one, and one for all.  "]]]
+
+                  [h-box
                    :gap "15px"
                    :children [[checkbox
                                :label     "when you tick this one, this other one is \"disabled\""
@@ -102,7 +117,7 @@
                                :on-change #(reset! disabled? %)]
                               [right-arrow]
                               [checkbox
-                               :label       (if @disabled? "disabled" "enabled")
+                               :label       (if @disabled? "now disabled" "enabled")
                                :model       something1?
                                :disabled?   disabled?
                                :label-style (if @disabled?  {:color "#888"})
@@ -120,9 +135,6 @@
                                :label "no label on this one"]]]]])))
 
 
-
-
-
 (defn radios-demo
   []
   (let [colour (reagent/atom "green")]
@@ -130,40 +142,76 @@
       []
       [v-box
        :gap "15px"
+<<<<<<< Temporary merge branch 1
        :children [[title :label "[radio-button ... ]"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
+=======
+       :children [[title :label "Radio Buttons"]
+                  [gap :size "0px"]
+>>>>>>> Temporary merge branch 2
                   [v-box
-                   :children [(doall (for [c ["red" "green" "blue"]]       ;; Notice the ugly "doall"
-                                       ^{:key c}                 ;; key should be unique within this compenent
+                   :children [(doall (for [c ["red" "green" "blue"]]    ;; Notice the ugly "doall"
+                                       ^{:key c}                        ;; key should be unique within this compenent
                                        [radio-button
                                         :label       c
                                         :value       c
                                         :model       colour
-                                        :label-style (if (= c @colour) {:color c})     ;; could use label-class
+                                        :label-style (if (= c @colour) {:background-color c  :color "white"})
                                         :on-change   #(reset! colour c)]))]]]])))
 
 (defn inputs-demo
   []
-  (let [text-val        (reagent/atom "text ")
+  (let [text-val        (reagent/atom nil)
         disabled?       (reagent/atom false)
+<<<<<<< Temporary merge branch 1
+        change-on-blur? (reagent/atom false)
+        ]
+=======
         change-on-blur? (reagent/atom true)]
+>>>>>>> Temporary merge branch 2
     (fn
       []
       [v-box
        :gap      "15px"
+<<<<<<< Temporary merge branch 1
        :children [[title :label "[input-text ... ]"]
                   [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
+                  [h-box
+                   :gap      "20px"
+
+=======
        :children [[title :label "Inputs"]
                   [gap :size "0px"]
                   [h-box
                    :gap      "30px"
                    :align    :start
+>>>>>>> Temporary merge branch 2
                    :children [[input-text
                                :model           text-val
-                               :placeholder     "Type something"
+                               :placeholder     "placeholder message"
                                :on-change       #(reset! text-val %)
                                :change-on-blur? change-on-blur?
                                :disabled?       disabled?]
+<<<<<<< Temporary merge branch 1
+
+                              [v-box
+                               :gap "15px"
+                               :children [[label :label (str ":model is currently: '" (if @text-val @text-val "nil") "'")]
+                                          [checkbox
+                                            :label     ":change-on-blur? (when should on-change be called?  On each key press OR on-blur)"
+                                            :model     change-on-blur?
+                                            :on-change (fn [val]
+                                                         (reset! change-on-blur? val))]
+                                           [checkbox
+                                            :label     ":disabled?"
+                                            :model     disabled?
+                                            :on-change (fn [val]
+                                                         (reset! disabled? val))]
+                                           [button
+                                            :label    "Set :model to 'blah'"
+                                            :on-click #(reset! text-val "blah")]
+                                           ]]]]]])))
+=======
                               [v-box
                                :gap      "15px"
                                :children [[label
@@ -194,45 +242,46 @@
                                            :on-click #(reset! text-val "blah")]]]]]]])))
 
 
-(defn inputs-demo
+(defn hyperlink-demo
   []
-  (let [text-val        (reagent/atom nil)
-        disabled?       (reagent/atom false)
-        change-on-blur? (reagent/atom false)
-        ]
-    (fn
-      []
+  (fn
+    []
+    (let [showing? (reagent/atom false)
+          pos      :right-below]
       [v-box
-       :gap      "15px"
-       :children [[title :label "[input-text ... ]"]
-                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
+       :gap      "20px"
+       :children [[title :label "Hyperlinks"]
                   [h-box
                    :gap      "20px"
+                   :children [[popover-anchor-wrapper
+                               :showing? showing?
+                               :position pos
+                               :anchor   [hyperlink
+                                          :showing?  showing?
+                                          :toggle-on :click
+                                          :label     "using hyperlink"]
+                               :popover [popover-content-wrapper
+                                         :showing? showing?
+                                         :position pos
+                                         :title    "Popover Title"
+                                         :body     "popover body"]]
+                              [popover-anchor-wrapper
+                               :showing? showing?
+                               :position pos
+                               :anchor   [button
+                                          :label    "using button"
+                                          :class    "btn-link"
+                                          :on-click #()]
+                               :popover [popover-content-wrapper
+                                         :showing? showing?
+                                         :position pos
+                                         :title    "Popover Title"
+                                         :body     "popover body"]]
 
-                   :children [[input-text
-                               :model           text-val
-                               :placeholder     "placeholder message"
-                               :on-change       #(reset! text-val %)
-                               :change-on-blur? change-on-blur?
-                               :disabled?       disabled?]
+                              ]]
+                  ]])))
 
-                              [v-box
-                               :gap "15px"
-                               :children [[label :label (str ":model is currently: '" (if @text-val @text-val "nil") "'")]
-                                          [checkbox
-                                           :label     ":change-on-blur? (when should on-change be called?  On each key press OR on-blur)"
-                                           :model     change-on-blur?
-                                           :on-change (fn [val]
-                                                        (reset! change-on-blur? val))]
-                                          [checkbox
-                                           :label     ":disabled?"
-                                           :model     disabled?
-                                           :on-change (fn [val]
-                                                        (reset! disabled? val))]
-                                          [button
-                                           :label    "Set :model to 'blah'"
-                                           :on-click #(reset! text-val "blah")]
-                                          ]]]]]])))
+>>>>>>> Temporary merge branch 2
 
 (defn panel
   []
@@ -242,4 +291,5 @@
               [checkboxes-demo]
               [radios-demo]
               [inputs-demo]
-              [gap :size "50px"]]])
+              [hyperlink-demo]
+              [gap :size "100px"]]])
