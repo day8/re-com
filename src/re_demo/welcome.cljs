@@ -9,7 +9,7 @@
   [v-box
    :children [[title :label "Re-Com"]
               [gap :size "15px"]
-              [:p "Re-com is a high level ClojureScript UI framework. It builts on top of "
+              [:p "Re-com is a library of ClojureScript UI components."
                [hyperlink
                 :label  "Reagent"
                 :href   "https://github.com/holmsand/reagent"
