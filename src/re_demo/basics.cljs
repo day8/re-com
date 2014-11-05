@@ -151,28 +151,27 @@
 
 (defn inputs-demo
   []
-  (let [text-val        (reagent/atom "text ")
+  (let [text-val        (reagent/atom nil)
         disabled?       (reagent/atom false)
         change-on-blur? (reagent/atom true)]
     (fn
       []
       [v-box
        :gap      "15px"
-       :children [[title :label "Inputs"]
+       :children [[title :label "[input-text ... ]"]
                   [gap :size "0px"]
                   [h-box
                    :gap      "15px"
-                   :align    :center
                    :children [[input-text
                                :model           text-val
-                               :placeholder     "Type something"
+                               :placeholder     "placeholder message"
                                :on-change       #(reset! text-val %)
                                :change-on-blur? change-on-blur?
                                :disabled?       disabled?]
                               [v-box
                                :gap      "15px"
                                :children [[label
-                                           :label (str "Caller value: '" @text-val "'")
+                                           :label (str "external :model is currently: '" (if @text-val @text-val "nil") "'")
                                            :style {:margin-top "8px"}]
                                           [label :label "parameters:"]
                                           [v-box
@@ -199,57 +198,16 @@
                                            :on-click #(reset! text-val "blah")]]]]]]])))
 
 
-(defn inputs-demo-mike
-  []
-  (let [text-val        (reagent/atom nil)
-        disabled?       (reagent/atom false)
-        change-on-blur? (reagent/atom false)
-        ]
-    (fn
-      []
-      [v-box
-       :gap      "15px"
-       :children [[title :label "[input-text ... ]"]
-                  [gap :size "0px"]                         ;; Double the 15px gap from the parent v-box
-                  [h-box
-                   :gap      "20px"
-
-                   :children [[input-text
-                               :model           text-val
-                               :placeholder     "placeholder message"
-                               :on-change       #(reset! text-val %)
-                               :change-on-blur? change-on-blur?
-                               :disabled?       disabled?]
-
-                              [v-box
-                               :gap "15px"
-                               :children [[label :label (str ":model is currently: '" (if @text-val @text-val "nil") "'")]
-                                          [checkbox
-                                           :label     ":change-on-blur? (when should on-change be called?  On each key press OR on-blur)"
-                                           :model     change-on-blur?
-                                           :on-change (fn [val]
-                                                        (reset! change-on-blur? val))]
-                                          [checkbox
-                                           :label     ":disabled?"
-                                           :model     disabled?
-                                           :on-change (fn [val]
-                                                        (reset! disabled? val))]
-                                          [button
-                                           :label    "Set :model to 'blah'"
-                                           :on-click #(reset! text-val "blah")]
-                                          ]]]]]])))
-
-
-
 (defn hyperlink-demo
   []
   (fn
     []
     (let [showing? (reagent/atom false)
+          showing2? (reagent/atom false)
           pos      :right-below]
       [v-box
        :gap      "20px"
-       :children [[title :label "Hyperlinks"]
+       :children [[title :label "[hyperlink ...]"]
                   [h-box
                    :gap      "20px"
                    :children [[popover-anchor-wrapper
@@ -265,14 +223,14 @@
                                          :title    "Popover Title"
                                          :body     "popover body"]]
                               [popover-anchor-wrapper
-                               :showing? showing?
+                               :showing? showing2?
                                :position pos
                                :anchor   [button
                                           :label    "using button"
                                           :class    "btn-link"
-                                          :on-click #()]
+                                          :on-click #(swap! showing2? not)]
                                :popover [popover-content-wrapper
-                                         :showing? showing?
+                                         :showing? showing2?
                                          :position pos
                                          :title    "Popover Title"
                                          :body     "popover body"]]
@@ -289,6 +247,5 @@
               [checkboxes-demo]
               [radios-demo]
               [inputs-demo]
-              [inputs-demo-mike]
               [hyperlink-demo]
               [gap :size "100px"]]])
