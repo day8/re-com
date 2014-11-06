@@ -1,5 +1,5 @@
 (ns re-demo.basics
-  (:require [re-com.core  :refer [input-text button label spinner progress-bar checkbox radio-button title hyperlink]]
+  (:require [re-com.core  :refer [input-text button hyperlink label spinner progress-bar checkbox radio-button title slider]]
             [re-com.box   :refer [h-box v-box box gap line]]
             [reagent.core :as    reagent]))
 
@@ -160,9 +160,10 @@
        :children [[title :label "[input-text ... ]"]
                   [gap :size "0px"]
                   [h-box
-                   :gap      "15px"
+                   :gap      "40px"
                    :children [[input-text
                                :model           text-val
+                               :width           "200px"
                                :placeholder     "placeholder message"
                                :on-change       #(reset! text-val %)
                                :change-on-blur? change-on-blur?
@@ -209,9 +210,9 @@
        :children [[title :label "[hyperlink ... ]"]
                   [gap :size "0px"]
                   [h-box
-                   :gap "15px"
+                   :gap "40px"
                    :children [[box
-                               :width "100px"
+                               :width "200px"
                                :child [hyperlink
                                        :label     (if @disabled? "now disabled" (if @href? "Launch Google" "Call back"))
                                        :href      (when href? "http://google.com")
@@ -259,57 +260,66 @@
 
 (defn slider-demo
   []
-  (let [disabled? (reagent/atom false)
-        target    (reagent/atom "_blank")
-        href?     (reagent/atom true)]
+  (let [slider-val (reagent/atom 0)
+        slider-min (reagent/atom 0)
+        slider-max (reagent/atom 100)
+        disabled?  (reagent/atom false)]
     (fn
       []
       [v-box
        :gap "15px"
-       :children [[title :label "[slider ... ] TBA..."]
+       :children [[title :label "[slider ... ]"]
                   [gap :size "0px"]
                   [h-box
-                   :gap "15px"
-                   :children [[box
-                               :width "100px"
-                               :child [hyperlink
-                                       :label     (if @disabled? "now disabled" (if @href? "Launch Google" "Call back"))
-                                       :href      (when href? "http://google.com")
-                                       :target    (when href? target)
-                                       :on-click  #(when-not href? println "CLICKED!")
-                                       :disabled? disabled?]]
+                   :gap "40px"
+                   :children [[v-box
+                               :gap      "10px"
+                               :children [[slider
+                                           :model     slider-val
+                                           :min       slider-min
+                                           :max       slider-max
+                                           :width     "200px"
+                                           :on-change #(reset! slider-val %)
+                                           :disabled? disabled?]]]
                               [v-box
-                               :gap "15px"
+                               :gap      "15px"
                                :children [[label :label "parameters:"]
-                                          [v-box
-                                           :children [[label :label "When clicked:"]
-                                                      [radio-button
-                                                       :label "href - load a URL"
-                                                       :value true
-                                                       :model @href?
-                                                       :on-change #(reset! href? true)
-                                                       :style {:margin-left "20px"}]
-                                                      [radio-button
-                                                       :label "on-click - call back"
-                                                       :value false
-                                                       :model @href?
-                                                       :on-change #(reset! href? false)
-                                                       :style {:margin-left "20px"}]]]
-                                          (when @href?
-                                            [v-box
-                                             :children [[label :label ":target"]
-                                                        [radio-button
-                                                         :label "_self - load link into same tab"
-                                                         :value "_self"
-                                                         :model @target
-                                                         :on-change #(reset! target "_self")
-                                                         :style {:margin-left "20px"}]
-                                                        [radio-button
-                                                         :label "_blank - load link inot new tab"
-                                                         :value "_blank"
-                                                         :model @target
-                                                         :on-change #(reset! target "_blank")
-                                                         :style {:margin-left "20px"}]]])
+                                          [h-box
+                                           :gap      "10px"
+                                           :align    :center
+                                           :children [[label
+                                                       :label ":model"
+                                                       :style {:width "60px"}]
+                                                      [input-text
+                                                       :model           slider-val
+                                                       :width           "70px"
+                                                       :height          "26px"
+                                                       :on-change       #(reset! slider-val %)
+                                                       :change-on-blur? false]]]
+                                          [h-box
+                                           :gap      "10px"
+                                           :align    :center
+                                           :children [[label
+                                                       :label ":min"
+                                                       :style {:width "60px"}]
+                                                      [input-text
+                                                       :model           slider-min
+                                                       :width           "70px"
+                                                       :height          "26px"
+                                                       :on-change       #(reset! slider-min %)
+                                                       :change-on-blur? false]]]
+                                          [h-box
+                                           :gap      "10px"
+                                           :align    :center
+                                           :children [[label
+                                                       :label ":max"
+                                                       :style {:width "60px"}]
+                                                      [input-text
+                                                       :model           slider-max
+                                                       :width           "70px"
+                                                       :height          "26px"
+                                                       :on-change       #(reset! slider-max %)
+                                                       :change-on-blur? false]]]
                                           [checkbox
                                            :label ":disabled?"
                                            :model disabled?

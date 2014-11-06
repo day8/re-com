@@ -33,7 +33,7 @@
     (fn []
       (let [cancel-popover #(reset! showing? false)]
         [v-box
-         :children [[title :label "With [button ... ] Anchor"]
+         :children [[title :label "[popover ... ] with [button ... ] anchor"]
                     [h-box
                      :gap      "50px"
                      :children [[v-box
@@ -174,7 +174,7 @@
         pos      :right-below]
     (fn []
       [v-box
-       :children [[title :label "With [hyperlink ... ] Anchor"]
+       :children [[title :label "[popover ... ] with [hyperlink ... ] anchor"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box

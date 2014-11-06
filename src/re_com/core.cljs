@@ -37,7 +37,8 @@
 (def input-text-args
   #{:model           ;; Text of the input (can be atom or value).
     :placeholder     ;; Text to show when there is no under text in the component.
-    :width           ;; Standard CSS width setting for this input.
+    :width           ;; Standard CSS width setting for this input. Default is 250px.
+    :height          ;; Standard CSS width setting for this input. Default is 34px as set in Bootstrap style.
     :on-change       ;; A function which takes one parameter, which is the new text (see :change-on-blur?).
     :change-on-blur? ;; When true, invoke on-change function on blur, otherwise on every change (character by character).
     :disabled?       ;; Set to true to disable the input box (can be atom or value).
@@ -53,7 +54,7 @@
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom @external-model)]        ;; Create a new atom from the model to be used internally
     (fn
-      [& {:keys [model placeholder width on-change change-on-blur? disabled? class style]
+      [& {:keys [model placeholder width height on-change change-on-blur? disabled? class style]
           :or   {change-on-blur? true}
           :as   args}]
       {:pre [(superset? input-text-args (keys args))]}
@@ -67,8 +68,10 @@
          {:class       (str "rc-input-text form-control " class)
           :type        "text"
           :style       (merge
-                         {:flex "none"}
-                         {:width (if width width "250px")}
+                         {:flex "none"
+                          :width (if width width "250px")
+                          :height (when height height)
+                          :-webkit-user-select "none"}
                          style)
           :placeholder placeholder
           :value       @internal-model
@@ -150,15 +153,20 @@
     [:a
      (merge
        {:class    (str "rc-hyperlink " class)
+        :disabled disabled?                                 ;; TODO: Unfortunately this is ignored AND my method doesn't work either :-(
         :style    (merge
-                    {:flex       "inherit"
-                     :align-self "flex-start"
-                     :cursor     (if disabled? "not-allowed" "pointer")}
+                    {:flex                "inherit"
+                     :align-self          "flex-start"
+                     :cursor              (if disabled? "not-allowed" "pointer")
+                     :-webkit-user-select "none"}
                     style)}
        (when-not disabled? {:href     (when-not disabled? href) ;; Move back out of merge if can't get working.
                             :target   target
                             :on-click #(if (and on-click (not disabled?))
-                                        (on-click))}))
+                                        (on-click)
+                                        ;(.preventDefault %) ;; TODO: Here's the possible solution of the false below
+                                        ;false
+                                        )}))
      label]))
 
 
@@ -249,6 +257,49 @@
                              :class label-class
                              :style (merge {:cursor cursor} label-style)
                              :on-click callback-fn])]]))
+
+
+;; ------------------------------------------------------------------------------------
+;;  Component: slider
+;; ------------------------------------------------------------------------------------
+
+(def slider-args
+  #{:model           ;; Current value of the slider. Can be value or atom.
+    :min             ;; The minimum value of the slider. Default is 0. Can be value or atom.
+    :max             ;; The maximum value of the slider. Default is 100. Can be value or atom.
+    :width           ;; Standard CSS width setting for the slider. Default is 400px.
+    :on-change       ;; A function which takes one parameter, which is the new value of the slider.
+    :disabled?       ;; Set to true to disable the slider. Can be value or atom.
+    :class           ;; Class string.
+    :style           ;; CSS style map.
+    })
+
+
+(defn slider
+  "Returns markup for an HTML5 slider input."
+  []
+  (fn
+    [& {:keys [model min max width on-change disabled? class style]
+        :or   {min 0 max 100}
+        :as   args}]
+    {:pre [(superset? slider-args (keys args))]}
+    (let [model     (deref-or-value model)
+          min       (deref-or-value min)
+          max       (deref-or-value max)
+          disabled? (deref-or-value disabled?)]
+      [:input
+       {:class     (str "rc-slider " class)
+        :type      "range"
+        :style     (merge
+                     {:flex   "none"
+                      :width  (if width width "400px")
+                      :cursor (if disabled? "not-allowed" "default")}
+                     style)
+        :min       min
+        :max       max
+        :value     model
+        :disabled  disabled?
+        :on-change #(on-change (-> % .-target .-value))}])))
 
 
 ;; ------------------------------------------------------------------------------------
