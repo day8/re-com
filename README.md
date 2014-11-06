@@ -1,22 +1,26 @@
+
+
 # re-com
 
-A library of ClojureScript UI components, built on top of Dan Holmsand's terrific [Reagent](http://holmsand.github.io/reagent) 
+A library of ClojureScript UI components. 
+
+Built on top of Dan Holmsand's terrific [Reagent](http://holmsand.github.io/reagent) 
 which, in turn, is built on Facebook's equally brilliant [React](http://facebook.github.io/react). 
 
 
-# Overview
+## Overview
 
 Re-com contains:
-* familiar UI widgetry: dropdowns, date pickers, popovers, tabs, etc.
-* layout components:  can stack widgets in vertical and horizontal
- ways, and which nest.  Then there's dragable splitters, etc.  
+* familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.
+* layout components which can stack widgets in vertical and horizontal
+ ways, and which can nest.  Then there's dragable splitters, etc.  
 
 In short, the sort of stuff you'd need to build a desktop-class app. Some components are still missing, 
 so it is still a work in progress. 
 
 The layouts and components work harmoniously together (except for occasional bouts of English-soccer-hooligan-like hostility).
 
-# Are You Sure You Want To Be Here?
+## Are You Sure You Want To Be Here?
 
 We're a bit new to a lot here including HTML5, javascipt, ClojureScript, and FRP (functional reactive programming). 
 Yep.  Worried?  You have been warned.
@@ -25,17 +29,17 @@ Despite all that we'll probably talk with great authority and certainty, and hol
 
 A substrate of React and Reagent bestows great benefits, but it also posed us some
 challenges. For example, most javascript libs we looked at do 
-popovers by adding new absolutely positioned <div>s directly to the <body> element. We couldn't do that - not if 
+popovers by adding new absolutely positioned `<div>s` directly to the `<body>` element. We couldn't do that - not if 
 we wanted to abide by the ClojureScript, React/Reagent FRP-ish, immutable, dataflow rules.   
 
 We've done our best and 
-it does seem to hang together rather nicely, despite some quirks.  There may well be better ways.
+it does seem to hang together fairly nicely, despite some quirks.  There may well be better ways.
 
 
-# Warning: This Might Not Be For You
+## Warning: This Might Not Be For You
 
 The layout side of this library and some widgets rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) 
-which [only works on modern browsers]((http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
+which [only works on modern browsers](http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
  
 So for the next, say, two years, this library would be a poor fit if you're targeting the retail web, which is
 rife with flexbox-less wastelands like IE10 and IE9.
@@ -50,7 +54,7 @@ Chrome app development OR if you are developing for a corporate Intranet setting
 where you can mandate a modern browser.
   
 
-# So, Without Ado being Any Furthered ...
+## So, Without Ado being Any Furthered ...
 
 [Here's a demo](). 
 
@@ -62,11 +66,11 @@ modern browsers too. Maybe. Dunno.  If so, supply a patch.
 The demo is deliberately simple minded. 
 
 
-# To use it
+## To use it
 
 To use re-com, you add this to your dependencies in project.clj:
 
-``` clj
+```clj
 :dependencies [
   [org.clojure/clojurescript "0.0-XXXX"]
   ...
@@ -100,7 +104,7 @@ These components make use of the following libraries:
  *  is a ClojureScript wrapper for the [Facebook React](http://facebook.github.io/react) 
    library which is used to build web-based user interfaces.
 
-# Leaky Abstractions
+## Leaky Abstractions
 
 Layout is built on flexbox, but our abstractions are leaky.  At some point 
 you're going to have to do the flexbox tutorials to understand what's going on. 
@@ -121,7 +125,7 @@ in the page, and performance suffers.
 * Testing. 
 
 
-# One Day 
+## One Day 
 
 Eventually:
 
@@ -131,15 +135,17 @@ Eventually:
 
 
 
-# Named Parameters
+## Named Parameters
 
 
 
-# The Intended Architecture 
+## The Intended Architecture 
 
 
 
-# RFP background
+## RFP background
+
+Heraclitus (500 BC) said:  "Everything flows, nothing stands still". 
 
 https://gist.github.com/staltz/868e7e9bc2a7b8c1f754/
 http://elm-lang.org/learn/What-is-FRP.elm
