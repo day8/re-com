@@ -31,9 +31,9 @@
     :style {:flex "none" :padding (when padding padding)}}
    (when (and closeable? on-close)
      [button
-      :label "×"
+      :label    "×"
       :on-click #(on-close id)
-      :class "close"])
+      :class    "close"])
    (when heading [:h4 (when-not body {:style {:margin "0px"}}) heading])
    (when body [:p body])])
 

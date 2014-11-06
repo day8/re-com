@@ -44,7 +44,8 @@
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
     [:ul
      {:class "rc-tabs nav nav-tabs"
-      :style {:flex "none"}}
+      :style {:flex                "none"
+              :-webkit-user-select "none"}}
      (for [t tabs]
        (let [id        (:id t)
              label     (:label t)
@@ -71,7 +72,8 @@
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
     [:div
      {:class "rc-tabs btn-group"
-      :style {:flex "none"}}
+      :style {:flex                "none"
+              :-webkit-user-select "none"}}
      (for [t tabs]
        (let [id        (:id t)
              label     (:label t)
@@ -97,7 +99,8 @@
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
     [:ul
      {:class (str "rc-tabs nav nav-pills" (when vertical? " nav-stacked"))
-      :style {:flex "none"}
+      :style {:flex                "none"
+              :-webkit-user-select "none"}
       :role  "tabslist"}
      (for [t tabs]
        (let [id        (:id t)
@@ -110,33 +113,3 @@
            {:style     {:cursor "pointer"}
             :on-click  #(reset! model id)}
            label]]))]))
-
-
-;;--------------------------------------------------------------------------------------------------
-;; Component: arrow-tabs
-;;--------------------------------------------------------------------------------------------------
-
-#_(defn arrow-tabs
-  [& {:keys [model tabs vertical?]
-      :as   args}]
-  {:pre [(superset? tabs-args (keys args))]}
-  (let [current  (deref-or-value model)
-        tabs     (deref-or-value tabs)
-        _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
-    [:ul
-     {:class (str "rc-tabs nav nav-pills" (when vertical? " nav-stacked"))
-      :style {:flex "none"}
-      :role  "tabslist"}
-     (for [t tabs]
-       (let [id        (:id t)
-             label     (:label t)
-             selected? (= id current)]                   ;; must use 'current' instead of @model to avoid reagent warnings
-         [:li
-          {:class    (if selected? "active" "")
-           :key      (str id)}
-          [:a
-           {:style     {:cursor "pointer"}
-            :on-click  #(reset! model id)}
-           label]]))]))
-
-

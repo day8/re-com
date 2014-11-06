@@ -123,7 +123,7 @@
                                :placeholder "Choose a country"
                                :width       "300px"
                                :max-height  "400px"
-                               :filter-box  false
+                               :filter-box? false
                                :on-change   #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
@@ -146,12 +146,12 @@
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
-                               :choices    grouped-countries
-                               :model      selected-country-id
-                               :width      "300px"
-                               :max-height "400px"
-                               :filter-box true
-                               :on-change  #(reset! selected-country-id %)]
+                               :choices     grouped-countries
+                               :model       selected-country-id
+                               :width       "300px"
+                               :max-height  "400px"
+                               :filter-box? true
+                               :on-change   #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
@@ -182,11 +182,11 @@
                                :width     "80px"
                                ]
                               [single-dropdown
-                               :choices    grouped-countries
-                               :model      selected-country-id
-                               :width      "300px"
-                               :filter-box true
-                               :on-change  #(reset! selected-country-id %)]
+                               :choices     grouped-countries
+                               :model       selected-country-id
+                               :width       "300px"
+                               :filter-box? true
+                               :on-change   #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
@@ -218,7 +218,7 @@
                   [h-box
                    :align    :center
                    :children [[checkbox
-                               :label ":regex-filter"
+                               :label ":regex-filter?"
                                :model regex?
                                :label-style {:width "100px"}
                                :on-change #(reset! regex? %)]
@@ -240,13 +240,13 @@
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
-                               :choices      grouped-countries
-                               :model        selected-country-id
-                               :disabled?    @disabled?
-                               :filter-box   true
-                               :regex-filter @regex?
-                               :width        (when @width? dropdown-width)
-                               :on-change    #(reset! selected-country-id %)]
+                               :choices       grouped-countries
+                               :model         selected-country-id
+                               :disabled?     @disabled?
+                               :filter-box?   true
+                               :regex-filter? @regex?
+                               :width         (when @width? dropdown-width)
+                               :on-change     #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
@@ -310,8 +310,8 @@
                [:li "Optional:"
                 [:ul
                  [:li.spacer [:code ":disabled?"] " - a boolean indicating whether the control should be disabled. Defaults to false."]
-                 [:li.spacer [:code ":filter-box"] " - a boolean. If true a filter text box is available at the top of the dropped down section. Defaults to false."]
-                 [:li.spacer [:code ":regex-filter"] " - a boolean. If true the filter text box will support JavaScript regular expressions. If false plain text searches.  Defaults to false."]
+                 [:li.spacer [:code ":filter-box?"] " - a boolean. If true a filter text box is available at the top of the dropped down section. Defaults to false."]
+                 [:li.spacer [:code ":regex-filter?"] " - a boolean. If true the filter text box will support JavaScript regular expressions. If false plain text searches.  Defaults to false."]
                  [:li.spacer [:code ":placeholder"] " - the text to display in the dropdown if :model is nil."]
                  [:li.spacer [:code ":width"] " - the width of the component (e.g. \"500px\"). If not specified, all available width is taken."]
                  [:li.spacer [:code ":max-height"] " - maximum height the dropdown will grow to. Defaults to \"240px\"."]
