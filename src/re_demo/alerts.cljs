@@ -18,7 +18,7 @@
         show-alert2 (reagent/atom true)]
     (fn []
       [:div
-       [:p "This alert has an :alert-type of 'info' and includes both a :heading, a :body and a close button."]
+       [:p "This alert has an :alert-type of 'info' and includes a :heading, a :body and a close button."]
        (if @show-alert
          [alert-box
           :id         1
@@ -89,10 +89,12 @@
   []
   [v-box
    :width    "500px"
+   :gap      "10px"
    :style    {:font-size "small"}
    :children [[:div.h4 "[alert-box ... ]"]
+              [label :label "A component which renders a single alert-box."]
+              [label :style {:font-variant "small-caps"} :label "optional parameters"]
               [:ul
-               [:li "All parameter are optional."]
                [:li.spacer [:code ":id"] " - a unique identifier, usually an integer or string."]
                [:li.spacer [:code ":alert-type"] " - a string contining a bootstrap style: \"info\", \"warning\" or \"danger\"."]
                [:li.spacer "Note: while heading and body are both optional, you'll need to supply at least one of them."]
@@ -102,8 +104,9 @@
                [:li.spacer [:code ":closeable?"] " - a boolean indicating if a close button 'X' is rendered (on-close must also be supplied)."]
                [:li.spacer [:code ":on-close"] " - the call back when the user clicks the close 'X'. Invoked with the single :id parameter."]]
               [:div.h4 "[alert-list ... ]"]
+              [label :label "A component which renders a list of alert-boxes."]
+              [label :style {:font-variant "small-caps"} :label "optional parameters"]
               [:ul
-               [:li.spacer "A component which renders a list of alert-boxes."]
                [:li.spacer [:code ":alerts"] " - a vector containing alert maps to be rendered. The order is specified by the calling app."]
                [:li.spacer [:code ":on-close"] " - a call back when the user clicks the close 'X' of an item. Invoked with the single :id parameter."]
                [:li.spacer [:code ":max-height"] " - the initial height of this component is 0px and grows to this maximum as alerts are added. Default is to expand forever."]
