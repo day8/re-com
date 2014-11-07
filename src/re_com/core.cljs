@@ -170,6 +170,79 @@
      label]))
 
 
+;;--------------------------------------------------------------------------------------------------
+;; Component: hyperlink-href
+;;--------------------------------------------------------------------------------------------------
+
+(def hyperlink-href-args
+  #{:label      ;; Label for the button (can be artitrary markup).
+    :href       ;; If specified, which URL to jump to when clicked.
+    :target     ;; A string representing where to load href:
+                ;;   - _self   - open in same window/tab (the default).
+                ;;   - _blank  - open in new window/tab.
+                ;;   - _parent - open in parent window.
+    :class      ;; Class string.
+    :style      ;; CSS style map.
+    })
+
+
+(defn hyperlink-href
+  "Renders an underlined text hyperlink component.
+   This is very similar to the button component above but styled to looks like a hyperlink.
+   Useful for providing button functionality for less important functions, e.g. Cancel."
+  [& {:keys [label href target class style] :as args}]
+  {:pre [(superset? hyperlink-href-args (keys args))]}
+  (let [label     (deref-or-value label)
+        href      (deref-or-value href)
+        target    (deref-or-value target)]
+    [:a
+     (merge
+       {:class    (str "rc-hyperlink-href " class)
+        :style    (merge
+                    {:flex                "inherit"
+                     :align-self          "flex-start"
+                     :-webkit-user-select "none"}
+                    style)
+        :href       href
+        :target     target})
+     label]))
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: hyperlink-click
+;;--------------------------------------------------------------------------------------------------
+
+(def hyperlink-click-args
+  #{:label      ;; Label for the button (can be artitrary markup).
+    :on-click   ;; Callback when the hyperlink is clicked.
+    :disabled?  ;; Set to true to disable the hyperlink.
+    :class      ;; Class string.
+    :style      ;; CSS style map.
+    })
+
+
+(defn hyperlink-click
+  "Renders an underlined text hyperlink component.
+   This is very similar to the button component above but styled to looks like a hyperlink.
+   Useful for providing button functionality for less important functions, e.g. Cancel."
+  [& {:keys [label on-click disabled? class style] :as args}]
+  {:pre [(superset? hyperlink-click-args (keys args))]}
+  (let [label     (deref-or-value label)
+        disabled? (deref-or-value disabled?)]
+    [:a
+     (merge
+       {:class    (str "rc-hyperlink-click " class)
+        :style    (merge
+                    {:flex                "inherit"
+                     :align-self          "flex-start"
+                     :cursor              (if disabled? "not-allowed" "pointer")
+                     :-webkit-user-select "none"}
+                    style)
+        :on-click #(if (and on-click (not disabled?))
+                    (on-click))})
+     label]))
+
+
 ;; ------------------------------------------------------------------------------------
 ;;  Component: checkbox
 ;; ------------------------------------------------------------------------------------
@@ -264,9 +337,10 @@
 ;; ------------------------------------------------------------------------------------
 
 (def slider-args
-  #{:model           ;; Current value of the slider. Can be value or atom.
-    :min             ;; The minimum value of the slider. Default is 0. Can be value or atom.
-    :max             ;; The maximum value of the slider. Default is 100. Can be value or atom.
+  #{:model           ;; Numeric double. Current value of the slider. Can be value or atom.
+    :min             ;; Numeric double. The minimum value of the slider. Default is 0. Can be value or atom.
+    :max             ;; Numeric double. The maximum value of the slider. Default is 100. Can be value or atom.
+    :step            ;; Numeric double. Step value between min and max. Default is 1. Can be value or atom.
     :width           ;; Standard CSS width setting for the slider. Default is 400px.
     :on-change       ;; A function which takes one parameter, which is the new value of the slider.
     :disabled?       ;; Set to true to disable the slider. Can be value or atom.
@@ -279,13 +353,14 @@
   "Returns markup for an HTML5 slider input."
   []
   (fn
-    [& {:keys [model min max width on-change disabled? class style]
+    [& {:keys [model min max step width on-change disabled? class style]
         :or   {min 0 max 100}
         :as   args}]
     {:pre [(superset? slider-args (keys args))]}
     (let [model     (deref-or-value model)
           min       (deref-or-value min)
           max       (deref-or-value max)
+          step      (deref-or-value step)
           disabled? (deref-or-value disabled?)]
       [:input
        {:class     (str "rc-slider " class)
@@ -297,9 +372,10 @@
                      style)
         :min       min
         :max       max
+        :step      step
         :value     model
         :disabled  disabled?
-        :on-change #(on-change (-> % .-target .-value))}])))
+        :on-change #(on-change (double (-> % .-target .-value)))}])))
 
 
 ;; ------------------------------------------------------------------------------------

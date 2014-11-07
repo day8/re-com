@@ -1,5 +1,6 @@
 (ns re-demo.basics
-  (:require [re-com.core  :refer [input-text button hyperlink label spinner progress-bar checkbox radio-button title slider]]
+  (:require [re-com.core  :refer [input-text button hyperlink hyperlink-href hyperlink-click label
+                                  spinner progress-bar checkbox radio-button title slider discrete-slider]]
             [re-com.box   :refer [h-box v-box box gap line]]
             [reagent.core :as    reagent]))
 
@@ -258,12 +259,80 @@
                                                         (reset! disabled? val))]]]]]]])))
 
 
+(defn hyperlink-href-demo
+  []
+  (let [target    (reagent/atom "_blank")
+        href?     (reagent/atom true)]
+    (fn
+      []
+      [v-box
+       :gap "15px"
+       :children [[title :label "[hyperlink-href ... ]"]
+                  [gap :size "0px"]
+                  [h-box
+                   :gap "40px"
+                   :children [[box
+                               :width "200px"
+                               :child [hyperlink-href
+                                       :label     "Launch Google"
+                                       :href      (when href? "http://google.com")
+                                       :target    (when href? target)]]
+                              [v-box
+                               :gap "15px"
+                               :children [[label :label "parameters:"]
+                                          (when @href?
+                                            [v-box
+                                             :children [[label :label ":target"]
+                                                        [radio-button
+                                                         :label "_self - load link into same tab"
+                                                         :value "_self"
+                                                         :model @target
+                                                         :on-change #(reset! target "_self")
+                                                         :style {:margin-left "20px"}]
+                                                        [radio-button
+                                                         :label "_blank - load link inot new tab"
+                                                         :value "_blank"
+                                                         :model @target
+                                                         :on-change #(reset! target "_blank")
+                                                         :style {:margin-left "20px"}]]])]]]]]])))
+
+
+(defn hyperlink-click-demo
+  []
+  (let [disabled?   (reagent/atom false)
+        click-count (reagent/atom 0)]
+    (fn
+      []
+      [v-box
+       :gap "15px"
+       :children [[title :label "[hyperlink-click ... ]"]
+                  [gap :size "0px"]
+                  [h-box
+                   :gap "40px"
+                   :children [[box
+                               :width "200px"
+                               :child [hyperlink-click
+                                       :label     (if @disabled? "Now disabled" "Call back")
+                                       :on-click  #(swap! click-count inc)
+                                       :disabled? disabled?]]
+                              [v-box
+                               :gap "15px"
+                               :children [[label :label (str "click count = " @click-count)]
+                                          [label :label "parameters:"]
+                                          [checkbox
+                                           :label ":disabled?"
+                                           :model disabled?
+                                           :on-change (fn [val]
+                                                        (reset! disabled? val))]]]]]]])))
+
+
 (defn slider-demo
   []
-  (let [slider-val (reagent/atom 0)
-        slider-min (reagent/atom 0)
-        slider-max (reagent/atom 100)
-        disabled?  (reagent/atom false)]
+  (let [slider-val  (reagent/atom 0)
+        slider-min  (reagent/atom 0)
+        slider-max  (reagent/atom 100)
+        slider-step (reagent/atom 1)
+        disabled?   (reagent/atom false)]
     (fn
       []
       [v-box
@@ -278,6 +347,7 @@
                                            :model     slider-val
                                            :min       slider-min
                                            :max       slider-max
+                                           :step      slider-step
                                            :width     "200px"
                                            :on-change #(reset! slider-val %)
                                            :disabled? disabled?]]]
@@ -320,6 +390,18 @@
                                                        :height          "26px"
                                                        :on-change       #(reset! slider-max %)
                                                        :change-on-blur? false]]]
+                                          [h-box
+                                           :gap      "10px"
+                                           :align    :center
+                                           :children [[label
+                                                       :label ":step"
+                                                       :style {:width "60px"}]
+                                                      [input-text
+                                                       :model           slider-step
+                                                       :width           "70px"
+                                                       :height          "26px"
+                                                       :on-change       #(reset! slider-step %)
+                                                       :change-on-blur? false]]]
                                           [checkbox
                                            :label ":disabled?"
                                            :model disabled?
@@ -336,5 +418,7 @@
               [radios-demo]
               [inputs-demo]
               [hyperlink-demo]
+              [hyperlink-href-demo]
+              [hyperlink-click-demo]
               [slider-demo]
               [gap :size "100px"]]])
