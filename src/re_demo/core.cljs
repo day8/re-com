@@ -45,21 +45,21 @@
   (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]
     (fn _main
       []
-      [v-box
+      [h-box
        ;; TODO: EXPLAIN both lines below with more clarity
        ;; Outer-most box height must be 100% to fill the entrie client area
        ;; (height is 100% of body, which must have already had it's height set to 100%)
        ;; width doesn't need to be initially set
        :height   "100%"
-       :children [[box
-                   :padding "10px"
-                   :child   [re-com.tabs/pill-tabs ;; tabs across the top
+       :gap  "60px"
+       :padding  "20px 5px 10px 25px"     ;; top botton right left
+       :children [[re-com.tabs/vertical-pill-tabs ;; tabs down the side
                              :model selected-tab-id
-                             :tabs  tabs-definition]]
+                             :tabs  tabs-definition]
                   [scroller
                    :child [box
                            :size      "auto"
-                           :padding   "0px 10px"
+                           ;;:padding   "0px 10px"
                            :child     [(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]] ;; the tab panel to show, for the selected tab
                   ]])))
 

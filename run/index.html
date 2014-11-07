@@ -2,13 +2,24 @@
 <html lang="en">
     <head>
         <meta charset='utf-8'>
-        <title>Reagent-Components Test Harness</title>
+        <title>re-com Demo</title>
 
         <link type="text/css" rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
         <link type="text/css" rel="stylesheet" href="resources/css/datepicker-bs3.css">
         <link type="text/css" rel="stylesheet" href="resources/css/re-com.css">
+
+        <!-- Ubuntu Light -->
+        <link href='http://fonts.googleapis.com/css?family=Ubuntu:300' rel='stylesheet' type='text/css'>
+
         <style>
-            .spacer { margin-bottom: 8px; }
+
+            H3 {
+                font-family: Ubuntu;
+                font-weight: 300;
+                font-style: normal;
+                font-size: 22px;
+                color: #cc6600;
+            }
         </style>
 
         <script src="http://cdnjs.cloudflare.com/ajax/libs/react/0.11.2/react.js"></script>
@@ -26,7 +37,7 @@
             }
 
             window.onload = function () {
-                // notice that "-" get turned into "_" when in javscript-land
+                // notice that "-" gets turned into "_" when in javscript-land
                 // for debugging purposes, let any exceptions be uncaught.
                 re_demo.core.mount_demo();
             }
