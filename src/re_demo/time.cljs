@@ -8,7 +8,7 @@
 (defn notes
   []
   [v-box
-   :width    "500px"
+   :width    "400px"
    :children [[:div.h4 "General notes"]
               [:div {:style {:font-size "small"}}
                [:ul
@@ -132,9 +132,9 @@
 (defn panel
   []
   [v-box
-   :children [[title :label "Time Input"]
+   :children [[title :label "[time-input ... ]"]
               [h-box
-               :gap "50px"
+               :gap "70px"
                :children [[notes]
                           [basics-demo]]]]])
 

@@ -3,18 +3,10 @@
              [re-com.util  :refer [deref-or-value]]
              [reagent.core :as    reagent]))
 
-;; Below there are three different stylings for horizontal tabs
-;; In each case they take two parameters.
-;; 'model' is expected to be an atom containing a keyword identifier. Eg.  ::first-tab
-;; 'tabs' can be either:
-;;     -  a map OR
-;;     - an atom containing a map
-;; Either way, the map should look like this:
-;;        { ::id1  {:label "1" } ::id2  {:label "2" } ::anotherId  {:label "3" }
 
 (defn find-tab
   "utility function for finding a tab definition with a given id
-  'tab-defs' is a vector of definitions
+  'tab-defs' in a vector of definitions
   'id' is the id of one of them
   returns nil if no definition found otherwise returns the first match found"
   [id tab-defs]
@@ -31,7 +23,6 @@
                 ;;   [{:id ::tab1  :label "Tab1"}
                 ;;    {:id ::tab2  :label "Tab2"}
                 ;;    {:id ::tab3  :label "Tab3"}]
-    :vertical?  ;; Only applicable for pills (others ignore this)
     })
 
 
@@ -90,10 +81,8 @@
 ;; Component: pill-tabs
 ;;--------------------------------------------------------------------------------------------------
 
-(defn pill-tabs    ;; tabs-like in action
-  [& {:keys [model tabs vertical?]
-      :as   args}]
-  {:pre [(superset? tabs-args (keys args))]}
+(defn- pill-tabs    ;; tabs-like in action
+  [& {:keys [model tabs vertical?]}]
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
@@ -113,3 +102,15 @@
            {:style     {:cursor "pointer"}
             :on-click  #(reset! model id)}
            label]]))]))
+
+(defn horizontal-pill-tabs    ;; tabs-like in action
+  [& {:keys [model tabs] :as args}]
+  {:pre [(superset? tabs-args (keys args))]}
+
+  (pill-tabs :model model :tabs tabs :vertical? false))
+
+
+(defn vertical-pill-tabs
+  [& {:keys [model tabs] :as args}]
+  {:pre [(superset? tabs-args (keys args))]}
+  (pill-tabs :model model :tabs tabs :vertical? true))
