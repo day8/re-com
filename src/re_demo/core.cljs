@@ -1,6 +1,7 @@
 (ns re-demo.core
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [reagent.core       :as    reagent]
+            [alandipert.storage-atom :refer [local-storage]]
             [re-com.util        :as    util]
             [re-com.core        :as    core]
             [re-com.tabs]
@@ -22,27 +23,30 @@
 (enable-console-print!)
 
 (def tabs-definition
-  [ {:id ::welcome   :label "Welcome"    :panel welcome/panel}
-    {:id ::basics    :label "Basics"     :panel basics/panel}
-    {:id ::dropdown  :label "Dropdowns"  :panel dropdowns/panel}
-    {:id ::alerts    :label "Alerts"     :panel alerts/panel}
-    {:id ::tabs      :label "Tabs"       :panel tabs/panel}
-    {:id ::popovers  :label "Popovers"   :panel popovers/panel}
-    {:id ::date      :label "Date"       :panel date-chooser/panel}
-    {:id ::time      :label "Time"       :panel time/panel}
-    {:id ::lists     :label "List"       :panel lists/panel}
-    {:id ::tour      :label "Tour"       :panel tour/panel}
-    {:id ::modals    :label "Modals"     :panel modals/panel}
-    {:id ::boxes1    :label "Boxes-1"    :panel boxes/panel1}
-    {:id ::boxes2    :label "Boxes-2"    :panel boxes/panel2}
-    {:id ::layouts   :label "Layouts"    :panel layouts/panel}])
+  [ {:id ::welcome   :label "Welcome"     :panel welcome/panel}
+    {:id ::basics    :label "Basics"      :panel basics/panel}
+    {:id ::dropdown  :label "Dropdowns"   :panel dropdowns/panel}
+    {:id ::alerts    :label "Alerts"      :panel alerts/panel}
+    {:id ::tabs      :label "Tabs"        :panel tabs/panel}
+    {:id ::popovers  :label "Popovers"    :panel popovers/panel}
+    {:id ::date      :label "Date Picker" :panel date-chooser/panel}
+    {:id ::time      :label "Time"        :panel time/panel}
+    {:id ::lists     :label "List"        :panel lists/panel}
+    {:id ::tour      :label "Tour"        :panel tour/panel}
+    {:id ::modals    :label "Modals"      :panel modals/panel}
+    {:id ::boxes1    :label "Boxes-1"     :panel boxes/panel1}
+    {:id ::boxes2    :label "Boxes-2"     :panel boxes/panel2}
+    {:id ::layouts   :label "Layouts"     :panel layouts/panel}])
 
 
 ;; http://css-tricks.com/functional-css-tabs-revisited/   (see the demo)
 ;;
 (defn main
   []
-  (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))]
+  (let [
+         id-store        (local-storage (atom nil) ::id-store)
+         selected-tab-id (reagent/atom (if  (nil? @id-store) (:id (first tabs-definition)) @id-store))   ;; id of the selected tab
+         _               (add-watch selected-tab-id nil #(reset! id-store %4))]
     (fn _main
       []
       [h-box
