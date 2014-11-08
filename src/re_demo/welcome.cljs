@@ -1,23 +1,18 @@
 (ns re-demo.welcome
   (:require [reagent.core :as reagent]
             [re-com.core  :refer [title hyperlink]]
-            [re-com.box   :refer [h-box v-box box gap]]))
-
+            [re-com.box   :refer [h-box v-box box gap]]
+            [re-demo.utils :refer [panel-title component-title]]))
 
 (defn panel
   []
   [v-box
-   :children [[title :label "Re-Com"]
+   :children [[panel-title "Re-Com"]
               [gap :size "15px"]
               [:p "Re-com is a library of ClojureScript UI components, built on top of "
                [hyperlink
                 :label  "Reagent"
                 :href   "https://github.com/holmsand/reagent"
-                :target "_blank"]
-               ", which is itself built atop "
-               [hyperlink
-                :label  "React"
-                :href   "http://facebook.github.io/react/"
                 :target "_blank"]
                "."]
               [:p "In a nutshell, Re-com contains the kind of layout and widgetry you'd need to build a desktop-class app
