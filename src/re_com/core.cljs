@@ -348,17 +348,20 @@
 
 (def title-args
   #{:label        ;; Text of the title
+    :style
+    :h           ;;  something like :h3 or :h4
     :underline?   ;; Boolean determines whether an underline is placed under the title
     })
 
-
 (defn title
-  "An underlined, left justified, H3 Title"
-  [& {:keys [label underline?]
-      :or   {underline? true}
+  "An underlined, left justified, Title. By default :h3"
+  [& {:keys [label h underline? style]
+      :or   {underline? true h :h3}
       :as   args}]
   {:pre [(superset? title-args (keys args))]}
 
   [v-box
-   :children [[:h3 label]
+   :children [[h {:style (merge  {:display "flex" :flex "none"}
+                           style)}
+               label]
               (when underline? [line :size "1px"])]])
