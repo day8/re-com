@@ -2,38 +2,43 @@
   (:require  [clojure.string :as string]))
 
 (defn fmap
-  "I return a new version of 'm' in which f has been applied to each value.
+  "Takes a fucntion 'f' amd a map 'm'.  Applies 'f' to each value in 'm' and returns.
    (fmap  inc  {:a 4  :b 2})   =>   {:a 5  :b 3}"
   [f m]
-  ;;TODO Now a duplicate of day8core/core_utils.cljs in mwireader project. We need common core util libs !
   (into {} (for [[k val] m] [k (f val)])))
 
-(defn deref-or-value [val-or-atom]
+
+(defn deref-or-value
+  [val-or-atom]
   (if (satisfies? IDeref val-or-atom) @val-or-atom val-or-atom))
+
 
 (defn get-element-by-id
   [id]
   (.getElementById js/document id))
 
+
 (defn pad-zero
-  "If subject-str zero pad subject-str from left up to max-chars."
-  [subject-str max-chars]
-  (if (< (count subject-str) max-chars)
-    (apply str (take-last max-chars (concat (repeat max-chars \0) subject-str)))
-    subject-str))
+  "Left pad a string 's' with '0', until 's' has length 'len'. If 's' is already len or greater, return 's'"
+  [s len]
+  (if (< (count s) len)
+    (apply str (take-last len (concat (repeat len \0) s)))
+    s))
+
 
 (defn pad-zero-number
-  "If subject-num zero pad subject-str from left up to max-chars."
-  [subject-num max-chars]
-  (pad-zero (str subject-num) max-chars))
+  "return 'num' as a string of 'len' characters, left padding with '0' as necessary."
+  [num len]
+  (pad-zero (str num) len))
 
-(defn find-map-index
-  "In a vector of maps (where each map has an :id), return the index of the first map containing the id parameter.
+
+(defn find-map-index    ;;  TODO: rename this  'id-position'
+  "Takes a vector of maps 'v'. Returns the postion of the first item in 'v' whose :id matches 'id'.
    Returns nil if id not found."
-  [choices id]
-  (let [index-fn (fn [index item] (when (= (:id item) id) index))
-        index-of-id (first (keep-indexed index-fn choices))]
-    index-of-id))
+  [v id]
+  (let [index-fn (fn [index item] (when (= (:id item) id) index))]
+    (first (keep-indexed index-fn v))))
+
 
 ;; ----------------------------------------------------------------------------
 ;; G O L D E N  R A T I O  https://en.wikipedia.org/wiki/Golden_ratio
@@ -43,6 +48,7 @@
   [b-segment]
   (let [Phi 1.618]
     (/ b-segment Phi)))
+
 
 (defn golden-ratio-b
   "Answer the B segment using golden ratio"
@@ -55,8 +61,12 @@
 ;; ----------------------------------------------------------------------------
 
 (defn remove-nth
-  [vect index]
-  (vec (for [i (range (count vect)) :when (not= i index)] (get vect i))))
+  "Removes the item at position n from a vector v, returning a shrunk vector"
+  [v n]
+  (vec
+    (concat
+      (subvec v 0 n) (subvec v (inc n) (count v)))))
+
 
 (defn insert-nth
   [vect index item]

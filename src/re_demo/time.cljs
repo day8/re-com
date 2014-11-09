@@ -2,6 +2,7 @@
   (:require [re-com.core     :refer  [label button checkbox input-text title]]
             [re-com.time     :refer  [time-input]]
             [re-com.box      :refer  [h-box v-box box gap]]
+            [re-demo.utils   :refer [panel-title component-title]]
             [reagent.core    :as     reagent]))
 
 
@@ -9,8 +10,9 @@
   []
   [v-box
    :width    "400px"
-   :children [[:div.h4 "General notes"]
-              [:div {:style {:font-size "small"}}
+   :children [ [component-title "[time-input ... ]"]
+               [:div {:style {:font-size "small"}}
+                [:label {:style {:font-variant "small-caps"}} "notes"]
                [:ul
                 [:li "Accepts input of a time in 24hr format."
                  " Only allows input of numbers and ':'. Limits input to valid values (e.g. does not allow input of '999').
@@ -20,7 +22,7 @@
                 [:li "When the component loses focus, the " [:code ":on-change"] " callback is called with an integer of the same form."]
                 [:li "If the entered value is invalid it will be replaced with the last valid value."]
                 [:li "If "[:code ":model"] " is invalid an exception will be thrown."]]
-               [:label {:style {:font-variant "small-caps"}} "required"]
+               [:label {:style {:font-variant "small-caps"}} "required parameters"]
                [:ul
                 [:li [:code ":model"] " - an integer time e.g. 930"]]
                [:label {:style {:font-variant "small-caps"}} "optional"]
@@ -132,7 +134,7 @@
 (defn panel
   []
   [v-box
-   :children [[title :label "[time-input ... ]"]
+   :children [[panel-title "Time Components"]
               [h-box
                :gap "70px"
                :children [[notes]
