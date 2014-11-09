@@ -349,7 +349,7 @@
 (def title-args
   #{:label        ;; Text of the title
     :style
-    :h           ;;  something like :h3 or :h4
+    :h            ;;  something like :h3 or :h4
     :underline?   ;; Boolean determines whether an underline is placed under the title
     })
 

@@ -7,7 +7,8 @@
     [re-com.datepicker    :refer  [datepicker datepicker-dropdown iso8601->date]]
     [re-com.box           :refer  [h-box v-box gap]]
     [re-com.dropdown      :refer  [single-dropdown]]
-    [re-com.util          :refer  [golden-ratio-a golden-ratio-b]]))
+    [re-com.util          :refer  [golden-ratio-a golden-ratio-b]]
+    [re-demo.utils        :refer  [panel-title component-title]]))
 
 (defn- toggle-inclusion!
   "convenience function to include/exclude member from"
@@ -148,11 +149,13 @@
   [width selected-variation]
   [v-box
    :width (str width "px")
-   :children [[:h4 "Parameters"]
+   :children [[component-title "[datepicker ... ]"]
+              [component-title "[datepicker-dropdown ... ]"]
+              [gap :size "15px"]
               [v-box
                :style    {:font-size "small"}
-               :children [[label :style {:font-variant "small-caps"} :label "general"]
-                          [v-box
+               :children [#_[label :style {:font-variant "small-caps"} :label "general"]
+                          #_[v-box
                            :style {:padding-left "10px"}
                            :children [[:p "All parameters are passed as named arguments using keyword value pairs in the component vector e.g."]
                                       (if (= :inline @selected-variation)
@@ -160,30 +163,30 @@
                                         [:pre {:style {:font-size "smaller"}} [:code "[datepicker-dropdown :model (now) :show-today? false]"]]
                                         )
                                       [:p ":model & :disabled? can optionally be a reagent atom and will be derefed."]]]
-                          [label :style {:font-variant "small-caps"} :label "required"]
+                          [label :style {:font-variant "small-caps"} :label "required parameters"]
                           [v-box
                            :style {:padding-left "10px"}
                            :children [[:p [:code ":model"]
-                                       " - goog.date.UtcDateTime can be reagent/atom. Represents displayed month and actual selected day. Must be one of :enabled-days"]
+                                       " - a instance of goog.date.UtcDateTime or an atom containing one. Represents displayed month and actual selected day. Must be one of :enabled-days"]
                                       [:p [:code ":on-change"]
-                                       " - callback will be passed single arg of the selected goog.date.UtcDateTime."]]]
+                                       " - a function taking with one goog.date.UtcDateTime paramter."]]]
                           [label :style {:font-variant "small-caps"} :label "optional"]
                           [v-box
                            :style {:padding-left "10px"}
                            :children [[:p [:code ":disabled?"]
-                                       " - boolean can be reagent/atom. (default false) If true, navigation is allowed but selection is disabled."]
+                                       " - boolean or a reagent/atom containing a boolean. Default is false.  If true, navigation is allowed but selection is disabled."]
                                       [:p [:code ":enabled-days"]
-                                       " - set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} If nil or empty, all days are enabled."]
+                                       " - a proper subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}.  Dates falling on these days-of-week will be user-selectable, others not so. If nil or empty, all days are enabled."]
                                       [:p [:code ":show-weeks?"]
-                                       " - boolean. (default false) If true, first column shows week numbers."]
+                                       " - if true, first column shows week numbers. Default is false."]
                                       [:p [:code ":show-today?"]
-                                       " - boolean. (default false) If true, today's date is highlighted different to selection. When both today's date and selected day are the same, selected highlight takes precedence."]
+                                       " - if true, today's date is highlighted. Default is false"]
                                       [:p [:code ":minimum"]
-                                       " - goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
+                                       " - an instance of goog.date.UtcDateTime. Selection is blocked before this date."]
                                       [:p [:code ":maximum"]
-                                       " - goog.date.UtcDateTime inclusive beyond which navigation and selection is blocked."]
+                                       " - an instance of goog.date.UtcDateTime. Selection is blocked beyond this date."]
                                       [:p [:code ":hide-border?"]
-                                       " - boolean. Default false."]
+                                       " - Defaults to false."]
                                       (when (= "2" @selected-variation)
                                         [:p [:code ":format"]
                                          " - string format for dropdown label showing currently selected date see cljs_time.format Default \"yyyy MMM dd\""])]]]]]])
@@ -204,7 +207,7 @@
     (fn []
       [v-box
        :width (str panel-width "px")
-       :children [[title :label "Date Picker"]
+       :children [[panel-title "Date Components"]
                   [h-box
                    :gap      "50px"
                    :children [[notes a-width selected-variation]

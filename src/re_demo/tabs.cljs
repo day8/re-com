@@ -160,7 +160,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[panel-title "Tabs"]
+       :children [[panel-title "Tab Components"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box

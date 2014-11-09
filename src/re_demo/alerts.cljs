@@ -120,7 +120,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[panel-title "Alerts"]
+       :children [[panel-title "Alert Components"]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

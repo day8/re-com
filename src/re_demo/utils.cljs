@@ -6,7 +6,6 @@
 (def panel-title-style {
     :font-family "Ubuntu"
     :font-weight "300"
-    ;; :font-style  "bold"
     :font-size   "24px"
     :color       "#FF6522"    ;; orange
     :margin-top  "7px"
@@ -14,11 +13,11 @@
 
 (defn panel-title
   "The text shown at the top of each Tab Panel"
-  [text]
+  [text style]
   [title
     :label      text
     :underline? false
-    :style      panel-title-style
+    :style      (merge panel-title-style style)
     ])
 
 
@@ -30,6 +29,6 @@
   [title
    :h          :h4   ;; [:h4 .. ]
    :label      component-name
-   :style      (merge style {:color "#555"})
+   :style      (merge {:color "#555"} style)
    :underline? false
    ])
