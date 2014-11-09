@@ -106,7 +106,6 @@
 (defn horizontal-pill-tabs    ;; tabs-like in action
   [& {:keys [model tabs] :as args}]
   {:pre [(superset? tabs-args (keys args))]}
-
   (pill-tabs :model model :tabs tabs :vertical? false))
 
 

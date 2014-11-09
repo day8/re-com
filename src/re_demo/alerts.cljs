@@ -4,6 +4,7 @@
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [re-com.alert    :refer [alert-box alert-list]]
+            [re-demo.utils   :refer [panel-title component-title]]
             [reagent.core    :as    reagent]))
 
 
@@ -91,7 +92,7 @@
    :width    "500px"
    :gap      "10px"
    :style    {:font-size "small"}
-   :children [[:div.h4 "[alert-box ... ]"]
+   :children [[component-title "[alert-box ... ]"]
               [label :label "A component which renders a single alert-box."]
               [label :style {:font-variant "small-caps"} :label "optional parameters"]
               [:ul
@@ -119,7 +120,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[title :label "Alerts"]
+       :children [[panel-title "Alert Components"]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

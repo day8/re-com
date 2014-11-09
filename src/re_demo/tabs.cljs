@@ -4,7 +4,8 @@
             [re-com.box              :refer [h-box v-box box gap line scroller border]]
             [re-com.dropdown         :refer [single-dropdown]]
             [re-com.core             :refer [button label title checkbox]]
-            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs horizontal-pill-tabs vertical-pill-tabs find-tab]]))
+            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs horizontal-pill-tabs vertical-pill-tabs find-tab]]
+            [re-demo.utils           :refer [panel-title component-title]]))
 
 
 (def demos [{:id 1 :label "The Tab Styles"}
@@ -29,7 +30,7 @@
     (fn []
       [v-box
        :children [[h-box
-                   :gap "65px"
+                   :gap "75px"
                    :children [[box
                                :width "350px"
                                :child [:div
@@ -48,38 +49,38 @@
                                               another panel, like Welcome (look top left)."]]]]
                               [v-box
                                :size "100%"
-                               :gap "40px"
-                               :margin "20px 0px 0px 0px"
+                               :gap "50px"
+                               :margin "0px 0px 0px 0px"
                                :children [[h-box
                                            :align    :center
-                                           :children [[box
-                                                       :width fn-name-width
-                                                       :child [:code "[horizontal-tabs ... ]"]]
+                                           :children [[component-title
+                                                       "[horizontal-tabs ... ]"
+                                                       {:width fn-name-width}]
                                                       [horizontal-tabs
                                                        :model selected-tab-id
                                                        :tabs  tabs-definition]]]
                                           [h-box
                                            :align    :center
-                                           :children [[box
-                                                       :width fn-name-width
-                                                       :child [:code "[horizontal-bar-tabs ... ]"]]
+                                           :children [[component-title
+                                                       "[horizontal-bar-tabs ... ]"
+                                                       {:width fn-name-width}]
                                                       [horizontal-bar-tabs
                                                        :model selected-tab-id
                                                        :tabs  tabs-definition]]]
                                           [h-box
                                            :align    :center
-                                           :children [[box
-                                                       :width fn-name-width
-                                                       :child [:code "[horizontal-pill-tabs ... ]"]]
+                                           :children [[component-title
+                                                       "[horizontal-pill-tabs ... ]"
+                                                       {:width fn-name-width}]
                                                       [horizontal-pill-tabs
                                                        :model     selected-tab-id
                                                        :tabs      tabs-definition
                                                        ]]]
                                           [h-box
                                            :align    :center
-                                           :children [[box
-                                                       :width fn-name-width
-                                                       :child [:code "[vertical-pill-tabs ... ]"]]
+                                           :children [[component-title
+                                                       "[vertical-pill-tabs ... ]"
+                                                       {:width fn-name-width}]
                                                       [vertical-pill-tabs
                                                        :model     selected-tab-id
                                                        :tabs      tabs-definition
@@ -159,7 +160,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[title :label ""]
+       :children [[panel-title "Tab Components"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
