@@ -72,7 +72,8 @@
          [:button.btn.btn-default
           {:type     "button"
            :key      (str id)
-           :style    (if selected? {:background-color "#aaa"  :color "white"} {})
+           :class    (str "btn btn-default "  (if selected? "active"))
+           ;;:style    (if selected? {:background-color "#aaa"  :color "white"} {})
            :on-click #(reset! model id)}
           label]))]))
 
