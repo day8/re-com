@@ -3,12 +3,20 @@
             [reagent.core    :as    reagent]))
 
 
-(def panel-title-style {
+#_(def panel-title-style {
     :font-family "Ubuntu"
     :font-weight "300"
     :font-size   "24px"
     :color       "#FF6522"    ;; orange
     :margin-top  "7px"
+   })
+
+(def panel-title-style {
+    :font-family "Ubuntu"
+    :font-weight "300"
+    :font-size   "24px"
+    :color       "#EEE"
+    :height      "50px"
    })
 
 (defn panel-title
