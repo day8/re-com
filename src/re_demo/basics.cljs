@@ -1,6 +1,6 @@
 (ns re-demo.basics
-  (:require [re-com.core  :refer [input-text button hyperlink hyperlink-href hyperlink-click label
-                                  spinner progress-bar checkbox radio-button title slider discrete-slider]]
+  (:require [re-com.core  :refer [input-text button hyperlink hyperlink-href label
+                                  spinner progress-bar checkbox radio-button title slider]]
             [re-com.box   :refer [h-box v-box box gap line]]
             [reagent.core :as    reagent]))
 
@@ -201,9 +201,8 @@
 
 (defn hyperlink-demo
   []
-  (let [disabled? (reagent/atom false)
-        target    (reagent/atom "_blank")
-        href?     (reagent/atom true)]
+  (let [disabled?   (reagent/atom false)
+        click-count (reagent/atom 0)]
     (fn
       []
       [v-box
@@ -215,43 +214,13 @@
                    :children [[box
                                :width "200px"
                                :child [hyperlink
-                                       :label     (if @disabled? "now disabled" (if @href? "Launch Google" "Call back"))
-                                       :href      (when href? "http://google.com")
-                                       :target    (when href? target)
-                                       :on-click  #(when-not href? println "CLICKED!")
+                                       :label     (if @disabled? "Now disabled" "Call back")
+                                       :on-click  #(swap! click-count inc)
                                        :disabled? disabled?]]
                               [v-box
                                :gap "15px"
-                               :children [[label :label "parameters:"]
-                                          [v-box
-                                           :children [[label :label "When clicked:"]
-                                                      [radio-button
-                                                       :label "href - load a URL"
-                                                       :value true
-                                                       :model @href?
-                                                       :on-change #(reset! href? true)
-                                                       :style {:margin-left "20px"}]
-                                                      [radio-button
-                                                       :label "on-click - call back"
-                                                       :value false
-                                                       :model @href?
-                                                       :on-change #(reset! href? false)
-                                                       :style {:margin-left "20px"}]]]
-                                          (when @href?
-                                            [v-box
-                                             :children [[label :label ":target"]
-                                                        [radio-button
-                                                         :label "_self - load link into same tab"
-                                                         :value "_self"
-                                                         :model @target
-                                                         :on-change #(reset! target "_self")
-                                                         :style {:margin-left "20px"}]
-                                                        [radio-button
-                                                         :label "_blank - load link inot new tab"
-                                                         :value "_blank"
-                                                         :model @target
-                                                         :on-change #(reset! target "_blank")
-                                                         :style {:margin-left "20px"}]]])
+                               :children [[label :label (str "click count = " @click-count)]
+                                          [label :label "parameters:"]
                                           [checkbox
                                            :label ":disabled?"
                                            :model disabled?
@@ -295,35 +264,6 @@
                                                          :model @target
                                                          :on-change #(reset! target "_blank")
                                                          :style {:margin-left "20px"}]]])]]]]]])))
-
-
-(defn hyperlink-click-demo
-  []
-  (let [disabled?   (reagent/atom false)
-        click-count (reagent/atom 0)]
-    (fn
-      []
-      [v-box
-       :gap "15px"
-       :children [[title :label "[hyperlink-click ... ]"]
-                  [gap :size "0px"]
-                  [h-box
-                   :gap "40px"
-                   :children [[box
-                               :width "200px"
-                               :child [hyperlink-click
-                                       :label     (if @disabled? "Now disabled" "Call back")
-                                       :on-click  #(swap! click-count inc)
-                                       :disabled? disabled?]]
-                              [v-box
-                               :gap "15px"
-                               :children [[label :label (str "click count = " @click-count)]
-                                          [label :label "parameters:"]
-                                          [checkbox
-                                           :label ":disabled?"
-                                           :model disabled?
-                                           :on-change (fn [val]
-                                                        (reset! disabled? val))]]]]]]])))
 
 
 (defn slider-demo
@@ -419,6 +359,5 @@
               [inputs-demo]
               [hyperlink-demo]
               [hyperlink-href-demo]
-              [hyperlink-click-demo]
               [slider-demo]
               [gap :size "100px"]]])

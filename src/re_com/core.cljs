@@ -128,11 +128,6 @@
 
 (def hyperlink-args
   #{:label      ;; Label for the button (can be artitrary markup).
-    :href       ;; If specified, which URL to jump to when clicked.
-    :target     ;; A string representing where to load href:
-                ;;   - _self   - open in same window/tab (the default).
-                ;;   - _blank  - open in new window/tab.
-                ;;   - _parent - open in parent window.
     :on-click   ;; Callback when the hyperlink is clicked.
     :disabled?  ;; Set to true to disable the hyperlink.
     :class      ;; Class string.
@@ -144,29 +139,21 @@
   "Renders an underlined text hyperlink component.
    This is very similar to the button component above but styled to looks like a hyperlink.
    Useful for providing button functionality for less important functions, e.g. Cancel."
-  [& {:keys [label href target on-click disabled? class style] :as args}]
+  [& {:keys [label on-click disabled? class style] :as args}]
   {:pre [(superset? hyperlink-args (keys args))]}
   (let [label     (deref-or-value label)
-        href      (deref-or-value href)
-        target    (deref-or-value target)
         disabled? (deref-or-value disabled?)]
     [:a
      (merge
        {:class    (str "rc-hyperlink " class)
-        :disabled disabled?                                 ;; TODO: Unfortunately this is ignored AND my method doesn't work either :-(
         :style    (merge
                     {:flex                "inherit"
                      :align-self          "flex-start"
                      :cursor              (if disabled? "not-allowed" "pointer")
                      :-webkit-user-select "none"}
-                    style)}
-       (when-not disabled? {:href     (when-not disabled? href) ;; Move back out of merge if can't get working.
-                            :target   target
-                            :on-click #(if (and on-click (not disabled?))
-                                        (on-click)
-                                        ;(.preventDefault %) ;; TODO: Here's the possible solution of the false below
-                                        ;false
-                                        )}))
+                    style)
+        :on-click #(if (and on-click (not disabled?))
+                    (on-click))})
      label]))
 
 
@@ -205,41 +192,6 @@
                     style)
         :href       href
         :target     target})
-     label]))
-
-
-;;--------------------------------------------------------------------------------------------------
-;; Component: hyperlink-click
-;;--------------------------------------------------------------------------------------------------
-
-(def hyperlink-click-args
-  #{:label      ;; Label for the button (can be artitrary markup).
-    :on-click   ;; Callback when the hyperlink is clicked.
-    :disabled?  ;; Set to true to disable the hyperlink.
-    :class      ;; Class string.
-    :style      ;; CSS style map.
-    })
-
-
-(defn hyperlink-click
-  "Renders an underlined text hyperlink component.
-   This is very similar to the button component above but styled to looks like a hyperlink.
-   Useful for providing button functionality for less important functions, e.g. Cancel."
-  [& {:keys [label on-click disabled? class style] :as args}]
-  {:pre [(superset? hyperlink-click-args (keys args))]}
-  (let [label     (deref-or-value label)
-        disabled? (deref-or-value disabled?)]
-    [:a
-     (merge
-       {:class    (str "rc-hyperlink-click " class)
-        :style    (merge
-                    {:flex                "inherit"
-                     :align-self          "flex-start"
-                     :cursor              (if disabled? "not-allowed" "pointer")
-                     :-webkit-user-select "none"}
-                    style)
-        :on-click #(if (and on-click (not disabled?))
-                    (on-click))})
      label]))
 
 

@@ -46,30 +46,29 @@
     (fn [tab selected-tab-id]
       (let [selected (= @selected-tab-id (:id tab))]
       [:div
-       {:style {:width        "150px"
-                :line-height  "44px"
-                :color        (if selected "#111" "#333")
-                :border-top   "1px #f2f2f2 solid"
-                :border-right  (if selected "4px #e8e8e8 solid")
-                :border-color "rgba(1, 1, 1, 0.1)"
-                :font-family  "Ubuntu"
-                :font-weight  "300"
-                :font-size    "16px"
-                :padding-left "30px"
-                ; :display "flex" :flex "none"
-                ; :-webkit-font-smoothing "subpixel-antialiased"
+       {:style {:width            "150px"
+                :line-height      "44px"
+                :color            (if selected "#111" "#333")
+                :border-top       "1px #f2f2f2 solid"
+                :border-right      (if selected "4px #e8e8e8 solid")
+                :border-color     "rgba(1, 1, 1, 0.1)"
+                :font-family      "Ubuntu"
+                :font-weight      "300"
+                :font-size        "16px"
+                :padding-left     "30px"
+                ;:display "flex"
+                ;:flex "none"
+                ;:-webkit-font-smoothing "subpixel-antialiased"
                 :text-decoration  "none"          ;; no hyperlink showing
-                :background-color  (if (or
-                                    (= @selected-tab-id (:id tab))
-                                    @mouse-over?) "#f4f4f4" "#fcfcfc")
-                                    ; :else "blue")
+                :background-color (if (or
+                                        (= @selected-tab-id (:id tab))
+                                        @mouse-over?) "#f4f4f4" "#fcfcfc") ; :else "blue")
                }
         :on-mouse-over  #(reset! mouse-over? true)
         :on-mouse-out   #(reset! mouse-over? false)
         :on-click       #(reset! selected-tab-id (:id tab))
        }
-       (:label tab)
-       ]))))
+       [:span {:style {:cursor "default"}} (:label tab)]]))))
 
 
 (defn left-side-nav-bar
@@ -107,9 +106,9 @@
        ;; Outer-most box height must be 100% to fill the entrie client area
        ;; (height is 100% of body, which must have already had it's height set to 100%)
        ;; width doesn't need to be initially set
-       ;; :height   "100%"     ;;   IF YOU INCLUDE THIS THE THE RHS IS PUSHED DOWN
+       :height   "100%"
        :gap  "60px"
-       :padding  "0px 5px 10px 0px"     ;; top botton right left
+       :padding  "0px 5px 10px 0px"     ;; top botton right left <== TODO: [GR] NO, it's top right botton left
        :children [[v-box
                    :children [[re-com-title]
                               [left-side-nav-bar selected-tab-id]
@@ -119,7 +118,7 @@
                    [scroller
                     :child [box
                             :size      "auto"
-                            :padding   "15px 5px"         ;;  top bottom
+                            :padding   "15px 5px"         ;; top bottom <== TODO: [GR] NO, it's top/bottom right/left
                             :child     [(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]] ;; the tab panel to show, for the selected tab
                    ]])))
 
