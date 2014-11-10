@@ -51,19 +51,16 @@
                 :line-height      "44px"
                 :color            (if selected "#111" "#333")
                 :border-top       "1px #f2f2f2 solid"
-                :border-right      (if selected "4px #e8e8e8 solid")
+                :border-right     (if selected "4px #e8e8e8 solid")
                 :border-color     "rgba(1, 1, 1, 0.1)"
                 :font-family      "Ubuntu"
                 :font-weight      "300"
                 :font-size        "16px"
                 :padding-left     "30px"
-                ;:display "flex"
-                ;:flex "none"
-                ;:-webkit-font-smoothing "subpixel-antialiased"
                 :text-decoration  "none"          ;; no hyperlink showing
                 :background-color (if (or
                                         (= @selected-tab-id (:id tab))
-                                        @mouse-over?) "#f4f4f4" "#fcfcfc") ; :else "blue")
+                                        @mouse-over?) "#f4f4f4" "#fcfcfc")
                }
         :on-mouse-over  #(reset! mouse-over? true)
         :on-mouse-out   #(reset! mouse-over? false)
@@ -84,7 +81,7 @@
   [h-box
    :justify  :center
    :align    :center
-   :height   "60px"
+   :height   "57px"
    :style  {:color "#FEFEFE"
             :background-color "#888"}
    :children [[core/label
@@ -123,7 +120,7 @@
                   [scroller
                     :child [box
                             :size      "auto"
-                            :padding   "15px 0px 5px 0px"         ;; top right bottom left
+                            ;:padding   "15px 0px 5px 0px"         ;; top right bottom left
                             :child     [(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]] ;; the tab panel to show, for the selected tab
                    ]])))
 

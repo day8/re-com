@@ -4,6 +4,7 @@
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.tour     :refer [make-tour start-tour make-tour-nav]]
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
+            [re-demo.utils   :refer [panel-title component-title]]
             [reagent.core    :as    reagent]))
 
 
@@ -96,34 +97,31 @@
 (defn notes
   []
   [v-box
-   :width    "500px"
+   :width    "400px"
    :style    {:font-size "small"}
-   :children [[:div.h4 "General notes"]
-              [:ul
-               [:li "To create a tour component, do the following:"
+   :children [[:div.h4 "Notes:"]
+               [:p "To create a tour:"]
                 [:ul
-                 [:li.spacer "Make a tour object, declaring all the steps in your tour."]
-                 [:li.spacer "For example: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
-                 [:li.spacer "Wrap all the components in your tour with a popover component."]
-                 [:li.spacer "The popover " [:code ":showing?"] " parameter should look like this: " [:br] [:code ":showing? (:step1 demo-tour)"] "."]
-                 [:li.spacer "To add navigation buttons to the popover, add the following component to the end of your popover's "
+                 [:li.spacer "Make a tour object, something like: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
+                 [:li.spacer "Then, wrap each anchor components in your tour with a popover component."]
+                 [:li.spacer "Each each such popover the " [:code ":showing?"] " parameter should look like this: "
+                     [:br] [:code ":showing? (:step1 demo-tour)"] "."]]
+                [:p "To add navigation buttons to a popover, add the following component to the end of your popover's "
                   [:code ":body"] " markup: " [:br] [:code "[make-tour-nav demo-tour]"] "."]
-                 [:li.spacer "To start the tour, call: " [:code "(start-tour demo-tour)"] "."]
-                 [:li.spacer "To finish the tour, call: " [:code "(finish-tour demo-tour)"] "."]]]]]])
+                [:p "To start the tour, call: " [:code "(start-tour demo-tour)"] "."]
+                [:p "To finish the tour, call: " [:code "(finish-tour demo-tour)"] "."]]])
 
 
 (defn panel
   []
-  (let [selected-demo-id (reagent/atom 1)]
-    (fn []
-      [v-box
-       :children [[title :label "Tour"]
-                  [h-box
-                   :gap      "50px"
-                   :children [[notes]
-                              [v-box
-                               :gap       "150px"
-                               :size      "auto"
-                               :min-width "500px"
-                               :margin    "20px 0px 0px 0px"
-                               :children  [[demo]]]]]]])))
+  [v-box
+   :children [[panel-title "Tour Components"]
+              [h-box
+               :gap      "50px"
+               :children [[notes]
+                          [v-box
+                           :gap       "150px"
+                           :size      "auto"
+                           :min-width "400px"
+                           :margin    "20px 0px 0px 0px"
+                           :children  [[demo]]]]]]])

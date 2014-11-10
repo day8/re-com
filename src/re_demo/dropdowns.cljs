@@ -5,6 +5,7 @@
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [cljs.core.async :refer [<! >! chan close! put! take! alts! timeout]]
+            [re-demo.utils   :refer [panel-title component-title]]
             [reagent.core    :as    reagent]))
 
 
@@ -298,24 +299,23 @@
 (defn notes
   []
   [v-box
-   :width    "500px"
+   :width    "400px"
    :style    {:font-size "small"}
-   :children [[:div.h4 "[single-dropdown ... ]"]
+   :children [[component-title  "[single-dropdown ... ]"]
+              [:p "Required parameters:"]
               [:ul
-               [:li "Required parameters:"
-                [:ul
-                 [:li.spacer [:code ":choices"] " - a vector of maps, one map for each choice. Each map contains a unique :id and a :label and can optionally include a :group."]
-                 [:li.spacer [:code ":model"] " - the :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown)."]
-                 [:li.spacer [:code ":on-change"] " - a function taking one parameter which will be the :id for the new choice."]]]
-               [:li "Optional:"
-                [:ul
-                 [:li.spacer [:code ":disabled?"] " - a boolean indicating whether the control should be disabled. Defaults to false."]
-                 [:li.spacer [:code ":filter-box?"] " - a boolean. If true a filter text box is available at the top of the dropped down section. Defaults to false."]
-                 [:li.spacer [:code ":regex-filter?"] " - a boolean. If true the filter text box will support JavaScript regular expressions. If false plain text searches.  Defaults to false."]
-                 [:li.spacer [:code ":placeholder"] " - the text to display in the dropdown if :model is nil."]
-                 [:li.spacer [:code ":width"] " - the width of the component (e.g. \"500px\"). If not specified, all available width is taken."]
-                 [:li.spacer [:code ":max-height"] " - maximum height the dropdown will grow to. Defaults to \"240px\"."]
-                 [:li.spacer [:code ":tab-index"] " - the tabindex number of this component. -1 to remove from tab order. Defaults to use natural tab order."]]]]]])
+               [:li.spacer [:code ":choices"] " - a vector of maps, one map for each choice. Each map contains a unique :id and a :label and can optionally include a :group."]
+               [:li.spacer [:code ":model"] " - the :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown)."]
+               [:li.spacer [:code ":on-change"] " - a function taking one parameter which will be the :id for the new choice."]]
+              [:p "Optional:"]
+              [:ul
+               [:li.spacer [:code ":disabled?"] " - a boolean indicating whether the control should be disabled. Defaults to false."]
+               [:li.spacer [:code ":filter-box?"] " - a boolean. If true a filter text box is available at the top of the dropped down section. Defaults to false."]
+               [:li.spacer [:code ":regex-filter?"] " - a boolean. If true the filter text box will support JavaScript regular expressions. If false plain text searches.  Defaults to false."]
+               [:li.spacer [:code ":placeholder"] " - the text to display in the dropdown if :model is nil."]
+               [:li.spacer [:code ":width"] " - the width of the component (e.g. \"500px\"). If not specified, all available width is taken."]
+               [:li.spacer [:code ":max-height"] " - maximum height the dropdown will grow to. Defaults to \"240px\"."]
+               [:li.spacer [:code ":tab-index"] " - the tabindex number of this component. -1 to remove from tab order. Defaults to use natural tab order."]]]])
 
 
 (defn panel
@@ -324,7 +324,7 @@
     (fn []
       [v-box
        :gap "10px"
-       :children [[title :label "Dropdown Components"]
+       :children [[panel-title "Dropdown Components"]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

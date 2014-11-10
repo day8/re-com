@@ -1,9 +1,9 @@
 (ns re-demo.utils
-  (:require [re-com.core     :refer [title]]
+  (:require [re-com.core     :refer [title label]]
             [reagent.core    :as    reagent]))
 
 
-(def panel-title-style {
+#_(def panel-title-style {
     :font-family "Ubuntu"
     :font-weight "300"
     :font-size   "24px"
@@ -11,14 +11,24 @@
     :margin-top  "7px"
    })
 
+(def ubuntu-font {
+  :font-family "Ubuntu"
+  :font-weight "300" })
+
+
+(def panel-title-style {
+    :font-size   "24px"
+    :color       "#FFF"
+    :background-color  "#888"
+    :height      "50px"
+   })
+
 (defn panel-title
   "The text shown at the top of each Tab Panel"
   [text style]
   [title
-    :label      text
-    :underline? false
-    :style      (merge panel-title-style style)
-    ])
+   :label    text
+   :style    (merge ubuntu-font  style)])
 
 
 
@@ -29,6 +39,6 @@
   [title
    :h          :h4   ;; [:h4 .. ]
    :label      component-name
-   :style      (merge {:color "#555"} style)
+   :style      (merge {:color "#555"}  style)
    :underline? false
    ])

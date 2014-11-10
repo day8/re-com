@@ -1,7 +1,8 @@
 (ns re-demo.boxes
   (:require [re-com.util  :as    util]
             [re-com.box   :refer [h-box v-box box gap line scroller border]]
-            [re-com.core  :refer [button title]]
+            [re-com.core  :refer [button]]
+            [re-demo.utils   :refer [panel-title component-title]]
             [reagent.core :as    reagent]))
 
 
@@ -25,9 +26,7 @@
   []
   [v-box
    :size "auto"
-   :children [[box
-               :child [h-box
-                       :children [[title :label "Boxes (simple, with scrollers)"]]]]
+   :children [[panel-title "Boxes (simple, with scrollers)"]
               [gap  :size "15px"]
               [line :size "2px"]
               [h-box
@@ -82,9 +81,7 @@
   []
   [v-box
    :size     "auto"
-   :children [[h-box
-               :align :stretch
-               :children [[title :label "Boxes (min-width/height)"]]]
+   :children [[panel-title  "Boxes (min-width/height)"]
               [gap  :size "15px"]
               [line :size "2px"]
               [v-box

@@ -4,6 +4,7 @@
             [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
             [re-com.dropdown             :refer [single-dropdown]]
+            [re-demo.utils               :refer [panel-title component-title]]
             [reagent.core                :as    reagent]))
 
 
@@ -257,7 +258,8 @@
 (defn panel
   []
   [v-box
-   :children [[simple-popover-demo]
+   :children [[panel-title "Popover Components"]
+              [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]
               [complex-popover-demo]
