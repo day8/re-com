@@ -37,7 +37,8 @@
     {:id ::modals    :label "Modals"      :panel modals/panel}
     {:id ::boxes1    :label "Boxes-1"     :panel boxes/panel1}
     {:id ::boxes2    :label "Boxes-2"     :panel boxes/panel2}
-    {:id ::layouts   :label "Layouts"     :panel layouts/panel}])
+    {:id ::layouts   :label "Layouts"     :panel layouts/panel}
+    ])
 
 
 (defn nav-item
@@ -107,18 +108,22 @@
        ;; (height is 100% of body, which must have already had it's height set to 100%)
        ;; width doesn't need to be initially set
        :height   "100%"
-       :gap  "60px"
-       :padding  "0px 5px 10px 0px"     ;; top botton right left <== TODO: [GR] NO, it's top right botton left
-       :children [[v-box
-                   :children [[re-com-title]
-                              [left-side-nav-bar selected-tab-id]
-                              #_[re-com.tabs/vertical-pill-tabs ;; tabs down the side
-                               :model selected-tab-id
-                               :tabs  tabs-definition]]]
-                   [scroller
+       :gap      "60px"
+       ;:padding  "0px 10px 5px 0px"     ;; top right botton left TODO: [GR] Review whether we want this. I don't think so
+       :children [[scroller
+                   :size  "none"
+                   :v-scroll :auto
+                   :h-scroll :off
+                   :child [v-box
+                           :children [[re-com-title]
+                                      [left-side-nav-bar selected-tab-id]
+                                      #_[re-com.tabs/vertical-pill-tabs ;; tabs down the side
+                                       :model selected-tab-id
+                                       :tabs  tabs-definition]]]]
+                  [scroller
                     :child [box
                             :size      "auto"
-                            :padding   "15px 5px"         ;; top bottom <== TODO: [GR] NO, it's top/bottom right/left
+                            :padding   "15px 0px 5px 0px"         ;; top right bottom left
                             :child     [(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]] ;; the tab panel to show, for the selected tab
                    ]])))
 
