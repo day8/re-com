@@ -7,6 +7,7 @@
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
             [re-com.modal    :refer [modal-window cancel-button looper domino-process]]
             [cljs.core.async :refer [<! >! chan close! put! take! alts! timeout]]
+            [re-demo.utils   :refer [panel-title component-title]]
             [reagent.core    :as    reagent]))
 
 
@@ -767,7 +768,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
-       :children [[title :label "Modals"]
+       :children [[panel-title "Modal Components"]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

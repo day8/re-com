@@ -106,7 +106,7 @@
 (defn button
   "Returns the markup for a basic button."
   [& {:keys [label on-click disabled? class style]
-      :or   {:class "btn-default"}
+      :or   {class "btn-default"}
       :as   args}]
   {:pre [(superset? button-args (keys args))]}
   (let [disabled?   (deref-or-value disabled?)]

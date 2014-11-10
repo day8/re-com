@@ -4,6 +4,7 @@
     [re-com.core           :refer [label checkbox title]]
     [re-com.box            :refer [h-box v-box]]
     [re-com.selection-list :refer [selection-list]]
+    [re-demo.utils         :refer [panel-title component-title]]
     [re-com.util           :refer [golden-ratio-a golden-ratio-b]]))
 
 
@@ -144,7 +145,7 @@
         b-width     (golden-ratio-b panel-width)]
     [v-box
      :width    (str panel-width "px")
-     :children [[title :label "Multiple & Single Selection List"]
+     :children [[panel-title "Selection List Components"]
                 [h-box
                  :gap      (str h-gap "px")
                  :children [[notes a-width]
