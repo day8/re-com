@@ -295,7 +295,8 @@
                    {:display "flex" :flex-flow "column nowrap"}
                    (when f-child    (flex-child-style size))
                    (when width      {:width width})
-                   {:height (if height height "inherit")}
+                   ;{:height (if height height "inherit")}
+                   (when height     {:height height})
                    (when min-width  {:min-width min-width})
                    (when min-height {:min-height min-height})
                    (justify-style justify)
