@@ -35,15 +35,16 @@
 ;; ------------------------------------------------------------------------------------
 
 (def input-text-args
-  #{:model           ;; Text of the input (can be atom or value).
-    :placeholder     ;; Text to show when there is no under text in the component.
-    :width           ;; Standard CSS width setting for this input. Default is 250px.
-    :height          ;; Standard CSS width setting for this input. Default is 34px as set in Bootstrap style.
-    :on-change       ;; A function which takes one parameter, which is the new text (see :change-on-blur?).
-    :change-on-blur? ;; When true, invoke on-change function on blur, otherwise on every change (character by character).
-    :disabled?       ;; Set to true to disable the input box (can be atom or value).
-    :class           ;; Class string.
-    :style           ;; CSS style map.
+  #{:model            ;; Text of the input (can be atom or value).
+    :placeholder      ;; Text to show when there is no under text in the component.
+    :width            ;; Standard CSS width setting for this input. Default is 250px.
+    :height           ;; Standard CSS width setting for this input. Default is 34px as set in Bootstrap style.
+    :on-change        ;; A function which takes one parameter, which is the new text (see :change-on-blur?).
+    :change-on-blur?  ;; When true, invoke on-change function on blur, otherwise on every change (character by character).
+    :validation-regex ;; TODO: Implement
+    :disabled?        ;; Set to true to disable the input box (can be atom or value).
+    :class            ;; Class string.
+    :style            ;; CSS style map.
     })
 
 
