@@ -1,7 +1,6 @@
 (ns re-com.dropdown
   ;(:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
-  (:require [clojure.set      :refer [superset?]]
-            [re-com.util      :refer [deref-or-value find-map-index]]
+  (:require [re-com.util      :refer [deref-or-value find-map-index validate-arguments]]
             [clojure.string   :as    string]
             ;[clairvoyant.core :refer [default-tracer]]
             [reagent.core     :as    reagent]))
@@ -171,34 +170,31 @@
 ;; Component: single-dropdown
 ;;--------------------------------------------------------------------------------------------------
 
-(def single-dropdown-args
-  #{:choices        ; A vector of maps. Each map contains a unique :id and a :label and can optionally include a :group. An example:
-                    ;     [{:id "AU" :label "Australia"      :group "Group 1"}
-                    ;      {:id "US" :label "United States"  :group "Group 1"}
-                    ;      {:id "GB" :label "United Kingdom" :group "Group 1"}
-                    ;      {:id "AF" :label "Afghanistan"    :group "Group 2"}]
-    :model          ; The :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown).
-    :on-change      ; A callback function taking one parameter which will be the :id of the new selection.
-    :disabled?      ; A boolean indicating whether the control should be disabled. false if not specified.
-    :filter-box?    ; A boolean indicating the presence or absence of a filter text box at the top of the dropped down section. false if not specified.
-    :regex-filter?  ; A boolean indicating whether the filter text box will support JavaScript regular expressions or just plain text. false if not specified.
-    :placeholder    ; The text to be displayed in the dropdown if no selection has yet been made.
-    :width          ; The width of the component (e.g. "500px"). If not specified, all available width is taken.
-    :max-height     ; Maximum height the dropdown will grow to. If not specified, "240px" is used.
-    :tab-index      ; The tabindex number of this component. -1 to remove from tab order. If not specified, use natural tab order.
-    })
+(def single-dropdown-desc
+  [{:name :choices         :required true                   :type "vector"      :description "a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."}
+   {:name :model           :required true                   :type "string|nil"  :description "the :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown)."}
+   {:name :on-change       :required true                   :type "function"    :description "a callback taking one parameter which will be the :id of the new selection."}
+   {:name :disabled?       :required false :default false   :type "boolean"     :description "indicates whether the component should be disabled."}
+   {:name :filter-box?     :required false :default false   :type "boolean"     :description "indicates the presence or absence of a filter text box at the top of the dropped down section."}
+   {:name :regex-filter?   :required false :default false   :type "boolean"     :description "indicates whether the filter text box will support JavaScript regular expressions or just plain text."}
+   {:name :placeholder     :required false                  :type "string"      :description "displayed in the dropdown if no selection has yet been made."}
+   {:name :width           :required false                  :type "string"      :description "the width of the component (e.g. \"500px\"). If not specified, all available width is taken."}
+   {:name :max-height      :required false :default "240px" :type "string"      :description "the maximum height the dropdown will grow to."}
+   {:name :tab-index       :required false                  :type "nummber|nil" :description "the tabindex number of this component. -1 to remove from tab order. If not specified, use natural tab order."}])
 
+(def single-dropdown-args
+  (set (map :name single-dropdown-desc)))
 
 (defn single-dropdown
   "Render a single dropdown component which emulates the bootstrap-choosen style."
   [& {:keys [model] :as args}]
-  {:pre [(superset? single-dropdown-args (keys args))]}
+  {:pre [(validate-arguments single-dropdown-args (keys args))]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
         filter-text    (reagent/atom "")]
     (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index] :as args}]
-      {:pre [(superset? single-dropdown-args (keys args))]}
+      {:pre [(validate-arguments single-dropdown-args (keys args))]}
       (let [choices          (deref-or-value choices)
             disabled?        (deref-or-value disabled?)
             regex-filter?    (deref-or-value regex-filter?)

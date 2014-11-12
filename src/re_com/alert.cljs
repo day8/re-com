@@ -9,23 +9,24 @@
 ;; Component: alert
 ;;--------------------------------------------------------------------------------------------------
 
-(def alert-box-args
-  #{:id           ; A unique identifier for the alert, usually an integer or string, but could be anything.
-    :alert-type   ; A string contining a bootstrap style: 'info', 'warning' or 'danger'
-    :heading      ; Hiccup markup or a string containing the heading text
-    :body         ; Hiccup markup or a string containing the body of the alert
-    :padding      ; The amount of padding within the alert (default is 15px)
-    :closeable?   ; Should a close 'X' button is rendered (:on-close must also be supplied)
-    :on-close     ; The function to call back when the user clicks the close 'X'. Invoked with the single :id parameter"
-    })
+(def alert-box-args-desc
+  [{:name :id              :required false                  :type "any"           :description "a unique identifier for the alert, usually an integer or string, but could be anything."}
+   {:name :alert-type      :required false :default "info"  :type "string"        :description "a bootstrap style: \"info\", \"warning\" or \"danger\"."}
+   {:name :heading         :required false                  :type "markup|string" :description "describes the heading text. One of either heading or body must be provided."}
+   {:name :body            :required false                  :type "markup|string" :description "describes the body of the alert. One of either heading or body must be provided."}
+   {:name :padding         :required false :default "15px"  :type "string"        :description "CSS style for padding within the alert."}
+   {:name :closeable?      :required false :default false   :type "boolean"       :description "if true, a close button 'X' is rendered (<code>:on-close</code> must also be supplied)."}
+   {:name :on-close        :required false                  :type "function"      :description "the callback when the user clicks the close 'X'. Invoked with the single <code>:id</code> parameter. Required when <code>:closeable?</code> is true."}])
 
+(def alert-box-args
+  (set (map :name alert-box-args-desc)))
 
 (defn alert-box
   "Displays one alert box. A close button allows the message to be removed."
   [& {:keys [id alert-type heading body padding closeable? on-close]
       :or   {alert-type "info"}
       :as   args}]
-  {:pre [(superset? alert-box-args (keys args))]}
+  {:pre [(util/validate-arguments alert-box-args (keys args))]}
   [:div.alert.fade.in
    {:class (str "alert-" alert-type)
     :style {:flex "none" :padding (when padding padding)}}
@@ -42,31 +43,22 @@
 ;; Component: alert-list
 ;;--------------------------------------------------------------------------------------------------
 
-(def alert-list-args
-  #{:alerts         ; An atom containing a vector of alert maps. A typical alerts vector will look like:
-                    ;     [{:id 2
-                    ;       :alert-type "warning"
-                    ;       :heading "Heading"
-                    ;       :body "Body"
-                    ;       :padding "8px"
-                    ;       :closeable? true}
-                    ;      {:id 1
-                    ;        :alert-type "info"
-                    ;       :heading "Heading"
-                    ;       :body "Body"}]
-    :on-close       ; The function to call back when the user clicks the close 'X' of an item. Invoked with the a single :id parameter.
-    :max-height     ; The initial height of this component is 0px and grows to this maximum as alerts are added. Default is to expand forever.
-    :padding        ; Padding within the alert-list outer box. Default is 4px.
-    :border-style   ; The border style around the alert-list outer box. Default is "1px solid lightgrey".
-    })
+(def alert-list-args-desc
+  [{:name :alerts          :required false                  :type "vector"    :description "containing alert maps to be rendered. The order is specified by the calling app."}
+   {:name :on-close        :required false                  :type "function"  :description "the callback when the user clicks the close 'X'. Invoked with the single <code>:id</code> parameter."}
+   {:name :max-height      :required false                  :type "string"    :description "CSS style describing the height this component can grow to grow as alerts are added. Default is to expand forever."}
+   {:name :padding         :required false :default "4px"   :type "string"    :description "CSS style describing the padding within the alert."}
+   {:name :border-style    :required false :default "1px solid lightgrey"   :type "string"   :description "CSS style describing the border style around the alert-list outer box."}])
 
+(def alert-list-args
+  (set (map :name alert-list-args-desc)))
 
 (defn alert-list
   "Displays a list of alert-box components in a v-box."
   [& {:keys [alerts on-close max-height padding border-style]
       :or   {padding "4px"}
       :as   args}]
-  {:pre [(superset? alert-list-args (keys args))]}
+  {:pre [(util/validate-arguments alert-list-args (keys args))]}
   [border
    :padding padding
    :border  border-style
