@@ -17,7 +17,7 @@
    Flex property explanation:
     - grow    Integer ratio (used with other siblings) to determined how a flex item grows it's size if there is extra space to distribute. 0 for no growing.
     - shrink  Integer ratio (used with other siblings) to determined how a flex item shrinks it's size if space needs to be removed. 0 for no shrinking.
-    - basis   Initial size of item before any growing or shrinking. Can be any size value, e.g. 60%, 100px, auto
+    - basis   Initial size (width, actually) of item before any growing or shrinking. Can be any size value, e.g. 60%, 100px, auto
    Supported values:
     - initial            '0 1 auto'  - Use item's width/height for dimensions (or content dimensions if w/h not specifed). Never grow. Shrink (to min-size) if necessary.
                                        Good for creating boxes with fixed maximum size, but that can shrink to a fixed smaller size (min-width/height) if space becomes tight.
@@ -35,6 +35,7 @@
     - grow shrink basis  'grow shrink basis' - If none of the above common valaues above meet your needs, this gives you precise control.
    If number of words is not 1 or 3, an exception is thrown.
    Reference: http://www.w3.org/TR/css3-flexbox/#flexibility
+   Diagram:   http://www.w3.org/TR/css3-flexbox/#flex-container
    Regex101 testing: ^(initial|auto|none)|(\\d+)(px|%|em)|(\\d+)\\w(\\d+)\\w(.*) - remove double backslashes"
   [size]
   ;; TODO: Could make initial/auto/none into keywords???

@@ -186,7 +186,11 @@
   (set (map :name single-dropdown-desc)))
 
 (defn single-dropdown
-  "Render a single dropdown component which emulates the bootstrap-choosen style."
+  "Render a single dropdown component which emulates the bootstrap-choosen style. Sample choices object:
+     [{:id \"AU\" :label \"Australia\"      :group \"Group 1\"}
+      {:id \"US\" :label \"United States\"  :group \"Group 1\"}
+      {:id \"GB\" :label \"United Kingdom\" :group \"Group 1\"}
+      {:id \"AF\" :label \"Afghanistan\"    :group \"Group 2\"}]"
   [& {:keys [model] :as args}]
   {:pre [(validate-arguments single-dropdown-args (keys args))]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes

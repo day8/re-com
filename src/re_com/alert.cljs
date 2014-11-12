@@ -54,7 +54,17 @@
   (set (map :name alert-list-args-desc)))
 
 (defn alert-list
-  "Displays a list of alert-box components in a v-box."
+  "Displays a list of alert-box components in a v-box. Sample alerts object:
+     [{:id 2
+       :alert-type \"warning\"
+       :heading \"Heading\"
+       :body \"Body\"
+       :padding \"8px\"
+       :closeable? true}
+      {:id 1
+       :alert-type \"info\"
+       :heading \"Heading\"
+       :body \"Body\"}]"
   [& {:keys [alerts on-close max-height padding border-style]
       :or   {padding "4px"}
       :as   args}]

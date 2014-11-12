@@ -331,6 +331,86 @@
                                             (reset! disabled? val))]]]]])))
 
 
+(defn h-box-demo
+  []
+  (let []
+    (fn
+      []
+      [h-box
+       ;:size     "600px"
+       :height   "200px"
+       ;:width    "600px"
+       :gap      "5px"
+       :style    {:border "1px dashed lightgrey"}
+       :children [[button
+                   :style {:border "1px dashed red"}
+                   :label "Button"]
+                  [hyperlink
+                   :style {:border "1px dashed red"}
+                   :label "Hyperlink"]
+                  [label
+                   :style {:border "1px dashed red"}
+                   :label "Label"]
+                  [gap
+                   :style {:border "1px dashed red"}
+                   :size  "10px"]
+                  [line
+                   :size "2px"]
+                  [input-text
+                   :width "150px"
+                   :style {:border "1px dashed red"}
+                   :on-change #()]
+                  [checkbox
+                   :label-style {:border "1px dashed red"}
+                   :label       "Checkbox"
+                   :on-change   #()]
+                  [radio-button
+                   :label-style {:border "1px dashed red"}
+                   :label       "Radio"
+                   :on-change   #()]
+                  ]])))
+
+
+(defn v-box-demo
+  []
+  (let []
+    (fn
+      []
+      [v-box
+       ;:size     "600px"
+       ;:height   "600px"
+       :width    "200px"
+       :gap      "5px"
+       :style    {:border "1px dashed lightgrey"}
+       :children [[button
+                   :style {:border "1px dashed red"}
+                   :label "Button"]
+                  [hyperlink
+                   :style {:border "1px dashed red"}
+                   :label "Hyperlink"]
+                  [label
+                   :style {:border "1px dashed red"}
+                   :label "Label"]
+                  [gap
+                   :style {:border "1px dashed red"}
+                   :size  "10px"]
+                  [line
+                   :size "2px"]
+                  [input-text
+                   :width "150px"
+                   :style {:border "1px dashed red"}
+                   :on-change #()]
+                  [checkbox
+                   :label-style {:border "1px dashed red"}
+                   :label       "Checkbox"
+                   :on-change   #()]
+                  [radio-button
+                   :label-style {:border "1px dashed red"}
+                   :label       "Radio"
+                   :on-change   #()]
+                  ]])))
+
+
 (defn panel
   []
   [v-box
@@ -349,4 +429,8 @@
               [component-display   "[hyperlink-href ... ]" hyperlink-href-demo]
               [line ]
               [component-display   "[slider ... ]" slider-demo]
+              [line ]
+              [component-display   "[h-box ... ]" h-box-demo]
+              [line ]
+              [component-display   "[v-box ... ]" v-box-demo]
               [gap :size "100px"]]])
