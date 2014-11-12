@@ -1,6 +1,6 @@
 (ns re-com.tabs
    (:require [clojure.set  :refer [superset?]]
-             [re-com.util  :refer [deref-or-value]]
+             [re-com.util  :refer [deref-or-value validate-arguments]]
              [reagent.core :as    reagent]))
 
 
@@ -17,19 +17,17 @@
 ;; Component: horizontal-tabs
 ;;--------------------------------------------------------------------------------------------------
 
-(def tabs-args
-  #{:model      ;; Sets/holds/returns the currently selected tab - model can be atom
-    :tabs       ;; The tabs object defined as a vector of maps (can be literal/variable/atom):
-                ;;   [{:id ::tab1  :label "Tab1"}
-                ;;    {:id ::tab2  :label "Tab2"}
-                ;;    {:id ::tab3  :label "Tab3"}]
-    })
+(def tabs-args-desc
+  [{:name :model   :required true  :type "any"    :description "the :id of the currently selected tab - can be a value or an atom."}
+   {:name :tabs    :required true  :type "vector" :description "a vector of maps, one for each tab - can be a value or an atom. Each map must have an :id and :label."}])
 
+(def tabs-args
+  (set (map :name tabs-args-desc)))
 
 (defn horizontal-tabs
   [& {:keys [model tabs]
       :as   args}]
-  {:pre [(superset? tabs-args (keys args))]}
+  {:pre [(validate-arguments tabs-args (keys args))]}
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
@@ -57,7 +55,7 @@
 (defn horizontal-bar-tabs
   [& {:keys [model tabs]
       :as   args}]
-  {:pre [(superset? tabs-args (keys args))]}
+  {:pre [(validate-arguments tabs-args (keys args))]}
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]

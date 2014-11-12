@@ -10,7 +10,7 @@
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box]]
-    [re-com.util          :refer [deref-or-value]]
+    [re-com.util          :refer [deref-or-value validate-arguments]]
     [re-com.popover       :refer [popover-content-wrapper popover-anchor-wrapper backdrop popover-border]]))
 
 ;; --- cljs-time facades ------------------------------------------------------
@@ -187,22 +187,23 @@
     (merge attributes {:enabled-days enabled-days
                        :today (now)})))
 
+(def datepicker-args-desc
+  [{:name :model        :required true                 :type "goog.date.UtcDateTime"   :description "an instance of goog.date.UtcDateTime or an atom containing one. Represents displayed month and actual selected day. Must be one of <code>:enabled-days</code>."}
+   {:name :on-change    :required true                 :type "function"                :description "a callback taking one parameter, which will be the new selected goog.date.UtcDateTime."}
+   {:name :disabled?    :required false :default false :type "boolean|atom"            :description "when true, navigation is allowed but selection is disabled."}
+   {:name :enabled-days :required false                :type "set"                     :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Dates falling on these days will be user-selectable, others not so. If nil or empty, all days are enabled."}
+   {:name :show-weeks?  :required false :default false :type "boolean"                 :description "when true, the first column shows week numbers."}
+   {:name :show-today?  :required false :default false :type "boolean"                 :description "when true, today's date is highlighted."}
+   {:name :minimum      :required false                :type "goog.date.UtcDateTime"   :description "selection and navigation are blocked before this date."}
+   {:name :maximum      :required false                :type "goog.date.UtcDateTime"   :description "selection and navigation are blocked after this date."}
+   {:name :hide-border? :required false :default false :type "boolean"                 :description "when true, the border is not displayed."}])
+
 (def datepicker-args
-  #{:model        ; goog.date.UtcDateTime can be reagent/atom.
-                  ; The calendar will be focused on corresponding date and the date represents selection.
-    :on-change    ; function callback will be passed new selected goog.date.UtcDateTime
-    :disabled?    ; optional boolean can be reagent/atom. When true, navigation is allowed but selection is disabled.
-    :enabled-days ; set of any #{:Su :Mo :Tu :We :Th :Fr :Sa} if nil or an empty set, all days are enabled.
-    :show-weeks?  ; boolean. When true, first column shows week numbers.
-    :show-today?  ; boolean. When true, today's date is highlighted. Selected day highlight takes precedence.
-    :minimum      ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
-    :maximum      ; optional goog.date.UtcDateTime inclusive beyond which navigation & selection is blocked.
-    :hide-border? ; boolean. Default false.
-   })
+  (set (map :name datepicker-args-desc)))
 
 (defn datepicker
   [& {:keys [model] :as args}]
-  {:pre [(superset? datepicker-args (keys args))]}
+  {:pre [(validate-arguments datepicker-args (keys args))]}
   (let [current (-> (deref-or-value model) first-day-of-the-month reagent/atom)]
     (fn
       [& {:keys [model disabled? hide-border? on-change] :as properties}]
@@ -234,14 +235,16 @@
                [:span  {:class "dropdown-button activator input-group-addon"}
                 [:i {:class "glyphicon glyphicon-th"}]]]]])
 
+(def datepicker-dropdown-args-desc
+  (conj datepicker-args-desc
+    {:name :format  :required false  :default "yyyy MMM dd"  :type "string"   :description "a represenatation of a date format. See cljs_time.format."}))
+
 (def datepicker-dropdown-args
-  (conj datepicker-args
-        :format ; optional date format see cljs_time.format Default "yyyy MMM dd"
-  ))
+  (set (map :name datepicker-dropdown-args-desc)))
 
 (defn datepicker-dropdown
   [& {:as args}]
-  {:pre [(superset? datepicker-dropdown-args (keys args))]}
+  {:pre [(validate-arguments datepicker-dropdown-args (keys args))]}
   (let [shown?         (reagent/atom false)
         cancel-popover #(reset! shown? false)
         position       :below-center]

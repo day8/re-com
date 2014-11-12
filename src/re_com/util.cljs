@@ -1,5 +1,6 @@
 (ns re-com.util
-  (:require  [clojure.string :as string]))
+  (:require  [clojure.string :as string]
+             [clojure.set      :refer [superset?]]))
 
 (defn fmap
   "Takes a fucntion 'f' amd a map 'm'.  Applies 'f' to each value in 'm' and returns.
@@ -71,3 +72,12 @@
 (defn insert-nth
   [vect index item]
   (apply merge (subvec vect 0 index) item (subvec vect index)))
+
+
+(defn validate-arguments
+  [defined-args passed-args]
+  ( if (superset? defined-args passed-args)
+    true
+    (let [missing (remove defined-args passed-args)]
+      (.error js/console (str "The following arguments are not supported: " missing))
+      false)))

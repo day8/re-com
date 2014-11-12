@@ -4,7 +4,7 @@
     [reagent.core         :as    r]
     [re-com.core          :refer [label checkbox radio-button]]
     [re-com.box           :refer [box border h-box v-box]]
-    [re-com.util          :refer [fmap deref-or-value]]))
+    [re-com.util          :refer [fmap deref-or-value validate-arguments]]))
 
 ;; ----------------------------------------------------------------------------
 (defn label-style [selected? as-exclusions?]
@@ -108,29 +108,31 @@
           :label-fn       (partial str)}
          (fmap deref-or-value attributes)))
 
+(def selection-list-args-desc
+  [{:name :choices         :required true                   :type "vector"   :description "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see <code>:label-fn</code> bellow."}
+   {:name :model           :required true                   :type "set"      :description "the currently selected items. Note: items are considered distinct."}
+   {:name :on-change       :required true                   :type "function" :description "a callback which will be passed set of selected items."}
+   {:name :multi-select?   :required false :default true    :type "boolean"  :description "when true, items use check boxes, otherwise radio buttons."}
+   {:name :as-exclusions?  :required false :default false   :type "boolean"  :description "when true, selected items are shown with struck-out labels."}
+   {:name :required?       :required false :default false   :type "boolean"  :description "when true, at least one item must be selected. Note: being able to un-select a radio button is not a common use case, so this should probably be set to true when in single select mode."}
+   {:name :width           :required false                  :type "string"   :description "a CSS style e.g. \"250px\". When specified, item labels may be clipped. Otherwise based on widest label."}
+   {:name :height          :required false                  :type "string"   :description "a CSS style e.g. \"150px\". Size beyond which items will scroll."}
+   {:name :max-height      :required false                  :type "string"   :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll."}
+   {:name :disabled?       :required false :default false   :type "boolean"  :description "when true, the time input will be disabled. Can be atom or value."}
+   {:name :hide-border?    :required false :default false   :type "boolean"  :description "when true, the list will be displayed without a border."}
+   {:name :item-renderer   :required false                  :type "function" :description "called for each element during setup, the returned component renders the element, respond to clicks etc. Following example renders plain label -
+<code>(defn as-label
+  [item selections on-change disabled? label-fn required? as-exclusions?]
+  [label :label (label-fn item) :style {:width \"200px\" :color \"#428bca\"}])</code>"}
+   {:name :label-fn        :required false :default "<code>#(str %)</code>" :type "function"   :description "called for each element to get label string."}])
 
 (def selection-list-args
-  #{:model          ; set of selected elements (atom supported).
-    :choices        ; list of elements to be selected (atom supported).
-    :multi-select?  ; boolean (when true, items use check boxes otherwise radio buttons)
-    :as-exclusions? ; boolean (when true, selected item labels use strikeout style)
-    :required?      ; boolean (when true, at least one item must be selected)
-    :on-change      ; function callback will be passed updated set of item(s)
-    :disabled?      ; optional boolean. When true, navigation is allowed but selection is disabled.
-    :hide-border?   ; boolean. Default false.
-    :label-fn       ; optional function to call on element to get label string, default :label
-    :width          ; optional CSS style value e.g. "250px"
-    :height         ; optional CSS style value e.g. "150px"
-    :max-height     ; optional CSS style value e.g. "150px" Height will shrink/grow based on elements up to this, then scroll
-    :item-renderer  ; optional component function as alternate rendering to default check & radio.
-                    ; function will be passed following args:
-                    ; [item selections on-change disabled? label-fn required? as-exclusions?]
-    })
+  (set (map :name selection-list-args-desc)))
 
 (defn selection-list
   "Produce a list box with items arranged vertically"
   [& {:as args}]
-  {:pre [(superset? selection-list-args (keys args))]}
+  {:pre [(validate-arguments selection-list-args (keys args))]}
   ;;NOTE: Consumer has complete control over what is selected or not. A current design tradeoff
   ;;      causes all selection changes to trigger a complete list re-render as a result of on-change callback.
   ;;      this approach may be not ideal for very large list choices.
