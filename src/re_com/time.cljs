@@ -5,7 +5,7 @@
     [clojure.set :refer [superset?]]
     [re-com.core :refer [label]]
     [re-com.box :refer [h-box gap]]
-    [re-com.util :refer [pad-zero-number deref-or-value]]))
+    [re-com.util :refer [pad-zero-number deref-or-value validate-arguments]]))
 
 
 (defn- time->mins
@@ -125,22 +125,19 @@
     (when (and callback (not= time previous-val))
       (callback time))))
 
-;; TODO: should we add "class" as an arg
+(def time-input-args-desc
+  [{:name :model           :required true                   :type "integer|atom" :description "a time e.g. 930. Can be atom or value."}
+   {:name :minimum         :required false :default 0       :type "integer"      :description "minimum time e.g. 930 - will not allow input less than this time."}
+   {:name :maximum         :required false :default 2359    :type "integer"      :description "maximum time e.g. 1400 - will not allow input more than this time."}
+   {:name :on-change       :required false                  :type "function"     :description "a callback which takes one parameter, which is the new time integer."}
+   {:name :disabled?       :required false :default false   :type "boolean|atom" :description "when true, the time input will be disabled."}
+   {:name :show-icon?      :required false :default false   :type "boolean"      :description "when true, the clock icon will be displayed."}
+   {:name :hide-border?    :required false :default false   :type "boolean"      :description "when true, the time input will be displayed without a border."}
+   {:name :class           :required false                  :type "string"       :description "a CSS width setting for this input. Default is \"34px\" as set in Bootstrap style."}
+   {:name :style           :required false                  :type "map"          :description "a CSS style map."}])
 
 (def time-input-args
-  #{;; REQUIRED
-    :model                               ;; Integer - a time integer e.g. 930 for '09:30'
-    ;; OPTIONAL
-    :minimum                             ;; Integer - a time integer - times less than this will not be allowed - default is 0.
-    :maximum                             ;; Integer - a time integer - times more than this will not be allowed - default is 2359.
-    :on-change                           ;; function - callback will be passed new result - a time integer or nil
-    :disabled?                           ;; boolean or reagent/atom on boolean - when true, navigation is allowed but selection is disabled?.
-    :show-icon?                          ;; boolean - if true display a clock icon to the right of the
-    :style                               ;; map - optional css style information
-    :hide-border?                        ;; boolean - hide border of the input box - default false.
-    :class                               ;; string - class for css styling
-    })
-
+  (set (map :name time-input-args-desc)))
 
 (defn time-input
   "I return the markup for an input box which will accept and validate times.
@@ -148,7 +145,7 @@
   [& {:keys [model minimum maximum on-change class style] :as args
       :or   {minimum 0 maximum 2359}}]
 
-  {:pre [(superset? time-input-args (keys args))
+  {:pre [(validate-arguments time-input-args (keys args))
          (validate-arg-times (deref-or-value model) minimum maximum)]}
 
   (let [deref-model    (deref-or-value model)
@@ -156,7 +153,7 @@
         previous-model (reagent/atom deref-model)]
 
     (fn
-      [& {:keys [model minimum maximum disabled? hide-border? show-icon?] :as passthrough-args}]
+      [& {:keys [model minimum maximum disabled? hide-border? show-icon?]}]
       (let [style (merge (when hide-border? {:border "none"})
                          style)
             new-val (deref-or-value model)
