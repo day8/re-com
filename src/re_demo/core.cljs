@@ -47,26 +47,20 @@
     (fn [tab selected-tab-id]
       (let [selected (= @selected-tab-id (:id tab))]
       [:div
-       {:style {:width            "150px"
-                :line-height      "44px"
-                :color            (if selected "#111" "#333")
-                :border-top       "1px #f2f2f2 solid"
+       {:style {:color            (if selected "#111")
                 :border-right     (if selected "4px #e8e8e8 solid")
-                :border-color     "rgba(1, 1, 1, 0.1)"
-                :font-family      "Ubuntu"
-                :font-weight      "300"
-                :font-size        "16px"
-                :padding-left     "30px"
-                :text-decoration  "none"          ;; no hyperlink showing
                 :background-color (if (or
                                         (= @selected-tab-id (:id tab))
-                                        @mouse-over?) "#f4f4f4" "#fcfcfc")
-               }
+                                        @mouse-over?) "#f4f4f4")}
+
+        :class "nav-item"
         :on-mouse-over  #(reset! mouse-over? true)
         :on-mouse-out   #(reset! mouse-over? false)
         :on-click       #(reset! selected-tab-id (:id tab))
        }
-       [:span {:style {:cursor "default"}} (:label tab)]]))))
+       [:span
+        {:style {:cursor "default"}}    ;; removes the I-beam over the label
+        (:label tab)]]))))
 
 
 (defn left-side-nav-bar
