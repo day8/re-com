@@ -3,6 +3,7 @@
                                    spinner progress-bar checkbox radio-button title slider]]
             [re-com.box    :refer [h-box v-box box gap line]]
             [re-demo.utils :refer [panel-title component-title]]
+            [re-demo.args-table      :refer [args-table]]
             [reagent.core  :as    reagent]))
 
 

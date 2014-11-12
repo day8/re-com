@@ -4,7 +4,8 @@
             [re-com.box              :refer [h-box v-box box gap line scroller border]]
             [re-com.dropdown         :refer [single-dropdown]]
             [re-com.core             :refer [button label title checkbox]]
-            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs horizontal-pill-tabs vertical-pill-tabs find-tab]]
+            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs horizontal-pill-tabs vertical-pill-tabs find-tab tabs-args-desc]]
+            [re-demo.args-table      :refer [args-table]]
             [re-demo.utils           :refer [panel-title component-title]]))
 
 
@@ -34,19 +35,14 @@
                    :children [[box
                                :width "350px"
                                :child [:div
-
-                                       [:p "The 4 tab components are shown to the right. Each has a distinct visual style."]
-                                       [:p "All 4 take the same two parameters:"]
-                                       [:ul
-                                        [:li.spacer [:code ":model"] " - the :id of the currently selected tab - can be a value or an atom."]
-                                        [:li.spacer [:code ":tabs"] " - a vector of maps, one for each tab - can be a value or an atom. Each map must have an :id and :label."]
-                                        ]
                                        [label :style {:font-variant "small-caps"} :label "notes"]
                                        [:ul
+                                        [:li "Each of the 4 tab components shown to the right has a distinct visual style."]
                                         [:li "In this example, all 4 tab compoents share the same state, so they change in lockstep."]
                                         [:li "For effect, some fake  \"Tab Contents\" (a string of text) is shown in the dotted border below."]
                                         [:li "The implementation here is simple and your selection is forgotten when you change to
-                                              another panel, like Welcome (look top left)."]]]]
+                                              another panel, like Welcome (look top left)."]]
+                                       [args-table tabs-args-desc]]]
                               [v-box
                                :size "100%"
                                :gap "50px"

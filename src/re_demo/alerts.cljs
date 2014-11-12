@@ -1,11 +1,12 @@
 (ns re-demo.alerts
-  (:require [re-com.util     :refer [insert-nth remove-nth find-map-index]]
-            [re-com.core     :refer [button label title]]
-            [re-com.box      :refer [h-box v-box box gap]]
-            [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
-            [re-com.alert    :refer [alert-box alert-list]]
-            [re-demo.utils   :refer [panel-title component-title]]
-            [reagent.core    :as    reagent]))
+  (:require [re-com.util        :refer [insert-nth remove-nth find-map-index]]
+            [re-com.core        :refer [button label title]]
+            [re-com.box         :refer [h-box v-box box gap]]
+            [re-com.dropdown    :refer [single-dropdown find-choice filter-choices-by-keyword]]
+            [re-com.alert       :refer [alert-box alert-list alert-box-args-desc alert-list-args-desc]]
+            [re-demo.args-table :refer [args-table]]
+            [re-demo.utils      :refer [panel-title component-title]]
+            [reagent.core       :as    reagent]))
 
 
 (def demos [{:id 1 :label "alert-box"}
@@ -94,8 +95,9 @@
    :style    {:font-size "small"}
    :children [[component-title "[alert-box ... ]"]
               [label :label "A component which renders a single alert-box."]
-              [label :style {:font-variant "small-caps"} :label "optional parameters"]
-              [:ul
+              [ args-table   alert-box-args-desc]
+              #_[label :style {:font-variant "small-caps"} :label "optional parameters"]
+              #_[:ul
                [:li.spacer [:code ":id"] " - a unique identifier, usually an integer or string."]
                [:li.spacer [:code ":alert-type"] " - a string contining a bootstrap style: \"info\", \"warning\" or \"danger\"."]
                [:li.spacer "Note: while heading and body are both optional, you'll need to supply at least one of them."]
@@ -106,8 +108,10 @@
                [:li.spacer [:code ":on-close"] " - the call back when the user clicks the close 'X'. Invoked with the single :id parameter."]]
               [:div.h4 "[alert-list ... ]"]
               [label :label "A component which renders a list of alert-boxes."]
-              [label :style {:font-variant "small-caps"} :label "optional parameters"]
-              [:ul
+
+              [ args-table   alert-list-args-desc]
+              #_[label :style {:font-variant "small-caps"} :label "optional parameters"]
+              #_[:ul
                [:li.spacer [:code ":alerts"] " - a vector containing alert maps to be rendered. The order is specified by the calling app."]
                [:li.spacer [:code ":on-close"] " - a call back when the user clicks the close 'X' of an item. Invoked with the single :id parameter."]
                [:li.spacer [:code ":max-height"] " - the initial height of this component is 0px and grows to this maximum as alerts are added. Default is to expand forever."]
