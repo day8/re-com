@@ -5,8 +5,7 @@
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword single-dropdown-desc]]
             [cljs.core.async :refer [<! >! chan close! put! take! alts! timeout]]
-            [re-demo.utils   :refer [panel-title component-title]]
-            [re-demo.args-table :refer [args-table]]
+            [re-demo.utils   :refer [panel-title component-title args-table]]
             [reagent.core    :as    reagent]))
 
 

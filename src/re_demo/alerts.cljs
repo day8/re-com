@@ -4,8 +4,7 @@
             [re-com.box         :refer [h-box v-box box gap]]
             [re-com.dropdown    :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [re-com.alert       :refer [alert-box alert-list alert-box-args-desc alert-list-args-desc]]
-            [re-demo.args-table :refer [args-table]]
-            [re-demo.utils      :refer [panel-title component-title]]
+            [re-demo.utils      :refer [panel-title component-title args-table]]
             [reagent.core       :as    reagent]))
 
 

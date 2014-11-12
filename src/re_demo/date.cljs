@@ -8,8 +8,8 @@
     [re-com.box           :refer  [h-box v-box gap]]
     [re-com.dropdown      :refer  [single-dropdown]]
     [re-com.util          :refer  [golden-ratio-a golden-ratio-b]]
-    [re-demo.args-table   :refer  [args-table]]
-    [re-demo.utils        :refer  [panel-title component-title]]))
+    [re-demo.utils        :refer  [panel-title component-title args-table]]))
+
 
 (defn- toggle-inclusion!
   "convenience function to include/exclude member from"

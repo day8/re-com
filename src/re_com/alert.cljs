@@ -12,11 +12,11 @@
 (def alert-box-args-desc
   [{:name :id              :required false                  :type "anything"         :description "a unique identifier, usually an integer or string"}
    {:name :alert-type      :required false :default "info"  :type "string"           :description "a bootstrap style: info, warning or danger"}
-   {:name :heading         :required false                  :type "markup | string"  :description "the heading text. One of :heading or :body must be provided"}
-   {:name :body            :required false                  :type "markup | string"  :description "displayed within the body of the alert"}
+   {:name :heading         :required false                  :type "hicup | string"   :description "the heading text. One of :heading or :body must be provided"}
+   {:name :body            :required false                  :type "hicup | string"   :description "displayed within the body of the alert"}
    {:name :padding         :required false :default "15px"  :type "string"           :description "padding within the alert"}
    {:name :closeable?      :required false :default false   :type "boolean"          :description "if true, a close button 'X' is rendered. :on-close to be supplied"}
-   {:name :on-close        :required false                  :type "(function <:id>)" :description "called when the user clicks the close 'X'. Passed the :id of the closing alert."}])
+   {:name :on-close        :required false                  :type "(function <:id>)" :description "called when the user clicks a close 'X'. Passed the :id of the alert to close."}])
 
 (def alert-box-args
   (set (map :name alert-box-args-desc)))

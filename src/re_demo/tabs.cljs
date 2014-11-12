@@ -5,8 +5,7 @@
             [re-com.dropdown         :refer [single-dropdown]]
             [re-com.core             :refer [button label title checkbox]]
             [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs horizontal-pill-tabs vertical-pill-tabs find-tab tabs-args-desc]]
-            [re-demo.args-table      :refer [args-table]]
-            [re-demo.utils           :refer [panel-title component-title]]))
+            [re-demo.utils           :refer [panel-title component-title args-table]]))
 
 
 (def demos [{:id 1 :label "The Tab Styles"}

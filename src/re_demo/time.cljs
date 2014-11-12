@@ -2,7 +2,7 @@
   (:require [re-com.core     :refer  [label button checkbox input-text title]]
             [re-com.time     :refer  [time-input]]
             [re-com.box      :refer  [h-box v-box box gap]]
-            [re-demo.utils   :refer [panel-title component-title]]
+            [re-demo.utils   :refer  [panel-title component-title args-table]]
             [reagent.core    :as     reagent]))
 
 
