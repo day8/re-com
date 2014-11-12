@@ -10,13 +10,13 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def alert-box-args-desc
-  [{:name :id              :required false                  :type "any"           :description "a unique identifier for the alert, usually an integer or string, but could be anything."}
-   {:name :alert-type      :required false :default "info"  :type "string"        :description "a bootstrap style: \"info\", \"warning\" or \"danger\"."}
-   {:name :heading         :required false                  :type "markup|string" :description "describes the heading text. One of either heading or body must be provided."}
-   {:name :body            :required false                  :type "markup|string" :description "describes the body of the alert. One of either heading or body must be provided."}
-   {:name :padding         :required false :default "15px"  :type "string"        :description "CSS style for padding within the alert."}
-   {:name :closeable?      :required false :default false   :type "boolean"       :description "if true, a close button 'X' is rendered (<code>:on-close</code> must also be supplied)."}
-   {:name :on-close        :required false                  :type "function"      :description "the callback when the user clicks the close 'X'. Invoked with the single <code>:id</code> parameter. Required when <code>:closeable?</code> is true."}])
+  [{:name :id              :required false                  :type "anything"         :description "a unique identifier, usually an integer or string"}
+   {:name :alert-type      :required false :default "info"  :type "string"           :description "a bootstrap style: info, warning or danger"}
+   {:name :heading         :required false                  :type "hicup | string"   :description "the heading text. One of :heading or :body must be provided"}
+   {:name :body            :required false                  :type "hicup | string"   :description "displayed within the body of the alert"}
+   {:name :padding         :required false :default "15px"  :type "string"           :description "padding within the alert"}
+   {:name :closeable?      :required false :default false   :type "boolean"          :description "if true, a close button 'X' is rendered. :on-close to be supplied"}
+   {:name :on-close        :required false                  :type "(function <:id>)" :description "called when the user clicks a close 'X'. Passed the :id of the alert to close."}])
 
 (def alert-box-args
   (set (map :name alert-box-args-desc)))
@@ -44,11 +44,11 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def alert-list-args-desc
-  [{:name :alerts          :required false                  :type "vector"    :description "containing alert maps to be rendered. The order is specified by the calling app."}
-   {:name :on-close        :required false                  :type "function"  :description "the callback when the user clicks the close 'X'. Invoked with the single <code>:id</code> parameter."}
-   {:name :max-height      :required false                  :type "string"    :description "CSS style describing the height this component can grow to grow as alerts are added. Default is to expand forever."}
-   {:name :padding         :required false :default "4px"   :type "string"    :description "CSS style describing the padding within the alert."}
-   {:name :border-style    :required false :default "1px solid lightgrey"   :type "string"   :description "CSS style describing the border style around the alert-list outer box."}])
+  [{:name :alerts        :required false                  :type "vector of maps"  :description "alerts to be rendered, in the suppplied order"}
+   {:name :on-close      :required false                  :type "(function :id)"  :description "called when the user clicks a close 'X'. Called with the alert's :id"}
+   {:name :max-height    :required false                  :type "string"          :description "CSS style describing the height this component can grow to grow as alerts are added. Default is to expand forever."}
+   {:name :padding       :required false :default "4px"   :type "string"          :description "CSS padding within the alert."}
+   {:name :border-style  :required false :default "1px solid lightgrey" :type "string" :description "CSS border style around the alert-list"}])
 
 (def alert-list-args
   (set (map :name alert-list-args-desc)))

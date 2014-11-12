@@ -3,9 +3,9 @@
   (:require [re-com.util     :as    util]
             [re-com.core     :refer [button label input-text checkbox title]]
             [re-com.box      :refer [h-box v-box box gap]]
-            [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
+            [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword single-dropdown-desc]]
             [cljs.core.async :refer [<! >! chan close! put! take! alts! timeout]]
-            [re-demo.utils   :refer [panel-title component-title]]
+            [re-demo.utils   :refer [panel-title component-title args-table]]
             [reagent.core    :as    reagent]))
 
 
@@ -302,13 +302,14 @@
    :width    "400px"
    :style    {:font-size "small"}
    :children [[component-title  "[single-dropdown ... ]"]
-              [:p "Required parameters:"]
-              [:ul
+              [ args-table   single-dropdown-desc]
+              #_[:p "Required parameters:"]
+              #_[:ul
                [:li.spacer [:code ":choices"] " - a vector of maps, one map for each choice. Each map contains a unique :id and a :label and can optionally include a :group."]
                [:li.spacer [:code ":model"] " - the :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown)."]
                [:li.spacer [:code ":on-change"] " - a function taking one parameter which will be the :id for the new choice."]]
-              [:p "Optional:"]
-              [:ul
+              #_[:p "Optional:"]
+              #_[:ul
                [:li.spacer [:code ":disabled?"] " - a boolean indicating whether the control should be disabled. Defaults to false."]
                [:li.spacer [:code ":filter-box?"] " - a boolean. If true a filter text box is available at the top of the dropped down section. Defaults to false."]
                [:li.spacer [:code ":regex-filter?"] " - a boolean. If true the filter text box will support JavaScript regular expressions. If false plain text searches.  Defaults to false."]

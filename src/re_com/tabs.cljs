@@ -18,8 +18,8 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def tabs-args-desc
-  [{:name :model   :required true  :type "any"    :description "the :id of the currently selected tab - can be a value or an atom."}
-   {:name :tabs    :required true  :type "vector" :description "a vector of maps, one for each tab - can be a value or an atom. Each map must have an :id and :label."}])
+  [{:name :model   :required true  :type "a tab id | atom"   :description "the :id of the currently selected tab."}
+   {:name :tabs    :required true  :type "vector of maps"    :description "one element in the vector for each tab. In each map, at least :id and :label."}])
 
 (def tabs-args
   (set (map :name tabs-args-desc)))

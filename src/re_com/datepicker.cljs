@@ -188,15 +188,15 @@
                        :today (now)})))
 
 (def datepicker-args-desc
-  [{:name :model        :required true                 :type "goog.date.UtcDateTime"   :description "an instance of goog.date.UtcDateTime or an atom containing one. Represents displayed month and actual selected day. Must be one of <code>:enabled-days</code>."}
-   {:name :on-change    :required true                 :type "function"                :description "a callback taking one parameter, which will be the new selected goog.date.UtcDateTime."}
-   {:name :disabled?    :required false :default false :type "boolean|atom"            :description "when true, navigation is allowed but selection is disabled."}
-   {:name :enabled-days :required false                :type "set"                     :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Dates falling on these days will be user-selectable, others not so. If nil or empty, all days are enabled."}
-   {:name :show-weeks?  :required false :default false :type "boolean"                 :description "when true, the first column shows week numbers."}
-   {:name :show-today?  :required false :default false :type "boolean"                 :description "when true, today's date is highlighted."}
-   {:name :minimum      :required false                :type "goog.date.UtcDateTime"   :description "selection and navigation are blocked before this date."}
-   {:name :maximum      :required false                :type "goog.date.UtcDateTime"   :description "selection and navigation are blocked after this date."}
-   {:name :hide-border? :required false :default false :type "boolean"                 :description "when true, the border is not displayed."}])
+  [{:name :model        :required true                      :type "goog.date.UtcDateTime | an atom"   :description "The currently selected date. Must match :enabled-days."}
+   {:name :on-change    :required true                      :type "(function goog.date.UtcDateTime)"  :description "called when the user chooses a new date."}
+   {:name :disabled?    :required false :default false      :type "boolean | an atom"       :description "when true, the can't select dates."}
+   {:name :enabled-days :required false :default "all days" :type "set"                     :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Only dates falling on these days will be user-selectable. "}
+   {:name :show-weeks?  :required false :default false      :type "boolean"                 :description "when true, the first column shows week numbers."}
+   {:name :show-today?  :required false :default false      :type "boolean"                 :description "when true, today's date is highlighted."}
+   {:name :minimum      :required false                     :type "goog.date.UtcDateTime"   :description "selection and navigation are blocked before this date."}
+   {:name :maximum      :required false                     :type "goog.date.UtcDateTime"   :description "selection and navigation are blocked after this date."}
+   {:name :hide-border? :required false :default false      :type "boolean"                 :description "when true, the border is not displayed."}])
 
 (def datepicker-args
   (set (map :name datepicker-args-desc)))
@@ -227,7 +227,7 @@
          :style    {:display             "flex"
                     :flex                "none"
                     :-webkit-user-select "none"}
-         :on-click #(reset! shown? (not @shown?))}
+         :on-click #(swap! shown? not)}
    [h-box
     :align :center
     :children [[:label {:class "form-control dropdown-button"}

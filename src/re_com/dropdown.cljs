@@ -171,16 +171,16 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def single-dropdown-desc
-  [{:name :choices         :required true                   :type "vector"      :description "a vector of maps. Each map contains a unique :id and a :label and can optionally include a :group."}
-   {:name :model           :required true                   :type "string|nil"  :description "the :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown)."}
-   {:name :on-change       :required true                   :type "function"    :description "a callback taking one parameter which will be the :id of the new selection."}
-   {:name :disabled?       :required false :default false   :type "boolean"     :description "indicates whether the component should be disabled."}
-   {:name :filter-box?     :required false :default false   :type "boolean"     :description "indicates the presence or absence of a filter text box at the top of the dropped down section."}
-   {:name :regex-filter?   :required false :default false   :type "boolean"     :description "indicates whether the filter text box will support JavaScript regular expressions or just plain text."}
-   {:name :placeholder     :required false                  :type "string"      :description "displayed in the dropdown if no selection has yet been made."}
+  [{:name :choices         :required true                   :type "vector of maps" :description "Each has an :id, a :label and, optionally, a :group"}
+   {:name :model           :required true                   :type "an id"          :description "the :id of the selected choice. If nil, :placeholder will be shown"}
+   {:name :on-change       :required true                   :type "(function :id)" :description "called with one paramter: the :id of new selection"}
+   {:name :disabled?       :required false :default false   :type "boolean"     :description "if true, no further user selection is possible."}
+   {:name :filter-box?     :required false :default false   :type "boolean"     :description "if true, a filter text box is available at the top of the dropped down section."}
+   {:name :regex-filter?   :required false :default false   :type "boolean"     :description "if true,  the filter text box will support JavaScript regular expressions. If false, just plain text."}
+   {:name :placeholder     :required false                  :type "string"      :description "displayed if :model is 'nil'"}
    {:name :width           :required false                  :type "string"      :description "the width of the component (e.g. \"500px\"). If not specified, all available width is taken."}
-   {:name :max-height      :required false :default "240px" :type "string"      :description "the maximum height the dropdown will grow to."}
-   {:name :tab-index       :required false                  :type "nummber|nil" :description "the tabindex number of this component. -1 to remove from tab order. If not specified, use natural tab order."}])
+   {:name :max-height      :required false :default "240px" :type "string"      :description "the maximum height the dropdown will occupy."}
+   {:name :tab-index       :required false :default " use natural tab order" :type "nummber" :description "the tabindex of this component. -1 to remove from order."}])
 
 (def single-dropdown-args
   (set (map :name single-dropdown-desc)))

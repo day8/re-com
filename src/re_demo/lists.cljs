@@ -4,7 +4,7 @@
     [re-com.core           :refer [label checkbox title]]
     [re-com.box            :refer [h-box v-box]]
     [re-com.selection-list :refer [selection-list]]
-    [re-demo.utils         :refer [panel-title component-title]]
+    [re-demo.utils         :refer [panel-title component-title args-table]]
     [re-com.util           :refer [golden-ratio-a golden-ratio-b]]))
 
 

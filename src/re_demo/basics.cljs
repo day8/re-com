@@ -2,9 +2,13 @@
   (:require [re-com.core   :refer [input-text button hyperlink hyperlink-href label
                                    spinner progress-bar checkbox radio-button title slider]]
             [re-com.box    :refer [h-box v-box box gap line]]
-            [re-demo.utils :refer [panel-title component-title]]
+            [re-demo.utils :refer [panel-title component-title args-table]]
             [reagent.core  :as    reagent]))
 
+
+(def state (reagent/atom
+             {:outcome-index 0
+              :see-spinner  false}))
 
 (def click-outcomes
   [""   ;; start blank
@@ -13,11 +17,6 @@
    "Diamonds accidentally flushed."
    "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
    "Now it's real. Once more & you'll get a page-freezing exception."])
-
-
-(def state (reagent/atom
-             {:outcome-index 0
-              :see-spinner  false}))
 
 
 (defn component-display
