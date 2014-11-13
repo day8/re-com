@@ -1,6 +1,6 @@
 (ns re-demo.time
   (:require [re-com.core     :refer  [label button checkbox input-text title]]
-            [re-com.time     :refer  [time-input time-input-args-desc]]
+            [re-com.time     :refer  [input-time input-time-args-desc]]
             [re-com.box      :refer  [h-box v-box box gap]]
             [re-demo.utils   :refer  [panel-title component-title args-table]]
             [reagent.core    :as     reagent]))
@@ -10,7 +10,7 @@
   []
   [v-box
    :width    "400px"
-   :children [ [component-title "[time-input ... ]"]
+   :children [ [component-title "[input-time ... ]"]
 
                [:div {:style {:font-size "small"}}
                 [label :class "small-caps" :label "notes:"]
@@ -19,7 +19,7 @@
                  Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
                 [:p "If the user exists the input field with an invalid value, it will be replaced with the last known valid value."]]
 
-               [args-table time-input-args-desc]]])
+               [args-table input-time-args-desc]]])
 
 
 (def check-style {:font-size "small" :margin-top "1px"})
@@ -66,7 +66,7 @@
                   [h-box
                    :gap "40px"
                    :style {:font-size "small"}
-                   :children [[time-input
+                   :children [[input-time
                                :model an-int-time
                                :minimum @minimum
                                :maximum @maximum

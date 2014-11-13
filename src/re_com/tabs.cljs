@@ -18,14 +18,17 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def tabs-args-desc
-  [{:name :model   :required true  :type "a tab id | atom"   :description "the :id of the currently selected tab."}
-   {:name :tabs    :required true  :type "vector of maps"    :description "one element in the vector for each tab. In each map, at least :id and :label."}])
+  [{:name :model     :required true  :type "a tab id | atom"   :description "the :id of the currently selected tab."}
+   {:name :tabs      :required true  :type "vector of maps"    :description "one element in the vector for each tab. In each map, at least :id and :label."}
+   {:name :on-change :required true  :type "(:id) -> nil"      :description "called when user altersthe selection."}])
+
 
 (def tabs-args
   (set (map :name tabs-args-desc)))
 
+
 (defn horizontal-tabs
-  [& {:keys [model tabs]
+  [& {:keys [model tabs on-change]
       :as   args}]
   {:pre [(validate-arguments tabs-args (keys args))]}
   (let [current  (deref-or-value model)
@@ -44,23 +47,21 @@
            :key    (str id)}
           [:a
            {:style     {:cursor "pointer"}
-            :on-click  #(reset! model id)}
+            :on-click  #(on-change id)}
            label]]))]))
 
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: horizontal-bar-tabs
 ;;--------------------------------------------------------------------------------------------------
-
-(defn horizontal-bar-tabs
-  [& {:keys [model tabs]
+(defn- bar-tabs
+  [& {:keys [model tabs on-change vertical?]
       :as   args}]
-  {:pre [(validate-arguments tabs-args (keys args))]}
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
     [:div
-     {:class "rc-tabs btn-group"
+     {:class (str "rc-tabs btn-group" (if vertical? "-vertical"))
       :style {:flex                "none"
               :-webkit-user-select "none"}}
      (for [t tabs]
@@ -71,9 +72,27 @@
           {:type     "button"
            :key      (str id)
            :class    (str "btn btn-default "  (if selected? "active"))
-           ;;:style    (if selected? {:background-color "#aaa"  :color "white"} {})
-           :on-click #(reset! model id)}
+           :on-click  #(on-change id)}
           label]))]))
+
+
+(defn horizontal-bar-tabs
+  [& {:keys [model tabs on-change] :as args}]
+  {:pre [(superset? tabs-args (keys args))]}
+  (bar-tabs
+    :model model
+    :tabs tabs
+    :on-change on-change
+    :vertical? false))
+
+(defn vertical-bar-tabs
+  [& {:keys [model tabs on-change] :as args}]
+  {:pre [(superset? tabs-args (keys args))]}
+  (bar-tabs
+    :model model
+    :tabs tabs
+    :on-change on-change
+    :vertical? true))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -81,7 +100,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (defn- pill-tabs    ;; tabs-like in action
-  [& {:keys [model tabs vertical?]}]
+  [& {:keys [model tabs on-change vertical?]}]
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
@@ -99,16 +118,25 @@
            :key      (str id)}
           [:a
            {:style     {:cursor "pointer"}
-            :on-click  #(reset! model id)}
+            :on-click  #(on-change id)}
            label]]))]))
 
-(defn horizontal-pill-tabs    ;; tabs-like in action
-  [& {:keys [model tabs] :as args}]
+
+(defn horizontal-pill-tabs
+  [& {:keys [model tabs on-change] :as args}]
   {:pre [(superset? tabs-args (keys args))]}
-  (pill-tabs :model model :tabs tabs :vertical? false))
+  (pill-tabs
+    :model model
+    :tabs tabs
+    :on-change on-change
+    :vertical? false))
 
 
 (defn vertical-pill-tabs
-  [& {:keys [model tabs] :as args}]
+  [& {:keys [model tabs on-change] :as args}]
   {:pre [(superset? tabs-args (keys args))]}
-  (pill-tabs :model model :tabs tabs :vertical? true))
+  (pill-tabs
+    :model model
+    :tabs tabs
+    :on-change on-change
+    :vertical? true))

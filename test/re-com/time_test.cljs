@@ -54,36 +54,36 @@
     false  (time/valid-text? "a99")
     true   (time/valid-text? "2359")))
 
-(deftest test-time-input
- (is (fn? (time/time-input :model 1530 :minimum 600 :maximum 2159) "Expected a function."))
- (let [time-input-fn (time/time-input :model 1530)]
-   (is (fn? time-input-fn) "Expected a function.")
-   (let [result (time-input-fn :model (reagent/atom 1530) :minimum 600 :maximum 2159)]
+(deftest test-input-time
+ (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159) "Expected a function."))
+ (let [input-time-fn (time/input-time :model 1530)]
+   (is (fn? input-time-fn) "Expected a function.")
+   (let [result (input-time-fn :model (reagent/atom 1530) :minimum 600 :maximum 2159)]
      (is (= :span.input-append (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
-     (let [time-input-comp (nth result 2)
-           time-input-attrs (last time-input-comp)]
-       (is (= :input (first time-input-comp)) "Expected time input start with :input")
+     (let [input-time-comp (nth result 2)
+           input-time-attrs (last input-time-comp)]
+       (is (= :input (first input-time-comp)) "Expected time input start with :input")
        (are [expected actual] (= expected actual)
-         nil           (:disabled time-input-attrs)
-         "time-entry"  (:class time-input-attrs)
-         "15:30"       (:value time-input-attrs)
-         "text"        (:type time-input-attrs)
-         "time-entry"  (:class time-input-attrs)
-         true     (fn? (:on-blur time-input-attrs))
-         true     (fn? (:on-change time-input-attrs))))))
+         nil           (:disabled input-time-attrs)
+         "time-entry"  (:class input-time-attrs)
+         "15:30"       (:value input-time-attrs)
+         "text"        (:type input-time-attrs)
+         "time-entry"  (:class input-time-attrs)
+         true     (fn? (:on-blur input-time-attrs))
+         true     (fn? (:on-change input-time-attrs))))))
  ;; These tests don't work. But i have verified that the check is happening and it works
- #_(is (thrown? js/Error (time/time-input :model "abc") "should fail - model is invalid"))
- #_(is (thrown? js/Error (time/time-input :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
- #_(is (thrown? js/Error (time/time-input :model 930 :minimum 600 :maximum "fred") "should fail - maximum is invalid"))
+ #_(is (thrown? js/Error (time/input-time :model "abc") "should fail - model is invalid"))
+ #_(is (thrown? js/Error (time/input-time :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
+ #_(is (thrown? js/Error (time/input-time :model 930 :minimum 600 :maximum "fred") "should fail - maximum is invalid"))
 )
 
- ;; (is (thrown? js/Error (time/time-input :model 530 :minimum 600 :maximum 2159) "should fail - model is before range start"))
- ;; (is (thrown? js/Error (time/time-input :model 2230 :minimum 600 :maximum 2159) "should fail - model is after range end"))
+ ;; (is (thrown? js/Error (time/input-time :model 530 :minimum 600 :maximum 2159) "should fail - model is before range start"))
+ ;; (is (thrown? js/Error (time/input-time :model 2230 :minimum 600 :maximum 2159) "should fail - model is after range end"))
 
 
 (deftest test-pre-conditions
- (is (fn? (time/time-input :model 1530 :minimum 600 :maximum 2159) "Expected a function."))
- (is (thrown? js/Error (time/time-input :model 1530 :minimum 600 :maximum 2159 :fred "test") "Expected an exception due to invalid parameter.")))
+ (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159) "Expected a function."))
+ (is (thrown? js/Error (time/input-time :model 1530 :minimum 600 :maximum 2159 :fred "test") "Expected an exception due to invalid parameter.")))
 
 ;; --- WIP ---
 
@@ -94,8 +94,8 @@
 
 #_(trace-forms
   {:tracer default-tracer}
-  (deftest test-test-time-input-gen
-    (let [tm-input (time/time-input :model 1500)
+  (deftest test-test-input-time-gen
+    (let [tm-input (time/input-time :model 1500)
           result (reagent/render-component [tm-input] (div-app))]
       (println (-> result .-_renderedComponent .-props)))))
 
