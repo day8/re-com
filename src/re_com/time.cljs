@@ -82,10 +82,10 @@
 
 (defn- validate-arg-times
   [model minimum maximum]
-  (assert (and (number? model) (valid-time? model)) (str "[time-input] given an invalid :model - " model))
-  (assert (and (number? minimum) (valid-time? minimum)) (str "[time-input] given an invalid :minimum - " minimum))
-  (assert (and (number? maximum) (valid-time? maximum)) (str "[time-input] given an invalid :maximum - " maximum))
-  (assert (<= minimum maximum) (str "[time-input] :minimum " minimum " > :maximum  " maximum))
+  (assert (and (number? model) (valid-time? model)) (str "[input-time] given an invalid :model - " model))
+  (assert (and (number? minimum) (valid-time? minimum)) (str "[input-time] given an invalid :minimum - " minimum))
+  (assert (and (number? maximum) (valid-time? maximum)) (str "[input-time] given an invalid :maximum - " maximum))
+  (assert (<= minimum maximum) (str "[input-time] :minimum " minimum " > :maximum  " maximum))
   true)
 
 (defn- force-valid-time
@@ -125,7 +125,7 @@
     (when (and callback (not= time previous-val))
       (callback time))))
 
-(def time-input-args-desc
+(def input-time-args-desc
   [{:name :model           :required true                   :type "integer | atom"   :description "a time in integer form. e.g. '09:30am' is 930."}
    {:name :minimum         :required false :default 0       :type "integer"          :description "user can't enter a time less than this value."}
    {:name :maximum         :required false :default 2359    :type "integer"          :description "user can't enter a time more than this value."}
@@ -138,16 +138,16 @@
 
 ; TODO:  description for 'class' above it wrong.
 
-(def time-input-args
-  (set (map :name time-input-args-desc)))
+(def input-time-args
+  (set (map :name input-time-args-desc)))
 
-(defn time-input
+(defn input-time
   "I return the markup for an input box which will accept and validate times.
-   Parameters - refer time-input-args above."
+   Parameters - refer input-time-args above."
   [& {:keys [model minimum maximum on-change class style] :as args
       :or   {minimum 0 maximum 2359}}]
 
-  {:pre [(validate-arguments time-input-args (keys args))
+  {:pre [(validate-arguments input-time-args (keys args))
          (validate-arg-times (deref-or-value model) minimum maximum)]}
 
   (let [deref-model    (deref-or-value model)

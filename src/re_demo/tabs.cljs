@@ -26,6 +26,7 @@
 (defn horizontal-tabs-demo
   []
   (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))     ;; holds the id of the selected tab
+        change-tab      #(reset! selected-tab-id %)
         fn-name-width   "240px"]
     (fn []
       [v-box
@@ -53,7 +54,8 @@
                                                        {:width fn-name-width}]
                                                       [horizontal-tabs
                                                        :model selected-tab-id
-                                                       :tabs  tabs-definition]]]
+                                                       :tabs  tabs-definition
+                                                       :on-change change-tab]]]
                                           [h-box
                                            :align    :center
                                            :children [[component-title
@@ -61,7 +63,8 @@
                                                        {:width fn-name-width}]
                                                       [horizontal-bar-tabs
                                                        :model selected-tab-id
-                                                       :tabs  tabs-definition]]]
+                                                       :tabs  tabs-definition
+                                                       :on-change change-tab]]]
                                           [h-box
                                            :align    :center
                                            :children [[component-title
@@ -70,7 +73,7 @@
                                                       [horizontal-pill-tabs
                                                        :model     selected-tab-id
                                                        :tabs      tabs-definition
-                                                       ]]]
+                                                       :on-change change-tab]]]
                                           [h-box
                                            :align    :center
                                            :children [[component-title
@@ -79,7 +82,7 @@
                                                       [vertical-pill-tabs
                                                        :model     selected-tab-id
                                                        :tabs      tabs-definition
-                                                       ]]]
+                                                       :on-change change-tab]]]
                                           [h-box
                                            :align    :center
                                            :children [[box
@@ -111,7 +114,7 @@
                                        [label :style {:font-variant "small-caps"} :label "notes"]
                                        [:ul
                                         [:li "Any tab selection you make on the right will persist."]
-                                        [:li "Your choice will be stored using HTML5's local-storage."]
+                                        [:li "Your choice will be remembered using HTML5's local-storage."]
                                         [:li "If you refresh the entire browser page and return here, you'll see the same selection."]]]]
                               [v-box
                                :width "400px"

@@ -33,13 +33,6 @@
   (pad-zero (str num) len))
 
 
-(defn find-map-index    ;;  TODO: rename this  'id-position'
-  "Takes a vector of maps 'v'. Returns the postion of the first item in 'v' whose :id matches 'id'.
-   Returns nil if id not found."
-  [v id]
-  (let [index-fn (fn [index item] (when (= (:id item) id) index))]
-    (first (keep-indexed index-fn v))))
-
 
 ;; ----------------------------------------------------------------------------
 ;; G O L D E N  R A T I O  https://en.wikipedia.org/wiki/Golden_ratio
@@ -73,6 +66,34 @@
   [vect index item]
   (apply merge (subvec vect 0 index) item (subvec vect index)))
 
+
+;; ----------------------------------------------------------------------------
+;; Utilities for vectors of maps containing :id
+;; ----------------------------------------------------------------------------
+(defn position-for-id
+  "Takes a vector of maps 'v'. Returns the postion of the first item in 'v' whose :id matches 'id'.
+   Returns nil if id not found."
+  [id v]
+  (let [index-fn (fn [index item] (when (= (:id item) id) index))]
+    (first (keep-indexed index-fn v))))
+
+
+
+(defn item-for-id
+  "Takes a vector of maps 'v'. Returns the first item in 'v' whose :id matches 'id'.
+   Returns nil if id not found."
+  [id v]
+  (first (filter #(= (:id %) id) v)))
+
+
+(defn remove-id-item
+  "Takes a vector of maps 'v', each of which has an :id key.
+  Return v where item matching 'id' is excluded"
+  [id v]
+  (filterv #(not= (:id %) id) v))
+
+
+;; ---------------------------------------------------------------------------
 
 (defn validate-arguments
   [defined-args passed-args]

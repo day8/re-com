@@ -1,6 +1,6 @@
 (ns re-com.dropdown
   ;(:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
-  (:require [re-com.util      :refer [deref-or-value find-map-index validate-arguments]]
+  (:require [re-com.util      :refer [deref-or-value position-for-id validate-arguments ]]
             [clojure.string   :as    string]
             ;[clairvoyant.core :refer [default-tracer]]
             [reagent.core     :as    reagent]))
@@ -13,7 +13,7 @@
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
    from id (usually +1 or -1 to go to next/previous). Also accepts :start and :end."
   [choices id offset]
-  (let [current-index (find-map-index choices id)
+  (let [current-index (position-for-id id choices)
         new-index (cond
                     (= offset :start) 0
                     (= offset :end) (dec (count choices))
@@ -25,7 +25,7 @@
 (defn find-choice
   "In a vector of maps (where each map has an :id), return the first map containing the id parameter."
   [choices id]
-  (let [current-index (find-map-index choices id)
+  (let [current-index (position-for-id id choices)
         _ (assert ((complement nil?) current-index) (str "Can't find choice index '" id "' in choices vector"))]
     (nth choices current-index)))
 
