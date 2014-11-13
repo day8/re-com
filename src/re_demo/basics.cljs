@@ -3,6 +3,8 @@
                                    spinner progress-bar checkbox radio-button title slider]]
             [re-com.box    :refer [h-box v-box box gap line]]
             [re-demo.utils :refer [panel-title component-title args-table]]
+            [re-com.dropdown :refer [single-dropdown]]      ;; Experimental, remove this
+            [re-com.time     :refer [time-input]]           ;; Experimental, remove this
             [reagent.core  :as    reagent]))
 
 
@@ -160,35 +162,34 @@
                    :on-change       #(reset! text-val %)
                    :change-on-blur? change-on-blur?
                    :disabled?       disabled?]
-                   [v-box
-                    :gap      "15px"
-                    :children [
-                               [label
-                                :label (str "external :model is currently: '" (if @text-val @text-val "nil") "'")
-                                :style {:margin-top "8px"}]
-                               [label :label "parameters:"]
-                               [v-box
-                                :children [[label :label ":change-on-blur?"]
-                                           [radio-button
-                                            :label     "false - Call on-change on every keystroke"
-                                            :value     false
-                                            :model     @change-on-blur?
-                                            :on-change #(reset! change-on-blur? false)
-                                            :style     {:margin-left "20px"}]
-                                           [radio-button
-                                            :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
-                                            :value     true
-                                            :model     @change-on-blur?
-                                            :on-change #(reset! change-on-blur? true)
-                                            :style     {:margin-left "20px"}]]]
-                               [checkbox
-                                :label     ":disabled?"
-                                :model     disabled?
-                                :on-change (fn [val]
-                                             (reset! disabled? val))]
-                               [button
-                                :label    "Set external model to 'blah'"
-                                :on-click #(reset! text-val "blah")]]]]])))
+                  [v-box
+                   :gap      "15px"
+                   :children [[label
+                               :label (str "external :model is currently: '" (if @text-val @text-val "nil") "'")
+                               :style {:margin-top "8px"}]
+                              [label :label "parameters:"]
+                              [v-box
+                               :children [[label :label ":change-on-blur?"]
+                                          [radio-button
+                                           :label     "false - Call on-change on every keystroke"
+                                           :value     false
+                                           :model     @change-on-blur?
+                                           :on-change #(reset! change-on-blur? false)
+                                           :style     {:margin-left "20px"}]
+                                          [radio-button
+                                           :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
+                                           :value     true
+                                           :model     @change-on-blur?
+                                           :on-change #(reset! change-on-blur? true)
+                                           :style     {:margin-left "20px"}]]]
+                              [checkbox
+                               :label     ":disabled?"
+                               :model     disabled?
+                               :on-change (fn [val]
+                                            (reset! disabled? val))]
+                              [button
+                               :label    "Set external model to 'blah'"
+                               :on-click #(reset! text-val "blah")]]]]])))
 
 
 (defn hyperlink-demo
@@ -329,6 +330,122 @@
                                             (reset! disabled? val))]]]]])))
 
 
+;; =====================================================================================================================
+;;  EXPERIMENTAL
+;; =====================================================================================================================
+
+(def demos [{:id 1 :label "Simple dropdown"}
+            {:id 2 :label "Dropdown with grouping"}
+            {:id 3 :label "Dropdown with filtering"}
+            {:id 4 :label "Keyboard support"}
+            {:id 5 :label "Other parameters"}
+            {:id 6 :label "Two dependent dropdowns"}])
+
+
+(defn h-box-demo
+  []
+  (let [selected-demo-id (reagent/atom 1)
+        an-int-time      (reagent/atom 900)]
+    (fn
+      []
+      [h-box
+       ;:size     "600px"
+       :height   "200px"
+       ;:width    "600px"
+       :gap      "5px"
+       :style    {:border "1px dashed lightgrey"}
+       :children [[button
+                   :style {:border "1px dashed red"}
+                   :label "Button"]
+                  [hyperlink
+                   :style {:border "1px dashed red"}
+                   :label "Hyperlink"]
+                  [label
+                   :style {:border "1px dashed red"}
+                   :label "Label"]
+                  [gap
+                   :style {:border "1px dashed red"}
+                   :size  "10px"]
+                  [line
+                   :size "2px"]
+                  [input-text
+                   :width "150px"
+                   :style {:border "1px dashed red"}
+                   :on-change #()]
+                  [checkbox
+                   :label-style {:border "1px dashed red"}
+                   :label       "Checkbox"
+                   :on-change   #()]
+                  [radio-button
+                   :label-style {:border "1px dashed red"}
+                   :label       "Radio"
+                   :on-change   #()]
+                  [single-dropdown
+                   :choices   demos
+                   :model     selected-demo-id
+                   ;:width     "300px"
+                   ;:style {:border "1px dashed red"}
+                   :on-change #(reset! selected-demo-id %)]
+                  [time-input
+                   :model an-int-time
+                   :on-change #(reset! an-int-time %)
+                   :style {:border "1px dashed red"}
+                   :show-icon? true]
+                  ]])))
+
+
+(defn v-box-demo
+  []
+  (let [selected-demo-id (reagent/atom 1)
+        an-int-time      (reagent/atom 900)]
+    (fn
+      []
+      [v-box
+       ;:size     "600px"
+       ;:height   "600px"
+       :width    "200px"
+       :gap      "5px"
+       :style    {:border "1px dashed lightgrey"}
+       :children [[button
+                   :style {:border "1px dashed red"}
+                   :label "Button"]
+                  [hyperlink
+                   :style {:border "1px dashed red"}
+                   :label "Hyperlink"]
+                  [label
+                   :style {:border "1px dashed red"}
+                   :label "Label"]
+                  [gap
+                   :style {:border "1px dashed red"}
+                   :size  "10px"]
+                  [line
+                   :size "2px"]
+                  [input-text
+                   :width "150px"
+                   :style {:border "1px dashed red"}
+                   :on-change #()]
+                  [checkbox
+                   :label-style {:border "1px dashed red"}
+                   :label       "Checkbox"
+                   :on-change   #()]
+                  [radio-button
+                   :label-style {:border "1px dashed red"}
+                   :label       "Radio"
+                   :on-change   #()]
+                  [single-dropdown
+                   :choices   demos
+                   :model     selected-demo-id
+                   ;:width     "300px"
+                   ;:style {:border "1px dashed red"}
+                   :on-change #(reset! selected-demo-id %)]
+                  [time-input
+                   :model an-int-time
+                   :on-change #(reset! an-int-time %)
+                   :style {:border "1px dashed red"}
+                   :show-icon? true]
+                  ]])))
+
+
 (defn panel
   []
   [v-box
@@ -347,4 +464,8 @@
               [component-display   "[hyperlink-href ... ]" hyperlink-href-demo]
               [line ]
               [component-display   "[slider ... ]" slider-demo]
+              ;[line ]
+              ;[component-display   "[h-box ... ]" h-box-demo]
+              ;[line ]
+              ;[component-display   "[v-box ... ]" v-box-demo]
               [gap :size "100px"]]])
