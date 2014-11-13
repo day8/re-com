@@ -21,12 +21,13 @@
        :children [[v-box
                    :gap      "10px"
                    :style    {:font-size "small"}
-                   :children [[component-title"[alert-box ... ]"]
+                   :children [[component-title "[alert-box ... ]"]
                               [label :label "A component which renders a single alert-box."]
                               [args-table   alert-box-args-desc]]]
                   [v-box
-                   :gap "10px"
-                   :children [[component-title  "Demo"]
+                   :width    "500px"
+                   :gap      "10px"
+                   :children [[component-title "Demo"]
                               (if @show-alert
                                 [alert-box
                                  :id         1
@@ -36,10 +37,7 @@
                                  :closeable? true
                                  :on-close   #(reset! show-alert false)]
                                 [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
-
-                              [:br]
-                              [:br]
-                              [:br]
+                              [gap :size "50px"]
                               [:p "Further Variations ..."]
                               (when @show-alert1
                                 [:div
@@ -52,14 +50,15 @@
                                 [:div
                                  [alert-box
                                   :alert-type "warning"
-                                  :body       "Alert with :body but no :heading (:padding set to 4px)"
-                                  :padding    "4px"
+                                  :body       "Alert with :body but no :heading (:padding set to 6px)."
+                                  :padding    "6px"
                                   :closeable? true
                                   :on-close   #(reset! show-alert2 false)]])
                               [alert-box
                                :alert-type "danger"
                                :heading    ":alert-type is \"danger\""
-                               :body       [:span "This is the :body of an danger-styled alert with :closeable? omitted (defaults to false). " [:a {:href "http://google.com" :target "_blank"} "Link to Google"]]]]]]])))
+                               :body       [:span "This is the :body of an danger-styled alert with :closeable? omitted (defaults to false). "
+                                            [:a {:href "http://google.com" :target "_blank"} "Link to Google"] "."]]]]]])))
 
 
 (defn add-alert
@@ -71,9 +70,9 @@
 (defn alert-list-demo
   []
   (let [alerts       (reagent/atom [])]
-    (add-alert alerts 0 "danger"  {:heading "Woa! something bad happened" :body "Next time you should take more care!  Next time you should take more care! Next time you should take more care!"})
-    (add-alert alerts 1 "info"    {:heading "News Flash!" :body "The rain in Spain often falls on the mountatins too"})
-    (add-alert alerts 2 "info"    {:heading "Here's some info" :body "The rain in Spain falls mainly on the plain"})
+    (add-alert alerts 0 "danger"  {:heading "Woa! something bad happened" :body "Next time you should take more care! Next time you should take more care! Next time you should take more care!"})
+    (add-alert alerts 1 "info"    {:heading "News Flash!" :body "The rain in Spain often falls on the mountatins too."})
+    (add-alert alerts 2 "info"    {:heading "Here's some info" :body "The rain in Spain falls mainly on the plain."})
     (add-alert alerts 3 "warning" {:heading "\"Oh bother\", said Pooh. And then ..." :body "\"Some people care too much. I think it's called love.\""})
 
     (fn []
@@ -86,8 +85,9 @@
                               [label :label "A component which renders a list of alert-boxes vertically."]
                               [args-table   alert-list-args-desc]]]
                   [v-box
-                   :gap "10px"
-                   :children [[component-title  "Demo"]
+                   :width    "500px"
+                   :gap      "10px"
+                   :children [[component-title "Demo"]
                               [:p "Press the 'Add alert' button to add some more."]
                               [:p ":max-height is set to 300px and a custom 'dotted' :border-style is set in this case."]
                               [alert-list
