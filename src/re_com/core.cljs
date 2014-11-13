@@ -22,12 +22,14 @@
   [& {:keys [label on-click class style]
       :as   args}]
   {:pre [(superset? label-args (keys args))]}
-  [:span
-   (merge
-     {:class (str "rc-label " class)
-      :style (merge {:flex "none"} style)}
-     (when on-click {:on-click #(on-click)}))
-   label])
+  [box
+   :align :start
+   :child [:span
+           (merge
+             {:class (str "rc-label " class)
+              :style (merge {:flex "none"} style)}
+             (when on-click {:on-click #(on-click)}))
+           label]])
 
 
 ;; ------------------------------------------------------------------------------------
@@ -35,15 +37,16 @@
 ;; ------------------------------------------------------------------------------------
 
 (def input-text-args
-  #{:model           ;; Text of the input (can be atom or value).
-    :placeholder     ;; Text to show when there is no under text in the component.
-    :width           ;; Standard CSS width setting for this input. Default is 250px.
-    :height          ;; Standard CSS width setting for this input. Default is 34px as set in Bootstrap style.
-    :on-change       ;; A function which takes one parameter, which is the new text (see :change-on-blur?).
-    :change-on-blur? ;; When true, invoke on-change function on blur, otherwise on every change (character by character).
-    :disabled?       ;; Set to true to disable the input box (can be atom or value).
-    :class           ;; Class string.
-    :style           ;; CSS style map.
+  #{:model            ;; Text of the input (can be atom or value).
+    :placeholder      ;; Text to show when there is no under text in the component.
+    :width            ;; Standard CSS width setting for this input. Default is 250px.
+    :height           ;; Standard CSS width setting for this input. Default is 34px as set in Bootstrap style.
+    :on-change        ;; A function which takes one parameter, which is the new text (see :change-on-blur?).
+    :change-on-blur?  ;; When true, invoke on-change function on blur, otherwise on every change (character by character).
+    :validation-regex ;; TODO: Implement
+    :disabled?        ;; Set to true to disable the input box (can be atom or value).
+    :class            ;; Class string.
+    :style            ;; CSS style map.
     })
 
 
@@ -110,16 +113,17 @@
       :as   args}]
   {:pre [(superset? button-args (keys args))]}
   (let [disabled?   (deref-or-value disabled?)]
-    [:button
-     {:class    (str "rc-button btn " class)
-      :style    (merge
-                  {:flex       "none"
-                   :align-self "flex-start"}
-                  style)
-      :disabled disabled?
-      :on-click #(if (and on-click (not disabled?))
-                  (on-click))}
-     label]))
+    [box
+     :align :start
+     :child [:button
+             {:class    (str "rc-button btn " class)
+              :style    (merge
+                          {:flex "none"}
+                          style)
+              :disabled disabled?
+              :on-click #(if (and on-click (not disabled?))
+                          (on-click))}
+             label]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -143,18 +147,19 @@
   {:pre [(superset? hyperlink-args (keys args))]}
   (let [label     (deref-or-value label)
         disabled? (deref-or-value disabled?)]
-    [:a
-     (merge
-       {:class    (str "rc-hyperlink " class)
-        :style    (merge
-                    {:flex                "inherit"
-                     :align-self          "flex-start"
-                     :cursor              (if disabled? "not-allowed" "pointer")
-                     :-webkit-user-select "none"}
-                    style)
-        :on-click #(if (and on-click (not disabled?))
-                    (on-click))})
-     label]))
+    [box
+     :align :start
+     :child [:a
+             (merge
+               {:class    (str "rc-hyperlink " class)
+                :style    (merge
+                            {:flex                "none"
+                             :cursor              (if disabled? "not-allowed" "pointer")
+                             :-webkit-user-select "none"}
+                            style)
+                :on-click #(if (and on-click (not disabled?))
+                            (on-click))})
+             label]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -182,17 +187,18 @@
   (let [label     (deref-or-value label)
         href      (deref-or-value href)
         target    (deref-or-value target)]
-    [:a
-     (merge
-       {:class    (str "rc-hyperlink-href " class)
-        :style    (merge
-                    {:flex                "inherit"
-                     :align-self          "flex-start"
-                     :-webkit-user-select "none"}
-                    style)
-        :href       href
-        :target     target})
-     label]))
+    [box
+     :align :start
+     :child [:a
+             (merge
+               {:class    (str "rc-hyperlink-href " class)
+                :style    (merge
+                            {:flex                "none"
+                             :-webkit-user-select "none"}
+                            style)
+                :href       href
+                :target     target})
+             label]]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -220,23 +226,25 @@
         model       (deref-or-value model)
         disabled?   (deref-or-value disabled?)
         callback-fn (if (and on-change (not disabled?)) #(on-change (not model)))]     ;; call on-change with either true or false
-    [h-box
-     :gap      "8px"     ;; between the tickbox and the label
-     :style    {:-webkit-user-select "none"} ;; Prevent user text selection
-     :children [[:input
-                 {:class     "rc-checkbox"
-                  :type      "checkbox"
-                  :style     (merge {:flex "none"
-                                     :cursor cursor}
-                                    style)
-                  :disabled  disabled?
-                  :checked   model
-                  :on-change callback-fn}]
-                (when label [re-com.core/label
-                             :label label
-                             :class label-class
-                             :style (merge {:cursor cursor} label-style)
-                             :on-click callback-fn])]]))    ;; ticking on the label is the same as clicking on the checkbox
+    [box
+     :align :start
+     :child [h-box
+             :gap      "8px"     ;; between the tickbox and the label
+             :style    {:-webkit-user-select "none"} ;; Prevent user text selection
+             :children [[:input
+                         {:class     "rc-checkbox"
+                          :type      "checkbox"
+                          :style     (merge {:flex "none"
+                                             :cursor cursor}
+                                            style)
+                          :disabled  disabled?
+                          :checked   model
+                          :on-change callback-fn}]
+                        (when label [re-com.core/label
+                                     :label label
+                                     :class label-class
+                                     :style (merge {:cursor cursor} label-style)
+                                     :on-click callback-fn])]]]))    ;; ticking on the label is the same as clicking on the checkbox
 
 
 ;; ------------------------------------------------------------------------------------
@@ -264,24 +272,26 @@
         model       (deref-or-value model)
         disabled?   (deref-or-value disabled?)
         callback-fn (if (and on-change (not disabled?)) #(on-change value))]
-    [h-box
-     :gap      "8px"     ;; between the tickbox and the label
-     :style    {:-webkit-user-select "none"} ;; Prevent user text selection
-     :children [[:input
-                 {:class     "rc-radio-button"
-                  :type      "radio"
-                  :style     (merge
-                               {:flex   "none"  ;; add in flex child style, so it can sit in a vbox
-                                :cursor cursor}
-                               style)
-                  :disabled  disabled?
-                  :checked   (= model value)
-                  :on-change callback-fn}]
-                (when label [re-com.core/label
-                             :label label
-                             :class label-class
-                             :style (merge {:cursor cursor} label-style)
-                             :on-click callback-fn])]]))
+    [box
+     :align :start
+     :child [h-box
+             :gap      "8px"     ;; between the tickbox and the label
+             :style    {:-webkit-user-select "none"} ;; Prevent user text selection
+             :children [[:input
+                         {:class     "rc-radio-button"
+                          :type      "radio"
+                          :style     (merge
+                                       {:flex   "none"  ;; add in flex child style, so it can sit in a vbox
+                                        :cursor cursor}
+                                       style)
+                          :disabled  disabled?
+                          :checked   (= model value)
+                          :on-change callback-fn}]
+                        (when label [re-com.core/label
+                                     :label label
+                                     :class label-class
+                                     :style (merge {:cursor cursor} label-style)
+                                     :on-click callback-fn])]]]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -314,20 +324,22 @@
           max       (deref-or-value max)
           step      (deref-or-value step)
           disabled? (deref-or-value disabled?)]
-      [:input
-       {:class     (str "rc-slider " class)
-        :type      "range"
-        :style     (merge
-                     {:flex   "none"
-                      :width  (if width width "400px")
-                      :cursor (if disabled? "not-allowed" "default")}
-                     style)
-        :min       min
-        :max       max
-        :step      step
-        :value     model
-        :disabled  disabled?
-        :on-change #(on-change (double (-> % .-target .-value)))}])))
+      [box
+       :align :start
+       :child [:input
+               {:class     (str "rc-slider " class)
+                :type      "range"
+                :style     (merge
+                             {:flex   "none"
+                              :width  (if width width "400px")
+                              :cursor (if disabled? "not-allowed" "default")}
+                             style)
+                :min       min
+                :max       max
+                :step      step
+                :value     model
+                :disabled  disabled?
+                :on-change #(on-change (double (-> % .-target .-value)))}]])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -344,15 +356,16 @@
   [& {:keys [model]
       :as   args}]
   {:pre [(superset? progress-bar-args (keys args))]}
-
-  [:div
-   {:class "rc-progress-bar progress"
-    :style {:flex "none"}}
-   [:div.progress-bar ;;.progress-bar-striped.active
-    {:role "progressbar"
-     :style {:width (str @model "%")
-             :transition "none"}} ;; Default BS transitions cause the progress bar to lag behind
-    (str @model "%")]])
+  [box
+   :align :start
+   :child [:div
+           {:class "rc-progress-bar progress"
+            :style {:flex "none"}}
+           [:div.progress-bar ;;.progress-bar-striped.active
+            {:role "progressbar"
+             :style {:width (str @model "%")
+                     :transition "none"}} ;; Default BS transitions cause the progress bar to lag behind
+            (str @model "%")]]])
 
 
 ;; ------------------------------------------------------------------------------------
@@ -362,12 +375,13 @@
 (defn spinner
   "Render an animated gif spinner"
   []
-
-  [:div {:style {:display "flex"
-                 :flex    "none"
-                 :margin "10px"}}
-   [:img {:src "resources/img/spinner.gif"
-          :style {:margin "auto"}}]])
+  [box
+   :align :start
+   :child [:div {:style {:display "flex"
+                         :flex    "none"
+                         :margin "10px"}}
+           [:img {:src "resources/img/spinner.gif"
+                  :style {:margin "auto"}}]]])
 
 
 ;; ------------------------------------------------------------------------------------
@@ -377,7 +391,7 @@
 (def title-args
   #{:label        ;; Text of the title
     :style
-    :h            ;;  something like :h3 or :h4
+    :h            ;; Something like :h3 or :h4
     :underline?   ;; Boolean determines whether an underline is placed under the title
     })
 
@@ -387,9 +401,9 @@
       :or   {underline? true h :h3}
       :as   args}]
   {:pre [(superset? title-args (keys args))]}
-
   [v-box
-   :children [[h {:style (merge  {:display "flex" :flex "none"}
+   :children [[h {:style (merge
+                           {:display "flex" :flex "none"}
                            style)}
                label]
               (when underline? [line :size "1px"])]])

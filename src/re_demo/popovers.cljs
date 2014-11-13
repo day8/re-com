@@ -263,4 +263,4 @@
               [hyperlink-popover-demo]
               [proximity-popover-demo]
               [complex-popover-demo]
-              [gap :height "180px"]]])
+              [gap :size "180px"]]])
