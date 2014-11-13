@@ -45,8 +45,8 @@
          [:div
           [alert-box
            :alert-type "warning"
-           :body       "Alert with :body but no :heading (:padding set to 4px)"
-           :padding    "4px"
+           :body       "Alert with :body but no :heading (:padding set to 6px)"
+           :padding    "6px"
            :closeable? true
            :on-close   #(reset! show-alert2 false)]])
        [alert-box

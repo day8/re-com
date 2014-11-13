@@ -1,7 +1,7 @@
 (ns re-com.alert
   (:require [clojure.set  :refer [superset?]]
             [re-com.core  :refer [button]]
-            [re-com.box   :refer [v-box scroller border]]
+            [re-com.box   :refer [h-box v-box scroller border]]
             [re-com.util  :as    util]
             [reagent.core :as    reagent]))
 
@@ -27,17 +27,33 @@
       :or   {alert-type "info"}
       :as   args}]
   {:pre [(util/validate-arguments alert-box-args (keys args))]}
-  [:div.alert.fade.in
-   {:class (str "alert-" alert-type)
-    :style {:flex "none" :padding (when padding padding)}}
-   (when (and closeable? on-close)
-     [button
-      :label    "×"
-      :on-click #(on-close id)
-      :class    "close"])
-   (when heading [:h4 (when-not body {:style {:margin "0px"}}) heading])
-   (when body [:p body])])
-
+  [:div
+   {:class (str "rc-alert alert fade in alert-" alert-type)
+    :style {:flex    "none"
+            :padding (when padding padding)}}
+   (when heading
+     [h-box
+      :justify :between
+      :align :center
+      :style {:margin-bottom (if body "10px" "0px")}
+      :children [[:h4
+                  {:style {:margin-bottom "0px"}}
+                  heading]
+                 (when (and closeable? on-close)
+                   [button
+                    :label "×"
+                    :on-click #(on-close id)
+                    :class "close"])]])
+   (when body
+     [h-box
+      :justify :between
+      :align :center
+      :children [[:span body]
+                 (when (and (not heading) closeable? on-close)
+                   [button
+                    :label "×"
+                    :on-click #(on-close id)
+                    :class "close"])]])])
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert-list

@@ -161,35 +161,34 @@
                    :on-change       #(reset! text-val %)
                    :change-on-blur? change-on-blur?
                    :disabled?       disabled?]
-                   [v-box
-                    :gap      "15px"
-                    :children [
-                               [label
-                                :label (str "external :model is currently: '" (if @text-val @text-val "nil") "'")
-                                :style {:margin-top "8px"}]
-                               [label :label "parameters:"]
-                               [v-box
-                                :children [[label :label ":change-on-blur?"]
-                                           [radio-button
-                                            :label     "false - Call on-change on every keystroke"
-                                            :value     false
-                                            :model     @change-on-blur?
-                                            :on-change #(reset! change-on-blur? false)
-                                            :style     {:margin-left "20px"}]
-                                           [radio-button
-                                            :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
-                                            :value     true
-                                            :model     @change-on-blur?
-                                            :on-change #(reset! change-on-blur? true)
-                                            :style     {:margin-left "20px"}]]]
-                               [checkbox
-                                :label     ":disabled?"
-                                :model     disabled?
-                                :on-change (fn [val]
-                                             (reset! disabled? val))]
-                               [button
-                                :label    "Set external model to 'blah'"
-                                :on-click #(reset! text-val "blah")]]]]])))
+                  [v-box
+                   :gap      "15px"
+                   :children [[label
+                               :label (str "external :model is currently: '" (if @text-val @text-val "nil") "'")
+                               :style {:margin-top "8px"}]
+                              [label :label "parameters:"]
+                              [v-box
+                               :children [[label :label ":change-on-blur?"]
+                                          [radio-button
+                                           :label     "false - Call on-change on every keystroke"
+                                           :value     false
+                                           :model     @change-on-blur?
+                                           :on-change #(reset! change-on-blur? false)
+                                           :style     {:margin-left "20px"}]
+                                          [radio-button
+                                           :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
+                                           :value     true
+                                           :model     @change-on-blur?
+                                           :on-change #(reset! change-on-blur? true)
+                                           :style     {:margin-left "20px"}]]]
+                              [checkbox
+                               :label     ":disabled?"
+                               :model     disabled?
+                               :on-change (fn [val]
+                                            (reset! disabled? val))]
+                              [button
+                               :label    "Set external model to 'blah'"
+                               :on-click #(reset! text-val "blah")]]]]])))
 
 
 (defn hyperlink-demo
