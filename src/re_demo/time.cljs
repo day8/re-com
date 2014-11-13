@@ -1,6 +1,6 @@
 (ns re-demo.time
   (:require [re-com.core     :refer  [label button checkbox input-text title]]
-            [re-com.time     :refer  [time-input]]
+            [re-com.time     :refer  [time-input time-input-args-desc]]
             [re-com.box      :refer  [h-box v-box box gap]]
             [re-demo.utils   :refer  [panel-title component-title args-table]]
             [reagent.core    :as     reagent]))
@@ -11,30 +11,15 @@
   [v-box
    :width    "400px"
    :children [ [component-title "[time-input ... ]"]
+
                [:div {:style {:font-size "small"}}
-                [:label {:style {:font-variant "small-caps"}} "notes"]
-               [:ul
-                [:li "Accepts input of a time in 24hr format."
-                 " Only allows input of numbers and ':'. Limits input to valid values (e.g. does not allow input of '999').
-                 Also, attempts to interpret input e.g. '123' interpretted as '1:23'."]
-                [:li "The "[:code ":model"] " is expected to be an integer in HHMM form. e.g. a time of '18:30' is the integer 1830.
-                  The same applies to "[:code ":minimum"] " and "[:code ":maximum"] ". The model can also be an atom containing such an integer."]
-                [:li "When the component loses focus, the " [:code ":on-change"] " callback is called with an integer of the same form."]
-                [:li "If the entered value is invalid it will be replaced with the last valid value."]
-                [:li "If "[:code ":model"] " is invalid an exception will be thrown."]]
-               [:label {:style {:font-variant "small-caps"}} "required parameters"]
-               [:ul
-                [:li [:code ":model"] " - an integer time e.g. 930"]]
-               [:label {:style {:font-variant "small-caps"}} "optional"]
-               [:ul
-                [:li [:code ":minimum"] " - min time as an integer e.g.  930 - will not allow input less than this time - default 0."]
-                [:li [:code ":maximum"] " - max time as an integer e.g. 1400 - will not allow input more than this time - default 2359."]
-                [:li [:code ":on-change"] " - function to call upon change."]
-                [:li [:code ":disabled?"] " - true if the component should be disabled - default false. Can also be an atom containing a boolean."]
-                [:li [:code ":hide-border?"] " - true if the time input should be displayed without a border - default false"]
-                [:li [:code ":show-icon?"] " - true if the clock icon should be displayed - default false"]
-                [:li [:code ":class"] " - class for styling"]
-                [:li [:code ":style"] " - css style"]]]]])
+                [label :class "small-caps" :label "notes:"]
+                [:p "Allows the user to input time in 24hr format."]
+                [:p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
+                 Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
+                [:p "If the user exists the input field with an invalid value, it will be replaced with the last known valid value."]]
+
+               [args-table time-input-args-desc]]])
 
 
 (def check-style {:font-size "small" :margin-top "1px"})
@@ -68,8 +53,8 @@
   []
   (let [disabled?    (reagent/atom false)
         hide-border? (reagent/atom false)
-        show-icon?   (reagent/atom false)
-        an-int-time  (reagent/atom 900)                      ;; starts at 9am
+        show-icon?   (reagent/atom true)
+        an-int-time  (reagent/atom 900)                      ;; start at 9am
         init-minimum 0
         minimum      (reagent/atom init-minimum)
         init-maximum 2359
@@ -79,7 +64,7 @@
        :gap "20px"
        :children [[:div.h4 "Demo"]
                   [h-box
-                   :gap "50px"
+                   :gap "40px"
                    :style {:font-size "small"}
                    :children [[time-input
                                :model an-int-time
@@ -88,7 +73,8 @@
                                :on-change #(reset! an-int-time %)
                                :disabled? disabled?
                                :hide-border? @hide-border?
-                               :show-icon? @show-icon?]
+                               :show-icon? @show-icon?
+                               :style   {:width "50px"}]
                               [v-box
                                :gap "10px"
                                :children [[label :style {:font-style "italic"} :label "simulated boolean parameters:"]

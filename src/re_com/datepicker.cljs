@@ -188,15 +188,15 @@
                        :today (now)})))
 
 (def datepicker-args-desc
-  [{:name :model        :required true                      :type "goog.date.UtcDateTime | an atom"   :description "The currently selected date. Must match :enabled-days."}
-   {:name :on-change    :required true                      :type "(function goog.date.UtcDateTime)"  :description "called when the user chooses a new date."}
-   {:name :disabled?    :required false :default false      :type "boolean | an atom"       :description "when true, the can't select dates."}
-   {:name :enabled-days :required false :default "all days" :type "set"                     :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Only dates falling on these days will be user-selectable. "}
-   {:name :show-weeks?  :required false :default false      :type "boolean"                 :description "when true, the first column shows week numbers."}
-   {:name :show-today?  :required false :default false      :type "boolean"                 :description "when true, today's date is highlighted."}
-   {:name :minimum      :required false                     :type "goog.date.UtcDateTime"   :description "selection and navigation are blocked before this date."}
-   {:name :maximum      :required false                     :type "goog.date.UtcDateTime"   :description "selection and navigation are blocked after this date."}
-   {:name :hide-border? :required false :default false      :type "boolean"                 :description "when true, the border is not displayed."}])
+  [{:name :model        :required true                        :type "goog.date.UtcDateTime | atom"    :description "The selected date. Should match :enabled-days."}
+   {:name :on-change    :required true                        :type "(goog.date.UtcDateTime) -> nil"  :description "called when user entry completes and value is new"}
+   {:name :disabled?    :required false :default false        :type "boolean | atom"          :description "when true, the can't select dates but can navigate."}
+   {:name :enabled-days :required false :default "all 7 days" :type "set"                     :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Only dates falling on these days will be user-selectable. "}
+   {:name :show-weeks?  :required false :default false        :type "boolean"                 :description "when true, the first column shows week numbers."}
+   {:name :show-today?  :required false :default false        :type "boolean"                 :description "when true, today's date is highlighted."}
+   {:name :minimum      :required false                       :type "goog.date.UtcDateTime"   :description "selection & navigation are blocked before this date."}
+   {:name :maximum      :required false                       :type "goog.date.UtcDateTime"   :description "selection & navigation are blocked after this date."}
+   {:name :hide-border? :required false :default false        :type "boolean"                 :description "when true, the border is not displayed."}])
 
 (def datepicker-args
   (set (map :name datepicker-args-desc)))
