@@ -130,7 +130,7 @@
                               [v-box
                                :gap       "15px"
                                :size      "auto"
-                               :min-width "500px"
+                               :width     "500px"
                                :margin    "20px 0px 0px 0px"
                                :children  [[h-box
                                             :gap      "10px"

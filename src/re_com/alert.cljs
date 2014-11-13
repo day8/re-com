@@ -27,33 +27,31 @@
       :or   {alert-type "info"}
       :as   args}]
   {:pre [(util/validate-arguments alert-box-args (keys args))]}
-  [:div
-   {:class (str "rc-alert alert fade in alert-" alert-type)
-    :style {:flex    "none"
-            :padding (when padding padding)}}
-   (when heading
-     [h-box
-      :justify :between
-      :align :center
-      :style {:margin-bottom (if body "10px" "0px")}
-      :children [[:h4
-                  {:style {:margin-bottom "0px"}}
-                  heading]
-                 (when (and closeable? on-close)
-                   [button
-                    :label "×"
-                    :on-click #(on-close id)
-                    :class "close"])]])
-   (when body
-     [h-box
-      :justify :between
-      :align :center
-      :children [[:span body]
-                 (when (and (not heading) closeable? on-close)
-                   [button
-                    :label "×"
-                    :on-click #(on-close id)
-                    :class "close"])]])])
+  (let [close-button [button
+                      :label "×"
+                      :on-click #(on-close id)
+                      :class "close"]]
+    [:div
+     {:class (str "rc-alert alert fade in alert-" alert-type)
+      :style {:flex    "none"
+              :padding (when padding padding)}}
+     (when heading
+       [h-box
+        :justify :between
+        :align :center
+        :style {:margin-bottom (if body "10px" "0px")}
+        :children [[:h4
+                    {:style {:margin-bottom "0px"}}         ;; Override h4
+                    heading]
+                   (when (and closeable? on-close)
+                     close-button)]])
+     (when body
+       [h-box
+        :justify :between
+        :align :center
+        :children [[:div body]
+                   (when (and (not heading) closeable? on-close)
+                     close-button)]])]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert-list

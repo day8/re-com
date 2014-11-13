@@ -3,6 +3,8 @@
                                    spinner progress-bar checkbox radio-button title slider]]
             [re-com.box    :refer [h-box v-box box gap line]]
             [re-demo.utils :refer [panel-title component-title args-table]]
+            [re-com.dropdown :refer [single-dropdown]]      ;; Experimental, remove this
+            [re-com.time     :refer [time-input]]           ;; Experimental, remove this
             [reagent.core  :as    reagent]))
 
 
@@ -328,9 +330,22 @@
                                             (reset! disabled? val))]]]]])))
 
 
+;; =====================================================================================================================
+;;  EXPERIMENTAL
+;; =====================================================================================================================
+
+(def demos [{:id 1 :label "Simple dropdown"}
+            {:id 2 :label "Dropdown with grouping"}
+            {:id 3 :label "Dropdown with filtering"}
+            {:id 4 :label "Keyboard support"}
+            {:id 5 :label "Other parameters"}
+            {:id 6 :label "Two dependent dropdowns"}])
+
+
 (defn h-box-demo
   []
-  (let []
+  (let [selected-demo-id (reagent/atom 1)
+        an-int-time      (reagent/atom 900)]
     (fn
       []
       [h-box
@@ -365,12 +380,24 @@
                    :label-style {:border "1px dashed red"}
                    :label       "Radio"
                    :on-change   #()]
+                  [single-dropdown
+                   :choices   demos
+                   :model     selected-demo-id
+                   ;:width     "300px"
+                   ;:style {:border "1px dashed red"}
+                   :on-change #(reset! selected-demo-id %)]
+                  [time-input
+                   :model an-int-time
+                   :on-change #(reset! an-int-time %)
+                   :style {:border "1px dashed red"}
+                   :show-icon? true]
                   ]])))
 
 
 (defn v-box-demo
   []
-  (let []
+  (let [selected-demo-id (reagent/atom 1)
+        an-int-time      (reagent/atom 900)]
     (fn
       []
       [v-box
@@ -405,6 +432,17 @@
                    :label-style {:border "1px dashed red"}
                    :label       "Radio"
                    :on-change   #()]
+                  [single-dropdown
+                   :choices   demos
+                   :model     selected-demo-id
+                   ;:width     "300px"
+                   ;:style {:border "1px dashed red"}
+                   :on-change #(reset! selected-demo-id %)]
+                  [time-input
+                   :model an-int-time
+                   :on-change #(reset! an-int-time %)
+                   :style {:border "1px dashed red"}
+                   :show-icon? true]
                   ]])))
 
 
@@ -426,8 +464,8 @@
               [component-display   "[hyperlink-href ... ]" hyperlink-href-demo]
               [line ]
               [component-display   "[slider ... ]" slider-demo]
-              [line ]
-              [component-display   "[h-box ... ]" h-box-demo]
-              [line ]
-              [component-display   "[v-box ... ]" v-box-demo]
+              ;[line ]
+              ;[component-display   "[h-box ... ]" h-box-demo]
+              ;[line ]
+              ;[component-display   "[v-box ... ]" v-box-demo]
               [gap :size "100px"]]])
