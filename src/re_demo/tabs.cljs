@@ -4,7 +4,8 @@
             [re-com.box              :refer [h-box v-box box gap line scroller border]]
             [re-com.dropdown         :refer [single-dropdown]]
             [re-com.core             :refer [button label title checkbox]]
-            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs horizontal-pill-tabs vertical-pill-tabs find-tab tabs-args-desc]]
+            [re-com.util             :refer [item-for-id]]
+            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs horizontal-pill-tabs vertical-pill-tabs tabs-args-desc]]
             [re-demo.utils           :refer [panel-title component-title args-table]]))
 
 
@@ -92,7 +93,7 @@
                                                        :border  "1px dashed grey"
                                                        :radius  "10px"
                                                        :padding "20px"
-                                                       :child   [:p (:say-this (find-tab @selected-tab-id tabs-definition))]]]]]]]]]])))
+                                                       :child   [:p (:say-this (item-for-id @selected-tab-id tabs-definition))]]]]]]]]]])))
 
 
 (defn remembers-demo
@@ -162,7 +163,7 @@
                   [h-box
                    :gap      "50px"
                    :children [[v-box
-                               :gap       "15px"
+                               :gap       "30px"
                                :size      "auto"
                                ;:min-width "500px"
                                :margin    "20px 0px 0px 0px"
@@ -175,7 +176,6 @@
                                                         :model     selected-demo-id
                                                         :width     "200px"
                                                         :on-change #(reset! selected-demo-id %)]]]
-                                           [gap :size "0px"] ;; Force a bit more space here
                                            (case @selected-demo-id
                                              1 [horizontal-tabs-demo]
                                              2 [remembers-demo]

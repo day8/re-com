@@ -87,10 +87,9 @@
 
 (defn main
   []
-  (let [
-         id-store        (local-storage (atom nil) ::id-store)
-         selected-tab-id (reagent/atom (if  (nil? @id-store) (:id (first tabs-definition)) @id-store))   ;; id of the selected tab
-         _               (add-watch selected-tab-id nil #(reset! id-store %4))]
+  (let [id-store        (local-storage (atom nil) ::id-store)
+        selected-tab-id (reagent/atom (if  (nil? @id-store) (:id (first tabs-definition)) @id-store))  ;; id of the selected tab
+        _               (add-watch selected-tab-id nil #(reset! id-store %4))]                         ;; remember the current navigation item being viewed.
     (fn _main
       []
       [h-box
@@ -107,16 +106,13 @@
                    :h-scroll :off
                    :child [v-box
                            :children [[re-com-title]
-                                      [left-side-nav-bar selected-tab-id]
-                                      #_[re-com.tabs/vertical-pill-tabs ;; tabs down the side
-                                       :model selected-tab-id
-                                       :tabs  tabs-definition]]]]
+                                      [left-side-nav-bar selected-tab-id]]]]
                   [scroller
-                    :child [box
-                            :size      "auto"
-                            ;:padding   "15px 0px 5px 0px"         ;; top right bottom left
-                            :child     [(:panel (re-com.tabs/find-tab @selected-tab-id tabs-definition))]]] ;; the tab panel to show, for the selected tab
-                   ]])))
+                   :child [box
+                           :size      "auto"
+                           ;:padding   "15px 0px 5px 0px"         ;; top right bottom left
+                           :child     [(:panel (util/item-for-id @selected-tab-id tabs-definition))]]]    ;; the tab panel to show, for the selected tab
+                  ]])))
 
 
 (defn ^:export  mount-demo

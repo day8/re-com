@@ -23,7 +23,7 @@
                    :style    {:font-size "small"}
                    :children [[component-title"[alert-box ... ]"]
                               [label :label "A component which renders a single alert-box."]
-                              [args-table   alert-box-args-desc]]]
+                              [args-table alert-box-args-desc]]]
                   [v-box
                    :gap "10px"
                    :children [[component-title  "Demo"]
@@ -111,11 +111,12 @@
     (fn []
       [v-box
        :gap "10px"
-       :children [[panel-title "Alert Components"]
+       :children [[panel-title "Alert Components" ]
                   [h-box
                    :gap      "50px"
                    :children [[vertical-bar-tabs
                                :model selected-demo-id
                                :tabs demos
-                               :on-change #(reset! selected-demo-id %)]
+                               :on-change #(reset! selected-demo-id %)
+                               :style    {:margin-top "10px"}]
                               [(get-in demos [@selected-demo-id :component])]]]]])))

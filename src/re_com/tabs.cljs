@@ -4,23 +4,15 @@
              [reagent.core :as    reagent]))
 
 
-(defn find-tab
-  "utility function for finding a tab definition with a given id
-  'tab-defs' in a vector of definitions
-  'id' is the id of one of them
-  returns nil if no definition found otherwise returns the first match found"
-  [id tab-defs]
-  (first (filter #(= id (:id %)) tab-defs)))
-
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: horizontal-tabs
 ;;--------------------------------------------------------------------------------------------------
 
 (def tabs-args-desc
-  [{:name :model     :required true  :type "a tab id | atom"   :description "the :id of the currently selected tab."}
-   {:name :tabs      :required true  :type "vector of maps"    :description "one element in the vector for each tab. In each map, at least :id and :label."}
-   {:name :on-change :required true  :type "(:id) -> nil"      :description "called when user altersthe selection."}])
+  [{:name :model     :required true  :type "a tab id | atom" :description "the :id of the currently selected tab."}
+   {:name :tabs      :required true  :type "vector of maps"  :description "one element in the vector for each tab. In each map, at least :id and :label."}
+   {:name :on-change :required true  :type "(:id) -> nil"    :description "called when user alters the selection. Passed the :id of the selection."}])
 
 
 (def tabs-args
