@@ -15,8 +15,7 @@
    "Nuclear warhead launched."
    "Oops. Priceless Ming Vase smashed!!"
    "Diamonds accidentally flushed."
-   "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
-   "Now it's real. Once more & you'll get a page-freezing exception."])
+   "Toy disabled"])
 
 
 (defn component-display
@@ -31,7 +30,7 @@
      :children [[h-box
                  :children [[button
                              :label    "No Clicking!"
-                             ;:disabled? true
+                             :disabled? (= (:outcome-index @state) (dec (count click-outcomes)))
                              :on-click #(swap! state update-in [:outcome-index] inc)
                              :class    "btn-danger"]
                             [box
@@ -106,7 +105,7 @@
                   [h-box
                    :gap "15px"
                    :children [[checkbox
-                               :label     "when you tick this one, this other one is \"disabled\""
+                               :label     "tick this one, to \"disable\""
                                :model     disabled?
                                :on-change #(reset! disabled? %)]
                               [right-arrow]

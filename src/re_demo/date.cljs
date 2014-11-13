@@ -153,46 +153,7 @@
    :children [[component-title "[datepicker ... ]"]
               [component-title "[datepicker-dropdown ... ]"]
               [gap :size "15px"]
-              [args-table datepicker-args-desc]
-              #_[v-box
-               :style    {:font-size "small"}
-               :children [#_[label :style {:font-variant "small-caps"} :label "general"]
-                          #_[v-box
-                           :style {:padding-left "10px"}
-                           :children [[:p "All parameters are passed as named arguments using keyword value pairs in the component vector e.g."]
-                                      (if (= :inline @selected-variation)
-                                        [:pre {:style {:font-size "smaller"}} [:code "[datepicker :model (iso8601->date \"20140914\") :show-today? false]"]]
-                                        [:pre {:style {:font-size "smaller"}} [:code "[datepicker-dropdown :model (now) :show-today? false]"]]
-                                        )
-                                      [:p ":model & :disabled? can optionally be a reagent atom and will be derefed."]]]
-
-                           #_[label :style {:font-variant "small-caps"} :label "required parameters"]
-                           #_[v-box
-                            :style {:padding-left "10px"}
-                            :children [[:p [:code ":model"]
-                                        " - a instance of goog.date.UtcDateTime or an atom containing one. Represents displayed month and actual selected day. Must be one of :enabled-days"]
-                                       [:p [:code ":on-change"]
-                                        " - a function taking with one goog.date.UtcDateTime paramter."]]]
-                           #_[label :style {:font-variant "small-caps"} :label "optional"]
-                           #_[v-box
-                            :style {:padding-left "10px"}
-                            :children [[:p [:code ":disabled?"]
-                                        " - boolean or a reagent/atom containing a boolean. Default is false.  If true, navigation is allowed but selection is disabled."]
-                                       [:p [:code ":enabled-days"]
-                                        " - a proper subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}.  Dates falling on these days-of-week will be user-selectable, others not so. If nil or empty, all days are enabled."]
-                                       [:p [:code ":show-weeks?"]
-                                        " - if true, first column shows week numbers. Default is false."]
-                                       [:p [:code ":show-today?"]
-                                        " - if true, today's date is highlighted. Default is false"]
-                                       [:p [:code ":minimum"]
-                                        " - an instance of goog.date.UtcDateTime. Selection is blocked before this date."]
-                                       [:p [:code ":maximum"]
-                                        " - an instance of goog.date.UtcDateTime. Selection is blocked beyond this date."]
-                                       [:p [:code ":hide-border?"]
-                                        " - Defaults to false."]
-                                       (when (= "2" @selected-variation)
-                                         [:p [:code ":format"]
-                                          " - string format for dropdown label showing currently selected date see cljs_time.format Default \"yyyy MMM dd\""])]]]]]])
+              [args-table datepicker-args-desc]]])
 
 
 (def variations ^:private
@@ -215,17 +176,16 @@
                    :gap      "50px"
                    :children [[notes a-width selected-variation]
                               [v-box
-                               :gap       "15px"
+                               :gap       "30px"
                                :size      "auto"
                                :margin    "20px 0px 0px 0px"
                                :children  [[h-box
                                             :gap      "10px"
                                             :align    :center
-                                            :children [[label :label "Select a variation"]
+                                            :children [[label :label "Choose Demo:"]
                                                        [single-dropdown
                                                         :choices   variations
                                                         :model     selected-variation
                                                         :width     "200px"
                                                         :on-change #(reset! selected-variation %)]]]
-                                           [gap :size "0px"] ;; Force a bit more space here
                                            [show-variant @selected-variation b-width]]]]]]])))

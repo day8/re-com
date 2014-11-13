@@ -58,7 +58,7 @@
 
 
 (defn- time->text
-  "Return a string of format HH:MM for time"
+  "return a string of format HH:MM for 'time'"
   [time]
   (let [hrs  (time->hrs  time)
         mins (time->mins time)]
@@ -126,15 +126,17 @@
       (callback time))))
 
 (def time-input-args-desc
-  [{:name :model           :required true                   :type "integer|atom" :description "a time e.g. 930. Can be atom or value."}
-   {:name :minimum         :required false :default 0       :type "integer"      :description "minimum time e.g. 930 - will not allow input less than this time."}
-   {:name :maximum         :required false :default 2359    :type "integer"      :description "maximum time e.g. 1400 - will not allow input more than this time."}
-   {:name :on-change       :required false                  :type "function"     :description "a callback which takes one parameter, which is the new time integer."}
-   {:name :disabled?       :required false :default false   :type "boolean|atom" :description "when true, the time input will be disabled."}
-   {:name :show-icon?      :required false :default false   :type "boolean"      :description "when true, the clock icon will be displayed."}
-   {:name :hide-border?    :required false :default false   :type "boolean"      :description "when true, the time input will be displayed without a border."}
-   {:name :class           :required false                  :type "string"       :description "a CSS width setting for this input. Default is \"34px\" as set in Bootstrap style."}
-   {:name :style           :required false                  :type "map"          :description "a CSS style map."}])
+  [{:name :model           :required true                   :type "integer | atom"   :description "a time in integer form. e.g. '09:30am' is 930."}
+   {:name :minimum         :required false :default 0       :type "integer"          :description "user can't enter a time less than this value."}
+   {:name :maximum         :required false :default 2359    :type "integer"          :description "user can't enter a time more than this value."}
+   {:name :on-change       :required true                   :type "(integer) -> nil" :description "called when user entry completes and value is new. Passed new value as integer."}
+   {:name :disabled?       :required false :default false   :type "boolean | atom"   :description "when true, user input is disabled."}
+   {:name :show-icon?      :required false :default false   :type "boolean"          :description "when true, a clock icon will be displayed to the right of input field"}
+   {:name :hide-border?    :required false :default false   :type "boolean"          :description "when true, input filed is displayed without a border."}
+   {:name :class           :required false                  :type "string"           :description "a CSS class"}
+   {:name :style           :required false                  :type "map"              :description "CSS style. Eg: {:color \"red\" :width \"50px\"}" }])
+
+; TODO:  description for 'class' above it wrong.
 
 (def time-input-args
   (set (map :name time-input-args-desc)))
@@ -169,7 +171,7 @@
          [:input
           {:type      "text"
            :disabled  (deref-or-value disabled?)
-           :class     (if class (str "time-entry " class) "time-entry")
+           :class     (str "time-entry " class)
            :value     @text-model
            :style     style
            :on-change #(on-new-keypress % text-model)

@@ -37,7 +37,7 @@
                                        [label :style {:font-variant "small-caps"} :label "notes"]
                                        [:ul
                                         [:li "Each of the 4 tab components shown to the right has a distinct visual style."]
-                                        [:li "In this example, all 4 tab compoents share the same state, so they change in lockstep."]
+                                        [:li "In this demo, all 4 tab compoents share the same state, so they change in lockstep."]
                                         [:li "For effect, some fake  \"Tab Contents\" (a string of text) is shown in the dotted border below."]
                                         [:li "The implementation here is simple and your selection is forgotten when you change to
                                               another panel, like Welcome (look top left)."]]

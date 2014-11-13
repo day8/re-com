@@ -171,16 +171,16 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def single-dropdown-desc
-  [{:name :choices         :required true                   :type "vector of maps" :description "Each has an :id, a :label and, optionally, a :group"}
-   {:name :model           :required true                   :type "an id"          :description "the :id of the selected choice. If nil, :placeholder will be shown"}
-   {:name :on-change       :required true                   :type "(function :id)" :description "called with one paramter: the :id of new selection"}
-   {:name :disabled?       :required false :default false   :type "boolean"     :description "if true, no further user selection is possible."}
-   {:name :filter-box?     :required false :default false   :type "boolean"     :description "if true, a filter text box is available at the top of the dropped down section."}
-   {:name :regex-filter?   :required false :default false   :type "boolean"     :description "if true,  the filter text box will support JavaScript regular expressions. If false, just plain text."}
-   {:name :placeholder     :required false                  :type "string"      :description "displayed if :model is 'nil'"}
-   {:name :width           :required false                  :type "string"      :description "the width of the component (e.g. \"500px\"). If not specified, all available width is taken."}
-   {:name :max-height      :required false :default "240px" :type "string"      :description "the maximum height the dropdown will occupy."}
-   {:name :tab-index       :required false :default " use natural tab order" :type "nummber" :description "the tabindex of this component. -1 to remove from order."}])
+  [{:name :choices         :required true                       :type "vector of maps"          :description "Each has an :id, a :label and, optionally, a :group"}
+   {:name :model           :required true                       :type "an :id within :choices"  :description "the :id of the selected choice. If nil, :placeholder text is shown"}
+   {:name :on-change       :required true                       :type "(:id) -> nil"   :description "called with one paramter: the :id of new selection"}
+   {:name :disabled?       :required false :default false       :type "boolean"     :description "if true, no user selection is allowed."}
+   {:name :filter-box?     :required false :default false       :type "boolean"     :description "if true, a filter text field is put at the top of the dropdown."}
+   {:name :regex-filter?   :required false :default false       :type "boolean"     :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text."}
+   {:name :placeholder     :required false                      :type "string"      :description "text displayed if :model is 'nil'"}
+   {:name :width           :required false :default "stretches" :type "string"      :description "the CSS width. Eg: \"500px\" or \"20em\""}
+   {:name :max-height      :required false :default "240px"     :type "string"      :description "the maximum height the dropdown will occupy."}
+   {:name :tab-index       :required false :default " use natural tab order" :type "nummber" :description "component's tabindex. A value of -1 removes from order."}])
 
 (def single-dropdown-args
   (set (map :name single-dropdown-desc)))

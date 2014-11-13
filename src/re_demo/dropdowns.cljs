@@ -299,24 +299,10 @@
 (defn notes
   []
   [v-box
-   :width    "400px"
+   ;;:width    "400px"
    :style    {:font-size "small"}
    :children [[component-title  "[single-dropdown ... ]"]
-              [ args-table   single-dropdown-desc]
-              #_[:p "Required parameters:"]
-              #_[:ul
-               [:li.spacer [:code ":choices"] " - a vector of maps, one map for each choice. Each map contains a unique :id and a :label and can optionally include a :group."]
-               [:li.spacer [:code ":model"] " - the :id of the initially selected choice, or nil to have no initial selection (in which case, :placeholder will be shown)."]
-               [:li.spacer [:code ":on-change"] " - a function taking one parameter which will be the :id for the new choice."]]
-              #_[:p "Optional:"]
-              #_[:ul
-               [:li.spacer [:code ":disabled?"] " - a boolean indicating whether the control should be disabled. Defaults to false."]
-               [:li.spacer [:code ":filter-box?"] " - a boolean. If true a filter text box is available at the top of the dropped down section. Defaults to false."]
-               [:li.spacer [:code ":regex-filter?"] " - a boolean. If true the filter text box will support JavaScript regular expressions. If false plain text searches.  Defaults to false."]
-               [:li.spacer [:code ":placeholder"] " - the text to display in the dropdown if :model is nil."]
-               [:li.spacer [:code ":width"] " - the width of the component (e.g. \"500px\"). If not specified, all available width is taken."]
-               [:li.spacer [:code ":max-height"] " - maximum height the dropdown will grow to. Defaults to \"240px\"."]
-               [:li.spacer [:code ":tab-index"] " - the tabindex number of this component. -1 to remove from tab order. Defaults to use natural tab order."]]]])
+              [args-table single-dropdown-desc]]])
 
 
 (defn panel
@@ -327,7 +313,7 @@
        :gap "10px"
        :children [[panel-title "Dropdown Components"]
                   [h-box
-                   :gap      "50px"
+                   :gap      "60px"
                    :children [[notes]
                               [v-box
                                :gap       "15px"
