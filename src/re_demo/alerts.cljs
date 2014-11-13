@@ -117,6 +117,5 @@
                    :children [[vertical-bar-tabs
                                :model selected-demo-id
                                :tabs demos
-                               :on-change #(reset! selected-demo-id %)
-                               :style    {:margin-top "10px"}]
+                               :on-change #(reset! selected-demo-id %)]
                               [(get-in demos [@selected-demo-id :component])]]]]])))

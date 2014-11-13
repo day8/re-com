@@ -4,7 +4,7 @@
             [re-com.box    :refer [h-box v-box box gap line]]
             [re-demo.utils :refer [panel-title component-title args-table]]
             [re-com.dropdown :refer [single-dropdown]]      ;; Experimental, remove this
-            [re-com.time     :refer [time-input]]           ;; Experimental, remove this
+            [re-com.time     :refer [input-time]]           ;; Experimental, remove this
             [reagent.core  :as    reagent]))
 
 
@@ -334,7 +334,7 @@
 ;;  EXPERIMENTAL
 ;; =====================================================================================================================
 
-(def demos [{:id 1 :label "Simple dropdown"}
+#_(def demos [{:id 1 :label "Simple dropdown"}
             {:id 2 :label "Dropdown with grouping"}
             {:id 3 :label "Dropdown with filtering"}
             {:id 4 :label "Keyboard support"}
@@ -342,7 +342,7 @@
             {:id 6 :label "Two dependent dropdowns"}])
 
 
-(defn h-box-demo
+#_(defn h-box-demo
   []
   (let [selected-demo-id (reagent/atom 1)
         an-int-time      (reagent/atom 900)]
@@ -386,7 +386,7 @@
                    ;:width     "300px"
                    ;:style {:border "1px dashed red"}
                    :on-change #(reset! selected-demo-id %)]
-                  [time-input
+                  [input-time
                    :model an-int-time
                    :on-change #(reset! an-int-time %)
                    :style {:border "1px dashed red"}
@@ -394,7 +394,7 @@
                   ]])))
 
 
-(defn v-box-demo
+#_(defn v-box-demo
   []
   (let [selected-demo-id (reagent/atom 1)
         an-int-time      (reagent/atom 900)]
@@ -438,7 +438,7 @@
                    ;:width     "300px"
                    ;:style {:border "1px dashed red"}
                    :on-change #(reset! selected-demo-id %)]
-                  [time-input
+                  [input-time
                    :model an-int-time
                    :on-change #(reset! an-int-time %)
                    :style {:border "1px dashed red"}
