@@ -498,6 +498,21 @@
 
 
 /*----------------------------------------------------------------------------------------
+  Override bootstrap warning colour (from horrible browny orange to orange)
+----------------------------------------------------------------------------------------*/
+
+.has-warning .form-control {
+  border-color: #f0ad4e;
+}
+.has-warning .form-control:focus {
+  border-color: #f0ad4e;
+}
+.has-warning .form-control-feedback {
+  color: #f0ad4e;
+}
+
+
+/*----------------------------------------------------------------------------------------
   Required for constraining an application to the height of the browser window
 ----------------------------------------------------------------------------------------*/
 
