@@ -1,11 +1,21 @@
 (ns re-demo.basics
-  (:require [re-com.core   :refer [input-text button hyperlink hyperlink-href label
-                                   spinner progress-bar checkbox radio-button title slider]]
-            [re-com.box    :refer [h-box v-box box gap line]]
-            [re-demo.utils :refer [panel-title component-title args-table]]
-            [re-com.dropdown :refer [single-dropdown]]      ;; Experimental, remove this
-            [re-com.time     :refer [input-time]]           ;; Experimental, remove this
-            [reagent.core  :as    reagent]))
+  (:require [re-com.core     :refer [label
+                                     spinner
+                                     progress-bar
+                                     title
+                                     button button-args-desc
+                                     checkbox checkbox-args-desc
+                                     radio-button radio-button-args-desc
+                                     input-text input-text-args-desc
+                                     hyperlink hyperlink-args-desc
+                                     hyperlink-href hyperlink-href-args-desc
+                                     slider slider-args-desc]]
+            [re-com.box      :refer [h-box v-box box gap line]]
+            [re-com.tabs     :refer [vertical-bar-tabs]]
+            [re-demo.utils   :refer [panel-title component-title args-table]]
+            ;[re-com.dropdown :refer [single-dropdown]]      ;; Experimental
+            ;[re-com.time     :refer [input-time]]           ;; Experimental
+            [reagent.core    :as    reagent]))
 
 
 (def state (reagent/atom
@@ -20,35 +30,39 @@
    "Toy disabled"])
 
 
-(defn component-display
-  [name demo-component]
-  [h-box
-   :children [[component-title name {:width "250px"}]
-              [demo-component]]])
-
 (defn buttons-demo
   []
-  [v-box
-     :children [[h-box
-                 :children [[button
-                             :label    "No Clicking!"
-                             :disabled? (= (:outcome-index @state) (dec (count click-outcomes)))
-                             :on-click #(swap! state update-in [:outcome-index] inc)
-                             :class    "btn-danger"]
-                            [box
-                             :align :center      ;; note: centered text wrt the button
-                             :child  [label
-                                      :label (nth click-outcomes (:outcome-index @state))
-                                      :style {:margin-left "15px"}]]]]
+  [h-box
+   :gap      "50px"
+   :children [[v-box
+               :gap      "10px"
+               :style    {:font-size "small"}
+               :children [[component-title "[button ... ]"]
+                          [args-table button-args-desc]]]
+              [v-box
+               :children [[component-title "Demo"]
+                          [v-box
+                           :children [[h-box
+                                       :children [[button
+                                                   :label    "No Clicking!"
+                                                   :disabled? (= (:outcome-index @state) (dec (count click-outcomes)))
+                                                   :on-click #(swap! state update-in [:outcome-index] inc)
+                                                   :class    "btn-danger"]
+                                                  [box
+                                                   :align :center      ;; note: centered text wrt the button
+                                                   :child  [label
+                                                            :label (nth click-outcomes (:outcome-index @state))
+                                                            :style {:margin-left "15px"}]]]]
 
-                [gap :size "20px"]
-                [h-box
-                 :gap "50px"
-                 :children [[button
-                             :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
-                             ;:disabled? true
-                             :on-click #(swap! state update-in [:see-spinner] not)]
-                            (when (:see-spinner @state)  [spinner])]]]])
+                                      [gap :size "20px"]
+                                      [h-box
+                                       :gap "50px"
+                                       :children [[button
+                                                   :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
+                                                   ;:disabled? true
+                                                   :on-click #(swap! state update-in [:see-spinner] not)]
+                                                  (when (:see-spinner @state)  [spinner])]]]]]]]]
+  )
 
 
 (defn right-arrow
@@ -79,55 +93,64 @@
         all-for-one? (reagent/atom true)]
     (fn
       []
-      [v-box
-       :gap "15px"
-       :children [#_[checkbox
+      [h-box
+       :gap      "50px"
+       :children [[v-box
+                   :gap      "10px"
+                   :style    {:font-size "small"}
+                   :children [[component-title "[checkbox ... ]"]
+                              [args-table checkbox-args-desc]]]
+                  [v-box
+                   :children [[component-title "Demo"]
+                              [v-box
+                               :gap "15px"
+                               :children [#_[checkbox
                    :label "always ticked (state stays true when you click)"
                    :model (= 1 1)]    ;; true means always ticked
 
-                  #_[checkbox
-                   :label "untickable (state stays false when you click)"
-                   :model always-false]
+                                          #_[checkbox
+                                           :label "untickable (state stays false when you click)"
+                                           :model always-false]
 
-                  [h-box
-                   :gap "10px"
-                   :children [[checkbox
-                               :label     "tick me  "
-                               :model     ticked?
-                               :on-change #(reset! ticked? %)]
-                              (when @ticked? [left-arrow])
-                              (when @ticked? [label :label " is ticked"])]]
+                                           [h-box
+                                            :gap "10px"
+                                            :children [[checkbox
+                                                        :label     "tick me  "
+                                                        :model     ticked?
+                                                        :on-change #(reset! ticked? %)]
+                                                       (when @ticked? [left-arrow])
+                                                       (when @ticked? [label :label " is ticked"])]]
 
-                  [h-box
-                   :gap "1px"
-                   :children [[checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)]
-                              [checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)]
-                              [checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)  :label  "all for one, and one for all.  "]]]
+                                           [h-box
+                                            :gap "1px"
+                                            :children [[checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)]
+                                                       [checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)]
+                                                       [checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)  :label  "all for one, and one for all.  "]]]
 
-                  [h-box
-                   :gap "15px"
-                   :children [[checkbox
-                               :label     "tick this one, to \"disable\""
-                               :model     disabled?
-                               :on-change #(reset! disabled? %)]
-                              [right-arrow]
-                              [checkbox
-                               :label       (if @disabled? "now disabled" "enabled")
-                               :model       something1?
-                               :disabled?   disabled?
-                               :label-style (if @disabled?  {:color "#888"})
-                               :on-change   #(reset! something1? %)]]]
+                                           [h-box
+                                            :gap "15px"
+                                            :children [[checkbox
+                                                        :label     "tick this one, to \"disable\""
+                                                        :model     disabled?
+                                                        :on-change #(reset! disabled? %)]
+                                                       [right-arrow]
+                                                       [checkbox
+                                                        :label       (if @disabled? "now disabled" "enabled")
+                                                        :model       something1?
+                                                        :disabled?   disabled?
+                                                        :label-style (if @disabled?  {:color "#888"})
+                                                        :on-change   #(reset! something1? %)]]]
 
-                  [h-box
-                   :gap "1px"
-                   :children [[checkbox
-                               :model     something2?
-                               :on-change #(reset! something2? %)]
-                              [gap :width "50px"]
-                              [left-arrow]
-                              [gap :width "5px"]
-                              [label
-                               :label "no label on this one"]]]]])))
+                                           [h-box
+                                            :gap "1px"
+                                            :children [[checkbox
+                                                        :model     something2?
+                                                        :on-change #(reset! something2? %)]
+                                                       [gap :width "50px"]
+                                                       [left-arrow]
+                                                       [gap :width "5px"]
+                                                       [label
+                                                        :label "no label on this one"]]]]]]]]])))
 
 
 (defn radios-demo
@@ -135,15 +158,26 @@
   (let [colour (reagent/atom "green")]
     (fn
       []
-      [v-box
-       :children [(doall (for [c ["red" "green" "blue"]]    ;; Notice the ugly "doall"
-                           ^{:key c}                        ;; key should be unique within this compenent
-                           [radio-button
-                            :label       c
-                            :value       c
-                            :model       colour
-                            :label-style (if (= c @colour) {:background-color c  :color "white"})
-                            :on-change   #(reset! colour c)]))]])))
+      [h-box
+       :gap      "50px"
+       :children [[v-box
+                   :gap      "10px"
+                   :style    {:font-size "small"}
+                   :children [[component-title "[radio-button ... ]"]
+                              [args-table radio-button-args-desc]]]
+                  [v-box
+                   :children [[component-title "Demo"]
+                              [v-box
+                               :children [(doall (for [c ["red" "green" "blue"]]    ;; Notice the ugly "doall"
+                                                   ^{:key c}                        ;; key should be unique within this compenent
+                                                   [radio-button
+                                                    :label       c
+                                                    :value       c
+                                                    :model       colour
+                                                    :label-style (if (= c @colour) {:background-color c  :color "white"})
+                                                    :on-change   #(reset! colour c)]))]]]]]]
+
+      )))
 
 
 (defn inputs-demo
@@ -158,81 +192,92 @@
     (fn
       []
       [h-box
-       :gap "40px"
-       :children [[input-text
-                   :model            text-val
-                   :status           @status
-                   :status-icon?     @status-icon?
-                   :status-tooltip   @status-tooltip
-                   :width            "200px"
-                   :placeholder      "placeholder message"
-                   :on-change        #(reset! text-val %)
-                   :validation-regex @regex
-                   :change-on-blur?  change-on-blur?
-                   :disabled?        disabled?]
+       :gap      "50px"
+       :children [[v-box
+                   :gap      "10px"
+                   :style    {:font-size "small"}
+                   :children [[component-title "[input-text ... ]"]
+                              [args-table input-text-args-desc]]]
                   [v-box
-                   :gap      "15px"
-                   :children [[label
-                               :label (str "external :model is currently: '" (if @text-val @text-val "nil") "'")
-                               :style {:margin-top "8px"}]
-                              [label :label "parameters:"]
-                              [v-box
-                               :children [[label :label ":change-on-blur?"]
-                                          [radio-button
-                                           :label     "false - Call on-change on every keystroke"
-                                           :value     false
-                                           :model     @change-on-blur?
-                                           :on-change #(reset! change-on-blur? false)
-                                           :style     {:margin-left "20px"}]
-                                          [radio-button
-                                           :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
-                                           :value     true
-                                           :model     @change-on-blur?
-                                           :on-change #(reset! change-on-blur? true)
-                                           :style     {:margin-left "20px"}]]]
-                              [v-box
-                               :children [[label :label ":status"]
-                                          [radio-button
-                                           :label     "nil/omitted - normal input state"
-                                           :value     nil
-                                           :model     @status
-                                           :on-change #(do
-                                                        (reset! status nil)
-                                                        (reset! status-tooltip ""))
-                                           :style {:margin-left "20px"}]
-                                          [radio-button
-                                           :label     ":warning - Warning status"
-                                           :value     :warning
-                                           :model     @status
-                                           :on-change #(do
-                                                        (reset! status :warning)
-                                                        (reset! status-tooltip "Warning tooltip"))
-                                           :style     {:margin-left "20px"}]
-                                          [radio-button
-                                           :label     ":error - Error status"
-                                           :value     :error
-                                           :model     @status
-                                           :on-change #(do
-                                                        (reset! status :error)
-                                                        (reset! status-tooltip "Error tooltip"))
-                                           :style     {:margin-left "20px"}]]]
-                              [checkbox
-                               :label     ":status-icon?"
-                               :model     status-icon?
-                               :on-change (fn [val]
-                                            (reset! status-icon? val))]
-                              [checkbox
-                               :label     (if @regex
-                                            ":validation-regex - set to format '99.9'"
-                                            ":validation-regex - nil (no character validation)")
-                               :model     regex
-                               :on-change (fn [val]
-                                            (reset! regex (when val #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$")))]
-                              [checkbox
-                               :label     ":disabled?"
-                               :model     disabled?
-                               :on-change (fn [val]
-                                            (reset! disabled? val))]]]]])))
+                   :children [[component-title "Demo"]
+                              [h-box
+                               :gap "40px"
+                               :children [[input-text
+                                           :model            text-val
+                                           :status           @status
+                                           :status-icon?     @status-icon?
+                                           :status-tooltip   @status-tooltip
+                                           :width            "200px"
+                                           :placeholder      "placeholder message"
+                                           :on-change        #(reset! text-val %)
+                                           :validation-regex @regex
+                                           :change-on-blur?  change-on-blur?
+                                           :disabled?        disabled?]
+                                          [v-box
+                                           :gap      "15px"
+                                           :children [[label
+                                                       :label (str "external :model is currently: '" (if @text-val @text-val "nil") "'")
+                                                       :style {:margin-top "8px"}]
+                                                      [label :label "parameters:"]
+                                                      [v-box
+                                                       :children [[label :label ":change-on-blur?"]
+                                                                  [radio-button
+                                                                   :label     "false - Call on-change on every keystroke"
+                                                                   :value     false
+                                                                   :model     @change-on-blur?
+                                                                   :on-change #(reset! change-on-blur? false)
+                                                                   :style     {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
+                                                                   :value     true
+                                                                   :model     @change-on-blur?
+                                                                   :on-change #(reset! change-on-blur? true)
+                                                                   :style     {:margin-left "20px"}]]]
+                                                      [v-box
+                                                       :children [[label :label ":status"]
+                                                                  [radio-button
+                                                                   :label     "nil/omitted - normal input state"
+                                                                   :value     nil
+                                                                   :model     @status
+                                                                   :on-change #(do
+                                                                                (reset! status nil)
+                                                                                (reset! status-tooltip ""))
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     ":warning - Warning status"
+                                                                   :value     :warning
+                                                                   :model     @status
+                                                                   :on-change #(do
+                                                                                (reset! status :warning)
+                                                                                (reset! status-tooltip "Warning tooltip"))
+                                                                   :style     {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     ":error - Error status"
+                                                                   :value     :error
+                                                                   :model     @status
+                                                                   :on-change #(do
+                                                                                (reset! status :error)
+                                                                                (reset! status-tooltip "Error tooltip"))
+                                                                   :style     {:margin-left "20px"}]]]
+                                                      [checkbox
+                                                       :label     ":status-icon?"
+                                                       :model     status-icon?
+                                                       :on-change (fn [val]
+                                                                    (reset! status-icon? val))]
+                                                      [checkbox
+                                                       :label     (if @regex
+                                                                    ":validation-regex - set to format '99.9'"
+                                                                    ":validation-regex - nil (no character validation)")
+                                                       :model     regex
+                                                       :on-change (fn [val]
+                                                                    (reset! regex (when val #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$")))]
+                                                      [checkbox
+                                                       :label     ":disabled?"
+                                                       :model     disabled?
+                                                       :on-change (fn [val]
+                                                                    (reset! disabled? val))]]]]]]]
+                  ]]
+      )))
 
 
 (defn hyperlink-demo
@@ -242,22 +287,31 @@
     (fn
       []
       [h-box
-       :gap "30px"
-       :children [[box
-                   :width "200px"
-                   :child [hyperlink
-                           :label     (if @disabled? "Now disabled" "Call back")
-                           :on-click  #(swap! click-count inc)
-                           :disabled? disabled?]]
+       :gap      "50px"
+       :children [[v-box
+                   :gap      "10px"
+                   :style    {:font-size "small"}
+                   :children [[component-title "[hyperlink ... ]"]
+                              [args-table hyperlink-args-desc]]]
                   [v-box
-                   :gap "15px"
-                   :children [[label :label (str "click count = " @click-count)]
-                              [label :label "parameters:"]
-                              [checkbox
-                               :label ":disabled?"
-                               :model disabled?
-                               :on-change (fn [val]
-                                            (reset! disabled? val))]]]]])))
+                   :children [[component-title "Demo"]
+                              [h-box
+                               :gap "30px"
+                               :children [[box
+                                           :width "200px"
+                                           :child [hyperlink
+                                                   :label     (if @disabled? "Now disabled" "Call back")
+                                                   :on-click  #(swap! click-count inc)
+                                                   :disabled? disabled?]]
+                                          [v-box
+                                           :gap "15px"
+                                           :children [[label :label (str "click count = " @click-count)]
+                                                      [label :label "parameters:"]
+                                                      [checkbox
+                                                       :label ":disabled?"
+                                                       :model disabled?
+                                                       :on-change (fn [val]
+                                                                    (reset! disabled? val))]]]]]]]]])))
 
 
 (defn hyperlink-href-demo
@@ -267,31 +321,40 @@
     (fn
       []
       [h-box
-       :gap "40px"
-       :children [[box
-                   :width "200px"
-                   :child [hyperlink-href
-                           :label     "Launch Google"
-                           :href      (when href? "http://google.com")
-                           :target    (when href? target)]]
+       :gap      "50px"
+       :children [[v-box
+                   :gap      "10px"
+                   :style    {:font-size "small"}
+                   :children [[component-title "[hyperlink-href ... ]"]
+                              [args-table hyperlink-href-args-desc]]]
                   [v-box
-                   :gap "15px"
-                   :children [[label :label "parameters:"]
-                              (when @href?
-                                [v-box
-                                 :children [[label :label ":target"]
-                                            [radio-button
-                                             :label "_self - load link into same tab"
-                                             :value "_self"
-                                             :model @target
-                                             :on-change #(reset! target "_self")
-                                             :style {:margin-left "20px"}]
-                                            [radio-button
-                                             :label "_blank - load link inot new tab"
-                                             :value "_blank"
-                                             :model @target
-                                             :on-change #(reset! target "_blank")
-                                             :style {:margin-left "20px"}]]])]]]])))
+                   :children [[component-title "Demo"]
+                              [h-box
+                               :gap "40px"
+                               :children [[box
+                                           :width "200px"
+                                           :child [hyperlink-href
+                                                   :label     "Launch Google"
+                                                   :href      (when href? "http://google.com")
+                                                   :target    (when href? target)]]
+                                          [v-box
+                                           :gap "15px"
+                                           :children [[label :label "parameters:"]
+                                                      (when @href?
+                                                        [v-box
+                                                         :children [[label :label ":target"]
+                                                                    [radio-button
+                                                                     :label "_self - load link into same tab"
+                                                                     :value "_self"
+                                                                     :model @target
+                                                                     :on-change #(reset! target "_self")
+                                                                     :style {:margin-left "20px"}]
+                                                                    [radio-button
+                                                                     :label "_blank - load link inot new tab"
+                                                                     :value "_blank"
+                                                                     :model @target
+                                                                     :on-change #(reset! target "_blank")
+                                                                     :style {:margin-left "20px"}]]])]]]]]]]])))
 
 
 (defn slider-demo
@@ -304,77 +367,86 @@
     (fn
       []
       [h-box
-       :gap "40px"
+       :gap      "50px"
        :children [[v-box
                    :gap      "10px"
-                   :children [[slider
-                               :model     slider-val
-                               :min       slider-min
-                               :max       slider-max
-                               :step      slider-step
-                               :width     "200px"
-                               :on-change #(reset! slider-val %)
-                               :disabled? disabled?]]]
+                   :style    {:font-size "small"}
+                   :children [[component-title "[slider ... ]"]
+                              [args-table slider-args-desc]]]
                   [v-box
-                   :gap      "15px"
-                   :children [[label :label "parameters:"]
+                   :children [[component-title "Demo"]
                               [h-box
-                               :gap      "10px"
-                               :align    :center
-                               :children [[label
-                                           :label ":model"
-                                           :style {:width "60px"}]
-                                          [input-text
-                                           :model           slider-val
-                                           :width           "70px"
-                                           :height          "26px"
-                                           :on-change       #(reset! slider-val %)
-                                           :change-on-blur? false]]]
-                              [h-box
-                               :gap      "10px"
-                               :align    :center
-                               :children [[label
-                                           :label ":min"
-                                           :style {:width "60px"}]
-                                          [input-text
-                                           :model           slider-min
-                                           :width           "70px"
-                                           :height          "26px"
-                                           :on-change       #(reset! slider-min %)
-                                           :change-on-blur? false]]]
-                              [h-box
-                               :gap      "10px"
-                               :align    :center
-                               :children [[label
-                                           :label ":max"
-                                           :style {:width "60px"}]
-                                          [input-text
-                                           :model           slider-max
-                                           :width           "70px"
-                                           :height          "26px"
-                                           :on-change       #(reset! slider-max %)
-                                           :change-on-blur? false]]]
-                              [h-box
-                               :gap      "10px"
-                               :align    :center
-                               :children [[label
-                                           :label ":step"
-                                           :style {:width "60px"}]
-                                          [input-text
-                                           :model           slider-step
-                                           :width           "70px"
-                                           :height          "26px"
-                                           :on-change       #(reset! slider-step %)
-                                           :change-on-blur? false]]]
-                              [checkbox
-                               :label ":disabled?"
-                               :model disabled?
-                               :on-change (fn [val]
-                                            (reset! disabled? val))]]]]])))
+                               :gap "40px"
+                               :children [[v-box
+                                           :gap      "10px"
+                                           :children [[slider
+                                                       :model     slider-val
+                                                       :min       slider-min
+                                                       :max       slider-max
+                                                       :step      slider-step
+                                                       :width     "200px"
+                                                       :on-change #(reset! slider-val %)
+                                                       :disabled? disabled?]]]
+                                          [v-box
+                                           :gap      "15px"
+                                           :children [[label :label "parameters:"]
+                                                      [h-box
+                                                       :gap      "10px"
+                                                       :align    :center
+                                                       :children [[label
+                                                                   :label ":model"
+                                                                   :style {:width "60px"}]
+                                                                  [input-text
+                                                                   :model           slider-val
+                                                                   :width           "70px"
+                                                                   :height          "26px"
+                                                                   :on-change       #(reset! slider-val %)
+                                                                   :change-on-blur? false]]]
+                                                      [h-box
+                                                       :gap      "10px"
+                                                       :align    :center
+                                                       :children [[label
+                                                                   :label ":min"
+                                                                   :style {:width "60px"}]
+                                                                  [input-text
+                                                                   :model           slider-min
+                                                                   :width           "70px"
+                                                                   :height          "26px"
+                                                                   :on-change       #(reset! slider-min %)
+                                                                   :change-on-blur? false]]]
+                                                      [h-box
+                                                       :gap      "10px"
+                                                       :align    :center
+                                                       :children [[label
+                                                                   :label ":max"
+                                                                   :style {:width "60px"}]
+                                                                  [input-text
+                                                                   :model           slider-max
+                                                                   :width           "70px"
+                                                                   :height          "26px"
+                                                                   :on-change       #(reset! slider-max %)
+                                                                   :change-on-blur? false]]]
+                                                      [h-box
+                                                       :gap      "10px"
+                                                       :align    :center
+                                                       :children [[label
+                                                                   :label ":step"
+                                                                   :style {:width "60px"}]
+                                                                  [input-text
+                                                                   :model           slider-step
+                                                                   :width           "70px"
+                                                                   :height          "26px"
+                                                                   :on-change       #(reset! slider-step %)
+                                                                   :change-on-blur? false]]]
+                                                      [checkbox
+                                                       :label ":disabled?"
+                                                       :model disabled?
+                                                       :on-change (fn [val]
+                                                                    (reset! disabled? val))]]]]]]]]])))
 
 
 ;; =====================================================================================================================
-;;  EXPERIMENTAL
+;;  START EXPERIMENTAL
 ;; =====================================================================================================================
 
 #_(def demos [{:id 1 :label "Simple dropdown"}
@@ -489,26 +561,33 @@
                   ]])))
 
 
+;; =====================================================================================================================
+;;  END EXPERIMENTAL
+;; =====================================================================================================================
+
+
+(def demos [{:id 0 :label "button"         :component buttons-demo}
+            {:id 1 :label "checkbox"       :component checkboxes-demo}
+            {:id 2 :label "radio-button"   :component radios-demo}
+            {:id 3 :label "input-text"     :component inputs-demo}
+            {:id 4 :label "hyperlink"      :component hyperlink-demo}
+            {:id 5 :label "hyperlink-href" :component hyperlink-href-demo}
+            {:id 6 :label "slider"         :component slider-demo}
+            ;{:id 7 :label "h-box"          :component h-box-demo} ;; Experimental
+            ;{:id 8 :label "v-box"          :component v-box-demo} ;; Experimental
+            ])
+
 (defn panel
   []
-  [v-box
-   :gap      "25px"
-   :children [[panel-title "Basic Components"]
-              [component-display   "[button ... ]"   buttons-demo]
-              [line ]
-              [component-display   "[checkbox ... ]" checkboxes-demo]
-              [line ]
-              [component-display   "[radio-button ... ]" radios-demo]
-              [line ]
-              [component-display   "[input-text ... ]" inputs-demo]
-              [line ]
-              [component-display   "[hyperlink ... ]" hyperlink-demo]
-              [line ]
-              [component-display   "[hyperlink-href ... ]" hyperlink-href-demo]
-              [line ]
-              [component-display   "[slider ... ]" slider-demo]
-              ;[line ]
-              ;[component-display   "[h-box ... ]" h-box-demo]
-              ;[line ]
-              ;[component-display   "[v-box ... ]" v-box-demo]
-              [gap :size "100px"]]])
+  (let [selected-demo-id (reagent/atom 0)]
+    (fn []
+      [v-box
+       :gap "10px"
+       :children [[panel-title "Basic Components" ]
+                  [h-box
+                   :gap      "50px"
+                   :children [[vertical-bar-tabs
+                               :model     selected-demo-id
+                               :tabs      demos
+                               :on-change #(reset! selected-demo-id %)]
+                              [(get-in demos [@selected-demo-id :component])]]]]])))
