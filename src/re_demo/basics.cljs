@@ -149,6 +149,10 @@
 (defn inputs-demo
   []
   (let [text-val        (reagent/atom nil)
+        regex           (reagent/atom nil)
+        status          (reagent/atom nil)
+        status-icon?    (reagent/atom false)
+        status-tooltip  (reagent/atom "")
         disabled?       (reagent/atom false)
         change-on-blur? (reagent/atom true)]
     (fn
@@ -156,12 +160,16 @@
       [h-box
        :gap "40px"
        :children [[input-text
-                   :model           text-val
-                   :width           "200px"
-                   :placeholder     "placeholder message"
-                   :on-change       #(reset! text-val %)
-                   :change-on-blur? change-on-blur?
-                   :disabled?       disabled?]
+                   :model            text-val
+                   :status           @status
+                   :status-icon?     @status-icon?
+                   :status-tooltip   @status-tooltip
+                   :width            "200px"
+                   :placeholder      "placeholder message"
+                   :on-change        #(reset! text-val %)
+                   :validation-regex @regex
+                   :change-on-blur?  change-on-blur?
+                   :disabled?        disabled?]
                   [v-box
                    :gap      "15px"
                    :children [[label
@@ -182,14 +190,49 @@
                                            :model     @change-on-blur?
                                            :on-change #(reset! change-on-blur? true)
                                            :style     {:margin-left "20px"}]]]
+                              [v-box
+                               :children [[label :label ":status"]
+                                          [radio-button
+                                           :label     "nil/omitted - normal input state"
+                                           :value     nil
+                                           :model     @status
+                                           :on-change #(do
+                                                        (reset! status nil)
+                                                        (reset! status-tooltip ""))
+                                           :style {:margin-left "20px"}]
+                                          [radio-button
+                                           :label     ":warning - Warning status"
+                                           :value     :warning
+                                           :model     @status
+                                           :on-change #(do
+                                                        (reset! status :warning)
+                                                        (reset! status-tooltip "Warning tooltip"))
+                                           :style     {:margin-left "20px"}]
+                                          [radio-button
+                                           :label     ":error - Error status"
+                                           :value     :error
+                                           :model     @status
+                                           :on-change #(do
+                                                        (reset! status :error)
+                                                        (reset! status-tooltip "Error tooltip"))
+                                           :style     {:margin-left "20px"}]]]
+                              [checkbox
+                               :label     ":status-icon?"
+                               :model     status-icon?
+                               :on-change (fn [val]
+                                            (reset! status-icon? val))]
+                              [checkbox
+                               :label     (if @regex
+                                            ":validation-regex - set to format '99.9'"
+                                            ":validation-regex - nil (no character validation)")
+                               :model     regex
+                               :on-change (fn [val]
+                                            (reset! regex (when val #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$")))]
                               [checkbox
                                :label     ":disabled?"
                                :model     disabled?
                                :on-change (fn [val]
-                                            (reset! disabled? val))]
-                              [button
-                               :label    "Set external model to 'blah'"
-                               :on-click #(reset! text-val "blah")]]]]])))
+                                            (reset! disabled? val))]]]]])))
 
 
 (defn hyperlink-demo

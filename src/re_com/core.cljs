@@ -38,26 +38,35 @@
 
 (def input-text-args
   #{:model            ;; Text of the input (can be atom or value).
+    :status           ;; Validation status - nil, :warning, :error
+    :status-icon?     ;; When true, display an appropriate icon to match the status (no icon for nil)
+    :status-tooltip   ;; String to display when hovering over the icon.
     :placeholder      ;; Text to show when there is no under text in the component.
     :width            ;; Standard CSS width setting for this input. Default is 250px.
     :height           ;; Standard CSS width setting for this input. Default is 34px as set in Bootstrap style.
     :on-change        ;; A function which takes one parameter, which is the new text (see :change-on-blur?).
     :change-on-blur?  ;; When true, invoke on-change function on blur, otherwise on every change (character by character).
-    :validation-regex ;; TODO: Implement
+    :validation-regex ;; The regular expression which determines which characters are legal and which aren't.
     :disabled?        ;; Set to true to disable the input box (can be atom or value).
     :class            ;; Class string.
     :style            ;; CSS style map.
     })
 
+;; Sample regex's:
+;;  - #"^(-{0,1})(\d*)$"                   ;; Signed integer
+;;  - #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$"  ;; Specific numeric value ##.#
+;;  - #"^.{0,8}$"                          ;; 8 chars max
+;;  - #"^[0-9a-fA-F]*$"                    ;; Hex number
+;;  - #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" ;; Time input
 
 (defn input-text
   "Returns markup for a basic text imput label"
   [& {:keys [model] :as args}]
   {:pre [(superset? input-text-args (keys args))]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
-        internal-model (reagent/atom @external-model)]        ;; Create a new atom from the model to be used internally
+        internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)
     (fn
-      [& {:keys [model placeholder width height on-change change-on-blur? disabled? class style]
+      [& {:keys [model status status-icon? status-tooltip placeholder width height on-change change-on-blur? validation-regex disabled? class style]
           :or   {change-on-blur? true}
           :as   args}]
       {:pre [(superset? input-text-args (keys args))]}
@@ -67,30 +76,48 @@
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model))
-        [:input
-         {:class       (str "rc-input-text form-control " class)
-          :type        "text"
-          :style       (merge
-                         {:flex "none"
-                          :width (if width width "250px")
-                          :height (when height height)
-                          :-webkit-user-select "none"}
-                         style)
-          :placeholder placeholder
-          :value       @internal-model
-          :disabled    disabled?
-          :on-change   #(when (and on-change (not disabled?))
-                         (reset! internal-model (-> % .-target .-value))
-                         (when-not change-on-blur?
-                           (on-change @internal-model)))
-          :on-blur     #(when change-on-blur?
-                         (on-change @internal-model))
-          :on-key-up   #(if disabled?
-                         false
-                         (case (.-which %)
-                           13 (on-change @internal-model)
-                           27 (reset! internal-model @external-model)
-                           true))}]))))
+        [:div
+         {:class (str "rc-input-text form-group "
+                      (case status
+                        :warning "has-warning "
+                        :error   "has-error "
+                        "")
+                      (when (and status status-icon?) "has-feedback"))
+          :style {:flex "none"}}
+         [:input
+          {:class       (str "form-control " class)
+           :type        "text"
+           :style       (merge
+                          {:flex                "none"
+                           :width               (if width width "250px")
+                           :height              (when height height)
+                           :-webkit-user-select "none"}
+                          style)
+           :placeholder placeholder
+           :value       @internal-model
+           :disabled    disabled?
+           :on-change   (fn [me]
+                          (let [new-val (-> me .-target .-value)]
+                            (when (and
+                                    on-change
+                                    (not disabled?)
+                                    (if validation-regex (re-find validation-regex new-val) true))
+                              (reset! internal-model new-val)
+                              (when-not change-on-blur?
+                                (on-change @internal-model)))))
+           :on-blur     #(when change-on-blur?
+                          (on-change @internal-model))
+           :on-key-up   #(if disabled?
+                          false
+                          (case (.-which %)
+                            13 (on-change @internal-model)
+                            27 (reset! internal-model @external-model)
+                            true))}]
+         (when (and status status-icon?)
+           [:span
+            {:class (str "glyphicon glyphicon-" (if (= status :warning) "warning-sign" "exclamation-sign") " form-control-feedback")
+             :style {:top "0px"}
+             :title status-tooltip}])]))))
 
 
 ;; ------------------------------------------------------------------------------------
