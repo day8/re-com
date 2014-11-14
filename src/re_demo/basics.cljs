@@ -1,8 +1,5 @@
 (ns re-demo.basics
-  (:require [re-com.core     :refer [label
-                                     spinner
-                                     progress-bar
-                                     title
+  (:require [re-com.core     :refer [label spinner progress-bar title
                                      button button-args-desc
                                      checkbox checkbox-args-desc
                                      radio-button radio-button-args-desc
