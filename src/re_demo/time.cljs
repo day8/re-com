@@ -10,11 +10,9 @@
   []
   [v-box
    :width    "400px"
-   :children [ [component-title "[input-time ... ]"]
-
+   :children [ [:div.h4 "Notes"]
                [:div {:style {:font-size "small"}}
-                [label :class "small-caps" :label "notes:"]
-                [:p "Allows the user to input time in 24hr format."]
+               [:p "Allows the user to input time in 24hr format."]
                 [:p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
                  Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
                 [:p "If the user exists the input field with an invalid value, it will be replaced with the last known valid value."]]
@@ -122,8 +120,9 @@
   [v-box
    :children [[panel-title "Time Components"]
               [h-box
-               :gap "70px"
-               :children [[notes]
+               :gap "50px"
+               :children [[component-title "[input-time ... ]"]
+                          [notes]
                           [basics-demo]]]]])
 
 

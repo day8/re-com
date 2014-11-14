@@ -1,9 +1,9 @@
 (ns re-demo.dropdowns
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [re-com.util     :as    util]
+  (:require [re-com.util     :refer [item-for-id]]
             [re-com.core     :refer [button label input-text checkbox title]]
             [re-com.box      :refer [h-box v-box box gap]]
-            [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword single-dropdown-desc]]
+            [re-com.dropdown :refer [single-dropdown filter-choices-by-keyword single-dropdown-desc]]
             [cljs.core.async :refer [<! >! chan close! put! take! alts! timeout]]
             [re-demo.utils   :refer [panel-title component-title args-table]]
             [reagent.core    :as    reagent]))
@@ -130,7 +130,7 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (find-choice grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
 
 
 (defn demo3
@@ -157,7 +157,7 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (find-choice grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
 (defn demo4
@@ -192,7 +192,7 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (find-choice grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
 (defn demo5
@@ -252,7 +252,7 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (find-choice grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
 (defn demo6
@@ -279,7 +279,7 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (find-choice countries @selected-country-id)) " [" @selected-country-id "]"))]]]
+                                 (str (:label (item-for-id @selected-country-id countries )) " [" @selected-country-id "]"))]]]
                   [gap :size "10px"]
                   [h-box
                    :gap      "10px"
@@ -293,7 +293,7 @@
                                [:strong "Selected city: "]
                                (if (nil? @selected-city-id)
                                  "None"
-                                 (str (:label (find-choice cities @selected-city-id)) " [" @selected-city-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-city-id cities )) " [" @selected-city-id "]"))]]]]])))
 
 
 (defn notes
