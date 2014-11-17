@@ -118,10 +118,14 @@
                             27 (reset! internal-model @external-model)
                             true))}]
          (when (and status status-icon?)
-           [:span
+           #_[:span
             {:class (str "glyphicon glyphicon-" (if (= status :warning) "warning-sign" "exclamation-sign") " form-control-feedback")
              :style {:top "0px"}
-             :title status-tooltip}])]))))
+             :title status-tooltip}]
+           [:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                :style {:top "0px"}
+                :title status-tooltip}]
+           )]))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -175,21 +179,28 @@
 
 (def md-circle-icon-button-args-desc
   [{:name :md-icon-name  :required true                   :type "string"     :description "Label for the button (can be artitrary markup)."}
+   {:name :size          :required false  :default 36     :type "integer"    :description "Set size of button in pixels (do not add 'px' prefix)."}
    {:name :disabled?     :required false                  :type "boolean"    :description "Set to true to disable the button."}
    {:name :on-click      :required false                  :type "keyword"    :description "Callback when the button is clicked."}])
 
 (def md-circle-icon-button-args
   (set (map :name md-circle-icon-button-args-desc)))
 
+(defn px ;; TODO: Move to util
+  [val & negative]
+  (str (when negative "-") val "px"))
+
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
   []
   (let [hover? (reagent/atom false)]
     (fn
-      [& {:keys [md-icon-name disabled? on-click]
+      [& {:keys [md-icon-name size disabled? on-click]
           :or   {disabled? false}}]
       [:div {:class       "rc-md-circle-icon-button rc-md-circle-icon-button"
-             :style       {:border  (if disabled?
+             :style       {:width   (when size (px size))
+                           :height  (when size (px size))
+                           :border  (if disabled?
                                       "none"
                                       (if @hover? "1px solid #428bca" "1px solid lightgrey"))
                            :color   (if disabled?
@@ -199,7 +210,10 @@
              :on-click      on-click
              :on-mouse-over #(reset! hover? true)
              :on-mouse-out  #(reset! hover? false)}
-       [:i {:class md-icon-name }]])))
+       [:i {:class md-icon-name
+            :style {:line-height (when size (px size))
+                    :font-size   (when size (px (* size 0.7)))
+                   }}]])))
 
 
 ;;--------------------------------------------------------------------------------------------------

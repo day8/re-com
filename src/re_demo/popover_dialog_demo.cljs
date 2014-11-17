@@ -51,14 +51,14 @@
                                         [h-box
                                          :gap      "10px"
                                          :children [[button
-                                                     :label    [:span [:span.glyphicon.glyphicon-ok] " Apply"]
+                                                     :label    [:span [:span.glyphicon.glyphicon-ok] " " [:i {:class "md-check" }] " Apply"]
                                                      :on-click #(submit-dialog @dialog-data)
                                                      :class    "btn-primary"]
                                                     [popover-anchor-wrapper
                                                      :showing? show-tooltip?
                                                      :position :right-below
                                                      :anchor   [button
-                                                                :label    [:span [:span.glyphicon.glyphicon-remove] " Cancel"]
+                                                                :label    [:span [:span.glyphicon.glyphicon-remove] " " [:i {:class "md-close" }] " Cancel"]
                                                                 :on-click cancel-dialog]
                                                      :popover  [popover-content-wrapper ;; NOTE: didn't specify on-cancel here (handled properly)
                                                                 :showing?      show-tooltip?
