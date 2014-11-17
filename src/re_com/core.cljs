@@ -170,6 +170,39 @@
 
 
 ;;--------------------------------------------------------------------------------------------------
+;; Component: md-circle-icon-button
+;;--------------------------------------------------------------------------------------------------
+
+(def md-circle-icon-button-args-desc
+  [{:name :md-icon-name  :required true                   :type "string"     :description "Label for the button (can be artitrary markup)."}
+   {:name :disabled?     :required false                  :type "boolean"    :description "Set to true to disable the button."}
+   {:name :on-click      :required false                  :type "keyword"    :description "Callback when the button is clicked."}])
+
+(def md-circle-icon-button-args
+  (set (map :name md-circle-icon-button-args-desc)))
+
+(defn md-circle-icon-button
+  "a circular button containing a material design icon"
+  []
+  (let [hover? (reagent/atom false)]
+    (fn
+      [& {:keys [md-icon-name disabled? on-click]
+          :or   {disabled? false}}]
+      [:div {:class       "rc-md-circle-icon-button rc-md-circle-icon-button"
+             :style       {:border  (if disabled?
+                                      "none"
+                                      (if @hover? "1px solid #428bca" "1px solid lightgrey"))
+                           :color   (if disabled?
+                                      "lightgrey"
+                                      (if @hover? "#428bca" "inherit"))}       ;; TODO:  these colours should match the rest of the palet. Be stored somewhere central.
+             :disabled      disabled?
+             :on-click      on-click
+             :on-mouse-over #(reset! hover? true)
+             :on-mouse-out  #(reset! hover? false)}
+       [:i {:class md-icon-name }]])))
+
+
+;;--------------------------------------------------------------------------------------------------
 ;; Component: hyperlink
 ;;--------------------------------------------------------------------------------------------------
 

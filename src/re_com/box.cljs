@@ -204,7 +204,8 @@
   {:pre [(validate-arguments gap-args (keys args))]}
   (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s (merge
-            (when size {:flex (str "0 0 " size)})
+            ;(when size {:flex (str "0 0 " size)})
+            (when size (flex-child-style size))
             (when width {:width width})
             (when height {:height height})
             (when debug {:background-color "chocolate"})
