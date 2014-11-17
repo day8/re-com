@@ -487,7 +487,6 @@
   background:rgba(0,0,0,0.45);
   }
 
-
 /*----------------------------------------------------------------------------------------
   Override bootstrap input text placeholder colour (it's too dark)
 ----------------------------------------------------------------------------------------*/
@@ -495,7 +494,6 @@
 .form-control::-webkit-input-placeholder {
   color: #bbb;
 }
-
 
 /*----------------------------------------------------------------------------------------
   Override bootstrap warning colour (from horrible browny orange to orange)
@@ -511,7 +509,6 @@
   color: #f0ad4e;
 }
 
-
 /*----------------------------------------------------------------------------------------
   Required for constraining an application to the height of the browser window
 ----------------------------------------------------------------------------------------*/
@@ -526,6 +523,7 @@ html, body {
 /*----------------------------------------------------------------------------------------
   Time component
 ----------------------------------------------------------------------------------------*/
+
 .time-icon {
   border: 1px solid #bbb;
   border-radius: 0 4px 4px 0;
@@ -547,4 +545,24 @@ html, body {
 }
 .test-time {
   font-size:    16px;
+}
+
+/*----------------------------------------------------------------------------------------
+  md-circle-icon-button
+----------------------------------------------------------------------------------------*/
+
+.rc-md-circle-icon-button {
+    border-radius:       50%;
+    background-color:    inherit;
+    opacity:             0.9;
+    -webkit-user-select: none;
+    width:   36px;                  /* material design dimensions */
+    height:  36px;
+    text-align: center;             /* to horizontally center the icon */
+}
+
+.rc-md-circle-icon-button > i {
+   font-size  : 24px;
+   line-height: 36px;               /* to vertically center in surrounding :div */
+   color: inherit;
 }
