@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-com.util     :as    util]
             [re-com.core     :refer [button label spinner progress-bar title]]
-            [re-com.box      :refer [h-box v-box box gap]]
+            [re-com.box      :refer [h-box v-box box gap line]]
             [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
             [re-com.modal    :refer [modal-window cancel-button looper domino-process]]
@@ -750,7 +750,22 @@
 
 (defn demo2
   []
-  [:span "*** TODO ***"])
+  [v-box
+   :width "200px"
+   :height "200px"
+   :class    "has-warning form-control"
+   :style    {:background-color "yellow"
+              :border "1px solid red"}
+   :attr     {:on-mouse-over #(println "OVER")
+              :on-mouse-out #(println "AND OUT")
+              ;:class "gregg"
+              ;:style {:color "red"}
+  }
+   :children [[label :label "Hello"]
+              [line
+               :size "5px"
+               :attr     {:on-mouse-over #(println "LINE-OVER")
+                          :on-mouse-out #(println "LINE-OUT")}]]])
 
 
 (defn notes

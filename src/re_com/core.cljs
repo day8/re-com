@@ -156,6 +156,7 @@
   {:pre [(validate-arguments button-args (keys args))]}
   (let [disabled?   (deref-or-value disabled?)]
     [box
+     :style {:display "inline-flex"}
      :align :start
      :child [:button
              {:class    (str "rc-button btn " class)
