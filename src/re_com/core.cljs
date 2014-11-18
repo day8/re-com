@@ -453,12 +453,12 @@
 ;; ------------------------------------------------------------------------------------
 
 (def inline-tooltip-args-desc
-  [{:name :label         :required true                     :type "string"     :description "the text shown in the tooltip."}
-   {:name :position      :required false  :default ":below" :type "keyword"    :description "position of the tooltip relative to what is pointed to (:left, :right, :above, :below)"}
-   {:name :status        :required false  :default "nil"    :type "keyword"    :description "controls background colour of the tooltip (nil = black, :warning = orange, :error = red)"}
-   {:name :class         :required false                    :type "string"     :description "additional CSS classes required."}
-   {:name :style         :required false                    :type "map"        :description "CSS styles to add or override."}
-   {:name :attr          :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :label         :required true                     :type "string"     :description "the text in the tooltip."}
+   {:name :position      :required false  :default ":below" :type "keyword"    :description "where the tooltip will appear, relative to what it points at (:left, :right, :above, :below)"}
+   {:name :status        :required false  :default "nil"    :type "keyword"    :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red)"}
+   {:name :class         :required false                    :type "string"     :description "CSS classes appended to base component list"}
+   {:name :style         :required false                    :type "map"        :description "CSS styles. Will override (or add to) the base component base styles."}
+   {:name :attr          :required false                    :type "map"        :description "HTML Element attributes. Will override (or add to) those in the base component. Expected to be things like on-mouse-over, etc. (:class/:style not allowed)."}])
 
 
 (defn inline-tooltip

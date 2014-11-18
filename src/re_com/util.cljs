@@ -20,7 +20,7 @@
 
 
 (defn pad-zero
-  "Left pad a string 's' with '0', until 's' has length 'len'. If 's' is already len or greater, return 's'"
+  "Left pad a string 's' with '0', until 's' has length 'len'. Return 's' unchanged, if it is already len or greater."
   [s len]
   (if (< (count s) len)
     (apply str (take-last len (concat (repeat len \0) s)))
