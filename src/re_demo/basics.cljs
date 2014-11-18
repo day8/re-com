@@ -7,7 +7,8 @@
                                      input-text input-text-args-desc
                                      hyperlink hyperlink-args-desc
                                      hyperlink-href hyperlink-href-args-desc
-                                     slider slider-args-desc]]
+                                     slider slider-args-desc
+                                     inline-tooltip inline-tooltip-args-desc]]
             [re-com.box      :refer [h-box v-box box gap line]]
             [re-com.tabs     :refer [vertical-bar-tabs]]
             [re-demo.utils   :refer [panel-title component-title args-table]]
@@ -99,10 +100,10 @@
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-add-box"
-                                                   :size         36
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-add-box"
+                                                   :size         36
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-add-box"
@@ -136,10 +137,10 @@
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-add-circle"
-                                                   :size         36
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-add-circle"
+                                                   :size         36
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-add-circle"
@@ -539,6 +540,33 @@
                                                                     (reset! disabled? val))]]]]]]]]])))
 
 
+(defn inline-tooltip-demo
+  []
+  (let []
+    (fn
+      []
+      [h-box
+       :gap      "50px"
+       :children [[v-box
+                   :gap      "10px"
+                   :style    {:font-size "small"}
+                   :children [[component-title "[inline-tooltip ... ]"]
+                              [args-table inline-tooltip-args-desc]]]
+                  [v-box
+                   :children [[component-title "Demo"]
+                              [h-box
+                               :gap "40px"
+                               :children [[v-box
+                                           :gap      "10px"
+                                           :children [[inline-tooltip
+                                                       :label     "This is a tooltip"
+                                                       ;:position :left
+                                                       ]]]
+                                          [v-box
+                                           :gap      "15px"
+                                           :children [[label :label "Text"]]]]]]]]])))
+
+
 ;; =====================================================================================================================
 ;;  START EXPERIMENTAL
 ;; =====================================================================================================================
@@ -668,8 +696,9 @@
             {:id 5 :label "hyperlink"             :component hyperlink-demo}
             {:id 6 :label "hyperlink-href"        :component hyperlink-href-demo}
             {:id 7 :label "slider"                :component slider-demo}
-            ;{:id 8 :label "h-box"                 :component h-box-demo} ;; Experimental
-            ;{:id 9 :label "v-box"                 :component v-box-demo} ;; Experimental
+            {:id 8 :label "inline-tooltip"        :component inline-tooltip-demo}
+            ;{:id 90 :label "h-box"                 :component h-box-demo} ;; Experimental
+            ;{:id 91:label "v-box"                 :component v-box-demo} ;; Experimental
             ])
 
 (defn panel

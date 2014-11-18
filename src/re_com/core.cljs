@@ -143,15 +143,6 @@
   (set (map :name button-args-desc)))
 
 
-#_(def button-args
-  #{:label      ;; Label for the button (can be artitrary markup).
-    :on-click   ;; Callback when the button is clicked.
-    :disabled?  ;; Set to true to disable the button.
-    :class      ;; Class string. e.g. "btn-info" (see: http://getbootstrap.com/css/#buttons).
-    :style      ;; CSS style map.
-    })
-
-
 (defn button
   "Returns the markup for a basic button."
   [& {:keys [label on-click disabled? class style]
@@ -212,7 +203,7 @@
              :on-mouse-out  #(reset! hover? false)}
        [:i {:class md-icon-name
             :style {:line-height (when size (px size))
-                    :font-size   (when size (px (* size 0.7)))
+                    :font-size   (when size (px (* size 0.6666667)))
                    }}]])))
 
 
@@ -230,15 +221,6 @@
 
 (def hyperlink-args
   (set (map :name hyperlink-args-desc)))
-
-
-#_(def hyperlink-args
-  #{:label      ;; Label for the button (can be artitrary markup).
-    :on-click   ;; Callback when the hyperlink is clicked.
-    :disabled?  ;; Set to true to disable the hyperlink.
-    :class      ;; Class string.
-    :style      ;; CSS style map.
-    })
 
 
 (defn hyperlink
@@ -280,15 +262,6 @@
   (set (map :name hyperlink-href-args-desc)))
 
 
-#_(def hyperlink-href-args
-  #{:label      ;; Label for the button (can be artitrary markup).
-    :href       ;; If specified, which URL to jump to when clicked.
-    :target     ;; A string representing where to load href: _self - open in same window/tab (the default), _blank - open in new window/tab, _parent - open in parent window.
-    :class      ;; Class string.
-    :style      ;; CSS style map.
-    })
-
-
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.
    This is very similar to the button component above but styled to looks like a hyperlink.
@@ -328,17 +301,6 @@
 
 (def checkbox-args
   (set (map :name checkbox-args-desc)))
-
-
-#_(def checkbox-args
-  #{:model          ;; Holds state of the checkbox when it is called
-    :on-change      ;; When model state is changed, call back with new state
-    :label          ;; Checkbox label
-    :disabled?      ;; Set to true to disable the checkbox
-    :style          ;; Checkbox style map
-    :label-class    ;; Label class string
-    :label-style    ;; Label style map
-    })
 
 
 ;; TODO: when disabled?, should the text appear "disabled".
@@ -389,18 +351,6 @@
 
 (def radio-button-args
   (set (map :name radio-button-args-desc)))
-
-
-#_(def radio-button-args
-  #{:model          ;; Holds state of the checkbox when it is called
-    :value          ;; Value of the radio button OR button group
-    :label          ;; Checkbox label
-    :on-change      ;; When model state is changed, call back with new state
-    :disabled?      ;; Set to true to disable the checkbox
-    :style          ;; Checkbox style map
-    :label-class    ;; Label class string
-    :label-style    ;; Label style map
-    })
 
 
 (defn radio-button
@@ -454,19 +404,6 @@
   (set (map :name slider-args-desc)))
 
 
-#_(def slider-args
-  #{:model           ;; Numeric double. Current value of the slider. Can be value or atom.
-    :min             ;; Numeric double. The minimum value of the slider. Default is 0. Can be value or atom.
-    :max             ;; Numeric double. The maximum value of the slider. Default is 100. Can be value or atom.
-    :step            ;; Numeric double. Step value between min and max. Default is 1. Can be value or atom.
-    :width           ;; Standard CSS width setting for the slider. Default is 400px.
-    :on-change       ;; A function which takes one parameter, which is the new value of the slider.
-    :disabled?       ;; Set to true to disable the slider. Can be value or atom.
-    :class           ;; Class string.
-    :style           ;; CSS style map.
-    })
-
-
 (defn slider
   "Returns markup for an HTML5 slider input."
   []
@@ -496,6 +433,53 @@
                 :value     model
                 :disabled  disabled?
                 :on-change #(on-change (double (-> % .-target .-value)))}]])))
+
+
+;; ------------------------------------------------------------------------------------
+;;  Component: inline-tooltip
+;; ------------------------------------------------------------------------------------
+
+(def inline-tooltip-args-desc
+  [{:name :label         :required true                   :type "string"     :description "the text to appear in the tooltip."}
+   {:name :position      :required false  :default :below :type "string"     :description "specifies the arrow position on the tooltip (:left, :right, :above, :below)"}
+   {:name :width         :required false                  :type "string"     :description "Standard CSS width setting for the inline-tooltip. Default is 400px."}
+   {:name :class         :required false                  :type "string"     :description "additional CSS classes required."}
+   {:name :style         :required false                  :type "map"        :description "CSS styles to add or override."}
+   {:name :attr          :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+
+
+(def inline-tooltip-args
+  (set (map :name inline-tooltip-args-desc)))
+
+
+(defn inline-tooltip
+  "Returns markup for an inline-tooltip."
+  []
+  (fn
+    [& {:keys [label position width class style attr]
+        :or   {position :above}
+        :as   args}]
+    {:pre [(validate-arguments inline-tooltip-args (keys args))]}
+    (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
+    (let []
+      [:div
+       (merge
+         {:class (str "rc-inline-tooltip tooltip "
+                      (case position
+                        :left "left"
+                        :right "right"
+                        :above "top"
+                        :below "bottom"
+                        "bottom")
+                      " "
+                      class)
+          :style (merge {:flex "none"
+                         :opacity 1}
+                        style)}
+         attr)
+       [:div.tooltip-arrow]
+       [:div.tooltip-inner
+        label]])))
 
 
 ;; ------------------------------------------------------------------------------------
