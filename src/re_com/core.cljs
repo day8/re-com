@@ -461,10 +461,6 @@
    {:name :attr          :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 
-(def inline-tooltip-args
-  (set (map :name inline-tooltip-args-desc)))
-
-
 (defn inline-tooltip
   "Returns markup for an inline-tooltip."
   []
