@@ -182,10 +182,10 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-circle-icon-button-args-desc
-  [{:name :md-icon-name  :required true                   :type "string"     :description "Label for the button (can be artitrary markup)."}
-   {:name :size          :required false  :default 36     :type "integer"    :description "Set size of button in pixels (do not add 'px' prefix)."}
-   {:name :disabled?     :required false                  :type "boolean"    :description "Set to true to disable the button."}
-   {:name :on-click      :required false                  :type "keyword"    :description "Callback when the button is clicked."}])
+  [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "The name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+   {:name :size          :required false  :default 36       :type "integer"    :description "Set size of button in pixels (do not add 'px' prefix)."}
+   {:name :disabled?     :required false                    :type "boolean"    :description "If true, the user can't click the button."}
+   {:name :on-click      :required false                    :type "() -> nil"  :description "The fucntion to call when the button is clicked."}])
 
 (def md-circle-icon-button-args
   (set (map :name md-circle-icon-button-args-desc)))
@@ -200,7 +200,7 @@
   (let [hover? (reagent/atom false)]
     (fn
       [& {:keys [md-icon-name size disabled? on-click]
-          :or   {disabled? false}}]
+          :or   {md-icon-name "md-add" disabled? false}}]
       [:div {:class       "rc-md-circle-icon-button rc-md-circle-icon-button"
              :style       {:width   (when size (px size))
                            :height  (when size (px size))
