@@ -79,53 +79,66 @@
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model))
-        [:div
-         {:class (str "rc-input-text form-group "
-                      (case status
-                        :warning "has-warning "
-                        :error   "has-error "
-                        "")
-                      (when (and status status-icon?) "has-feedback"))
-          :style {:flex         "none"
-                 :margin-bottom "0px"}}
-         [:input
-          {:class       (str "form-control " class)
-           :type        "text"
-           :style       (merge
-                          {:flex                "none"
-                           :width               (if width width "250px")
-                           :height              (when height height)
-                           :-webkit-user-select "none"}
-                          style)
-           :placeholder placeholder
-           :value       @internal-model
-           :disabled    disabled?
-           :on-change   (fn [me]
-                          (let [new-val (-> me .-target .-value)]
-                            (when (and
-                                    on-change
-                                    (not disabled?)
-                                    (if validation-regex (re-find validation-regex new-val) true))
-                              (reset! internal-model new-val)
-                              (when-not change-on-blur?
-                                (on-change @internal-model)))))
-           :on-blur     #(when change-on-blur?
-                          (on-change @internal-model))
-           :on-key-up   #(if disabled?
-                          false
-                          (case (.-which %)
-                            13 (on-change @internal-model)
-                            27 (reset! internal-model @external-model)
-                            true))}]
-         (when (and status status-icon?)
-           #_[:span
-            {:class (str "glyphicon glyphicon-" (if (= status :warning) "warning-sign" "exclamation-sign") " form-control-feedback")
-             :style {:top "0px"}
-             :title status-tooltip}]
-           [:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
-                :style {:top "0px"}
-                :title status-tooltip}]
-           )]))))
+        [box
+         :align :start
+         :child [:div
+                 {:class (str "rc-input-text form-group "
+                              (case status
+                                :warning "has-warning "
+                                :error "has-error "
+                                "")
+                              (when (and status status-icon?) "has-feedback"))
+                  :style {:flex          "none"
+                          :margin-bottom "0px"}}
+                 [:input
+                  {:class       (str "form-control " class)
+                   :type        "text"
+                   :style       (merge
+                                  {:flex                "none"
+                                   :width               (if width width "250px")
+                                   :height              (when height height)
+                                   :padding-right       (when status "2em")
+                                   :-webkit-user-select "none"}
+                                  style)
+                   :placeholder placeholder
+                   :value       @internal-model
+                   :disabled    disabled?
+                   :on-change   (fn [me]
+                                  (let [new-val (-> me .-target .-value)]
+                                    (when (and
+                                            on-change
+                                            (not disabled?)
+                                            (if validation-regex (re-find validation-regex new-val) true))
+                                      (reset! internal-model new-val)
+                                      (when-not change-on-blur?
+                                        (on-change @internal-model)))))
+                   :on-blur     #(when change-on-blur?
+                                  (on-change @internal-model))
+                   :on-key-up   #(if disabled?
+                                  false
+                                  (case (.-which %)
+                                    13 (on-change @internal-model)
+                                    27 (reset! internal-model @external-model)
+                                    true))}]
+                 (when (and status status-icon?)
+
+                   ;; Material design icons
+                   [:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                        :style {:top          "50%"
+                                :right        "0px"
+                                :margin-top   "-0.5em"
+                                :margin-right "0.5em"
+                                :width        "auto"
+                                :height       "auto"}
+                        :title status-tooltip}]
+
+                   ;; Boostrap glyph icons
+                   #_[:span
+                    {:class (str "glyphicon glyphicon-" (if (= status :warning) "warning-sign" "exclamation-sign") " form-control-feedback")
+                     :style {:top "0px"}
+                     :title status-tooltip}]
+
+                   )]]))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -440,12 +453,12 @@
 ;; ------------------------------------------------------------------------------------
 
 (def inline-tooltip-args-desc
-  [{:name :label         :required true                   :type "string"     :description "the text to appear in the tooltip."}
-   {:name :position      :required false  :default :below :type "string"     :description "specifies the arrow position on the tooltip (:left, :right, :above, :below)"}
-   {:name :width         :required false                  :type "string"     :description "Standard CSS width setting for the inline-tooltip. Default is 400px."}
-   {:name :class         :required false                  :type "string"     :description "additional CSS classes required."}
-   {:name :style         :required false                  :type "map"        :description "CSS styles to add or override."}
-   {:name :attr          :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :label         :required true                     :type "string"     :description "the text shown in the tooltip."}
+   {:name :position      :required false  :default ":below" :type "keyword"    :description "position of the tooltip relative to what is pointed to (:left, :right, :above, :below)"}
+   {:name :status        :required false  :default "nil"    :type "keyword"    :description "controls background colour of the tooltip (nil = black, :warning = orange, :error = red)"}
+   {:name :class         :required false                    :type "string"     :description "additional CSS classes required."}
+   {:name :style         :required false                    :type "map"        :description "CSS styles to add or override."}
+   {:name :attr          :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 
 (def inline-tooltip-args
@@ -456,30 +469,69 @@
   "Returns markup for an inline-tooltip."
   []
   (fn
-    [& {:keys [label position width class style attr]
+    [& {:keys [label position status class style attr]
         :or   {position :above}
         :as   args}]
-    {:pre [(validate-arguments inline-tooltip-args (keys args))]}
+    {:pre [(validate-arguments (set (map :name inline-tooltip-args-desc)) (keys args))]}
     (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
-    (let []
-      [:div
-       (merge
-         {:class (str "rc-inline-tooltip tooltip "
-                      (case position
-                        :left "left"
-                        :right "right"
-                        :above "top"
-                        :below "bottom"
-                        "bottom")
-                      " "
-                      class)
-          :style (merge {:flex "none"
-                         :opacity 1}
-                        style)}
-         attr)
-       [:div.tooltip-arrow]
-       [:div.tooltip-inner
-        label]])))
+    (let [bg-col       (case status
+                         ;:warning "#ffddb0"
+                         ;:error   "#f2dede"
+                         :warning "#f0ad4e"
+                         :error   "#a94442"
+                         nil)
+          text-col     (case status
+                         ;:warning "#fa7825"
+                         ;:error   "#a94442"
+                         :warning "white"
+                         :error   "white"
+                         ;:warning "black"
+                         ;:error   "black"
+                         nil)
+          which-border (case position
+                         :left  :border-left-color
+                         :right :border-right-color
+                         :above :border-top-color
+                         :below :border-bottom-color
+                         :border-bottom-color)]
+      [box
+       :align :start
+       :child [:div
+               (merge
+                 {:class (str "rc-inline-tooltip tooltip "
+                              (case position
+                                :left "left"
+                                :right "right"
+                                :above "top"
+                                :below "bottom"
+                                "bottom")
+                              " "
+                              class)
+                  :style (merge {:flex     "none"
+                                 :position "relative"
+                                 :opacity  1}
+                                style)}
+                 attr)
+               [:div.tooltip-arrow
+                {:style {which-border bg-col}}]
+               [:div.tooltip-inner
+                {:style {:color            text-col
+                         :background-color bg-col}}
+
+                ;; Material design icons
+                (case status
+                  :warning [:i.md-warning]
+                  :error   [:i.md-error]
+                  nil)
+
+                ;; Boostrap glyph icons
+                #_(when status
+                  [:span
+                   {:class (str "glyphicon glyphicon-" (if (= status :warning) "warning-sign" "exclamation-sign"))
+                    :style {:top "2px"}}])
+
+                " "
+                label]]])))
 
 
 ;; ------------------------------------------------------------------------------------

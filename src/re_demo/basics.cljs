@@ -542,7 +542,9 @@
 
 (defn inline-tooltip-demo
   []
-  (let []
+  (let [pos          (reagent/atom :below)
+        status       (reagent/atom nil)
+        tooltip-text (reagent/atom "This is a tooltip")]
     (fn
       []
       [h-box
@@ -558,13 +560,70 @@
                                :gap "40px"
                                :children [[v-box
                                            :gap      "10px"
-                                           :children [[inline-tooltip
-                                                       :label     "This is a tooltip"
-                                                       ;:position :left
-                                                       ]]]
+                                           :children [[h-box
+                                                       :gap   "5px"
+                                                       :align :center
+                                                       :children [[label :label "Tooltip text:"]
+                                                                  [input-text
+                                                                   :model           tooltip-text
+                                                                   :status          @status
+                                                                   :status-icon?    true
+                                                                   :change-on-blur? false
+                                                                   :on-change       #(reset! tooltip-text %)]]]
+                                                      [inline-tooltip
+                                                       :label    @tooltip-text
+                                                       :position @pos
+                                                       :status   @status]]]
                                           [v-box
-                                           :gap      "15px"
-                                           :children [[label :label "Text"]]]]]]]]])))
+                                           :gap "15px"
+                                           :children [[label :label "parameters:"]
+                                                      [v-box
+                                                       :children [[label :label ":position"]
+                                                                  [radio-button
+                                                                   :label ":left"
+                                                                   :value :left
+                                                                   :model @pos
+                                                                   :on-change #(reset! pos :left)
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label ":right"
+                                                                   :value :right
+                                                                   :model @pos
+                                                                   :on-change #(reset! pos :right)
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label ":above"
+                                                                   :value :above
+                                                                   :model @pos
+                                                                   :on-change #(reset! pos :above)
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label ":below"
+                                                                   :value :below
+                                                                   :model @pos
+                                                                   :on-change #(reset! pos :below)
+                                                                   :style {:margin-left "20px"}]
+                                                                  ]]
+                                                      [v-box
+                                                       :children [[label :label ":status"]
+                                                                  [radio-button
+                                                                   :label     "nil/omitted - normal input state"
+                                                                   :value     nil
+                                                                   :model     @status
+                                                                   :on-change #(reset! status nil)
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     ":warning - Warning status"
+                                                                   :value     :warning
+                                                                   :model     @status
+                                                                   :on-change #(reset! status :warning)
+                                                                   :style     {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     ":error - Error status"
+                                                                   :value     :error
+                                                                   :model     @status
+                                                                   :on-change #(reset! status :error)
+                                                                   :style     {:margin-left "20px"}]]]]]]]]]]])))
 
 
 ;; =====================================================================================================================
