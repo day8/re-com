@@ -1,9 +1,9 @@
 (ns re-demo.modals
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-com.util     :as    util]
-            [re-com.core     :refer [button label spinner progress-bar title md-circle-icon-button]]
-            [re-com.box      :refer [h-box v-box box gap line]]
-            [re-com.dropdown :refer [single-dropdown filter-choices-by-keyword]]
+            [re-com.core     :refer [button label spinner progress-bar title]]
+            [re-com.box      :refer [h-box v-box box gap]]
+            [re-com.dropdown :refer [single-dropdown find-choice filter-choices-by-keyword]]
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
             [re-com.modal    :refer [modal-window cancel-button looper domino-process]]
             [cljs.core.async :refer [<! >! chan close! put! take! alts! timeout]]
@@ -750,44 +750,7 @@
 
 (defn demo2
   []
-  [h-box
-   :width "400px"
-   :height "200px"
-   :class    "has-warning form-control"
-   :style    {:background-color "yellow"
-              :border "1px solid red"}
-   :attr     {:on-mouse-over #(println "OVER")
-              :on-mouse-out #(println "AND OUT")
-              ;:class "gregg"
-              ;:style {:color "red"}
-  }
-   :children [[label :label "Start"]
-              [line
-               :size "10px"
-               :attr     {:on-mouse-over #(println "LINE1-OVER")
-                          :on-mouse-out #(println "LINE1-OUT")}]
-              [gap :size "100%"]
-              [line
-               :size "10px"
-               :attr     {:on-mouse-over #(println "LINE2-OVER")
-                          :on-mouse-out #(println "LINE2-OUT")}]
-              [md-circle-icon-button
-               :md-icon-name "md-undo"
-               :disabled?    false
-               :on-click     #()]
-              [md-circle-icon-button
-               :md-icon-name "md-undo"
-               :disabled?    true
-               :on-click     #()]
-              [md-circle-icon-button
-               :md-icon-name "md-shop"
-               :disabled?    false
-               :on-click     #()]
-              [md-circle-icon-button
-               :md-icon-name "md-cast"
-               :disabled?    false
-               :on-click     #()]
-              [label :label "End"]]])
+  [:span "*** TODO ***"])
 
 
 (defn notes

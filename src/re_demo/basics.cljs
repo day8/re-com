@@ -1,12 +1,14 @@
 (ns re-demo.basics
   (:require [re-com.core     :refer [label spinner progress-bar title
                                      button button-args-desc
+                                     md-circle-icon-button md-circle-icon-button-args-desc
                                      checkbox checkbox-args-desc
                                      radio-button radio-button-args-desc
                                      input-text input-text-args-desc
                                      hyperlink hyperlink-args-desc
                                      hyperlink-href hyperlink-href-args-desc
-                                     slider slider-args-desc]]
+                                     slider slider-args-desc
+                                     inline-tooltip inline-tooltip-args-desc]]
             [re-com.box      :refer [h-box v-box box gap line]]
             [re-com.tabs     :refer [vertical-bar-tabs]]
             [re-demo.utils   :refer [panel-title component-title args-table]]
@@ -27,7 +29,7 @@
    "Toy disabled"])
 
 
-(defn buttons-demo
+(defn button-demo
   []
   [h-box
    :gap      "50px"
@@ -58,8 +60,104 @@
                                                    :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
                                                    ;:disabled? true
                                                    :on-click #(swap! state update-in [:see-spinner] not)]
-                                                  (when (:see-spinner @state)  [spinner])]]]]]]]]
-  )
+                                                  (when (:see-spinner @state)  [spinner])]]]]]]]])
+
+(defn md-circle-icon-button-demo
+  []
+  [h-box
+   :gap      "50px"
+   :children [[v-box
+               :gap      "10px"
+               :style    {:font-size "small"}
+               :children [[component-title "[md-circle-icon-button ... ]"]
+                          [args-table md-circle-icon-button-args-desc]]]
+              [v-box
+               :children [[component-title "Demo"]
+                          [v-box
+                           :gap      "20px"
+                           :children [[h-box
+                                       :gap      "10px"
+                                       :children [[md-circle-icon-button
+                                                   :md-icon-name "md-undo"
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-undo"
+                                                   :disabled?    true
+                                                   :on-click     #()]]]
+                                      [h-box
+                                       :gap      "10px"
+                                       :children [[md-circle-icon-button
+                                                   :md-icon-name "md-add-box"
+                                                   :size         12
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-box"
+                                                   :size         18
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-box"
+                                                   :size         24
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-box"
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-box"
+                                                   :size         36
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-box"
+                                                   :size         48
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-box" ;person
+                                                   :size         72
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-box" ;shop
+                                                   :size         96
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-box" ;cast
+                                                   :size         124
+                                                   :on-click     #()]]]
+                                      [h-box
+                                       :gap      "10px"
+                                       :children [[md-circle-icon-button
+                                                   :md-icon-name "md-add-circle"
+                                                   :size         12
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-circle"
+                                                   :size         18
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-circle"
+                                                   :size         24
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-circle"
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-circle"
+                                                   :size         36
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-circle"
+                                                   :size         48
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-circle" ;person
+                                                   :size         72
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-circle" ;shop
+                                                   :size         96
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-add-circle" ;cast
+                                                   :size         124
+                                                   :on-click     #()]]]]]]]]])
 
 
 (defn right-arrow
@@ -442,6 +540,92 @@
                                                                     (reset! disabled? val))]]]]]]]]])))
 
 
+(defn inline-tooltip-demo
+  []
+  (let [pos          (reagent/atom :below)
+        status       (reagent/atom nil)
+        tooltip-text (reagent/atom "This is a tooltip")]
+    (fn
+      []
+      [h-box
+       :gap      "50px"
+       :children [[v-box
+                   :gap      "10px"
+                   :style    {:font-size "small"}
+                   :children [[component-title "[inline-tooltip ... ]"]
+                              [args-table inline-tooltip-args-desc]]]
+                  [v-box
+                   :children [[component-title "Demo"]
+                              [h-box
+                               :gap "40px"
+                               :children [[v-box
+                                           :gap      "10px"
+                                           :children [[h-box
+                                                       :gap   "5px"
+                                                       :align :center
+                                                       :children [[label :label "Tooltip text:"]
+                                                                  [input-text
+                                                                   :model           tooltip-text
+                                                                   :status          @status
+                                                                   :status-icon?    true
+                                                                   :change-on-blur? false
+                                                                   :on-change       #(reset! tooltip-text %)]]]
+                                                      [inline-tooltip
+                                                       :label    @tooltip-text
+                                                       :position @pos
+                                                       :status   @status]]]
+                                          [v-box
+                                           :gap "15px"
+                                           :children [[label :label "parameters:"]
+                                                      [v-box
+                                                       :children [[label :label ":position"]
+                                                                  [radio-button
+                                                                   :label ":left"
+                                                                   :value :left
+                                                                   :model @pos
+                                                                   :on-change #(reset! pos :left)
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label ":right"
+                                                                   :value :right
+                                                                   :model @pos
+                                                                   :on-change #(reset! pos :right)
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label ":above"
+                                                                   :value :above
+                                                                   :model @pos
+                                                                   :on-change #(reset! pos :above)
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label ":below"
+                                                                   :value :below
+                                                                   :model @pos
+                                                                   :on-change #(reset! pos :below)
+                                                                   :style {:margin-left "20px"}]
+                                                                  ]]
+                                                      [v-box
+                                                       :children [[label :label ":status"]
+                                                                  [radio-button
+                                                                   :label     "nil/omitted - normal input state"
+                                                                   :value     nil
+                                                                   :model     @status
+                                                                   :on-change #(reset! status nil)
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     ":warning - Warning status"
+                                                                   :value     :warning
+                                                                   :model     @status
+                                                                   :on-change #(reset! status :warning)
+                                                                   :style     {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     ":error - Error status"
+                                                                   :value     :error
+                                                                   :model     @status
+                                                                   :on-change #(reset! status :error)
+                                                                   :style     {:margin-left "20px"}]]]]]]]]]]])))
+
+
 ;; =====================================================================================================================
 ;;  START EXPERIMENTAL
 ;; =====================================================================================================================
@@ -563,15 +747,17 @@
 ;; =====================================================================================================================
 
 
-(def demos [{:id 0 :label "button"         :component buttons-demo}
-            {:id 1 :label "checkbox"       :component checkboxes-demo}
-            {:id 2 :label "radio-button"   :component radios-demo}
-            {:id 3 :label "input-text"     :component inputs-demo}
-            {:id 4 :label "hyperlink"      :component hyperlink-demo}
-            {:id 5 :label "hyperlink-href" :component hyperlink-href-demo}
-            {:id 6 :label "slider"         :component slider-demo}
-            ;{:id 7 :label "h-box"          :component h-box-demo} ;; Experimental
-            ;{:id 8 :label "v-box"          :component v-box-demo} ;; Experimental
+(def demos [{:id 0 :label "button"                :component button-demo}
+            {:id 1 :label "md-circle-icon-button" :component md-circle-icon-button-demo}
+            {:id 2 :label "checkbox"              :component checkboxes-demo}
+            {:id 3 :label "radio-button"          :component radios-demo}
+            {:id 4 :label "input-text"            :component inputs-demo}
+            {:id 5 :label "hyperlink"             :component hyperlink-demo}
+            {:id 6 :label "hyperlink-href"        :component hyperlink-href-demo}
+            {:id 7 :label "slider"                :component slider-demo}
+            {:id 8 :label "inline-tooltip"        :component inline-tooltip-demo}
+            ;{:id 90 :label "h-box"                 :component h-box-demo} ;; Experimental
+            ;{:id 91:label "v-box"                 :component v-box-demo} ;; Experimental
             ])
 
 (defn panel
