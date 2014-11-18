@@ -109,18 +109,18 @@
          (fmap deref-or-value attributes)))
 
 (def selection-list-args-desc
-  [{:name :choices         :required true                   :type "vector"   :description "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see <code>:label-fn</code> bellow."}
-   {:name :model           :required true                   :type "set"      :description "the currently selected items. Note: items are considered distinct."}
-   {:name :on-change       :required true                   :type "function" :description "a callback which will be passed set of selected items."}
-   {:name :multi-select?   :required false :default true    :type "boolean"  :description "when true, items use check boxes, otherwise radio buttons."}
-   {:name :as-exclusions?  :required false :default false   :type "boolean"  :description "when true, selected items are shown with struck-out labels."}
-   {:name :required?       :required false :default false   :type "boolean"  :description "when true, at least one item must be selected. Note: being able to un-select a radio button is not a common use case, so this should probably be set to true when in single select mode."}
-   {:name :width           :required false                  :type "string"   :description "a CSS style e.g. \"250px\". When specified, item labels may be clipped. Otherwise based on widest label."}
-   {:name :height          :required false                  :type "string"   :description "a CSS style e.g. \"150px\". Size beyond which items will scroll."}
-   {:name :max-height      :required false                  :type "string"   :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll."}
-   {:name :disabled?       :required false :default false   :type "boolean"  :description "when true, the time input will be disabled. Can be atom or value."}
-   {:name :hide-border?    :required false :default false   :type "boolean"  :description "when true, the list will be displayed without a border."}
-   {:name :item-renderer   :required false                  :type "function" :description "called for each element during setup, the returned component renders the element, respond to clicks etc. Following example renders plain label -
+  [{:name :choices         :required true                   :type "vector"          :description "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see <code>:label-fn</code> bellow."}
+   {:name :model           :required true                   :type "set"             :description "the currently selected items. Note: items are considered distinct."}
+   {:name :on-change       :required true                   :type "(choice) -> nil" :description "a callback which will be passed set of selected items."}
+   {:name :multi-select?   :required false :default true    :type "boolean"         :description "when true, use check boxes, otherwise radio buttons."}
+   {:name :as-exclusions?  :required false :default false   :type "boolean"         :description "when true, selected items are shown with struck-out labels."}
+   {:name :required?       :required false :default false   :type "boolean"         :description "when true, at least one item must be selected. Note: being able to un-select a radio button is not a common use case, so this should probably be set to true when in single select mode."}
+   {:name :width           :required false                  :type "string"          :description "a CSS style e.g. \"250px\". When specified, item labels may be clipped. Otherwise based on widest label."}
+   {:name :height          :required false                  :type "string"          :description "a CSS style e.g. \"150px\". Size beyond which items will scroll."}
+   {:name :max-height      :required false                  :type "string"          :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll."}
+   {:name :disabled?       :required false :default false   :type "boolean"         :description "when true, the time input will be disabled. Can be atom or value."}
+   {:name :hide-border?    :required false :default false   :type "boolean"         :description "when true, the list will be displayed without a border."}
+   {:name :item-renderer   :required false                  :type "function"        :description "called for each element during setup, the returned component renders the element, respond to clicks etc. Following example renders plain label -
 <code>(defn as-label
   [item selections on-change disabled? label-fn required? as-exclusions?]
   [label :label (label-fn item) :style {:width \"200px\" :color \"#428bca\"}])</code>"}

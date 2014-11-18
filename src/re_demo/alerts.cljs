@@ -32,8 +32,8 @@
                                 [alert-box
                                  :id         1
                                  :alert-type "info"
-                                 :heading    "Sample Alert Heading"
-                                 :body       [:p "This alert has an :alert-type of 'info' and includes a :heading, a :body and a close button. Click the x to close it."]
+                                 :heading    "This Is An Alert Heading"
+                                 :body       [:p "This is an alert body. This alert has an :alert-type of 'info' which makes it blue, and it includes a :heading, a :body and a close button. Click the x to close it."]
                                  :closeable? true
                                  :on-close   #(reset! show-alert false)]
                                 [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])

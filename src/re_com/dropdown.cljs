@@ -1,6 +1,6 @@
 (ns re-com.dropdown
   ;(:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
-  (:require [re-com.util      :refer [deref-or-value position-for-id validate-arguments ]]
+  (:require [re-com.util      :refer [deref-or-value position-for-id validate-arguments item-for-id]]
             [clojure.string   :as    string]
             ;[clairvoyant.core :refer [default-tracer]]
             [reagent.core     :as    reagent]))
@@ -22,7 +22,7 @@
     (:id (nth choices new-index))))
 
 
-(defn find-choice
+#_(defn- find-choice
   "In a vector of maps (where each map has an :id), return the first map containing the id parameter."
   [choices id]
   (let [current-index (position-for-id id choices)
@@ -161,7 +161,7 @@
                            (when (= (.-which %) 13) (reset! ignore-click true)))} ;; Pressing enter on an anchor also triggers click event, which we don't want
          [:span
           (if @internal-model
-            (:label (find-choice choices @internal-model))
+            (:label (item-for-id @internal-model choices))
             placeholder)]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 

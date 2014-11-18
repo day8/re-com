@@ -3,7 +3,7 @@
     [reagent.core          :as    r]
     [re-com.core           :refer [label checkbox title]]
     [re-com.box            :refer [h-box v-box]]
-    [re-com.selection-list :refer [selection-list]]
+    [re-com.selection-list :refer [selection-list selection-list-args-desc]]
     [re-demo.utils         :refer [panel-title component-title args-table]]
     [re-com.util           :refer [golden-ratio-a golden-ratio-b]]))
 
@@ -84,16 +84,13 @@
   [width]
   [v-box
    :width (str width "px")
-   :children [[:h4 "Parameters"]
+   :children [[:h4 "Notes"]
               [v-box
                :style {:font-size "small"}
-               :children [[label :style {:font-variant "small-caps"} :label "general"]
-                          [v-box
-                           :style    {:padding-left "10px"}
-                           :children [[:p "All parameters are passed as named arguments using keyword value pairs in the component vector e.g."]
-                                      [:pre {:style {:font-size "smaller"}} [:code "[selection-list :choices [\"pick1\" \"pick2\"] :model #{\"pick2\"} :required? true]"]]
-                                      [:p "Any parameter can optionally be a reagent atom and will be derefed."]]]
-                          [label     :style {:font-variant "small-caps"} :label "required"]
+               :children [[:p "Allows the user to select items from a list (single or multi)."]
+                          [:p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
+                          [:p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]
+                          [args-table selection-list-args-desc]
                           [v-box
                            :style    {:padding-left "10px"}
                            :children [[:p [:code ":choices"]
@@ -148,5 +145,6 @@
      :children [[panel-title "Selection List Components"]
                 [h-box
                  :gap      (str h-gap "px")
-                 :children [[notes a-width]
+                 :children [[component-title "[selection-list ... ]"]
+                            [notes a-width]
                             [list-with-options b-width]]]]]))
