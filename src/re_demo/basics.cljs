@@ -553,6 +553,10 @@
                    :gap      "10px"
                    :style    {:font-size "small"}
                    :children [[component-title "[inline-tooltip ... ]"]
+                              [:p {:style {:width "400px" }} "An inline tooltip that doesn't actually hover over anything.
+                              It's actually embeded in the markup.
+                               Useful for permanetly pointing to things that are a problem, without the need for
+                               something hovering over other widgets and possibly obscuring them."]
                               [args-table inline-tooltip-args-desc]]]
                   [v-box
                    :children [[component-title "Demo"]
