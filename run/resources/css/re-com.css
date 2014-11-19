@@ -552,17 +552,112 @@ html, body {
 ----------------------------------------------------------------------------------------*/
 
 .rc-md-circle-icon-button {
+    width:               40px;                  /* material design dimensions */
+    height:              40px;
+    text-align:          center;             /* to horizontally center the icon */
+    border:              1px solid lightgrey;
     border-radius:       50%;
     background-color:    inherit;
     opacity:             0.9;
     -webkit-user-select: none;
-    width:   36px;                  /* material design dimensions */
-    height:  36px;
-    text-align: center;             /* to horizontally center the icon */
 }
 
 .rc-md-circle-icon-button > i {
    font-size  : 24px;
-   line-height: 36px;               /* to vertically center in surrounding :div */
+   line-height: 40px;               /* to vertically center in surrounding :div */
    color: inherit;
 }
+
+.rc-md-circle-icon-button:hover {
+    border: 1px solid #428bca;
+    color:  #428bca;
+}
+
+.rc-circle-smaller {
+    width:  26px;
+    height: 26px;
+}
+
+.rc-circle-smaller > i {
+   font-size:   16px;
+   line-height: 24px;
+}
+
+.rc-circle-larger {
+    width:  56px;
+    height: 56px;
+}
+
+.rc-circle-larger > i {
+   font-size:   24px;
+   line-height: 56px;
+}
+
+.rc-circle-emphasis {
+    border: 1px solid #428bca;
+    background-color: #428bca;
+    color:  white;
+}
+
+.rc-circle-emphasis:hover {
+    border: 1px solid #2196f3;
+    background-color: #2196f3;
+    color:  white;
+}
+
+.rc-circle-disabled {
+   border: none;
+}
+
+.rc-circle-disabled:hover {
+   border: none;
+}
+
+.rc-circle-disabled > i {
+   color: lightgrey;
+}
+
+/*----------------------------------------------------------------------------------------
+  row-button
+----------------------------------------------------------------------------------------*/
+
+.rc-row-button {
+    text-align:          center;             /* to horizontally center the icon */
+    background-color:    inherit;
+    opacity:             1;
+    -webkit-user-select: none;
+}
+
+.rc-row-button > i {
+   color: inherit;
+}
+
+.rc-row-button:hover {
+    color:  red; // #428bca;
+}
+
+.rc-row-disabled {
+   color: lightgrey;
+   // border: none;
+}
+
+.rc-row-disabled:hover {
+   // border: none;
+}
+
+.rc-row-disabled > i {
+   color: lightgrey;
+}
+
+.rc-row-invisible {
+   opacity: 0;
+}
+
+.rc-row-semi-visible {
+   opacity: 0.5;
+}
+
+.rc-row-visible {
+   opacity: 1;
+}
+
