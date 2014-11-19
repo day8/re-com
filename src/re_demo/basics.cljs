@@ -10,7 +10,7 @@
                                      slider slider-args-desc
                                      inline-tooltip inline-tooltip-args-desc]]
             [re-com.box      :refer [h-box v-box box gap line]]
-            [re-com.tabs     :refer [vertical-bar-tabs]]
+            [re-com.tabs     :refer [horizontal-bar-tabs vertical-bar-tabs]]
             [re-demo.utils   :refer [panel-title component-title args-table]]
             ;[re-com.dropdown :refer [single-dropdown]]      ;; Experimental
             ;[re-com.time     :refer [input-time]]           ;; Experimental
@@ -62,58 +62,79 @@
                                                    :on-click #(swap! state update-in [:see-spinner] not)]
                                                   (when (:see-spinner @state)  [spinner])]]]]]]]])
 
+(def icons
+  [{:id "md-add"            :label [:i {:class "md-add"}]}
+   {:id "md-add-box"        :label [:i {:class "md-add-box"}]}
+   {:id "md-add-circle"     :label [:i {:class "md-add-circle"}]}
+   {:id "md-delete"         :label [:i {:class "md-delete"}]}
+   {:id "md-undo"           :label [:i {:class "md-undo"}]}
+   {:id "md-settings"       :label [:i {:class "md-settings"}]}
+   {:id "md-error"          :label [:i {:class "md-error"}]}
+   {:id "md-warning"        :label [:i {:class "md-warning"}]}
+   {:id "md-home"           :label [:i {:class "md-home"}]}
+   {:id "md-person"         :label [:i {:class "md-person"}]}])
+
 (defn md-circle-icon-button-demo
   []
-  [h-box
-   :gap      "50px"
-   :children [[v-box
-               :gap      "10px"
-               :style    {:font-size "small"}
-               :children [[component-title "[md-circle-icon-button ... ]"]
-                          [args-table md-circle-icon-button-args-desc]]]
-              [v-box
-               :children [[component-title "Demo"]
-                          [v-box
-                           :gap      "20px"
-                           :children [[h-box
-                                       :gap      "10px"
-                                       :children [[md-circle-icon-button
-                                                   :md-icon-name "md-undo"
-                                                   :emphasise?   true
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-undo"
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-undo"
-                                                   :disabled?    true
-                                                   :on-click     #()]]]
-                                      [h-box
-                                       :gap      "10px"
-                                       :children [[md-circle-icon-button
-                                                   :md-icon-name "md-add-box"
-                                                   :size         :smaller
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-box"
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-box"
-                                                   :size         :larger
-                                                   :on-click     #()]]]
-                                      [h-box
-                                       :gap      "10px"
-                                       :children [[md-circle-icon-button
-                                                   :md-icon-name "md-add-circle"
-                                                   :size         :smaller
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-circle"
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-circle"
-                                                   :size         :larger
-                                                   :on-click     #()]]]]]]]]])
+  (let [selected-icon (reagent/atom (:id (first icons)))]
+    (fn []
+      [h-box
+       :gap "50px"
+       :children [[v-box
+                   :gap "10px"
+                   :style {:font-size "small"}
+                   :children [[component-title "[md-circle-icon-button ... ]"]
+                              [args-table md-circle-icon-button-args-desc]]]
+                  [v-box
+                   :children [[component-title "Demo"]
+                              [v-box
+                               :gap "40px"
+                               :children [[h-box
+                                           :align :center
+                                           :gap "8px"
+                                           :children [[label :label "Example icons:"]
+                                                      [horizontal-bar-tabs
+                                                       :model selected-icon
+                                                       :tabs icons
+                                                       :on-change #(reset! selected-icon %)]
+                                                      [label :label @selected-icon]]]
+                                          [label :label "Hover over the buttons below to see a tooltip."]
+                                          [h-box
+                                           :gap      "20px"
+                                           :align    :center
+                                           :children [[label :label "States:"]
+                                                      [md-circle-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :emphasise? true
+                                                       :tooltip "This button has :emphasise? set to true"
+                                                       :on-click #()]
+                                                      [md-circle-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :tooltip "This is the default button"
+                                                       :on-click #()]
+                                                      [md-circle-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :tooltip "This button has :disabled? set to true"
+                                                       :disabled? true
+                                                       :on-click #()]]]
+                                          [h-box
+                                           :gap      "20px"
+                                           :align    :center
+                                           :children [[label :label "Sizes:"]
+                                                      [md-circle-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :tooltip "This is a :smaller button"
+                                                       :size :smaller
+                                                       :on-click #()]
+                                                      [md-circle-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :tooltip "This button does not specify a :size"
+                                                       :on-click #()]
+                                                      [md-circle-icon-button
+                                                       :tooltip "This is a :larger button"
+                                                       :md-icon-name @selected-icon
+                                                       :size :larger
+                                                       :on-click #()]]]]]]]]])))
 
 
 (defn right-arrow

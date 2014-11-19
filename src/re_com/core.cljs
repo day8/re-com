@@ -181,11 +181,12 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-circle-icon-button-args-desc
-  [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "The name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
-   {:name :size          :required false  :default nil      :type "keyword"    :description "Set size of button (nil = regular, or :smaller or :larger."}
-   {:name :emphasise?    :required false                    :type "boolean"    :description "If true, use emphasised styling so the button really stands out."}
-   {:name :disabled?     :required false                    :type "boolean"    :description "If true, the user can't click the button."}
-   {:name :on-click      :required false                    :type "() -> nil"  :description "The fucntion to call when the button is clicked."}])
+  [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+   {:name :size          :required false  :default nil      :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
+   {:name :tooltip       :required false                    :type "string"     :description "show a standard HTML tooltip with this text."}
+   {:name :emphasise?    :required false                    :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
+   {:name :disabled?     :required false                    :type "boolean"    :description "if true, the user can't click the button."}
+   {:name :on-click      :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}])
 
 (def md-circle-icon-button-args
   (set (map :name md-circle-icon-button-args-desc)))
@@ -194,7 +195,7 @@
   "a circular button containing a material design icon"
   []
   (fn
-    [& {:keys [md-icon-name size emphasise? disabled? on-click]
+    [& {:keys [md-icon-name size tooltip emphasise? disabled? on-click]
         :or   {md-icon-name "md-add"}}]
     [:div {:class    (str
                        "rc-md-circle-icon-button "
@@ -204,6 +205,8 @@
                          " ")
                        (when emphasise? "rc-circle-emphasis ")
                        (when disabled? " rc-circle-disabled"))
+           :style      {:cursor (when-not disabled? "pointer")}
+           :title      tooltip
            :on-click #(when-not disabled? (on-click))}
      [:i {:class md-icon-name}]]))
 
