@@ -2,6 +2,7 @@
   (:require [re-com.core     :refer [label spinner progress-bar title
                                      button button-args-desc
                                      md-circle-icon-button md-circle-icon-button-args-desc
+                                     row-button row-button-args-desc
                                      checkbox checkbox-args-desc
                                      radio-button radio-button-args-desc
                                      input-text input-text-args-desc
@@ -62,6 +63,7 @@
                                                    :on-click #(swap! state update-in [:see-spinner] not)]
                                                   (when (:see-spinner @state)  [spinner])]]]]]]]])
 
+
 (def icons
   [{:id "md-add"            :label [:i {:class "md-add"}]}
    {:id "md-add-box"        :label [:i {:class "md-add-box"}]}
@@ -94,8 +96,8 @@
                                            :gap "8px"
                                            :children [[label :label "Example icons:"]
                                                       [horizontal-bar-tabs
-                                                       :model selected-icon
-                                                       :tabs icons
+                                                       :model     selected-icon
+                                                       :tabs      icons
                                                        :on-change #(reset! selected-icon %)]
                                                       [label :label @selected-icon]]]
                                           [label :label "Hover over the buttons below to see a tooltip."]
@@ -105,36 +107,88 @@
                                            :children [[label :label "States:"]
                                                       [md-circle-icon-button
                                                        :md-icon-name @selected-icon
-                                                       :emphasise? true
-                                                       :tooltip "This button has :emphasise? set to true"
-                                                       :on-click #()]
+                                                       :emphasise?   true
+                                                       :tooltip      "This button has :emphasise? set to true"
+                                                       :on-click     #()]
                                                       [md-circle-icon-button
                                                        :md-icon-name @selected-icon
-                                                       :tooltip "This is the default button"
-                                                       :on-click #()]
+                                                       :tooltip      "This is the default button"
+                                                       :on-click     #()]
                                                       [md-circle-icon-button
                                                        :md-icon-name @selected-icon
-                                                       :tooltip "This button has :disabled? set to true"
-                                                       :disabled? true
-                                                       :on-click #()]]]
+                                                       :tooltip      "This button has :disabled? set to true"
+                                                       :disabled?    true
+                                                       :on-click     #()]]]
                                           [h-box
                                            :gap      "20px"
                                            :align    :center
                                            :children [[label :label "Sizes:"]
                                                       [md-circle-icon-button
                                                        :md-icon-name @selected-icon
-                                                       :tooltip "This is a :smaller button"
-                                                       :size :smaller
+                                                       :tooltip      "This is a :smaller button"
+                                                       :size         :smaller
                                                        :on-click #()]
                                                       [md-circle-icon-button
                                                        :md-icon-name @selected-icon
-                                                       :tooltip "This button does not specify a :size"
-                                                       :on-click #()]
+                                                       :tooltip      "This button does not specify a :size"
+                                                       :on-click     #()]
                                                       [md-circle-icon-button
-                                                       :tooltip "This is a :larger button"
                                                        :md-icon-name @selected-icon
-                                                       :size :larger
+                                                       :tooltip      "This is a :larger button"
+                                                       :size         :larger
                                                        :on-click #()]]]]]]]]])))
+
+
+(defn row-button-demo
+  []
+  (let [selected-icon (reagent/atom (:id (first icons)))]
+    (fn []
+      [h-box
+       :gap "50px"
+       :children [[v-box
+                   :gap "10px"
+                   :style {:font-size "small"}
+                   :children [[component-title "[row-button ... ]"]
+                              [args-table row-button-args-desc]]]
+                  [v-box
+                   :children [[component-title "Demo"]
+                              [v-box
+                               :gap "40px"
+                               :children [[h-box
+                                           :align :center
+                                           :gap "8px"
+                                           :children [[label :label "Example icons:"]
+                                                      [horizontal-bar-tabs
+                                                       :model selected-icon
+                                                       :tabs icons
+                                                       :on-change #(reset! selected-icon %)]
+                                                      [label :label @selected-icon]]]
+                                          [label :label "Hover over the buttons below to see a tooltip."]
+                                          [h-box
+                                           :gap      "2px"
+                                           :align    :center
+                                           :children [[label :label "States:"]
+                                                      [row-button
+                                                       :md-icon-name @selected-icon
+                                                       :state        :invisible
+                                                       :tooltip      "This button is :invisible"
+                                                       :on-click     #()]
+                                                      [row-button
+                                                       :md-icon-name @selected-icon
+                                                       :state        :semi-visible
+                                                       :tooltip      "This button is :semi-visible"
+                                                       :on-click     #()]
+                                                      [row-button
+                                                       :md-icon-name @selected-icon
+                                                       :state        :visible
+                                                       :tooltip      "This button is :visible"
+                                                       :on-click     #()]
+                                                      [row-button
+                                                       :md-icon-name @selected-icon
+                                                       :tooltip "This button has :disabled? set to true"
+                                                       :disabled? true
+                                                       :on-click #()]]]
+                                          ]]]]]])))
 
 
 (defn right-arrow
@@ -729,17 +783,18 @@
 ;; =====================================================================================================================
 
 
-(def demos [{:id 0 :label "button"                :component button-demo}
-            {:id 1 :label "md-circle-icon-button" :component md-circle-icon-button-demo}
-            {:id 2 :label "checkbox"              :component checkboxes-demo}
-            {:id 3 :label "radio-button"          :component radios-demo}
-            {:id 4 :label "input-text"            :component inputs-demo}
-            {:id 5 :label "hyperlink"             :component hyperlink-demo}
-            {:id 6 :label "hyperlink-href"        :component hyperlink-href-demo}
-            {:id 7 :label "slider"                :component slider-demo}
-            {:id 8 :label "inline-tooltip"        :component inline-tooltip-demo}
+(def demos [{:id  0 :label "button"                :component button-demo}
+            {:id  1 :label "md-circle-icon-button" :component md-circle-icon-button-demo}
+            {:id  2 :label "row-button"            :component row-button-demo}
+            {:id  3 :label "checkbox"              :component checkboxes-demo}
+            {:id  4 :label "radio-button"          :component radios-demo}
+            {:id  5 :label "input-text"            :component inputs-demo}
+            {:id  6 :label "hyperlink"             :component hyperlink-demo}
+            {:id  7 :label "hyperlink-href"        :component hyperlink-href-demo}
+            {:id  8 :label "slider"                :component slider-demo}
+            {:id  9 :label "inline-tooltip"        :component inline-tooltip-demo}
             ;{:id 90 :label "h-box"                 :component h-box-demo} ;; Experimental
-            ;{:id 91:label "v-box"                 :component v-box-demo} ;; Experimental
+            ;{:id 91 :label "v-box"                 :component v-box-demo} ;; Experimental
             ])
 
 (defn panel

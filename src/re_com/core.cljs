@@ -54,7 +54,6 @@
 (def input-text-args
   (set (map :name input-text-args-desc)))
 
-
 ;; Sample regex's:
 ;;  - #"^(-{0,1})(\d*)$"                   ;; Signed integer
 ;;  - #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$"  ;; Specific numeric value ##.#
@@ -154,7 +153,6 @@
 (def button-args
   (set (map :name button-args-desc)))
 
-
 (defn button
   "Returns the markup for a basic button."
   [& {:keys [label on-click disabled? class style]
@@ -196,7 +194,9 @@
   []
   (fn
     [& {:keys [md-icon-name size tooltip emphasise? disabled? on-click]
-        :or   {md-icon-name "md-add"}}]
+        :or   {md-icon-name "md-add"}
+        :as   args}]
+    {:pre [(validate-arguments md-circle-icon-button-args (keys args))]}
     [:div {:class    (str
                        "rc-md-circle-icon-button "
                        (case size
@@ -204,7 +204,42 @@
                          :larger  "rc-circle-larger "
                          " ")
                        (when emphasise? "rc-circle-emphasis ")
-                       (when disabled? " rc-circle-disabled"))
+                       (when disabled? " rc-circle-disabled "))
+           :style      {:cursor (when-not disabled? "pointer")}
+           :title      tooltip
+           :on-click #(when-not disabled? (on-click))}
+     [:i {:class md-icon-name}]]))
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: row-button
+;;--------------------------------------------------------------------------------------------------
+
+(def row-button-args-desc
+  [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+   {:name :state         :required false                    :type "keyword"    :description "how visible the button is: :invisible, :semi-visible, :visible"}
+   {:name :tooltip       :required false                    :type "string"     :description "show a standard HTML tooltip with this text."}
+   {:name :disabled?     :required false                    :type "boolean"    :description "if true, the user can't click the button."}
+   {:name :on-click      :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}])
+
+(def row-button-args
+  (set (map :name row-button-args-desc)))
+
+(defn row-button
+  "a circular button containing a material design icon"
+  []
+  (fn
+    [& {:keys [md-icon-name state tooltip disabled? on-click]
+        :or   {md-icon-name "md-add"}
+        :as   args}]
+    {:pre [(validate-arguments row-button-args (keys args))]}
+    [:div {:class    (str
+                       "rc-row-button "
+                       (case state
+                         :invisible    "rc-row-invisible "
+                         :semi-visible "rc-row-semi-visible "
+                         "rc-row-visible ")
+                       (when disabled? "rc-row-disabled"))
            :style      {:cursor (when-not disabled? "pointer")}
            :title      tooltip
            :on-click #(when-not disabled? (on-click))}
@@ -222,10 +257,8 @@
    {:name :class         :required false                  :type "string"     :description "Class string."}
    {:name :style         :required false                  :type "string"     :description "CSS style map."}])
 
-
 (def hyperlink-args
   (set (map :name hyperlink-args-desc)))
-
 
 (defn hyperlink
   "Renders an underlined text hyperlink component.
@@ -261,10 +294,8 @@
    {:name :class         :required false                  :type "string"     :description "Class string."}
    {:name :style         :required false                  :type "string"     :description "CSS style map."}])
 
-
 (def hyperlink-href-args
   (set (map :name hyperlink-href-args-desc)))
-
 
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.
@@ -302,10 +333,8 @@
    {:name :label-class   :required false                  :type "string"     :description "Label class string"}
    {:name :label-style   :required false                  :type "string"     :description "Label style map"}])
 
-
 (def checkbox-args
   (set (map :name checkbox-args-desc)))
-
 
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
@@ -352,10 +381,8 @@
    {:name :label-class   :required false                  :type "string"     :description "Label class string"}
    {:name :label-style   :required false                  :type "string"     :description "Label style map"}])
 
-
 (def radio-button-args
   (set (map :name radio-button-args-desc)))
-
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label."
@@ -403,10 +430,8 @@
    {:name :class         :required false                  :type "string"     :description "Class string."}
    {:name :style         :required false                  :type "string"     :description "CSS style map."}])
 
-
 (def slider-args
   (set (map :name slider-args-desc)))
-
 
 (defn slider
   "Returns markup for an HTML5 slider input."
@@ -451,7 +476,6 @@
    {:name :class         :required false                    :type "string"     :description "CSS classes appended to base component list."}
    {:name :style         :required false                    :type "map"        :description "CSS styles. Will override (or add to) the base component base styles."}
    {:name :attr          :required false                    :type "map"        :description "HTML Element attributes. Will override (or add to) those in the base component. Expected to be things like on-mouse-over, etc. (:class/:style not allowed)."}])
-
 
 (defn inline-tooltip
   "Returns markup for an inline-tooltip."
@@ -517,7 +541,6 @@
 (def progress-bar-args
   #{:model   ;;
     })
-
 
 (defn progress-bar
   "Render a bootstrap styled progress bar"

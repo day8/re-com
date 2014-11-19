@@ -617,3 +617,47 @@ html, body {
    color: lightgrey;
 }
 
+/*----------------------------------------------------------------------------------------
+  row-button
+----------------------------------------------------------------------------------------*/
+
+.rc-row-button {
+    text-align:          center;             /* to horizontally center the icon */
+    background-color:    inherit;
+    opacity:             1;
+    -webkit-user-select: none;
+}
+
+.rc-row-button > i {
+   color: inherit;
+}
+
+.rc-row-button:hover {
+    color:  red; // #428bca;
+}
+
+.rc-row-disabled {
+   color: lightgrey;
+   // border: none;
+}
+
+.rc-row-disabled:hover {
+   // border: none;
+}
+
+.rc-row-disabled > i {
+   color: lightgrey;
+}
+
+.rc-row-invisible {
+   opacity: 0;
+}
+
+.rc-row-semi-visible {
+   opacity: 0.5;
+}
+
+.rc-row-visible {
+   opacity: 1;
+}
+
