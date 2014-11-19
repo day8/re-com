@@ -79,6 +79,10 @@
                                        :gap      "10px"
                                        :children [[md-circle-icon-button
                                                    :md-icon-name "md-undo"
+                                                   :emphasise?   true
+                                                   :on-click     #()]
+                                                  [md-circle-icon-button
+                                                   :md-icon-name "md-undo"
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-undo"
@@ -88,75 +92,27 @@
                                        :gap      "10px"
                                        :children [[md-circle-icon-button
                                                    :md-icon-name "md-add-box"
-                                                   :size         12
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-box"
-                                                   :size         18
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-box"
-                                                   :size         24
+                                                   :size         :smaller
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-add-box"
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-add-box"
-                                                   :size         36
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-box"
-                                                   :size         48
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-box" ;person
-                                                   :size         72
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-box" ;shop
-                                                   :size         96
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-box" ;cast
-                                                   :size         124
+                                                   :size         :larger
                                                    :on-click     #()]]]
                                       [h-box
                                        :gap      "10px"
                                        :children [[md-circle-icon-button
                                                    :md-icon-name "md-add-circle"
-                                                   :size         12
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-circle"
-                                                   :size         18
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-circle"
-                                                   :size         24
+                                                   :size         :smaller
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-add-circle"
                                                    :on-click     #()]
                                                   [md-circle-icon-button
                                                    :md-icon-name "md-add-circle"
-                                                   :size         36
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-circle"
-                                                   :size         48
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-circle" ;person
-                                                   :size         72
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-circle" ;shop
-                                                   :size         96
-                                                   :on-click     #()]
-                                                  [md-circle-icon-button
-                                                   :md-icon-name "md-add-circle" ;cast
-                                                   :size         124
+                                                   :size         :larger
                                                    :on-click     #()]]]]]]]]])
 
 
@@ -553,10 +509,11 @@
                    :gap      "10px"
                    :style    {:font-size "small"}
                    :children [[component-title "[inline-tooltip ... ]"]
-                              [:p {:style {:width "400px" }} "An inline tooltip that doesn't actually hover over anything.
-                              It's actually embeded in the markup.
-                               Useful for permanetly pointing to things that are a problem, without the need for
-                               something hovering over other widgets and possibly obscuring them."]
+                              [:p {:style {:width "400px" }}
+                               "An inline tooltip that doesn't actually hover over anything.
+                                It's actually embeded in the markup.
+                                Useful for permanetly pointing to things that are a problem, without the need for
+                                something hovering over other widgets and possibly obscuring them."]
                               [args-table inline-tooltip-args-desc]]]
                   [v-box
                    :children [[component-title "Demo"]

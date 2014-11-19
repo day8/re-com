@@ -1,6 +1,6 @@
 (ns re-com.popover
   (:require [clojure.set    :refer [superset?]]
-            [re-com.util    :as    util]
+            [re-com.util    :refer [validate-arguments get-element-by-id px]]
             [re-com.core    :refer [button]]
             [clojure.string :as    string]
             [reagent.core   :as    reagent]))
@@ -9,11 +9,6 @@
 (defn point
   [x y]
   (str x "," y " "))
-
-
-(defn px
-  [val & negative]
-  (str (when negative "-") val "px"))
 
 
 (defn- split-keyword
@@ -40,7 +35,7 @@
 
 (defn- calc-popover-pos
   [pop-id pop-orient pop-offset]
-  (if-let [popover-elem (util/get-element-by-id pop-id)]
+  (if-let [popover-elem (get-element-by-id pop-id)]
     (let [p-width        (.-clientWidth popover-elem)
           p-height       (.-clientHeight popover-elem)
           popover-left   (case pop-orient
@@ -133,7 +128,7 @@
 (defn backdrop
   "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be."
   [& {:keys [opacity on-click] :as args}]
-  {:pre [(util/validate-arguments backdrop-args (keys args))]}
+  {:pre [(validate-arguments backdrop-args (keys args))]}
   [:div {:class     "rc-backdrop"
          :style    {:position         "fixed"
                     :left             "0px"
@@ -170,7 +165,7 @@
   [& {:keys [position width height arrow-length arrow-width padding margin-left margin-top title children]
       :or {position :right-below arrow-length 11 arrow-width 22}
       :as args}]
-  {:pre [(util/validate-arguments popover-border-args (keys args))]}
+  {:pre [(validate-arguments popover-border-args (keys args))]}
   (let [width                   (if (nil? width) 250 width) ;; Moved here from :or above as sometimes we pass width in as null and :or doesn't work in this case
         rendered-once           (reagent/atom false)
         pop-id                  (gensym "popover-")
@@ -183,7 +178,7 @@
 
        :render
         (fn []
-          (let [popover-elem   (util/get-element-by-id pop-id)
+          (let [popover-elem   (get-element-by-id pop-id)
                 p-height       (if popover-elem (.-clientHeight popover-elem) 0) ;; height is optional (with no default) so we need to calculate it
                 pop-offset     (case arrow-pos
                                  :center nil
@@ -233,7 +228,7 @@ Not required if <code>:showing?</code> atom passed in OR <code>:close-button?</c
   "Renders a title at the top of a popover with an optional close button on the far right."
   [& {:keys [title showing? close-button? close-callback]
       :as args}]
-  {:pre [(util/validate-arguments popover-title-args (keys args))]}
+  {:pre [(validate-arguments popover-title-args (keys args))]}
   (assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback")
   (let [close-button? (if (nil? close-button?) true close-button?)]
     [:h3.popover-title {:style {:font-size "18px"
@@ -275,7 +270,7 @@ This method is slightly inferior because the popover can't track the anchor if i
   [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body style]
       :or {position :right-below}
       :as args}]
-  {:pre [(util/validate-arguments popover-content-wrapper-args (keys args))]}
+  {:pre [(validate-arguments popover-content-wrapper-args (keys args))]}
   (assert ((complement nil?) showing?) "Must specify a showing? atom")
   (let [left-offset (reagent/atom 0)
         top-offset  (reagent/atom 0)]
@@ -316,7 +311,6 @@ This method is slightly inferior because the popover can't track the anchor if i
 ;; Component: popover-anchor-wrapper
 ;;--------------------------------------------------------------------------------------------------
 
-;; TODO this is going to be difficult to include in the demo help text
 (def popover-anchor-wrapper-args-desc
   [{:name :showing?         :required true                         :type "atom"     :description "when the value is true, the popover shows."}
    {:name :position         :required true   :default :right-below :type "keyword"  :description "specifies the popover's position relative to the anchor. See the demo to the right for the values."}
@@ -331,7 +325,7 @@ This method is slightly inferior because the popover can't track the anchor if i
 (defn popover-anchor-wrapper
   "Renders an element or control along with a Bootstrap popover."
   [& {:keys [showing? position anchor popover style] :as args}]
-  {:pre [(util/validate-arguments popover-anchor-wrapper-args (keys args))]}
+  {:pre [(validate-arguments popover-anchor-wrapper-args (keys args))]}
   (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
         place-anchor-before?    (case orientation (:left :above) false true)
         flex-flow               (case orientation (:left :right) "row" "column")]

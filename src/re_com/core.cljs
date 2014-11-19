@@ -1,7 +1,7 @@
 (ns re-com.core
   (:require [clojure.set  :refer [superset?]]
             [reagent.core :as reagent]
-            [re-com.util  :refer [deref-or-value validate-arguments]]
+            [re-com.util  :refer [deref-or-value validate-arguments px]]
             [re-com.box   :refer [h-box v-box box gap line]]))
 
 
@@ -73,9 +73,9 @@
           :or   {change-on-blur? true}
           :as   args}]
       {:pre [(validate-arguments input-text-args (keys args))]}
-      (let [disabled?        (deref-or-value disabled?)
-            change-on-blur?  (deref-or-value change-on-blur?)
-            latest-ext-model (deref-or-value model)]
+      (let [latest-ext-model (deref-or-value model)
+            disabled?        (deref-or-value disabled?)
+            change-on-blur?  (deref-or-value change-on-blur?)]
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model))
@@ -97,7 +97,7 @@
                                   {:flex                "none"
                                    :width               (if width width "250px")
                                    :height              (when height height)
-                                   :padding-right       (when status "2em")
+                                   :padding-right       (when status "2.4em")
                                    :-webkit-user-select "none"}
                                   style)
                    :placeholder placeholder
@@ -124,20 +124,19 @@
 
                    ;; Material design icons
                    [:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
-                        :style {:top          "50%"
+                        :style {:font-size    "130%"
+                                :top          "50%"
                                 :right        "0px"
                                 :margin-top   "-0.5em"
                                 :margin-right "0.5em"
                                 :width        "auto"
                                 :height       "auto"}
                         :title status-tooltip}]
-
-                   ;; Boostrap glyph icons
+                   ;; Boostrap glyph icons - TODO: Remove
                    #_[:span
                     {:class (str "glyphicon glyphicon-" (if (= status :warning) "warning-sign" "exclamation-sign") " form-control-feedback")
                      :style {:top "0px"}
                      :title status-tooltip}]
-
                    )]]))))
 
 
@@ -183,41 +182,30 @@
 
 (def md-circle-icon-button-args-desc
   [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "The name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
-   {:name :size          :required false  :default 36       :type "integer"    :description "Set size of button in pixels (do not add 'px' prefix)."}
+   {:name :size          :required false  :default nil      :type "keyword"    :description "Set size of button (nil = regular, or :smaller or :larger."}
+   {:name :emphasise?    :required false                    :type "boolean"    :description "If true, use emphasised styling so the button really stands out."}
    {:name :disabled?     :required false                    :type "boolean"    :description "If true, the user can't click the button."}
    {:name :on-click      :required false                    :type "() -> nil"  :description "The fucntion to call when the button is clicked."}])
 
 (def md-circle-icon-button-args
   (set (map :name md-circle-icon-button-args-desc)))
 
-(defn px ;; TODO: Move to util
-  [val & negative]
-  (str (when negative "-") val "px"))
-
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
   []
-  (let [hover? (reagent/atom false)]
-    (fn
-      [& {:keys [md-icon-name size disabled? on-click]
-          :or   {md-icon-name "md-add" disabled? false}}]
-      [:div {:class       "rc-md-circle-icon-button rc-md-circle-icon-button"
-             :style       {:width   (when size (px size))
-                           :height  (when size (px size))
-                           :border  (if disabled?
-                                      "none"
-                                      (if @hover? "1px solid #428bca" "1px solid lightgrey"))
-                           :color   (if disabled?
-                                      "lightgrey"
-                                      (if @hover? "#428bca" "inherit"))}       ;; TODO:  these colours should match the rest of the palet. Be stored somewhere central.
-             :disabled      disabled?
-             :on-click      on-click
-             :on-mouse-over #(reset! hover? true)
-             :on-mouse-out  #(reset! hover? false)}
-       [:i {:class md-icon-name
-            :style {:line-height (when size (px size))
-                    :font-size   (when size (px (* size 0.6666667)))
-                   }}]])))
+  (fn
+    [& {:keys [md-icon-name size emphasise? disabled? on-click]
+        :or   {md-icon-name "md-add"}}]
+    [:div {:class    (str
+                       "rc-md-circle-icon-button "
+                       (case size
+                         :smaller "rc-circle-smaller "
+                         :larger  "rc-circle-larger "
+                         " ")
+                       (when emphasise? "rc-circle-emphasis ")
+                       (when disabled? " rc-circle-disabled"))
+           :on-click #(when-not disabled? (on-click))}
+     [:i {:class md-icon-name}]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -454,9 +442,10 @@
 
 (def inline-tooltip-args-desc
   [{:name :label         :required true                     :type "string"     :description "the text in the tooltip."}
-   {:name :position      :required false  :default ":below" :type "keyword"    :description "where the tooltip will appear, relative to what it points at (:left, :right, :above, :below)"}
-   {:name :status        :required false  :default "nil"    :type "keyword"    :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red)"}
-   {:name :class         :required false                    :type "string"     :description "CSS classes appended to base component list"}
+   {:name :position      :required false  :default ":below" :type "keyword"    :description "where the tooltip will appear, relative to what it points at (:left, :right, :above, :below)."}
+   {:name :status        :required false  :default "nil"    :type "keyword"    :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red)."}
+   {:name :max-width     :required false  :default "200px"  :type "string"     :description "set max width of the tool tip."}
+   {:name :class         :required false                    :type "string"     :description "CSS classes appended to base component list."}
    {:name :style         :required false                    :type "map"        :description "CSS styles. Will override (or add to) the base component base styles."}
    {:name :attr          :required false                    :type "map"        :description "HTML Element attributes. Will override (or add to) those in the base component. Expected to be things like on-mouse-over, etc. (:class/:style not allowed)."}])
 
@@ -465,7 +454,7 @@
   "Returns markup for an inline-tooltip."
   []
   (fn
-    [& {:keys [label position status class style attr]
+    [& {:keys [label position status max-width class style attr]
         :or   {position :above}
         :as   args}]
     {:pre [(validate-arguments (set (map :name inline-tooltip-args-desc)) (keys args))]}
@@ -512,21 +501,9 @@
                 {:style {which-border bg-col}}]
                [:div.tooltip-inner
                 {:style {:color            text-col
-                         :background-color bg-col}}
-
-                ;; Material design icons
-                (case status
-                  :warning [:i.md-warning]
-                  :error   [:i.md-error]
-                  nil)
-
-                ;; Boostrap glyph icons
-                #_(when status
-                  [:span
-                   {:class (str "glyphicon glyphicon-" (if (= status :warning) "warning-sign" "exclamation-sign"))
-                    :style {:top "2px"}}])
-
-                " "
+                         :background-color bg-col
+                         :max-width        (when max-width max-width)
+                         :font-weight      "bold"}}
                 label]]])))
 
 
