@@ -260,8 +260,8 @@
                     style)
         :title    tooltip
         :on-click #(when-not disabled? (on-click))
-        :on-mouse-over #(when-not disabled? (on-click))
-        :on-mouse-out  #(when-not disabled? (on-click))
+        ;:on-mouse-over #(when-not disabled? (on-click))
+        ;:on-mouse-out  #(when-not disabled? (on-click))
        }
        attr)
      [:i {:class md-icon-name}]]))

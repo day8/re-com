@@ -890,8 +890,11 @@
        :children [[panel-title "Basic Components" ]
                   [h-box
                    :gap      "50px"
-                   :children [[vertical-bar-tabs
-                               :model     selected-demo-id
-                               :tabs      demos
-                               :on-change #(reset! selected-demo-id %)]
+                   :children [[v-box
+                               :gap      "10px"
+                               :children [[component-title "Components"]
+                                          [vertical-bar-tabs
+                                           :model     selected-demo-id
+                                           :tabs      demos
+                                           :on-change #(reset! selected-demo-id %)]]]
                               [(get-in demos [@selected-demo-id :component])]]]]])))
