@@ -48,8 +48,9 @@
    {:name :change-on-blur?  :required false                  :type "boolean"    :description "When true, invoke on-change function on blur, otherwise on every change (character by character)."}
    {:name :validation-regex :required false                  :type "regex"      :description "The regular expression which determines which characters are legal and which aren't."}
    {:name :disabled?        :required false                  :type "boolean"    :description "Set to true to disable the input box (can be atom or value)."}
-   {:name :class            :required false                  :type "string"     :description "Class string."}
-   {:name :style            :required false                  :type "map"        :description "CSS style map."}])
+   {:name :class            :required false                  :type "string"     :description "additional CSS classes required."}
+   {:name :style            :required false                  :type "map"        :description "CSS styles to add or override."}
+   {:name :attr             :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def input-text-args
   (set (map :name input-text-args-desc)))
@@ -68,7 +69,7 @@
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)
     (fn
-      [& {:keys [model status status-icon? status-tooltip placeholder width height on-change change-on-blur? validation-regex disabled? class style]
+      [& {:keys [model status status-icon? status-tooltip placeholder width height on-change change-on-blur? validation-regex disabled? class style attr]
           :or   {change-on-blur? true}
           :as   args}]
       {:pre [(validate-arguments input-text-args (keys args))]}
@@ -90,38 +91,38 @@
                   :style {:flex          "none"
                           :margin-bottom "0px"}}
                  [:input
-                  {:class       (str "form-control " class)
-                   :type        "text"
-                   :style       (merge
-                                  {:flex                "none"
-                                   :width               (if width width "250px")
-                                   :height              (when height height)
-                                   :padding-right       (when status "2.4em")
-                                   :-webkit-user-select "none"}
-                                  style)
-                   :placeholder placeholder
-                   :value       @internal-model
-                   :disabled    disabled?
-                   :on-change   (fn [me]
-                                  (let [new-val (-> me .-target .-value)]
-                                    (when (and
-                                            on-change
-                                            (not disabled?)
-                                            (if validation-regex (re-find validation-regex new-val) true))
-                                      (reset! internal-model new-val)
-                                      (when-not change-on-blur?
-                                        (on-change @internal-model)))))
-                   :on-blur     #(when change-on-blur?
-                                  (on-change @internal-model))
-                   :on-key-up   #(if disabled?
-                                  false
-                                  (case (.-which %)
-                                    13 (on-change @internal-model)
-                                    27 (reset! internal-model @external-model)
-                                    true))}]
+                  (merge
+                    {:class       (str "form-control " class)
+                     :type        "text"
+                     :style       (merge
+                                    {:flex                "none"
+                                     :width               (if width width "250px")
+                                     :height              (when height height)
+                                     :padding-right       (when status "2.4em")
+                                     :-webkit-user-select "none"}
+                                    style)
+                     :placeholder placeholder
+                     :value       @internal-model
+                     :disabled    disabled?
+                     :on-change   (fn [me]
+                                    (let [new-val (-> me .-target .-value)]
+                                      (when (and
+                                              on-change
+                                              (not disabled?)
+                                              (if validation-regex (re-find validation-regex new-val) true))
+                                        (reset! internal-model new-val)
+                                        (when-not change-on-blur?
+                                          (on-change @internal-model)))))
+                     :on-blur     #(when change-on-blur?
+                                    (on-change @internal-model))
+                     :on-key-up   #(if disabled?
+                                    false
+                                    (case (.-which %)
+                                      13 (on-change @internal-model)
+                                      27 (reset! internal-model @external-model)
+                                      true))}
+                    attr)]
                  (when (and status status-icon?)
-
-                   ;; Material design icons
                    [:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
                         :style {:font-size    "130%"
                                 :top          "50%"
@@ -130,13 +131,7 @@
                                 :margin-right "0.5em"
                                 :width        "auto"
                                 :height       "auto"}
-                        :title status-tooltip}]
-                   ;; Boostrap glyph icons - TODO: Remove
-                   #_[:span
-                    {:class (str "glyphicon glyphicon-" (if (= status :warning) "warning-sign" "exclamation-sign") " form-control-feedback")
-                     :style {:top "0px"}
-                     :title status-tooltip}]
-                   )]]))))
+                        :title status-tooltip}])]]))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -146,16 +141,18 @@
 (def button-args-desc
   [{:name :label         :required true                   :type "string"     :description "Label for the button (can be artitrary markup)."}
    {:name :on-click      :required false                  :type "keyword"    :description "Callback when the button is clicked."}
+   {:name :tooltip       :required false                  :type "string"     :description "show a standard HTML tooltip with this text."}
    {:name :disabled?     :required false                  :type "boolean"    :description "Set to true to disable the button."}
    {:name :class         :required false                  :type "string"     :description "Class string. e.g. \"btn-info\" (see: http://getbootstrap.com/css/#buttons)."}
-   {:name :style         :required false                  :type "string"     :description "CSS style map."}])
+   {:name :style         :required false                  :type "map"        :description "CSS styles to add or override."}
+   {:name :attr          :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def button-args
   (set (map :name button-args-desc)))
 
 (defn button
   "Returns the markup for a basic button."
-  [& {:keys [label on-click disabled? class style]
+  [& {:keys [label on-click tooltip disabled? class style attr]
       :or   {class "btn-default"}
       :as   args}]
   {:pre [(validate-arguments button-args (keys args))]}
@@ -164,13 +161,16 @@
      :style {:display "inline-flex"}
      :align :start
      :child [:button
-             {:class    (str "rc-button btn " class)
-              :style    (merge
-                          {:flex "none"}
-                          style)
-              :disabled disabled?
-              :on-click #(if (and on-click (not disabled?))
-                          (on-click))}
+             (merge
+               {:class    (str "rc-button btn " class)
+                :style    (merge
+                            {:flex "none"}
+                            style)
+                :disabled disabled?
+                :tooltip  tooltip
+                :on-click #(if (and on-click (not disabled?))
+                            (on-click))}
+               attr)
              label]]))
 
 
@@ -180,11 +180,14 @@
 
 (def md-circle-icon-button-args-desc
   [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+   {:name :on-click      :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
    {:name :size          :required false  :default nil      :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
    {:name :tooltip       :required false                    :type "string"     :description "show a standard HTML tooltip with this text."}
    {:name :emphasise?    :required false                    :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
    {:name :disabled?     :required false                    :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :on-click      :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}])
+   {:name :class         :required false                    :type "string"     :description "additional CSS classes required."}
+   {:name :style         :required false                    :type "map"        :description "CSS styles to add or override."}
+   {:name :attr          :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def md-circle-icon-button-args
   (set (map :name md-circle-icon-button-args-desc)))
@@ -193,21 +196,27 @@
   "a circular button containing a material design icon"
   []
   (fn
-    [& {:keys [md-icon-name size tooltip emphasise? disabled? on-click]
+    [& {:keys [md-icon-name on-click size tooltip emphasise? disabled? class style attr]
         :or   {md-icon-name "md-add"}
         :as   args}]
     {:pre [(validate-arguments md-circle-icon-button-args (keys args))]}
-    [:div {:class    (str
-                       "rc-md-circle-icon-button "
-                       (case size
-                         :smaller "rc-circle-smaller "
-                         :larger  "rc-circle-larger "
-                         " ")
-                       (when emphasise? "rc-circle-emphasis ")
-                       (when disabled? " rc-circle-disabled "))
-           :style      {:cursor (when-not disabled? "pointer")}
-           :title      tooltip
-           :on-click #(when-not disabled? (on-click))}
+    [:div
+     (merge
+       {:class    (str
+                    "rc-md-circle-icon-button "
+                    (case size
+                      :smaller "rc-circle-smaller "
+                      :larger "rc-circle-larger "
+                      " ")
+                    (when emphasise? "rc-circle-emphasis ")
+                    (when disabled? "rc-circle-disabled ")
+                    class)
+        :style    (merge
+                    {:cursor (when-not disabled? "pointer")}
+                    style)
+        :title    tooltip
+        :on-click #(when-not disabled? (on-click))}
+       attr)
      [:i {:class md-icon-name}]]))
 
 
@@ -217,10 +226,13 @@
 
 (def row-button-args-desc
   [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+   {:name :on-click      :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
    {:name :state         :required false                    :type "keyword"    :description "how visible the button is: :invisible, :semi-visible, :visible"}
    {:name :tooltip       :required false                    :type "string"     :description "show a standard HTML tooltip with this text."}
    {:name :disabled?     :required false                    :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :on-click      :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}])
+   {:name :class         :required false                    :type "string"     :description "additional CSS classes required."}
+   {:name :style         :required false                    :type "map"        :description "CSS styles to add or override."}
+   {:name :attr          :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def row-button-args
   (set (map :name row-button-args-desc)))
@@ -229,20 +241,29 @@
   "a circular button containing a material design icon"
   []
   (fn
-    [& {:keys [md-icon-name state tooltip disabled? on-click]
+    [& {:keys [md-icon-name on-click state tooltip disabled? class style attr]
         :or   {md-icon-name "md-add"}
         :as   args}]
     {:pre [(validate-arguments row-button-args (keys args))]}
-    [:div {:class    (str
-                       "rc-row-button "
-                       (case state
-                         :invisible    "rc-row-invisible "
-                         :semi-visible "rc-row-semi-visible "
-                         "rc-row-visible ")
-                       (when disabled? "rc-row-disabled"))
-           :style      {:cursor (when-not disabled? "pointer")}
-           :title      tooltip
-           :on-click #(when-not disabled? (on-click))}
+    [:div
+     (merge
+       {:class    (str
+                    "rc-row-button "
+                    (case state
+                      :invisible "rc-row-invisible "
+                      :semi-visible "rc-row-semi-visible "
+                      "rc-row-visible ")
+                    (when disabled? "rc-row-disabled ")
+                    class)
+        :style    (merge
+                    {:cursor (when-not disabled? "pointer")}
+                    style)
+        :title    tooltip
+        :on-click #(when-not disabled? (on-click))
+        :on-mouse-over #(when-not disabled? (on-click))
+        :on-mouse-out  #(when-not disabled? (on-click))
+       }
+       attr)
      [:i {:class md-icon-name}]]))
 
 
@@ -254,8 +275,9 @@
   [{:name :label         :required false                  :type "string"     :description "Label for the button (can be artitrary markup)."}
    {:name :on-click      :required false                  :type "string"     :description "Callback when the hyperlink is clicked."}
    {:name :disabled?     :required false                  :type "string"     :description "Set to true to disable the hyperlink."}
-   {:name :class         :required false                  :type "string"     :description "Class string."}
-   {:name :style         :required false                  :type "string"     :description "CSS style map."}])
+   {:name :class         :required false                  :type "string"     :description "additional CSS classes required."}
+   {:name :style         :required false                  :type "map"        :description "CSS styles to add or override."}
+   {:name :attr          :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def hyperlink-args
   (set (map :name hyperlink-args-desc)))
@@ -264,7 +286,7 @@
   "Renders an underlined text hyperlink component.
    This is very similar to the button component above but styled to looks like a hyperlink.
    Useful for providing button functionality for less important functions, e.g. Cancel."
-  [& {:keys [label on-click disabled? class style] :as args}]
+  [& {:keys [label on-click disabled? class style attr] :as args}]
   {:pre [(validate-arguments hyperlink-args (keys args))]}
   (let [label     (deref-or-value label)
         disabled? (deref-or-value disabled?)]
@@ -279,7 +301,8 @@
                              :-webkit-user-select "none"}
                             style)
                 :on-click #(if (and on-click (not disabled?))
-                            (on-click))})
+                            (on-click))}
+               attr)
              label]]))
 
 
@@ -291,8 +314,9 @@
   [{:name :label         :required false                  :type "string"     :description "Label for the button (can be artitrary markup)."}
    {:name :href          :required false                  :type "string"     :description "If specified, which URL to jump to when clicked."}
    {:name :target        :required false                  :type "string"     :description "A string representing where to load href: _self - open in same window/tab (the default), _blank - open in new window/tab, _parent - open in parent window."}
-   {:name :class         :required false                  :type "string"     :description "Class string."}
-   {:name :style         :required false                  :type "string"     :description "CSS style map."}])
+   {:name :class         :required false                  :type "string"     :description "additional CSS classes required."}
+   {:name :style         :required false                  :type "map"        :description "CSS styles to add or override."}
+   {:name :attr          :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def hyperlink-href-args
   (set (map :name hyperlink-href-args-desc)))
@@ -301,7 +325,7 @@
   "Renders an underlined text hyperlink component.
    This is very similar to the button component above but styled to looks like a hyperlink.
    Useful for providing button functionality for less important functions, e.g. Cancel."
-  [& {:keys [label href target class style] :as args}]
+  [& {:keys [label href target class style attr] :as args}]
   {:pre [(validate-arguments hyperlink-href-args (keys args))]}
   (let [label     (deref-or-value label)
         href      (deref-or-value href)
@@ -316,7 +340,8 @@
                              :-webkit-user-select "none"}
                             style)
                 :href       href
-                :target     target})
+                :target     target}
+               attr)
              label]]))
 
 
@@ -427,8 +452,9 @@
    {:name :width         :required false                  :type "string"     :description "Standard CSS width setting for the slider. Default is 400px."}
    {:name :on-change     :required false                  :type "string"     :description "A function which takes one parameter, which is the new value of the slider."}
    {:name :disabled?     :required false                  :type "string"     :description "Set to true to disable the slider. Can be value or atom."}
-   {:name :class         :required false                  :type "string"     :description "Class string."}
-   {:name :style         :required false                  :type "string"     :description "CSS style map."}])
+   {:name :class         :required false                  :type "string"     :description "additional CSS classes required."}
+   {:name :style         :required false                  :type "map"        :description "CSS styles to add or override."}
+   {:name :attr          :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def slider-args
   (set (map :name slider-args-desc)))
@@ -437,7 +463,7 @@
   "Returns markup for an HTML5 slider input."
   []
   (fn
-    [& {:keys [model min max step width on-change disabled? class style]
+    [& {:keys [model min max step width on-change disabled? class style attr]
         :or   {min 0 max 100}
         :as   args}]
     {:pre [(validate-arguments slider-args (keys args))]}
@@ -449,19 +475,21 @@
       [box
        :align :start
        :child [:input
-               {:class     (str "rc-slider " class)
-                :type      "range"
-                :style     (merge
-                             {:flex   "none"
-                              :width  (if width width "400px")
-                              :cursor (if disabled? "not-allowed" "default")}
-                             style)
-                :min       min
-                :max       max
-                :step      step
-                :value     model
-                :disabled  disabled?
-                :on-change #(on-change (double (-> % .-target .-value)))}]])))
+               (merge
+                 {:class     (str "rc-slider " class)
+                  :type      "range"
+                  :style     (merge
+                               {:flex   "none"
+                                :width  (if width width "400px")
+                                :cursor (if disabled? "not-allowed" "default")}
+                               style)
+                  :min       min
+                  :max       max
+                  :step      step
+                  :value     model
+                  :disabled  disabled?
+                  :on-change #(on-change (double (-> % .-target .-value)))}
+                 attr)]])))
 
 
 ;; ------------------------------------------------------------------------------------

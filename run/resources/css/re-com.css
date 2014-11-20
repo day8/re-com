@@ -633,7 +633,7 @@ html, body {
 }
 
 .rc-row-button:hover {
-    color:  red; // #428bca;
+    color:  #2196f3;
 }
 
 .rc-row-disabled {
