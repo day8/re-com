@@ -65,16 +65,25 @@
 
 
 (def icons
-  [{:id "md-add"            :label [:i {:class "md-add"}]}
-   {:id "md-add-box"        :label [:i {:class "md-add-box"}]}
-   {:id "md-add-circle"     :label [:i {:class "md-add-circle"}]}
-   {:id "md-delete"         :label [:i {:class "md-delete"}]}
-   {:id "md-undo"           :label [:i {:class "md-undo"}]}
-   {:id "md-settings"       :label [:i {:class "md-settings"}]}
-   {:id "md-error"          :label [:i {:class "md-error"}]}
-   {:id "md-warning"        :label [:i {:class "md-warning"}]}
-   {:id "md-home"           :label [:i {:class "md-home"}]}
-   {:id "md-person"         :label [:i {:class "md-person"}]}])
+  [{:id "md-add"    :label [:i {:class "md-add"}]}
+   {:id "md-delete" :label [:i {:class "md-delete"}]}
+   {:id "md-undo"   :label [:i {:class "md-undo"}]}
+   {:id "md-home"   :label [:i {:class "md-home"}]}
+   {:id "md-person" :label [:i {:class "md-person"}]}])
+
+
+(defn example-icons
+  [selected-icon]
+  [h-box
+   :align :center
+   :gap "8px"
+   :children [[label :label "Example icons:"]
+              [horizontal-bar-tabs
+               :model     selected-icon
+               :tabs      icons
+               :on-change #(reset! selected-icon %)]
+              [label :label @selected-icon]]])
+
 
 (defn md-circle-icon-button-demo
   []
@@ -91,15 +100,7 @@
                    :children [[component-title "Demo"]
                               [v-box
                                :gap "15px"
-                               :children [[h-box
-                                           :align :center
-                                           :gap "8px"
-                                           :children [[label :label "Example icons:"]
-                                                      [horizontal-bar-tabs
-                                                       :model     selected-icon
-                                                       :tabs      icons
-                                                       :on-change #(reset! selected-icon %)]
-                                                      [label :label @selected-icon]]]
+                               :children [[example-icons selected-icon]
                                           [gap :size "10px"]
                                           [label :label "Hover over the buttons below to see a tooltip."]
                                           [h-box
@@ -137,60 +138,61 @@
                                                        :md-icon-name @selected-icon
                                                        :tooltip      "This is a :larger button"
                                                        :size         :larger
-                                                       :on-click #()]]]
-                                          ]]]]]])))
+                                                       :on-click #()]]]]]]]]])))
 
 
-(defn daypart-row
-  [daypart]
-  (let [editor-showing? (reagent/atom false)
-        show-editor     #(reset! editor-showing? true)
-        row-but-state   (reagent/atom :invisible)]
+(defn data-row
+  []
+  (let [mouse-over-row?  (reagent/atom false)]
     (fn
-      [daypart]
-      ^{:key (:id daypart)}
-      [:tr
-       {:on-mouse-over #(reset! row-but-state :semi-visible)
-        :on-mouse-out  #(reset! row-but-state :invisible)}
-       [:td.table-cell (:name daypart)]
-       [:td.table-cell (:from daypart)]
-       [:td.table-cell (:to daypart)]
-       [:td.table-cell
-        [h-box
-         :gap      "4px"
-         :attr     {:on-click show-editor}
-         :justify  :center
-         :children (for [[dow-indx dow-bool] (map-indexed vector (:mask daypart))]
-                     ^{:key (str (:id daypart) dow-indx)}
-                     ;; [:td.table-cell
-                     [checkbox
-                      :label nil
-                      :model dow-bool
-                      :on-change #()
-                      ;; :on-change #(state/dispatch [:set-mask (:id daypart) dow-indx %])
-                      ])]]
-       [:td.table-cell
-        [h-box
-         :gap      "2px"
-         :align    :center
-         :children [[row-button
-                     :md-icon-name "md-content-copy"
-                     :state        @row-but-state
-                     :tooltip      "Copy this daypart"
-                     :on-click     #()]
-                    [row-button
-                     :md-icon-name "md-mode-edit"
-                     :state        @row-but-state
-                     :tooltip      "Edit this daypart"
-                     :on-click     #()]
-                    [row-button
-                     :md-icon-name "md-delete"
-                     :state        @row-but-state
-                     :tooltip      "Delete this daypart"
-                     :on-click     #()]]]]])))
+      [row]
+      (let [on-first-row? (= (:id row) "1")      ;; NOTE: Very hard coded, but just to demontrate the disabled feature
+            on-last-row?  (= (:id row) "3")]
+        ^{:key (:id row)}
+        [:tr
+         {:on-mouse-over #(reset! mouse-over-row? true)
+          :on-mouse-out  #(reset! mouse-over-row? false)}
+         [:td.table-cell
+          [h-box
+           :gap "2px"
+           :align :center
+           :children [[row-button
+                       :md-icon-name    "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
+                       :mouse-over-row? @mouse-over-row?
+                       :tooltip         "Move this line up"
+                       :disabled?       (and on-first-row? @mouse-over-row?)
+                       :on-click        #()]
+                      [row-button
+                       :md-icon-name    "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
+                       :mouse-over-row? @mouse-over-row?
+                       :tooltip         "Move this line down"
+                       :disabled?       (and on-last-row? @mouse-over-row?)
+                       :on-click        #()]]]]
+         [:td.table-cell (:name row)]
+         [:td.table-cell (:from row)]
+         [:td.table-cell (:to row)]
+         [:td.table-cell
+          [h-box
+           :gap "2px"
+           :align :center
+           :children [[row-button
+                       :md-icon-name "md-content-copy"
+                       :mouse-over-row? @mouse-over-row?
+                       :tooltip "Copy this line"
+                       :on-click #()]
+                      [row-button
+                       :md-icon-name "md-mode-edit"
+                       :mouse-over-row? @mouse-over-row?
+                       :tooltip "Edit this line"
+                       :on-click #()]
+                      [row-button
+                       :md-icon-name "md-delete"
+                       :mouse-over-row? @mouse-over-row?
+                       :tooltip "Delete this line"
+                       :on-click #()]]]]]))))
 
-(defn dayparts-table
-  [dayparts]
+(defn rows-table
+  [rows]
   (let [large-font (reagent/atom false)]
     (fn []
       [v-box
@@ -208,21 +210,21 @@
                    [:tbody
                     ^{:key "0"}
                     [:tr
+                     [:th.th-cell "Sort"]
                      [:th.th-cell "Name"]
                      [:th.th-cell "From"]
                      [:th.th-cell "To"]
-                     [:th.th-cell {:style {:text-align "center"}} "S M T W H F S"]
                      [:th.th-cell "Actions"]]
-                    (for [daypart (vals dayparts)]
-                      [daypart-row daypart])]]]])))
+                    (for [row (vals rows)]
+                      [data-row row])]]]])))
 
 
 (defn row-button-demo
   []
   (let [selected-icon (reagent/atom (:id (first icons)))
-        dayparts      {"1" {:id "1" :sort 0 :name "Weekday peak" :mask [false true true true true true false] :from 1800 :to 2230}
-                       "2" {:id "2" :sort 1 :name "Weekend peak" :mask [true false false false false false true] :from 1800 :to 2230}
-                       "3" {:id "3" :sort 2 :name "Off peak"     :mask [true true true true true true true] :from 600 :to 1800}}]
+        rows      {"1" {:id "1" :sort 0 :name "Time range 1" :from "18:00" :to "22:30"}
+                   "2" {:id "2" :sort 1 :name "Time range 2" :from "18:00" :to "22:30"}
+                   "3" {:id "3" :sort 2 :name "Time range 3" :from "06:00" :to "18:00"}}]
     (fn []
       [h-box
        :gap "50px"
@@ -235,15 +237,7 @@
                    :children [[component-title "Demo"]
                               [v-box
                                :gap "40px"
-                               :children [[h-box
-                                           :align :center
-                                           :gap "8px"
-                                           :children [[label :label "Example icons:"]
-                                                      [horizontal-bar-tabs
-                                                       :model selected-icon
-                                                       :tabs icons
-                                                       :on-change #(reset! selected-icon %)]
-                                                      [label :label @selected-icon]]]
+                               :children [[example-icons selected-icon]
                                           [v-box
                                            :gap      "8px"
                                            :children [[label :label "Hover over the buttons below to see a tooltip."]
@@ -252,27 +246,22 @@
                                                        :align    :center
                                                        :children [[label :label "States: ["]
                                                                   [row-button
-                                                                   :md-icon-name @selected-icon
-                                                                   :state        :invisible
-                                                                   :tooltip      "This button is :invisible"
-                                                                   :on-click     #()]
+                                                                   :md-icon-name    @selected-icon
+                                                                   :mouse-over-row? false
+                                                                   :tooltip         ":mouse-over-row? set to false (invisible)"
+                                                                   :on-click        #()]
                                                                   [row-button
-                                                                   :md-icon-name @selected-icon
-                                                                   :state        :semi-visible
-                                                                   :tooltip      "This button is :semi-visible"
-                                                                   :on-click     #()]
+                                                                   :md-icon-name    @selected-icon
+                                                                   :mouse-over-row? true
+                                                                   :tooltip         ":mouse-over-row? set to true (semi-visible)"
+                                                                   :on-click        #()]
                                                                   [row-button
-                                                                   :md-icon-name @selected-icon
-                                                                   :state        :visible
-                                                                   :tooltip      "This button is :visible"
-                                                                   :on-click     #()]
-                                                                  [row-button
-                                                                   :md-icon-name @selected-icon
-                                                                   :tooltip      "This button has :disabled? set to true"
-                                                                   :disabled?    true
-                                                                   :on-click     #()]
+                                                                   :md-icon-name    @selected-icon
+                                                                   :tooltip         ":disabled? set to true"
+                                                                   :disabled?       true
+                                                                   :on-click        #()]
                                                                   [label :label "]"]]]]]
-                                          [dayparts-table dayparts]]]]]]])))
+                                          [rows-table rows]]]]]]])))
 
 
 (defn right-arrow

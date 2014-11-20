@@ -225,14 +225,14 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def row-button-args-desc
-  [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
-   {:name :on-click      :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
-   {:name :state         :required false                    :type "keyword"    :description "how visible the button is: :invisible, :semi-visible, :visible"}
-   {:name :tooltip       :required false                    :type "string"     :description "show a standard HTML tooltip with this text."}
-   {:name :disabled?     :required false                    :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class         :required false                    :type "string"     :description "additional CSS classes required."}
-   {:name :style         :required false                    :type "map"        :description "CSS styles to add or override."}
-   {:name :attr          :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :md-icon-name     :required true   :default "md-add" :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+   {:name :on-click         :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
+   {:name :mouse-over-row?  :required false                    :type "boolean"    :description "true if the mouse is hovering over the row this button is in."}
+   {:name :tooltip          :required false                    :type "string"     :description "show a standard HTML tooltip with this text."}
+   {:name :disabled?        :required false                    :type "boolean"    :description "if true, the user can't click the button."}
+   {:name :class            :required false                    :type "string"     :description "additional CSS classes required."}
+   {:name :style            :required false                    :type "map"        :description "CSS styles to add or override."}
+   {:name :attr             :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def row-button-args
   (set (map :name row-button-args-desc)))
@@ -240,31 +240,28 @@
 (defn row-button
   "a circular button containing a material design icon"
   []
-  (fn
-    [& {:keys [md-icon-name on-click state tooltip disabled? class style attr]
-        :or   {md-icon-name "md-add"}
-        :as   args}]
-    {:pre [(validate-arguments row-button-args (keys args))]}
-    [:div
-     (merge
-       {:class    (str
-                    "rc-row-button "
-                    (case state
-                      :invisible "rc-row-invisible "
-                      :semi-visible "rc-row-semi-visible "
-                      "rc-row-visible ")
-                    (when disabled? "rc-row-disabled ")
-                    class)
-        :style    (merge
-                    {:cursor (when-not disabled? "pointer")}
-                    style)
-        :title    tooltip
-        :on-click #(when-not disabled? (on-click))
-        ;:on-mouse-over #(when-not disabled? (on-click))
-        ;:on-mouse-out  #(when-not disabled? (on-click))
-       }
-       attr)
-     [:i {:class md-icon-name}]]))
+  (let [mouse-over-button? (reagent/atom false)]
+    (fn
+      [& {:keys [md-icon-name on-click mouse-over-row? tooltip disabled? class style attr]
+          :or   {md-icon-name "md-add"}
+          :as   args}]
+      {:pre [(validate-arguments row-button-args (keys args))]}
+      [:div
+       (merge
+         {:class         (str
+                           "rc-row-button "
+                           (if @mouse-over-button?
+                             "rc-row-visible "
+                             (when mouse-over-row? "rc-row-semi-visible "))
+                           (when disabled? "rc-row-disabled ")
+                           class)
+          :style         style
+          :title         tooltip
+          :on-click      #(when-not disabled? (on-click))
+          :on-mouse-over #(reset! mouse-over-button? true)
+          :on-mouse-out  #(reset! mouse-over-button? false)}
+         attr)
+       [:i {:class md-icon-name}]])))
 
 
 ;;--------------------------------------------------------------------------------------------------
