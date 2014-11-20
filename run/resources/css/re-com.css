@@ -633,23 +633,18 @@ html, body {
    color: inherit;
 }
 
-/*
-.rc-row-disabled > i {
-   color: lightgrey;
-}
-*/
-
 .rc-row-semi-visible {
    opacity: 0.5;
-   cursor:  "pointer";
+   cursor:  pointer;
 }
 
 .rc-row-visible {
    opacity: 1;
-   cursor:  "pointer";
+   cursor:  pointer;
 }
 
 .rc-row-disabled {
    opacity: 1;
    color:   lightgrey;
+   cursor:  default;
 }
