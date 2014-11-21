@@ -1,7 +1,9 @@
 (ns re-demo.basics
+  (:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
   (:require [re-com.core     :refer [label spinner progress-bar title
                                      button button-args-desc
                                      md-circle-icon-button md-circle-icon-button-args-desc
+                                     md-icon-button md-icon-button-args-desc
                                      row-button row-button-args-desc
                                      checkbox checkbox-args-desc
                                      radio-button radio-button-args-desc
@@ -10,6 +12,7 @@
                                      hyperlink-href hyperlink-href-args-desc
                                      slider slider-args-desc
                                      inline-tooltip inline-tooltip-args-desc]]
+            [clairvoyant.core :refer [default-tracer]]
             [re-com.box      :refer [h-box v-box box gap line]]
             [re-com.tabs     :refer [horizontal-bar-tabs vertical-bar-tabs]]
             [re-demo.utils   :refer [panel-title component-title args-table]]
@@ -141,82 +144,146 @@
                                                        :on-click #()]]]]]]]]])))
 
 
-(defn data-row
+(defn md-icon-button-demo
   []
-  (let [mouse-over-row?  (reagent/atom false)]
-    (fn
-      [row]
-      (let [on-first-row? (= (:id row) "1")      ;; NOTE: Very hard coded, but just to demontrate the disabled feature
-            on-last-row?  (= (:id row) "3")]
-        ^{:key (:id row)}
-        [:tr
-         {:on-mouse-over #(reset! mouse-over-row? true)
-          :on-mouse-out  #(reset! mouse-over-row? false)}
-         [:td.table-cell
-          [h-box
-           :gap "2px"
-           :align :center
-           :children [[row-button
-                       :md-icon-name    "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
-                       :mouse-over-row? @mouse-over-row?
-                       :tooltip         "Move this line up"
-                       :disabled?       (and on-first-row? @mouse-over-row?)
-                       :on-click        #()]
-                      [row-button
-                       :md-icon-name    "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
-                       :mouse-over-row? @mouse-over-row?
-                       :tooltip         "Move this line down"
-                       :disabled?       (and on-last-row? @mouse-over-row?)
-                       :on-click        #()]]]]
-         [:td.table-cell (:name row)]
-         [:td.table-cell (:from row)]
-         [:td.table-cell (:to row)]
-         [:td.table-cell
-          [h-box
-           :gap "2px"
-           :align :center
-           :children [[row-button
-                       :md-icon-name "md-content-copy"
-                       :mouse-over-row? @mouse-over-row?
-                       :tooltip "Copy this line"
-                       :on-click #()]
-                      [row-button
-                       :md-icon-name "md-mode-edit"
-                       :mouse-over-row? @mouse-over-row?
-                       :tooltip "Edit this line"
-                       :on-click #()]
-                      [row-button
-                       :md-icon-name "md-delete"
-                       :mouse-over-row? @mouse-over-row?
-                       :tooltip "Delete this line"
-                       :on-click #()]]]]]))))
+  (let [selected-icon (reagent/atom (:id (first icons)))]
+    (fn []
+      [h-box
+       :gap "50px"
+       :children [[v-box
+                   :gap "10px"
+                   :style {:font-size "small"}
+                   :children [[component-title "[md-icon-button ... ]"]
+                              [args-table md-icon-button-args-desc]]]
+                  [v-box
+                   :children [[component-title "Demo"]
+                              [v-box
+                               :gap "15px"
+                               :children [[example-icons selected-icon]
+                                          [gap :size "10px"]
+                                          [label :label "Hover over the buttons below to see a tooltip."]
+                                          [h-box
+                                           :gap      "20px"
+                                           :align    :center
+                                           :children [[label :label "States:"]
+                                                      [md-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :emphasise?   true
+                                                       :tooltip      "This button has :emphasise? set to true"
+                                                       :on-click     #()]
+                                                      [md-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :tooltip      "This is the default button"
+                                                       :on-click     #()]
+                                                      [md-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :tooltip      "This button has :disabled? set to true"
+                                                       :disabled?    true
+                                                       :on-click     #()]]]
+                                          [h-box
+                                           :gap      "20px"
+                                           :align    :center
+                                           :children [[label :label "Sizes:"]
+                                                      [md-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :tooltip      "This is a :smaller button"
+                                                       :size         :smaller
+                                                       :on-click #()]
+                                                      [md-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :tooltip      "This button does not specify a :size"
+                                                       :on-click     #()]
+                                                      [md-icon-button
+                                                       :md-icon-name @selected-icon
+                                                       :tooltip      "This is a :larger button"
+                                                       :size         :larger
+                                                       :on-click #()]]]]]]]]])))
+
+
+(trace-forms {:tracer default-tracer}
+             (defn data-row
+               []
+               (let []
+                 (fn
+                   [row mouse-over]
+                   (let [mouse-over-row? (identical? @mouse-over row)
+                         on-first-row? (= (:id row) "1")    ;; NOTE: Very hard coded, but just to demontrate the disabled feature
+                         on-last-row? (= (:id row) "3")]
+                     ^{:key (:id row)}
+                     [:tr
+                      {:on-mouse-over #(do (reset! mouse-over row) (println "mouse-over " (:id row)))
+                       :on-mouse-out  #(do (reset! mouse-over nil) (println "mouse-OUT  " (:id row)))}
+                      [:td.table-cell
+                       [h-box
+                        :gap "2px"
+                        :align :center
+                        :children [[row-button
+                                    :md-icon-name "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
+                                    :mouse-over-row? mouse-over-row?
+                                    :tooltip "Move this line up"
+                                    :disabled? (and on-first-row? mouse-over-row?)
+                                    :on-click #()]
+                                   [row-button
+                                    :md-icon-name "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
+                                    :mouse-over-row? mouse-over-row?
+                                    :tooltip "Move this line down"
+                                    :disabled? (and on-last-row? mouse-over-row?)
+                                    :on-click #()]]]]
+                      [:td.table-cell (:name row)]
+                      [:td.table-cell (:from row)]
+                      [:td.table-cell (:to row)]
+                      [:td.table-cell
+                       [h-box
+                        :gap "2px"
+                        :align :center
+                        :children [[row-button
+                                    :md-icon-name "md-content-copy"
+                                    :mouse-over-row? mouse-over-row?
+                                    :tooltip "Copy this line"
+                                    :on-click #()]
+                                   [row-button
+                                    :md-icon-name "md-mode-edit"
+                                    :mouse-over-row? mouse-over-row?
+                                    :tooltip "Edit this line"
+                                    :on-click #()]
+                                   [row-button
+                                    :md-icon-name "md-delete"
+                                    :mouse-over-row? mouse-over-row?
+                                    :tooltip "Delete this line"
+                                    :on-click #()]]]]])))))
 
 (defn rows-table
   [rows]
-  (let [large-font (reagent/atom false)]
-    (fn []
-      [v-box
-       :gap "10px"
-       :children [[checkbox
-                   :label "Large font-size (row-buttons inherit their font-size from their parent)"
-                   :model large-font
-                   :on-change #(reset! large-font %)]
-                  [:table {:class "table table-condensed table-hover"
-                           :style {:flex      "none"
-                                   :width     "auto"
-                                   :border    "2px solid lightgrey"
-                                   :font-size (when @large-font "24px")
-                                   :cursor "default"}}
-                   [:tbody
-                    ^{:key "0"}
-                    [:tr
-                     [:th.th-cell "Sort"]
-                     [:th.th-cell "Name"]
-                     [:th.th-cell "From"]
-                     [:th.th-cell "To"]
-                     [:th.th-cell "Actions"]]
-                    (for [row (vals rows)]
-                      [data-row row])]]]])))
+  (let [large-font (reagent/atom false)
+        mouse-over (reagent/atom nil)]
+    (trace-forms {:tracer default-tracer}
+                 (fn []
+                   [v-box
+                    :gap "10px"
+                    :children [[checkbox
+                                :label "Large font-size (row-buttons inherit their font-size from their parent)"
+                                :model large-font
+                                :on-change #(reset! large-font %)]
+                               [:table
+                                {:class        "table table-condensed table-hover"
+                                 :style        {:flex      "none"
+                                                :width     "auto"
+                                                :border    "2px solid lightgrey"
+                                                :font-size (when @large-font "24px")
+                                                :cursor    "default"}
+                                 :on-mouse-over #(do (println "mouse-over  TABLE"))
+                                 :on-mouse-out  #(do (reset! mouse-over nil) (println "mouse-OUT  TABLE"))
+                                }
+                                [:tbody
+                                 ^{:key "0"}
+                                 [:tr
+                                  [:th.th-cell "Sort"]
+                                  [:th.th-cell "Name"]
+                                  [:th.th-cell "From"]
+                                  [:th.th-cell "To"]
+                                  [:th.th-cell "Actions"]]
+                                 (for [row (vals rows)]
+                                   [data-row row mouse-over])]]]]))))
 
 
 (defn row-button-demo
@@ -858,14 +925,15 @@
 
 (def demos [{:id  0 :label "button"                :component button-demo}
             {:id  1 :label "md-circle-icon-button" :component md-circle-icon-button-demo}
-            {:id  2 :label "row-button"            :component row-button-demo}
-            {:id  3 :label "checkbox"              :component checkboxes-demo}
-            {:id  4 :label "radio-button"          :component radios-demo}
-            {:id  5 :label "input-text"            :component inputs-demo}
-            {:id  6 :label "hyperlink"             :component hyperlink-demo}
-            {:id  7 :label "hyperlink-href"        :component hyperlink-href-demo}
-            {:id  8 :label "slider"                :component slider-demo}
-            {:id  9 :label "inline-tooltip"        :component inline-tooltip-demo}
+            {:id  2 :label "md-icon-button"        :component md-icon-button-demo}
+            {:id  3 :label "row-button"            :component row-button-demo}
+            {:id  4 :label "checkbox"              :component checkboxes-demo}
+            {:id  5 :label "radio-button"          :component radios-demo}
+            {:id  6 :label "input-text"            :component inputs-demo}
+            {:id  7 :label "hyperlink"             :component hyperlink-demo}
+            {:id  8 :label "hyperlink-href"        :component hyperlink-href-demo}
+            {:id  9 :label "slider"                :component slider-demo}
+            {:id 10 :label "inline-tooltip"        :component inline-tooltip-demo}
             ;{:id 90 :label "h-box"                 :component h-box-demo} ;; Experimental
             ;{:id 91 :label "v-box"                 :component v-box-demo} ;; Experimental
             ])

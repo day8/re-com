@@ -618,6 +618,54 @@ html, body {
 }
 
 /*----------------------------------------------------------------------------------------
+  md-icon-button
+----------------------------------------------------------------------------------------*/
+
+.rc-md-icon-button {
+    height:              24px;
+    font-size:           24px;
+    line-height:         24px;
+    text-align:          center;             /* to horizontally center the icon */
+    background-color:    inherit;
+    border-radius:       3px;
+    -webkit-user-select: none;
+}
+
+.rc-md-icon-button > i {
+   color: inherit;
+}
+
+.rc-md-icon-button:hover {
+    color: #2196f3;
+}
+
+.rc-icon-smaller {
+    height:      16px;
+    font-size:   16px;
+    line-height: 16px;
+}
+
+.rc-icon-larger {
+    height:      32px;
+    font-size:   32px;
+    line-height: 32px;
+}
+
+.rc-icon-emphasis {
+    background-color: #428bca;
+    color:            white;
+}
+
+.rc-icon-emphasis:hover {
+    background-color: #2196f3;
+    color:            white;
+}
+
+.rc-icon-disabled > i {
+   color: lightgrey;
+}
+
+/*----------------------------------------------------------------------------------------
   row-button
 ----------------------------------------------------------------------------------------*/
 
@@ -626,25 +674,24 @@ html, body {
     color:               #2196f3;
     background-color:    inherit;
     opacity:             0;
+    cursor:              pointer;
     -webkit-user-select: none;
 }
 
 .rc-row-button > i {
-   color: inherit;
+    color: inherit;
 }
 
 .rc-row-semi-visible {
-   opacity: 0.5;
-   cursor:  pointer;
+    opacity: 0.5;
 }
 
 .rc-row-visible {
-   opacity: 1;
-   cursor:  pointer;
+    opacity: 1;
 }
 
 .rc-row-disabled {
-   opacity: 1;
-   color:   lightgrey;
-   cursor:  default;
+    opacity: 1;
+    color:   lightgrey;
+    cursor:  default;
 }

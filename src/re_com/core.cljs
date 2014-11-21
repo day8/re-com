@@ -221,6 +221,52 @@
 
 
 ;;--------------------------------------------------------------------------------------------------
+;; Component: md-icon-button
+;;--------------------------------------------------------------------------------------------------
+
+(def md-icon-button-args-desc
+  [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+   {:name :on-click      :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
+   {:name :size          :required false  :default nil      :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
+   {:name :tooltip       :required false                    :type "string"     :description "show a standard HTML tooltip with this text."}
+   {:name :emphasise?    :required false                    :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
+   {:name :disabled?     :required false                    :type "boolean"    :description "if true, the user can't click the button."}
+   {:name :class         :required false                    :type "string"     :description "additional CSS classes required."}
+   {:name :style         :required false                    :type "map"        :description "CSS styles to add or override."}
+   {:name :attr          :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+
+(def md-icon-button-args
+  (set (map :name md-icon-button-args-desc)))
+
+(defn md-icon-button
+  "a circular button containing a material design icon"
+  []
+  (fn
+    [& {:keys [md-icon-name on-click size tooltip emphasise? disabled? class style attr]
+        :or   {md-icon-name "md-add"}
+        :as   args}]
+    {:pre [(validate-arguments md-icon-button-args (keys args))]}
+    [:div
+     (merge
+       {:class    (str
+                    "rc-md-icon-button "
+                    (case size
+                      :smaller "rc-icon-smaller "
+                      :larger "rc-icon-larger "
+                      " ")
+                    (when emphasise? "rc-icon-emphasis ")
+                    (when disabled? "rc-icon-disabled ")
+                    class)
+        :style    (merge
+                    {:cursor (when-not disabled? "pointer")}
+                    style)
+        :title    tooltip
+        :on-click #(when-not disabled? (on-click))}
+       attr)
+     [:i {:class md-icon-name}]]))
+
+
+;;--------------------------------------------------------------------------------------------------
 ;; Component: row-button
 ;;--------------------------------------------------------------------------------------------------
 
@@ -258,8 +304,8 @@
           :style         style
           :title         tooltip
           :on-click      #(when-not disabled? (on-click))
-          :on-mouse-over #(reset! mouse-over-button? true)
-          :on-mouse-out  #(reset! mouse-over-button? false)}
+          :on-mouse-over #(do (reset! mouse-over-button? true) #_(println "*** mouse-over BUTTON"))
+          :on-mouse-out  #(do (reset! mouse-over-button? false) #_(println "*** mouse-out  BUTTON"))}
          attr)
        [:i {:class md-icon-name}]])))
 

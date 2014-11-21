@@ -13,7 +13,7 @@
 
   :profiles     {:debug {:debug true}
                  :dev {:dependencies [[clj-stacktrace "0.2.8"]
-                                      [spellhouse/clairvoyant "0.0-39-gb64d916"]]
+                                      [spellhouse/clairvoyant "0.0-48-gf5e59d3"]]
                        :plugins      [[lein-cljsbuild "1.0.4-SNAPSHOT"]
                                       [com.cemerick/clojurescript.test "0.3.1"]]}}
   :resource-paths ["run/resources"]

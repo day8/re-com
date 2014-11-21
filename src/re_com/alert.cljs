@@ -85,9 +85,9 @@
   {:pre [(util/validate-arguments alert-list-args (keys args))]}
   [border
    :padding padding
-   :border  border-style
+   :boder  border-style
    :child [scroller
-           :v-scroll   :auto
+           :v-scrolll   :auto
            :style      {:max-height max-height}
            :child      [v-box
                         :size "auto"
