@@ -296,18 +296,41 @@
        (merge
          {:class         (str
                            "rc-row-button "
-                           (if @mouse-over-button?
-                             "rc-row-visible "
-                             (when mouse-over-row? "rc-row-semi-visible "))
+
+
+                           ;(if @mouse-over-button?
+                           ;  "rc-row-visible "
+                           ;  (when mouse-over-row? "rc-row-semi-visible "))
+
+                           (when mouse-over-row? "rc-row-semi-visible ")
+
+
                            (when disabled? "rc-row-disabled ")
                            class)
           :style         style
           :title         tooltip
           :on-click      #(when-not disabled? (on-click))
-          :on-mouse-over #(do (reset! mouse-over-button? true) #_(println "*** mouse-over BUTTON"))
-          :on-mouse-out  #(do (reset! mouse-over-button? false) #_(println "*** mouse-out  BUTTON"))}
+          ;:on-mouse-over #(do
+          ;                 (reset! mouse-over-button? true)
+          ;                 ;(println "*** mouse-over BUTTON")
+          ;                 )
+          ;:on-mouse-out  #(do
+          ;                 (reset! mouse-over-button? false)
+          ;                 ;(println "*** mouse-out  BUTTON")
+          ;                 )
+         }
          attr)
-       [:i {:class md-icon-name}]])))
+       [:i {:class md-icon-name
+            ;:on-mouse-over #(do
+            ;                 (reset! mouse-over-button? true) ;; TODO: Not required, remove
+            ;                 ;(println "*** mouse-over ICON")
+            ;                 )
+            ;:on-mouse-out  #(do
+            ;                 (reset! mouse-over-button? false) ;; TODO: Not required, remove
+            ;                 ;(println "*** mouse-out  ICON")
+            ;                 )
+       }]
+       ])))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -582,6 +605,76 @@
        :child [:div
                (merge
                  {:class (str "rc-inline-tooltip tooltip "
+                              (case position
+                                :left "left"
+                                :right "right"
+                                :above "top"
+                                :below "bottom"
+                                "bottom")
+                              " "
+                              class)
+                  :style (merge {:flex     "none"
+                                 :position "relative"
+                                 :opacity  1}
+                                style)}
+                 attr)
+               [:div.tooltip-arrow
+                {:style {which-border bg-col}}]
+               [:div.tooltip-inner
+                {:style {:color            text-col
+                         :background-color bg-col
+                         :max-width        (when max-width max-width)
+                         :font-weight      "bold"}}
+                label]]])))
+
+
+;; ------------------------------------------------------------------------------------
+;;  Component: hover-tooltip
+;; ------------------------------------------------------------------------------------
+
+(def hover-tooltip-args-desc
+  [{:name :label         :required true                     :type "string"     :description "the text in the tooltip."}
+   {:name :position      :required false  :default ":below" :type "keyword"    :description "where the tooltip will appear, relative to what it points at (:left, :right, :above, :below)."}
+   {:name :status        :required false  :default "nil"    :type "keyword"    :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red)."}
+   {:name :max-width     :required false  :default "200px"  :type "string"     :description "set max width of the tool tip."}
+   {:name :class         :required false                    :type "string"     :description "CSS classes appended to base component list."}
+   {:name :style         :required false                    :type "map"        :description "CSS styles. Will override (or add to) the base component base styles."}
+   {:name :attr          :required false                    :type "map"        :description "HTML Element attributes. Will override (or add to) those in the base component. Expected to be things like on-mouse-over, etc. (:class/:style not allowed)."}])
+
+(defn hover-tooltip
+  "Returns markup for a hover-tooltip."
+  []
+  (fn
+    [& {:keys [label position status max-width class style attr]
+        :or   {position :above}
+        :as   args}]
+    {:pre [(validate-arguments (set (map :name hover-tooltip-args-desc)) (keys args))]}
+    (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
+    (let [bg-col       (case status
+                         ;:warning "#ffddb0"
+                         ;:error   "#f2dede"
+                         :warning "#f0ad4e"
+                         :error   "#a94442"
+                         nil)
+          text-col     (case status
+                         ;:warning "#fa7825"
+                         ;:error   "#a94442"
+                         :warning "white"
+                         :error   "white"
+                         ;:warning "black"
+                         ;:error   "black"
+                         nil)
+          which-border (case position
+                         :left  :border-left-color
+                         :right :border-right-color
+                         :above :border-top-color
+                         :below :border-bottom-color
+                         :border-bottom-color)]
+      [box
+       :align :center
+       :child [:div
+               (merge
+                 {:class (str "rc-hover-tooltip tooltip "
                               (case position
                                 :left "left"
                                 :right "right"
