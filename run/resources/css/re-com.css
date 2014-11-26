@@ -671,7 +671,7 @@ html, body {
 
 .rc-row-button {
     text-align:          center;             /* to horizontally center the icon */
-    color:               #2196f3;
+    color:               #2167f2; /2196f3;
     background-color:    inherit;
     opacity:             0;
     cursor:              pointer;
@@ -682,17 +682,19 @@ html, body {
     color: inherit;
 }
 
-.rc-row-semi-visible {
-    opacity: 0.5;
+.rc-row-mouse-over-row {
+    opacity: 0.4;
 }
 
-.rc-row-semi-visible:hover {
+.rc-row-button:hover, rc-row-mouse-over-row:hover {
     opacity: 1;
 }
 
+/*
 .rc-row-visible {
     opacity: 1;
 }
+*/
 
 .rc-row-disabled {
     opacity: 1;

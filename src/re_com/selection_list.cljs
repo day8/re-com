@@ -9,7 +9,7 @@
 ;; ----------------------------------------------------------------------------
 (defn label-style [selected? as-exclusions?]
   ;;TODO: margin-top required because currently checkbox & radio-button don't center label
-  (let [base-style {:margin-top "1px" :width "100%"}]
+  (let [base-style {:margin-top "1px"}]
     (if (and selected? as-exclusions?)
       (merge base-style {:text-decoration "line-through"})
       base-style)))
@@ -26,10 +26,12 @@
 (defn- as-checked
   [item selections on-change disabled? label-fn required? as-exclusions?]
   ;;TODO: Do we realy need an anchor now that bootstrap styles not realy being used ?
-  [:a {:class "list-group-item compact"}
+  [:a {:class  "list-group-item compact"
+       :style {:cursor "default"}}
    [checkbox
     :model       (selections item)
     :on-change   #(on-change (check-clicked selections item % required?))
+    :stretch?    true
     :disabled?   disabled?
     :label-style (label-style (selections item) as-exclusions?)
     :label       (label-fn item)]])
@@ -43,11 +45,13 @@
 
 (defn- as-radio
   [item selections on-change disabled? label-fn required? as-exclusions?]
-  [:a {:class "list-group-item compact"}
+  [:a {:class  "list-group-item compact"
+       :style {:cursor "default"}}
    [radio-button
     :model       (first selections)
     :value       item
     :on-change   #(on-change (radio-clicked selections % required?))
+    :stretch?    true
     :disabled?   disabled?
     :label-style (label-style (selections item) as-exclusions?)
     :label       (label-fn item)]])

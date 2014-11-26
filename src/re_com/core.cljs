@@ -12,6 +12,7 @@
 (def label-args
   #{:label      ;; Label to display
     :on-click   ;; Callback when label is clicked
+    :stretch?   ;; If true, take up as much free width of the parent as possible (defaults to false)
     :class      ;; Class string
     :style      ;; A map. Standard hicckup style map values. e.g. {:color "blue" :margin "4px"}
     })
@@ -19,15 +20,18 @@
 
 (defn label
   "Returns markup for a basic label"
-  [& {:keys [label on-click class style]
+  [& {:keys [label on-click stretch? class style]
       :as   args}]
   {:pre [(validate-arguments label-args (keys args))]}
   [box
    :align :start
+   :size (if stretch? "auto" "none")
    :child [:span
            (merge
              {:class (str "rc-label " class)
-              :style (merge {:flex "none"} style)}
+              :style (merge {:flex (if stretch? "auto" "none")
+                             }
+                            style)}
              (when on-click {:on-click #(on-click)}))
            label]])
 
@@ -99,7 +103,14 @@
                                      :width               (if width width "250px")
                                      :height              (when height height)
                                      :padding-right       (when status "2.4em")
-                                     :-webkit-user-select "none"}
+                                     :-webkit-user-select "none"
+
+                                     :border-color (case status
+                                                     :warning "#ff5820"   ;; TODO: Mike's colours
+                                                     :error   "#ff2010"
+                                                     "")
+
+                                    }
                                     style)
                      :placeholder placeholder
                      :value       @internal-model
@@ -130,7 +141,14 @@
                                 :margin-top   "-0.5em"
                                 :margin-right "0.5em"
                                 :width        "auto"
-                                :height       "auto"}
+                                :height       "auto"
+
+                                :color (case status         ;; TODO: Mike's colours
+                                         :warning "#ff5820"
+                                         :error   "#ff2010"
+                                         "")
+
+                               }
                         :title status-tooltip}])]]))))
 
 
@@ -300,9 +318,9 @@
 
                            ;(if @mouse-over-button?
                            ;  "rc-row-visible "
-                           ;  (when mouse-over-row? "rc-row-semi-visible "))
+                           ;  (when mouse-over-row? "rc-row-mouse-over-row "))
 
-                           (when mouse-over-row? "rc-row-semi-visible ")
+                           (when mouse-over-row? "rc-row-mouse-over-row ")
 
 
                            (when disabled? "rc-row-disabled ")
@@ -419,7 +437,8 @@
   [{:name :model         :required false                  :type "string"     :description "Holds state of the checkbox when it is called"}
    {:name :on-change     :required false                  :type "string"     :description "When model state is changed, call back with new state"}
    {:name :label         :required false                  :type "string"     :description "Checkbox label"}
-   {:name :disabled?     :required false                  :type "string"     :description "Set to true to disable the checkbox"}
+   {:name :stretch?      :required false                  :type "boolean"    :description "If true, take up as much free width of the parent as possible (defaults to false)"}
+   {:name :disabled?     :required false                  :type "boolean"    :description "Set to true to disable the checkbox"}
    {:name :style         :required false                  :type "string"     :description "Checkbox style map"}
    {:name :label-class   :required false                  :type "string"     :description "Label class string"}
    {:name :label-style   :required false                  :type "string"     :description "Label style map"}])
@@ -430,7 +449,7 @@
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
   "I return the markup for a checkbox, with an optional RHS label."
-  [& {:keys [model on-change label disabled? style label-class label-style]
+  [& {:keys [model on-change label stretch? disabled? style label-class label-style]
       :as   args}]
   {:pre [(validate-arguments checkbox-args (keys args))]}
   (let [cursor      "default"
@@ -441,6 +460,7 @@
      :align :start
      :child [h-box
              :gap      "8px"     ;; between the tickbox and the label
+             :size     (if stretch? "auto" "none")
              :style    {:-webkit-user-select "none"} ;; Prevent user text selection
              :children [[:input
                          {:class     "rc-checkbox"
@@ -452,9 +472,10 @@
                           :checked   model
                           :on-change callback-fn}]
                         (when label [re-com.core/label
-                                     :label label
-                                     :class label-class
-                                     :style (merge {:cursor cursor} label-style)
+                                     :label    label
+                                     :class    label-class
+                                     :stretch? stretch?
+                                     :style    (merge {:cursor cursor} label-style)
                                      :on-click callback-fn])]]]))    ;; ticking on the label is the same as clicking on the checkbox
 
 
@@ -463,12 +484,13 @@
 ;; ------------------------------------------------------------------------------------
 
 (def radio-button-args-desc
-  [{:name :model         :required false                  :type "string"     :description "Holds state of the checkbox when it is called"}
-   {:name :value         :required false                  :type "string"     :description "Value of the radio button OR button group"}
-   {:name :label         :required false                  :type "string"     :description "Checkbox label"}
+  [{:name :model         :required false                  :type "string"     :description "Holds state of the radio button when it is called"}
    {:name :on-change     :required false                  :type "string"     :description "When model state is changed, call back with new state"}
-   {:name :disabled?     :required false                  :type "string"     :description "Set to true to disable the checkbox"}
-   {:name :style         :required false                  :type "string"     :description "Checkbox style map"}
+   {:name :value         :required false                  :type "string"     :description "Value of the radio button OR button group"}
+   {:name :label         :required false                  :type "string"     :description "Radio button label"}
+   {:name :stretch?      :required false                  :type "boolean"    :description "If true, take up as much free width of the parent as possible (defaults to false)"}
+   {:name :disabled?     :required false                  :type "string"     :description "Set to true to disable the radio button"}
+   {:name :style         :required false                  :type "string"     :description "Radio button style map"}
    {:name :label-class   :required false                  :type "string"     :description "Label class string"}
    {:name :label-style   :required false                  :type "string"     :description "Label style map"}])
 
@@ -477,7 +499,7 @@
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label."
-  [& {:keys [model value label on-change disabled? style label-class label-style]
+  [& {:keys [model on-change value label stretch? disabled? style label-class label-style]
       :as   args}]
   {:pre [(validate-arguments radio-button-args (keys args))]}
   (let [cursor      "default"
@@ -488,6 +510,7 @@
      :align :start
      :child [h-box
              :gap      "8px"     ;; between the tickbox and the label
+             :size     (if stretch? "auto" "none")
              :style    {:-webkit-user-select "none"} ;; Prevent user text selection
              :children [[:input
                          {:class     "rc-radio-button"
@@ -500,9 +523,10 @@
                           :checked   (= model value)
                           :on-change callback-fn}]
                         (when label [re-com.core/label
-                                     :label label
-                                     :class label-class
-                                     :style (merge {:cursor cursor} label-style)
+                                     :label    label
+                                     :class    label-class
+                                     :stretch? stretch?
+                                     :style    (merge {:cursor cursor} label-style)
                                      :on-click callback-fn])]]]))
 
 
@@ -583,8 +607,12 @@
     (let [bg-col       (case status
                          ;:warning "#ffddb0"
                          ;:error   "#f2dede"
-                         :warning "#f0ad4e"
-                         :error   "#a94442"
+
+                         ;:warning "#f0ad4e"
+                         ;:error   "#a94442"
+
+                         :warning "#ff5820"   ;; TODO: Mike's colours
+                         :error   "#ff2010"
                          nil)
           text-col     (case status
                          ;:warning "#fa7825"

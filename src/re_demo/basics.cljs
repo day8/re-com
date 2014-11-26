@@ -346,22 +346,22 @@
                      [:div.DIV-ROW                          ;; TODO: REMOVE DIV-ROW
                       {:style {:display "flex" :flex-flow "row nowrap" :flex "none"}
                        :on-mouse-over #(do
+                                        (reset! mouse-over row)
                                         (println "mouse-over DIV-ROW " (:id row)
                                                  (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
                                                  (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
                                                  (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
                                                  (str "id='" %2 "'"))
-                                        (reset! mouse-over row)
-                                        (.preventDefault %)
+                                        ;(.preventDefault %)
                                         )
                        :on-mouse-out  #(do
+                                        (reset! mouse-over nil)
                                         (println "mouse-OUT DIV-ROW " (:id row)
                                                  (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
                                                  (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
                                                  (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
                                                  (str "id='" %2 "'"))
-                                        (reset! mouse-over nil)
-                                        (.preventDefault %)
+                                        ;(.preventDefault %)
                                         )}
                       [h-box
                        ;:gap "10px"
@@ -449,16 +449,16 @@
                                                            (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
                                                            (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
                                                            (str "id='" %2 "'"))
-                                                  (.preventDefault %)
+                                                  ;(.preventDefault %)
                                                   )
                                  :on-mouse-out  #(do
+                                                  (reset! mouse-over nil)
                                                   (println "mouse-OUT   MAIN-DIV"
                                                            (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
                                                            (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
                                                            (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
                                                            (str "id='" %2 "'"))
-                                                  (reset! mouse-over nil)
-                                                  (.preventDefault %)
+                                                  ;(.preventDefault %)
                                                   )
                                 }
                                 ^{:key "0"}
