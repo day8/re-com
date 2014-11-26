@@ -1,25 +1,26 @@
 (ns re-demo.basics
-  (:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
-  (:require [re-com.core     :refer [label spinner progress-bar title
-                                     button button-args-desc
-                                     md-circle-icon-button md-circle-icon-button-args-desc
-                                     md-icon-button md-icon-button-args-desc
-                                     row-button row-button-args-desc
-                                     checkbox checkbox-args-desc
-                                     radio-button radio-button-args-desc
-                                     input-text input-text-args-desc
-                                     hyperlink hyperlink-args-desc
-                                     hyperlink-href hyperlink-href-args-desc
-                                     slider slider-args-desc
-                                     inline-tooltip inline-tooltip-args-desc
-                                     hover-tooltip hover-tooltip-args-desc]]
-            [clairvoyant.core :refer [default-tracer]]
-            [re-com.box      :refer [h-box v-box box gap line]]
-            [re-com.tabs     :refer [horizontal-bar-tabs vertical-bar-tabs]]
-            [re-demo.utils   :refer [panel-title component-title args-table]]
-            ;[re-com.dropdown :refer [single-dropdown]]      ;; Experimental
-            ;[re-com.time     :refer [input-time]]           ;; Experimental
-            [reagent.core    :as    reagent]))
+  ;(:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
+  (:require [re-com.core      :refer [label spinner progress-bar title
+                                      button button-args-desc
+                                      md-circle-icon-button md-circle-icon-button-args-desc
+                                      md-icon-button md-icon-button-args-desc
+                                      row-button row-button-args-desc
+                                      checkbox checkbox-args-desc
+                                      radio-button radio-button-args-desc
+                                      input-text input-text-args-desc
+                                      hyperlink hyperlink-args-desc
+                                      hyperlink-href hyperlink-href-args-desc
+                                      slider slider-args-desc
+                                      inline-tooltip inline-tooltip-args-desc
+                                      hover-tooltip hover-tooltip-args-desc]]
+            ;[clairvoyant.core :refer [default-tracer]]
+            [re-com.box       :refer [h-box v-box box gap line]]
+            [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
+            [re-demo.utils    :refer [panel-title component-title args-table]]
+            [re-com.util      :refer [em]]
+            ;[re-com.dropdown  :refer [single-dropdown]]      ;; Experimental
+            ;[re-com.time      :refer [input-time]]           ;; Experimental
+            [reagent.core     :as    reagent]))
 
 
 (def state (reagent/atom
@@ -201,286 +202,195 @@
                                                        :on-click #()]]]]]]]]])))
 
 
-(trace-forms {:tracer default-tracer}
-             (defn data-row
-               []
-               (let []
-                 (fn
-                   [row mouse-over click-msg]
-                   (let [mouse-over-row? (identical? @mouse-over row)
-                         on-first-row? (= (:id row) "1")    ;; NOTE: Very hard coded, but just to demontrate the disabled feature
-                         on-last-row? (= (:id row) "3")]
-                     ^{:key (:id row)}
-                     [:tr.TRTRTTRTRTRTRTRTRTR               ;; TODO: REMOVE
-                      {:on-mouse-over #(do
-                                        (println "mouse-over " (:id row)
-                                                 (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
-                                                 (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
-                                                 (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
-                                                 (str "id='" %2 "'"))
-                                        (reset! mouse-over row)
-                                        )
-                       :on-mouse-out  #(do
-                                        (println "mouse-OUT  " (:id row)
-                                                 (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
-                                                 (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
-                                                 (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
-                                                 (str "id='" %2 "'"))
-                                        (reset! mouse-over nil)
-                                        )}
-                      [:td.TDTDTDTDTDTDTDTDTDTD.table-cell  ;;TODO: REMOVE
-                       {:on-mouse-over #(do
-                                         (println "mouse-over ***TD" (:id row)
-                                                  (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
-                                                  (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
-                                                  (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
-                                                  (str "id='" %2 "'"))
-                                         (reset! mouse-over row)
-                                         )
-                        :on-mouse-out  #(do
-                                         (println "mouse-OUT  ***TD" (:id row)
-                                                  (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
-                                                  (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
-                                                  (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
-                                                  (str "id='" %2 "'"))
-                                         (reset! mouse-over nil)
-                                         )}
-                       [h-box
-                        :gap "2px"
-                        :align :center
-                        :children [[row-button
-                                    :md-icon-name "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
-                                    :mouse-over-row? mouse-over-row?
-                                    :tooltip "Move this line up"
-                                    :disabled? (and on-first-row? mouse-over-row?)
-                                    :on-click #(reset! click-msg (str "move row " (:id row) " up"))]
-                                   [row-button
-                                    :md-icon-name "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
-                                    :mouse-over-row? mouse-over-row?
-                                    :tooltip "Move this line down"
-                                    :disabled? (and on-last-row? mouse-over-row?)
-                                    :on-click #(reset! click-msg (str "move row " (:id row) " down"))]]]]
-                      [:td.table-cell (:name row)]
-                      [:td.table-cell (:from row)]
-                      [:td.table-cell (:to row)]
-                      [:td.table-cell
-                       [h-box
-                        :gap "2px"
-                        :align :center
-                        :children [[row-button
-                                    :md-icon-name "md-content-copy"
-                                    :mouse-over-row? mouse-over-row?
-                                    :tooltip "Copy this line"
-                                    :on-click #(reset! click-msg (str "copy row " (:id row)))]
-                                   [row-button
-                                    :md-icon-name "md-mode-edit"
-                                    :mouse-over-row? mouse-over-row?
-                                    :tooltip "Edit this line"
-                                    :on-click #(reset! click-msg (str "edit row " (:id row)))]
-                                   [row-button
-                                    :md-icon-name "md-delete"
-                                    :mouse-over-row? mouse-over-row?
-                                    :tooltip "Delete this line"
-                                    :on-click #(reset! click-msg (str "delete row " (:id row)))]]]]])))))
+;; TODO: Doesn't below here...
+(defn enumerate
+  "(for [[index item first? last?] (enumerate coll)] ...)  "
+  [coll]
+  (let [c (dec (count coll))
+        f (fn [index item] [index item (= 0 index) (= c index)])]
+    (map-indexed f coll)))
 
-(defn rows-table
+
+(defn data-row
+  []
+  (let []
+    (fn
+      [row first? last? col-widths mouse-over click-msg]
+      (let [mouse-over-row? (identical? @mouse-over row)]
+        [h-box
+         :class    "div-table-row"
+         :attr     {:on-mouse-over #(reset! mouse-over row)
+                    :on-mouse-out  #(reset! mouse-over nil)}
+         :children [[h-box
+                     :width (em (:sort col-widths))
+                     :gap "2px"
+                     :align :center
+                     :children [[row-button
+                                 :md-icon-name "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
+                                 :mouse-over-row? mouse-over-row?
+                                 :tooltip "Move this line up"
+                                 :disabled? (and first? mouse-over-row?)
+                                 :on-click #(reset! click-msg (str "move row " (:id row) " up"))]
+                                [row-button
+                                 :md-icon-name "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
+                                 :mouse-over-row? mouse-over-row?
+                                 :tooltip "Move this line down"
+                                 :disabled? (and last? mouse-over-row?)
+                                 :on-click #(reset! click-msg (str "move row " (:id row) " down"))]]]
+                    [box
+                     :width (em (:name col-widths))
+                     :child (:name row)]
+                    [box
+                     :width (em (:from col-widths))
+                     :child (:from row)]
+                    [box
+                     :width (em (:to col-widths))
+                     :child (:to row)]
+                    [box
+                     :width (em (:actions col-widths))
+                     :child [h-box
+                             :gap "2px"
+                             :align :center
+                             :children [[row-button
+                                         :md-icon-name "md-content-copy"
+                                         :mouse-over-row? mouse-over-row?
+                                         :tooltip "Copy this line"
+                                         :on-click #(reset! click-msg (str "copy row " (:id row)))]
+                                        [row-button
+                                         :md-icon-name "md-mode-edit"
+                                         :mouse-over-row? mouse-over-row?
+                                         :tooltip "Edit this line"
+                                         :on-click #(reset! click-msg (str "edit row " (:id row)))]
+                                        [row-button
+                                         :md-icon-name "md-delete"
+                                         :mouse-over-row? mouse-over-row?
+                                         :tooltip "Delete this line"
+                                         :on-click #(reset! click-msg (str "delete row " (:id row)))]]]]]]))))
+
+
+(defn data-table
+  [rows col-widths]
+  (let [large-font (reagent/atom false)
+        mouse-over (reagent/atom nil)
+        click-msg  (reagent/atom "")]
+    (fn []
+      [v-box
+       :align    :start
+       :gap      "10px"
+       :children [[component-title "DIV table"]
+                  [checkbox
+                   :label     "Large font-size (row-buttons inherit their font-size from their parent)"
+                   :model     large-font
+                   :on-change #(reset! large-font %)]
+                  [v-box
+                   :class    "div-table"
+                   :style    {:font-size (when @large-font "24px")}
+                   :children [^{:key "0"}
+                              [h-box
+                               :class    "div-table-header"
+                               :children [[label :width (em (:sort    col-widths)) :label "Sort"]
+                                          [label :width (em (:name    col-widths)) :label "Name"]
+                                          [label :width (em (:from    col-widths)) :label "From"]
+                                          [label :width (em (:to      col-widths)) :label "To"]
+                                          [label :width (em (:actions col-widths)) :label "Actions"]]]
+                              (for [[_ row first? last?] (enumerate (sort-by :sort (vals rows)))]
+                                ^{:key (:id row)} [data-row row first? last? col-widths mouse-over click-msg])]]
+                  [label :label (str "Last row-button click: " @click-msg)]]])))
+
+
+(defn data-row-table
+  []
+  (let []
+    (fn
+      [row first? last? mouse-over click-msg]
+      (let [mouse-over-row? (identical? @mouse-over row)]
+        [:tr
+         {:on-mouse-over #(reset! mouse-over row)
+          :on-mouse-out  #(reset! mouse-over nil)}
+         [:td
+          [h-box
+           :gap "2px"
+           :align :center
+           :children [[row-button
+                       :md-icon-name "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
+                       :mouse-over-row? mouse-over-row?
+                       :tooltip "Move this line up"
+                       :disabled? (and first? mouse-over-row?)
+                       :on-click #(reset! click-msg (str "move row " (:id row) " up"))]
+                      [row-button
+                       :md-icon-name "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
+                       :mouse-over-row? mouse-over-row?
+                       :tooltip "Move this line down"
+                       :disabled? (and last? mouse-over-row?)
+                       :on-click #(reset! click-msg (str "move row " (:id row) " down"))]]]]
+         [:td.table-cell (:name row)]
+         [:td.table-cell (:from row)]
+         [:td.table-cell (:to row)]
+         [:td.table-cell
+          [h-box
+           :gap "2px"
+           :align :center
+           :children [[row-button
+                       :md-icon-name "md-content-copy"
+                       :mouse-over-row? mouse-over-row?
+                       :tooltip "Copy this line"
+                       :on-click #(reset! click-msg (str "copy row " (:id row)))]
+                      [row-button
+                       :md-icon-name "md-mode-edit"
+                       :mouse-over-row? mouse-over-row?
+                       :tooltip "Edit this line"
+                       :on-click #(reset! click-msg (str "edit row " (:id row)))]
+                      [row-button
+                       :md-icon-name "md-delete"
+                       :mouse-over-row? mouse-over-row?
+                       :tooltip "Delete this line"
+                       :on-click #(reset! click-msg (str "delete row " (:id row)))]]]]]))))
+
+
+(defn data-table-table
   [rows]
   (let [large-font (reagent/atom false)
         mouse-over (reagent/atom nil)
         click-msg  (reagent/atom "")]
-    (trace-forms {:tracer default-tracer}
-                 (fn []
-                   [v-box
-                    :gap "10px"
-                    :children [[checkbox
-                                :label "Large font-size (row-buttons inherit their font-size from their parent)"
-                                :model large-font
-                                :on-change #(reset! large-font %)]
-                               [:table
-                                {:class        "TABLE table table-condensed table-hover" ;; TODO REMOVE TABLE
-                                 :style        {:flex      "none"
-                                                :width     "auto"
-                                                :border    "2px solid lightgrey"
-                                                :font-size (when @large-font "24px")
-                                                :margin-bottom "0px"
-                                                :cursor    "default"}
-                                 :on-mouse-over #(do
-                                                  (println "mouse-over  TABLE"
-                                                           (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
-                                                           (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
-                                                           (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
-                                                           (str "id='" %2 "'"))
-                                                  )
-                                 :on-mouse-out  #(do
-                                                  (println "mouse-OUT   TABLE"
-                                                           (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
-                                                           (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
-                                                           (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
-                                                           (str "id='" %2 "'"))
-                                                  (reset! mouse-over nil)
-                                                  )
-                                }
-                                [:tbody
-                                 ^{:key "0"}
-                                 [:tr
-                                  [:th.th-cell "Sort"]
-                                  [:th.th-cell "Name"]
-                                  [:th.th-cell "From"]
-                                  [:th.th-cell "To"]
-                                  [:th.th-cell "Actions"]]
-                                 (for [row (vals rows)]
-                                   [data-row row mouse-over click-msg])]]
-                               [label :label (str "Last row-button click: " @click-msg)]]]))))
-
-
-;(trace-forms {:tracer default-tracer}
-             (defn data-row-div
-               []
-               (let []
-                 (fn
-                   [row mouse-over]
-                   (let [mouse-over-row? (identical? @mouse-over row)
-                         on-first-row? (= (:id row) "1")    ;; NOTE: Very hard coded, but just to demontrate the disabled feature
-                         on-last-row? (= (:id row) "3")]
-                     ^{:key (:id row)}
-                     [:div.DIV-ROW                          ;; TODO: REMOVE DIV-ROW
-                      {:style {:display "flex" :flex-flow "row nowrap" :flex "none"}
-                       :on-mouse-over #(do
-                                        (reset! mouse-over row)
-                                        (println "mouse-over DIV-ROW " (:id row)
-                                                 (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
-                                                 (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
-                                                 (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
-                                                 (str "id='" %2 "'"))
-                                        ;(.preventDefault %)
-                                        )
-                       :on-mouse-out  #(do
-                                        (reset! mouse-over nil)
-                                        (println "mouse-OUT DIV-ROW " (:id row)
-                                                 (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
-                                                 (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
-                                                 (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
-                                                 (str "id='" %2 "'"))
-                                        ;(.preventDefault %)
-                                        )}
-                      [h-box
-                       ;:gap "10px"
-                       :children [[:div.table-cell
-                                   ;{:style {:margin-left "-2px" :margin-right "-2px"}}
-                                   {:style {:border "2px solid red"}}
-                                   [h-box
-                                    ;:gap "2px"
-                                    :align :center
-                                    :children [[row-button
-                                                :md-icon-name "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
-                                                :mouse-over-row? mouse-over-row?
-                                                :tooltip "Move this line up"
-                                                :disabled? (and on-first-row? mouse-over-row?)
-                                                :on-click #(println "MOVEUP" (:id row))]
-                                               [row-button
-                                                :md-icon-name "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
-                                                :mouse-over-row? mouse-over-row?
-                                                :tooltip "Move this line down"
-                                                :disabled? (and on-last-row? mouse-over-row?)
-                                                :on-click #(println "MOVEDOWN" (:id row))]]]]
-                                  [:div.table-cell
-                                   ;{:style {:margin-left "-2px" :margin-right "-2px"}}
-                                   {:style {:border "2px solid green"}}
-                                   (:name row)]
-                                  [:div.table-cell
-                                   ;{:style {:margin-left "-2px" :margin-right "-2px"}}
-                                   {:style {:border "2px solid blue"}}
-                                   (:from row)]
-                                  [:div.table-cell
-                                   ;{:style {:margin-left "-2px" :margin-right "-2px"}}
-                                   {:style {:border "2px solid yellow"}}
-                                   (:to row)]
-                                  [:div.table-cell
-                                   ;{:style {:margin-left "-2px" :margin-right "-2px"}}
-                                   {:style {:border "2px solid purple" :display "flex" :align-items "center"}}
-                                   [h-box
-                                    ;:gap "2px"
-                                    :align :center
-                                    :children [[row-button
-                                                :md-icon-name "md-content-copy"
-                                                :mouse-over-row? mouse-over-row?
-                                                :tooltip "Copy this line"
-                                                :on-click #(println "COPY" (:id row))]
-                                               [row-button
-                                                :md-icon-name "md-mode-edit"
-                                                :mouse-over-row? mouse-over-row?
-                                                :tooltip "Edit this line"
-                                                :on-click #(println "EDIT" (:id row))]
-                                               [row-button
-                                                :md-icon-name "md-delete"
-                                                :mouse-over-row? mouse-over-row?
-                                                :tooltip "Delete this line"
-                                                :on-click #(println "DELETE" (:id row))]
-                                               ]]
-                                   #_[h-box
-                                    ;:gap "2px"
-                                    :align :center
-                                    :children [[:div {:style {:flex "none" :width "14px" :height "14px" :background-color "red"}}]
-                                               [:div {:style {:flex "none" :width "14px" :height "14px" :background-color "green"}}]
-                                               [:div {:style {:flex "none" :width "14px" :height "14px" :background-color "blue"}}]
-                                               ]]
-                                   ]]]
-                      ]))))
-             ;)
-
-
-(defn rows-table-div
-  [rows]
-  (let [mouse-over (reagent/atom nil)]
-    ;(trace-forms {:tracer default-tracer}
-                 (fn []
-                   [v-box
-                    ;:gap "10px"
-                    :width    "259px"
-                    :children [[:div
-                                {:class        "MAIN-DIV table table-condensed table-hover" ;; TODO: REMOVE MAIN-DIV
-                                 :style        {:flex      "none"
-                                                :width     "auto"
-                                                :border    "1px solid lightgrey"
-                                                :cursor    "default"}
-                                 :on-mouse-over #(do
-                                                  (println "mouse-over  MAIN-DIV"
-                                                           (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
-                                                           (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
-                                                           (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
-                                                           (str "id='" %2 "'"))
-                                                  ;(.preventDefault %)
-                                                  )
-                                 :on-mouse-out  #(do
-                                                  (reset! mouse-over nil)
-                                                  (println "mouse-OUT   MAIN-DIV"
-                                                           (str "currTAG='" (-> %1 .-currentTarget .-tagName) "." (-> %1 .-currentTarget .-className) "'")
-                                                           (str "relTAG='" (-> %1 .-relatedTarget .-tagName) "." (-> %1 .-relatedTarget .-className) "'")
-                                                           (str "TAG='" (-> %1 .-target .-tagName) "," (-> %1 .-target .-className) "'")
-                                                           (str "id='" %2 "'"))
-                                                  ;(.preventDefault %)
-                                                  )
-                                }
-                                ^{:key "0"}
-                                [h-box
-                                 ;:gap      "10px"
-                                 :children [[:div.th-cell "Sort"]
-                                            [:div.th-cell "Name"]
-                                            [:div.th-cell "From"]
-                                            [:div.th-cell "To"]
-                                            [:div.th-cell "Actions"]]]
-                                (for [row (vals rows)]
-                                  [data-row-div row mouse-over])]]])
-                 ;)
-    ))
+    (fn []
+      [v-box
+       :gap "10px"
+       :children [[component-title "TABLE"]
+                  [checkbox
+                   :label "Large font-size (row-buttons inherit their font-size from their parent)"
+                   :model large-font
+                   :on-change #(reset! large-font %)]
+                  [:table
+                   {:class        "table table-condensed table-hover"
+                    :style        {:flex      "none"
+                                   :width     "auto"
+                                   :border    "2px solid lightgrey"
+                                   :font-size (when @large-font "24px")
+                                   :margin-bottom "0px"
+                                   :cursor    "default"}
+                    ;:on-mouse-out  #(reset! mouse-over nil) ;; TODO: Am sure this is not required, remove when confirmed 100%
+                    }
+                   [:tbody
+                    ^{:key "0"}
+                    [:tr
+                     [:th.th-cell "Sort"]
+                     [:th.th-cell "Name"]
+                     [:th.th-cell "From"]
+                     [:th.th-cell "To"]
+                     [:th.th-cell "Actions"]]
+                    (for [[_ row first? last?] (enumerate (sort-by :sort (vals rows)))]
+                      ^{:key (:id row)} [data-row-table row first? last? mouse-over click-msg])]]
+                  [label :label (str "Last row-button click: " @click-msg)]]])))
 
 
 (defn row-button-demo
   []
   (let [selected-icon (reagent/atom (:id (first icons)))
-        rows      {"1" {:id "1" :sort 0 :name "Time range 1" :from "18:00" :to "22:30"}
-                   "2" {:id "2" :sort 1 :name "Time range 2" :from "18:00" :to "22:30"}
-                   "3" {:id "3" :sort 2 :name "Time range 3" :from "06:00" :to "18:00"}}]
+        col-widths {:sort 2.6 :name 7.5 :from 4 :to 4 :actions 4.5}
+        rows       {"1" {:id "1" :sort 0 :name "Time range 1" :from "18:00" :to "22:30"}
+                    "2" {:id "2" :sort 1 :name "Time range 2" :from "18:00" :to "22:30"}
+                    ;"2" {:id "2" :sort 1 :name "Time range 2 with some extra text appended to the end." :from "18:00" :to "22:30"}
+                    "3" {:id "3" :sort 2 :name "Time range 3" :from "06:00" :to "18:00"}}]
     (fn []
       [h-box
        :gap "50px"
@@ -517,8 +427,8 @@
                                                                    :disabled?       true
                                                                    :on-click        #()]
                                                                   [label :label "]"]]]]]
-                                          [rows-table rows]
-                                          [rows-table-div rows]]]]]]])))
+                                          [data-table rows col-widths]
+                                          [data-table-table rows]]]]]]])))
 
 
 (defn right-arrow

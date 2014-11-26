@@ -13,6 +13,7 @@
   #{:label      ;; Label to display
     :on-click   ;; Callback when label is clicked
     :stretch?   ;; If true, take up as much free width of the parent as possible (defaults to false)
+    :width      ;; The specific width of this label
     :class      ;; Class string
     :style      ;; A map. Standard hicckup style map values. e.g. {:color "blue" :margin "4px"}
     })
@@ -20,12 +21,13 @@
 
 (defn label
   "Returns markup for a basic label"
-  [& {:keys [label on-click stretch? class style]
+  [& {:keys [label on-click stretch? width class style]
       :as   args}]
   {:pre [(validate-arguments label-args (keys args))]}
   [box
+   :width width
    :align :start
-   :size (if stretch? "auto" "none")
+   :size  (if stretch? "auto" "none")
    :child [:span
            (merge
              {:class (str "rc-label " class)
