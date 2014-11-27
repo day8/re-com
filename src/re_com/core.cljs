@@ -50,7 +50,9 @@
    {:name :disabled?        :required false                  :type "boolean"    :description "Set to true to disable the input box (can be atom or value)."}
    {:name :class            :required false                  :type "string"     :description "additional CSS classes required."}
    {:name :style            :required false                  :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr             :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}
+   {:name :input-type       :required true                   :type "keyword"    :description "either :input or :textarea (only applies to super function gen-input-text"}
+   ])
 
 (def input-text-args
   (set (map :name input-text-args-desc)))
@@ -62,9 +64,9 @@
 ;;  - #"^[0-9a-fA-F]*$"                    ;; Hex number
 ;;  - #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" ;; Time input
 
-(defn input-text
-  "Returns markup for a basic text imput label"
-  [& {:keys [model] :as args}]
+(defn gen-input-text
+  "Returns markup for a basic text input label"
+  [& {:keys [model input-type] :as args}]
   {:pre [(validate-arguments input-text-args (keys args))]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)
@@ -90,7 +92,7 @@
                               (when (and status status-icon?) "has-feedback"))
                   :style {:flex          "none"
                           :margin-bottom "0px"}}
-                 [:input
+                 [input-type
                   (merge
                     {:class       (str "form-control " class)
                      :type        "text"
@@ -133,6 +135,13 @@
                                 :height       "auto"}
                         :title status-tooltip}])]]))))
 
+(defn input-text
+    [& args]
+    (apply gen-input-text :input-type :input args))
+
+(defn text-area
+    [& args]
+    (apply gen-input-text :input-type :textarea args))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: button
