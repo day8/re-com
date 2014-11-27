@@ -17,7 +17,7 @@
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
             [re-demo.utils    :refer [panel-title component-title args-table]]
-            [re-com.util      :refer [em]]
+            [re-com.util      :refer [enumerate]]
             ;[re-com.dropdown  :refer [single-dropdown]]      ;; Experimental
             ;[re-com.time      :refer [input-time]]           ;; Experimental
             [reagent.core     :as    reagent]))
@@ -202,15 +202,6 @@
                                                        :on-click #()]]]]]]]]])))
 
 
-;; TODO: Doesn't below here...
-(defn enumerate
-  "(for [[index item first? last?] (enumerate coll)] ...)  "
-  [coll]
-  (let [c (dec (count coll))
-        f (fn [index item] [index item (= 0 index) (= c index)])]
-    (map-indexed f coll)))
-
-
 (defn data-row
   []
   (let []
@@ -218,54 +209,47 @@
       [row first? last? col-widths mouse-over click-msg]
       (let [mouse-over-row? (identical? @mouse-over row)]
         [h-box
-         :class    "div-table-row"
+         :class    "rc-div-table-row"
          :attr     {:on-mouse-over #(reset! mouse-over row)
                     :on-mouse-out  #(reset! mouse-over nil)}
          :children [[h-box
-                     :width (em (:sort col-widths))
+                     :width (:sort col-widths)
                      :gap "2px"
                      :align :center
                      :children [[row-button
-                                 :md-icon-name "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
+                                 :md-icon-name    "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
                                  :mouse-over-row? mouse-over-row?
-                                 :tooltip "Move this line up"
-                                 :disabled? (and first? mouse-over-row?)
-                                 :on-click #(reset! click-msg (str "move row " (:id row) " up"))]
+                                 :tooltip         "Move this line up"
+                                 :disabled?       (and first? mouse-over-row?)
+                                 :on-click        #(reset! click-msg (str "move row " (:id row) " up"))]
                                 [row-button
-                                 :md-icon-name "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
+                                 :md-icon-name    "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
                                  :mouse-over-row? mouse-over-row?
-                                 :tooltip "Move this line down"
-                                 :disabled? (and last? mouse-over-row?)
-                                 :on-click #(reset! click-msg (str "move row " (:id row) " down"))]]]
-                    [box
-                     :width (em (:name col-widths))
-                     :child (:name row)]
-                    [box
-                     :width (em (:from col-widths))
-                     :child (:from row)]
-                    [box
-                     :width (em (:to col-widths))
-                     :child (:to row)]
-                    [box
-                     :width (em (:actions col-widths))
-                     :child [h-box
-                             :gap "2px"
-                             :align :center
-                             :children [[row-button
-                                         :md-icon-name "md-content-copy"
-                                         :mouse-over-row? mouse-over-row?
-                                         :tooltip "Copy this line"
-                                         :on-click #(reset! click-msg (str "copy row " (:id row)))]
-                                        [row-button
-                                         :md-icon-name "md-mode-edit"
-                                         :mouse-over-row? mouse-over-row?
-                                         :tooltip "Edit this line"
-                                         :on-click #(reset! click-msg (str "edit row " (:id row)))]
-                                        [row-button
-                                         :md-icon-name "md-delete"
-                                         :mouse-over-row? mouse-over-row?
-                                         :tooltip "Delete this line"
-                                         :on-click #(reset! click-msg (str "delete row " (:id row)))]]]]]]))))
+                                 :tooltip         "Move this line down"
+                                 :disabled?       (and last? mouse-over-row?)
+                                 :on-click        #(reset! click-msg (str "move row " (:id row) " down"))]]]
+                    [label :label (:name row) :width (:name col-widths)]
+                    [label :label (:from row) :width (:from col-widths)]
+                    [label :label (:to   row) :width (:to   col-widths)]
+                    [h-box
+                     :gap      "2px"
+                     :width    (:actions col-widths)
+                     :align    :center
+                     :children [[row-button
+                                 :md-icon-name    "md-content-copy"
+                                 :mouse-over-row? mouse-over-row?
+                                 :tooltip         "Copy this line"
+                                 :on-click        #(reset! click-msg (str "copy row " (:id row)))]
+                                [row-button
+                                 :md-icon-name    "md-mode-edit"
+                                 :mouse-over-row? mouse-over-row?
+                                 :tooltip         "Edit this line"
+                                 :on-click        #(reset! click-msg (str "edit row " (:id row)))]
+                                [row-button
+                                 :md-icon-name    "md-delete"
+                                 :mouse-over-row? mouse-over-row?
+                                 :tooltip         "Delete this line"
+                                 :on-click        #(reset! click-msg (str "delete row " (:id row)))]]]]]))))
 
 
 (defn data-table
@@ -283,16 +267,16 @@
                    :model     large-font
                    :on-change #(reset! large-font %)]
                   [v-box
-                   :class    "div-table"
+                   :class    "rc-div-table"
                    :style    {:font-size (when @large-font "24px")}
                    :children [^{:key "0"}
                               [h-box
-                               :class    "div-table-header"
-                               :children [[label :width (em (:sort    col-widths)) :label "Sort"]
-                                          [label :width (em (:name    col-widths)) :label "Name"]
-                                          [label :width (em (:from    col-widths)) :label "From"]
-                                          [label :width (em (:to      col-widths)) :label "To"]
-                                          [label :width (em (:actions col-widths)) :label "Actions"]]]
+                               :class    "rc-div-table-header"
+                               :children [[label :label "Sort"    :width (:sort    col-widths)]
+                                          [label :label "Name"    :width (:name    col-widths)]
+                                          [label :label "From"    :width (:from    col-widths)]
+                                          [label :label "To"      :width (:to      col-widths)]
+                                          [label :label "Actions" :width (:actions col-widths)]]]
                               (for [[_ row first? last?] (enumerate (sort-by :sort (vals rows)))]
                                 ^{:key (:id row)} [data-row row first? last? col-widths mouse-over click-msg])]]
                   [label :label (str "Last row-button click: " @click-msg)]]])))
@@ -386,7 +370,7 @@
 (defn row-button-demo
   []
   (let [selected-icon (reagent/atom (:id (first icons)))
-        col-widths {:sort 2.6 :name 7.5 :from 4 :to 4 :actions 4.5}
+        col-widths {:sort "2.6em" :name "7.5em" :from "4em" :to "4em" :actions "4.5em"}
         rows       {"1" {:id "1" :sort 0 :name "Time range 1" :from "18:00" :to "22:30"}
                     "2" {:id "2" :sort 1 :name "Time range 2" :from "18:00" :to "22:30"}
                     ;"2" {:id "2" :sort 1 :name "Time range 2 with some extra text appended to the end." :from "18:00" :to "22:30"}

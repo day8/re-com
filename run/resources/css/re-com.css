@@ -706,27 +706,27 @@ html, body {
   div-table
 ----------------------------------------------------------------------------------------*/
 
-.div-table {
+.rc-div-table {
     flex:   none;
     width:  auto;
     border: 2px solid lightgrey;
     cursor: default;
 }
 
-.div-table-header > div {
+.rc-div-table-header > div {
     font-weight: bold;
     padding:     5px;
 }
 
-.div-table-row {
+.rc-div-table-row {
     border-top: 1px solid lightgrey;
 }
 
-.div-table-row:hover {
+.rc-div-table-row:hover {
     background-color: #f2f2f2;
 }
 
-.div-table-row > div {
+.rc-div-table-row > div {
     padding:     5px;
 }
 

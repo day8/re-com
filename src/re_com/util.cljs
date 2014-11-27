@@ -113,3 +113,10 @@
     (let [missing (remove defined-args passed-args)]
       (.error js/console (str "The following arguments are not supported: " missing))
       false)))
+
+(defn enumerate
+  "(for [[index item first? last?] (enumerate coll)] ...)  "
+  [coll]
+  (let [c (dec (count coll))
+        f (fn [index item] [index item (= 0 index) (= c index)])]
+    (map-indexed f coll)))

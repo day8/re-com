@@ -306,51 +306,23 @@
 (defn row-button
   "a circular button containing a material design icon"
   []
-  (let [mouse-over-button? (reagent/atom false)]
-    (fn
-      [& {:keys [md-icon-name on-click mouse-over-row? tooltip disabled? class style attr]
-          :or   {md-icon-name "md-add"}
-          :as   args}]
-      {:pre [(validate-arguments row-button-args (keys args))]}
-      [:div
-       (merge
-         {:class         (str
-                           "rc-row-button "
-
-
-                           ;(if @mouse-over-button?
-                           ;  "rc-row-visible "
-                           ;  (when mouse-over-row? "rc-row-mouse-over-row "))
-
-                           (when mouse-over-row? "rc-row-mouse-over-row ")
-
-
-                           (when disabled? "rc-row-disabled ")
-                           class)
-          :style         style
-          :title         tooltip
-          :on-click      #(when-not disabled? (on-click))
-          ;:on-mouse-over #(do
-          ;                 (reset! mouse-over-button? true)
-          ;                 ;(println "*** mouse-over BUTTON")
-          ;                 )
-          ;:on-mouse-out  #(do
-          ;                 (reset! mouse-over-button? false)
-          ;                 ;(println "*** mouse-out  BUTTON")
-          ;                 )
-         }
-         attr)
-       [:i {:class md-icon-name
-            ;:on-mouse-over #(do
-            ;                 (reset! mouse-over-button? true) ;; TODO: Not required, remove
-            ;                 ;(println "*** mouse-over ICON")
-            ;                 )
-            ;:on-mouse-out  #(do
-            ;                 (reset! mouse-over-button? false) ;; TODO: Not required, remove
-            ;                 ;(println "*** mouse-out  ICON")
-            ;                 )
-       }]
-       ])))
+  (fn
+    [& {:keys [md-icon-name on-click mouse-over-row? tooltip disabled? class style attr]
+        :or   {md-icon-name "md-add"}
+        :as   args}]
+    {:pre [(validate-arguments row-button-args (keys args))]}
+    [:div
+     (merge
+       {:class    (str
+                    "rc-row-button "
+                    (when mouse-over-row? "rc-row-mouse-over-row ")
+                    (when disabled? "rc-row-disabled ")
+                    class)
+        :style    style
+        :title    tooltip
+        :on-click #(when-not disabled? (on-click))}
+       attr)
+     [:i {:class md-icon-name}]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
