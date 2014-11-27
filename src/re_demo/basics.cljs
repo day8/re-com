@@ -7,7 +7,7 @@
                                      row-button row-button-args-desc
                                      checkbox checkbox-args-desc
                                      radio-button radio-button-args-desc
-                                     input-text input-text-args-desc
+                                     input-text input-textarea input-text-args-desc
                                      hyperlink hyperlink-args-desc
                                      hyperlink-href hyperlink-href-args-desc
                                      slider slider-args-desc
@@ -454,7 +454,8 @@
         status-icon?    (reagent/atom false)
         status-tooltip  (reagent/atom "")
         disabled?       (reagent/atom false)
-        change-on-blur? (reagent/atom true)]
+        change-on-blur? (reagent/atom true)
+        slider-val      (reagent/atom 4)]
     (fn
       []
       [h-box
@@ -462,23 +463,41 @@
        :children [[v-box
                    :gap      "10px"
                    :style    {:font-size "small"}
-                   :children [[component-title "[input-text ... ]"]
+                   :children [[component-title "[input-text ... ] & [input-textarea ... ]"]
                               [args-table input-text-args-desc]]]
                   [v-box
                    :children [[component-title "Demo"]
                               [h-box
                                :gap "40px"
-                               :children [[input-text
-                                           :model            text-val
-                                           :status           @status
-                                           :status-icon?     @status-icon?
-                                           :status-tooltip   @status-tooltip
-                                           :width            "200px"
-                                           :placeholder      "placeholder message"
-                                           :on-change        #(reset! text-val %)
-                                           :validation-regex @regex
-                                           :change-on-blur?  change-on-blur?
-                                           :disabled?        disabled?]
+                               :children [[v-box
+                                           :children [[label :label "[input-text ... ]"]
+                                                      [gap :size "5px"]
+                                                      [input-text
+                                                       :model            text-val
+                                                       :status           @status
+                                                       :status-icon?     @status-icon?
+                                                       :status-tooltip   @status-tooltip
+                                                       :width            "300px"
+                                                       :placeholder      "placeholder message"
+                                                       :on-change        #(reset! text-val %)
+                                                       :validation-regex @regex
+                                                       :change-on-blur?  change-on-blur?
+                                                       :disabled?        disabled?]
+                                                      [gap :size "20px"]
+                                                      [label :label "[input-textarea ... ]"]
+                                                      [gap :size "5px"]
+                                                      [input-textarea
+                                                       :model            text-val
+                                                       :status           @status
+                                                       :status-icon?     @status-icon?
+                                                       :status-tooltip   @status-tooltip
+                                                       :width            "300px"
+                                                       :rows             @slider-val
+                                                       :placeholder      "placeholder message"
+                                                       :on-change        #(reset! text-val %)
+                                                       :validation-regex @regex
+                                                       :change-on-blur?  change-on-blur?
+                                                       :disabled?        disabled?]]]
                                           [v-box
                                            :gap      "15px"
                                            :children [[label
@@ -541,7 +560,17 @@
                                                        :label     ":disabled?"
                                                        :model     disabled?
                                                        :on-change (fn [val]
-                                                                    (reset! disabled? val))]]]]]]]
+                                                                    (reset! disabled? val))]
+                                                      [h-box
+                                                       :gap "10px"
+                                                       :children [[label :label ":rows (textarea):"]
+                                                                  [slider
+                                                                   :model slider-val
+                                                                   :min 1
+                                                                   :max 10
+                                                                   :width "200px"
+                                                                   :on-change #(reset! slider-val %)]
+                                                                  [label :label @slider-val]]]]]]]]]
                   ]]
       )))
 
@@ -929,7 +958,7 @@
             {:id  3 :label "row-button"            :component row-button-demo}
             {:id  4 :label "checkbox"              :component checkboxes-demo}
             {:id  5 :label "radio-button"          :component radios-demo}
-            {:id  6 :label "input-text"            :component inputs-demo}
+            {:id  6 :label "input-text/area"       :component inputs-demo}
             {:id  7 :label "hyperlink"             :component hyperlink-demo}
             {:id  8 :label "hyperlink-href"        :component hyperlink-href-demo}
             {:id  9 :label "slider"                :component slider-demo}
