@@ -449,7 +449,8 @@
 }
 
 /*----------------------------------------------------------------------------------------
-/* Bootstrap list-group-item variation */
+  Bootstrap list-group-item variation
+----------------------------------------------------------------------------------------*/
 .compact {
     margin: 0;
     height: 19px;
@@ -457,9 +458,13 @@
     border: none;
     padding: 0;
     overflow: hidden;
-    cursor: pointer;
+    cursor: default;
     font-size: small;
     text-overflow: ellipsis;
+}
+
+.list-group-item:hover {
+    background-color: #eeeeee;
 }
 
 /*----------------------------------------------------------------------------------------
@@ -500,13 +505,29 @@
 ----------------------------------------------------------------------------------------*/
 
 .has-warning .form-control {
-  border-color: #f0ad4e;
+  border-color: #f57c00;
 }
+
 .has-warning .form-control:focus {
-  border-color: #f0ad4e;
+  border-color: #f57c00;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px rgba(245, 124, 0, 0.6);
 }
+
 .has-warning .form-control-feedback {
-  color: #f0ad4e;
+  color: #f57c00;
+}
+
+.has-error .form-control {
+  border-color: #d50000;
+}
+
+.has-error .form-control:focus {
+  border-color: #d50000;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px rgba(213, 0, 0, 0.6);
+}
+
+.has-error .form-control-feedback {
+  color: #d50000;
 }
 
 /*----------------------------------------------------------------------------------------
@@ -689,12 +710,6 @@ html, body {
 .rc-row-button:hover, rc-row-mouse-over-row:hover {
     opacity: 1;
 }
-
-/*
-.rc-row-visible {
-    opacity: 1;
-}
-*/
 
 .rc-row-disabled {
     opacity: 1;

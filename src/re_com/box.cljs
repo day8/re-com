@@ -423,7 +423,8 @@
             ;:radius      radius
             :child       child
             :class       (str "rc-box " class)
-            :style       style))
+            :style       style
+            :attr        attr))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -472,31 +473,32 @@
       :or   {size "auto"}}]
   (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
         scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
-    (box-base ;:f-child true
+    (box-base ;:f-child     true
               ;:f-container true
-              :size size
-              :scroll scroll
-              :h-scroll h-scroll
-              :v-scroll v-scroll
-              :width width
-              :height height
-              :min-width min-width
+              :size       size
+              :scroll     scroll
+              :h-scroll   h-scroll
+              :v-scroll   v-scroll
+              :width      width
+              :height     height
+              :min-width  min-width
               :min-height min-height
-              ;:justify     justify
-              ;:align       align
+              ;:justify    justify
+              ;:align      align
               :align-self align-self
-              :margin margin
-              :padding padding
-              ;:border      border
-              ;:l-border    l-border
-              ;:r-border    r-border
-              ;:t-border    t-border
-              ;:b-border    b-border
-              ;:bk-color    bk-color
-              ;:radius      radius
-              :child child
-              :class (str "rc-scroller " class)
-              :style style)))
+              :margin     margin
+              :padding    padding
+              ;:border     border
+              ;:l-border   l-border
+              ;:r-border   r-border
+              ;:t-border   t-border
+              ;:b-border   b-border
+              ;:bk-color   bk-color
+              ;:radius     radius
+              :child      child
+              :class      (str "rc-scroller " class)
+              :style      style
+              :attr        attr)))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -560,4 +562,5 @@
               ;:bk-color    bk-color
               :child       child
               :class       (str "rc-border " class)
-              :style       style)))
+              :style       style
+              :attr        attr)))

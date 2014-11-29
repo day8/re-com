@@ -25,15 +25,13 @@
 
 (defn- as-checked
   [item selections on-change disabled? label-fn required? as-exclusions?]
-  ;;TODO: Do we realy need an anchor now that bootstrap styles not realy being used ?
+  ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
   [box
    :class "list-group-item compact"
-   :style {:cursor "default"}
-   :attr  {:on-click #(println "CLICK!")}                   ;;on-change (check-clicked selections item % required?)
+   :attr  {:on-click    #(on-change (check-clicked selections item (not (selections item)) required?))}
    :child [checkbox
            :model       (selections item)
-           :on-change   #(on-change (check-clicked selections item % required?))
-           ;:stretch?    true
+           :on-change   #() ;; handled by enclosing box
            :disabled?   disabled?
            :label-style (label-style (selections item) as-exclusions?)
            :label       (label-fn item)]])
@@ -47,16 +45,16 @@
 
 (defn- as-radio
   [item selections on-change disabled? label-fn required? as-exclusions?]
-  [:a {:class  "list-group-item compact"
-       :style {:cursor "default"}}
-   [radio-button
-    :model       (first selections)
-    :value       item
-    :on-change   #(on-change (radio-clicked selections % required?))
-    ;:stretch?    true
-    :disabled?   disabled?
-    :label-style (label-style (selections item) as-exclusions?)
-    :label       (label-fn item)]])
+  [box
+   :class "list-group-item compact"
+   :attr  {:on-click    #(on-change (radio-clicked selections item required?))}
+   :child [radio-button
+           :model       (first selections)
+           :value       item
+           :on-change   #() ;; handled by enclosing box
+           :disabled?   disabled?
+           :label-style (label-style (selections item) as-exclusions?)
+           :label       (label-fn item)]])
 
 
 (def ^:const list-style

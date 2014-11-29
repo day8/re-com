@@ -11,8 +11,7 @@
                                       hyperlink hyperlink-args-desc
                                       hyperlink-href hyperlink-href-args-desc
                                       slider slider-args-desc
-                                      inline-tooltip inline-tooltip-args-desc
-                                      hover-tooltip hover-tooltip-args-desc]]
+                                      inline-tooltip inline-tooltip-args-desc]]
             ;[clairvoyant.core :refer [default-tracer]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
@@ -339,7 +338,7 @@
     (fn []
       [v-box
        :gap "10px"
-       :children [[component-title "TABLE"]
+       :children [[component-title "TABLE (remove?)"]
                   [checkbox
                    :label "Large font-size (row-buttons inherit their font-size from their parent)"
                    :model large-font
@@ -351,9 +350,7 @@
                                    :border    "2px solid lightgrey"
                                    :font-size (when @large-font "24px")
                                    :margin-bottom "0px"
-                                   :cursor    "default"}
-                    ;:on-mouse-out  #(reset! mouse-over nil) ;; TODO: Am sure this is not required, remove when confirmed 100%
-                    }
+                                   :cursor    "default"}}
                    [:tbody
                     ^{:key "0"}
                     [:tr
@@ -525,9 +522,7 @@
                                                     :value       c
                                                     :model       colour
                                                     :label-style (if (= c @colour) {:background-color c  :color "white"})
-                                                    :on-change   #(reset! colour c)]))]]]]]]
-
-      )))
+                                                    :on-change   #(reset! colour c)]))]]]]]])))
 
 
 (defn inputs-demo
@@ -654,9 +649,7 @@
                                                                    :max 10
                                                                    :width "200px"
                                                                    :on-change #(reset! slider-val %)]
-                                                                  [label :label @slider-val]]]]]]]]]
-                  ]]
-      )))
+                                                                  [label :label @slider-val]]]]]]]]]]])))
 
 
 (defn hyperlink-demo
@@ -891,99 +884,7 @@
                                                                    :value :below
                                                                    :model @pos
                                                                    :on-change #(reset! pos :below)
-                                                                   :style {:margin-left "20px"}]
-                                                                  ]]
-                                                      [v-box
-                                                       :children [[label :label ":status"]
-                                                                  [radio-button
-                                                                   :label     "nil/omitted - normal input state"
-                                                                   :value     nil
-                                                                   :model     @status
-                                                                   :on-change #(reset! status nil)
-                                                                   :style {:margin-left "20px"}]
-                                                                  [radio-button
-                                                                   :label     ":warning - Warning status"
-                                                                   :value     :warning
-                                                                   :model     @status
-                                                                   :on-change #(reset! status :warning)
-                                                                   :style     {:margin-left "20px"}]
-                                                                  [radio-button
-                                                                   :label     ":error - Error status"
-                                                                   :value     :error
-                                                                   :model     @status
-                                                                   :on-change #(reset! status :error)
-                                                                   :style     {:margin-left "20px"}]]]]]]]]]]])))
-
-
-(defn hover-tooltip-demo
-  []
-  (let [pos          (reagent/atom :below)
-        status       (reagent/atom nil)
-        tooltip-text (reagent/atom "This is a hover tooltip")]
-    (fn
-      []
-      [h-box
-       :gap      "50px"
-       :children [[v-box
-                   :gap      "10px"
-                   :style    {:font-size "small"}
-                   :children [[component-title "[hover-tooltip ... ]"]
-                              [:p {:style {:width "400px" }}
-                               "A hover tooltip that doesn't actually hover over anything.
-                                It's actually embeded in the markup.
-                                Useful for permanetly pointing to things that are a problem, without the need for
-                                something hovering over other widgets and possibly obscuring them."]
-                              [args-table hover-tooltip-args-desc]]]
-                  [v-box
-                   :children [[component-title "Demo"]
-                              [h-box
-                               :gap "40px"
-                               :children [[v-box
-                                           :gap      "10px"
-                                           :children [[h-box
-                                                       :gap   "5px"
-                                                       :align :center
-                                                       :children [[label :label "Tooltip text:"]
-                                                                  [input-text
-                                                                   :model           tooltip-text
-                                                                   :status          @status
-                                                                   :status-icon?    true
-                                                                   :change-on-blur? false
-                                                                   :on-change       #(reset! tooltip-text %)]]]
-                                                      [hover-tooltip
-                                                       :label    @tooltip-text
-                                                       :position @pos
-                                                       :status   @status]]]
-                                          [v-box
-                                           :gap "15px"
-                                           :children [[label :label "parameters:"]
-                                                      [v-box
-                                                       :children [[label :label ":position"]
-                                                                  [radio-button
-                                                                   :label ":left"
-                                                                   :value :left
-                                                                   :model @pos
-                                                                   :on-change #(reset! pos :left)
-                                                                   :style {:margin-left "20px"}]
-                                                                  [radio-button
-                                                                   :label ":right"
-                                                                   :value :right
-                                                                   :model @pos
-                                                                   :on-change #(reset! pos :right)
-                                                                   :style {:margin-left "20px"}]
-                                                                  [radio-button
-                                                                   :label ":above"
-                                                                   :value :above
-                                                                   :model @pos
-                                                                   :on-change #(reset! pos :above)
-                                                                   :style {:margin-left "20px"}]
-                                                                  [radio-button
-                                                                   :label ":below"
-                                                                   :value :below
-                                                                   :model @pos
-                                                                   :on-change #(reset! pos :below)
-                                                                   :style {:margin-left "20px"}]
-                                                                  ]]
+                                                                   :style {:margin-left "20px"}]]]
                                                       [v-box
                                                        :children [[label :label ":status"]
                                                                   [radio-button
@@ -1138,7 +1039,6 @@
             {:id  8 :label "hyperlink-href"        :component hyperlink-href-demo}
             {:id  9 :label "slider"                :component slider-demo}
             {:id 10 :label "inline-tooltip"        :component inline-tooltip-demo}
-            {:id 11 :label "hover-tooltip"         :component hover-tooltip-demo}
             ;{:id 90 :label "h-box"                 :component h-box-demo} ;; Experimental
             ;{:id 91 :label "v-box"                 :component v-box-demo} ;; Experimental
             ])

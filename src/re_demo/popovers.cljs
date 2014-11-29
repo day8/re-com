@@ -1,7 +1,7 @@
 (ns re-demo.popovers
-  (:require [re-com.core                 :refer [label button checkbox title hyperlink]]
+  (:require [re-com.core                 :refer [label button checkbox radio-button title hyperlink]]
             [re-com.box                  :refer [h-box v-box box gap line scroller border]]
-            [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper]]
+            [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper popover-tooltip]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
             [re-com.dropdown             :refer [single-dropdown]]
             [re-demo.utils               :refer [panel-title component-title]]
@@ -236,6 +236,65 @@
                                                      :body     "popover body (without a title specified) makes a great tooltip component"]]]]]]]])))
 
 
+(defn popover-tooltip-demo
+  []
+  (let [showing? (reagent/atom false)
+        status   (reagent/atom nil)]
+    (fn
+      []
+      [v-box
+       :children [[title :label "[popover-tooltip ... ]"]
+                  [h-box
+                   :gap      "50px"
+                   :children [[v-box
+                               :width    "500px"
+                               :margin   "20px 0px 0px 0px"
+                               :style    {:font-size "small"}
+                               :children [[:ul
+                                           [:li "This is a seaprate component which makes it really easy to create tooltips."]
+                                           [:li "It also can be coloured for warning or error status."]]]]
+                              [v-box
+                               :gap      "30px"
+                               :margin   "20px 0px 0px 0px"
+                               :children [[popover-tooltip
+                                           :label    "This is a tooltip"
+                                           :position :below-center        ;; this is the default so could be omitted
+                                           :showing? showing?
+                                           :status   @status
+                                           :width    103                  ;; currently must specify a width :-(
+                                           :anchor   [button
+                                                      :label    "click me"
+                                                      :on-click #(swap! showing? not)
+                                                      :class    "btn-success"]]]]
+                              [v-box
+                               :children [[gap :size "15px"]
+                                          [label :label ":status"]
+                                          [radio-button
+                                           :label     "nil/omitted - normal input state"
+                                           :value     nil
+                                           :model     @status
+                                           :on-change #(do
+                                                        (reset! status nil)
+                                                        (reset! showing? false))
+                                           :style {:margin-left "20px"}]
+                                          [radio-button
+                                           :label     ":warning - Warning status"
+                                           :value     :warning
+                                           :model     @status
+                                           :on-change #(do
+                                                        (reset! status :warning)
+                                                        (reset! showing? false))
+                                           :style     {:margin-left "20px"}]
+                                          [radio-button
+                                           :label     ":error - Error status"
+                                           :value     :error
+                                           :model     @status
+                                           :on-change #(do
+                                                        (reset! status :error)
+                                                        (reset! showing? false))
+                                           :style     {:margin-left "20px"}]]]]]]])))
+
+
 (defn complex-popover-demo
   []
   [v-box
@@ -262,5 +321,6 @@
               [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]
+              [popover-tooltip-demo]
               [complex-popover-demo]
               [gap :size "180px"]]])
