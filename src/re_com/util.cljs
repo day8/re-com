@@ -39,6 +39,12 @@
   (str (when negative "-") val "px"))
 
 
+(defn em
+  "takes a number (and optional :negative keyword to indicate a negative value) and returns that number as a string with 'px' at the end."
+  [val & negative]
+  (str (when negative "-") val "em"))
+
+
 ;; ----------------------------------------------------------------------------
 ;; G O L D E N  R A T I O  https://en.wikipedia.org/wiki/Golden_ratio
 ;; ----------------------------------------------------------------------------
@@ -107,3 +113,10 @@
     (let [missing (remove defined-args passed-args)]
       (.error js/console (str "The following arguments are not supported: " missing))
       false)))
+
+(defn enumerate
+  "(for [[index item first? last?] (enumerate coll)] ...)  "
+  [coll]
+  (let [c (dec (count coll))
+        f (fn [index item] [index item (= 0 index) (= c index)])]
+    (map-indexed f coll)))

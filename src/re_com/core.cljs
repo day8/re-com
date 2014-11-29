@@ -12,6 +12,7 @@
 (def label-args
   #{:label      ;; Label to display
     :on-click   ;; Callback when label is clicked
+    :width      ;; The specific width of this label
     :class      ;; Class string
     :style      ;; A map. Standard hicckup style map values. e.g. {:color "blue" :margin "4px"}
     })
@@ -19,10 +20,11 @@
 
 (defn label
   "Returns markup for a basic label"
-  [& {:keys [label on-click class style]
+  [& {:keys [label on-click width class style]
       :as   args}]
   {:pre [(validate-arguments label-args (keys args))]}
   [box
+   :width width
    :align :start
    :child [:span
            (merge
@@ -300,28 +302,23 @@
 (defn row-button
   "a circular button containing a material design icon"
   []
-  (let [mouse-over-button? (reagent/atom false)]
-    (fn
-      [& {:keys [md-icon-name on-click mouse-over-row? tooltip disabled? class style attr]
-          :or   {md-icon-name "md-add"}
-          :as   args}]
-      {:pre [(validate-arguments row-button-args (keys args))]}
-      [:div
-       (merge
-         {:class         (str
-                           "rc-row-button "
-                           (if @mouse-over-button?
-                             "rc-row-visible "
-                             (when mouse-over-row? "rc-row-semi-visible "))
-                           (when disabled? "rc-row-disabled ")
-                           class)
-          :style         style
-          :title         tooltip
-          :on-click      #(when-not disabled? (on-click))
-          :on-mouse-over #(do (reset! mouse-over-button? true) #_(println "*** mouse-over BUTTON"))
-          :on-mouse-out  #(do (reset! mouse-over-button? false) #_(println "*** mouse-out  BUTTON"))}
-         attr)
-       [:i {:class md-icon-name}]])))
+  (fn
+    [& {:keys [md-icon-name on-click mouse-over-row? tooltip disabled? class style attr]
+        :or   {md-icon-name "md-add"}
+        :as   args}]
+    {:pre [(validate-arguments row-button-args (keys args))]}
+    [:div
+     (merge
+       {:class    (str
+                    "rc-row-button "
+                    (when mouse-over-row? "rc-row-mouse-over-row ")
+                    (when disabled? "rc-row-disabled ")
+                    class)
+        :style    style
+        :title    tooltip
+        :on-click #(when-not disabled? (on-click))}
+       attr)
+     [:i {:class md-icon-name}]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -410,13 +407,14 @@
   [{:name :model         :required false                  :type "string"     :description "Holds state of the checkbox when it is called"}
    {:name :on-change     :required false                  :type "string"     :description "When model state is changed, call back with new state"}
    {:name :label         :required false                  :type "string"     :description "Checkbox label"}
-   {:name :disabled?     :required false                  :type "string"     :description "Set to true to disable the checkbox"}
+   {:name :disabled?     :required false                  :type "boolean"    :description "Set to true to disable the checkbox"}
    {:name :style         :required false                  :type "string"     :description "Checkbox style map"}
    {:name :label-class   :required false                  :type "string"     :description "Label class string"}
    {:name :label-style   :required false                  :type "string"     :description "Label style map"}])
 
 (def checkbox-args
   (set (map :name checkbox-args-desc)))
+
 
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
@@ -428,25 +426,27 @@
         model       (deref-or-value model)
         disabled?   (deref-or-value disabled?)
         callback-fn (if (and on-change (not disabled?)) #(on-change (not model)))]     ;; call on-change with either true or false
-    [box
-     :align :start
-     :child [h-box
-             :gap      "8px"     ;; between the tickbox and the label
-             :style    {:-webkit-user-select "none"} ;; Prevent user text selection
-             :children [[:input
-                         {:class     "rc-checkbox"
-                          :type      "checkbox"
-                          :style     (merge {:flex "none"
-                                             :cursor cursor}
-                                            style)
-                          :disabled  disabled?
-                          :checked   model
-                          :on-change callback-fn}]
-                        (when label [re-com.core/label
-                                     :label label
-                                     :class label-class
-                                     :style (merge {:cursor cursor} label-style)
-                                     :on-click callback-fn])]]]))    ;; ticking on the label is the same as clicking on the checkbox
+    [h-box
+     :align    :start
+     :style    {:-webkit-user-select "none"}
+     :children [[:input
+                 {:class     "rc-checkbox"
+                  :type      "checkbox"
+                  :style     (merge {:flex   "none"
+                                     :cursor cursor}
+                                    style)
+                  :disabled  disabled?
+                  :checked   model
+                  :on-change callback-fn}]
+                (when label
+                  [:span
+                   {:on-click callback-fn
+                    :class    label-class
+                    :style    (merge {:padding-left "8px"
+                                      :flex         "none"
+                                      :cursor       cursor}
+                                     label-style)}
+                   label])]]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -454,12 +454,12 @@
 ;; ------------------------------------------------------------------------------------
 
 (def radio-button-args-desc
-  [{:name :model         :required false                  :type "string"     :description "Holds state of the checkbox when it is called"}
-   {:name :value         :required false                  :type "string"     :description "Value of the radio button OR button group"}
-   {:name :label         :required false                  :type "string"     :description "Checkbox label"}
+  [{:name :model         :required false                  :type "string"     :description "Holds state of the radio button when it is called"}
    {:name :on-change     :required false                  :type "string"     :description "When model state is changed, call back with new state"}
-   {:name :disabled?     :required false                  :type "string"     :description "Set to true to disable the checkbox"}
-   {:name :style         :required false                  :type "string"     :description "Checkbox style map"}
+   {:name :value         :required false                  :type "string"     :description "Value of the radio button OR button group"}
+   {:name :label         :required false                  :type "string"     :description "Radio button label"}
+   {:name :disabled?     :required false                  :type "string"     :description "Set to true to disable the radio button"}
+   {:name :style         :required false                  :type "string"     :description "Radio button style map"}
    {:name :label-class   :required false                  :type "string"     :description "Label class string"}
    {:name :label-style   :required false                  :type "string"     :description "Label style map"}])
 
@@ -468,33 +468,35 @@
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label."
-  [& {:keys [model value label on-change disabled? style label-class label-style]
+  [& {:keys [model on-change value label disabled? style label-class label-style]
       :as   args}]
   {:pre [(validate-arguments radio-button-args (keys args))]}
   (let [cursor      "default"
         model       (deref-or-value model)
         disabled?   (deref-or-value disabled?)
         callback-fn (if (and on-change (not disabled?)) #(on-change value))]
-    [box
-     :align :start
-     :child [h-box
-             :gap      "8px"     ;; between the tickbox and the label
-             :style    {:-webkit-user-select "none"} ;; Prevent user text selection
-             :children [[:input
-                         {:class     "rc-radio-button"
-                          :type      "radio"
-                          :style     (merge
-                                       {:flex   "none"  ;; add in flex child style, so it can sit in a vbox
-                                        :cursor cursor}
-                                       style)
-                          :disabled  disabled?
-                          :checked   (= model value)
-                          :on-change callback-fn}]
-                        (when label [re-com.core/label
-                                     :label label
-                                     :class label-class
-                                     :style (merge {:cursor cursor} label-style)
-                                     :on-click callback-fn])]]]))
+    [h-box
+     :align    :start
+     :style    {:-webkit-user-select "none"}
+     :children [[:input
+                 {:class     "rc-radio-button"
+                  :type      "radio"
+                  :style     (merge
+                               {:flex   "none"
+                                :cursor cursor}
+                               style)
+                  :disabled  disabled?
+                  :checked   (= model value)
+                  :on-change callback-fn}]
+                (when label
+                  [:span
+                   {:on-click callback-fn
+                    :class    label-class
+                    :style    (merge {:padding-left "8px"
+                                      :flex         "none"
+                                      :cursor       cursor}
+                                     label-style)}
+                   label])]]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -572,18 +574,8 @@
     {:pre [(validate-arguments (set (map :name inline-tooltip-args-desc)) (keys args))]}
     (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
     (let [bg-col       (case status
-                         ;:warning "#ffddb0"
-                         ;:error   "#f2dede"
-                         :warning "#f0ad4e"
-                         :error   "#a94442"
-                         nil)
-          text-col     (case status
-                         ;:warning "#fa7825"
-                         ;:error   "#a94442"
-                         :warning "white"
-                         :error   "white"
-                         ;:warning "black"
-                         ;:error   "black"
+                         :warning "#f57c00"
+                         :error   "#d50000"
                          nil)
           which-border (case position
                          :left  :border-left-color
@@ -612,8 +604,7 @@
                [:div.tooltip-arrow
                 {:style {which-border bg-col}}]
                [:div.tooltip-inner
-                {:style {:color            text-col
-                         :background-color bg-col
+                {:style {:background-color bg-col
                          :max-width        (when max-width max-width)
                          :font-weight      "bold"}}
                 label]]])))

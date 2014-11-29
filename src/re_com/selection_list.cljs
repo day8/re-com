@@ -9,7 +9,7 @@
 ;; ----------------------------------------------------------------------------
 (defn label-style [selected? as-exclusions?]
   ;;TODO: margin-top required because currently checkbox & radio-button don't center label
-  (let [base-style {:margin-top "1px" :width "100%"}]
+  (let [base-style {:margin-top "1px"}]
     (if (and selected? as-exclusions?)
       (merge base-style {:text-decoration "line-through"})
       base-style)))
@@ -25,14 +25,16 @@
 
 (defn- as-checked
   [item selections on-change disabled? label-fn required? as-exclusions?]
-  ;;TODO: Do we realy need an anchor now that bootstrap styles not realy being used ?
-  [:a {:class "list-group-item compact"}
-   [checkbox
-    :model       (selections item)
-    :on-change   #(on-change (check-clicked selections item % required?))
-    :disabled?   disabled?
-    :label-style (label-style (selections item) as-exclusions?)
-    :label       (label-fn item)]])
+  ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
+  [box
+   :class "list-group-item compact"
+   :attr  {:on-click    #(on-change (check-clicked selections item (not (selections item)) required?))}
+   :child [checkbox
+           :model       (selections item)
+           :on-change   #() ;; handled by enclosing box
+           :disabled?   disabled?
+           :label-style (label-style (selections item) as-exclusions?)
+           :label       (label-fn item)]])
 
 
 (defn- radio-clicked
@@ -43,14 +45,16 @@
 
 (defn- as-radio
   [item selections on-change disabled? label-fn required? as-exclusions?]
-  [:a {:class "list-group-item compact"}
-   [radio-button
-    :model       (first selections)
-    :value       item
-    :on-change   #(on-change (radio-clicked selections % required?))
-    :disabled?   disabled?
-    :label-style (label-style (selections item) as-exclusions?)
-    :label       (label-fn item)]])
+  [box
+   :class "list-group-item compact"
+   :attr  {:on-click    #(on-change (radio-clicked selections item required?))}
+   :child [radio-button
+           :model       (first selections)
+           :value       item
+           :on-change   #() ;; handled by enclosing box
+           :disabled?   disabled?
+           :label-style (label-style (selections item) as-exclusions?)
+           :label       (label-fn item)]])
 
 
 (def ^:const list-style
