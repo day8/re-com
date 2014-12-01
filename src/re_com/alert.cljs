@@ -30,7 +30,10 @@
   (let [close-button [button
                       :label "×"
                       :on-click #(on-close id)
-                      :class "close"]]
+                      :class "close"]
+        alert-type    (if (= alert-type "info")
+                        "success"
+                        alert-type)]
     [:div
      {:class (str "rc-alert alert fade in alert-" alert-type)
       :style {:flex    "none"
@@ -85,9 +88,9 @@
   {:pre [(util/validate-arguments alert-list-args (keys args))]}
   [border
    :padding padding
-   :boder  border-style
+   :border  border-style
    :child [scroller
-           :v-scrolll   :auto
+           :v-scroll   :auto
            :style      {:max-height max-height}
            :child      [v-box
                         :size "auto"
@@ -99,5 +102,5 @@
                                                    :heading    heading
                                                    :body       body
                                                    :padding    padding
-                                                   :closeable?  closeable?
+                                                   :closeable? closeable?
                                                    :on-close   on-close]))]]]])

@@ -530,6 +530,33 @@
   color: #d50000;
 }
 
+.alert-warning {
+    color:            #ea6b00;
+    background-color: #ffecdc;
+    border-color:     #faebcc;
+}
+
+
+code {
+    margin-right:   0.3em;
+    border-radius:  4px;
+    color:          #333;
+    background:     #eee;
+    border:         1px solid #ddd;
+    padding:        0.2em 0.5em;
+}
+
+.re-code {
+    color:          #333;
+    background:     #eee;
+    font-size:      90%;
+    border-radius:  4px;
+    border:         1px solid #ddd;
+    padding:        0.2em 0.5em;
+}
+
+
+
 /*----------------------------------------------------------------------------------------
   Required for constraining an application to the height of the browser window
 ----------------------------------------------------------------------------------------*/

@@ -101,9 +101,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (def box-base-args-desc
-  [;{:name :f-child      :required true                                  :type "boolean"  :description "when true, this is a Flex child."}
-   ;{:name :f-container  :required true                                  :type "boolean"  :description "when true, this is a Flex container."}
-   {:name :size         :required false :default "auto"                 :type "string"   :description "a Flex size. Refer flex-child-style."}
+  [{:name :size         :required false :default "auto"                 :type "string"   :description "a Flex size. Refer flex-child-style."}
    {:name :scroll       :required false :default "auto"                 :type "keyword"  :description "Sets both h-scroll and v-scroll at once. One of -
 <code>:auto</code> - only show scroll bar(s) if the content is larger than the scroller.
 <code>:on</code> - always show scroll bar(s).
@@ -137,15 +135,12 @@
 
 (defn- box-base
   "This should generally NOT be used as it is the basis for the box, scroller and border components."
-  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height justify align align-self     ;; REMOVE: f-child f-container
+  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height justify align align-self
              margin padding border l-border r-border t-border b-border radius bk-color child class style attr]
       :as   args}]
   {:pre [(validate-arguments box-base-args (keys args))]}
   (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s (merge
-
-            ;(when f-child     (flex-child-style size))
-            ;(when f-container {:display "flex" :flex-flow "inherit"})
             {:display "flex" :flex-flow "inherit"}
             (flex-child-style size)
 
@@ -253,8 +248,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (def h-box-args-desc
-  [;{:name :f-child         :required false :default true     :type "boolean"   :description "a boolean indicating whether this is a Flex child."}
-   {:name :size            :required false :default "none"   :type "string"    :description "a Flex size. Only relevant if <code>:f-child</code> is true. Refer flex-child-style."}
+  [{:name :size            :required false :default "none"   :type "string"    :description "a Flex size. Refer flex-child-style."}
    {:name :width           :required false                   :type "string"    :description "a CSS width style."}
    {:name :height          :required false                   :type "string"    :description "a CSS height style."}
    {:name :min-width       :required false                   :type "string"    :description "a CSS width style. The minimum width to which the box can shrink."}
@@ -276,17 +270,14 @@
   "Returns markup which produces a horizontal box.
    It's primary role is to act as a container for child components and lays it's children from left to right.
    By default, it also acts as a child under it's parent."
-  [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]  ;; REMOVE: f-child
-      :or   {size "none" justify :start align :stretch}                                               ;; REMOVE: f-child true
+  [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]
+      :or   {size "none" justify :start align :stretch}
       :as   args}]
   {:pre [(validate-arguments h-box-args (keys args))]}
   (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s        (merge
                    {:display "flex" :flex-flow "row nowrap"}
-
-                   ;(when f-child (flex-child-style size))
                    (flex-child-style size)
-
                    (if width {:width width})
                    (when height {:height height})
                    (when min-width {:min-width min-width})
@@ -313,8 +304,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (def v-box-args-desc
-  [;{:name :f-child         :required false :default true     :type "boolean"   :description "indicates whether this is a Flex child."}
-   {:name :size            :required false :default "none"   :type "string"    :description "a Flex style. Only relevant if <code>:f-child</code> is true. Refer flex-child-style."}
+  [{:name :size            :required false :default "none"   :type "string"    :description "a Flex style. Refer flex-child-style."}
    {:name :width           :required false                   :type "string"    :description "a CSS width style."}
    {:name :height          :required false                   :type "string"    :description "a CSS height style."}
    {:name :min-width       :required false                   :type "string"    :description "a CSS width style. The minimum width to which the box can shrink."}
@@ -336,17 +326,14 @@
   "Returns markup which produces a vertical box.
    It's primary role is to act as a container for child components and lays it's children from top to bottom.
    By default, it also acts as a child under it's parent."
-  [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]      ;; REMOVE: f-child
-      :or   {size "none" justify :start align :stretch}                                                   ;; REMOVE: f-child true
+  [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]
+      :or   {size "none" justify :start align :stretch}
       :as   args}]
   {:pre [(validate-arguments v-box-args (keys args))]}
   (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s        (merge
                    {:display "flex" :flex-flow "column nowrap"}
-
-                   ;(when f-child    (flex-child-style size)) ;; REMOVE
                    (flex-child-style size)
-
                    (when width      {:width width})
                    (when height     {:height height})
                    (when min-width  {:min-width min-width})
@@ -373,9 +360,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (def box-args-desc
-  [;{:name :f-child         :required false :default true     :type "boolean"  :description "indicates whether this is a Flex child."}
-   ;{:name :f-container     :required false :default true     :type "boolean"  :description "indicates whether this is a Flex container."}
-   {:name :size            :required false :default "none"   :type "string"   :description "a Flex size. Refer flex-child-style."}
+  [{:name :size            :required false :default "none"   :type "string"   :description "a Flex size. Refer flex-child-style."}
    {:name :width           :required false                   :type "string"   :description "a CSS width style."}
    {:name :height          :required false                   :type "string"   :description "a CSS height style."}
    {:name :min-width       :required false                   :type "string"   :description "a CSS width style. The minimum width to which the box can shrink."}
@@ -397,14 +382,11 @@
 (defn box
   "Returns markup which produces a box, which is generally used as a child of a v-box or an h-box.
    By default, it also acts as a container for further child compenents, or another h-box or v-box."
-  [& {:keys [size width height min-width min-height justify align align-self margin padding child class style attr]  ;; REMOVE: f-child f-container
-      :or   {size "none"}}]                                                                                 ;; REMOVE: f-child true f-container true
-  (box-base ;:f-child     f-child
-            ;:f-container f-container
-            :size        size
-            ;:scroll      scroll
-            ;:h-scroll    h-scroll
-            ;:v-scroll    v-scroll
+  [& {:keys [size width height min-width min-height justify align align-self margin padding child class style attr]
+      :or   {size "none"}
+      :as   args}]
+  {:pre [(validate-arguments box-args (keys args))]}
+  (box-base :size        size
             :width       width
             :height      height
             :min-width   min-width
@@ -414,13 +396,6 @@
             :align-self  align-self
             :margin      margin
             :padding     padding
-            ;:border      border
-            ;:l-border    l-border
-            ;:r-border    r-border
-            ;:t-border    t-border
-            ;:b-border    b-border
-            ;:bk-color    bk-color
-            ;:radius      radius
             :child       child
             :class       (str "rc-box " class)
             :style       style
@@ -470,12 +445,12 @@
            :spill  Never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place.
    Note:   If scroll is set, then setting h-scroll or v-scroll overrides the scroll value."
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height align-self margin padding child class style attr]
-      :or   {size "auto"}}]
+      :or   {size "auto"}
+      :as   args}]
+  {:pre [(validate-arguments scroller-args (keys args))]}
   (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
         scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
-    (box-base ;:f-child     true
-              ;:f-container true
-              :size       size
+    (box-base :size       size
               :scroll     scroll
               :h-scroll   h-scroll
               :v-scroll   v-scroll
@@ -483,18 +458,9 @@
               :height     height
               :min-width  min-width
               :min-height min-height
-              ;:justify    justify
-              ;:align      align
               :align-self align-self
               :margin     margin
               :padding    padding
-              ;:border     border
-              ;:l-border   l-border
-              ;:r-border   r-border
-              ;:t-border   t-border
-              ;:b-border   b-border
-              ;:bk-color   bk-color
-              ;:radius     radius
               :child      child
               :class      (str "rc-scroller " class)
               :style      style
@@ -535,22 +501,16 @@
     - border-style: none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset
     - color:        standard CSS color (e.g. grey #88ffee)"
   [& {:keys [size width height min-width min-height margin padding border l-border r-border t-border b-border radius child class style attr]
-      :or   {size "auto"}}]
+      :or   {size "auto"}
+      :as   args}]
+  {:pre [(validate-arguments border-args (keys args))]}
   (let [no-border      (every? nil? [border l-border r-border t-border b-border])
         default-border "1px solid lightgrey"]
-    (box-base ;:f-child     true
-              ;:f-container true
-              :size        size
-              ;:scroll      scroll
-              ;:h-scroll    h-scroll
-              ;:v-scroll    v-scroll
+    (box-base :size        size
               :width       width
               :height      height
               :min-width   min-width
               :min-height  min-height
-              ;:justify     justify
-              ;:align       align
-              ;:align-self  align-self
               :margin      margin
               :padding     padding
               :border      (if no-border default-border border)
@@ -559,7 +519,6 @@
               :t-border    t-border
               :b-border    b-border
               :radius      radius
-              ;:bk-color    bk-color
               :child       child
               :class       (str "rc-border " class)
               :style       style

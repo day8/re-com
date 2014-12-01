@@ -1,5 +1,5 @@
 (ns re-demo.popovers
-  (:require [re-com.core                 :refer [label button checkbox radio-button title hyperlink]]
+  (:require [re-com.core                 :refer [label button checkbox radio-button title hyperlink inline-tooltip]]
             [re-com.box                  :refer [h-box v-box box gap line scroller border]]
             [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper popover-tooltip]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
@@ -197,7 +197,19 @@
                                                       :showing? showing?
                                                       :position pos
                                                       :title    "Popover Title"
-                                                      :body     "popover body"]]]]]]]])))
+                                                      :body     "popover body"]]
+
+                                          [hyperlink
+                                           :label     "click me for popover"
+                                           :on-click  #(do (swap! showing? not) (println "showing=" @showing?))]
+                                          (when @showing?
+                                            [popover-content-wrapper
+                                             :showing? showing?
+                                             :position pos
+                                             :title    "Popover Title"
+                                             :body     "popover body"])
+
+                                          ]]]]]])))
 
 
 (defn proximity-popover-demo
@@ -233,7 +245,7 @@
                                            :popover [popover-content-wrapper
                                                      :showing? showing?
                                                      :position pos
-                                                     :body     "popover body (without a title specified) makes a great tooltip component"]]]]]]]])))
+                                                     :body     "popover body (without a title specified) makes a basic tooltip component"]]]]]]]])))
 
 
 (defn popover-tooltip-demo
@@ -265,7 +277,21 @@
                                            :anchor   [button
                                                       :label    "click me"
                                                       :on-click #(swap! showing? not)
-                                                      :class    "btn-success"]]]]
+                                                      :class    "btn-success"]]
+                                          [gap :size "0px"]
+                                          [v-box
+                                           :width    "200px"
+                                           :height   "50px"
+                                           :children [[label :label "Temporary (for comparison):"]
+                                                      [button
+                                                       :label    "static-tooltip"
+                                                       :on-click #(swap! showing? not)
+                                                       :class    "btn-success"]
+                                                      (when @showing?
+                                                        [inline-tooltip
+                                                         :label "This is a tooltip"
+                                                         :position :below
+                                                         :status @status])]]]]
                               [v-box
                                :children [[gap :size "15px"]
                                           [label :label ":status"]

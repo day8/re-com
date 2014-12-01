@@ -34,7 +34,7 @@
        :children [[h-box
                    :gap "75px"
                    :children [[box
-                               :width "350px"
+                               :width "450px"
                                :child [:div
                                        [label :style {:font-variant "small-caps"} :label "notes"]
                                        [:ul

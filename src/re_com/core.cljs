@@ -67,7 +67,7 @@
 ;;  - #"^[0-9a-fA-F]*$"                    ;; Hex number
 ;;  - #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" ;; Time input
 
-(defn- base-input-text
+(defn- input-text-base
   "Returns markup for a basic text input label"
   [& {:keys [model input-type] :as args}]
   {:pre [(validate-arguments input-text-args (keys args))]}
@@ -119,12 +119,15 @@
                                         (reset! internal-model new-val)
                                         (when-not change-on-blur?
                                           (on-change @internal-model)))))
-                     :on-blur     #(when change-on-blur?
+                     :on-blur     #(when (and
+                                           on-change
+                                           change-on-blur?
+                                           (not= @internal-model @external-model))
                                     (on-change @internal-model))
                      :on-key-up   #(if disabled?
                                     false
                                     (case (.-which %)
-                                      13 (on-change @internal-model)
+                                      13 (when on-change (on-change @internal-model))
                                       27 (reset! internal-model @external-model)
                                       true))}
                     attr)]
@@ -142,12 +145,12 @@
 
 (defn input-text
     [& args]
-    (apply base-input-text :input-type :input args))
+    (apply input-text-base :input-type :input args))
 
 
 (defn input-textarea
     [& args]
-    (apply base-input-text :input-type :textarea args))
+    (apply input-text-base :input-type :textarea args))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -384,19 +387,17 @@
   (let [label     (deref-or-value label)
         href      (deref-or-value href)
         target    (deref-or-value target)]
-    [box
-     :align :start
-     :child [:a
-             (merge
-               {:class    (str "rc-hyperlink-href " class)
-                :style    (merge
-                            {:flex                "none"
-                             :-webkit-user-select "none"}
-                            style)
-                :href       href
-                :target     target}
-               attr)
-             label]]))
+    [:a
+     (merge
+       {:class    (str "rc-hyperlink-href " class)
+        :style    (merge
+                    {:flex                "none"
+                     :-webkit-user-select "none"}
+                    style)
+        :href       href
+        :target     target}
+       attr)
+     label]))
 
 
 ;; ------------------------------------------------------------------------------------

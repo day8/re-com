@@ -52,7 +52,7 @@
     [h-box
      :style   {:font-size "small"}
      :gap      "20px"
-     :children [[:p {:style {:width name-ems}} [:code (str (:name arg))]]
+     :children [[:div {:style {:width name-ems}} [:div {:class "re-code"} (str (:name arg))]]
                 [v-box
                  :width "300px"
                  :children [[h-box
@@ -73,10 +73,11 @@
 (defn args-table
   "I display a component arguements in an easy to read format"
   [args]
-  (let [max-chars  (->> args
-                        (map (comp count str :name))
-                        (apply max))
-        max-ems    (str (* max-chars 0.55) "em")    ;; about how many ems will we need to show the longest name.  Very approximately.
+  (let [;; max-chars  (->> args
+        ;;                 (map (comp count str :name))
+        ;;                 (apply max))
+        ;; max-ems    (str (* max-chars 0.55) "em")    ;; about how many ems will we need to show the longest name.  Very approximately.
+        max-ems    "130px"
         args       (add-flag-to-last args)]
     (fn
       []

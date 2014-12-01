@@ -12,7 +12,6 @@
    :width "600px"
    :children [[panel-title "Welcome"]
               [gap :size "15px"]
-
               [:p
                "Re-com is a library of ClojureScript UI components, built on top of "
                [hyperlink-href
@@ -20,5 +19,4 @@
                 :href   "https://github.com/holmsand/reagent"
                 :target "_blank"]
                "."]
-
               [:p "It contains some of layout and widgetry needed to build a desktop-class app."]]])

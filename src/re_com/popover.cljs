@@ -60,7 +60,7 @@
 
 
 (defn- popover-arrow
-  [orientation pop-offset arrow-length arrow-width grey-arrow? popover-color]
+  [orientation pop-offset arrow-length arrow-width grey-arrow? no-border? popover-color]
   (let [half-arrow-width (/ arrow-width 2)
         arrow-shape {:left  (str (point 0 0)            (point arrow-length half-arrow-width) (point 0 arrow-width))
                      :right (str (point arrow-length 0) (point 0 half-arrow-width)            (point arrow-length arrow-width))
@@ -93,7 +93,7 @@
                  :style {:fill (if popover-color
                                  popover-color
                                  (if grey-arrow? "#f7f7f7" "white"))
-                         :stroke "rgba(0, 0, 0, .2)"
+                         :stroke (when-not no-border? "rgba(0, 0, 0, .2)")
                          :stroke-width "1"}}]]))
 
 
@@ -158,6 +158,7 @@
    {:name :padding        :required false                   :type "string"         :description "a CSS style which overrides the inner padding of the popover."}
    {:name :margin-left    :required false                   :type "string"         :description "a CSS style describing the horiztonal offset from anchor after position."}
    {:name :margin-top     :required false                   :type "string"         :description "a CSS style describing the vertical offset from anchor after position."}
+   {:name :tooltip-style? :required false                   :type "boolean"        :description "setup popover styles for a tooltip."}
    {:name :title          :required false                   :type "string|markup"  :description "describes a title"}])
 
 (def popover-border-args
@@ -165,7 +166,7 @@
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover."
-  [& {:keys [position width height popover-color arrow-length arrow-width padding margin-left margin-top title children]
+  [& {:keys [position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title children]
       :or {position :right-below arrow-length 11 arrow-width 22}
       :as args}]
   {:pre [(validate-arguments popover-border-args (keys args))]}
@@ -198,6 +199,10 @@
                            (if width {:width width})
                            (if height {:height height})
                            (if popover-color {:background-color popover-color})
+                           (when tooltip-style?
+                             {:border-radius "4px"
+                              :box-shadow    "none"
+                              :border        "none"})
                            {(case orientation
                               (:left  :right) :margin-left
                               (:above :below) :margin-top) (px (case orientation
@@ -208,7 +213,7 @@
                            {:display "block" :max-width "none" :padding (px 0)}
                            ;; optional override offsets
                            {:margin-left margin-left :margin-top margin-top})}
-            [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow? popover-color]
+            [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color]
             (when title title)
             (into [:div.popover-content {:style {:padding padding}}] children)]))})))
 
@@ -222,8 +227,7 @@
   [{:name :showing?       :required true                    :type "atom"          :description "when the value is true, the popover shows.."}
    {:name :title          :required false                   :type "string|markup" :description "describes the title of the popover. Default font size is 18px to make it stand out."}
    {:name :close-button?  :required false  :default true    :type "boolean"       :description "when true, displays the close button."}
-   {:name :close-callback :required false  :default 11      :type "function"      :description "callback taking no parameters, used when the close button is pressed.
-Not required if <code>:showing?</code> atom passed in OR <code>:close-button?</code> is set to false."}])
+   {:name :close-callback :required false  :default 11      :type "function"      :description "callback taking no parameters, used when the close button is pressed. Not required if <code>:showing?</code> atom passed in OR <code>:close-button?</code> is set to false."}])
 
 (def popover-title-args
   (set (map :name popover-title-args-desc)))
@@ -251,23 +255,22 @@ Not required if <code>:showing?</code> atom passed in OR <code>:close-button?</c
 
 ;; TODO this is going to be difficult to include in the demo help text
 (def popover-content-wrapper-args-desc
-  [{:name :showing?         :required true                    :type "atom"          :description "an atom. when the value is true, the popover shows.."}
-   {:name :position         :required true   :default :right-below :type "keyword"  :description "specifies the popover's position relative to the anchor. See the demo to the right for the values."}
-   {:name :no-clip?         :required false  :default false   :type "boolean"       :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped.
-By passing true for this parameter, re-com will use a different CSS method to show the popover.
-This method is slightly inferior because the popover can't track the anchor if it is repositioned."}
-   {:name :width            :required false  :default "250px" :type "string"        :description "a CSS style representing the popover width."}
-   {:name :height           :required false  :default "auto"  :type "string"        :description "a CSS style representing the popover height."}
-   {:name :backdrop-opacity :required false  :default 0.0     :type "float"         :description "indicates the opacity of the backdrop where 0.0=transparent, 1.0=opaque."}
-   {:name :on-cancel        :required false  :default 0.0     :type "function"      :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."}
-   {:name :title            :required false                   :type "string|markup" :description "describes the title of the popover. The default font size is 18px to make it stand out."}
-   {:name :close-button?    :required false  :default true    :type "boolean"       :description "when true, displays the close button."}
-   {:name :body             :required false                   :type "markup"        :description "describes the popover body. Must be a single component."}
-   {:name :popover-color    :required false  :default "white" :type "string"        :description "Fill color of the popover."}
-   {:name :arrow-length     :required false  :default 11      :type "integer"       :description "the length in pixels of the arrow (from pointy part to middle of arrow base)."}
-   {:name :arrow-width      :required false  :default 22      :type "integer"       :description "the width in pixels of arrow base."}
-   {:name :padding          :required false                   :type "string"        :description "a CSS style which overrides the inner padding of the popover."}
-   {:name :style            :required false  :default true    :type "map"           :description "override component style(s) with a style map, only use in case of emergency."}
+  [{:name :showing?         :required true                         :type "atom"          :description "an atom. when the value is true, the popover shows.."}
+   {:name :position         :required true   :default :right-below :type "keyword"       :description "specifies the popover's position relative to the anchor. See the demo to the right for the values."}
+   {:name :no-clip?         :required false  :default false        :type "boolean"       :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. By passing true for this parameter, re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned."}
+   {:name :width            :required false  :default "250px"      :type "string"        :description "a CSS style representing the popover width."}
+   {:name :height           :required false  :default "auto"       :type "string"        :description "a CSS style representing the popover height."}
+   {:name :backdrop-opacity :required false  :default 0.0          :type "float"         :description "indicates the opacity of the backdrop where 0.0=transparent, 1.0=opaque."}
+   {:name :on-cancel        :required false  :default 0.0          :type "function"      :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."}
+   {:name :title            :required false                        :type "string|markup" :description "describes the title of the popover. The default font size is 18px to make it stand out."}
+   {:name :close-button?    :required false  :default true         :type "boolean"       :description "when true, displays the close button."}
+   {:name :body             :required false                        :type "markup"        :description "describes the popover body. Must be a single component."}
+   {:name :tooltip-style?   :required false                        :type "boolean"       :description "setup popover styles for a tooltip."}
+   {:name :popover-color    :required false  :default "white"      :type "string"        :description "Fill color of the popover."}
+   {:name :arrow-length     :required false  :default 11           :type "integer"       :description "the length in pixels of the arrow (from pointy part to middle of arrow base)."}
+   {:name :arrow-width      :required false  :default 22           :type "integer"       :description "the width in pixels of arrow base."}
+   {:name :padding          :required false                        :type "string"        :description "a CSS style which overrides the inner padding of the popover."}
+   {:name :style            :required false  :default true         :type "map"           :description "override component style(s) with a style map, only use in case of emergency."}
    ])
 
 (def popover-content-wrapper-args
@@ -275,7 +278,7 @@ This method is slightly inferior because the popover can't track the anchor if i
 
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes."
-  [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body popover-color arrow-length arrow-width padding style]
+  [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width padding style]
       :or {position :right-below arrow-length 11 arrow-width 22}
       :as args}]
   {:pre [(validate-arguments popover-content-wrapper-args (keys args))]}
@@ -304,19 +307,20 @@ This method is slightly inferior because the popover can't track the anchor if i
              :opacity  backdrop-opacity
              :on-click on-cancel])
           [popover-border
-           :position      position
-           :width         width
-           :height        height
-           :popover-color popover-color
-           :arrow-length  arrow-length
-           :arrow-width   arrow-width
-           :padding       padding
-           :title         (when title [popover-title
-                                       :title title
-                                       :showing? showing?
-                                       :close-button? close-button?
-                                       :close-callback on-cancel])
-           :children      [body]]])}))
+           :position       position
+           :width          width
+           :height         height
+           :tooltip-style? tooltip-style?
+           :popover-color  popover-color
+           :arrow-length   arrow-length
+           :arrow-width    arrow-width
+           :padding        padding
+           :title          (when title [popover-title
+                                        :title title
+                                        :showing? showing?
+                                        :close-button? close-button?
+                                        :close-callback on-cancel])
+           :children       [body]]])}))
   )
 
 ;;--------------------------------------------------------------------------------------------------
@@ -393,17 +397,18 @@ This method is slightly inferior because the popover can't track the anchor if i
      :position position
      :anchor   anchor
      :popover [popover-content-wrapper
-               :showing?      showing?
-               :position      position
-               :popover-color popover-color
-               :arrow-length  6
-               :arrow-width   12
-               :width         width
-               :padding       "3px 8px"
-               :body          [:div
-                               {:style {:color       "white"
-                                        :font-size   "12px"
-                                        :font-weight "bold"
-                                        :text-align  "center"
-                                        :line-height "16px"}}
-                               label ]]]))
+               :showing?       showing?
+               :position       position
+               :width          width
+               :tooltip-style? true
+               :popover-color  popover-color
+               :padding        "3px 8px"
+               :arrow-length   6
+               :arrow-width    12
+               :body           [:div
+                                {:style {:color       "white"
+                                         :font-size   "12px"
+                                         :font-weight "bold"
+                                         :text-align  "center"
+                                         :line-height "16px"}}
+                                label ]]]))

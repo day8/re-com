@@ -43,12 +43,12 @@
                                             :optimizations :advanced
                                             :pretty-print  false}}
                           {:id "test"
-                           :source-paths ["src/re_com" "test"]
-                           :compiler        {:output-to "compiled/test.js"
-                                             :output-dir "compiled/test"
-                                             :optimizations :none
-                                             :pretty-print true
-                                             :source-map "compiled/test.js.map"}}]}
+                           :source-paths   ["src/re_com" "test"]
+                           :compiler       {:output-to    "compiled/test.js"
+                                            :source-map   "compiled/test.js.map"
+                                            :output-dir   "compiled/test"
+                                            :optimizations :none
+                                            :pretty-print true}}]}
 
   :aliases      {"auto-demo" ["do" "clean," "cljsbuild" "clean," "cljsbuild" "auto" "demo,"]
                  "auto"      ["do" "cljsbuild" "auto" "demo,"]

@@ -99,6 +99,14 @@
                    :gap "10px"
                    :style {:font-size "small"}
                    :children [[component-title "[md-circle-icon-button ... ]"]
+                              [label :class "small-caps" :label "notes:"]
+                              [:p
+                               "Material design icons can be found "
+                               [hyperlink-href
+                                :label  "here"
+                                :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
+                                :target "_blank"]
+                               "."]
                               [args-table md-circle-icon-button-args-desc]]]
                   [v-box
                    :children [[component-title "Demo"]
@@ -155,6 +163,14 @@
                    :gap "10px"
                    :style {:font-size "small"}
                    :children [[component-title "[md-icon-button ... ]"]
+                              [label :class "small-caps" :label "notes:"]
+                              [:p
+                               "Material design icons can be found "
+                               [hyperlink-href
+                                :label  "here"
+                                :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
+                                :target "_blank"]
+                               "."]
                               [args-table md-icon-button-args-desc]]]
                   [v-box
                    :children [[component-title "Demo"]
@@ -379,6 +395,14 @@
                    :gap "10px"
                    :style {:font-size "small"}
                    :children [[component-title "[row-button ... ]"]
+                              [label :class "small-caps" :label "notes:"]
+                              [:p
+                               "Material design icons can be found "
+                               [hyperlink-href
+                                :label  "here"
+                                :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
+                                :target "_blank"]
+                               "."]
                               [args-table row-button-args-desc]]]
                   [v-box
                    :children [[component-title "Demo"]
@@ -525,7 +549,7 @@
                                                     :on-change   #(reset! colour c)]))]]]]]])))
 
 
-(defn inputs-demo
+(defn input-text-demo
   []
   (let [text-val        (reagent/atom nil)
         regex           (reagent/atom nil)
@@ -1034,7 +1058,7 @@
             {:id  3 :label "row-button"            :component row-button-demo}
             {:id  4 :label "checkbox"              :component checkboxes-demo}
             {:id  5 :label "radio-button"          :component radios-demo}
-            {:id  6 :label "input-text/area"       :component inputs-demo}
+            {:id  6 :label "input-text/area"       :component input-text-demo}
             {:id  7 :label "hyperlink"             :component hyperlink-demo}
             {:id  8 :label "hyperlink-href"        :component hyperlink-href-demo}
             {:id  9 :label "slider"                :component slider-demo}

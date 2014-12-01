@@ -9,7 +9,7 @@
 (defn notes
   []
   [v-box
-   :width    "400px"
+   :width    "450px"
    :children [ [:div.h4 "Notes"]
                [:div {:style {:font-size "small"}}
                [:p "Allows the user to input time in 24hr format."]
