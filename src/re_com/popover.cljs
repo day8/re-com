@@ -1,6 +1,6 @@
 (ns re-com.popover
   (:require [clojure.set    :refer [superset?]]
-            [re-com.util    :refer [validate-arguments get-element-by-id px]]
+            [re-com.util    :refer [validate-arguments get-element-by-id px deref-or-value]]
             [re-com.core    :refer [button label]]
             [clojure.string :as    string]
             [reagent.core   :as    reagent]))
@@ -388,7 +388,8 @@
       :or   {position :below-center width 200}
       :as   args}]
   {:pre [(validate-arguments popover-tooltip-args (keys args))]}
-  (let [popover-color (case status
+  (let [label         (deref-or-value label)
+        popover-color (case status
                         :warning "#f57c00"
                         :error   "#d50000"
                         "black")]
@@ -411,4 +412,4 @@
                                          :font-weight "bold"
                                          :text-align  "center"
                                          :line-height "16px"}}
-                                label ]]]))
+                                label]]]))

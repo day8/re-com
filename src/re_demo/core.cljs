@@ -9,6 +9,7 @@
             [re-com.box         :refer [h-box v-box box gap line scroller border]]
             [re-demo.welcome    :as welcome]
             [re-demo.basics     :as basics]
+            [re-demo.buttons    :as buttons]
             [re-demo.dropdowns  :as dropdowns]
             [re-demo.alerts     :as alerts]
             [re-demo.tabs       :as tabs]
@@ -26,6 +27,7 @@
 (def tabs-definition
   [ {:id ::welcome   :label "Welcome"     :panel welcome/panel}
     {:id ::basics    :label "Basics"      :panel basics/panel}
+    {:id ::buttons   :label "Buttons"     :panel buttons/panel}
     {:id ::dropdown  :label "Dropdowns"   :panel dropdowns/panel}
     {:id ::alerts    :label "Alerts"      :panel alerts/panel}
     {:id ::tabs      :label "Tabs"        :panel tabs/panel}

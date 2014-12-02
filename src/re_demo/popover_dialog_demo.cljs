@@ -20,7 +20,7 @@
        :showing?         showing?
        :on-cancel        cancel-dialog
        :position         position
-       :width            500
+       :width            "500pt"
        :backdrop-opacity 0.3
        :title            "This is the title"
        :body             [(fn []  ;; NOTE: THIS IS NASTY BUT REQUIRED (OTHERWISE DIALOG WILL NOT BE UPDATED WHEN ATOMS CHANGES)

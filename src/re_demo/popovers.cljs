@@ -1,9 +1,9 @@
 (ns re-demo.popovers
-  (:require [re-com.core                 :refer [label button checkbox radio-button title hyperlink inline-tooltip]]
+  (:require [re-com.core                 :refer [label button input-text checkbox radio-button title hyperlink inline-tooltip]]
             [re-com.box                  :refer [h-box v-box box gap line scroller border]]
             [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper popover-tooltip]]
-            [re-demo.popover-dialog-demo :as    popover-dialog-demo]
             [re-com.dropdown             :refer [single-dropdown]]
+            [re-demo.popover-dialog-demo :as    popover-dialog-demo]
             [re-demo.utils               :refer [panel-title component-title]]
             [reagent.core                :as    reagent]))
 
@@ -171,8 +171,9 @@
 
 (defn hyperlink-popover-demo
   []
-  (let [showing? (reagent/atom false)
-        pos      :right-below]
+  (let [showing?  (reagent/atom false)
+        showing2? (reagent/atom false)
+        pos       :right-below]
     (fn []
       [v-box
        :children [[title :label "[popover ... ] with [hyperlink ... ] anchor"]
@@ -200,11 +201,11 @@
                                                       :body     "popover body"]]
 
                                           [hyperlink
-                                           :label     "click me for popover"
-                                           :on-click  #(do (swap! showing? not) (println "showing=" @showing?))]
-                                          (when @showing?
+                                           :label     "alternative method (REMOVE)"
+                                           :on-click  #(swap! showing2? not)]
+                                          (when @showing2?
                                             [popover-content-wrapper
-                                             :showing? showing?
+                                             :showing? showing2?
                                              :position pos
                                              :title    "Popover Title"
                                              :body     "popover body"])
@@ -251,7 +252,8 @@
 (defn popover-tooltip-demo
   []
   (let [showing? (reagent/atom false)
-        status   (reagent/atom nil)]
+        status   (reagent/atom nil)
+        text     (reagent/atom "This is a tooltip")]
     (fn
       []
       [v-box
@@ -269,7 +271,7 @@
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
                                :children [[popover-tooltip
-                                           :label    "This is a tooltip"
+                                           :label    @text
                                            :position :below-center        ;; this is the default so could be omitted
                                            :showing? showing?
                                            :status   @status
@@ -289,11 +291,20 @@
                                                        :class    "btn-success"]
                                                       (when @showing?
                                                         [inline-tooltip
-                                                         :label "This is a tooltip"
+                                                         :label @text
                                                          :position :below
                                                          :status @status])]]]]
                               [v-box
                                :children [[gap :size "15px"]
+                                          [h-box
+                                           :gap      "8px"
+                                           :align    :center
+                                           :children [[label :label ":model"]
+                                                      [input-text
+                                                       :model           text
+                                                       :change-on-blur? false
+                                                       :on-change       #(reset! text %)]]]
+                                          [gap :size "15px"]
                                           [label :label ":status"]
                                           [radio-button
                                            :label     "nil/omitted - normal input state"

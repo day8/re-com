@@ -2,7 +2,7 @@
   (:require [re-com.util        :refer [insert-nth remove-id-item]]
             [re-com.core        :refer [button label title]]
             [re-com.tabs        :refer [vertical-bar-tabs]]
-            [re-com.box         :refer [h-box v-box box gap]]
+            [re-com.box         :refer [h-box v-box box line gap]]
             [re-com.dropdown    :refer [single-dropdown filter-choices-by-keyword]]
             [re-com.alert       :refer [alert-box alert-list alert-box-args-desc alert-list-args-desc]]
             [re-demo.utils      :refer [panel-title component-title args-table]]
@@ -18,10 +18,11 @@
     (fn []
       [h-box
        :gap      "50px"
-       :children [[v-box
+       :children [[component-title "[alert-box ... ]"]
+                  [v-box
                    :gap      "10px"
                    :style    {:font-size "small"}
-                   :children [[component-title "[alert-box ... ]"]
+                   :children [[:h4 "Notes"]
                               [label :label "A component which renders a single alert-box."]
                               [args-table alert-box-args-desc]]]
                   [v-box
@@ -78,10 +79,11 @@
     (fn []
       [h-box
        :gap      "50px"
-       :children [[v-box
+       :children [[component-title "[alert-list ... ]"]
+                  [v-box
                    :gap      "10px"
                    :style    {:font-size "small"}
-                   :children [[component-title "[alert-list ... ]"]
+                   :children [[:h4 "Notes"]
                               [label :label "A component which renders a list of alert-boxes vertically."]
                               [args-table   alert-list-args-desc]]]
                   [v-box
@@ -102,23 +104,15 @@
 
 
 
-(def demos [{:id 0 :label "alert-box"  :component alert-box-demo}
-            {:id 1 :label "alert-list" :component alert-list-demo}])
-
 (defn panel
   []
-  (let [selected-demo-id (reagent/atom 0)]
-    (fn []
-      [v-box
-       :gap "10px"
-       :children [[panel-title "Alert Components" ]
-                  [h-box
-                   :gap      "50px"
-                   :children [[v-box
-                               :gap      "10px"
-                               :children [[component-title "Components"]
-                                          [vertical-bar-tabs
-                                           :model selected-demo-id
-                                           :tabs demos
-                                           :on-change #(reset! selected-demo-id %)]]]
-                              [(get-in demos [@selected-demo-id :component])]]]]])))
+  (fn []
+    [v-box
+     :gap "10px"
+     :children [[panel-title "Alert Components" ]
+                [v-box
+                 :gap      "20px"
+                 :children [[alert-box-demo]
+                            [line]
+                            [alert-list-demo]
+                            [gap :size "30px"]]]]]))
