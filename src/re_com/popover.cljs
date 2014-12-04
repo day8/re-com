@@ -1,7 +1,7 @@
 (ns re-com.popover
   (:require [clojure.set    :refer [superset?]]
             [re-com.util    :refer [validate-arguments get-element-by-id px deref-or-value]]
-            [re-com.core    :refer [button label]]
+            ;[re-com.core    :refer [button]]
             [clojure.string :as    string]
             [reagent.core   :as    reagent]))
 
@@ -24,13 +24,14 @@
 (defn- close-button
   "A button with a big X in it, placed to the right of the popup."
   [showing? close-callback]
-  [button
-   :label    "×"
-   :on-click #(if close-callback
-               (close-callback)
-               (reset! showing? false))
-   :class    "close"
-   :style    {:font-size "36px" :height "26px" :margin-top "-8px"}])
+  ;; Can't use [button] because [button] already uses [popover] which would be a circular dependency.
+  [:button
+   {:on-click #(if close-callback
+                (close-callback)
+                (reset! showing? false))
+    :class    "close"
+    :style    {:font-size "36px" :height "26px" :margin-top "-8px"}}
+   "×"])
 
 
 (defn- calc-popover-pos
