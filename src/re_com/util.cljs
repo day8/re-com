@@ -36,13 +36,7 @@
 (defn px
   "takes a number (and optional :negative keyword to indicate a negative value) and returns that number as a string with 'px' at the end."
   [val & negative]
-  (str (when negative "-") val "px"))
-
-
-(defn em
-  "takes a number (and optional :negative keyword to indicate a negative value) and returns that number as a string with 'px' at the end."
-  [val & negative]
-  (str (when negative "-") val "em"))
+  (str (if negative (- 0 val) val) "px"))
 
 
 ;; ----------------------------------------------------------------------------

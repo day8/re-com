@@ -223,7 +223,7 @@
                                                                    :model     @status
                                                                    :on-change #(do
                                                                                 (reset! status :warning)
-                                                                                (reset! status-tooltip "Warning tooltip"))
+                                                                                (reset! status-tooltip "Warning tooltip - this appears when there are warnings on input-text components."))
                                                                    :style     {:margin-left "20px"}]
                                                                   [radio-button
                                                                    :label     ":error - Error status"
@@ -231,7 +231,7 @@
                                                                    :model     @status
                                                                    :on-change #(do
                                                                                 (reset! status :error)
-                                                                                (reset! status-tooltip "Error tooltip"))
+                                                                                (reset! status-tooltip "Error tooltip - this appears when there are errors on input-text components."))
                                                                    :style     {:margin-left "20px"}]]]
                                                       [checkbox
                                                        :label     ":status-icon?"

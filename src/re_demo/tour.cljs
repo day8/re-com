@@ -31,6 +31,7 @@
                     :popover [popover-content-wrapper
                               :showing?         (:step1 demo-tour)
                               :position         :above-center
+                              :width            "250px"
                               :title            [:strong "Tour 1 of 4"]
                               :body             [:div "So, you clicked the button below and the tour started.
                                                        Click the 'Next' button to proceed to the next step."
@@ -45,6 +46,7 @@
                     :popover [popover-content-wrapper
                               :showing?         (:step2 demo-tour)
                               :position         :below-center
+                              :width            "250px"
                               :title            [:strong "Tour 2 of 4"]
                               :body             [:div "Here's the second tour popover. Now you can advance to the next one, or go back
                                                        to the first, or finish the tour by clicking the close 'X' button above."
@@ -60,6 +62,7 @@
                     :popover [popover-content-wrapper
                               :showing?         (:step3 demo-tour)
                               :position         :right-below
+                              :width            "250px"
                               :on-cancel        #(reset! (:step3 demo-tour) false)
                               :backdrop-opacity 0.5
                               :title            [:strong "Tour 3 of 4"]
@@ -76,6 +79,7 @@
                     :popover [popover-content-wrapper
                               :showing?         (:step4 demo-tour)
                               :position         :above-center
+                              :width            "420px"
                               :title            [:strong "Tour 4 of 4"]
                               :body             [:div "Lucky last tour popover. The tour component renders a 'Finish' button instead
                                                        of a 'Next button for the last popover."
