@@ -20,7 +20,7 @@
        :showing?         showing?
        :on-cancel        cancel-dialog
        :position         position
-       :width            "500pt"
+       :width            "500px"
        :backdrop-opacity 0.3
        :title            "This is the title"
        :body             [(fn []  ;; NOTE: THIS IS NASTY BUT REQUIRED (OTHERWISE DIALOG WILL NOT BE UPDATED WHEN ATOMS CHANGES)
@@ -51,14 +51,14 @@
                                         [h-box
                                          :gap      "10px"
                                          :children [[button
-                                                     :label    [:span [:span.glyphicon.glyphicon-ok] " " [:i {:class "md-check" }] " Apply"]
+                                                     :label    [:span [:i {:class "md-check" }] " Apply"]
                                                      :on-click #(submit-dialog @dialog-data)
                                                      :class    "btn-primary"]
                                                     [popover-anchor-wrapper
                                                      :showing? show-tooltip?
                                                      :position :right-below
                                                      :anchor   [button
-                                                                :label    [:span [:span.glyphicon.glyphicon-remove] " " [:i {:class "md-close" }] " Cancel"]
+                                                                :label    [:span [:i {:class "md-close" }] " Cancel"]
                                                                 :on-click cancel-dialog]
                                                      :popover  [popover-content-wrapper ;; NOTE: didn't specify on-cancel here (handled properly)
                                                                 :showing?      show-tooltip?
@@ -69,18 +69,19 @@
 
 
 (defn popover-dialog-demo
-  []
+  [position]
   (let [showing?    (reagent/atom false)
         dialog-data (reagent/atom {:tooltip-state "2"})
         on-change   (fn [new-dialog-data]
                       (reset! dialog-data new-dialog-data))
-        position    :right-center]
+        ;; position    :left-above ;; TODO:
+        ]
     (fn []
       [popover-anchor-wrapper
        :showing? showing?
-       :position position
+       :position @position                                  ;; TODO:
        :anchor   [button
                   :label    "Dialog box"
                   :on-click #(reset! showing? true)
                   :class    "btn btn-danger"]
-       :popover  [popover-body showing? position dialog-data on-change]])))
+       :popover  [popover-body showing? @position dialog-data on-change]]))) ;; TODO:

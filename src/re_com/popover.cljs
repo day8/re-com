@@ -170,8 +170,7 @@
       :or {position :right-below arrow-length 11 arrow-width 22}
       :as args}]
   {:pre [(validate-arguments popover-border-args (keys args))]}
-  (let [width                   (if (nil? width) 250 width) ;; Moved here from :or above as sometimes we pass width in as null and :or doesn't work in this case
-        rendered-once           (reagent/atom false)
+  (let [rendered-once           (reagent/atom false)
         pop-id                  (gensym "popover-")
         [orientation arrow-pos] (split-keyword position "-")
         grey-arrow?             (and title (or (= orientation :below) (= arrow-pos :below)))]
@@ -183,36 +182,47 @@
        :render
        (fn []
          (let [popover-elem   (get-element-by-id pop-id)
-               p-height       (if popover-elem (.-clientHeight popover-elem) 0) ;; height is optional (with no default) so we need to calculate it
+               p-width        (if popover-elem (.-clientWidth  popover-elem) 0)
+               p-height       (if popover-elem (.-clientHeight popover-elem) 0)
                pop-offset     (case arrow-pos
                                 :center nil
                                 :right  20
                                 :below  20
-                                :left   (if width (- width 25) width)
+                                :left   (if p-width (- p-width 25) p-width)
                                 :above  (if p-height (- p-height 25) p-height))]
            [:div.popover.fade.in
             {:id pop-id
              :class (case orientation :left "left" :right "right" :above "top" :below "bottom")
              :style (merge (if @rendered-once
                              (calc-popover-pos pop-id orientation pop-offset)
-                             {:top (px -10000) :left (px -10000)})
-                           (if width {:width width})
+                             {:top "-10000px" :left "-10000px"})
+                           (if width  {:width  width})
                            (if height {:height height})
                            (if popover-color {:background-color popover-color})
                            (when tooltip-style?
                              {:border-radius "4px"
                               :box-shadow    "none"
                               :border        "none"})
-                           {(case orientation
+
+                           ;; TODO: Seems this code is not required, remove when confirmed
+                           #_{(case orientation
                               (:left  :right) :margin-left
                               (:above :below) :margin-top) (px (case orientation
-                                                                 :left           (str "-" (+ arrow-length width))
+                                                                 :left           (str "-" (+ arrow-length p-width))
                                                                  :above          (str "-" (+ arrow-length p-height))
                                                                  (:right :below) arrow-length))}
-                           ;; make it visible and turn off BS max-width and remove BS padding which adds an internal white border
-                           {:display "block" :max-width "none" :padding (px 0)}
+
+                           ;; prevent the "child of a zero width relative element word wrapping" issue
+                           (case orientation
+                             :left                  {:margin-left  "-2000px"}
+                             (:right :above :below) {:margin-right "-2000px"})
                            ;; optional override offsets
-                           {:margin-left margin-left :margin-top margin-top})}
+                           (when margin-left {:margin-left margin-left})
+                           (when margin-top  {:margin-top  margin-top})
+                           ;; make it visible and turn off BS max-width and remove BS padding which adds an internal white border
+                           {:display   "block"
+                            :max-width "none"
+                            :padding   (px 0)})}
             [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color]
             (when title title)
             (into [:div.popover-content {:style {:padding padding}}] children)]))})))
@@ -385,7 +395,7 @@
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style."
   [& {:keys [label showing? status anchor position width style]
-      :or   {position :below-center width 200}
+      :or   {position :below-center}
       :as   args}]
   {:pre [(validate-arguments popover-tooltip-args (keys args))]}
   (let [label         (deref-or-value label)

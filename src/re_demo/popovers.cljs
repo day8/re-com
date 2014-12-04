@@ -8,6 +8,21 @@
             [reagent.core                :as    reagent]))
 
 
+(def curr-position (reagent/atom :below-center))
+(def positions     [{:id :above-left :label ":above-left  "}
+                    {:id :above-center :label ":above-center"}
+                    {:id :above-right :label ":above-right "}
+                    {:id :below-left :label ":below-left  "}
+                    {:id :below-center :label ":below-center"}
+                    {:id :below-right :label ":below-right "}
+                    {:id :left-above :label ":left-above  "}
+                    {:id :left-center :label ":left-center "}
+                    {:id :left-below :label ":left-below  "}
+                    {:id :right-above :label ":right-above "}
+                    {:id :right-center :label ":right-center"}
+                    {:id :right-below :label ":right-below "}])
+
+
 (defn simple-popover-demo
   []
   (let [showing?          (reagent/atom false)
@@ -18,19 +33,22 @@
         add-scroller?     (reagent/atom false)
         on-cancel?        (reagent/atom false)
         backdrop-opacity? (reagent/atom false)
-        curr-position     (reagent/atom :below-center)
-        positions         [{:id :above-left   :label ":above-left  "}
-                           {:id :above-center :label ":above-center"}
-                           {:id :above-right  :label ":above-right "}
-                           {:id :below-left   :label ":below-left  "}
-                           {:id :below-center :label ":below-center"}
-                           {:id :below-right  :label ":below-right "}
-                           {:id :left-above   :label ":left-above  "}
-                           {:id :left-center  :label ":left-center "}
-                           {:id :left-below   :label ":left-below  "}
-                           {:id :right-above  :label ":right-above "}
-                           {:id :right-center :label ":right-center"}
-                           {:id :right-below  :label ":right-below "}]]
+
+        ;curr-position     (reagent/atom :below-center)
+        ;positions         [{:id :above-left   :label ":above-left  "}
+        ;                   {:id :above-center :label ":above-center"}
+        ;                   {:id :above-right  :label ":above-right "}
+        ;                   {:id :below-left   :label ":below-left  "}
+        ;                   {:id :below-center :label ":below-center"}
+        ;                   {:id :below-right  :label ":below-right "}
+        ;                   {:id :left-above   :label ":left-above  "}
+        ;                   {:id :left-center  :label ":left-center "}
+        ;                   {:id :left-below   :label ":left-below  "}
+        ;                   {:id :right-above  :label ":right-above "}
+        ;                   {:id :right-center :label ":right-center"}
+        ;                   {:id :right-below  :label ":right-below "}]
+
+        ]
     (fn []
       (let [cancel-popover #(reset! showing? false)]
         [v-box
@@ -166,7 +184,8 @@
                                                                                  :max-height "600px"
                                                                                  :on-change  (fn [val]
                                                                                                (reset! curr-position val)
-                                                                                               (cancel-popover))]]]]]]]]]]]]]))))
+                                                                                               (cancel-popover))]
+                                                                                [label :label "(currently applies to all demos on this page)"]]]]]]]]]]]]]))))
 
 
 (defn hyperlink-popover-demo
@@ -190,27 +209,15 @@
                                :margin   "20px 0px 0px 0px"
                                :children [[popover-anchor-wrapper
                                            :showing? showing?
-                                           :position pos
+                                           :position @curr-position ;; TODO: pos
                                            :anchor   [hyperlink
                                                       :label     "click me for popover"
                                                       :on-click  #(swap! showing? not)]
                                            :popover  [popover-content-wrapper
                                                       :showing? showing?
-                                                      :position pos
+                                                      :position @curr-position ;; TODO: pos
                                                       :title    "Popover Title"
-                                                      :body     "popover body"]]
-
-                                          [hyperlink
-                                           :label     "alternative method (REMOVE)"
-                                           :on-click  #(swap! showing2? not)]
-                                          (when @showing2?
-                                            [popover-content-wrapper
-                                             :showing? showing2?
-                                             :position pos
-                                             :title    "Popover Title"
-                                             :body     "popover body"])
-
-                                          ]]]]]])))
+                                                      :body     "popover body"]]]]]]]])))
 
 
 (defn proximity-popover-demo
@@ -234,7 +241,7 @@
                                :margin   "20px 0px 0px 0px"
                                :children [[popover-anchor-wrapper
                                            :showing? showing?
-                                           :position pos
+                                           :position @curr-position ;; TODO: pos
                                            :anchor   [:div
                                                       {:style         {:background-color "lightblue"
                                                                        :border           "2px solid blue"
@@ -245,7 +252,7 @@
                                                       "hover here for tooltip"]
                                            :popover [popover-content-wrapper
                                                      :showing? showing?
-                                                     :position pos
+                                                     :position @curr-position ;; TODO: pos
                                                      :body     "popover body (without a title specified) makes a basic tooltip component"]]]]]]]])))
 
 
@@ -253,7 +260,9 @@
   []
   (let [showing? (reagent/atom false)
         status   (reagent/atom nil)
-        text     (reagent/atom "This is a tooltip")]
+        text     (reagent/atom "This is a tooltip")
+        width?   (reagent/atom false)
+        tt-width "200px"]
     (fn
       []
       [v-box
@@ -272,28 +281,14 @@
                                :margin   "20px 0px 0px 0px"
                                :children [[popover-tooltip
                                            :label    @text
-                                           :position :below-center        ;; this is the default so could be omitted
+                                           :position @curr-position ;; TODO: :below-center        ;; this is the default so could be omitted
                                            :showing? showing?
                                            :status   @status
-                                           :width    103                  ;; currently must specify a width :-(
+                                           :width    (when @width? tt-width)
                                            :anchor   [button
                                                       :label    "click me"
                                                       :on-click #(swap! showing? not)
-                                                      :class    "btn-success"]]
-                                          [gap :size "0px"]
-                                          [v-box
-                                           :width    "200px"
-                                           :height   "50px"
-                                           :children [[label :label "Temporary (for comparison):"]
-                                                      [button
-                                                       :label    "static-tooltip"
-                                                       :on-click #(swap! showing? not)
-                                                       :class    "btn-success"]
-                                                      (when @showing?
-                                                        [inline-tooltip
-                                                         :label @text
-                                                         :position :below
-                                                         :status @status])]]]]
+                                                      :class    "btn-success"]]]]
                               [v-box
                                :children [[gap :size "15px"]
                                           [h-box
@@ -329,7 +324,19 @@
                                            :on-change #(do
                                                         (reset! status :error)
                                                         (reset! showing? false))
-                                           :style     {:margin-left "20px"}]]]]]]])))
+                                           :style     {:margin-left "20px"}]
+                                          [gap :size "15px"]
+                                          [h-box
+                                           :align    :center
+                                           :gap      "15px"
+                                           :children [[checkbox
+                                                       :label ":width"
+                                                       :model width?
+                                                       :on-change #(reset! width? %)]
+                                                      [:span (str (if @width?
+                                                                    (str "\"" tt-width "\" - the tooltip is fixed to this width.")
+                                                                    "not specified - the tooltip is as wide as it's contents."))]]]
+                                          ]]]]]])))
 
 
 (defn complex-popover-demo
@@ -348,7 +355,7 @@
                           [v-box
                            :gap      "30px"
                            :margin   "20px 0px 0px 0px"
-                           :children [[popover-dialog-demo/popover-dialog-demo]]]]]]])
+                           :children [[popover-dialog-demo/popover-dialog-demo curr-position]]]]]]])
 
 
 (defn panel
@@ -360,4 +367,4 @@
               [proximity-popover-demo]
               [popover-tooltip-demo]
               [complex-popover-demo]
-              [gap :size "180px"]]])
+              [gap :size "280px"]]])                        ;;TODO: 180px
