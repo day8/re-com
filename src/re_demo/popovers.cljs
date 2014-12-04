@@ -100,6 +100,7 @@
                                                                      :popover  [popover-content-wrapper
                                                                                 :showing?         showing?
                                                                                 :position         @curr-position
+                                                                                :width            "250px"
                                                                                 :no-clip?         @no-clip?
                                                                                 :backdrop-opacity (when @backdrop-opacity? 0.3)
                                                                                 :on-cancel        (when @on-cancel? cancel-popover)
@@ -216,6 +217,7 @@
                                            :popover  [popover-content-wrapper
                                                       :showing? showing?
                                                       :position @curr-position ;; TODO: pos
+                                                      :width    "250px"
                                                       :title    "Popover Title"
                                                       :body     "popover body"]]]]]]]])))
 
@@ -335,8 +337,7 @@
                                                        :on-change #(reset! width? %)]
                                                       [:span (str (if @width?
                                                                     (str "\"" tt-width "\" - the tooltip is fixed to this width.")
-                                                                    "not specified - the tooltip is as wide as it's contents."))]]]
-                                          ]]]]]])))
+                                                                    "not specified - the tooltip is as wide as it's contents."))]]]]]]]]])))
 
 
 (defn complex-popover-demo

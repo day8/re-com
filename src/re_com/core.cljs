@@ -1,8 +1,9 @@
 (ns re-com.core
-  (:require [clojure.set  :refer [superset?]]
-            [reagent.core :as reagent]
-            [re-com.util  :refer [deref-or-value validate-arguments px]]
-            [re-com.box   :refer [h-box v-box box gap line]]))
+  (:require [clojure.set    :refer [superset?]]
+            [reagent.core   :as    reagent]
+            [re-com.util    :refer [deref-or-value validate-arguments px]]
+            [re-com.popover :refer [popover-tooltip]]
+            [re-com.box     :refer [h-box v-box box gap line]]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -80,7 +81,8 @@
       {:pre [(validate-arguments input-text-args (keys args))]}
       (let [latest-ext-model (deref-or-value model)
             disabled?        (deref-or-value disabled?)
-            change-on-blur?  (deref-or-value change-on-blur?)]
+            change-on-blur?  (deref-or-value change-on-blur?)
+            showing?         (reagent/atom false)]
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model))
@@ -132,7 +134,7 @@
                                       true))}
                     attr)]
                  (when (and status status-icon?)
-                   [:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                   #_[:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
                         :style {:font-size    "130%"
                                 :top          "50%"
                                 :right        "0px"
@@ -140,11 +142,29 @@
                                 :margin-right "0.5em"
                                 :width        "auto"
                                 :height       "auto"}
-                        :title status-tooltip}])]]))))
+                        :title status-tooltip}]
+                   [popover-tooltip
+                    :label    status-tooltip
+                    :position :right-center
+                    :status   status
+                    :width    "200px"
+                    :showing? showing?
+                    :anchor   [:i {:class         (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                                   :style         {:position  "static"
+                                                   :font-size "130%"
+                                                   :width     "auto"
+                                                   :height    "auto"}
+                                   :on-mouse-over #(reset! showing? true)
+                                   :on-mouse-out  #(reset! showing? false)}]
+                    :style    {:position     "absolute"
+                               :top          "50%"
+                               :right        "0px"
+                               :margin-top   "-0.5em"
+                               :margin-right "0.5em"}])]]))))
 
 
 (defn input-text
-    [& args]
+  [& args]
     (apply input-text-base :input-type :input args))
 
 
@@ -158,39 +178,50 @@
 ;; ------------------------------------------------------------------------------------
 
 (def button-args-desc
-  [{:name :label         :required true                   :type "string"     :description "Label for the button (can be artitrary markup)."}
-   {:name :on-click      :required false                  :type "keyword"    :description "Callback when the button is clicked."}
-   {:name :tooltip       :required false                  :type "string"     :description "show a standard HTML tooltip with this text."}
-   {:name :disabled?     :required false                  :type "boolean"    :description "Set to true to disable the button."}
-   {:name :class         :required false                  :type "string"     :description "Class string. e.g. \"btn-info\" (see: http://getbootstrap.com/css/#buttons)."}
-   {:name :style         :required false                  :type "map"        :description "CSS styles to add or override."}
-   {:name :attr          :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :label            :required true                           :type "string"     :description "Label for the button (can be artitrary markup)."}
+   {:name :on-click         :required false                          :type "keyword"    :description "Callback when the button is clicked."}
+   {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
+   {:name :tooltip-position :required false :default :below-center   :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :disabled?        :required false                          :type "boolean"    :description "Set to true to disable the button."}
+   {:name :class            :required false                          :type "string"     :description "Class string. e.g. \"btn-info\" (see: http://getbootstrap.com/css/#buttons)."}
+   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
+   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def button-args
   (set (map :name button-args-desc)))
 
 (defn button
   "Returns the markup for a basic button."
-  [& {:keys [label on-click tooltip disabled? class style attr]
+  [& {:keys [label on-click tooltip tooltip-position disabled? class style attr]
       :or   {class "btn-default"}
       :as   args}]
   {:pre [(validate-arguments button-args (keys args))]}
-  (let [disabled?   (deref-or-value disabled?)]
+  (let [disabled?   (deref-or-value disabled?)
+        showing?    (reagent/atom false)
+        the-button  [:button
+                     (merge
+                       {:class    (str "rc-button btn " class)
+                        :style    (merge
+                                    {:flex "none"}
+                                    style)
+                        :disabled disabled?
+                        :on-click #(if (and on-click (not disabled?))
+                                    (on-click))}
+                       (when tooltip
+                         {:on-mouse-over #(reset! showing? true)
+                          :on-mouse-out  #(reset! showing? false)})
+                       attr)
+                     label]]
     [box
      :style {:display "inline-flex"}
      :align :start
-     :child [:button
-             (merge
-               {:class    (str "rc-button btn " class)
-                :style    (merge
-                            {:flex "none"}
-                            style)
-                :disabled disabled?
-                :tooltip  tooltip
-                :on-click #(if (and on-click (not disabled?))
-                            (on-click))}
-               attr)
-             label]]))
+     :child (if tooltip
+              [popover-tooltip
+               :label    tooltip
+               :position (if tooltip-position tooltip-position :below-center)
+               :showing? showing?
+               :anchor   the-button]
+              the-button)]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -198,15 +229,16 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-circle-icon-button-args-desc
-  [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
-   {:name :on-click      :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
-   {:name :size          :required false  :default nil      :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
-   {:name :tooltip       :required false                    :type "string"     :description "show a standard HTML tooltip with this text."}
-   {:name :emphasise?    :required false                    :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
-   {:name :disabled?     :required false                    :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class         :required false                    :type "string"     :description "additional CSS classes required."}
-   {:name :style         :required false                    :type "map"        :description "CSS styles to add or override."}
-   {:name :attr          :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :md-icon-name     :required true   :default "md-add"       :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+   {:name :on-click         :required false                          :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
+   {:name :size             :required false  :default "nil"          :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
+   {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
+   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :emphasise?       :required false                          :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
+   {:name :disabled?        :required false                          :type "boolean"    :description "if true, the user can't click the button."}
+   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
+   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def md-circle-icon-button-args
   (set (map :name md-circle-icon-button-args-desc)))
@@ -215,28 +247,38 @@
   "a circular button containing a material design icon"
   []
   (fn
-    [& {:keys [md-icon-name on-click size tooltip emphasise? disabled? class style attr]
+    [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
         :or   {md-icon-name "md-add"}
         :as   args}]
     {:pre [(validate-arguments md-circle-icon-button-args (keys args))]}
-    [:div
-     (merge
-       {:class    (str
-                    "rc-md-circle-icon-button "
-                    (case size
-                      :smaller "rc-circle-smaller "
-                      :larger "rc-circle-larger "
-                      " ")
-                    (when emphasise? "rc-circle-emphasis ")
-                    (when disabled? "rc-circle-disabled ")
-                    class)
-        :style    (merge
-                    {:cursor (when-not disabled? "pointer")}
-                    style)
-        :title    tooltip
-        :on-click #(when-not disabled? (on-click))}
-       attr)
-     [:i {:class md-icon-name}]]))
+    (let [showing?   (reagent/atom false)
+          the-button [:div
+                      (merge
+                        {:class    (str
+                                     "rc-md-circle-icon-button "
+                                     (case size
+                                       :smaller "rc-circle-smaller "
+                                       :larger "rc-circle-larger "
+                                       " ")
+                                     (when emphasise? "rc-circle-emphasis ")
+                                     (when disabled? "rc-circle-disabled ")
+                                     class)
+                         :style    (merge
+                                     {:cursor (when-not disabled? "pointer")}
+                                     style)
+                         :on-click #(when-not disabled? (on-click))}
+                        (when tooltip
+                          {:on-mouse-over #(reset! showing? true)
+                           :on-mouse-out  #(reset! showing? false)})
+                        attr)
+                      [:i {:class md-icon-name}]]]
+      (if tooltip
+        [popover-tooltip
+         :label    tooltip
+         :position (if tooltip-position tooltip-position :below-center)
+         :showing? showing?
+         :anchor   the-button]
+        the-button))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -244,15 +286,16 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-icon-button-args-desc
-  [{:name :md-icon-name  :required true   :default "md-add" :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
-   {:name :on-click      :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
-   {:name :size          :required false  :default nil      :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
-   {:name :tooltip       :required false                    :type "string"     :description "show a standard HTML tooltip with this text."}
-   {:name :emphasise?    :required false                    :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
-   {:name :disabled?     :required false                    :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class         :required false                    :type "string"     :description "additional CSS classes required."}
-   {:name :style         :required false                    :type "map"        :description "CSS styles to add or override."}
-   {:name :attr          :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :md-icon-name     :required true   :default "md-add"       :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+   {:name :on-click         :required false                          :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
+   {:name :size             :required false  :default "nil"          :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
+   {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
+   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :emphasise?       :required false                          :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
+   {:name :disabled?        :required false                          :type "boolean"    :description "if true, the user can't click the button."}
+   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
+   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def md-icon-button-args
   (set (map :name md-icon-button-args-desc)))
@@ -261,28 +304,38 @@
   "a circular button containing a material design icon"
   []
   (fn
-    [& {:keys [md-icon-name on-click size tooltip emphasise? disabled? class style attr]
+    [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
         :or   {md-icon-name "md-add"}
         :as   args}]
     {:pre [(validate-arguments md-icon-button-args (keys args))]}
-    [:div
-     (merge
-       {:class    (str
-                    "rc-md-icon-button "
-                    (case size
-                      :smaller "rc-icon-smaller "
-                      :larger "rc-icon-larger "
-                      " ")
-                    (when emphasise? "rc-icon-emphasis ")
-                    (when disabled? "rc-icon-disabled ")
-                    class)
-        :style    (merge
-                    {:cursor (when-not disabled? "pointer")}
-                    style)
-        :title    tooltip
-        :on-click #(when-not disabled? (on-click))}
-       attr)
-     [:i {:class md-icon-name}]]))
+    (let [showing?   (reagent/atom false)
+          the-button [:div
+                      (merge
+                        {:class    (str
+                                     "rc-md-icon-button "
+                                     (case size
+                                       :smaller "rc-icon-smaller "
+                                       :larger "rc-icon-larger "
+                                       " ")
+                                     (when emphasise? "rc-icon-emphasis ")
+                                     (when disabled? "rc-icon-disabled ")
+                                     class)
+                         :style    (merge
+                                     {:cursor (when-not disabled? "pointer")}
+                                     style)
+                         :on-click #(when-not disabled? (on-click))}
+                        (when tooltip
+                          {:on-mouse-over #(reset! showing? true)
+                           :on-mouse-out  #(reset! showing? false)})
+                        attr)
+                      [:i {:class md-icon-name}]]]
+      (if tooltip
+        [popover-tooltip
+         :label    tooltip
+         :position (if tooltip-position tooltip-position :below-center)
+         :showing? showing?
+         :anchor   the-button]
+        the-button))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -290,14 +343,15 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def row-button-args-desc
-  [{:name :md-icon-name     :required true   :default "md-add" :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
-   {:name :on-click         :required false                    :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
-   {:name :mouse-over-row?  :required false                    :type "boolean"    :description "true if the mouse is hovering over the row this button is in."}
-   {:name :tooltip          :required false                    :type "string"     :description "show a standard HTML tooltip with this text."}
-   {:name :disabled?        :required false                    :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class            :required false                    :type "string"     :description "additional CSS classes required."}
-   {:name :style            :required false                    :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                    :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :md-icon-name     :required true   :default "md-add"       :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+   {:name :on-click         :required false                          :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
+   {:name :mouse-over-row?  :required false                          :type "boolean"    :description "true if the mouse is hovering over the row this button is in."}
+   {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
+   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :disabled?        :required false                          :type "boolean"    :description "if true, the user can't click the button."}
+   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
+   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def row-button-args
   (set (map :name row-button-args-desc)))
@@ -306,22 +360,32 @@
   "a circular button containing a material design icon"
   []
   (fn
-    [& {:keys [md-icon-name on-click mouse-over-row? tooltip disabled? class style attr]
+    [& {:keys [md-icon-name on-click mouse-over-row? tooltip tooltip-position disabled? class style attr]
         :or   {md-icon-name "md-add"}
         :as   args}]
     {:pre [(validate-arguments row-button-args (keys args))]}
-    [:div
-     (merge
-       {:class    (str
-                    "rc-row-button "
-                    (when mouse-over-row? "rc-row-mouse-over-row ")
-                    (when disabled? "rc-row-disabled ")
-                    class)
-        :style    style
-        :title    tooltip
-        :on-click #(when-not disabled? (on-click))}
-       attr)
-     [:i {:class md-icon-name}]]))
+    (let [showing?   (reagent/atom false)
+          the-button [:div
+                      (merge
+                        {:class    (str
+                                     "rc-row-button "
+                                     (when mouse-over-row? "rc-row-mouse-over-row ")
+                                     (when disabled? "rc-row-disabled ")
+                                     class)
+                         :style    style
+                         :on-click #(when-not disabled? (on-click))}
+                        (when tooltip
+                          {:on-mouse-over #(reset! showing? true)
+                           :on-mouse-out  #(reset! showing? false)})
+                        attr)
+                      [:i {:class md-icon-name}]]]
+      (if tooltip
+        [popover-tooltip
+         :label    tooltip
+         :position (if tooltip-position tooltip-position :below-center)
+         :showing? showing?
+         :anchor   the-button]
+        the-button))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -329,12 +393,14 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def hyperlink-args-desc
-  [{:name :label         :required false                  :type "string"     :description "Label for the button (can be artitrary markup)."}
-   {:name :on-click      :required false                  :type "string"     :description "Callback when the hyperlink is clicked."}
-   {:name :disabled?     :required false                  :type "string"     :description "Set to true to disable the hyperlink."}
-   {:name :class         :required false                  :type "string"     :description "additional CSS classes required."}
-   {:name :style         :required false                  :type "map"        :description "CSS styles to add or override."}
-   {:name :attr          :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :label            :required false                          :type "string"     :description "Label for the button (can be artitrary markup)."}
+   {:name :on-click         :required false                          :type "string"     :description "Callback when the hyperlink is clicked."}
+   {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
+   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :disabled?        :required false                          :type "string"     :description "Set to true to disable the hyperlink."}
+   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
+   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def hyperlink-args
   (set (map :name hyperlink-args-desc)))
@@ -343,24 +409,35 @@
   "Renders an underlined text hyperlink component.
    This is very similar to the button component above but styled to looks like a hyperlink.
    Useful for providing button functionality for less important functions, e.g. Cancel."
-  [& {:keys [label on-click disabled? class style attr] :as args}]
+  [& {:keys [label on-click tooltip tooltip-position disabled? class style attr] :as args}]
   {:pre [(validate-arguments hyperlink-args (keys args))]}
   (let [label     (deref-or-value label)
         disabled? (deref-or-value disabled?)]
-    [box
-     :align :start
-     :child [:a
-             (merge
-               {:class    (str "rc-hyperlink " class)
-                :style    (merge
-                            {:flex                "none"
-                             :cursor              (if disabled? "not-allowed" "pointer")
-                             :-webkit-user-select "none"}
-                            style)
-                :on-click #(if (and on-click (not disabled?))
-                            (on-click))}
-               attr)
-             label]]))
+    (let [showing?   (reagent/atom false)
+          the-button [box
+                      :align :start
+                      :child [:a
+                              (merge
+                                {:class    (str "rc-hyperlink " class)
+                                 :style    (merge
+                                             {:flex                "none"
+                                              :cursor              (if disabled? "not-allowed" "pointer")
+                                              :-webkit-user-select "none"}
+                                             style)
+                                 :on-click #(if (and on-click (not disabled?))
+                                             (on-click))}
+                                (when tooltip
+                                  {:on-mouse-over #(reset! showing? true)
+                                   :on-mouse-out  #(reset! showing? false)})
+                                attr)
+                              label]]]
+      (if tooltip
+        [popover-tooltip
+         :label    tooltip
+         :position (if tooltip-position tooltip-position :below-center)
+         :showing? showing?
+         :anchor   the-button]
+        the-button))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -368,12 +445,14 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def hyperlink-href-args-desc
-  [{:name :label         :required false                  :type "string"     :description "Label for the button (can be artitrary markup)."}
-   {:name :href          :required false                  :type "string"     :description "If specified, which URL to jump to when clicked."}
-   {:name :target        :required false                  :type "string"     :description "A string representing where to load href: _self - open in same window/tab (the default), _blank - open in new window/tab, _parent - open in parent window."}
-   {:name :class         :required false                  :type "string"     :description "additional CSS classes required."}
-   {:name :style         :required false                  :type "map"        :description "CSS styles to add or override."}
-   {:name :attr          :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :label            :required false                          :type "string"     :description "Label for the button (can be artitrary markup)."}
+   {:name :href             :required false                          :type "string"     :description "If specified, which URL to jump to when clicked."}
+   {:name :target           :required false                          :type "string"     :description "A string representing where to load href: _self - open in same window/tab (the default), _blank - open in new window/tab, _parent - open in parent window."}
+   {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
+   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
+   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def hyperlink-href-args
   (set (map :name hyperlink-href-args-desc)))
@@ -382,22 +461,34 @@
   "Renders an underlined text hyperlink component.
    This is very similar to the button component above but styled to looks like a hyperlink.
    Useful for providing button functionality for less important functions, e.g. Cancel."
-  [& {:keys [label href target class style attr] :as args}]
+  [& {:keys [label href target tooltip tooltip-position class style attr] :as args}]
   {:pre [(validate-arguments hyperlink-href-args (keys args))]}
-  (let [label     (deref-or-value label)
-        href      (deref-or-value href)
-        target    (deref-or-value target)]
-    [:a
-     (merge
-       {:class    (str "rc-hyperlink-href " class)
-        :style    (merge
-                    {:flex                "none"
-                     :-webkit-user-select "none"}
-                    style)
-        :href       href
-        :target     target}
-       attr)
-     label]))
+  (let [label      (deref-or-value label)
+        href       (deref-or-value href)
+        target     (deref-or-value target)
+        showing?   (reagent/atom false)
+        the-button [:a
+                    (merge
+                      {:class    (str "rc-hyperlink-href " class)
+                       :style    (merge
+                                   {:flex                "none"
+                                    :-webkit-user-select "none"}
+                                   style)
+                       :href       href
+                       :target     target}
+                      (when tooltip
+                        {:on-mouse-over #(reset! showing? true)
+                         :on-mouse-out  #(reset! showing? false)})
+                      attr)
+                    label]]
+
+    (if tooltip
+      [popover-tooltip
+       :label    tooltip
+       :position (if tooltip-position tooltip-position :below-center)
+       :showing? showing?
+       :anchor   the-button]
+      the-button)))
 
 
 ;; ------------------------------------------------------------------------------------

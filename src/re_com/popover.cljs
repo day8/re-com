@@ -148,18 +148,18 @@
 
 ;; TODO this is going to be difficult to include in the demo help text
 (def popover-border-args-desc
-  [{:name :position       :required true                    :type "keyword"        :description "a keyword specifying the popover's position relative to the anchor. See the demo to the right for the values."}
-   {:name :children       :required true                    :type "vector"         :description "a vector of component markups."}
-   {:name :width          :required false  :default "250px" :type "string"         :description "a CSS style describing the popover width."}
-   {:name :height         :required false  :default "auto"  :type "string"         :description "a CSS style describing the popover height."}
-   {:name :popover-color  :required false  :default "white" :type "string"         :description "Fill color of the popover."}
-   {:name :arrow-length   :required false  :default 11      :type "integer"        :description "the length in pixels of the arrow (from pointy part to middle of arrow base)."}
-   {:name :arrow-width    :required false  :default 22      :type "integer"        :description "the width in pixels of arrow base."}
-   {:name :padding        :required false                   :type "string"         :description "a CSS style which overrides the inner padding of the popover."}
-   {:name :margin-left    :required false                   :type "string"         :description "a CSS style describing the horiztonal offset from anchor after position."}
-   {:name :margin-top     :required false                   :type "string"         :description "a CSS style describing the vertical offset from anchor after position."}
-   {:name :tooltip-style? :required false                   :type "boolean"        :description "setup popover styles for a tooltip."}
-   {:name :title          :required false                   :type "string|markup"  :description "describes a title"}])
+  [{:name :position       :required false :default ":right-below" :type "keyword"       :description "a keyword specifying the popover's position relative to the anchor. See the demo to the right for the values."}
+   {:name :children       :required true                          :type "vector"        :description "a vector of component markups."}
+   {:name :width          :required false :default "250px"        :type "string"        :description "a CSS style describing the popover width."}
+   {:name :height         :required false :default "auto"         :type "string"        :description "a CSS style describing the popover height."}
+   {:name :popover-color  :required false :default "white"        :type "string"        :description "Fill color of the popover."}
+   {:name :arrow-length   :required false :default 11             :type "integer"       :description "the length in pixels of the arrow (from pointy part to middle of arrow base)."}
+   {:name :arrow-width    :required false :default 22             :type "integer"       :description "the width in pixels of arrow base."}
+   {:name :padding        :required false                         :type "string"        :description "a CSS style which overrides the inner padding of the popover."}
+   {:name :margin-left    :required false                         :type "string"        :description "a CSS style describing the horiztonal offset from anchor after position."}
+   {:name :margin-top     :required false                         :type "string"        :description "a CSS style describing the vertical offset from anchor after position."}
+   {:name :tooltip-style? :required false                         :type "boolean"       :description "setup popover styles for a tooltip."}
+   {:name :title          :required false                         :type "string|markup" :description "describes a title"}])
 
 (def popover-border-args
   (set (map :name popover-border-args-desc)))
@@ -167,12 +167,12 @@
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover."
   [& {:keys [position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title children]
-      :or {position :right-below arrow-length 11 arrow-width 22}
+      :or {arrow-length 11 arrow-width 22}
       :as args}]
   {:pre [(validate-arguments popover-border-args (keys args))]}
   (let [rendered-once           (reagent/atom false)
         pop-id                  (gensym "popover-")
-        [orientation arrow-pos] (split-keyword position "-")
+        [orientation arrow-pos] (split-keyword (if position position :right-below) "-")
         grey-arrow?             (and title (or (= orientation :below) (= arrow-pos :below)))]
     (reagent/create-class
       {:component-did-mount
@@ -280,7 +280,7 @@
    {:name :arrow-length     :required false  :default 11           :type "integer"       :description "the length in pixels of the arrow (from pointy part to middle of arrow base)."}
    {:name :arrow-width      :required false  :default 22           :type "integer"       :description "the width in pixels of arrow base."}
    {:name :padding          :required false                        :type "string"        :description "a CSS style which overrides the inner padding of the popover."}
-   {:name :style            :required false  :default true         :type "map"           :description "override component style(s) with a style map, only use in case of emergency."}
+   {:name :style            :required false                        :type "map"           :description "override component style(s) with a style map, only use in case of emergency."}
    ])
 
 (def popover-content-wrapper-args
@@ -289,7 +289,7 @@
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes."
   [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width padding style]
-      :or {position :right-below arrow-length 11 arrow-width 22}
+      :or {arrow-length 11 arrow-width 22}
       :as args}]
   {:pre [(validate-arguments popover-content-wrapper-args (keys args))]}
   (assert ((complement nil?) showing?) "Must specify a showing? atom")
@@ -317,7 +317,7 @@
              :opacity  backdrop-opacity
              :on-click on-cancel])
           [popover-border
-           :position       position
+           :position       (if position position :right-below)
            :width          width
            :height         height
            :tooltip-style? tooltip-style?
@@ -342,7 +342,7 @@
    {:name :position         :required true   :default :right-below :type "keyword"  :description "specifies the popover's position relative to the anchor. See the demo to the right for the values."}
    {:name :anchor           :required true                         :type "markup"   :description "the component the popover is attached to."}
    {:name :popover          :required false                        :type "markup"   :description "the popover body component."}
-   {:name :style            :required false  :default true         :type "map"      :description "override component style(s) with a style map, only use in case of emergency."}
+   {:name :style            :required false                        :type "map"      :description "override component style(s) with a style map, only use in case of emergency."}
    ])
 
 (def popover-anchor-wrapper-args
@@ -386,7 +386,7 @@
    {:name :anchor     :required true                            :type "markup"   :description "the component the tooltip is attached to."}
    {:name :position   :required false  :default ":below-center" :type "keyword"  :description "specifies the tooltip's position relative to the anchor. Same as for main popover component."}
    {:name :width      :required false  :default "200px"         :type "string"   :description "specifies width of the tooltip."}
-   {:name :style      :required false  :default true            :type "map"      :description "override component style(s) with a style map, only use in case of emergency."}
+   {:name :style      :required false                           :type "map"      :description "override component style(s) with a style map, only use in case of emergency."}
    ])
 
 (def popover-tooltip-args
@@ -395,7 +395,7 @@
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style."
   [& {:keys [label showing? status anchor position width style]
-      :or   {position :below-center}
+      ;:or   {position :below-center}
       :as   args}]
   {:pre [(validate-arguments popover-tooltip-args (keys args))]}
   (let [label         (deref-or-value label)
@@ -407,9 +407,10 @@
      :showing? showing?
      :position position
      :anchor   anchor
+     :style    style
      :popover [popover-content-wrapper
                :showing?       showing?
-               :position       position
+               :position       (if position position :below-center)
                :width          width
                :tooltip-style? true
                :popover-color  popover-color

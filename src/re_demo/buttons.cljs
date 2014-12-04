@@ -48,10 +48,12 @@
                           [v-box
                            :children [[h-box
                                        :children [[button
-                                                   :label    "No Clicking!"
-                                                   :disabled? (= (:outcome-index @state) (dec (count click-outcomes)))
-                                                   :on-click #(swap! state update-in [:outcome-index] inc)
-                                                   :class    "btn-danger"]
+                                                   :label            "No Clicking!"
+                                                   :tooltip          "Seriously, NO CLICKING!"
+                                                   :tooltip-position :right-center
+                                                   :disabled?         (= (:outcome-index @state) (dec (count click-outcomes)))
+                                                   :on-click          #(swap! state update-in [:outcome-index] inc)
+                                                   :class             "btn-danger"]
                                                   [box
                                                    :align :center      ;; note: centered text wrt the button
                                                    :child  [label
@@ -62,9 +64,10 @@
                                       [h-box
                                        :gap "50px"
                                        :children [[button
-                                                   :label    (if (:see-spinner @state)  "Stop it!" "See Spinner")
-                                                   ;:disabled? true
-                                                   :on-click #(swap! state update-in [:see-spinner] not)]
+                                                   :label             (if (:see-spinner @state)  "Stop it!" "See Spinner")
+                                                   :tooltip           "I'm a tooltip on the left"
+                                                   :tooltip-position :left-center
+                                                   :on-click          #(swap! state update-in [:see-spinner] not)]
                                                   (when (:see-spinner @state)  [spinner])]]]]]]]])
 
 
@@ -104,6 +107,7 @@
                                "Material design icons can be found "
                                [hyperlink-href
                                 :label  "here"
+                                ;:tooltip "Click here to see all material design icons"
                                 :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
                                 :target "_blank"]
                                "."]
@@ -247,7 +251,7 @@
                     [label :label (:from row) :width (:from col-widths)]
                     [label :label (:to   row) :width (:to   col-widths)]
                     [h-box
-                     :gap      "2px"
+                     :gap      "20px"                       ;; TODO: "2px"
                      :width    (:actions col-widths)
                      :align    :center
                      :children [[row-button
@@ -299,7 +303,7 @@
 (defn row-button-demo
   []
   (let [selected-icon (reagent/atom (:id (first icons)))
-        col-widths {:sort "2.6em" :name "7.5em" :from "4em" :to "4em" :actions "4.5em"}
+        col-widths {:sort "2.6em" :name "7.5em" :from "4em" :to "4em" :actions "7em"} ;; TODO: :actions "4.5em"
         rows       {"1" {:id "1" :sort 0 :name "Time range 1" :from "18:00" :to "22:30"}
                     "2" {:id "2" :sort 1 :name "Time range 2" :from "18:00" :to "22:30"}
                     ;"2" {:id "2" :sort 1 :name "Time range 2 with some extra text appended to the end." :from "18:00" :to "22:30"}
@@ -372,6 +376,7 @@
                                            :width "200px"
                                            :child [hyperlink
                                                    :label     (if @disabled? "Now disabled" "Call back")
+                                                   :tooltip   "Click here to increase the click count."
                                                    :on-click  #(swap! click-count inc)
                                                    :disabled? disabled?]]
                                           [v-box
@@ -406,6 +411,7 @@
                                            :width "200px"
                                            :child [hyperlink-href
                                                    :label     "Launch Google"
+                                                   :tooltip   "You're about to launch Google"
                                                    :href      (when href? "http://google.com")
                                                    :target    (when href? target)]]
                                           [v-box
@@ -429,12 +435,12 @@
 
 
 
-(def demos [{:id  0 :label "button"                :component button-demo}
-            {:id  1 :label "md-circle-icon-button" :component md-circle-icon-button-demo}
-            {:id  2 :label "md-icon-button"        :component md-icon-button-demo}
-            {:id  3 :label "row-button"            :component row-button-demo}
-            {:id  4 :label "hyperlink"             :component hyperlink-demo}
-            {:id  5 :label "hyperlink-href"        :component hyperlink-href-demo}
+(def demos [{:id 0 :label "button"                :component button-demo}
+            {:id 1 :label "md-circle-icon-button" :component md-circle-icon-button-demo}
+            {:id 2 :label "md-icon-button"        :component md-icon-button-demo}
+            {:id 3 :label "row-button"            :component row-button-demo}
+            {:id 4 :label "hyperlink"             :component hyperlink-demo}
+            {:id 5 :label "hyperlink-href"        :component hyperlink-href-demo}
             ])
 
 (defn panel
@@ -443,7 +449,7 @@
     (fn []
       [v-box
        :gap "10px"
-       :children [[panel-title "Basic Components" ]
+       :children [[panel-title "Button Components" ]
                   [h-box
                    :gap      "50px"
                    :children [[v-box

@@ -20,7 +20,7 @@
        :showing?         showing?
        :on-cancel        cancel-dialog
        :position         position
-       :width            "500px"
+       :width            "400px"
        :backdrop-opacity 0.3
        :title            "This is the title"
        :body             [(fn []  ;; NOTE: THIS IS NASTY BUT REQUIRED (OTHERWISE DIALOG WILL NOT BE UPDATED WHEN ATOMS CHANGES)
@@ -63,6 +63,7 @@
                                                      :popover  [popover-content-wrapper ;; NOTE: didn't specify on-cancel here (handled properly)
                                                                 :showing?      show-tooltip?
                                                                 :position      :right-below
+                                                                :width         "250px"
                                                                 :title         "This is the cancel button"
                                                                 :close-button? false
                                                                 :body          "You can even have a popover over a popover!"]]]]]])]])))
