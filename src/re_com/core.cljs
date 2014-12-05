@@ -377,8 +377,8 @@
                            :style    style
                            :on-click #(when-not disabled? (on-click))}
                           (when tooltip
-                            {:on-mouse-over #(do (reset! showing? true)  (println "button OVER") false)
-                             :on-mouse-out  #(do (reset! showing? false) (println "button OUT")  false)})
+                            {:on-mouse-over #(reset! showing? true)
+                             :on-mouse-out  #(do (reset! showing? false) true)}) ;; Need to return true to allow default events to be performed as per mouse-over above
                           attr)
                         [:i {:class md-icon-name}]]]
         (if tooltip
@@ -470,9 +470,9 @@
     (fn
       [& {:keys [label href target tooltip tooltip-position class style attr] :as args}]
       {:pre [(validate-arguments hyperlink-href-args (keys args))]}
-      (let [label (deref-or-value label)
-            href (deref-or-value href)
-            target (deref-or-value target)
+      (let [label      (deref-or-value label)
+            href       (deref-or-value href)
+            target     (deref-or-value target)
             the-button [:a
                         (merge
                           {:class  (str "rc-hyperlink-href " class)

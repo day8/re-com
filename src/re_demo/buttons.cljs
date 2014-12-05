@@ -229,8 +229,8 @@
       (let [mouse-over-row? (identical? @mouse-over row)]
         [h-box
          :class    "rc-div-table-row"
-         :attr     {:on-mouse-over #(do (reset! mouse-over row) (println "row OVER") false)
-                    :on-mouse-out  #(do (reset! mouse-over nil) (println "row OUT")  false)}
+         :attr     {:on-mouse-over #(reset! mouse-over row)
+                    :on-mouse-out  #(reset! mouse-over nil)}
          :children [[h-box
                      :width (:sort col-widths)
                      :gap "2px"
