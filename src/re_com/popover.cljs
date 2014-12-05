@@ -395,9 +395,7 @@
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style."
-  [& {:keys [label showing? status anchor position width style]
-      ;:or   {position :below-center}
-      :as   args}]
+  [& {:keys [label showing? status anchor position width style] :as args}]
   {:pre [(validate-arguments popover-tooltip-args (keys args))]}
   (let [label         (deref-or-value label)
         popover-color (case status

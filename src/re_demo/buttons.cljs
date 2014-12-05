@@ -229,8 +229,8 @@
       (let [mouse-over-row? (identical? @mouse-over row)]
         [h-box
          :class    "rc-div-table-row"
-         :attr     {:on-mouse-over #(reset! mouse-over row)
-                    :on-mouse-out  #(reset! mouse-over nil)}
+         :attr     {:on-mouse-over #(do (reset! mouse-over row) (println "row OVER") false)
+                    :on-mouse-out  #(do (reset! mouse-over nil) (println "row OUT")  false)}
          :children [[h-box
                      :width (:sort col-widths)
                      :gap "2px"
@@ -251,7 +251,7 @@
                     [label :label (:from row) :width (:from col-widths)]
                     [label :label (:to   row) :width (:to   col-widths)]
                     [h-box
-                     :gap      "20px"                       ;; TODO: "2px"
+                     :gap      "2px"
                      :width    (:actions col-widths)
                      :align    :center
                      :children [[row-button
@@ -303,7 +303,7 @@
 (defn row-button-demo
   []
   (let [selected-icon (reagent/atom (:id (first icons)))
-        col-widths {:sort "2.6em" :name "7.5em" :from "4em" :to "4em" :actions "7em"} ;; TODO: :actions "4.5em"
+        col-widths {:sort "2.6em" :name "7.5em" :from "4em" :to "4em" :actions "4.5em"}
         rows       {"1" {:id "1" :sort 0 :name "Time range 1" :from "18:00" :to "22:30"}
                     "2" {:id "2" :sort 1 :name "Time range 2" :from "18:00" :to "22:30"}
                     ;"2" {:id "2" :sort 1 :name "Time range 2 with some extra text appended to the end." :from "18:00" :to "22:30"}
