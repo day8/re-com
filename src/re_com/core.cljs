@@ -192,36 +192,38 @@
 
 (defn button
   "Returns the markup for a basic button."
-  [& {:keys [label on-click tooltip tooltip-position disabled? class style attr]
-      :or   {class "btn-default"}
-      :as   args}]
-  {:pre [(validate-arguments button-args (keys args))]}
-  (let [disabled?   (deref-or-value disabled?)
-        showing?    (reagent/atom false)
-        the-button  [:button
-                     (merge
-                       {:class    (str "rc-button btn " class)
-                        :style    (merge
-                                    {:flex "none"}
-                                    style)
-                        :disabled disabled?
-                        :on-click #(if (and on-click (not disabled?))
-                                    (on-click))}
-                       (when tooltip
-                         {:on-mouse-over #(reset! showing? true)
-                          :on-mouse-out  #(reset! showing? false)})
-                       attr)
-                     label]]
-    [box
-     :style {:display "inline-flex"}
-     :align :start
-     :child (if tooltip
-              [popover-tooltip
-               :label    tooltip
-               :position (if tooltip-position tooltip-position :below-center)
-               :showing? showing?
-               :anchor   the-button]
-              the-button)]))
+  []
+  (let [showing? (reagent/atom false)]
+    (fn
+      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr]
+          :or   {class "btn-default"}
+          :as   args}]
+      {:pre [(validate-arguments button-args (keys args))]}
+      (let [disabled? (deref-or-value disabled?)
+            the-button [:button
+                        (merge
+                          {:class    (str "rc-button btn " class)
+                           :style    (merge
+                                       {:flex "none"}
+                                       style)
+                           :disabled disabled?
+                           :on-click #(if (and on-click (not disabled?))
+                                       (on-click))}
+                          (when tooltip
+                            {:on-mouse-over #(reset! showing? true)
+                             :on-mouse-out  #(reset! showing? false)})
+                          attr)
+                        label]]
+        [box
+         :style {:display "inline-flex"}
+         :align :start
+         :child (if tooltip
+                  [popover-tooltip
+                   :label    tooltip
+                   :position (if tooltip-position tooltip-position :below-center)
+                   :showing? showing?
+                   :anchor   the-button]
+                  the-button)]))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -246,39 +248,39 @@
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
   []
-  (fn
-    [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
-        :or   {md-icon-name "md-add"}
-        :as   args}]
-    {:pre [(validate-arguments md-circle-icon-button-args (keys args))]}
-    (let [showing?   (reagent/atom false)
-          the-button [:div
-                      (merge
-                        {:class    (str
-                                     "rc-md-circle-icon-button "
-                                     (case size
-                                       :smaller "rc-circle-smaller "
-                                       :larger "rc-circle-larger "
-                                       " ")
-                                     (when emphasise? "rc-circle-emphasis ")
-                                     (when disabled? "rc-circle-disabled ")
-                                     class)
-                         :style    (merge
-                                     {:cursor (when-not disabled? "pointer")}
-                                     style)
-                         :on-click #(when-not disabled? (on-click))}
-                        (when tooltip
-                          {:on-mouse-over #(reset! showing? true)
-                           :on-mouse-out  #(reset! showing? false)})
-                        attr)
-                      [:i {:class md-icon-name}]]]
-      (if tooltip
-        [popover-tooltip
-         :label    tooltip
-         :position (if tooltip-position tooltip-position :below-center)
-         :showing? showing?
-         :anchor   the-button]
-        the-button))))
+  (let [showing? (reagent/atom false)]
+    (fn
+      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
+          :or   {md-icon-name "md-add"}
+          :as   args}]
+      {:pre [(validate-arguments md-circle-icon-button-args (keys args))]}
+      (let [the-button [:div
+                        (merge
+                          {:class    (str
+                                       "rc-md-circle-icon-button "
+                                       (case size
+                                         :smaller "rc-circle-smaller "
+                                         :larger "rc-circle-larger "
+                                         " ")
+                                       (when emphasise? "rc-circle-emphasis ")
+                                       (when disabled? "rc-circle-disabled ")
+                                       class)
+                           :style    (merge
+                                       {:cursor (when-not disabled? "pointer")}
+                                       style)
+                           :on-click #(when-not disabled? (on-click))}
+                          (when tooltip
+                            {:on-mouse-over #(reset! showing? true)
+                             :on-mouse-out  #(reset! showing? false)})
+                          attr)
+                        [:i {:class md-icon-name}]]]
+        (if tooltip
+          [popover-tooltip
+           :label    tooltip
+           :position (if tooltip-position tooltip-position :below-center)
+           :showing? showing?
+           :anchor   the-button]
+          the-button)))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -303,39 +305,39 @@
 (defn md-icon-button
   "a circular button containing a material design icon"
   []
-  (fn
-    [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
-        :or   {md-icon-name "md-add"}
-        :as   args}]
-    {:pre [(validate-arguments md-icon-button-args (keys args))]}
-    (let [showing?   (reagent/atom false)
-          the-button [:div
-                      (merge
-                        {:class    (str
-                                     "rc-md-icon-button "
-                                     (case size
-                                       :smaller "rc-icon-smaller "
-                                       :larger "rc-icon-larger "
-                                       " ")
-                                     (when emphasise? "rc-icon-emphasis ")
-                                     (when disabled? "rc-icon-disabled ")
-                                     class)
-                         :style    (merge
-                                     {:cursor (when-not disabled? "pointer")}
-                                     style)
-                         :on-click #(when-not disabled? (on-click))}
-                        (when tooltip
-                          {:on-mouse-over #(reset! showing? true)
-                           :on-mouse-out  #(reset! showing? false)})
-                        attr)
-                      [:i {:class md-icon-name}]]]
-      (if tooltip
-        [popover-tooltip
-         :label    tooltip
-         :position (if tooltip-position tooltip-position :below-center)
-         :showing? showing?
-         :anchor   the-button]
-        the-button))))
+  (let [showing? (reagent/atom false)]
+    (fn
+      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
+          :or   {md-icon-name "md-add"}
+          :as   args}]
+      {:pre [(validate-arguments md-icon-button-args (keys args))]}
+      (let [the-button [:div
+                        (merge
+                          {:class    (str
+                                       "rc-md-icon-button "
+                                       (case size
+                                         :smaller "rc-icon-smaller "
+                                         :larger "rc-icon-larger "
+                                         " ")
+                                       (when emphasise? "rc-icon-emphasis ")
+                                       (when disabled? "rc-icon-disabled ")
+                                       class)
+                           :style    (merge
+                                       {:cursor (when-not disabled? "pointer")}
+                                       style)
+                           :on-click #(when-not disabled? (on-click))}
+                          (when tooltip
+                            {:on-mouse-over #(reset! showing? true)
+                             :on-mouse-out  #(reset! showing? false)})
+                          attr)
+                        [:i {:class md-icon-name}]]]
+        (if tooltip
+          [popover-tooltip
+           :label    tooltip
+           :position (if tooltip-position tooltip-position :below-center)
+           :showing? showing?
+           :anchor   the-button]
+          the-button)))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -359,33 +361,33 @@
 (defn row-button
   "a circular button containing a material design icon"
   []
-  (fn
-    [& {:keys [md-icon-name on-click mouse-over-row? tooltip tooltip-position disabled? class style attr]
-        :or   {md-icon-name "md-add"}
-        :as   args}]
-    {:pre [(validate-arguments row-button-args (keys args))]}
-    (let [showing?   (reagent/atom false)
-          the-button [:div
-                      (merge
-                        {:class    (str
-                                     "rc-row-button "
-                                     (when mouse-over-row? "rc-row-mouse-over-row ")
-                                     (when disabled? "rc-row-disabled ")
-                                     class)
-                         :style    style
-                         :on-click #(when-not disabled? (on-click))}
-                        (when tooltip
-                          {:on-mouse-over #(reset! showing? true)
-                           :on-mouse-out  #(reset! showing? false)})
-                        attr)
-                      [:i {:class md-icon-name}]]]
-      (if tooltip
-        [popover-tooltip
-         :label    tooltip
-         :position (if tooltip-position tooltip-position :below-center)
-         :showing? showing?
-         :anchor   the-button]
-        the-button))))
+  (let [showing? (reagent/atom false)]
+    (fn
+      [& {:keys [md-icon-name on-click mouse-over-row? tooltip tooltip-position disabled? class style attr]
+          :or   {md-icon-name "md-add"}
+          :as   args}]
+      {:pre [(validate-arguments row-button-args (keys args))]}
+      (let [the-button [:div
+                        (merge
+                          {:class    (str
+                                       "rc-row-button "
+                                       (when mouse-over-row? "rc-row-mouse-over-row ")
+                                       (when disabled? "rc-row-disabled ")
+                                       class)
+                           :style    style
+                           :on-click #(when-not disabled? (on-click))}
+                          (when tooltip
+                            {:on-mouse-over #(reset! showing? true)
+                             :on-mouse-out  #(do (reset! showing? false) true)}) ;; Need to return true to allow default events to be performed as per mouse-over above
+                          attr)
+                        [:i {:class md-icon-name}]]]
+        (if tooltip
+          [popover-tooltip
+           :label    tooltip
+           :position (if tooltip-position tooltip-position :below-center)
+           :showing? showing?
+           :anchor   the-button]
+          the-button)))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -409,35 +411,37 @@
   "Renders an underlined text hyperlink component.
    This is very similar to the button component above but styled to looks like a hyperlink.
    Useful for providing button functionality for less important functions, e.g. Cancel."
-  [& {:keys [label on-click tooltip tooltip-position disabled? class style attr] :as args}]
-  {:pre [(validate-arguments hyperlink-args (keys args))]}
-  (let [label     (deref-or-value label)
-        disabled? (deref-or-value disabled?)]
-    (let [showing?   (reagent/atom false)
-          the-button [box
-                      :align :start
-                      :child [:a
-                              (merge
-                                {:class    (str "rc-hyperlink " class)
-                                 :style    (merge
-                                             {:flex                "none"
-                                              :cursor              (if disabled? "not-allowed" "pointer")
-                                              :-webkit-user-select "none"}
-                                             style)
-                                 :on-click #(if (and on-click (not disabled?))
-                                             (on-click))}
-                                (when tooltip
-                                  {:on-mouse-over #(reset! showing? true)
-                                   :on-mouse-out  #(reset! showing? false)})
-                                attr)
-                              label]]]
-      (if tooltip
-        [popover-tooltip
-         :label    tooltip
-         :position (if tooltip-position tooltip-position :below-center)
-         :showing? showing?
-         :anchor   the-button]
-        the-button))))
+  []
+  (let [showing? (reagent/atom false)]
+    (fn
+      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr] :as args}]
+      {:pre [(validate-arguments hyperlink-args (keys args))]}
+      (let [label      (deref-or-value label)
+            disabled?  (deref-or-value disabled?)
+            the-button [box
+                        :align :start
+                        :child [:a
+                                (merge
+                                  {:class    (str "rc-hyperlink " class)
+                                   :style    (merge
+                                               {:flex                "none"
+                                                :cursor              (if disabled? "not-allowed" "pointer")
+                                                :-webkit-user-select "none"}
+                                               style)
+                                   :on-click #(if (and on-click (not disabled?))
+                                               (on-click))}
+                                  (when tooltip
+                                    {:on-mouse-over #(reset! showing? true)
+                                     :on-mouse-out  #(reset! showing? false)})
+                                  attr)
+                                label]]]
+        (if tooltip
+          [popover-tooltip
+           :label tooltip
+           :position (if tooltip-position tooltip-position :below-center)
+           :showing? showing?
+           :anchor the-button]
+          the-button)))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -461,34 +465,36 @@
   "Renders an underlined text hyperlink component.
    This is very similar to the button component above but styled to looks like a hyperlink.
    Useful for providing button functionality for less important functions, e.g. Cancel."
-  [& {:keys [label href target tooltip tooltip-position class style attr] :as args}]
-  {:pre [(validate-arguments hyperlink-href-args (keys args))]}
-  (let [label      (deref-or-value label)
-        href       (deref-or-value href)
-        target     (deref-or-value target)
-        showing?   (reagent/atom false)
-        the-button [:a
-                    (merge
-                      {:class    (str "rc-hyperlink-href " class)
-                       :style    (merge
-                                   {:flex                "none"
-                                    :-webkit-user-select "none"}
-                                   style)
-                       :href       href
-                       :target     target}
-                      (when tooltip
-                        {:on-mouse-over #(reset! showing? true)
-                         :on-mouse-out  #(reset! showing? false)})
-                      attr)
-                    label]]
+  []
+  (let [showing? (reagent/atom false)]
+    (fn
+      [& {:keys [label href target tooltip tooltip-position class style attr] :as args}]
+      {:pre [(validate-arguments hyperlink-href-args (keys args))]}
+      (let [label      (deref-or-value label)
+            href       (deref-or-value href)
+            target     (deref-or-value target)
+            the-button [:a
+                        (merge
+                          {:class  (str "rc-hyperlink-href " class)
+                           :style  (merge
+                                     {:flex                "none"
+                                      :-webkit-user-select "none"}
+                                     style)
+                           :href   href
+                           :target target}
+                          (when tooltip
+                            {:on-mouse-over #(reset! showing? true)
+                             :on-mouse-out  #(reset! showing? false)})
+                          attr)
+                        label]]
 
-    (if tooltip
-      [popover-tooltip
-       :label    tooltip
-       :position (if tooltip-position tooltip-position :below-center)
-       :showing? showing?
-       :anchor   the-button]
-      the-button)))
+        (if tooltip
+          [popover-tooltip
+           :label tooltip
+           :position (if tooltip-position tooltip-position :below-center)
+           :showing? showing?
+           :anchor the-button]
+          the-button)))))
 
 
 ;; ------------------------------------------------------------------------------------
