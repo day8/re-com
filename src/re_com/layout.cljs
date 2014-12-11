@@ -61,7 +61,7 @@
                      (.preventDefault event)                                    ;; stop selection of text during drag
                      (reset! dragging? true))
 
-        mouseover-split #(reset! over? true)
+        mouseover-split #(reset! over? true) ;; true CANCELs mouse-over (false cancels all others)
         mouseout-split  #(reset! over? false)
 
         make-container-style (fn [class in-drag?]

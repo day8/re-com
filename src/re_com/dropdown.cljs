@@ -92,14 +92,14 @@
   (let [mouse-over? (reagent/atom false)]
     (reagent/create-class
       {:component-did-mount
-        (fn [me]
-          (let [node     (reagent/dom-node me)
+        (fn [event]
+          (let [node     (reagent/dom-node event)
                 selected (= @internal-model (:id opt))]
             (when selected (.scrollIntoView node false))))
 
        :component-did-update
-        (fn [me]
-          (let [node     (reagent/dom-node me)
+        (fn [event]
+          (let [node     (reagent/dom-node event)
                 selected (= @internal-model (:id opt))]
             (when selected (.scrollIntoView node false))))
 
@@ -111,9 +111,12 @@
                            (when @mouse-over? "mouseover"))]
             [:li
              {:class         (str "active-result group-option " class)
-              :on-mouse-over #(reset! mouse-over? true)
-              :on-mouse-out  #(reset! mouse-over? false)
-              :on-mouse-down #(on-click (:id opt))}
+              :on-mouse-over #(do (reset! mouse-over? true)
+                                  true) ;; true CANCELs mouse-over (false cancels all others)
+              :on-mouse-out  #(do (reset! mouse-over? false)
+                                  false)
+              :on-mouse-down #(do (on-click (:id opt))
+                                  true)}  ;; continue event
              (:label opt)]))})))
 
 
@@ -129,9 +132,11 @@
                                             :left     "0px"
                                             :top      "-7770px"})
        :value         @filter-text
-       :on-change     #(reset! filter-text (-> % .-target .-value))
-       :on-blur       #(reset! drop-showing? false)
-       :on-key-down   key-handler}]]))
+       :on-change     #(do (reset! filter-text (-> % .-target .-value))
+                           true)
+       :on-blur       #(do (reset! drop-showing? false)
+                           false)
+       :on-key-down   key-handler}]])) ;; Rely on return value from key-handler for event return value
 
 
 (def ^:private filter-text-box
@@ -154,11 +159,15 @@
           :tab-index     (when tab-index tab-index)
           :on-click      #(if @ignore-click
                            (reset! ignore-click false)
-                           (dropdown-click))
-          :on-mouse-down #(when @drop-showing? (reset! ignore-click true))
-          :on-key-down   #(do
-                           (key-handler %)
-                           (when (= (.-which %) 13) (reset! ignore-click true)))} ;; Pressing enter on an anchor also triggers click event, which we don't want
+                           (dropdown-click)
+                           true)
+          :on-mouse-down #((when @drop-showing?
+                             (reset! ignore-click true))
+                           true) ;; continue event ;; TODO: Hmmm, have a look at setting to false and removing the ignore-click stuff
+          :on-key-down   #(do (key-handler %)
+                              (when (= (.-which %) 13) ;; Pressing enter on an anchor also triggers click event, which we don't want
+                                (reset! ignore-click true))
+                              true)}  ;; continue event ;; TODO: Hmmm, have a look at setting to false and removing the ignore-click stuff
          [:span
           (if @internal-model
             (:label (item-for-id @internal-model choices))

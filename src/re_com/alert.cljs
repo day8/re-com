@@ -28,9 +28,10 @@
       :as   args}]
   {:pre [(util/validate-arguments alert-box-args (keys args))]}
   (let [close-button [button
-                      :label "×"
-                      :on-click #(on-close id)
-                      :class "close"]
+                      :label    "×"
+                      :on-click #(do (on-close id)
+                                     false)
+                      :class    "close"]
         alert-type    (if (= alert-type "info")
                         "success"
                         alert-type)]
@@ -44,7 +45,7 @@
         :align :center
         :style {:margin-bottom (if body "10px" "0px")}
         :children [[:h4
-                    {:style {:margin-bottom "0px"}}         ;; Override h4
+                    {:style {:margin-bottom "0px"}} ;; Override h4
                     heading]
                    (when (and closeable? on-close)
                      close-button)]])

@@ -298,9 +298,9 @@
         top-offset  (reagent/atom 0)]
     (reagent/create-class
       {:component-did-mount
-       (fn [me]
+       (fn [event]
          (when no-clip?
-           (let [offsets (sum-scroll-offsets (reagent/dom-node me))]
+           (let [offsets (sum-scroll-offsets (reagent/dom-node event))]
              (reset! left-offset (:left offsets))
              (reset! top-offset  (:top  offsets)))))
 

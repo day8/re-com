@@ -717,7 +717,7 @@
                     {:style         {:margin "1px" :height "39px"}
                      :type          "button"
                      :value         "Long"
-                     :on-mouse-over #(reset! show-modal-popover? true)
+                     :on-mouse-over #(reset! show-modal-popover? true) ;; true CANCELs mouse-over (false cancels all others)
                      :on-mouse-out  #(reset! show-modal-popover? false)
                      :on-click      #(cpu-delay 10)
                     #_#(chunk-runner

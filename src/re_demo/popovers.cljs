@@ -249,7 +249,7 @@
                                                                        :border           "2px solid blue"
                                                                        :padding          "8px"
                                                                        :cursor           "default"}
-                                                       :on-mouse-over #(reset! showing? true)
+                                                       :on-mouse-over #(reset! showing? true) ;; true CANCELs mouse-over (false cancels all others)
                                                        :on-mouse-out  #(reset! showing? false)}
                                                       "hover here for tooltip"]
                                            :popover [popover-content-wrapper

@@ -165,7 +165,7 @@
                                                        :model            text-val
                                                        :status           @status
                                                        :status-icon?     @status-icon?
-                                                       :status-tooltip   @status-tooltip
+                                                       ;:status-tooltip   @status-tooltip
                                                        :width            "300px"
                                                        :placeholder      "placeholder message"
                                                        :on-change        #(reset! text-val %)

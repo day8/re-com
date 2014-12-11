@@ -9,7 +9,7 @@
                  [org.clojure/core.async "0.1.338.0-5c5012-alpha"]
                  [alandipert/storage-atom "1.2.3"]
                  [reagent "0.4.3"]
-                 [com.andrewmcveigh/cljs-time "0.2.3"]]
+                 [com.andrewmcveigh/cljs-time "0.2.4"]]
 
   :profiles     {:debug {:debug true}
                  :dev {:dependencies [[clj-stacktrace "0.2.8"]
@@ -28,7 +28,7 @@
   :jar-exclusions [#"(?:^|\/)re_demo\/"]
 
   :cljsbuild    {:builds [{:id "demo"
-                           :source-paths   ["src/re_demo" "src/re_com"]
+                           :source-paths   ["src"]
                            :compiler       {:output-to     "run/compiled/demo.js"
                                             :source-map    "run/compiled/demo.js.map"
                                             :output-dir    "run/compiled/demo"

@@ -1,4 +1,5 @@
 (ns re-com.core
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require [clojure.set    :refer [superset?]]
             [reagent.core   :as    reagent]
             [re-com.util    :refer [deref-or-value validate-arguments px]]
@@ -10,14 +11,16 @@
 ;;  Component: label
 ;; ------------------------------------------------------------------------------------
 
-(def label-args
-  #{:label      ;; Label to display
-    :on-click   ;; Callback when label is clicked
-    :width      ;; The specific width of this label
-    :class      ;; Class string
-    :style      ;; A map. Standard hicckup style map values. e.g. {:color "blue" :margin "4px"}
-    })
+(def label-args-desc
+  [{:name :label     :required true  :type "string"     :description "text to display"}
+   {:name :on-click  :required false :type "function"   :description "callback function to call when label is clicked"}
+   {:name :width     :required false :type "string"     :description "a CSS width"}
+   {:name :class     :required false :type "string"     :description "a CSS class name"}
+   {:name :style     :required false :type "string"     :description "additional CSS styles"}
+   ])
 
+(def label-args
+  (set (map :name label-args-desc)))
 
 (defn label
   "Returns markup for a basic label"
@@ -31,7 +34,11 @@
            (merge
              {:class (str "rc-label " class)
               :style (merge {:flex "none"} style)}
-             (when on-click {:on-click #(on-click)}))
+             (when on-click
+               {:on-click #(do (on-click)
+                               false)}
+               #_{:on-click (with-event-cancel on-click )}  ;; TODO:
+               ))
            label]])
 
 
@@ -112,8 +119,20 @@
                      :placeholder placeholder
                      :value       @internal-model
                      :disabled    disabled?
-                     :on-change   (fn [me]
-                                    (let [new-val (-> me .-target .-value)]
+
+                     ;:on-change   (fn [event]
+                     ;               (let [new-val (-> event .-target .-value)]
+                     ;                 (when (and
+                     ;                         on-change
+                     ;                         (not disabled?)
+                     ;                         (if validation-regex (re-find validation-regex new-val) true))
+                     ;                   (reset! internal-model new-val)
+                     ;                   (when-not change-on-blur?
+                     ;                     (on-change @internal-model)))
+                     ;                 false))
+
+                     :on-change   (handler-fn
+                                    (let [new-val (-> event .-target .-value)]
                                       (when (and
                                               on-change
                                               (not disabled?)
@@ -121,46 +140,71 @@
                                         (reset! internal-model new-val)
                                         (when-not change-on-blur?
                                           (on-change @internal-model)))))
-                     :on-blur     #(when (and
-                                           on-change
-                                           change-on-blur?
-                                           (not= @internal-model @external-model))
-                                    (on-change @internal-model))
-                     :on-key-up   #(if disabled?
-                                    false
-                                    (case (.-which %)
-                                      13 (when on-change (on-change @internal-model))
-                                      27 (reset! internal-model @external-model)
-                                      true))}
+
+                     ;:on-blur     #(do (when (and
+                     ;                          on-change
+                     ;                          change-on-blur?
+                     ;                          (not= @internal-model @external-model))
+                     ;                    (on-change @internal-model))
+                     ;                  false)
+
+                     :on-blur     (handler-fn
+                                    (when (and
+                                            on-change
+                                            change-on-blur?
+                                            (not= @internal-model @external-model))
+                                      (on-change @internal-model))
+                                    #_(.preventDefault event))
+
+                     ;:on-key-up   #(if disabled?
+                     ;               false
+                     ;               (do (case (.-which %)
+                     ;                     13 (when on-change (on-change @internal-model))
+                     ;                     27 (reset! internal-model @external-model)
+                     ;                     true)
+                     ;                   true))
+
+                     :on-key-up   (handler-fn
+                                    (if disabled?
+                                      (.preventDefault event)
+                                      (case (.-which event)
+                                        13 (when on-change (on-change @internal-model))
+                                        27 (reset! internal-model @external-model)
+                                        true)))
+
+                     }
                     attr)]
-                 (when (and status status-icon?)
-                   #_[:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
-                        :style {:font-size    "130%"
-                                :top          "50%"
-                                :right        "0px"
-                                :margin-top   "-0.5em"
-                                :margin-right "0.5em"
-                                :width        "auto"
-                                :height       "auto"}
-                        :title status-tooltip}]
-                   [popover-tooltip
-                    :label    status-tooltip
-                    :position :right-center
-                    :status   status
-                    :width    "200px"
-                    :showing? showing?
-                    :anchor   [:i {:class         (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
-                                   :style         {:position  "static"
-                                                   :font-size "130%"
-                                                   :width     "auto"
-                                                   :height    "auto"}
-                                   :on-mouse-over #(reset! showing? true)
-                                   :on-mouse-out  #(reset! showing? false)}]
-                    :style    {:position     "absolute"
-                               :top          "50%"
-                               :right        "0px"
-                               :margin-top   "-0.5em"
-                               :margin-right "0.5em"}])]]))))
+                 (when (and status-icon? status)
+                   (if status-tooltip
+                     [popover-tooltip
+                      :label status-tooltip
+                      :position :right-center
+                      :status status
+                      ;:width "200px"
+                      :showing? showing?
+                      :anchor [:i {:class         (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                                   :style         {:position "static"
+                                                   :width    "auto"
+                                                   :height   "auto"}
+                                   :on-mouse-over #(do (reset! showing? true)
+                                                       true) ;; true CANCELs mouse-over (false cancels all others)
+                                   :on-mouse-out  #(do (reset! showing? false)
+                                                       false)}]
+                      :style {:position     "absolute"
+                              :font-size    "130%"
+                              :top          "50%"
+                              :right        "0px"
+                              :margin-top   "-0.5em"
+                              :margin-right "0.5em"}]
+                     [:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                          :style {:font-size    "130%"
+                                  :top          "50%"
+                                  :right        "0px"
+                                  :margin-top   "-0.5em"
+                                  :margin-right "0.5em"
+                                  :width        "auto"
+                                  :height       "auto"}
+                          :title status-tooltip}]))]]))))
 
 
 (defn input-text
@@ -207,11 +251,14 @@
                                        {:flex "none"}
                                        style)
                            :disabled disabled?
-                           :on-click #(if (and on-click (not disabled?))
-                                       (on-click))}
+                           :on-click #(do (when (and on-click (not disabled?))
+                                            (on-click))
+                                          false)}
                           (when tooltip
-                            {:on-mouse-over #(reset! showing? true)
-                             :on-mouse-out  #(reset! showing? false)})
+                            {:on-mouse-over #(do (reset! showing? true)
+                                                 true) ;; true CANCELs mouse-over (false cancels all others)
+                             :on-mouse-out  #(do (reset! showing? false)
+                                                 false)})
                           attr)
                         label]]
         [box
@@ -268,10 +315,14 @@
                            :style    (merge
                                        {:cursor (when-not disabled? "pointer")}
                                        style)
-                           :on-click #(when-not disabled? (on-click))}
+                           :on-click #(do (when-not disabled?
+                                            (on-click))
+                                          false)}
                           (when tooltip
-                            {:on-mouse-over #(reset! showing? true)
-                             :on-mouse-out  #(reset! showing? false)})
+                            {:on-mouse-over #(do (reset! showing? true)
+                                                 true) ;; true CANCELs mouse-over (false cancels all others)
+                             :on-mouse-out  #(do (reset! showing? false)
+                                                 false)})
                           attr)
                         [:i {:class md-icon-name}]]]
         (if tooltip
@@ -325,10 +376,14 @@
                            :style    (merge
                                        {:cursor (when-not disabled? "pointer")}
                                        style)
-                           :on-click #(when-not disabled? (on-click))}
+                           :on-click #(do (when-not disabled?
+                                            (on-click))
+                                          false)}
                           (when tooltip
-                            {:on-mouse-over #(reset! showing? true)
-                             :on-mouse-out  #(reset! showing? false)})
+                            {:on-mouse-over #(do (reset! showing? true)
+                                                 true) ;; true CANCELs mouse-over (false cancels all others)
+                             :on-mouse-out  #(do (reset! showing? false)
+                                                 false)})
                           attr)
                         [:i {:class md-icon-name}]]]
         (if tooltip
@@ -375,10 +430,14 @@
                                        (when disabled? "rc-row-disabled ")
                                        class)
                            :style    style
-                           :on-click #(when-not disabled? (on-click))}
+                           :on-click #(do (when-not disabled?
+                                            (on-click))
+                                          false)}
                           (when tooltip
-                            {:on-mouse-over #(reset! showing? true)
-                             :on-mouse-out  #(do (reset! showing? false) true)}) ;; Need to return true to allow default events to be performed as per mouse-over above
+                            {:on-mouse-over #(do (reset! showing? true)
+                                                 true) ;; true CANCELs mouse-over (false cancels all others)
+                             :on-mouse-out  #(do (reset! showing? false)
+                                                 true)}) ;; Need to return true to ALLOW default events to be performed
                           attr)
                         [:i {:class md-icon-name}]]]
         (if tooltip
@@ -428,11 +487,14 @@
                                                 :cursor              (if disabled? "not-allowed" "pointer")
                                                 :-webkit-user-select "none"}
                                                style)
-                                   :on-click #(if (and on-click (not disabled?))
-                                               (on-click))}
+                                   :on-click #(do (when (and on-click (not disabled?))
+                                                    (on-click))
+                                                  false)}
                                   (when tooltip
-                                    {:on-mouse-over #(reset! showing? true)
-                                     :on-mouse-out  #(reset! showing? false)})
+                                    {:on-mouse-over #(do (reset! showing? true)
+                                                         true) ;; true CANCELs mouse-over (false cancels all others)
+                                     :on-mouse-out  #(do (reset! showing? false)
+                                                         false)})
                                   attr)
                                 label]]]
         (if tooltip
@@ -483,8 +545,10 @@
                            :href   href
                            :target target}
                           (when tooltip
-                            {:on-mouse-over #(reset! showing? true)
-                             :on-mouse-out  #(reset! showing? false)})
+                            {:on-mouse-over #(do (reset! showing? true)
+                                                 true) ;; true CANCELs mouse-over (false cancels all others)
+                             :on-mouse-out  #(do (reset! showing? false)
+                                                 false)})
                           attr)
                         label]]
 

@@ -56,7 +56,7 @@
                                         @mouse-over?) "#f4f4f4")}
 
         :class "nav-item"
-        :on-mouse-over  #(reset! mouse-over? true)
+        :on-mouse-over  #(reset! mouse-over? true) ;; true CANCELs mouse-over (false cancels all others)
         :on-mouse-out   #(reset! mouse-over? false)
         :on-click       #(reset! selected-tab-id (:id tab))
        }
