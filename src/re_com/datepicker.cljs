@@ -2,6 +2,7 @@
 ;; depends: datepicker-bs3.css
 
 (ns re-com.datepicker
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require
     [clojure.set          :refer [superset?]]
     [reagent.core         :as    reagent]
@@ -99,11 +100,11 @@
      (conj template-row
            [:th {:class (str "prev " (if prev-enabled? "available selectable" "disabled"))}
             [:i {:class "fa fa-arrow-left icon-arrow-left glyphicon glyphicon-chevron-left"
-                        :on-click #(when prev-enabled? (reset! current prev-date))}]]
+                        :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}]]
            [:th {:class "month" :col-span "5"} (month-label @current)]
            [:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))}
             [:i {:class "fa fa-arrow-right icon-arrow-right glyphicon glyphicon-chevron-right"
-                        :on-click #(when next-enabled? (reset! current next-date))}]])
+                        :on-click (handler-fn (when next-enabled? (reset! current next-date)))}]])
      ;; could be done via more clever mapping but avoiding abscurity here.
      ;; style each day label based on if it is in enabled-days
      (conj template-row
@@ -149,7 +150,7 @@
 
                            :else styles)
         on-click     #(when-not (or disabled? disabled-day?) (selection-changed date on-change))]
-    [:td {:class styles :on-click on-click} (day date)]))
+    [:td {:class styles :on-click (handler-fn (on-click))} (day date)]))
 
 
 (defn- week-td [date]
@@ -227,7 +228,7 @@
          :style    {:display             "flex"
                     :flex                "none"
                     :-webkit-user-select "none"}
-         :on-click #(swap! shown? not)}
+         :on-click (handler-fn (swap! shown? not))}
    [h-box
     :align :center
     :children [[:label {:class "form-control dropdown-button"}

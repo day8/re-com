@@ -1,4 +1,5 @@
 (ns re-com.selection-list
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require
     [clojure.set          :refer [superset?]]
     [reagent.core         :as    r]
@@ -28,7 +29,8 @@
   ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
   [box
    :class "list-group-item compact"
-   :attr  {:on-click    #(on-change (check-clicked selections item (not (selections item)) required?))}
+   ;:attr  {:on-click    #(on-change (check-clicked selections item (not (selections item)) required?))}
+   :attr  {:on-click    (handler-fn (on-change (check-clicked selections item (not (selections item)) required?)))}
    :child [checkbox
            :model       (selections item)
            :on-change   #() ;; handled by enclosing box
@@ -47,7 +49,8 @@
   [item selections on-change disabled? label-fn required? as-exclusions?]
   [box
    :class "list-group-item compact"
-   :attr  {:on-click    #(on-change (radio-clicked selections item required?))}
+   ;:attr  {:on-click    #(on-change (radio-clicked selections item required?))}
+   :attr  {:on-click    (handler-fn (on-change (radio-clicked selections item required?)))}
    :child [radio-button
            :model       (first selections)
            :value       item

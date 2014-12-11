@@ -1,4 +1,5 @@
 (ns re-com.popover
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require [clojure.set    :refer [superset?]]
             [re-com.util    :refer [validate-arguments get-element-by-id px deref-or-value]]
             ;[re-com.core    :refer [button]]
@@ -26,9 +27,10 @@
   [showing? close-callback]
   ;; Can't use [button] because [button] already uses [popover] which would be a circular dependency.
   [:button
-   {:on-click #(if close-callback
-                (close-callback)
-                (reset! showing? false))
+   {:on-click (handler-fn
+                (if close-callback
+                  (close-callback)
+                  (reset! showing? false)))
     :class    "close"
     :style    {:font-size "36px" :height "26px" :margin-top "-8px"}}
    "×"])
@@ -140,7 +142,7 @@
                     :height           "100%"
                     :background-color "black"
                     :opacity          (if opacity opacity 0.0)}
-         :on-click on-click}])
+         :on-click (handler-fn (on-click))}])
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -298,9 +300,9 @@
         top-offset  (reagent/atom 0)]
     (reagent/create-class
       {:component-did-mount
-       (fn [me]
+       (fn [event]
          (when no-clip?
-           (let [offsets (sum-scroll-offsets (reagent/dom-node me))]
+           (let [offsets (sum-scroll-offsets (reagent/dom-node event))]
              (reset! left-offset (:left offsets))
              (reset! top-offset  (:top  offsets)))))
 

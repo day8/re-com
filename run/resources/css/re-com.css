@@ -756,6 +756,7 @@ html, body {
 }
 
 .rc-div-table-header > div {
+    background-color: #e8e8e8;
     font-weight: bold;
     padding:     5px;
 }

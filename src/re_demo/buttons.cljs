@@ -50,7 +50,7 @@
                                        :children [[button
                                                    :label            "No Clicking!"
                                                    :tooltip          "Seriously, NO CLICKING!"
-                                                   :tooltip-position :right-center
+                                                   :tooltip-position :below-center
                                                    :disabled?         (= (:outcome-index @state) (dec (count click-outcomes)))
                                                    :on-click          #(swap! state update-in [:outcome-index] inc)
                                                    :class             "btn-danger"]
@@ -60,7 +60,7 @@
                                                             :label (nth click-outcomes (:outcome-index @state))
                                                             :style {:margin-left "15px"}]]]]
 
-                                      [gap :size "20px"]
+                                      [gap :size "40px"]
                                       [h-box
                                        :gap "50px"
                                        :children [[button
@@ -229,8 +229,8 @@
       (let [mouse-over-row? (identical? @mouse-over row)]
         [h-box
          :class    "rc-div-table-row"
-         :attr     {:on-mouse-over #(reset! mouse-over row)
-                    :on-mouse-out  #(reset! mouse-over nil)}
+         :attr     {:on-mouse-over #(do (reset! mouse-over row) true) ;; true CANCELs mouse-over (false cancels all others)
+                    :on-mouse-out  #(do (reset! mouse-over nil) false)}
          :children [[h-box
                      :width (:sort col-widths)
                      :gap "2px"

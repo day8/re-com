@@ -1,4 +1,5 @@
 (ns re-com.time
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require
     [reagent.core :as reagent]
     [clojure.string :as cljstring]
@@ -174,9 +175,13 @@
            :class     (str "time-entry " class)
            :value     @text-model
            :style     style
-           :on-change #(on-new-keypress % text-model)
-           :on-blur   #(on-defocus text-model minimum maximum on-change @previous-model)
-           :on-key-up #(lose-focus-if-enter %)}]
+           ;:on-change #(on-new-keypress % text-model)
+           :on-change (handler-fn (on-new-keypress event text-model))
+           ;:on-blur   #(on-defocus text-model minimum maximum on-change @previous-model)
+           :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
+           ;:on-key-up #(lose-focus-if-enter %)
+           :on-key-up (handler-fn (lose-focus-if-enter event))
+           }]
          (when show-icon?
            [:span.time-icon [:span.glyphicon.glyphicon-time]])]))))
 

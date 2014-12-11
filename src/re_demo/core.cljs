@@ -1,5 +1,6 @@
 (ns re-demo.core
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [re-com.core            :refer [handler-fn]]
+                   [cljs.core.async.macros :refer [go]])
   (:require [reagent.core       :as    reagent]
             [alandipert.storage-atom :refer [local-storage]]
             [re-demo.utils      :refer  [panel-title]]
@@ -56,10 +57,10 @@
                                         @mouse-over?) "#f4f4f4")}
 
         :class "nav-item"
-        :on-mouse-over  #(reset! mouse-over? true)
-        :on-mouse-out   #(reset! mouse-over? false)
-        :on-click       #(reset! selected-tab-id (:id tab))
-       }
+        :on-mouse-over (handler-fn (reset! mouse-over? true))
+        :on-mouse-out  (handler-fn (reset! mouse-over? false))
+        :on-click      (handler-fn (reset! selected-tab-id (:id tab)))
+        }
        [:span
         {:style {:cursor "default"}}    ;; removes the I-beam over the label
         (:label tab)]]))))
