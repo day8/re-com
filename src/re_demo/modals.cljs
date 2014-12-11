@@ -1,5 +1,6 @@
 (ns re-demo.modals
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [re-com.core            :refer [handler-fn]]
+                   [cljs.core.async.macros :refer [go]])
   (:require [re-com.util     :as    util]
             [re-com.core     :refer [button label spinner progress-bar title]]
             [re-com.box      :refer [h-box v-box box gap]]
@@ -637,7 +638,7 @@
       :placeholder "Enter email"
       :style       {:width "250px"}
       :value       (:email @form-data)
-      :on-change   #(swap! form-data assoc :email (-> % .-target .-value))}]
+      :on-change   (handler-fn (swap! form-data assoc :email (-> event .-target .-value)))}]
     ]
    [:div.form-group
     [:label {:for "pf-password"} "Password"]
@@ -647,7 +648,7 @@
       :placeholder "Enter password"
       :style       {:width "250px"}
       :value       (:password @form-data)
-      :on-change   #(swap! form-data assoc :password (-> % .-target .-value))}]
+      :on-change   (handler-fn (swap! form-data assoc :password (-> event .-target .-value)))}]
     ]
    [:div.checkbox
     [:label
@@ -655,7 +656,7 @@
       {:name      "remember-me"
        :type      "checkbox"
        :checked   (:remember-me @form-data)
-       :on-change #(swap! form-data assoc :remember-me (-> % .-target .-checked))}
+       :on-change (handler-fn (swap! form-data assoc :remember-me (-> event .-target .-checked)))}
       "Remember me"]]]
    [:hr {:style {:margin "10px 0 10px"}}]
    [button
@@ -717,13 +718,13 @@
                     {:style         {:margin "1px" :height "39px"}
                      :type          "button"
                      :value         "Long"
-                     :on-mouse-over #(reset! show-modal-popover? true) ;; true CANCELs mouse-over (false cancels all others)
-                     :on-mouse-out  #(reset! show-modal-popover? false)
-                     :on-click      #(cpu-delay 10)
-                    #_#(chunk-runner
-                      serious-process-1-chunk
-                      serious-process-1-status
-                      250)}]
+                     :on-mouse-over (handler-fn (reset! show-modal-popover? true))
+                     :on-mouse-out  (handler-fn (reset! show-modal-popover? false))
+                     :on-click      (handler-fn (cpu-delay 10))
+                     #_#(chunk-runner
+                       serious-process-1-chunk
+                       serious-process-1-status
+                       250)}]
          :popover  [popover-content-wrapper
                     :showing?         show-modal-popover?
                     :position         :left-center

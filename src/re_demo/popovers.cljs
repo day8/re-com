@@ -1,4 +1,5 @@
 (ns re-demo.popovers
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.core                 :refer [label button input-text checkbox radio-button title hyperlink inline-tooltip]]
             [re-com.box                  :refer [h-box v-box box gap line scroller border]]
             [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper popover-tooltip]]
@@ -249,8 +250,8 @@
                                                                        :border           "2px solid blue"
                                                                        :padding          "8px"
                                                                        :cursor           "default"}
-                                                       :on-mouse-over #(reset! showing? true) ;; true CANCELs mouse-over (false cancels all others)
-                                                       :on-mouse-out  #(reset! showing? false)}
+                                                       :on-mouse-over (handler-fn (reset! showing? true))
+                                                       :on-mouse-out  (handler-fn (reset! showing? false))}
                                                       "hover here for tooltip"]
                                            :popover [popover-content-wrapper
                                                      :showing? showing?

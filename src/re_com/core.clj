@@ -24,11 +24,11 @@
 ;;
 ;;
 ;;     :on-mouse-out  (handler-fn
-;;                       (reset! over-atom false)       ;; notice: no need for a 'do'
+;;                       (reset! over-atom false)     ;; notice: no need for a 'do'
 ;;                       (now do something else)
 ;;                       (.preventDefault event))     ;; notice access to the 'event'
 ;;
 
 (defmacro handler-fn
   ([& body]
-    `(fn [~'event] (do ~@body nil))))   ;;  force return nil 
+    `(fn [~'event] ~@body nil)))  ;; force return nil

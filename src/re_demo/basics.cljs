@@ -80,9 +80,9 @@
 
                                            [h-box
                                             :gap "1px"
-                                            :children [[checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)]
-                                                       [checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)]
-                                                       [checkbox  :model all-for-one?   :on-change #(reset! all-for-one? %)  :label  "all for one, and one for all.  "]]]
+                                            :children [[checkbox  :model all-for-one? :on-change #(reset! all-for-one? %)]
+                                                       [checkbox  :model all-for-one? :on-change #(reset! all-for-one? %)]
+                                                       [checkbox  :model all-for-one? :on-change #(reset! all-for-one? %)  :label  "all for one, and one for all.  "]]]
 
                                            [h-box
                                             :gap "15px"

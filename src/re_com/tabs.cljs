@@ -1,7 +1,8 @@
 (ns re-com.tabs
-   (:require [clojure.set  :refer [superset?]]
-             [re-com.util  :refer [deref-or-value validate-arguments]]
-             [reagent.core :as    reagent]))
+  (:require-macros [re-com.core :refer [handler-fn]])
+  (:require [clojure.set  :refer [superset?]]
+            [re-com.util  :refer [deref-or-value validate-arguments]]
+            [reagent.core :as    reagent]))
 
 
 
@@ -39,7 +40,9 @@
            :key    (str id)}
           [:a
            {:style     {:cursor "pointer"}
-            :on-click  #(on-change id)}
+            ;:on-click  #(on-change id)
+            :on-click  (when on-change (handler-fn (on-change id)))
+            }
            label]]))]))
 
 
@@ -64,7 +67,9 @@
           {:type     "button"
            :key      (str id)
            :class    (str "btn btn-default "  (if selected? "active"))
-           :on-click  #(on-change id)}
+           ;:on-click  #(on-change id)
+           :on-click  (when on-change (handler-fn (on-change id)))
+           }
           label]))]))
 
 
@@ -72,8 +77,8 @@
   [& {:keys [model tabs on-change] :as args}]
   {:pre [(superset? tabs-args (keys args))]}
   (bar-tabs
-    :model model
-    :tabs tabs
+    :model     model
+    :tabs      tabs
     :on-change on-change
     :vertical? false))
 
@@ -81,8 +86,8 @@
   [& {:keys [model tabs on-change] :as args}]
   {:pre [(superset? tabs-args (keys args))]}
   (bar-tabs
-    :model model
-    :tabs tabs
+    :model     model
+    :tabs      tabs
     :on-change on-change
     :vertical? true))
 
@@ -110,7 +115,9 @@
            :key      (str id)}
           [:a
            {:style     {:cursor "pointer"}
-            :on-click  #(on-change id)}
+            ;:on-click  #(on-change id)
+            :on-click  (when on-change (handler-fn (on-change id)))
+            }
            label]]))]))
 
 
@@ -118,8 +125,8 @@
   [& {:keys [model tabs on-change] :as args}]
   {:pre [(superset? tabs-args (keys args))]}
   (pill-tabs
-    :model model
-    :tabs tabs
+    :model     model
+    :tabs      tabs
     :on-change on-change
     :vertical? false))
 
@@ -128,7 +135,7 @@
   [& {:keys [model tabs on-change] :as args}]
   {:pre [(superset? tabs-args (keys args))]}
   (pill-tabs
-    :model model
-    :tabs tabs
+    :model     model
+    :tabs      tabs
     :on-change on-change
     :vertical? true))

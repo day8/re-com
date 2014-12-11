@@ -1,4 +1,5 @@
 (ns re-com.alert
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require [clojure.set  :refer [superset?]]
             [re-com.core  :refer [button]]
             [re-com.box   :refer [h-box v-box scroller border]]
@@ -29,8 +30,7 @@
   {:pre [(util/validate-arguments alert-box-args (keys args))]}
   (let [close-button [button
                       :label    "×"
-                      :on-click #(do (on-close id)
-                                     false)
+                      :on-click (handler-fn (on-close id))
                       :class    "close"]
         alert-type    (if (= alert-type "info")
                         "success"
