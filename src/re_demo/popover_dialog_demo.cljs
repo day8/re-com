@@ -2,7 +2,8 @@
   (:require [reagent.core    :as    reagent]
             [re-com.util     :refer [deref-or-value]]
             [re-com.box      :refer [h-box v-box box gap line]]
-            [re-com.core     :refer [button label checkbox radio-button]]
+            [re-com.core     :refer [label checkbox radio-button]]
+            [re-com.buttons  :refer [button]]
             [re-com.dropdown :refer [single-dropdown]]
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]))
 

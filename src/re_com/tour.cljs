@@ -1,7 +1,6 @@
 (ns re-com.tour
   (:require [reagent.core   :as    reagent]
-            [re-com.util    :as    util]
-            [re-com.core    :refer [button]]))
+            [re-com.buttons :refer [button]]))
 
 
 ;;--------------------------------------------------------------------------------------------------

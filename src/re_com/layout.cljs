@@ -1,6 +1,6 @@
 (ns re-com.layout
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [clojure.set  :refer [superset?]]
+  (:require [re-com.util  :refer [validate-arguments]]
             [reagent.core :as    reagent]))
 
 
@@ -20,20 +20,21 @@
 ;;  Component: h-layout
 ;; ------------------------------------------------------------------------------------
 
-(def h-layout-args
-  #{:left-panel       ;; Markup to go in the left panel.
-    :right-panel      ;; Markup to go in the right panel.
-    :splitter-size    ;; Thickness of the splitter. Defaults to 8px.
-    :margin           ;; Thickness of the margin around the panels. Defaults to 8px.
-    })
+(def h-layout-args-desc
+  [{:name :left-panel     :required true                  :type "component"  :description "Markup to go in the left panel."}
+   {:name :right-panel    :required true                  :type "component"  :description "Markup to go in the right panel."}
+   {:name :splitter-size  :required false :default "8px"  :type "string"     :description "Thickness of the splitter."}
+   {:name :margin         :required false :default "8px"  :type "string"     :description "Thickness of the margin around the panels."}])
 
+(def h-layout-args
+  (set (map :name h-layout-args-desc)))
 
 (defn h-layout
   "Returns markup for a horizontal layout component."
   [& {:keys [left-panel right-panel splitter-size margin]
       :or   {splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(superset? h-layout-args (keys args))]}
+  {:pre [(validate-arguments h-layout-args (keys args))]}
   (let [container-id         (gensym "h-layout-")
         this                 (reagent/current-component)
         split-perc           (reagent/atom 50)                ;; splitter position as a percentage of width
@@ -114,20 +115,21 @@
 ;;  Component: v-layout
 ;; ------------------------------------------------------------------------------------
 
-(def v-layout-args
-  #{:top-panel        ;; Markup to go in the top panel.
-    :bottom-panel     ;; Markup to go in the bottom panel.
-    :splitter-size    ;; Thickness of the splitter. Defaults to 8px.
-    :margin           ;; Thickness of the margin around the panels. Defaults to 8px.
-    })
+(def v-layout-args-desc
+  [{:name :top-panel     :required true                  :type "component"  :description "Markup to go in the top panel."}
+   {:name :bottom-panel  :required true                  :type "component"  :description "Markup to go in the bottom panel."}
+   {:name :splitter-size :required false :default "8px"  :type "string"     :description "Thickness of the splitter."}
+   {:name :margin        :required false :default "8px"  :type "string"     :description "Thickness of the margin around the panels."}])
 
+(def v-layout-args
+  (set (map :name v-layout-args-desc)))
 
 (defn v-layout
   "Returns markup for a vertical layout component."
   [& {:keys [top-panel bottom-panel splitter-size margin]
       :or   {splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(superset? v-layout-args (keys args))]}
+  {:pre [(validate-arguments v-layout-args (keys args))]}
   (let [container-id         (gensym "v-layout-")
         this                 (reagent/current-component)
         split-perc           (reagent/atom 50)                ;; splitter position as a percentage of height

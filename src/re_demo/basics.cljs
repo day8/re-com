@@ -1,17 +1,13 @@
 (ns re-demo.basics
   ;(:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
   (:require [re-com.core      :refer [label spinner progress-bar title
-                                      button button-args-desc
-                                      md-circle-icon-button md-circle-icon-button-args-desc
-                                      md-icon-button md-icon-button-args-desc
-                                      row-button row-button-args-desc
                                       checkbox checkbox-args-desc
                                       radio-button radio-button-args-desc
                                       input-text input-textarea input-text-args-desc
-                                      hyperlink hyperlink-args-desc
-                                      hyperlink-href hyperlink-href-args-desc
                                       slider slider-args-desc
-                                      inline-tooltip inline-tooltip-args-desc]]
+                                      ;inline-tooltip inline-tooltip-args-desc
+                                      ]]
+            [re-com.buttons   :refer [button]]
             ;[clairvoyant.core :refer [default-tracer]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
@@ -350,7 +346,7 @@
                                                                     (reset! disabled? val))]]]]]]]]])))
 
 
-(defn inline-tooltip-demo
+#_(defn inline-tooltip-demo
   []
   (let [pos          (reagent/atom :below)
         status       (reagent/atom nil)
@@ -565,6 +561,7 @@
             {:id  1 :label "radio-button"          :component radios-demo}
             {:id  2 :label "input-text/area"       :component input-text-demo}
             {:id  3 :label "slider"                :component slider-demo}
+            ;{:id  4 :label "inline-tooltip"        :component inline-tooltip-demo}
             ;{:id 90 :label "h-box"                 :component h-box-demo} ;; Experimental
             ;{:id 91 :label "v-box"                 :component v-box-demo} ;; Experimental
             ])

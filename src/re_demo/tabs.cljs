@@ -3,7 +3,8 @@
             [alandipert.storage-atom :refer [local-storage]]
             [re-com.box              :refer [h-box v-box box gap line scroller border]]
             [re-com.dropdown         :refer [single-dropdown]]
-            [re-com.core             :refer [button label title checkbox]]
+            [re-com.core             :refer [label title checkbox]]
+            [re-com.buttons          :refer [button]]
             [re-com.util             :refer [item-for-id]]
             [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs horizontal-pill-tabs vertical-pill-tabs tabs-args-desc]]
             [re-demo.utils           :refer [panel-title component-title args-table]]))

@@ -2,7 +2,8 @@
   (:require-macros [re-com.core            :refer [handler-fn]]
                    [cljs.core.async.macros :refer [go]])
   (:require [re-com.util     :as    util]
-            [re-com.core     :refer [button label spinner progress-bar title]]
+            [re-com.core     :refer [label spinner progress-bar title]]
+            [re-com.buttons  :refer [button]]
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown filter-choices-by-keyword]]
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
