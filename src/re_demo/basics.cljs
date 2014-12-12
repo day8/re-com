@@ -7,12 +7,7 @@
                                       slider slider-args-desc
                                       ;inline-tooltip inline-tooltip-args-desc
                                       ]]
-            [re-com.buttons   :refer [button button-args-desc
-                                      md-circle-icon-button md-circle-icon-button-args-desc
-                                      md-icon-button md-icon-button-args-desc
-                                      row-button row-button-args-desc
-                                      hyperlink hyperlink-args-desc
-                                      hyperlink-href hyperlink-href-args-desc]]
+            [re-com.buttons   :refer [button]]
             ;[clairvoyant.core :refer [default-tracer]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]

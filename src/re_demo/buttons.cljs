@@ -1,24 +1,16 @@
 (ns re-demo.buttons
   ;(:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
-  (:require [re-com.core      :refer [label spinner progress-bar title
-                                      checkbox checkbox-args-desc
-                                      radio-button radio-button-args-desc
-                                      input-text input-textarea input-text-args-desc
-                                      slider slider-args-desc
-                                      inline-tooltip inline-tooltip-args-desc]]
+  (:require [re-com.core      :refer [label spinner checkbox radio-button]]
             [re-com.buttons   :refer [button button-args-desc
                                       md-circle-icon-button md-circle-icon-button-args-desc
                                       md-icon-button md-icon-button-args-desc
                                       row-button row-button-args-desc
                                       hyperlink hyperlink-args-desc
                                       hyperlink-href hyperlink-href-args-desc]]
-            ;[clairvoyant.core :refer [default-tracer]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
             [re-demo.utils    :refer [panel-title component-title args-table]]
             [re-com.util      :refer [enumerate]]
-            ;[re-com.dropdown  :refer [single-dropdown]]      ;; Experimental
-            ;[re-com.time      :refer [input-time]]           ;; Experimental
             [reagent.core     :as    reagent]))
 
 

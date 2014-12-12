@@ -1,6 +1,6 @@
 (ns re-demo.popovers
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.core                 :refer [label input-text checkbox radio-button title inline-tooltip]]
+  (:require [re-com.core                 :refer [label input-text checkbox radio-button title]]
             [re-com.buttons              :refer [button hyperlink]]
             [re-com.box                  :refer [h-box v-box box gap line scroller border]]
             [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper popover-tooltip]]
