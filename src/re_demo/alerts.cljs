@@ -1,13 +1,13 @@
 (ns re-demo.alerts
   (:require [re-com.util        :refer [insert-nth remove-id-item]]
-            [re-com.core        :refer [button label title]]
+            [re-com.core        :refer [label title]]
+            [re-com.buttons     :refer [button]]
             [re-com.tabs        :refer [vertical-bar-tabs]]
             [re-com.box         :refer [h-box v-box box line gap]]
             [re-com.dropdown    :refer [single-dropdown filter-choices-by-keyword]]
             [re-com.alert       :refer [alert-box alert-list alert-box-args-desc alert-list-args-desc]]
             [re-demo.utils      :refer [panel-title component-title args-table]]
             [reagent.core       :as    reagent]))
-
 
 
 (defn alert-box-demo

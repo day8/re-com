@@ -1,8 +1,7 @@
  (ns re-com.box
-  (:require [clojure.set    :refer [superset?]]
-            [reagent.core :as reagent]
-            [clojure.string :as string]
-            [re-com.util :refer [validate-arguments]]))
+  (:require [clojure.string :as    string]
+            [re-com.util    :refer [validate-arguments]]
+            [reagent.core   :as    reagent]))
 
 (def debug false)
 

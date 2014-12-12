@@ -1,6 +1,5 @@
 (ns re-com.util
-  (:require  [clojure.string :as string]
-             [clojure.set      :refer [superset?]]))
+  (:require  [clojure.set :refer [superset?]]))
 
 (defn fmap
   "Takes a fucntion 'f' amd a map 'm'.  Applies 'f' to each value in 'm' and returns.

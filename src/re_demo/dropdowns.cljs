@@ -1,7 +1,8 @@
 (ns re-demo.dropdowns
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-com.util     :refer [item-for-id]]
-            [re-com.core     :refer [button label input-text checkbox title]]
+            [re-com.core     :refer [label input-text checkbox title]]
+            [re-com.buttons  :refer [button]]
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown filter-choices-by-keyword single-dropdown-desc]]
             [cljs.core.async :refer [<! >! chan close! put! take! alts! timeout]]

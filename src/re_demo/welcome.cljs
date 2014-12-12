@@ -1,8 +1,8 @@
 (ns re-demo.welcome
-  (:require [reagent.core :as reagent]
-            [re-com.core  :refer [title hyperlink-href label]]
-            [re-com.box   :refer [h-box v-box box gap line]]
-            [re-demo.utils :refer [panel-title component-title]]))
+  (:require [re-com.core    :refer [title label]]
+            [re-com.buttons :refer [hyperlink-href]]
+            [re-com.box     :refer [h-box v-box box gap line]]
+            [re-demo.utils  :refer [panel-title component-title]]))
 
 
 

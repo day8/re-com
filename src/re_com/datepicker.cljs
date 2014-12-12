@@ -4,10 +4,8 @@
 (ns re-com.datepicker
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
-    [clojure.set          :refer [superset?]]
     [reagent.core         :as    reagent]
-    [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month
-                                  before? after?]]
+    [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box]]

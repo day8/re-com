@@ -1,7 +1,6 @@
 (ns re-com.selection-list
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
-    [clojure.set          :refer [superset?]]
     [reagent.core         :as    r]
     [re-com.core          :refer [label checkbox radio-button]]
     [re-com.box           :refer [box border h-box v-box]]

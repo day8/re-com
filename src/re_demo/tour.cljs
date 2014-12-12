@@ -1,11 +1,10 @@
 (ns re-demo.tour
-  (:require [re-com.util     :as    util]
-            [re-com.core     :refer [button label input-text checkbox title]]
+  (:require [re-com.core     :refer [label input-text checkbox title]]
+            [re-com.buttons  :refer [button]]
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.tour     :refer [make-tour start-tour make-tour-nav]]
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
-            [re-demo.utils   :refer [panel-title component-title]]
-            [reagent.core    :as    reagent]))
+            [re-demo.utils   :refer [panel-title component-title]]))
 
 
 (defn demo

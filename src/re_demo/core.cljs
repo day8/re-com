@@ -1,27 +1,27 @@
 (ns re-demo.core
   (:require-macros [re-com.core            :refer [handler-fn]]
                    [cljs.core.async.macros :refer [go]])
-  (:require [reagent.core       :as    reagent]
+  (:require [reagent.core            :as    reagent]
             [alandipert.storage-atom :refer [local-storage]]
-            [re-demo.utils      :refer  [panel-title]]
-            [re-com.util        :as    util]
-            [re-com.core        :as    core]
-            [re-com.tabs]
-            [re-com.box         :refer [h-box v-box box gap line scroller border]]
-            [re-demo.welcome    :as welcome]
-            [re-demo.basics     :as basics]
-            [re-demo.buttons    :as buttons]
-            [re-demo.dropdowns  :as dropdowns]
-            [re-demo.alerts     :as alerts]
-            [re-demo.tabs       :as tabs]
-            [re-demo.popovers   :as popovers]
-            [re-demo.date       :as date-picker]
-            [re-demo.lists      :as lists]
-            [re-demo.time       :as time]
-            [re-demo.layouts    :as layouts]
-            [re-demo.tour       :as tour]
-            [re-demo.modals     :as modals]
-            [re-demo.boxes      :as boxes]))
+            [re-demo.utils           :refer [panel-title]]
+            [re-com.util             :as    util]
+            [re-com.core             :as    core]
+            [re-com.box              :refer [h-box v-box box gap line scroller border]]
+
+            [re-demo.welcome         :as    welcome]
+            [re-demo.basics          :as    basics]
+            [re-demo.buttons         :as    buttons]
+            [re-demo.dropdowns       :as    dropdowns]
+            [re-demo.alerts          :as    alerts]
+            [re-demo.tabs            :as    tabs]
+            [re-demo.popovers        :as    popovers]
+            [re-demo.date            :as    date-picker]
+            [re-demo.lists           :as    lists]
+            [re-demo.time            :as    time]
+            [re-demo.layouts         :as    layouts]
+            [re-demo.tour            :as    tour]
+            [re-demo.modals          :as    modals]
+            [re-demo.boxes           :as    boxes]))
 
 (enable-console-print!)
 

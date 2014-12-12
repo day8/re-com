@@ -1,12 +1,11 @@
 (ns re-com.time
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
-    [reagent.core :as reagent]
-    [clojure.string :as cljstring]
-    [clojure.set :refer [superset?]]
-    [re-com.core :refer [label]]
-    [re-com.box :refer [h-box gap]]
-    [re-com.util :refer [pad-zero-number deref-or-value validate-arguments]]))
+    [reagent.core   :as    reagent]
+    [clojure.string :as    cljstring]
+    [re-com.core    :refer [label]]
+    [re-com.box     :refer [h-box gap]]
+    [re-com.util    :refer [pad-zero-number deref-or-value validate-arguments]]))
 
 
 (defn- time->mins

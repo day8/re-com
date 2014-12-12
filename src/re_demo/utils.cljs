@@ -1,7 +1,6 @@
 (ns re-demo.utils
-  (:require [re-com.core     :refer [title label]]
-            [re-com.box      :refer [h-box v-box box gap line]]
-            [reagent.core    :as    reagent]))
+  (:require [re-com.core :refer [title label]]
+            [re-com.box  :refer [h-box v-box box gap line]]))
 
 
 (def ubuntu-font {              ;; TOD: move this into class

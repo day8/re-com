@@ -1,10 +1,12 @@
 (ns re-com.modal
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs.core.async  :as async :refer [<! >! chan close! sliding-buffer put! alts! timeout]]
-            [re-com.util  :as util]
-            [re-com.core  :refer [button spinner progress-bar]]
-            [reagent.core :as reagent]
-            [goog.events  :as events]))
+  (:require [re-com.util     :refer [validate-arguments]]
+            [cljs.core.async :as    async :refer [<! >! chan close! sliding-buffer put! alts! timeout]]
+            [re-com.util     :as    util]
+            [re-com.core     :refer [spinner progress-bar]]
+            [re-com.buttons  :refer [button]]
+            [reagent.core    :as    reagent]
+            [goog.events     :as    events]))
 
 
 ;; MODAL COMPONENT
@@ -78,7 +80,7 @@
 ;;  cancel-button
 ;; ------------------------------------------------------------------------------------
 
-(defn cancel-button ;; TODO: Only currently used in modal
+(defn- cancel-button ;; TODO: Only currently used in modal
   "Render a cancel button"
   [callback]
   [:div {:style {:display "flex"}}
@@ -93,12 +95,19 @@
 ;;  modal-window
 ;; ------------------------------------------------------------------------------------
 
+(def modal-window-args-desc
+  [{:name :markup  :required true   :type "component"  :description "Markup to go in the modal."}])
+
+(def modal-window-args
+  (set (map :name modal-window-args-desc)))
+
 (defn modal-window
   "Renders a modal window centered on screen. A dark transparent backdrop sits between this and the underlying
    main window to prevent UI interactivity and place user focus on the modal window.
    Parameters:
     - markup  The message to display in the modal (a string or a hiccup vector or function returning a hiccup vector)"
-  [& {:keys [markup]}]
+  [& {:keys [markup] :as args}]
+  {:pre [(validate-arguments modal-window-args (keys args))]}
   (fn []
     [:div
      {:style {:display "flex"      ;; Semi-transparent backdrop

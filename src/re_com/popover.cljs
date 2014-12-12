@@ -1,8 +1,6 @@
 (ns re-com.popover
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [clojure.set    :refer [superset?]]
-            [re-com.util    :refer [validate-arguments get-element-by-id px deref-or-value]]
-            ;[re-com.core    :refer [button]]
+  (:require [re-com.util    :refer [validate-arguments get-element-by-id px deref-or-value]]
             [clojure.string :as    string]
             [reagent.core   :as    reagent]))
 
