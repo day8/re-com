@@ -239,7 +239,8 @@
   (let [cursor      "default"
         model       (deref-or-value model)
         disabled?   (deref-or-value disabled?)
-        callback-fn (if (and on-change (not disabled?)) #(on-change (not model)))]     ;; call on-change with either true or false
+        callback-fn #(when (and on-change (not disabled?))
+                      (on-change (not model)))]  ;; call on-change with either true or false
     [h-box
      :align    :start
      :style    {:-webkit-user-select "none"}
@@ -288,7 +289,8 @@
   (let [cursor      "default"
         model       (deref-or-value model)
         disabled?   (deref-or-value disabled?)
-        callback-fn (if (and on-change (not disabled?)) #(on-change value))]
+        callback-fn #(when (and on-change (not disabled?))
+                      (on-change (not model)))]  ;; call on-change with either true or false
     [h-box
      :align    :start
      :style    {:-webkit-user-select "none"}
