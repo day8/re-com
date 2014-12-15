@@ -5,7 +5,7 @@
             [re-com.core     :refer [label spinner progress-bar title]]
             [re-com.buttons  :refer [button]]
             [re-com.box      :refer [h-box v-box box gap]]
-            [re-com.dropdown :refer [single-dropdown filter-choices-by-keyword]]
+            [re-com.dropdown :refer [single-dropdown]]
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
             [re-com.modal    :refer [modal-window cancel-button looper domino-process]]
             [cljs.core.async :refer [<! >! chan close! put! take! alts! timeout]]

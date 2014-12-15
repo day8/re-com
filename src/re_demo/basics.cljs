@@ -125,6 +125,7 @@
                                                    ^{:key c}                        ;; key should be unique within this compenent
                                                    [radio-button
                                                     :label       c
+                                                    :disabled?   true
                                                     :value       c
                                                     :model       colour
                                                     :label-style (if (= c @colour) {:background-color c  :color "white"})

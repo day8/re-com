@@ -20,9 +20,9 @@
 ;; Below, you'll note that all ids are namespaced keywords, but they can be anything.
 
 (def tabs-definition
-  [ {:id ::tab1  :label "Tab1"  :say-this "I don't like my tab siblings, they smell."}
-    {:id ::tab2  :label "Tab2"  :say-this "Don't listen to Tab1, he's just jealous of my train set."}
-    {:id ::tab3  :label "Tab3"  :say-this "I'm telling Mum on you two !!"}])
+  [{:id ::tab1  :label "Tab1"  :say-this "I don't like my tab siblings, they smell."}
+   {:id ::tab2  :label "Tab2"  :say-this "Don't listen to Tab1, he's just jealous of my train set."}
+   {:id ::tab3  :label "Tab3"  :say-this "I'm telling Mum on you two !!"}])
 
 
 (defn horizontal-tabs-demo
@@ -104,7 +104,7 @@
                          {:id ::3 :label "3"}
                          {:id ::4 :label "4"}]
         id-store        (local-storage (atom nil) ::id-store)
-        selected-tab-id (reagent/atom (if  (nil? @id-store) (:id (first tab-defs)) @id-store))   ;; id of the selected tab
+        selected-tab-id (reagent/atom (if (nil? @id-store) (:id (first tab-defs)) @id-store))    ;; id of the selected tab
         _               (add-watch selected-tab-id nil #(reset! id-store %4))]                   ;; put into local-store for later
     (fn []
       [v-box
@@ -123,8 +123,9 @@
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"       ;; TODO:  decide would we prefer to use :top-margin??
                                :children [[horizontal-tabs
-                                           :model  selected-tab-id
-                                           :tabs  tab-defs]]]]]]])))
+                                           :model     selected-tab-id
+                                           :tabs      tab-defs
+                                           :on-change #(reset! selected-tab-id %)]]]]]]])))
 
 
 (defn adding-tabs-demo
@@ -152,8 +153,9 @@
                                :gap     "30px"
                                ;;:margin  "20px 0px 0px 0px"       ;; TODO:  decide would we prefer to use :top-margin??
                                :children [[horizontal-tabs
-                                           :model  selected-tab-id
-                                           :tabs  tab-defs]]]]]]])))
+                                           :model     selected-tab-id
+                                           :tabs      tab-defs
+                                           :on-change #(reset! selected-tab-id %)]]]]]]])))
 
 (defn panel
   []

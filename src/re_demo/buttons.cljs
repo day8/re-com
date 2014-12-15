@@ -366,9 +366,10 @@
                                :gap "30px"
                                :children [[box
                                            :width "200px"
+                                           :align :start
                                            :child [hyperlink
                                                    :label     (if @disabled? "Now disabled" "Call back")
-                                                   :tooltip   "Click here to increase the click count."
+                                                   :tooltip   "Click here to increase the click count"
                                                    :on-click  #(swap! click-count inc)
                                                    :disabled? disabled?]]
                                           [v-box
@@ -401,6 +402,7 @@
                                :gap "40px"
                                :children [[box
                                            :width "200px"
+                                           :align :start
                                            :child [hyperlink-href
                                                    :label     "Launch Google"
                                                    :tooltip   "You're about to launch Google"

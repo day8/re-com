@@ -15,20 +15,12 @@
    from id (usually +1 or -1 to go to next/previous). Also accepts :start and :end."
   [choices id offset]
   (let [current-index (position-for-id id choices)
-        new-index (cond
-                    (= offset :start) 0
-                    (= offset :end) (dec (count choices))
-                    (nil? current-index) 0
-                    :else (mod (+ current-index offset) (count choices)))]
-    (:id (nth choices new-index))))
-
-
-#_(defn- find-choice
-  "In a vector of maps (where each map has an :id), return the first map containing the id parameter."
-  [choices id]
-  (let [current-index (position-for-id id choices)
-        _ (assert ((complement nil?) current-index) (str "Can't find choice index '" id "' in choices vector"))]
-    (nth choices current-index)))
+        new-index     (cond
+                        (= offset :start) 0
+                        (= offset :end) (dec (count choices))
+                        (nil? current-index) 0
+                        :else (mod (+ current-index offset) (count choices)))]
+    (when current-index (:id (nth choices new-index)))))
 
 
 (defn- choices-with-group-headings
@@ -39,9 +31,10 @@
                             (map first)
                             (map :group)
                             (map #(hash-map :id % :group % :group-header? true)))]
-    (if (= 1 (count groups))
-      opts
-      (flatten (interleave group-headers groups)))))
+    ;(if (= 1 (count groups))
+    ;  opts
+    ;  (flatten (interleave group-headers groups)))
+    (flatten (interleave group-headers groups))))
 
 
 (defn filter-choices

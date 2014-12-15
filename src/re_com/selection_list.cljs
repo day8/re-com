@@ -29,7 +29,8 @@
   [box
    :class "list-group-item compact"
    ;:attr  {:on-click    #(on-change (check-clicked selections item (not (selections item)) required?))}
-   :attr  {:on-click    (handler-fn (on-change (check-clicked selections item (not (selections item)) required?)))}
+   :attr  {:on-click    (handler-fn (when-not disabled?
+                                      (on-change (check-clicked selections item (not (selections item)) required?))))}
    :child [checkbox
            :model       (selections item)
            :on-change   #() ;; handled by enclosing box
@@ -49,7 +50,8 @@
   [box
    :class "list-group-item compact"
    ;:attr  {:on-click    #(on-change (radio-clicked selections item required?))}
-   :attr  {:on-click    (handler-fn (on-change (radio-clicked selections item required?)))}
+   :attr  {:on-click    (handler-fn (when-not disabled?
+                                      (on-change (radio-clicked selections item required?))))}
    :child [radio-button
            :model       (first selections)
            :value       item
