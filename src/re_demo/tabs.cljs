@@ -123,8 +123,9 @@
                                :gap     "30px"
                                :margin  "20px 0px 0px 0px"       ;; TODO:  decide would we prefer to use :top-margin??
                                :children [[horizontal-tabs
-                                           :model  selected-tab-id
-                                           :tabs  tab-defs]]]]]]])))
+                                           :model     selected-tab-id
+                                           :tabs      tab-defs
+                                           :on-change #(reset! selected-tab-id %)]]]]]]])))
 
 
 (defn adding-tabs-demo
@@ -152,8 +153,9 @@
                                :gap     "30px"
                                ;;:margin  "20px 0px 0px 0px"       ;; TODO:  decide would we prefer to use :top-margin??
                                :children [[horizontal-tabs
-                                           :model  selected-tab-id
-                                           :tabs  tab-defs]]]]]]])))
+                                           :model     selected-tab-id
+                                           :tabs      tab-defs
+                                           :on-change #(reset! selected-tab-id %)]]]]]]])))
 
 (defn panel
   []
