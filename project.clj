@@ -3,8 +3,8 @@
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure "1.6.0"]
-                     [org.clojure/clojurescript "0.0-2322"]
-                     [org.clojure/core.async "0.1.338.0-5c5012-alpha"]
+                     [org.clojure/clojurescript "0.0-2371"]
+                     [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                      [alandipert/storage-atom "1.2.3"]
                      [reagent "0.4.3"]
                      [com.andrewmcveigh/cljs-time "0.2.4"]]
@@ -25,7 +25,7 @@
   :profiles         {:debug {:debug true}
                      :dev   {:dependencies [[clj-stacktrace "0.2.8"]
                                             [spellhouse/clairvoyant "0.0-48-gf5e59d3"]]
-                             :plugins      [[lein-cljsbuild "1.0.4-SNAPSHOT"]
+                             :plugins      [[lein-cljsbuild "1.0.3"]
                                             [com.cemerick/clojurescript.test "0.3.1"]]}}
 
   :resource-paths   ["run/resources"]
