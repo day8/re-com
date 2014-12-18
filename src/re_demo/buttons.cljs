@@ -1,5 +1,6 @@
 (ns re-demo.buttons
   ;(:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.core      :refer [label spinner checkbox radio-button]]
             [re-com.buttons   :refer [button button-args-desc
                                       md-circle-icon-button md-circle-icon-button-args-desc
@@ -221,8 +222,10 @@
       (let [mouse-over-row? (identical? @mouse-over row)]
         [h-box
          :class    "rc-div-table-row"
-         :attr     {:on-mouse-over #(do (reset! mouse-over row) true) ;; true CANCELs mouse-over (false cancels all others)
-                    :on-mouse-out  #(do (reset! mouse-over nil) false)}
+         :attr     {;; :on-mouse-over #(do (reset! mouse-over row) true)
+                    ;; :on-mouse-out  #(do (reset! mouse-over nil) false)
+                    :on-mouse-over (handler-fn (reset! mouse-over row))
+                    :on-mouse-out  (handler-fn (reset! mouse-over nil))}
          :children [[h-box
                      :width (:sort col-widths)
                      :gap "2px"

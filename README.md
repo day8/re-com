@@ -1,5 +1,3 @@
-
-
 # re-com
 
 A library of ClojureScript UI components. 
