@@ -4,10 +4,12 @@
 
   :dependencies     [[org.clojure/clojure "1.6.0"]
 
-                     [org.clojure/clojurescript "0.0-2322"]
+                     ;[org.clojure/clojurescript "0.0-2322"]
+                     [org.clojure/clojurescript "0.0-2371"]
                      ;[org.clojure/clojurescript "0.0-2411"] ;; Not working on first test
 
-                     [org.clojure/core.async "0.1.338.0-5c5012-alpha"]
+                     ;[org.clojure/core.async "0.1.338.0-5c5012-alpha"]
+                     [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                      [alandipert/storage-atom "1.2.3"]
 
                      ;[reagent "0.4.3"]
