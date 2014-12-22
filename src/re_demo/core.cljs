@@ -1,7 +1,8 @@
 (ns re-demo.core
   (:require-macros [re-com.core            :refer [handler-fn]]
                    [cljs.core.async.macros :refer [go]])
-  (:require [reagent.core            :as    reagent]
+  (:require [figwheel.client         :as    fw]
+            [reagent.core            :as    reagent]
             [alandipert.storage-atom :refer [local-storage]]
             [re-demo.utils           :refer [panel-title]]
             [re-com.util             :as    util]
@@ -118,6 +119,35 @@
                   ]])))
 
 
+(fw/start {;; configure a websocket url if yor are using your own server
+           ;; :websocket-url "ws://localhost:3449/figwheel-ws"
+
+           ;; optional callback
+           :jsload-callback (fn []
+                              (reagent/force-update-all)
+                              (println "figwheel start"))
+
+           :on-cssload (fn []
+                         (reagent/force-update-all)
+                         (println "figwheel start CSS"))
+
+           ;; The heads up display is enabled by default
+           ;; to disable it:
+           ;; :heads-up-display false
+
+           ;; when the compiler emits warnings figwheel
+           ;; blocks the loading of files.
+           ;; To disable this behavior:
+           ;; :load-warninged-code true
+           })
+
+#_(fw/watch-and-reload
+  ;:websocket-url "ws://localhost:3449/figwheel-ws"
+  :jsload-callback (fn [] (reagent/force-update-all) (println "figwheel watch/reload"))
+  :on-css-load     (fn [] (reagent/force-update-all) (println "figwheel watch/reload CSS"))
+  )
+
+
 (defn ^:export  mount-demo
   []
-  (reagent/render-component [main] (util/get-element-by-id "app")))
+  (reagent/render [main] (util/get-element-by-id "app")))
