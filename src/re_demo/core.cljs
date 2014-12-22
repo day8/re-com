@@ -141,9 +141,11 @@
            ;; :load-warninged-code true
            })
 
-;(fw/watch-and-reload
-;  ;:websocket-url "ws://localhost:3449/figwheel-ws"
-;  :jsload-callback (fn [] (reagent/force-update-all) (println "figwheel watch/reload")))
+#_(fw/watch-and-reload
+  ;:websocket-url "ws://localhost:3449/figwheel-ws"
+  :jsload-callback (fn [] (reagent/force-update-all) (println "figwheel watch/reload"))
+  :on-css-load     (fn [] (reagent/force-update-all) (println "figwheel watch/reload CSS"))
+  )
 
 
 (defn ^:export  mount-demo

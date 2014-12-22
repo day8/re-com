@@ -306,6 +306,6 @@
              (if (-> filtered-choices count pos?)
                (for [opt (choices-with-group-headings filtered-choices)]
                  (if (:group-header? opt)
-                   ^{:key (:id opt)} [choice-group-heading opt]
-                   ^{:key (:id opt)} [choice-item opt callback internal-model]))
+                   ^{:key (str (:id opt))} [choice-group-heading opt]
+                   ^{:key (str (:id opt))} [choice-item opt callback internal-model]))
                [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))

@@ -151,7 +151,7 @@
 (def popover-border-args-desc
   [{:name :position       :required false :default ":right-below" :type "keyword"       :description "a keyword specifying the popover's position relative to the anchor. See the demo to the right for the values."}
    {:name :children       :required true                          :type "vector"        :description "a vector of component markups."}
-   {:name :width          :required false :default "250px"        :type "string"        :description "a CSS style describing the popover width."}
+   {:name :width          :required false                         :type "string"        :description "a CSS style describing the popover width."}
    {:name :height         :required false :default "auto"         :type "string"        :description "a CSS style describing the popover height."}
    {:name :popover-color  :required false :default "white"        :type "string"        :description "Fill color of the popover."}
    {:name :arrow-length   :required false :default 11             :type "integer"       :description "the length in pixels of the arrow (from pointy part to middle of arrow base)."}
@@ -213,14 +213,19 @@
                                                                  :above          (str "-" (+ arrow-length p-height))
                                                                  (:right :below) arrow-length))}
 
-                           ;; prevent the "child of a zero width relative element word wrapping" issue
+                           ;; The popover point is zero width, therefore its absolute children will consider this width when deciding their
+                           ;; natural size and in particular, how they natually wrap text. The right hand size of the popover is used as a
+                           ;; text wrapping point so it will wrap, depending on where the child is positioned. The margin is also taken into
+                           ;; consideration for this point so below, we set the margins to negative a lot to prevent
+                           ;; this annoying wrapping phenomenon.
                            (case orientation
                              :left                  {:margin-left  "-2000px"}
                              (:right :above :below) {:margin-right "-2000px"})
                            ;; optional override offsets
                            (when margin-left {:margin-left margin-left})
                            (when margin-top  {:margin-top  margin-top})
-                           ;; make it visible and turn off BS max-width and remove BS padding which adds an internal white border
+
+                           ;; make it visible and turn off Bootstrap max-width and remove Bootstrap padding which adds an internal white border
                            {:display   "block"
                             :max-width "none"
                             :padding   (px 0)})}
@@ -269,7 +274,7 @@
   [{:name :showing?         :required true                         :type "atom"          :description "an atom. when the value is true, the popover shows.."}
    {:name :position         :required true   :default :right-below :type "keyword"       :description "specifies the popover's position relative to the anchor. See the demo to the right for the values."}
    {:name :no-clip?         :required false  :default false        :type "boolean"       :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. By passing true for this parameter, re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned."}
-   {:name :width            :required false  :default "250px"      :type "string"        :description "a CSS style representing the popover width."}
+   {:name :width            :required false                        :type "string"        :description "a CSS style representing the popover width."}
    {:name :height           :required false  :default "auto"       :type "string"        :description "a CSS style representing the popover height."}
    {:name :backdrop-opacity :required false  :default 0.0          :type "float"         :description "indicates the opacity of the backdrop where 0.0=transparent, 1.0=opaque."}
    {:name :on-cancel        :required false  :default 0.0          :type "function"      :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."}
@@ -386,7 +391,7 @@
    {:name :status     :required false                           :type "keyword"  :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red)."}
    {:name :anchor     :required true                            :type "markup"   :description "the component the tooltip is attached to."}
    {:name :position   :required false  :default ":below-center" :type "keyword"  :description "specifies the tooltip's position relative to the anchor. Same as for main popover component."}
-   {:name :width      :required false  :default "200px"         :type "string"   :description "specifies width of the tooltip."}
+   {:name :width      :required false                           :type "string"   :description "specifies width of the tooltip."}
    {:name :style      :required false                           :type "map"      :description "override component style(s) with a style map, only use in case of emergency."}
    ])
 

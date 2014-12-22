@@ -3,18 +3,10 @@
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure "1.6.0"]
-
-                     ;[org.clojure/clojurescript "0.0-2322"]
-                     [org.clojure/clojurescript "0.0-2371"]
-                     ;[org.clojure/clojurescript "0.0-2411"] ;; Not working on first test
-
-                     ;[org.clojure/core.async "0.1.338.0-5c5012-alpha"]
-                     [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                     [org.clojure/clojurescript "0.0-2371"]             ;; previously 2322 (0.0-2411 not working on first test)
+                     [org.clojure/core.async "0.1.346.0-17112a-alpha"]  ;; previously 0.1.338.0-5c5012-alpha
                      [alandipert/storage-atom "1.2.3"]
-
-                     ;[reagent "0.4.3"]
-                     [reagent "0.5.0-alpha"]
-
+                     [reagent "0.5.0-alpha"]                            ;; previously 0.4.3
                      [com.andrewmcveigh/cljs-time "0.2.4"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
@@ -33,15 +25,12 @@
   :profiles         {:debug {:debug true}
                      :dev   {:dependencies [[clj-stacktrace "0.2.8"]
                                             [figwheel "0.1.7-SNAPSHOT"]
-                                            [spellhouse/clairvoyant "0.0-48-gf5e59d3"]
-                                            ]
-                             :plugins      [;[lein-cljsbuild "1.0.4-SNAPSHOT"]
-                                            [lein-cljsbuild "1.0.3"]
+                                            [spellhouse/clairvoyant "0.0-48-gf5e59d3"]]
+                             :plugins      [[lein-cljsbuild "1.0.3"]    ;; 1.0.4-SNAPSHOT currently in a state of flux
                                             [lein-figwheel "0.1.7-SNAPSHOT"]
-                                            [com.cemerick/clojurescript.test "0.3.1"]
-                                            ]}}
+                                            [com.cemerick/clojurescript.test "0.3.1"]]}}
 
-  :resource-paths   ["run/resources"]
+  :resource-paths ["run/resources"]
   ;:jvm-opts         ^:replace ["-Xms2g" "-Xmx2g" "-server"]
 
   :source-paths     ["src"]
@@ -52,27 +41,28 @@
   ;; Exclude the demo code from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/"]
 
-  :cljsbuild        {:builds [{:id "demo"
+  :cljsbuild        {:builds [
+                              {:id "demo"
                                :source-paths   ["src"]
                                :compiler       {:output-to     "run/compiled/demo.js"
                                                 :source-map    "run/compiled/demo.js.map"
                                                 :output-dir    "run/compiled/demo"
                                                 :optimizations :none
                                                 :pretty-print  true}}
-                              {:id "demofigrun"
+                              {:id "demofig"
                                :source-paths   ["src"]
                                :compiler       {:output-to     "run/resources/public/demo.js"
                                                 :source-map    "run/resources/public/demo.js.map"
                                                 :output-dir    "run/resources/public/demo"
                                                 :optimizations :none
                                                 :pretty-print  true}}
-                              {:id "demofigdev"
-                               :source-paths   ["src"]
-                               :compiler       {:output-to     "dev-resources/public/demo.js"
-                                                :source-map    "dev-resources/public/demo.js.map"
-                                                :output-dir    "dev-resources/public/demo"
-                                                :optimizations :none
-                                                :pretty-print  true}}
+                              ;{:id "demofigdev"
+                              ; :source-paths   ["src"]
+                              ; :compiler       {:output-to     "dev-resources/public/demo.js"
+                              ;                  :source-map    "dev-resources/public/demo.js.map"
+                              ;                  :output-dir    "dev-resources/public/demo"
+                              ;                  :optimizations :none
+                              ;                  :pretty-print  true}}
                               {:id "prod"
                                :source-paths   ["src/re_com"]
                                :compiler       {:output-to     "compiled/prod.js"
@@ -89,9 +79,8 @@
                                                 :optimizations :none
                                                 :pretty-print true}}]}
 
-  :figwheel {
-             ;;;;; :http-server-root "public" ;; this will be in resources/
-             ;;;;; :server-port 3449          ;; default
+  :figwheel {:http-server-root "public" ;; this will be in resources/
+             :server-port 3449          ;; default
 
              ;; CSS reloading (optional)
              ;; :css-dirs has no default value
@@ -115,8 +104,9 @@
              ;;;;; :open-file-command "myfile-opener"
              }
 
-  :aliases          {"auto-demo" ["do" "clean," "cljsbuild" "clean," "cljsbuild" "auto" "demo,"]
-                     "auto"      ["do" "cljsbuild" "auto" "demo,"]
-                     "once"      ["do" "cljsbuild" "once" "demo,"]
-                     "auto-test" ["do" "clean," "cljsbuild" "auto" "test"]}
+  :aliases          {"auto-demo"     ["do" "cljsbuild" "clean," "cljsbuild" "auto" "demo,"]   ;; Removed "clean,"
+                     "auto-demo-fig" ["do" "cljsbuild" "clean," "figwheel" "demofig,"]        ;; Removed "clean,"
+                     "auto"          ["do" "cljsbuild" "auto" "demo,"]
+                     "once"          ["do" "cljsbuild" "once" "demo,"]
+                     "auto-test"     ["do" "cljsbuild" "auto" "test"]}                        ;; Removed "clean,"
   )
