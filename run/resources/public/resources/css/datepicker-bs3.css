@@ -1,0 +1,201 @@
+/*!
+ * Stylesheet for re-com.date Date Picker variants inline-picker & dropdown-picker
+ * Day8 variation loosely based on:
+ * -------------------------------------------------------------------------------
+ * Copyright 2013 Dan Grossman ( http://www.dangrossman.info )
+ * Licensed under the Apache License v2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Built for http://www.improvely.com
+ * -------------------------------------------------------------------------------
+ * http://eternicode.github.io/bootstrap-datepicker
+ */
+
+
+.datepicker.single .calendar {
+    float: none;
+}
+
+.datepicker .calendar {
+    display: none;
+    max-width: 200px;
+}
+
+.datepicker .calendar.single .calendar-date {
+    border: none;
+}
+
+.datepicker .calendar th, .datepicker .calendar td {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    white-space: nowrap;
+    text-align: center;
+    min-width: 32px;
+}
+
+.datepicker .calendar-date {
+    border: 1px solid #ddd;
+    padding: 4px;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.datepicker .calendar-time {
+    text-align: center;
+    margin: 8px auto 0 auto;
+    line-height: 30px;
+}
+
+.datepicker {
+    position: absolute;
+    background: #fff;
+    top: 100px;
+    left: 20px;
+    padding: 10px 10px 5px;
+    margin-top: 1px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    line-height: 16px;
+    border-radius: 4px;
+}
+
+.datepicker table {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+}
+
+.datepicker td, .datepicker th {
+    text-align: center;
+    width: 27px;
+    height: 26px;
+    max-width: 27px;
+    max-height: 26px;
+    min-width: 27px;
+    min-height: 26px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    padding: 4px;
+    cursor: default;
+    white-space: nowrap;
+    font-weight: normal;
+}
+
+.datepicker td.off {
+    padding: 4px;
+    color: #999;
+}
+
+.datepicker td.disabled {
+    color: #999;
+}
+
+.datepicker th.disabled {
+    color: #999;
+}
+
+.datepicker td.available:hover, .datepicker th.available:hover {
+    background: #eee;
+    cursor: pointer;
+}
+
+.datepicker td.in-range {
+    background: #ebf4f8;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+  border-radius: 0;
+}
+
+.datepicker td.start-date {
+    -webkit-border-radius: 4px 0 0 4px;
+    -moz-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
+}
+
+.datepicker td.end-date {
+    -webkit-border-radius: 0 4px 4px 0;
+    -moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.datepicker td.start-date.end-date {
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.datepicker td.active, .datepicker td.active:hover {
+    background-color: #357ebd;
+    border-color: #3071a9;
+    color: #fff;
+}
+
+/* Introduced by Day8 from http://eternicode.github.io/bootstrap-datepicker */
+.datepicker td.today, .datepicker td.today:hover {
+    background-color: #ffcd70;
+    border-color: #f59e00;
+    border-radius: 18px;
+    color: #fff;
+}
+
+.datepicker th.day-enabled, label.day-enabled {
+    font-weight: normal;
+    font-size: 10px;
+    color: #333;
+}
+
+.datepicker th.selectable {
+    font-weight: normal;
+    color: #357ebd;
+}
+
+.datepicker th.day-disabled {
+    font-weight: normal;
+    font-size: 10px;
+    color: #999;
+}
+
+.datepicker td.week, .datepicker th.week {
+  font-size: 80%;
+  color: #ccc;
+}
+
+
+.datepicker th.prev {
+    border: 1px solid #ccc;
+    border-right-style: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: #F7F7F7;
+}
+
+.datepicker th.next {
+    border: 1px solid #ccc;
+    border-left-style: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: #F7F7F7;
+}
+
+.datepicker th.month {
+    width: auto;
+    font-size: 14px;
+    color: #777;
+    border-radius: 0;
+    border: 1px solid #CCC;
+    border-right-style: none;
+    border-left-style: none;
+    background-color: #F7F7F7;
+}
+
+.dropdown-button {
+    cursor: pointer;
+    height: 32px;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.dropdown-button.activator {
+    width: 40px;
+    color: #777;
+    background-color: #F7F7F7
+}
