@@ -196,6 +196,7 @@
                           :style {:font-size    "130%"
                                   :top          "50%"
                                   :right        "0px"
+                                  :z-index      "0"
                                   :margin-top   "-0.5em"
                                   :margin-right "0.5em"
                                   :width        "auto"

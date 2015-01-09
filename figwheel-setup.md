@@ -117,14 +117,14 @@ Simply use the following command line command:
 lein figwheel {build-id}
 ```
 
-This will start a server that listens to port 3349 (can me modified in [Server configuration]).
+This will start a server that listens to port 3449 (can me modified in [Server configuration]).
 
 You can [use your own server](https://github.com/bhauman/lein-figwheel#using-your-own-server) if required.
 
 Finally, go to the browser and enter:
 
 ```
-http://localhost:3349
+http://localhost:3449
 ```
 
 which will run index.html by default. Add the name of your html file if it's different.

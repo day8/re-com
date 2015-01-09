@@ -375,6 +375,7 @@
         [:div                             ;; The "point" that connects the anchor to the popover
          {:class "rc-popover-point"
           :style {:position "relative"
+                  :z-index  "4"
                   :display  "inline-flex"
                   :flex     "auto"}}
          popover])

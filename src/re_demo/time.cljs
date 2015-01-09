@@ -1,5 +1,5 @@
 (ns re-demo.time
-  (:require [re-com.core     :refer  [label checkbox input-text title]]
+  (:require [re-com.core     :refer  [label checkbox]]
             [re-com.buttons  :refer  [button]]
             [re-com.time     :refer  [input-time input-time-args-desc]]
             [re-com.box      :refer  [h-box v-box box gap]]

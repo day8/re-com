@@ -123,13 +123,10 @@
            ;; :websocket-url "ws://localhost:3449/figwheel-ws"
 
            ;; optional callback
-           :jsload-callback (fn []
-                              (reagent/force-update-all)
-                              (println "figwheel start"))
+           :jsload-callback (fn [] (reagent/force-update-all))
 
-           :on-cssload (fn []
-                         (reagent/force-update-all)
-                         (println "figwheel start CSS"))
+           ;; CSS handled automatically from project.clj > :figwheel > :css-dirs
+           ;:on-cssload (fn [] (println "figwheel CSS updated"))
 
            ;; The heads up display is enabled by default
            ;; to disable it:
@@ -141,13 +138,6 @@
            ;; :load-warninged-code true
            })
 
-#_(fw/watch-and-reload
-  ;:websocket-url "ws://localhost:3449/figwheel-ws"
-  :jsload-callback (fn [] (reagent/force-update-all) (println "figwheel watch/reload"))
-  :on-css-load     (fn [] (reagent/force-update-all) (println "figwheel watch/reload CSS"))
-  )
-
-
 (defn ^:export  mount-demo
   []
-  (reagent/render [main] (util/get-element-by-id "app")))
+  (reagent/render-component [main] (util/get-element-by-id "app")))   ;; 0.5.0 rename render-component ==> render.
