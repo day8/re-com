@@ -1,78 +1,77 @@
+## Status
+
+Still Alpha.  But most parts now stable.  Should be beta in a week or two.
+
+Until we go beta, we're not taking patches or feature requests.
+
 # re-com
 
 A library of ClojureScript UI components. 
 
 Built on top of Dan Holmsand's terrific [Reagent](http://holmsand.github.io/reagent) 
-which, in turn, is built on Facebook's equally brilliant [React](http://facebook.github.io/react). 
+which, in turn, is built on Facebook's brilliant [React](http://facebook.github.io/react). 
 
-
-## Overview
+## Summary
 
 Re-com contains:
-* familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.
-* layout components which can stack widgets in vertical and horizontal
- ways, and which can nest.  Then there's dragable splitters, etc.  
+* familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.  (in Reagent terms these are `components` so we'll be using that term from now on)
+* layout components which organise widgets verticaly and horizontaly, within splitters, etc. Plus they can nest, etc.
 
-In short, the sort of stuff you'd need to build a desktop-class app. Some components are still missing, 
-so it is still a work in progress. 
+In short, the sort of stuff you'd need to build a desktop-class app. Some components are still missing, so it is still a work in progress. 
 
-The layouts and components work harmoniously together (except for occasional bouts of English-soccer-hooligan-like hostility).
+The layouts and components work harmoniously together (er, except for occasional bouts of English-soccer-hooligan-like hostility, but that's a bug right?).
 
 ## Are You Sure You Want To Be Here?
 
-We're a bit new to a lot here including HTML5, javascipt, ClojureScript, and FRP (functional reactive programming). 
-Yep.  Worried?  You have been warned.
+We're a bit new to HTML5, javascipt, ClojureScript, and FRP.   We're disgruntled refuges from Flash/Flex and before that places like QT, MFC, Smalltalk and Interviews. Without Guru status in these various technologies, should you be trusting us?
 
-Despite all that we'll probably talk with great authority and certainty, and hold strong opinions. 
+But despite any of that, we'll probably talk with great authority and certainty, and hold strong opinions.
 
-A substrate of React and Reagent bestows great benefits, but it also posed us some
-challenges. For example, most javascript libs we looked at do 
-popovers by adding new absolutely positioned `<div>s` directly to the `<body>` element. We couldn't do that - not if 
+Having the substrate of React and Reagent bestows great benefits, for sure, but it has also posed a couple of serious challenges. For example, most javascript libs achieve 
+popovers by adding absolutely positioned `<div>s` directly to the `<body>` element. But we couldn't do that - not if 
 we wanted to abide by the ClojureScript, React/Reagent FRP-ish, immutable, dataflow rules.   
 
 We've done our best and 
-it does seem to hang together fairly nicely, despite some quirks.  There may well be better ways.
+it does seem to hang together fairly nicely, with onl minor quirks.  But there may hidden dragons, and there could be better ways. We're all ears.
 
+## No really, This Probably Isn't For You
 
-## Warning: This Might Not Be For You
-
-The layout side of this library and some widgets rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) 
-which [only works on modern browsers](http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
- 
-So for the next, say, two years, this library would be a poor fit if you're targeting the retail web, which is
-rife with flexbox-less wastelands like IE10 and IE9.
- 
-I can also confirm that none of the components have been designed with mobile in mind, and that there's no attempt to 
-handle media queries.  
- 
-To be clear: we made this library to build desktop-class apps which will run in environments like 
+We made this library to build desktop-class apps which will run in chrome environments like 
 [node-webkit](https://github.com/rogerwang/node-webkit) 
-and [atom-shell](https://github.com/atom/atom-shell). It would also be useful in 
-Chrome app development OR if you are developing for a corporate Intranet setting
-where you can mandate a modern browser.
-  
+and [atom-shell](https://github.com/atom/atom-shell). So we have focused on Chrome delivery and not taken it further with other browsers. 
 
-## So, Without Ado being Any Furthered ...
+In theory, it should work on any modern browser, but we've just not tested it. There'd probably be teething issues like namespaced CSS etc.
 
-[Here's a demo](). 
+The layout side of this library and some components (visual widgets) rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) 
+which [only works on modern browsers](http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
 
-Wait! You'll be sure to run it on a modern browser, right? 
+So for the next, say, year or so, this library would be a poor fit if you're targeting the retail web, which is rife with flexbox-less wastelands like IE10 and IE9. 
+ 
+I can also confirm that none of the components have been designed with mobile in mind, and that there's been no attempt to handle media queries.  Its just not that kind of widget library.
 
-Actually, we tend to exclusively use Chrome, so for all we know there could be problems on other 
-modern browsers too. Maybe. Dunno.  If so, supply a patch. 
+Still here?
 
-The demo is deliberately simple minded. 
+## So, Without Ado Being Any Furthered ...
 
+Start your review with [the demo](). Wait! You are using Chrome right? 
 
-## To use it
+The demo serves as: 
+  - a way to showcase visually the components (widgets)
+  - a demonstration of how to code using the components
+  - a means to document the components (parameters are given)
+  - a test harness
 
-To use re-com, you add this to your dependencies in project.clj:
+## Using It
+
+The demo app to understand how to use the components. Look in the `demo` folder for the code.
+
+To use re-com, you'll need to add this to your dependencies in project.clj:
 
 ```clj
 :dependencies [
   [org.clojure/clojurescript "0.0-XXXX"]
   ...
-  [reagent "0.4.2"]
+  [reagent "0.5.0"]
   [re-com "0.X.2"]
 ]
 ```
@@ -109,41 +108,54 @@ you're going to have to do the flexbox tutorials to understand what's going on.
 
 This is compounded by the viral nature of flexbox. It's reach tends to spread.  
 
-## Dependencies
-
-Stuff that's missing: 
+## The Missing Widgets
 
 * tree  (not hard but haven't needed one yet)
-* a grid. A grid. HTML is excellent at small grids, so no problem there. But when the number of 
+* a grid. HTML is good at small grids, so no problem there. But when the number of 
 rows gets huge, you need a widget that does virtual rows. Otherwise there's just too many DOM nodes 
-in the page, and performance suffers.
 * drag and drop
 * annimations / transitions.  We have ideas.  They seem clunky.
 * Focus management - When the user presses tab, to which field does focus move. Just using the 
-* Testing. 
-
-
-## One Day 
-
-Eventually:
-
-* Use GSS for layout. Instead of flexbox.  Performance problems apparently. 
-* statecharts.  
-
-
+* A testing story. 
 
 
 ## Named Parameters
 
+re-com makes extensive use of `named parameters` (as apposed to `positional parameters`).  
 
+When using re-com components, you will *not* we asked to use positional parameters like this:
+```
+(greet 2 "hello")
+```
+
+Instead, re-com would require `named parameters`:
+```
+(greet
+   :times 2
+   :say   "hello")
+```
+
+Notice that the each parameter value has a leading name. 
+
+While more verbose, we believe `named parameters` have a huge benifits (on the API boundary of a library): 
+1. the code using the library is clearly easier to read
+2. as a result the code is more understandable - is there anything more important?
+2. optionality  -  not all parameters have to be supplied, defaults can be applied
+3. flexibility - new parameters can be easily added
 
 ## The Intended Architecture 
 
 
 
+## One Of These Days 
+
+Eventually:
+
+* Use GSS for layout. Instead of flexbox.  Performance problems apparently. 
+
 ## RFP background
 
-Heraclitus (500 BC) said:  "Everything flows, nothing stands still". 
+
 
 https://gist.github.com/staltz/868e7e9bc2a7b8c1f754/
 http://elm-lang.org/learn/What-is-FRP.elm
@@ -155,7 +167,4 @@ Read:        https://github.com/tailrecursion/javelin
 
 https://www.youtube.com/watch?v=i__969noyAM
 https://speakerdeck.com/fisherwebdev/flux-react
-
-
-Signals are values that change over time. 
 
