@@ -11,7 +11,7 @@
 
 (def tabs-args-desc
   [{:name :model     :required true  :type "a tab id | atom" :description "the :id of the currently selected tab."}
-   {:name :tabs      :required true  :type "vector of maps"  :description "one element in the vector for each tab. In each map, at least :id and :label."}
+   {:name :tabs      :required true  :type "vector of maps | atom"  :description "one element in the vector for each tab. In each map, at least :id and :label."}
    {:name :on-change :required true  :type "(:id) -> nil"    :description "called when user alters the selection. Passed the :id of the selection."}])
 
 (def tabs-args
