@@ -59,6 +59,29 @@ The demo serves as:
   - a means to document the components (parameters etc)
   - a test harness of sorts
 
+## Named Parameters
+
+When you first start looking into re-com, you'll quickly notice that every component has `named parameters` (as apposed to `positional parameters`). Internally, not so much, but at the API boundary, definitely. 
+
+So, when using re-com components, you will *not* we asked to use positional parameters like this:
+```
+[greet-component 2 "hello"]
+```
+
+Instead, re-com requires `named parameters` more like this:
+```
+[greet-component
+   :times 2
+   :say   "hello"]
+```
+
+Notice that the each parameter value has a short leading keyword name. 
+
+While more verbose, we believe using `named parameters` in the API of a library has compelling benifits: 
+1. the code using the library is clearly easier to read
+2. as a result the code is more understandable - is there anything more important?
+2. optionality  -  not all parameters have to be supplied, defaults can be introduced
+3. flexibility - new parameters are easily added
 ## Using It
 
 The demo app to understand how to use the components. Look in the `demo` folder for the code.
@@ -117,29 +140,6 @@ rows gets huge, you need a widget that does virtual rows. Otherwise there's just
 * A testing story. 
 
 
-## Named Parameters
-
-re-com makes extensive use of `named parameters` (as apposed to `positional parameters`).  
-
-When using re-com components, you will *not* we asked to use positional parameters like this:
-```
-(greet 2 "hello")
-```
-
-Instead, re-com would require `named parameters`:
-```
-(greet
-   :times 2
-   :say   "hello")
-```
-
-Notice that the each parameter value has a leading name. 
-
-While more verbose, we believe `named parameters` have a huge benifits (on the API boundary of a library): 
-1. the code using the library is clearly easier to read
-2. as a result the code is more understandable - is there anything more important?
-2. optionality  -  not all parameters have to be supplied, defaults can be applied
-3. flexibility - new parameters can be easily added
 
 ## The Intended Architecture 
 
