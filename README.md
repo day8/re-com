@@ -11,36 +11,34 @@ A library of ClojureScript UI components.
 Built on top of Dan Holmsand's terrific [Reagent](http://holmsand.github.io/reagent) 
 which, in turn, is built on Facebook's brilliant [React](http://facebook.github.io/react). 
 
-## Summary
-
 Re-com contains:
-* familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.  (in Reagent terms these are `components` so we'll be using that term from now on)
-* layout components which organise widgets verticaly and horizontaly, within splitters, etc. Plus they can nest, etc.
+* familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.  (in Reagent terms these are `components`)
+* layout `components` which organise widgets verticaly and horizontaly, within splitters, etc. `components` which put borders around their children. Plus these can all nest, etc.
 
 In short, the sort of stuff you'd need to build a desktop-class app. Some components are still missing, so it is still a work in progress. 
 
-The layouts and components work harmoniously together (er, except for occasional bouts of English-soccer-hooligan-like hostility, but that's a bug right?).
+The layouts and components work harmoniously together (umm, except for occasional bouts of English-soccer-hooligan-like hostility, but that's a bug right?).
 
 ## Are You Sure You Want To Be Here?
 
-We're a bit new to HTML5, javascipt, ClojureScript, and FRP.   We're disgruntled refuges from Flash/Flex and before that places like QT, MFC, Smalltalk and Interviews. Without Guru status in these various technologies, should you be trusting us?
+We're a bit new to HTML5, javascipt, ClojureScript, and FRP.   We're disgruntled refuges from Flash/Flex and before that places like QT, MFC, Smalltalk and Interviews. Without Guru status in modern browser technologies, should you be trusting us?
 
-But despite any of that, we'll probably talk with great authority and certainty, and hold strong opinions.
-
-Having the substrate of React and Reagent bestows great benefits, for sure, but it has also posed a couple of serious challenges. For example, most javascript libs achieve 
+Having the substrate of React and Reagent bestows great benefits, for sure, but it has also posed us some serious challenges. For example, most javascript libs achieve 
 popovers by adding absolutely positioned `<div>s` directly to the `<body>` element. But we couldn't do that - not if 
 we wanted to abide by the ClojureScript, React/Reagent FRP-ish, immutable, dataflow rules.   
 
 We've done our best and 
-it does seem to hang together fairly nicely, with onl minor quirks.  But there may hidden dragons, and there could be better ways. We're all ears.
+it does seem to hang together fairly nicely, with only minor quirks.  But there may hidden dragons, and there could be better ways. We're all ears.
+
+But despite all of the above, we'll probably talk with great authority and certainty, and hold strong opinions.
 
 ## No really, This Probably Isn't For You
 
 We made this library to build desktop-class apps which will run in chrome environments like 
 [node-webkit](https://github.com/rogerwang/node-webkit) 
-and [atom-shell](https://github.com/atom/atom-shell). So we have focused on Chrome delivery and not taken it further with other browsers. 
+and [atom-shell](https://github.com/atom/atom-shell). So we have not taken testing further than chrome. 
 
-In theory, it should work on any modern browser, but we've just not tested it. There'd probably be teething issues like namespaced CSS etc.
+In theory, it should work on any modern browser, but there'd probably be teething issues like correctly vendor-prefixing the CSS etc.
 
 The layout side of this library and some components (visual widgets) rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) 
 which [only works on modern browsers](http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
