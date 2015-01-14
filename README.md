@@ -25,12 +25,12 @@ We're a bit new to HTML5, javascipt, ClojureScript, and FRP.   We're disgruntled
 
 Having the substrate of React and Reagent bestows great benefits, for sure, but it has also posed us some serious challenges. For example, most javascript libs achieve 
 popovers by adding absolutely positioned `<div>s` directly to the `<body>` element. But we couldn't do that - not if 
-we wanted to abide by the ClojureScript, React/Reagent FRP-ish, immutable, dataflow rules.   
+we wanted to abide by the ClojureScript, React/Reagent FRP-ish, immutable, dataflow rules.  We had to find other solutions. But there could be better ways. We're all ears.
 
 We've done our best and 
-it does seem to hang together fairly nicely, with only minor quirks.  But there may hidden dragons, and there could be better ways. We're all ears.
+it does seem to hang together fairly nicely, with only minor quirks. We're using it to build systems, and we've shaken out many bugs, but it is still early days, so you well  might find some hidden dragons.  
 
-But despite all of the above, we'll probably talk with great authority and certainty, and hold strong opinions.
+Despite all of the above, we intend to  talk with great authority and certainty, and hold strong opinions.
 
 ## No really, This Probably Isn't For You
 
@@ -38,7 +38,7 @@ We made this library to build desktop-class apps which will run in chrome enviro
 [node-webkit](https://github.com/rogerwang/node-webkit) 
 and [atom-shell](https://github.com/atom/atom-shell). So we have not taken testing further than chrome. 
 
-In theory, it should work on any modern browser, but there'd probably be teething issues like correctly vendor-prefixing the CSS etc.
+In theory, re-com should work on any modern browser, but there'd probably be teething issues like correct vendor-prefixing the CSS etc.
 
 The layout side of this library and some components (visual widgets) rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) 
 which [only works on modern browsers](http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
@@ -54,10 +54,10 @@ Still here?
 Start your review with [the demo](). Wait! You are using Chrome right? 
 
 The demo serves as: 
-  - a way to showcase visually the components (widgets)
-  - a demonstration of how to code using the components
-  - a means to document the components (parameters are given)
-  - a test harness
+  - a way to visually showcase the components (widgets)
+  - a demonstration of how to code using those components
+  - a means to document the components (parameters etc)
+  - a test harness of sorts
 
 ## Using It
 
