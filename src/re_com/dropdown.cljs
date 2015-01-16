@@ -97,8 +97,9 @@
                 selected (= @internal-model (:id opt))]
             (when selected (.scrollIntoView node false))))
 
-       :render
-        (fn []
+       :component-function
+        (fn
+          [opt on-click internal-model]
           (let [selected (= @internal-model (:id opt))
                 class    (if selected
                            "highlighted"

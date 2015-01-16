@@ -144,12 +144,16 @@ rows gets huge, you need a widget that does virtual rows. Otherwise there's just
 ## The Intended Architecture 
 
 
-
 ## One Of These Days 
 
 Eventually:
 
 * Use GSS for layout. Instead of flexbox.  Performance problems apparently. 
+
+## Component Suggestions
+
+* Add a timed alert box which appears for a set period of time. This would probably be absolutely positioned over the UI and then fade away after the set time expires.
+
 
 ## RFP background
 

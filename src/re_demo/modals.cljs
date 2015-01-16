@@ -133,7 +133,7 @@
   "Create a button to test the modal component for loading a url"
   []
   (let [loading? (reagent/atom false)
-        url      "http://static.day8.com.au/locations.xml"]
+        url      "http://www.w3schools.com/xml/cd_catalog.xml"]
     (fn []
       [:div
        [modal-button

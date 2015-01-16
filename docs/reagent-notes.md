@@ -1,6 +1,8 @@
 reagent notes
 =============
 
+*NOTE: This has a good deal more work to do*
+
 This document provides some important information about how to effectively use
 reagent, so that any reagent/atom values
 
@@ -61,10 +63,10 @@ References
 
 The following articles helped in the preparation of this document:
 
- - [Misunderstanding something about :key prop passing](https://github.com/holmsand/reagent/issues/34)
- - [Updating app-data Ratom succeeds, but page rerenders with original data](https://github.com/holmsand/reagent/issues/35)
+ - [Misunderstanding something about :key prop passing](https://github.com/reagent-project/reagent/issues/34)
+ - [Updating app-data Ratom succeeds, but page rerenders with original data](https://github.com/reagent-project/reagent/issues/35)
 
  More information
 
-  - [Reagent home page](http://holmsand.github.io/reagent)
-  - [react on GitHub](https://github.com/holmsand/reagent)
+  - [Reagent Home Page](http://reagent-project.github.io/reagent)
+  - [Reagent on GitHub](https://github.com/reagent-project/reagent)

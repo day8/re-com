@@ -36,32 +36,18 @@
   :source-paths     ["src"]
   :test-paths       ["test"]
 
-  :clean-targets    ^{:protect false} ["run/resources/public/demo" "run/compiled/demo" :output-to] ;; "compiled/prod" "compiled/test"  "run/resources/public/demo" "dev-resources/public/demo"
+  :clean-targets    ^{:protect false} ["run/resources/public/compiled" "compiled/test"] ;; :output-to
 
   ;; Exclude the demo code from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/"]
 
   :cljsbuild        {:builds [{:id "demo"
                                :source-paths   ["src"]
-                               :compiler       {:output-to     "run/compiled/demo.js"
-                                                :source-map    "run/compiled/demo.js.map"
-                                                :output-dir    "run/compiled/demo"
+                               :compiler       {:output-to     "run/resources/public/compiled/demo.js"
+                                                :source-map    "run/resources/public/compiled/demo.js.map"
+                                                :output-dir    "run/resources/public/compiled/demo"
                                                 :optimizations :none
                                                 :pretty-print  true}}
-                              {:id "demofig"
-                               :source-paths   ["src"]
-                               :compiler       {:output-to     "run/resources/public/demo.js"
-                                                :source-map    "run/resources/public/demo.js.map"
-                                                :output-dir    "run/resources/public/demo"
-                                                :optimizations :none
-                                                :pretty-print  true}}
-                              ;{:id "demofigdev"
-                              ; :source-paths   ["src"]
-                              ; :compiler       {:output-to     "dev-resources/public/demo.js"
-                              ;                  :source-map    "dev-resources/public/demo.js.map"
-                              ;                  :output-dir    "dev-resources/public/demo"
-                              ;                  :optimizations :none
-                              ;                  :pretty-print  true}}
                               {:id "prod"
                                :source-paths   ["src/re_com"]
                                :compiler       {:output-to     "compiled/prod.js"
@@ -103,9 +89,9 @@
                      ;;;;; :open-file-command "myfile-opener"
                      }
 
-  :aliases          {"auto-demo"     ["do" "clean," "cljsbuild" "auto" "demo,"]   ;; Removed "cljsbuild"
-                     "auto-demo-fig" ["do" "clean," "figwheel" "demofig,"]        ;; Removed "cljsbuild"
+  :aliases          {"auto-demo"     ["do" "clean," "cljsbuild" "auto" "demo,"]
+                     "auto-demo-fig" ["do" "clean," "figwheel" "demo,"]
                      "auto"          ["do" "cljsbuild" "auto" "demo,"]
                      "once"          ["do" "cljsbuild" "once" "demo,"]
-                     "auto-test"     ["do" "cljsbuild" "auto" "test"]}                        ;; Removed "clean,"
+                     "auto-test"     ["do" "cljsbuild" "auto" "test"]}
   )

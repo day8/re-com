@@ -35,11 +35,9 @@
 
 
 (defn- calc-popover-pos
-  [pop-id pop-orient pop-offset]
-  (if-let [popover-elem (get-element-by-id pop-id)]
-    (let [p-width        (.-clientWidth popover-elem)
-          p-height       (.-clientHeight popover-elem)
-          popover-left   (case pop-orient
+  [pop-id pop-orient p-width p-height pop-offset]
+  (if-let [popover-elem (get-element-by-id pop-id)]  ;; TODO: Not required any more, remove carefully as this is an if-let!
+    (let [popover-left   (case pop-orient
                            :left           "initial" ;; TODO: Ultimately remove this (must have NO :left which is in Bootstrap .popover class)
                            :right          "100%"
                            (:above :below) (px (if pop-offset pop-offset (/ p-width 2)) :negative))
@@ -57,6 +55,7 @@
                            :right nil
                            :above (px 10) ;; "100%" TODO: Work out why we need 10px instead of 100%
                            :below nil)]
+      (println {:left popover-left :top popover-top :right popover-right :bottom popover-bottom})
       {:left popover-left :top popover-top :right popover-right :bottom popover-bottom})))
 
 
@@ -77,7 +76,7 @@
 
                    (case orientation ;; Position the arrow at the top/left, center or bottom/right of the popover
                      (:left  :right) :top
-                     (:above :below) :left) (if (nil? pop-offset) "50%" (px pop-offset))
+                     (:above :below) :left) (if (nil? @pop-offset) "50%" (px @pop-offset))
 
                    (case orientation ;; Adjust the arrow position so it's center is attached to the desired position set above
                      (:left  :right) :margin-top
@@ -160,7 +159,8 @@
    {:name :margin-left    :required false                         :type "string"        :description "a CSS style describing the horiztonal offset from anchor after position."}
    {:name :margin-top     :required false                         :type "string"        :description "a CSS style describing the vertical offset from anchor after position."}
    {:name :tooltip-style? :required false                         :type "boolean"       :description "setup popover styles for a tooltip."}
-   {:name :title          :required false                         :type "string|markup" :description "describes a title"}])
+   {:name :title          :required false                         :type "string|markup" :description "describes a title"}
+   ])
 
 (def popover-border-args
   (set (map :name popover-border-args-desc)))
@@ -174,28 +174,56 @@
   (let [rendered-once           (reagent/atom false)
         pop-id                  (gensym "popover-")
         [orientation arrow-pos] (split-keyword (if position position :right-below) "-")
-        grey-arrow?             (and title (or (= orientation :below) (= arrow-pos :below)))]
+        grey-arrow?             (and title (or (= orientation :below) (= arrow-pos :below)))
+        p-width                 (reagent/atom 0)
+        p-height                (reagent/atom 0)
+        pop-offset              (reagent/atom 0)]
     (reagent/create-class
       {:component-did-mount
        (fn []
-         (reset! rendered-once true))
+         (do (println ":component-did-mount height =" (.-clientHeight (get-element-by-id pop-id)))
+             (reset! rendered-once true)))
 
-       :render
+       :component-did-update
        (fn []
-         (let [popover-elem   (get-element-by-id pop-id)
-               p-width        (if popover-elem (.-clientWidth  popover-elem) 0)
-               p-height       (if popover-elem (.-clientHeight popover-elem) 0)
-               pop-offset     (case arrow-pos
+         (let [popover-elem   (get-element-by-id pop-id)]
+           (reset! p-width    (if popover-elem (.-clientWidth  popover-elem) 0))
+           (reset! p-height   (if popover-elem (.-clientHeight popover-elem) 0))
+           (reset! pop-offset (case arrow-pos
                                 :center nil
                                 :right  20
                                 :below  20
-                                :left   (if p-width (- p-width 25) p-width)
-                                :above  (if p-height (- p-height 25) p-height))]
+                                :left   (if @p-width (- @p-width 25) @p-width)
+                                :above  (if @p-height (- @p-height 25) @p-height)))
+           (println ":component-did-update height =" (.-clientHeight (get-element-by-id pop-id)))))
+
+       :component-function
+       (fn
+         [& {:keys [position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title children]
+             :or {arrow-length 11 arrow-width 22}
+             :as args}]
+         {:pre [(validate-arguments popover-border-args (keys args))]}
+         (let [popover-elem   (get-element-by-id pop-id)]
+           (reset! p-width    (if popover-elem (.-clientWidth  popover-elem) 0)) ;; TODO: Duplicate from above but needs to be calculated here to prevent an annoying flicker (so make it a fn)
+           (reset! p-height   (if popover-elem (.-clientHeight popover-elem) 0))
+           (reset! pop-offset (case arrow-pos
+                                :center nil
+                                :right  20
+                                :below  20
+                                :left   (if @p-width (- @p-width 25) @p-width)
+                                :above  (if @p-height (- @p-height 25) @p-height)))
            [:div.popover.fade.in
             {:id pop-id
              :class (case orientation :left "left" :right "right" :above "top" :below "bottom")
              :style (merge (if @rendered-once
-                             (calc-popover-pos pop-id orientation pop-offset)
+                             (do
+                               (println "POPOVER-BORDER: rendered-once? =" @rendered-once
+                                        ": p-width =" @p-width
+                                        ": p-height =" @p-height
+                                        ": pop-offset =" @pop-offset)
+                               ;(reset! rendered-once false)
+                               ;(reset! updated-once false)
+                               (calc-popover-pos pop-id orientation @p-width @p-height @pop-offset))
                              {:top "-10000px" :left "-10000px"})
                            (if width  {:width  width})
                            (if height {:height height})
@@ -209,8 +237,8 @@
                            #_{(case orientation
                               (:left  :right) :margin-left
                               (:above :below) :margin-top) (px (case orientation
-                                                                 :left           (str "-" (+ arrow-length p-width))
-                                                                 :above          (str "-" (+ arrow-length p-height))
+                                                                 :left           (str "-" (+ arrow-length @p-width))
+                                                                 :above          (str "-" (+ arrow-length @p-height))
                                                                  (:right :below) arrow-length))}
 
                            ;; The popover point is zero width, therefore its absolute children will consider this width when deciding their
@@ -309,8 +337,12 @@
              (reset! left-offset (:left offsets))
              (reset! top-offset  (:top  offsets)))))
 
-       :render
-       (fn []
+       :component-function
+       (fn
+         [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width padding style]
+             :or {arrow-length 11 arrow-width 22}
+             :as args}]
+         {:pre [(validate-arguments popover-content-wrapper-args (keys args))]}
          [:div
           {:class "popover-content-wrapper"
            :style (merge {:flex "inherit"}
@@ -332,9 +364,9 @@
            :arrow-width    arrow-width
            :padding        padding
            :title          (when title [popover-title
-                                        :title title
-                                        :showing? showing?
-                                        :close-button? close-button?
+                                        :title          title
+                                        :showing?       showing?
+                                        :close-button?  close-button?
                                         :close-callback on-cancel])
            :children       [body]]])}))
   )

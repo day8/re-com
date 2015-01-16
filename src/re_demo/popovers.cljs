@@ -35,6 +35,7 @@
         add-scroller?     (reagent/atom false)
         on-cancel?        (reagent/atom false)
         backdrop-opacity? (reagent/atom false)
+        long-paragraph?   (reagent/atom false)
 
         ;curr-position     (reagent/atom :below-center)
         ;positions         [{:id :above-left   :label ":above-left  "}
@@ -52,7 +53,7 @@
 
         ]
     (fn []
-      (let [cancel-popover #(reset! showing? false)]
+      (let [cancel-popover  #(reset! showing? false)]
         [v-box
          :children [[title :label "[popover ... ] with [button ... ] anchor"]
                     [h-box
@@ -114,8 +115,9 @@
                                                                                                        "In this mode, the popover will not be clipped within the scroller but it
                                                                                                         will also not move when scrolling occurs while it's popped up. However, the next time it is popped up,
                                                                                                         the correct position will be recalculated."]
-                                                                                                      "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup.
-                                                                                                       Click the button again to cause a pop-down."))]]
+                                                                                                      (if @long-paragraph?
+                                                                                                        [:span "This is a long paragraph. It forces the height to change to make sure things stay nicely aligned. This is a long paragraph. It forces the height to change to make sure things stay nicely aligned. This is a long paragraph. It forces the height to change to make sure things stay nicely aligned. This is a long paragraph. It forces the height to change to make sure things stay nicely aligned. "]
+                                                                                                        [:span "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."])))]]
                                                                     [:span {:style {:flex "inherit" :color "lightgrey"}} (clojure.string/join (repeat (if @add-scroller? 98 49) "text "))]]]
                                                         [v-box
                                                          :gap      "15px"
@@ -131,19 +133,19 @@
                                                                                  :model     title?
                                                                                  :on-change (fn [val]
                                                                                               (reset! title? val)
-                                                                                              (cancel-popover))]
+                                                                                              #_(cancel-popover))]
                                                                                 [checkbox
                                                                                  :label     ":close-button?"
                                                                                  :model     close-button?
                                                                                  :on-change (fn [val]
                                                                                               (reset! close-button? val)
-                                                                                              (cancel-popover))]
+                                                                                              #_(cancel-popover))]
                                                                                 [checkbox
                                                                                  :label     ":body"
                                                                                  :model     body?
                                                                                  :on-change (fn [val]
                                                                                               (reset! body? val)
-                                                                                              (cancel-popover))]]]
+                                                                                              #_(cancel-popover))]]]
                                                                     [h-box
                                                                      :gap "20px"
                                                                      :align :start
@@ -152,14 +154,14 @@
                                                                                  :model     on-cancel?
                                                                                  :on-change (fn [val]
                                                                                               (reset! on-cancel? val)
-                                                                                              (cancel-popover))]
+                                                                                              #_(cancel-popover))]
                                                                                 (when @on-cancel?
                                                                                   [checkbox
                                                                                    :label     (str ":backdrop-opacity " (if @backdrop-opacity? "(0.3)" "(0.0)"))
                                                                                    :model     backdrop-opacity?
                                                                                    :on-change (fn [val]
                                                                                                 (reset! backdrop-opacity? val)
-                                                                                                (cancel-popover))])]]
+                                                                                                #_(cancel-popover))])]]
                                                                     [h-box
                                                                      :gap "20px"
                                                                      :align :start
@@ -168,13 +170,28 @@
                                                                                  :model     add-scroller?
                                                                                  :on-change (fn [val]
                                                                                               (reset! add-scroller? val)
-                                                                                              (cancel-popover))]
+                                                                                              #_(cancel-popover))]
                                                                                 [checkbox
                                                                                  :label     ":no-clip?"
                                                                                  :model     no-clip?
                                                                                  :on-change (fn [val]
                                                                                               (reset! no-clip? val)
-                                                                                              (cancel-popover))]]]
+                                                                                              #_(cancel-popover))]]]
+                                                                    [h-box
+                                                                     :align :start
+                                                                     :children [[label :label "body content size:"]
+                                                                                [radio-button
+                                                                                 :label     "small"
+                                                                                 :value     false
+                                                                                 :model     @long-paragraph?
+                                                                                 :on-change #(reset! long-paragraph? false)
+                                                                                 :style     {:margin-left "10px"}]
+                                                                                [radio-button
+                                                                                 :label     "large"
+                                                                                 :value     true
+                                                                                 :model     @long-paragraph?
+                                                                                 :on-change #(reset! long-paragraph? true)
+                                                                                 :style     {:margin-left "10px"}]]]
                                                                     [h-box
                                                                      :gap "20px"
                                                                      :align :center
@@ -188,7 +205,7 @@
                                                                                  :on-change  (fn [val]
                                                                                                (reset! curr-position val)
                                                                                                (cancel-popover))]
-                                                                                [label :label "(currently applies to all demos on this page)"]]]]]]]]]]]]]))))
+                                                                                [label :label "(applies to all popovers on this page)"]]]]]]]]]]]]]))))
 
 
 (defn hyperlink-popover-demo
