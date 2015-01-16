@@ -128,9 +128,12 @@ in the page, and performance suffers.
 Eventually:
 
 * Use GSS for layout. Instead of flexbox.  Performance problems apparently. 
-* statecharts.  
+* Statecharts.  
 
 
+## Component Suggestions
+
+* Add a timed alert box which appears for a set period of time. This would probably be absolutely positioned over the UI and then fade away after the set time expires.
 
 
 ## Named Parameters

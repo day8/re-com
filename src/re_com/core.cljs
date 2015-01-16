@@ -54,7 +54,7 @@
    {:name :height           :required false                  :type "string"     :description "standard CSS width setting for this input."}
    {:name :rows             :required false :default "3"     :type "string"     :description "ONLY applies to 'input-textarea': the number of rows of text to show."}
    {:name :on-change        :required true                   :type "(new-text)" :description "a function which takes one parameter, which is the new text (see :change-on-blur?)."}
-   {:name :change-on-blur?  :required false :default false   :type "boolean"    :description "when true, invoke on-change function on blur, otherwise on every change (character by character)."}
+   {:name :change-on-blur?  :required false :default true    :type "boolean"    :description "when true, invoke on-change function on blur, otherwise on every change (character by character)."}
    {:name :validation-regex :required false                  :type "regex"      :description "the regular expression which determines which characters are legal and which aren't."}
    {:name :disabled?        :required false :default false   :type "boolean"    :description "set to true to disable the input box (can be atom or value)."}
    {:name :class            :required false                  :type "string"     :description "additional CSS classes required."}
@@ -73,7 +73,7 @@
 ;;  - #"^[0-9a-fA-F]*$"                    ;; Hex number
 ;;  - #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" ;; Time input
 
-(defn- input-text-base
+(defn- input-text-base-OLD                                  ;; TODO: Remove
   "Returns markup for a basic text input label"
   [& {:keys [model input-type] :as args}]
   {:pre [(validate-arguments input-text-args (keys args))]}
@@ -172,20 +172,20 @@
                  (when (and status-icon? status)
                    (if status-tooltip
                      [popover-tooltip
-                      :label status-tooltip
+                      :label    status-tooltip
                       :position :right-center
-                      :status status
-                      ;:width "200px"
+                      :status   status
+                      ;:width    "200px"
                       :showing? showing?
-                      :anchor [:i {:class         (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
-                                   :style         {:position "static"
-                                                   :width    "auto"
-                                                   :height   "auto"}
-                                   ;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
-                                   :on-mouse-over (handler-fn (reset! showing? true))
-                                   ;:on-mouse-out  #(do (reset! showing? false) false)
-                                   :on-mouse-out  (handler-fn (reset! showing? false))
-                                   }]
+                      :anchor   [:i {:class         (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                                     :style         {:position "static"
+                                                     :width    "auto"
+                                                     :height   "auto"}
+                                     ;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
+                                     :on-mouse-over (handler-fn (reset! showing? true))
+                                     ;:on-mouse-out  #(do (reset! showing? false) false)
+                                     :on-mouse-out  (handler-fn (reset! showing? false))
+                                     }]
                       :style {:position     "absolute"
                               :font-size    "130%"
                               :top          "50%"
@@ -202,6 +202,155 @@
                                   :width        "auto"
                                   :height       "auto"}
                           :title status-tooltip}]))]]))))
+
+
+(defn- input-text-base
+  "Returns markup for a basic text input label"
+  [& {:keys [model input-type] :as args}]
+  {:pre [(validate-arguments input-text-args (keys args))]}
+  (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
+        internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)
+    (fn
+      [& {:keys [model status status-icon? status-tooltip placeholder width height rows on-change change-on-blur? validation-regex disabled? class style attr]
+          :or   {change-on-blur? true}
+          :as   args}]
+      {:pre [(validate-arguments input-text-args (keys args))]}
+      (let [latest-ext-model (deref-or-value model)
+            disabled?        (deref-or-value disabled?)
+            change-on-blur?  (deref-or-value change-on-blur?)
+            showing?         (reagent/atom false)]
+        (when (not= @external-model latest-ext-model) ;; Has model changed externally?
+          (reset! external-model latest-ext-model)
+          (reset! internal-model latest-ext-model))
+        [h-box
+         :align    :start
+         :width    (if width width "250px")
+         :class    "rc-input-text "
+         :children [[:div
+                     {:class (str "rc-input-text-inner "          ;; form-group
+                                  (case status
+                                    :warning "has-warning "
+                                    :error "has-error "
+                                    "")
+                                  (when (and status status-icon?) "has-feedback")
+                                  )
+                      :style {:flex          "auto"
+                              ;:margin-bottom "0px"
+                              }}
+                     [input-type
+                      (merge
+                        {:class       (str "form-control " class)
+                         :type        (when (= input-type :text) "text")
+                         :rows        (when (= input-type :textarea) (if rows rows 3))
+                         :style       (merge
+                                        {:flex                "none"
+                                         ;:width               (if width width "250px")
+                                         :height              (when height height)
+                                         :padding-right       "12px" ;; override for when icon exists
+                                         :-webkit-user-select "none"}
+                                        style)
+                         :placeholder placeholder
+                         :value       @internal-model
+                         :disabled    disabled?
+
+                         ;:on-change   (fn [event]
+                         ;               (let [new-val (-> event .-target .-value)]
+                         ;                 (when (and
+                         ;                         on-change
+                         ;                         (not disabled?)
+                         ;                         (if validation-regex (re-find validation-regex new-val) true))
+                         ;                   (reset! internal-model new-val)
+                         ;                   (when-not change-on-blur?
+                         ;                     (on-change @internal-model)))
+                         ;                 false))
+                         :on-change   (handler-fn
+                                        (let [new-val (-> event .-target .-value)]
+                                          (when (and
+                                                  on-change
+                                                  (not disabled?)
+                                                  (if validation-regex (re-find validation-regex new-val) true))
+                                            (reset! internal-model new-val)
+                                            (when-not change-on-blur?
+                                              (on-change @internal-model)))))
+
+                         ;:on-blur     #(do (when (and
+                         ;                          on-change
+                         ;                          change-on-blur?
+                         ;                          (not= @internal-model @external-model))
+                         ;                    (on-change @internal-model))
+                         ;                  false)
+                         :on-blur     (handler-fn
+                                        (when (and
+                                                on-change
+                                                change-on-blur?
+                                                (not= @internal-model @external-model))
+                                          (on-change @internal-model))
+                                        #_(.preventDefault event))
+
+                         ;:on-key-up   #(if disabled?
+                         ;               false
+                         ;               (do (case (.-which %)
+                         ;                     13 (when on-change (on-change @internal-model))
+                         ;                     27 (reset! internal-model @external-model)
+                         ;                     true)
+                         ;                   true))
+                         :on-key-up   (handler-fn
+                                        (if disabled?
+                                          (.preventDefault event)
+                                          (case (.-which event)
+                                            13 (when on-change (on-change @internal-model))
+                                            27 (reset! internal-model @external-model)
+                                            true)))
+
+                         }
+                        attr)]]
+                    (when (and status-icon? status)
+                      (if status-tooltip
+                        [popover-tooltip
+                         :label status-tooltip
+                         :position :right-center
+                         :status status
+                         ;:width    "200px"
+                         :showing? showing?
+                         :anchor [:i {:class         (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                                      :style         {:position "static"
+                                                      :width    "auto"
+                                                      :height   "auto"
+                                                      :opacity  (if (and status-icon? status) "1" "0")
+                                                      }
+                                      ;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
+                                      :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                      ;:on-mouse-out  #(do (reset! showing? false) false)
+                                      :on-mouse-out  (handler-fn (reset! showing? false))
+                                      }]
+                         :style {:flex        "none"
+                                 :align-self  :center
+                                 :font-size   "130%"
+                                 :margin-left "4px"
+                                 ;:position     "absolute"
+                                 ;:top          "50%"
+                                 ;:right        "0px"
+                                 ;:margin-top   "-0.5em"
+                                 ;:margin-right "0.5em"
+                                 }]
+                        [:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                             :style {:flex        "none"
+                                     :align-self  :center
+                                     :position    "static"
+                                     :font-size   "130%"
+                                     :margin-left "4px"
+                                     :opacity     (if (and status-icon? status) "1" "0")
+                                     ;:top          "50%"
+                                     ;:right        "0px"
+                                     ;:z-index      "0"
+                                     ;:margin-top   "-0.5em"
+                                     ;:margin-right "0.5em"
+                                     :width       "auto"
+                                     :height      "auto"
+                                     }
+                             :title status-tooltip}]))
+                    ]]
+        ))))
 
 
 (defn input-text
