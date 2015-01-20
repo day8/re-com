@@ -28,7 +28,6 @@
   ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
   [box
    :class "list-group-item compact"
-   ;:attr  {:on-click    #(on-change (check-clicked selections item (not (selections item)) required?))}
    :attr  {:on-click    (handler-fn (when-not disabled?
                                       (on-change (check-clicked selections item (not (selections item)) required?))))}
    :child [checkbox
@@ -49,7 +48,6 @@
   [item selections on-change disabled? label-fn required? as-exclusions?]
   [box
    :class "list-group-item compact"
-   ;:attr  {:on-click    #(on-change (radio-clicked selections item required?))}
    :attr  {:on-click    (handler-fn (when-not disabled?
                                       (on-change (radio-clicked selections item required?))))}
    :child [radio-button

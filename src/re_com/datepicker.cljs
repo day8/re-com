@@ -148,7 +148,8 @@
 
                            :else styles)
         on-click     #(when-not (or disabled? disabled-day?) (selection-changed date on-change))]
-    [:td {:class styles :on-click (handler-fn (on-click))} (day date)]))
+    [:td {:class styles
+          :on-click (handler-fn (on-click))} (day date)]))
 
 
 (defn- week-td [date]

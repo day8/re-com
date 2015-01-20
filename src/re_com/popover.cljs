@@ -35,28 +35,26 @@
 
 
 (defn- calc-popover-pos
-  [pop-id pop-orient p-width p-height pop-offset]
-  (if-let [popover-elem (get-element-by-id pop-id)]  ;; TODO: Not required any more, remove carefully as this is an if-let!
-    (let [popover-left   (case pop-orient
-                           :left           "initial" ;; TODO: Ultimately remove this (must have NO :left which is in Bootstrap .popover class)
-                           :right          "100%"
-                           (:above :below) (px (if pop-offset pop-offset (/ p-width 2)) :negative))
-          popover-top    (case pop-orient
-                           (:left :right)  (px (if pop-offset pop-offset (/ p-height 2)) :negative)
-                           :above          "initial"
-                           :below          "100%")
-          popover-right  (case pop-orient
-                           :left  (px 10) ;; "100%" TODO: Work out why we need 10px instead of 100%
-                           :right nil
-                           :above nil
-                           :below nil)
-          popover-bottom (case pop-orient
-                           :left  nil
-                           :right nil
-                           :above (px 10) ;; "100%" TODO: Work out why we need 10px instead of 100%
-                           :below nil)]
-      (println {:left popover-left :top popover-top :right popover-right :bottom popover-bottom})
-      {:left popover-left :top popover-top :right popover-right :bottom popover-bottom})))
+  [pop-orient p-width p-height pop-offset]
+  (let [popover-left   (case pop-orient
+                         :left           "initial" ;; TODO: Ultimately remove this (must have NO :left which is in Bootstrap .popover class)
+                         :right          "100%"
+                         (:above :below) (px (if pop-offset pop-offset (/ p-width 2)) :negative))
+        popover-top    (case pop-orient
+                         (:left :right)  (px (if pop-offset pop-offset (/ p-height 2)) :negative)
+                         :above          "initial"
+                         :below          "100%")
+        popover-right  (case pop-orient
+                         :left  (px 10) ;; "100%" TODO: Work out why we need 10px instead of 100%
+                         :right nil
+                         :above nil
+                         :below nil)
+        popover-bottom (case pop-orient
+                         :left  nil
+                         :right nil
+                         :above (px 10) ;; "100%" TODO: Work out why we need 10px instead of 100%
+                         :below nil)]
+    {:left popover-left :top popover-top :right popover-right :bottom popover-bottom}))
 
 
 (defn- popover-arrow
@@ -181,8 +179,7 @@
     (reagent/create-class
       {:component-did-mount
        (fn []
-         (do (println ":component-did-mount height =" (.-clientHeight (get-element-by-id pop-id)))
-             (reset! rendered-once true)))
+         (reset! rendered-once true))
 
        :component-did-update
        (fn []
@@ -194,8 +191,7 @@
                                 :right  20
                                 :below  20
                                 :left   (if @p-width (- @p-width 25) @p-width)
-                                :above  (if @p-height (- @p-height 25) @p-height)))
-           (println ":component-did-update height =" (.-clientHeight (get-element-by-id pop-id)))))
+                                :above  (if @p-height (- @p-height 25) @p-height)))))
 
        :component-function
        (fn
@@ -216,14 +212,7 @@
             {:id pop-id
              :class (case orientation :left "left" :right "right" :above "top" :below "bottom")
              :style (merge (if @rendered-once
-                             (do
-                               (println "POPOVER-BORDER: rendered-once? =" @rendered-once
-                                        ": p-width =" @p-width
-                                        ": p-height =" @p-height
-                                        ": pop-offset =" @pop-offset)
-                               ;(reset! rendered-once false)
-                               ;(reset! updated-once false)
-                               (calc-popover-pos pop-id orientation @p-width @p-height @pop-offset))
+                             (when pop-id (calc-popover-pos orientation @p-width @p-height @pop-offset))
                              {:top "-10000px" :left "-10000px"})
                            (if width  {:width  width})
                            (if height {:height height})
@@ -232,14 +221,6 @@
                              {:border-radius "4px"
                               :box-shadow    "none"
                               :border        "none"})
-
-                           ;; TODO: Seems this code is not required, remove when confirmed
-                           #_{(case orientation
-                              (:left  :right) :margin-left
-                              (:above :below) :margin-top) (px (case orientation
-                                                                 :left           (str "-" (+ arrow-length @p-width))
-                                                                 :above          (str "-" (+ arrow-length @p-height))
-                                                                 (:right :below) arrow-length))}
 
                            ;; The popover point is zero width, therefore its absolute children will consider this width when deciding their
                            ;; natural size and in particular, how they natually wrap text. The right hand size of the popover is used as a

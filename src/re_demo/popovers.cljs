@@ -11,18 +11,18 @@
 
 
 (def curr-position (reagent/atom :below-center))
-(def positions     [{:id :above-left :label ":above-left  "}
+(def positions     [{:id :above-left   :label ":above-left  "}
                     {:id :above-center :label ":above-center"}
-                    {:id :above-right :label ":above-right "}
-                    {:id :below-left :label ":below-left  "}
+                    {:id :above-right  :label ":above-right "}
+                    {:id :below-left   :label ":below-left  "}
                     {:id :below-center :label ":below-center"}
-                    {:id :below-right :label ":below-right "}
-                    {:id :left-above :label ":left-above  "}
-                    {:id :left-center :label ":left-center "}
-                    {:id :left-below :label ":left-below  "}
-                    {:id :right-above :label ":right-above "}
+                    {:id :below-right  :label ":below-right "}
+                    {:id :left-above   :label ":left-above  "}
+                    {:id :left-center  :label ":left-center "}
+                    {:id :left-below   :label ":left-below  "}
+                    {:id :right-above  :label ":right-above "}
                     {:id :right-center :label ":right-center"}
-                    {:id :right-below :label ":right-below "}])
+                    {:id :right-below  :label ":right-below "}])
 
 
 (defn simple-popover-demo
@@ -36,21 +36,9 @@
         on-cancel?        (reagent/atom false)
         backdrop-opacity? (reagent/atom false)
         long-paragraph?   (reagent/atom false)
-
-        ;curr-position     (reagent/atom :below-center)
-        ;positions         [{:id :above-left   :label ":above-left  "}
-        ;                   {:id :above-center :label ":above-center"}
-        ;                   {:id :above-right  :label ":above-right "}
-        ;                   {:id :below-left   :label ":below-left  "}
-        ;                   {:id :below-center :label ":below-center"}
-        ;                   {:id :below-right  :label ":below-right "}
-        ;                   {:id :left-above   :label ":left-above  "}
-        ;                   {:id :left-center  :label ":left-center "}
-        ;                   {:id :left-below   :label ":left-below  "}
-        ;                   {:id :right-above  :label ":right-above "}
-        ;                   {:id :right-center :label ":right-center"}
-        ;                   {:id :right-below  :label ":right-below "}]
-
+        standard-text     "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down. "
+        no-clip-text      "In this mode, the popover will not be clipped within the scroller but it will also not move when scrolling occurs while it's popped up. However, the next time it is popped up, the correct position will be recalculated. "
+        extra-text        (clojure.string/join (repeat 4 "And here's a little more text just to pad everything out a bit. "))
         ]
     (fn []
       (let [cancel-popover  #(reset! showing? false)]
@@ -111,13 +99,8 @@
                                                                                 :close-button?    @close-button?
                                                                                 :body             (when @body?
                                                                                                     (if @no-clip?
-                                                                                                      [:span {:style {:color "brown"}} [:strong "NOTE: "]
-                                                                                                       "In this mode, the popover will not be clipped within the scroller but it
-                                                                                                        will also not move when scrolling occurs while it's popped up. However, the next time it is popped up,
-                                                                                                        the correct position will be recalculated."]
-                                                                                                      (if @long-paragraph?
-                                                                                                        [:span "This is a long paragraph. It forces the height to change to make sure things stay nicely aligned. This is a long paragraph. It forces the height to change to make sure things stay nicely aligned. This is a long paragraph. It forces the height to change to make sure things stay nicely aligned. This is a long paragraph. It forces the height to change to make sure things stay nicely aligned. "]
-                                                                                                        [:span "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down."])))]]
+                                                                                                      [:span {:style {:color "brown"}} [:strong "NOTE: "] (str no-clip-text (when @long-paragraph? extra-text))]
+                                                                                                      [:span (str standard-text (when @long-paragraph? extra-text))]))]]
                                                                     [:span {:style {:flex "inherit" :color "lightgrey"}} (clojure.string/join (repeat (if @add-scroller? 98 49) "text "))]]]
                                                         [v-box
                                                          :gap      "15px"
@@ -131,52 +114,40 @@
                                                                      :children [[checkbox
                                                                                  :label     ":title"
                                                                                  :model     title?
-                                                                                 :on-change (fn [val]
-                                                                                              (reset! title? val)
-                                                                                              #_(cancel-popover))]
+                                                                                 :on-change (fn [val] (reset! title? val))]
                                                                                 [checkbox
                                                                                  :label     ":close-button?"
                                                                                  :model     close-button?
-                                                                                 :on-change (fn [val]
-                                                                                              (reset! close-button? val)
-                                                                                              #_(cancel-popover))]
+                                                                                 :on-change (fn [val] (reset! close-button? val))]
                                                                                 [checkbox
                                                                                  :label     ":body"
                                                                                  :model     body?
-                                                                                 :on-change (fn [val]
-                                                                                              (reset! body? val)
-                                                                                              #_(cancel-popover))]]]
+                                                                                 :on-change (fn [val] (reset! body? val))]]]
                                                                     [h-box
                                                                      :gap "20px"
                                                                      :align :start
                                                                      :children [[checkbox
                                                                                  :label     "add backdrop (catches clicks away from popover)"
                                                                                  :model     on-cancel?
-                                                                                 :on-change (fn [val]
-                                                                                              (reset! on-cancel? val)
-                                                                                              #_(cancel-popover))]
+                                                                                 :on-change (fn [val] (reset! on-cancel? val))]
                                                                                 (when @on-cancel?
                                                                                   [checkbox
                                                                                    :label     (str ":backdrop-opacity " (if @backdrop-opacity? "(0.3)" "(0.0)"))
                                                                                    :model     backdrop-opacity?
-                                                                                   :on-change (fn [val]
-                                                                                                (reset! backdrop-opacity? val)
-                                                                                                #_(cancel-popover))])]]
+                                                                                   :on-change (fn [val] (reset! backdrop-opacity? val))])]]
                                                                     [h-box
                                                                      :gap "20px"
                                                                      :align :start
                                                                      :children [[checkbox
                                                                                  :label     "add scroll bars to box"
                                                                                  :model     add-scroller?
-                                                                                 :on-change (fn [val]
-                                                                                              (reset! add-scroller? val)
-                                                                                              #_(cancel-popover))]
+                                                                                 :on-change (fn [val] (reset! add-scroller? val))]
                                                                                 [checkbox
-                                                                                 :label     ":no-clip?"
+                                                                                 :label     ":no-clip? *"
                                                                                  :model     no-clip?
                                                                                  :on-change (fn [val]
                                                                                               (reset! no-clip? val)
-                                                                                              #_(cancel-popover))]]]
+                                                                                              (cancel-popover))]]]
                                                                     [h-box
                                                                      :align :start
                                                                      :children [[label :label "body content size:"]
@@ -196,7 +167,7 @@
                                                                      :gap "20px"
                                                                      :align :center
                                                                      :children [[label
-                                                                                 :label ":position"]
+                                                                                 :label ":position *"]
                                                                                 [single-dropdown
                                                                                  :choices    positions
                                                                                  :model      curr-position
@@ -205,7 +176,8 @@
                                                                                  :on-change  (fn [val]
                                                                                                (reset! curr-position val)
                                                                                                (cancel-popover))]
-                                                                                [label :label "(applies to all popovers on this page)"]]]]]]]]]]]]]))))
+                                                                                [label :label "(applies to all popovers on this page)"]]]
+                                                                    [label :label "* Changing starred items above closes the popover."]]]]]]]]]]]))))
 
 
 (defn hyperlink-popover-demo
@@ -302,7 +274,7 @@
                                :margin   "20px 0px 0px 0px"
                                :children [[popover-tooltip
                                            :label    @text
-                                           :position @curr-position ;; TODO: :below-center        ;; this is the default so could be omitted
+                                           :position @curr-position
                                            :showing? showing?
                                            :status   @status
                                            :width    (when @width? tt-width)

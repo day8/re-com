@@ -74,15 +74,11 @@
                                                :flex "auto"
                                                :margin margin}}
                                       (when in-drag?                             ;; only listen when we are dragging
-                                        {;:on-mouse-up   stop-drag
-                                         :on-mouse-up   (handler-fn (stop-drag))
-                                         ;:on-mouse-move mousemove
+                                        {:on-mouse-up   (handler-fn (stop-drag))
                                          :on-mouse-move (handler-fn (mousemove event))
-                                         ;:on-mouse-out  mouseout
-                                         :on-mouse-out  (handler-fn (mouseout event))
-                                         })))
+                                         :on-mouse-out  (handler-fn (mouseout event))})))
 
-        make-panel-style     (fn [class in-drag? percentage]
+        make-panel-style (fn [class in-drag? percentage]
                                {:class class
                                 :style (merge {:display "flex"
                                                :flex (str percentage " 1 0px")
@@ -92,11 +88,8 @@
 
         make-splitter-style  (fn [class]
                                {:class class
-                                ;:on-mouse-down mousedown
                                 :on-mouse-down (handler-fn (mousedown event))
-                                ;:on-mouse-over mouseover-split
                                 :on-mouse-over (handler-fn (mouseover-split))
-                                ;:on-mouse-out  mouseout-split
                                 :on-mouse-out  (handler-fn (mouseout-split))
                                 :style (merge {:flex (str "0 0 " splitter-size)
                                                :cursor "ew-resize"}
@@ -169,15 +162,11 @@
                                                :flex "auto"
                                                :margin margin}}
                                       (when in-drag?                             ;; only listen when we are dragging
-                                        {;:on-mouse-up   stop-drag
-                                         :on-mouse-up   (handler-fn (stop-drag))
-                                         ;:on-mouse-move mousemove
+                                        {:on-mouse-up   (handler-fn (stop-drag))
                                          :on-mouse-move (handler-fn (mousemove event))
-                                         ;:on-mouse-out  mouseout
-                                         :on-mouse-out  (handler-fn (mouseout event))
-                                         })))
+                                         :on-mouse-out  (handler-fn (mouseout event))})))
 
-        make-panel-style     (fn [class in-drag? percentage]
+        make-panel-style (fn [class in-drag? percentage]
                                {:class class
                                 :style (merge {:display "flex"
                                                :flex (str percentage " 1 0px")
@@ -187,11 +176,8 @@
 
         make-splitter-style  (fn [class]
                                {:class class
-                                ;:on-mouse-down mousedown
                                 :on-mouse-down (handler-fn (mousedown event))
-                                ;:on-mouse-over mouseover-split
                                 :on-mouse-over (handler-fn (mouseover-split))
-                                ;:on-mouse-out  mouseout-split
                                 :on-mouse-out  (handler-fn (mouseout-split))
                                 :style (merge {:flex (str "0 0 " splitter-size)
                                                :cursor "ns-resize"}

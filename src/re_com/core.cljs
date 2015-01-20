@@ -34,9 +34,7 @@
              {:class (str "rc-label " class)
               :style (merge {:flex "none"} style)}
              (when on-click
-               ;{:on-click #(do (on-click) false)}
-               {:on-click (handler-fn (on-click))}
-               ))
+               {:on-click (handler-fn (on-click))}))
            label]])
 
 
@@ -117,17 +115,6 @@
                      :placeholder placeholder
                      :value       @internal-model
                      :disabled    disabled?
-
-                     ;:on-change   (fn [event]
-                     ;               (let [new-val (-> event .-target .-value)]
-                     ;                 (when (and
-                     ;                         on-change
-                     ;                         (not disabled?)
-                     ;                         (if validation-regex (re-find validation-regex new-val) true))
-                     ;                   (reset! internal-model new-val)
-                     ;                   (when-not change-on-blur?
-                     ;                     (on-change @internal-model)))
-                     ;                 false))
                      :on-change   (handler-fn
                                     (let [new-val (-> event .-target .-value)]
                                       (when (and
@@ -137,28 +124,12 @@
                                         (reset! internal-model new-val)
                                         (when-not change-on-blur?
                                           (on-change @internal-model)))))
-
-                     ;:on-blur     #(do (when (and
-                     ;                          on-change
-                     ;                          change-on-blur?
-                     ;                          (not= @internal-model @external-model))
-                     ;                    (on-change @internal-model))
-                     ;                  false)
                      :on-blur     (handler-fn
                                     (when (and
                                             on-change
                                             change-on-blur?
                                             (not= @internal-model @external-model))
-                                      (on-change @internal-model))
-                                    #_(.preventDefault event))
-
-                     ;:on-key-up   #(if disabled?
-                     ;               false
-                     ;               (do (case (.-which %)
-                     ;                     13 (when on-change (on-change @internal-model))
-                     ;                     27 (reset! internal-model @external-model)
-                     ;                     true)
-                     ;                   true))
+                                      (on-change @internal-model)))
                      :on-key-up   (handler-fn
                                     (if disabled?
                                       (.preventDefault event)
@@ -181,11 +152,8 @@
                                      :style         {:position "static"
                                                      :width    "auto"
                                                      :height   "auto"}
-                                     ;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
                                      :on-mouse-over (handler-fn (reset! showing? true))
-                                     ;:on-mouse-out  #(do (reset! showing? false) false)
-                                     :on-mouse-out  (handler-fn (reset! showing? false))
-                                     }]
+                                     :on-mouse-out  (handler-fn (reset! showing? false))}]
                       :style {:position     "absolute"
                               :font-size    "130%"
                               :top          "50%"
@@ -252,17 +220,6 @@
                          :placeholder placeholder
                          :value       @internal-model
                          :disabled    disabled?
-
-                         ;:on-change   (fn [event]
-                         ;               (let [new-val (-> event .-target .-value)]
-                         ;                 (when (and
-                         ;                         on-change
-                         ;                         (not disabled?)
-                         ;                         (if validation-regex (re-find validation-regex new-val) true))
-                         ;                   (reset! internal-model new-val)
-                         ;                   (when-not change-on-blur?
-                         ;                     (on-change @internal-model)))
-                         ;                 false))
                          :on-change   (handler-fn
                                         (let [new-val (-> event .-target .-value)]
                                           (when (and
@@ -272,28 +229,12 @@
                                             (reset! internal-model new-val)
                                             (when-not change-on-blur?
                                               (on-change @internal-model)))))
-
-                         ;:on-blur     #(do (when (and
-                         ;                          on-change
-                         ;                          change-on-blur?
-                         ;                          (not= @internal-model @external-model))
-                         ;                    (on-change @internal-model))
-                         ;                  false)
                          :on-blur     (handler-fn
                                         (when (and
                                                 on-change
                                                 change-on-blur?
                                                 (not= @internal-model @external-model))
-                                          (on-change @internal-model))
-                                        #_(.preventDefault event))
-
-                         ;:on-key-up   #(if disabled?
-                         ;               false
-                         ;               (do (case (.-which %)
-                         ;                     13 (when on-change (on-change @internal-model))
-                         ;                     27 (reset! internal-model @external-model)
-                         ;                     true)
-                         ;                   true))
+                                          (on-change @internal-model)))
                          :on-key-up   (handler-fn
                                         (if disabled?
                                           (.preventDefault event)
@@ -318,11 +259,8 @@
                                                       :height   "auto"
                                                       :opacity  (if (and status-icon? status) "1" "0")
                                                       }
-                                      ;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
                                       :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
-                                      ;:on-mouse-out  #(do (reset! showing? false) false)
-                                      :on-mouse-out  (handler-fn (reset! showing? false))
-                                      }]
+                                      :on-mouse-out  (handler-fn (reset! showing? false))}]
                          :style {:flex        "none"
                                  :align-self  :center
                                  :font-size   "130%"
@@ -513,7 +451,6 @@
                   :step      step
                   :value     model
                   :disabled  disabled?
-                  ;:on-change #(on-change (double (-> % .-target .-value)))
                   :on-change (handler-fn (on-change (double (-> event .-target .-value))))
                   }
                  attr)]])))

@@ -106,13 +106,9 @@
                            (when @mouse-over? "mouseover"))]
             [:li
              {:class         (str "active-result group-option " class)
-              ;:on-mouse-over #(do (reset! mouse-over? true) true) ;; true CANCELs mouse-over (false cancels all others)
               :on-mouse-over (handler-fn (reset! mouse-over? true))
-              ;:on-mouse-out  #(do (reset! mouse-over? false) false)
               :on-mouse-out  (handler-fn (reset! mouse-over? false))
-              ;:on-mouse-down #(do (on-click (:id opt)) true)  ;; continue event
-              :on-mouse-down (handler-fn (on-click (:id opt)))
-              }
+              :on-mouse-down (handler-fn (on-click (:id opt)))}
              (:label opt)]))})))
 
 
@@ -128,14 +124,10 @@
                                             :left     "0px"
                                             :top      "-7770px"})
        :value         @filter-text
-       ;:on-change     #(do (reset! filter-text (-> % .-target .-value)) true)
        :on-change     (handler-fn (reset! filter-text (-> event .-target .-value)))
-       ;:on-key-down   #(key-handler) ;; Rely on return value from key-handler for event return value
        :on-key-down   (handler-fn (when-not (key-handler event)
                                     (.preventDefault event))) ;; When key-handler returns false, preventDefault
-       ;:on-blur       #(do (reset! drop-showing? false) false)
-       :on-blur       (handler-fn (reset! drop-showing? false))
-       }]]))
+       :on-blur       (handler-fn (reset! drop-showing? false))}]]))
 
 
 (def ^:private filter-text-box
@@ -156,30 +148,13 @@
         [:a.chosen-single.chosen-default
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
           :tab-index     (when tab-index tab-index)
-
-          ;:on-click      #(if @ignore-click
-          ;                 (reset! ignore-click false)
-          ;                 (dropdown-click)
-          ;                 true)
-
           :on-click      (handler-fn
                            (if @ignore-click
                              (reset! ignore-click false)
                              (dropdown-click)))
-
-          ;:on-mouse-down #(do (when @drop-showing?
-          ;                      (reset! ignore-click true))
-          ;                    true) ;; continue event ;; TODO: Hmmm, have a look at setting to false and removing the ignore-click stuff
-
           :on-mouse-down (handler-fn
                            (when @drop-showing?
                              (reset! ignore-click true)))  ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
-
-          ;:on-key-down   #(do (key-handler %)
-          ;                    (when (= (.-which %) 13) ;; Pressing enter on an anchor also triggers click event, which we don't want
-          ;                      (reset! ignore-click true))
-          ;                    true)   ;; continue event ;; TODO: Hmmm, have a look at setting to false and removing the ignore-click stuff
-
           :on-key-down   (handler-fn
                            (key-handler event)
                            (when (= (.-which event) 13)  ;; Pressing enter on an anchor also triggers click event, which we don't want

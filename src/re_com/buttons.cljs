@@ -40,19 +40,13 @@
                                        {:flex "none"}
                                        style)
                            :disabled disabled?
-                           ;:on-click #(do (when (and on-click (not disabled?))
-                           ;                 (on-click))
-                           ;               false)
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
                                          (on-click)))
                            }
                           (when tooltip
-                            {;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
-                             :on-mouse-over (handler-fn (reset! showing? true))
-                             ;:on-mouse-out  #(do (reset! showing? false) false)
-                             :on-mouse-out  (handler-fn (reset! showing? false))
-                             })
+                            {:on-mouse-over (handler-fn (reset! showing? true))
+                             :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
                         label]]
         [box
@@ -109,19 +103,12 @@
                            :style    (merge
                                        {:cursor (when-not disabled? "pointer")}
                                        style)
-                           ;:on-click #(do (when (and on-click (not disabled?))
-                           ;                 (on-click))
-                           ;               false)
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))
-                           }
+                                         (on-click)))}
                           (when tooltip
-                            {;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
-                             :on-mouse-over (handler-fn (reset! showing? true))
-                             ;:on-mouse-out  #(do (reset! showing? false) false)
-                             :on-mouse-out  (handler-fn (reset! showing? false))
-                             })
+                            {:on-mouse-over (handler-fn (reset! showing? true))
+                             :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
                         [:i {:class md-icon-name}]]]
         (if tooltip
@@ -175,19 +162,13 @@
                            :style    (merge
                                        {:cursor (when-not disabled? "pointer")}
                                        style)
-                           ;:on-click #(do (when (and on-click (not disabled?))
-                           ;                 (on-click))
-                           ;               false)
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
                                          (on-click)))
                            }
                           (when tooltip
-                            {;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
-                             :on-mouse-over (handler-fn (reset! showing? true))
-                             ;:on-mouse-out  #(do (reset! showing? false) false)
-                             :on-mouse-out  (handler-fn (reset! showing? false))
-                             })
+                            {:on-mouse-over (handler-fn (reset! showing? true))
+                             :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
                         [:i {:class md-icon-name}]]]
         (if tooltip
@@ -234,19 +215,12 @@
                                        (when disabled? "rc-row-disabled ")
                                        class)
                            :style    style
-                           ;:on-click #(do (when (and on-click (not disabled?))
-                           ;                 (on-click))
-                           ;               false)
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))
-                           }
+                                         (on-click)))}
                           (when tooltip
-                            {;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
-                             :on-mouse-over (handler-fn (reset! showing? true))
-                             ;:on-mouse-out  #(do (reset! showing? false) false)
-                             :on-mouse-out  (handler-fn (reset! showing? false))
-                             }) ;; Need to return true to ALLOW default events to be performed
+                            {:on-mouse-over (handler-fn (reset! showing? true))
+                             :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
                           attr)
                         [:i {:class md-icon-name}]]]
         (if tooltip
@@ -296,19 +270,13 @@
                                                 :cursor              (if disabled? "not-allowed" "pointer")
                                                 :-webkit-user-select "none"}
                                                style)
-                                   ;:on-click #(do (when (and on-click (not disabled?))
-                                   ;                 (on-click))
-                                   ;               false)
                                    :on-click (handler-fn
                                                (when (and on-click (not disabled?))
                                                  (on-click)))
                                    }
                                   (when tooltip
-                                    {;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
-                                     :on-mouse-over (handler-fn (reset! showing? true))
-                                     ;:on-mouse-out  #(do (reset! showing? false) false)
-                                     :on-mouse-out  (handler-fn (reset! showing? false))
-                                     })
+                                    {:on-mouse-over (handler-fn (reset! showing? true))
+                                     :on-mouse-out  (handler-fn (reset! showing? false))})
                                   attr)
                                 label]]]
         (if tooltip
@@ -359,11 +327,8 @@
                            :href   href
                            :target target}
                           (when tooltip
-                            {;:on-mouse-over #(do (reset! showing? true) true) ;; true CANCELs mouse-over (false cancels all others)
-                             :on-mouse-over (handler-fn (reset! showing? true))
-                             ;:on-mouse-out  #(do (reset! showing? false) false)
-                             :on-mouse-out  (handler-fn (reset! showing? false))
-                             })
+                            {:on-mouse-over (handler-fn (reset! showing? true))
+                             :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
                         label]]
 

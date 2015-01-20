@@ -6,7 +6,7 @@
             [re-com.core             :refer [label title checkbox]]
             [re-com.buttons          :refer [button]]
             [re-com.util             :refer [item-for-id]]
-            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs horizontal-pill-tabs vertical-pill-tabs tabs-args-desc]]
+            [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs tabs-args-desc]]
             [re-demo.utils           :refer [panel-title component-title args-table]]))
 
 
@@ -25,7 +25,7 @@
    {:id ::tab3  :label "Tab3"  :say-this "I'm telling Mum on you two !!"}])
 
 
-(defn horizontal-tabs-demo
+(defn tab-styles-demo
   []
   (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))     ;; holds the id of the selected tab
         change-tab      #(reset! selected-tab-id %)
@@ -64,6 +64,15 @@
                                                        "[horizontal-bar-tabs ... ]"
                                                        {:width fn-name-width}]
                                                       [horizontal-bar-tabs
+                                                       :model selected-tab-id
+                                                       :tabs  tabs-definition
+                                                       :on-change change-tab]]]
+                                          [h-box
+                                           :align    :center
+                                           :children [[component-title
+                                                       "[vertical-bar-tabs ... ]"
+                                                       {:width fn-name-width}]
+                                                      [vertical-bar-tabs
                                                        :model selected-tab-id
                                                        :tabs  tabs-definition
                                                        :on-change change-tab]]]
@@ -180,6 +189,6 @@
                                                         :width     "200px"
                                                         :on-change #(reset! selected-demo-id %)]]]
                                            (case @selected-demo-id
-                                             1 [horizontal-tabs-demo]
+                                             1 [tab-styles-demo]
                                              2 [remembers-demo]
                                              3 [adding-tabs-demo])]]]]]])))

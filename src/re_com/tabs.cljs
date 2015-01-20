@@ -37,7 +37,6 @@
            :key    (str id)}
           [:a
            {:style     {:cursor "pointer"}
-            ;:on-click  #(on-change id)
             :on-click  (when on-change (handler-fn (on-change id)))
             }
            label]]))]))
@@ -64,7 +63,6 @@
           {:type     "button"
            :key      (str id)
            :class    (str "btn btn-default "  (if selected? "active"))
-           ;:on-click  #(on-change id)
            :on-click  (when on-change (handler-fn (on-change id)))
            }
           label]))]))

@@ -222,9 +222,7 @@
       (let [mouse-over-row? (identical? @mouse-over row)]
         [h-box
          :class    "rc-div-table-row"
-         :attr     {;; :on-mouse-over #(do (reset! mouse-over row) true)
-                    ;; :on-mouse-out  #(do (reset! mouse-over nil) false)
-                    :on-mouse-over (handler-fn (reset! mouse-over row))
+         :attr     {:on-mouse-over (handler-fn (reset! mouse-over row))
                     :on-mouse-out  (handler-fn (reset! mouse-over nil))}
          :children [[h-box
                      :width (:sort col-widths)
