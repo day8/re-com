@@ -24,10 +24,10 @@
 
   :profiles         {:debug {:debug true}
                      :dev   {:dependencies [[clj-stacktrace                  "0.2.8"]
-                                            [figwheel                        "0.2.1-SNAPSHOT"]
+                                            [figwheel                        "0.2.2-SNAPSHOT"]
                                             [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]]
                              :plugins      [[lein-cljsbuild                  "1.0.4"]             ;; previously 1.0.4, 1.0.4-SNAPSHOT was in a state of flux
-                                            [lein-figwheel                   "0.2.1-SNAPSHOT"]
+                                            [lein-figwheel                   "0.2.2-SNAPSHOT"]
                                             [lein-shell                      "0.4.0"]
                                             [com.cemerick/clojurescript.test "0.3.3"]]}}
 
@@ -57,15 +57,25 @@
                                                 :optimizations :none
                                                 :pretty-print true}}]}
 
-  :figwheel         {:css-dirs ["run/resources/public/resources/css"]}
+  :figwheel         {:css-dirs ["run/resources/public/resources/css"]
+                     :repl     true}
 
-  :shell            {:commands {"foo" {:windows "cmd /c start"}}}
+  :shell            {:commands {"runurl"      {:windows "cmd"
+                                               :linux   "xdg-open"}
+                                "runurl-arg1" {:windows "/c"
+                                               :linux   ""}
+                                "runurl-arg2" {:windows "start"
+                                               :linux   ""}}}
 
   :aliases          {;; *** DEMO - FIGWHEEL ***
                      "build"       ["do"
                                     ["clean"]
                                     ["figwheel" "demo"]]
+
                      "run"         ["shell" "cmd" "/c" "start" "" "http://localhost:3449/index.html"]
+                     "run-linux"   ["shell" "xdg-open" "http://localhost:3449/index.html"]
+                     "run2"        ["shell" "runurl" "runurl-arg1" "runurl-arg2" "" "http://localhost:3449/index.html"]
+
                      "buildrun"    ["do"
                                     ["clean"]
                                     ["shell" "cmd" "/c" "start" "" "http://localhost:3449/index.html"]
