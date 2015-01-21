@@ -24,10 +24,11 @@
 
   :profiles         {:debug {:debug true}
                      :dev   {:dependencies [[clj-stacktrace                  "0.2.8"]
-                                            [figwheel                        "0.2.1-SNAPSHOT"]
+                                            [figwheel                        "0.2.2-SNAPSHOT"]
                                             [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]]
                              :plugins      [[lein-cljsbuild                  "1.0.4"]             ;; previously 1.0.4, 1.0.4-SNAPSHOT was in a state of flux
-                                            [lein-figwheel                   "0.2.1-SNAPSHOT"]
+                                            [lein-figwheel                   "0.2.2-SNAPSHOT"]
+                                            [lein-shell                      "0.4.0"]
                                             [com.cemerick/clojurescript.test "0.3.3"]]}}
 
   :resource-paths ["run/resources"]
@@ -36,7 +37,7 @@
   :source-paths     ["src"]
   :test-paths       ["test"]
 
-  :clean-targets    ^{:protect false} ["run/resources/public/compiled" "compiled/test"] ;; :output-to
+  :clean-targets    ^{:protect false} ["run/resources/public/compiled" "compiled"] ;; :output-to
 
   ;; Exclude the demo code from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/"]
@@ -48,50 +49,56 @@
                                                 :output-dir    "run/resources/public/compiled/demo"
                                                 :optimizations :none
                                                 :pretty-print  true}}
-                              {:id "prod"
-                               :source-paths   ["src/re_com"]
-                               :compiler       {:output-to     "compiled/prod.js"
-                                                :output-dir    "compiled/prod"
-                                                :preamble      ["reagent/react.min.js"]
-                                                :elide-asserts true
-                                                :optimizations :advanced
-                                                :pretty-print  false}}
                               {:id "test"
                                :source-paths   ["src/re_com" "test"]
-                               :compiler       {:output-to    "compiled/test.js"
-                                                :source-map   "compiled/test.js.map"
-                                                :output-dir   "compiled/test"
+                               :compiler       {:output-to    "run/resources/public/compiled/test.js"
+                                                :source-map   "run/resources/public/compiled/test.js.map"
+                                                :output-dir   "run/resources/public/compiled/test"
                                                 :optimizations :none
                                                 :pretty-print true}}]}
 
-  :figwheel         {:http-server-root "public" ;; this will be in resources/
-                     :server-port 3449          ;; default
+  :figwheel         {:css-dirs ["run/resources/public/resources/css"]
+                     :repl     true}
 
-                     ;; CSS reloading (optional)
-                     ;; :css-dirs has no default value
-                     ;; if :css-dirs is set figwheel will detect css file changes and
-                     ;; send them to the browser
-                     :css-dirs ["run/resources/public/resources/css"]
+  :shell            {:commands {"runurl"      {:windows "cmd"
+                                               :linux   "xdg-open"}
+                                "runurl-arg1" {:windows "/c"
+                                               :linux   ""}
+                                "runurl-arg2" {:windows "start"
+                                               :linux   ""}}}
 
-                     ;; Server Ring Handler (optional)
-                     ;; if you want to embed a ring handler into the figwheel http-kit
-                     ;; server
-                     ;;;;; :ring-handler example.server/handler
+  :aliases          {;; *** DEMO - FIGWHEEL ***
+                     "build"       ["do"
+                                    ["clean"]
+                                    ["figwheel" "demo"]]
 
-                     ;; To be able to open files in your editor from the heads up display
-                     ;; you will need to put a script on your path.
-                     ;; that script will have to take a file path and a line number
-                     ;; ie.
-                     ;;
-                     ;; #! /bin/sh
-                     ;; emacsclient -n +$2 $1
-                     ;;
-                     ;;;;; :open-file-command "myfile-opener"
+                     "run"         ["shell" "cmd" "/c" "start" "" "http://localhost:3449/index.html"]
+                     "run-linux"   ["shell" "xdg-open" "http://localhost:3449/index.html"]
+                     "run2"        ["shell" "runurl" "runurl-arg1" "runurl-arg2" "" "http://localhost:3449/index.html"]
+
+                     "buildrun"    ["do"
+                                    ["clean"]
+                                    ["shell" "cmd" "/c" "start" "" "http://localhost:3449/index.html"]
+                                    ["figwheel" "demo"]]
+
+                     ;; *** DEMO - CLJSBUILD ***
+                     "buildrun-cb" ["do"
+                                    ["clean"]
+                                    ["cljsbuild" "once" "demo"]
+                                    ["shell" "cmd" "/c" "start" "run/resources/public/index.html"]
+                                    ["cljsbuild" "auto" "demo"]]
+
+                     ;; *** TEST - FIGWHEEL : !!!BROKEN!!! ***
+                     "test"        ["do"
+                                    ["clean"]
+                                    ["shell" "cmd" "/c" "start" "" "http://localhost:3449/test.html"]
+                                    ["figwheel" "test"]]
+
+                     ;; *** TEST - CLJSBUILD ***
+                     "test-cb"     ["do"
+                                    ["clean"]
+                                    ["cljsbuild" "once" "test"]
+                                    ["shell" "cmd" "/c" "start" "run/resources/public/test.html"]
+                                    ["cljsbuild" "auto" "test"]]
                      }
-
-  :aliases          {"auto-demo"     ["do" "clean," "cljsbuild" "auto" "demo,"]
-                     "auto-demo-fig" ["do" "clean," "figwheel" "demo,"]
-                     "auto"          ["do" "cljsbuild" "auto" "demo,"]
-                     "once"          ["do" "cljsbuild" "once" "demo,"]
-                     "auto-test"     ["do" "cljsbuild" "auto" "test"]}
   )

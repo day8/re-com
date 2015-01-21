@@ -1,1 +1,1 @@
-start run\index.html
+start run\resources\public\index.html
