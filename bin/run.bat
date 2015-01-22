@@ -1,1 +1,0 @@
-start run\resources\public\index.html

@@ -60,34 +60,34 @@
             console.log(line);
 
             // Second, into the HTML
-            var span = document.createElement("span");
-            outputDiv.appendChild(span);
+            var pre = document.createElement("pre");
+            outputDiv.appendChild(pre);
 
             // look for colour markers
             if (-1 != line.indexOf('ERRORS:')) {
-                span.className = "blue"
+                pre.className = "blue"
             }
             if (-1 != line.indexOf('WARNINGS:')) {
-                span.className = "blue"
+                pre.className = "blue"
             }
             if (-1 != line.indexOf('ERROR ')) {
-                span.className = "orange"
+                pre.className = "orange"
             }
             if (-1 != line.indexOf('FAIL')) {
-                span.className = "red"
+                pre.className = "red"
             }
             if (-1 != line.indexOf('Testing complete')) {
                 if (-1 != line.indexOf('0 failures, 0 errors'))
-                span.className = "green"
+                pre.className = "green"
                 else
-                    span.className = "red"
+                    pre.className = "red"
             }
 
             // replace leading blanks with &nbsp; so text lines up
             var numLeadingBlanks = line.match(/^\s*/)[0].length;
             var leadingNBSP = Array(numLeadingBlanks).join("&nbsp;")
 
-            span.innerHTML = leadingNBSP + line + "<br>";
+            pre.innerHTML = leadingNBSP + line + "<br>";
         }
 
         // --------------------------------------------------------------------

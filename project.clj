@@ -37,7 +37,7 @@
   :source-paths     ["src"]
   :test-paths       ["test"]
 
-  :clean-targets    ^{:protect false} ["run/resources/public/compiled" "compiled"] ;; :output-to
+  :clean-targets    ^{:protect false} ["run/resources/public/compiled"] ;; Removed "compiled" and :output-to
 
   ;; Exclude the demo code from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/"]
@@ -60,45 +60,69 @@
   :figwheel         {:css-dirs ["run/resources/public/resources/css"]
                      :repl     true}
 
-  :shell            {:commands {"runurl"      {:windows "cmd"
+  :shell            {:commands {"runurl"      {:windows ["cmd" "/c" "start"]
                                                :linux   "xdg-open"}
-                                "runurl-arg1" {:windows "/c"
-                                               :linux   ""}
-                                "runurl-arg2" {:windows "start"
-                                               :linux   ""}}}
+                                }}
 
-  :aliases          {;; *** DEMO - FIGWHEEL ***
-                     "build"       ["do"
-                                    ["clean"]
-                                    ["figwheel" "demo"]]
+  :aliases          {;; *** DEMO ***
+                     ;"build"          ["do"
+                     ;                  ["clean"]
+                     ;                  ;["figwheel" "demo"]         ;; Moved to debug below
+                     ;                  ["cljsbuild" "once" "demo"]
+                     ;                  ]
 
-                     "run"         ["shell" "cmd" "/c" "start" "" "http://localhost:3449/index.html"]
-                     "run-linux"   ["shell" "xdg-open" "http://localhost:3449/index.html"]
-                     "run2"        ["shell" "runurl" "runurl-arg1" "runurl-arg2" "" "http://localhost:3449/index.html"]
+                     "run"            ["shell" "cmd" "/c" "start" "" "http://localhost:3449/index.html"] ;; TODO: Could report this as issue
+                     "run-linux"      ["shell" "xdg-open" "http://localhost:3449/index.html"]
 
-                     "buildrun"    ["do"
-                                    ["clean"]
-                                    ["shell" "cmd" "/c" "start" "" "http://localhost:3449/index.html"]
-                                    ["figwheel" "demo"]]
+                     ;; TODO: Remove experiments
+                     ;"run2"           ["shell" "runurl" "/c" "start" "http://localhost:3449/index.html"]
+                     ;"run3"           ["shell" "runurl" "runurl-arg1" "runurl-arg2" "http://localhost:3449/index.html"]
 
-                     ;; *** DEMO - CLJSBUILD ***
-                     "buildrun-cb" ["do"
-                                    ["clean"]
-                                    ["cljsbuild" "once" "demo"]
-                                    ["shell" "cmd" "/c" "start" "run/resources/public/index.html"]
-                                    ["cljsbuild" "auto" "demo"]]
+                     ;"run-cb"         ["shell" "cmd" "/c" "start" "run/resources/public/index.html"]
+                     ;"run-cb-linux"   ["shell" "xdg-open" "run/resources/public/index.html"]
 
-                     ;; *** TEST - FIGWHEEL : !!!BROKEN!!! ***
-                     "test"        ["do"
-                                    ["clean"]
-                                    ["shell" "cmd" "/c" "start" "" "http://localhost:3449/test.html"]
-                                    ["figwheel" "test"]]
+                     "debug"          ["figwheel" "demo"]
+                     ;"debug-cb"       ["cljsbuild" "auto" "demo"]
+
+                     "build"           ["do"                ;; TODO: Linux version required
+                                       ["clean"]
+                                       ["run"]              ;; NOTE: run will initially fail, refresh browser once build complete
+                                       ["debug"]]
+
+                     ;"build-debug-cb" ["do"                 ;; TODO: Linux version required
+                     ;                  ["build"]
+                     ;                  ["run-cb"]
+                     ;                  ["debug-cb"]]
 
                      ;; *** TEST - CLJSBUILD ***
-                     "test-cb"     ["do"
-                                    ["clean"]
-                                    ["cljsbuild" "once" "test"]
-                                    ["shell" "cmd" "/c" "start" "run/resources/public/test.html"]
-                                    ["cljsbuild" "auto" "test"]]
+                     "build-test"     ["do"
+                                       ["clean"]
+                                       ["cljsbuild" "once" "test"]]
+
+                     "run-test"       ["shell" "cmd" "/c" "start" "run/resources/public/test.html"]
+                     "run-test-linux" ["shell" "xdg-open" "run/resources/public/test.html"]
+
+                     "debug-test"     ["cljsbuild" "auto" "test"]
+
+                     "test"           ["do"                 ;; TODO: Linux version required
+                                       ["build-test"]
+                                       ["run-test"]
+                                       ["debug-test"]]
+
+                     ;; *** OTHERS ***
+                     "build-all"      ["do"
+                                       ["clean"]
+                                       ["cljsbuild" "once"]]
+
+                     "run-all"        ["do"                 ;; TODO: Linux version required
+                                       ["run"]
+                                       ["run-test"]]
+
+                     "the-works"      ["do"
+                                       ["build-all"]
+                                       ["run-all"]
+                                       ["debug"]
+                                       ;["debug-test"]       ;; This command would only start running on exit from the above command (which is a loop)
+                                       ]
                      }
   )
