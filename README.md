@@ -104,7 +104,7 @@ lein debug
 
 This will do a clean compile of the demo, load the required URL into your default browser and use [figwheel](https://github.com/bhauman/lein-figwheel) for debugging, which also starts a ClojureScript browser REPL. Sweet!
 
-NOTE: Because the figwheel step is an infinite loop and it starts the server required to to display the demo, the demo page will not display when initially launched. Simply refresh the page once the compile has finished.
+NOTE: Because the figwheel step is an infinite loop and it starts the server required to display the demo, the demo page will not show when initially launched. Simply refresh the page once the compile has finished.
 
 You can run the tests with this commmand:
 
@@ -114,7 +114,7 @@ lein run-test
 
 This will do a clean compile of the tests and load the required URL into your default browser.
 
-You can also debug the demo with the following: 
+You can also debug the tests with the following: 
 
 
 ```
