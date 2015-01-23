@@ -1,13 +1,11 @@
 .idea
 *.iml
-.nrepl-port
+*.jar
+*.log
+.nrepl-*
+.lein-*
 pom.xml
 pom.xml.asc
-*.jar
-.lein-deps-sum
-.lein-repl-history
-.lein-plugins/
-.lein-failures
 core/
 out/
 target/

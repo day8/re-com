@@ -78,15 +78,54 @@ Instead, re-com requires `named parameters` more like this:
 Notice that the each parameter value has a short leading keyword name. 
 
 While more verbose, we believe using `named parameters` in the API of a library has compelling benifits: 
-1. the code using the library is clearly easier to read
-2. as a result the code is more understandable - is there anything more important?
-2. optionality  -  not all parameters have to be supplied, defaults can be introduced
-3. flexibility - new parameters are easily added
-## Using It
+	1. the code using the library is clearly easier to read
+	2. as a result the code is more understandable - is there anything more important?
+	2. optionality  -  not all parameters have to be supplied, defaults can be introduced
+	3. flexibility - new parameters are easily added
 
-The demo app to understand how to use the components. Look in the `demo` folder for the code.
+## Running/Debugging the Demo and Tests
 
-To use re-com, you'll need to add this to your dependencies in project.clj:
+The demo app is provided to assist understanding of how to use the components. Look in the `re_demo` folder for the code.
+
+To run the demo, clone this repository then from it's root, enter the commmand:
+
+```
+lein run
+```
+
+This will do a clean compile of the demo and load the required URL into your default browser (starting it if necessary).
+
+You can also debug the demo with the following: 
+
+
+```
+lein debug
+```
+
+This will do a clean compile of the demo, load the required URL into your default browser and use [figwheel](https://github.com/bhauman/lein-figwheel) for debugging, which also starts a ClojureScript browser REPL. Sweet!
+
+NOTE: Because the figwheel step is an infinite loop and it starts the server required to to display the demo, the demo page will not display when initially launched. Simply refresh the page once the compile has finished.
+
+You can run the tests with this commmand:
+
+```
+lein run-test
+```
+
+This will do a clean compile of the tests and load the required URL into your default browser.
+
+You can also debug the demo with the following: 
+
+
+```
+lein debug-test
+```
+
+Unlike the demo, the tests are debugged using the more traditional cljsbuild.
+
+## Using It In Your Apps
+
+To use re-com in your application, you'll need to add this to your dependencies in project.clj:
 
 ```clj
 :dependencies [

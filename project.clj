@@ -3,21 +3,21 @@
 (def os         (leiningen.core.eval/get-os))
 (def server-url "http://localhost:3449/index.html")
 (def file-url   "run/resources/public/index.html")
-(def test-url   "run/resources/public/test.html")
+(def test-url   "run/test/test.html")
 
 (def command-lookups
   "Per os native commands"
-  {"launch-server-url"     {:windows ["shell" "cmd" "/c" "start" server-url]
-                            :macosx  ["shell" "open"             server-url]
-                            :linux   ["shell" "xdg-open"         server-url]}
+  {"launch-server-url" {:windows ["shell" "cmd" "/c" "start" server-url]
+                        :macosx  ["shell" "open"             server-url]
+                        :linux   ["shell" "xdg-open"         server-url]}
 
-   "launch-file-url"       {:windows ["shell" "cmd" "/c" "start" file-url]
-                            :macosx  ["shell" "open"             file-url]
-                            :linux   ["shell" "xdg-open"         file-url]}
+   "launch-file-url"   {:windows ["shell" "cmd" "/c" "start" file-url]
+                        :macosx  ["shell" "open"             file-url]
+                        :linux   ["shell" "xdg-open"         file-url]}
 
-   "launch-test-url"       {:windows ["shell" "cmd" "/c" "start" test-url]
-                            :linux   ["shell" "xdg-open"         test-url]
-                            :macosx  ["shell" "open"             test-url]}})
+   "launch-test-url"   {:windows ["shell" "cmd" "/c" "start" test-url]
+                        :linux   ["shell" "xdg-open"         test-url]
+                        :macosx  ["shell" "open"             test-url]}})
 
 (defn get-command-for-os
       "Return the os-dependent command"
@@ -50,25 +50,26 @@
   ;                    :extract-from "resources"
   ;                    :extract-path "run/resources-frame"}]
 
-  :profiles         {:debug {:debug true}
-                     :dev   {:dependencies [[clj-stacktrace                  "0.2.8"]
-                                            [figwheel                        "0.2.2-SNAPSHOT"]
-                                            [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]]
-                             :plugins      [[lein-cljsbuild                  "1.0.4"]
-                                            [lein-figwheel                   "0.2.2-SNAPSHOT"]
-                                            [lein-shell                      "0.4.0"]
-                                            [com.cemerick/clojurescript.test "0.3.3"]]}}
+  :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
+                                               [figwheel                        "0.2.2-SNAPSHOT"]
+                                               [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]]
+                                :plugins      [[lein-cljsbuild                  "1.0.4"]
+                                               [lein-figwheel                   "0.2.2-SNAPSHOT"]
+                                               [lein-shell                      "0.4.0"]
+                                               [com.cemerick/clojurescript.test "0.3.3"]]}
+                     :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled"]}
+                     :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}
 
-  :resource-paths ["run/resources"]
   ;:jvm-opts         ^:replace ["-Xms2g" "-Xmx2g" "-server"]
 
   :source-paths     ["src"]
   :test-paths       ["test"]
+  :resource-paths   ["run/resources"]
 
-  :clean-targets    ^{:protect false} ["run/resources/public/compiled"] ;; Removed "compiled" and :output-to
+  ;; Exclude the demo/compiled files from the output of either 'lein jar' or 'lein install'
+  :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)compiled\/"]
 
-  ;; Exclude the demo code from the output of either 'lein jar' or 'lein install'
-  :jar-exclusions   [#"(?:^|\/)re_demo\/"]
+  ;:clean-targets ^{:protect false} ["run/resources/public/compiled"]
 
   :cljsbuild        {:builds [{:id "demo"
                                :source-paths   ["src"]
@@ -79,51 +80,35 @@
                                                 :pretty-print  true}}
                               {:id "test"
                                :source-paths   ["src/re_com" "test"]
-                               :compiler       {:output-to    "run/resources/public/compiled/test.js"
-                                                :source-map   "run/resources/public/compiled/test.js.map"
-                                                :output-dir   "run/resources/public/compiled/test"
+                               :compiler       {:output-to    "run/test/compiled/test.js"
+                                                :source-map   "run/test/compiled/test.js.map"
+                                                :output-dir   "run/test/compiled/test"
                                                 :optimizations :none
                                                 :pretty-print true}}]}
 
-  :figwheel         {:css-dirs ["run/resources/public/resources/css"]
-                     :repl     true}
+  :figwheel {:css-dirs ["run/resources/public/resources/css"]
+             :repl     true}
 
   :aliases          {;; *** DEMO ***
 
-                     "run"              ["do"
+                     "run"              ["with-profile" "+dev-run" "do"
                                          ["clean"]
                                          ["cljsbuild" "once" "demo"]
                                          ~(get-command-for-os "launch-file-url")]
 
-                     "debug"            ["do"
+                     "debug"            ["with-profile" "+dev-run" "do"
                                          ["clean"]
                                          ~(get-command-for-os "launch-server-url")   ;; NOTE: run will initially fail, refresh browser once build complete
                                          ["figwheel" "demo"]]
 
                      ;; *** TEST ***
 
-                     "run-test"         ["do"
+                     "run-test"         ["with-profile" "+dev-test" "do"
                                          ["clean"]
                                          ["cljsbuild" "once" "test"]
                                          ~(get-command-for-os "launch-test-url")]
 
-                     "debug-test"       ["do"
+                     "debug-test"       ["with-profile" "+dev-test" "do"
                                          ["run-test"]
-                                         ["cljsbuild" "auto" "test"]]
-
-                     ;; *** DEMO AND TEST ***
-                     ;; If you ever need to debug both demo and test at the one time, there's a problem.
-                     ;; If you run "lein debug" in one terminal then "lein debug-test" in another, the "clean" commands will clobber on another.
-                     ;; Below is an attempt to resolve this:
-                     ;;     1. In on terminal, run "lein debug-all".
-                     ;;     2. In another termial, once that is complete, run "lein build-test-auto".
-
-                     "build-test-auto"  ["cljsbuild" "auto" "test"]
-
-                     "debug-all"        ["do"
-                                         ["clean"]
-                                         ["cljsbuild" "once"]
-                                         ~(get-command-for-os "launch-server-url")
-                                         ~(get-command-for-os "launch-test-url")
-                                         ["figwheel" "demo"]]}
+                                         ["cljsbuild" "auto" "test"]]}
   )
