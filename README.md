@@ -40,7 +40,7 @@ and [atom-shell](https://github.com/atom/atom-shell). So we have not taken testi
 
 In theory, re-com should work on any modern browser, but there'd probably be teething issues like correctly vendor-prefixing the CSS etc.
 
-Here's a big thing:  the layout side of this library and some components (visual widgets) rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) 
+Here's a big thing:  the entire layout side of this library plus a couple of the widgets rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) 
 which [only works on modern browsers](http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
 
 So for the next, year or two, this library would be a poor fit if you're targeting the retail web, which is rife with flexbox-less wastelands like IE10 and IE9. 
@@ -65,25 +65,24 @@ re-com components have `named parameters`, rather than `positional parameters`.
 
 So, when using re-com components, you will *not* we asked to use positional parameters like this:
 ```
-[greet-component 2 "hello"]
+[checkbox "Show Status Icon?" status-icon?  (fn [val] (reset! status-icon? val))]
 ```
 
 Instead, re-com requires `named parameters` more like this:
 ```
-[greet-component
-   :times 2
-   :say   "hello"]
+[checkbox
+  :label     "Show Status Icon?"
+  :model     status-icon?      ; a ratom
+  :on-change (fn [val] (reset! status-icon? val))]
 ```
 
-Notice how each parameter value has a short leading keyword name. The first version, using `positional parameters`, was more concise, the 2nd using `named parameters` is more explicit. 
+Notice how each component parameter value has a short leading keyword name. The first version, using `positional parameters`, was more concise, the 2nd using `named parameters` is more explicit. 
 
 Religious wars have been fought on these issues, but we believe using `named parameters` in the API of a library has compelling benefits: 
 	1. the code using the library is clearly easier to read (despite being longer)
 	2. as a result the code is more understandable - is there anything more important?
-	2. optionality  -  not all parameters have to be supplied, defaults can be introduced
-	3. flexibility - new parameters are easily added
-
-Internally, re-com doesn't use `named parameters` all the time, but at the component API boundary, definitely. 
+	3. optionality  -  not all parameters have to be supplied, defaults can be introduced
+	4. flexibility - new parameters are easily added
 
 ## Running/Debugging the Demo and Tests
 
@@ -95,35 +94,42 @@ To run the demo, clone this repository then from it's root, enter the command:
 lein run
 ```
 
-This will do a clean compile of the demo and load the required URL into your default browser (starting it if necessary).
+This will do: 
+  - a clean compile 
+  - load the right index.html into your default browser
 
-You can also debug the demo with the following: 
-
+You can also debug the demo with the following:
 
 ```
 lein debug
 ```
 
-This will do a clean compile of the demo, load the required URL into your default browser and use [figwheel](https://github.com/bhauman/lein-figwheel) for debugging, which also starts a ClojureScript browser REPL. Sweet!
+This will do:
+ - a clean 
+ - start the [figwheel](https://github.com/bhauman/lein-figwheel) server/compiler
+ - load the right index.html (specialised for figwheel use)
+ - start a ClojureScript repl (figwheel does this) 
 
-NOTE: Because the figwheel step is an infinite loop and it starts the server required to display the demo, the demo page will not show when initially launched. Simply refresh the page once the compile has finished.
+NOTE: loading index.html will fail initially. Wait until the figwheel compile has finished and then refresh.
 
-You can run the tests with this command:
-
+Run the tests:
 ```
 lein run-test
 ```
 
-This will do a clean compile of the tests and load the required URL into your default browser.
+This will:
+- clean 
+- compile of the tests 
+- load the required test.html into your default browser, so you can see the results.
 
-You can also debug the tests with the following: 
+Debug tests with:
 
 
 ```
 lein debug-test
 ```
 
-Unlike the demo, the tests are debugged using the more traditional cljsbuild.
+Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto`.
 
 ## Using It In Your Apps
 
