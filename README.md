@@ -8,44 +8,44 @@ Until we go beta, we're not taking patches or feature requests.
 
 A library of ClojureScript UI components. 
 
-Built on top of Dan Holmsand's terrific [Reagent](http://holmsand.github.io/reagent) 
-which, in turn, is built on Facebook's brilliant [React](http://facebook.github.io/react). 
+Built on top of Dan Holmsand's brilliant  [Reagent](http://holmsand.github.io/reagent) 
+which, in turn, is built on Facebook's terrific [React](http://facebook.github.io/react). 
 
 Re-com contains:
 * familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.  (in Reagent terms these are `components`)
-* layout `components` which organise widgets verticaly and horizontaly, within splitters, etc. `components` which put borders around their children. Plus these can all nest, etc.
+* layout `components` which organise widgets vertically and horizontally, within splitters, etc. `components` which put borders around their children. Plus these can all nest, etc.
 
-In short, the sort of stuff you'd need to build a desktop-class app. Some components are still missing, so it is still a work in progress. 
+In short, the sort of stuff you'd need to build a desktop-class app. Some components are still missing, so it is still a work in progress.
 
 The layouts and components work harmoniously together (umm, except for occasional bouts of English-soccer-hooligan-like hostility, but that's a bug right?).
 
+If you decide to use re-com, consider using re-frame (an SPA framework) as well.  The two dovetail pretty well, although re-com can most certainly be used independently -- for example, the demo program for re-com does not use re-frame.
+
 ## Are You Sure You Want To Be Here?
 
-We're a bit new to HTML5, javascipt, ClojureScript, and FRP.   We're disgruntled refuges from Flash/Flex and before that places like QT, MFC, Smalltalk and Interviews. Without Guru status in modern browser technologies, should you be trusting us?
+We are browser-tech neophytes, who've only spent a year with HTML5, javascript, ClojureScript, and reactive programming.   We're actually disgruntled refuges from Flash/Flex and before that kingdoms like QT, MFC, Smalltalk and Interviews.  As you can imagine, we've accumulated a lot of papercuts developing this library, and there's every chance we've made mistakes of both design and implementation.
 
-Having the substrate of React and Reagent bestows great benefits, for sure, but it has also posed us some serious challenges. For example, most javascript libs achieve 
+For example, having the substrate of React and Reagent bestows great benefits, for sure, but it has also posed us some serious challenges for things like Popups. Most javascript libs achieve 
 popovers by adding absolutely positioned `<div>s` directly to the `<body>` element. But we couldn't do that - not if 
-we wanted to abide by the ClojureScript, React/Reagent FRP-ish, immutable, dataflow rules.  We had to find other solutions. But there could be better ways. We're all ears.
+we wanted to stay in the GIU-as-a-function-of-the-data paradigm fostered by ClojureScript and React/Reagent reactivity. We've come up with (ingenious!) solutions for things like Popovers, but because of our lack of experience, there might be better ways. We're all ears.
 
-We've done our best and 
-it does seem to hang together fairly nicely, with only minor quirks. We're using it to build systems, and we've shaken out many bugs, but it is still early days, so you well  might find some hidden dragons.  
+Despite our inexperience, re-com does seem to hang together fairly well, with only minor quirks. We're using re-com to build production systems, so we've shaken out most of the bugs.  But it is still early days, and your usage patterns might well find other, hidden  dragons. 
 
-Despite all of the above, we intend to  talk with great authority and certainty, and hold strong opinions.
 
-## No really, This Probably Isn't For You
+## No really, This Almost Certainly Isn't For You
 
 We made this library to build desktop-class apps which will run in chrome environments like 
 [node-webkit](https://github.com/rogerwang/node-webkit) 
 and [atom-shell](https://github.com/atom/atom-shell). So we have not taken testing further than chrome. 
 
-In theory, re-com should work on any modern browser, but there'd probably be teething issues like correct vendor-prefixing the CSS etc.
+In theory, re-com should work on any modern browser, but there'd probably be teething issues like correctly vendor-prefixing the CSS etc.
 
-The layout side of this library and some components (visual widgets) rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) 
+Here's a big thing:  the layout side of this library and some components (visual widgets) rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) 
 which [only works on modern browsers](http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
 
-So for the next, say, year or so, this library would be a poor fit if you're targeting the retail web, which is rife with flexbox-less wastelands like IE10 and IE9. 
+So for the next, year or two, this library would be a poor fit if you're targeting the retail web, which is rife with flexbox-less wastelands like IE10 and IE9. 
  
-I can also confirm that none of the components have been designed with mobile in mind, and that there's been no attempt to handle media queries.  Its just not that kind of widget library.
+I can also confirm that none of the components have been designed with mobile in mind, and that there's no attempt to handle media queries.  Its just not that kind of widget library.
 
 Still here?
 
@@ -61,7 +61,7 @@ The demo serves as:
 
 ## Named Parameters
 
-When you first start looking into re-com, you'll quickly notice that every component has `named parameters` (as apposed to `positional parameters`). Internally, not so much, but at the API boundary, definitely. 
+re-com components have `named parameters`, rather than `positional parameters`. 
 
 So, when using re-com components, you will *not* we asked to use positional parameters like this:
 ```
@@ -75,19 +75,21 @@ Instead, re-com requires `named parameters` more like this:
    :say   "hello"]
 ```
 
-Notice that the each parameter value has a short leading keyword name. 
+Notice how each parameter value has a short leading keyword name. The first version, using `positional parameters`, was more concise, the 2nd using `named parameters` is more explicit. 
 
-While more verbose, we believe using `named parameters` in the API of a library has compelling benifits: 
-	1. the code using the library is clearly easier to read
+Religious wars have been fought on these issues, but we believe using `named parameters` in the API of a library has compelling benefits: 
+	1. the code using the library is clearly easier to read (despite being longer)
 	2. as a result the code is more understandable - is there anything more important?
 	2. optionality  -  not all parameters have to be supplied, defaults can be introduced
 	3. flexibility - new parameters are easily added
+
+Internally, re-com doesn't use `named parameters` all the time, but at the component API boundary, definitely. 
 
 ## Running/Debugging the Demo and Tests
 
 The demo app is provided to assist understanding of how to use the components. Look in the `re_demo` folder for the code.
 
-To run the demo, clone this repository then from it's root, enter the commmand:
+To run the demo, clone this repository then from it's root, enter the command:
 
 ```
 lein run
@@ -106,7 +108,7 @@ This will do a clean compile of the demo, load the required URL into your defaul
 
 NOTE: Because the figwheel step is an infinite loop and it starts the server required to display the demo, the demo page will not show when initially launched. Simply refresh the page once the compile has finished.
 
-You can run the tests with this commmand:
+You can run the tests with this command:
 
 ```
 lein run-test
@@ -174,7 +176,7 @@ This is compounded by the viral nature of flexbox. It's reach tends to spread.
 * a grid. HTML is good at small grids, so no problem there. But when the number of 
 rows gets huge, you need a widget that does virtual rows. Otherwise there's just too many DOM nodes 
 * drag and drop
-* annimations / transitions.  We have ideas.  They seem clunky.
+* animations / transitions.  We have ideas.  They seem clunky.
 * Focus management - When the user presses tab, to which field does focus move. Just using the 
 * A testing story. 
 
@@ -208,4 +210,6 @@ Read:        https://github.com/tailrecursion/javelin
 
 https://www.youtube.com/watch?v=i__969noyAM
 https://speakerdeck.com/fisherwebdev/flux-react
+
+
 
