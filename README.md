@@ -6,16 +6,14 @@ Until we go beta, we're not taking patches or feature requests.
 
 # re-com
 
-A library of ClojureScript UI components. 
-
-Built on top of Dan Holmsand's brilliant  [Reagent](http://holmsand.github.io/reagent) 
-which, in turn, is built on Facebook's terrific [React](http://facebook.github.io/react). 
+A library of ClojureScript UI components, built on top of Dan Holmsand's brilliant  [Reagent](http://holmsand.github.io/reagent) 
+which, in turn, is a layer over Facebook's terrific [React](http://facebook.github.io/react). 
 
 Re-com contains:
 * familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.  (in Reagent terms these are `components`)
 * layout `components` which organise widgets vertically and horizontally, within splitters, etc. `components` which put borders around their children. Plus these can all nest, etc.
 
-In short, the sort of stuff you'd need to build a desktop-class app. Some components are still missing, so it is still a work in progress.
+In short, the sort of stuff you'd need to build a desktop-class app. But it is a work in progress, because some components are still missing.
 
 The layouts and components work harmoniously together (umm, except for occasional bouts of English-soccer-hooligan-like hostility, but that's a bug right?).
 
@@ -23,13 +21,13 @@ If you decide to use re-com, consider using re-frame (an SPA framework) as well.
 
 ## Are You Sure You Want To Be Here?
 
-We are browser-tech neophytes, who've only spent a year with HTML5, javascript, ClojureScript, and reactive programming.   We're actually disgruntled refuges from Flash/Flex and before that kingdoms like QT, MFC, Smalltalk and Interviews.  As you can imagine, we've accumulated a lot of papercuts developing this library, and there's every chance we've made mistakes of both design and implementation.
+We are browser-tech neophytes, who've only spent a year with HTML5, javascript, ClojureScript, and reactive programming.   We're actually displaced refuges from Flash/Flex and, before that, kingdoms like QT, MFC, Smalltalk and Interviews.  As you can imagine, we've accumulated a phalanx of papercuts developing this library, and there's every chance we've made mistakes in both design and implementation.
 
 For example, having the substrate of React and Reagent bestows great benefits, for sure, but it has also posed us some serious challenges for things like Popups. Most javascript libs achieve 
 popovers by adding absolutely positioned `<div>s` directly to the `<body>` element. But we couldn't do that - not if 
-we wanted to stay in the GIU-as-a-function-of-the-data paradigm fostered by ClojureScript and React/Reagent reactivity. We've come up with (ingenious!) solutions for things like Popovers, but because of our lack of experience, there might be better ways. We're all ears.
+we wanted to stay true to the GIU-as-a-function-of-the-data paradigm fostered by ClojureScript and React/Reagent reactivity. We've come up with (ingenious!) solutions for things like Popovers, but because of our lack of experience, there might be better ways. We're all ears.
 
-Despite our inexperience, re-com does seem to hang together fairly well, with only minor quirks. We're using re-com to build production systems, so we've shaken out most of the bugs.  But it is still early days, and your usage patterns might well find other, hidden  dragons. 
+Despite our inexperience, re-com does seem to hang together fairly well, with only minor quirks. We're using re-com to build production systems, so we've shaken out most of the bugs.  But it is still early days, and your alternative usage patterns might well find other, hidden  dragons. 
 
 
 ## No really, This Almost Certainly Isn't For You
@@ -51,7 +49,7 @@ Still here?
 
 ## So, Without Ado Being Any Furthered ...
 
-Start your review with [the demo](). Wait! You are using Chrome right? 
+Start your review with [the demo](). Wait!  You're using Chrome right? 
 
 The demo serves as: 
   - a way to visually showcase the components (widgets)
@@ -65,7 +63,7 @@ re-com components have `named parameters`, rather than `positional parameters`.
 
 So, when using re-com components, you will *not* we asked to use positional parameters like this:
 ```
-[checkbox "Show Status Icon?" status-icon?  (fn [val] (reset! status-icon? val))]
+[checkbox "Show Status Icon?" status-icon?  (fn [new-val] (reset! status-icon? new-val))]
 ```
 
 Instead, re-com requires `named parameters` more like this:
@@ -73,13 +71,11 @@ Instead, re-com requires `named parameters` more like this:
 [checkbox
   :label     "Show Status Icon?"
   :model     status-icon?      ; a ratom
-  :on-change (fn [val] (reset! status-icon? val))]
+  :on-change (fn [new-val] (reset! status-icon? new-val))]
 ```
 
-Notice how each component parameter value has a short leading keyword name. The first version, using `positional parameters`, was more concise, the 2nd using `named parameters` is more explicit. 
-
-Religious wars have been fought on these issues, but we believe using `named parameters` in the API of a library has compelling benefits: 
-	1. the code using the library is clearly easier to read (despite being longer)
+Notice how each parameter value has a short, leading keyword name. The first version, using `positional parameters`, was more concise, the 2nd using `named parameters` is more explicit. Both have their merits - a situation which invariably leads to vigerously contested Religious wars.  We've gone with `named parameters` in the API because:
+	1. the code using the library is easier to read (despite being longer)
 	2. as a result the code is more understandable - is there anything more important?
 	3. optionality  -  not all parameters have to be supplied, defaults can be introduced
 	4. flexibility - new parameters are easily added
