@@ -15,13 +15,13 @@ Re-com contains:
 
 In short, the sort of stuff you'd need to build a desktop-class app. But it is a work in progress, because some components are still missing.
 
-The layouts and components work harmoniously together (umm, except for occasional bouts of English-soccer-hooligan-like hostility, but that's a bug right?).
+The layouts and components work harmoniously together (urmm, except for occasional bouts of English-soccer-hooligan-like hostility, but that's a bug right?).
 
-If you decide to use re-com, consider using re-frame (an SPA framework) as well.  The two dovetail pretty well, although re-com can most certainly be used independently -- for example, the demo program for re-com does not use re-frame.
+If you decide to use re-com, consider using re-frame (an SPA framework) as well.  The two dovetail well, although re-com can certainly be used independently -- for example, the demo program for re-com does not use re-frame.
 
 ## Are You Sure You Want To Be Here?
 
-We are browser-tech neophytes, who've only spent a year with HTML5, javascript, ClojureScript, and reactive programming.   We're actually displaced refuges from Flash/Flex and, before that, kingdoms like QT, MFC, Smalltalk and Interviews.  As you can imagine, we've accumulated a phalanx of papercuts developing this library, and there's every chance we've made mistakes in both design and implementation.
+We are browser-tech neophytes, who've only spent a year with HTML5, javascript, ClojureScript, and reactive programming.   We're actually displaced refugees from Flash/Flex and, before that, kingdoms like QT, MFC, Smalltalk and Interviews.  As you can imagine, we've accumulated a phalanx of papercuts developing this library, and there's every chance we've made mistakes in both design and implementation.
 
 For example, having the substrate of React and Reagent bestows great benefits, for sure, but it has also posed us some serious challenges for things like Popups. Most javascript libs achieve 
 popovers by adding absolutely positioned `<div>s` directly to the `<body>` element. But we couldn't do that - not if 
@@ -49,7 +49,7 @@ Still here?
 
 ## So, Without Ado Being Any Furthered ...
 
-Start your review with [the demo](). Wait!  You're using Chrome right? 
+You do have Chrome handy, right?  Good. Start by looking at [the demo]().
 
 The demo serves as: 
   - a way to visually showcase the components (widgets)
@@ -74,53 +74,53 @@ Instead, re-com requires `named parameters` more like this:
   :on-change (fn [new-val] (reset! status-icon? new-val))]
 ```
 
-Notice how each parameter value has a short, leading keyword name. The first version, using `positional parameters`, was more concise, the 2nd using `named parameters` is more explicit. Both have their merits - a situation which invariably leads to vigerously contested Religious wars.  We've gone with `named parameters` in the API because:
-	1. the code using the library is easier to read (despite being longer)
-	2. as a result the code is more understandable - is there anything more important?
+Notice how each parameter value has a short, leading keyword name. The first version, using `positional parameters`, was more concise, the 2nd using `named parameters` is more explicit. Both have their merits - a situation which invariably leads to vigorously contested Religious wars.  We've gone with `named parameters` in the API because:
+	1. the code using the library seems easier to read (despite being longer)
+	2. as a result the code seems more understandable - something we value above all other considerations.
 	3. optionality  -  not all parameters have to be supplied, defaults can be introduced
 	4. flexibility - new parameters are easily added
 
-## Running/Debugging the Demo and Tests
+## Navigating The Source
 
-The demo app is provided to assist understanding of how to use the components. Look in the `re_demo` folder for the code.
+Unsurprisingly, look in the `src` directory. It contains two sub-directories:
+  - re-com - contains the library itself
+  - re-demo - contains the code for the demo app
 
-To run the demo, clone this repository then from it's root, enter the command:
+After you clone this repo, `cd` into the root directory.  At that point, you can execute the following commands:
 
 ```
 lein run
 ```
 
-This will do: 
-  - a clean compile 
-  - load the right index.html into your default browser
+This will run the demo, by doing: 
+  - a clean 
+  - a compile 
+  - a load of the right `index.html` into your default browser
 
-You can also debug the demo with the following:
-
+To debug the demo: 
 ```
 lein debug
 ```
 
-This will do:
- - a clean 
- - start the [figwheel](https://github.com/bhauman/lein-figwheel) server/compiler
- - load the right index.html (specialised for figwheel use)
- - start a ClojureScript repl (figwheel does this) 
+This will:
+ - clean 
+ - start the [figwheel](https://github.com/bhauman/lein-figwheel) server & compiler
+ - load the right `index.html` (specialised for figwheel use)
+ - start a ClojureScript repl (actually, figwheel does this for you)
 
-NOTE: loading index.html will fail initially. Wait until the figwheel compile has finished and then refresh.
+NOTE: the initial load of `index.html` will fail. Be patient. Wait until the figwheel compile has finished, and then refresh to page. This refresh will actually kick the repl off. 
 
-Run the tests:
+To run the tests:
 ```
 lein run-test
 ```
 
 This will:
 - clean 
-- compile of the tests 
-- load the required test.html into your default browser, so you can see the results.
+- compile the tests 
+- load the required `test.html` into your default browser, so you can see the results.
 
-Debug tests with:
-
-
+Debug the tests with:
 ```
 lein debug-test
 ```
@@ -212,6 +212,3 @@ Read:        https://github.com/tailrecursion/javelin
 
 https://www.youtube.com/watch?v=i__969noyAM
 https://speakerdeck.com/fisherwebdev/flux-react
-
-
-
