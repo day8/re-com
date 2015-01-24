@@ -104,11 +104,17 @@ lein debug
 
 This will:
  - clean 
- - start the [figwheel](https://github.com/bhauman/lein-figwheel) server & compiler
+ - start the [figwheel](https://github.com/bhauman/lein-figwheel) server & compiler  (a terminal window will be started)
  - load the right `index.html` (specialised for figwheel use)
- - start a ClojureScript repl (actually, figwheel does this for you)
+ - start a ClojureScript repl in the terminal window (actually, figwheel does this for you)
 
-NOTE: the initial load of `index.html` will fail. Be patient. Wait until the figwheel compile has finished, and then refresh to page. This refresh will actually kick the repl off. 
+Your Process:
+- the initial load of `index.html` will fail because the figwheel compile hasn't yet finished. 
+- be patient - the inital compile might take anything from 20sec to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
+- keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message, at which point, figwheel will immediately move on and try to start the repl.  
+- In response, you should refresh to HTML page. This refresh is needed for figwheel to complete the repl kick-off.
+- When the repl starts, it produces a `java.lang.NullPointerException` in the terminal - don't know why - but you can safely ignore it and just use the repl normally.
+- to quit figwheel and stop the server/compiler, type ` :cljs/quit` into the repl. 
 
 To run the tests:
 ```
@@ -125,7 +131,7 @@ Debug the tests with:
 lein debug-test
 ```
 
-Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto`.
+Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto` for recompilation.
 
 ## Using It In Your Apps
 
@@ -172,35 +178,27 @@ you're going to have to do the flexbox tutorials to understand what's going on.
 
 This is compounded by the viral nature of flexbox. It's reach tends to spread.  
 
-## The Missing Widgets
+## The Missing Parts
 
 * tree  (not hard but haven't needed one yet)
 * a grid. HTML is good at small grids, so no problem there. But when the number of 
 rows gets huge, you need a widget that does virtual rows. Otherwise there's just too many DOM nodes 
-* drag and drop
+* Add a timed alert box which appears for a set period of time. This would probably be absolutely positioned over the UI and then fade away after the set time expires.
+* drag and drop   (we have somewhat sorted this).
 * animations / transitions.  We have ideas.  They seem clunky.
 * Focus management - When the user presses tab, to which field does focus move. Just using the 
 * A testing story. 
 
+## Future 
 
-
-## The Intended Architecture 
-
-
-## One Of These Days 
-
-Eventually:
+Todos:
 
 * Use GSS for layout. Instead of flexbox.  Performance problems apparently. 
 
 ## Component Suggestions
 
-* Add a timed alert box which appears for a set period of time. This would probably be absolutely positioned over the UI and then fade away after the set time expires.
-
 
 ## RFP background
-
-
 
 https://gist.github.com/staltz/868e7e9bc2a7b8c1f754/
 http://elm-lang.org/learn/What-is-FRP.elm
@@ -208,7 +206,6 @@ http://elm-lang.org/learn/What-is-FRP.elm
 Javelin:
 Watch:     http://www.infoq.com/presentations/ClojureScript-Javelin
 Read:        https://github.com/tailrecursion/javelin
-
 
 https://www.youtube.com/watch?v=i__969noyAM
 https://speakerdeck.com/fisherwebdev/flux-react
