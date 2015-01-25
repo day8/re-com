@@ -12,8 +12,9 @@ which, in turn, is a layer over Facebook's terrific [React](http://facebook.gith
 Re-com contains:
 * familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.  (in Reagent terms these are `components`)
 * layout `components` which organise widgets vertically and horizontally, within splitters, etc. `components` which put borders around their children. Plus these can all nest, etc.
+* a [Bootstrap](http://getbootstrap.com/) flavour, mixed in with some [Material Design Icons](http://zavoloklom.github.io/material-design-iconic-font/icons.html). 
 
-In short, the sort of stuff you'd need to build a desktop-class app. But it is a work in progress, because some components are still missing.
+In short, the stuff you'd need to build a desktop-class app. But, it is a work in progress, and some components are missing.
 
 The layouts and components work harmoniously together (urmm, except for occasional bouts of English-soccer-hooligan-like hostility, but that's a bug right?).
 
@@ -21,27 +22,27 @@ If you decide to use re-com, consider using re-frame (an SPA framework) as well.
 
 ## Are You Sure You Want To Be Here?
 
-We are browser-tech neophytes, who've only spent a year with HTML5, javascript, ClojureScript, and reactive programming.   We're actually displaced refugees from Flash/Flex and, before that, kingdoms like QT, MFC, Smalltalk and Interviews.  As you can imagine, we've accumulated a phalanx of papercuts developing this library, and there's every chance we've made mistakes in both design and implementation.
+We are browser-tech neophytes, who've only spent a year with HTML5, javascript, ClojureScript, and reactive programming.   We're actually displaced refugees from Flash/Flex and, before that, a long time ago in a galaxy far, far away tech like QT, MFC, Smalltalk and Interviews.  As you can imagine, we've accumulated a menagerie of papercuts developing this library, and there's every chance we've made mistakes in both design and implementation.
 
-For example, having the substrate of React and Reagent bestows great benefits, for sure, but it has also posed us some serious challenges for things like Popups. Most javascript libs achieve 
+For example, having the substrate of React and Reagent imparts great benefits, for sure, but it has also posed us some serious challenges for things like Popups. Most javascript libs achieve 
 popovers by adding absolutely positioned `<div>s` directly to the `<body>` element. But we couldn't do that - not if 
-we wanted to stay true to the GIU-as-a-function-of-the-data paradigm fostered by ClojureScript and React/Reagent reactivity. We've come up with (ingenious!) solutions for things like Popovers, but because of our lack of experience, there might be better ways. We're all ears.
+we wanted to stay true to the GIU-as-a-function-of-the-data paradigm fostered by ClojureScript and React/Reagent reactivity. We've come up with (ingenious? tortuous?) solutions for things like Popovers, but because of our lack of experience, there might be better ways. We're all ears.
 
-Despite our inexperience, re-com does seem to hang together fairly well, with only minor quirks. We're using re-com to build production systems, so we've shaken out most of the bugs.  But it is still early days, and your alternative usage patterns might well find other, hidden  dragons. 
+Despite our inexperience, re-com does hang together fairly well, with only minor quirks. We're using it to build production systems, so we've shaken out many bugs and molded a better API as we've gone.  But it is still early days, and your alternative usage patterns might yet find other, hidden  dragons. 
 
 
 ## No really, This Almost Certainly Isn't For You
 
 We made this library to build desktop-class apps which will run in chrome environments like 
 [node-webkit](https://github.com/rogerwang/node-webkit) 
-and [atom-shell](https://github.com/atom/atom-shell). So we have not taken testing further than chrome. 
+and [atom-shell](https://github.com/atom/atom-shell). So we have not taken testing further than chrome.
 
 In theory, re-com should work on any modern browser, but there'd probably be teething issues like correctly vendor-prefixing the CSS etc.
 
 Here's a big thing:  the entire layout side of this library plus a couple of the widgets rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) 
 which [only works on modern browsers](http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
 
-So for the next, year or two, this library would be a poor fit if you're targeting the retail web, which is rife with flexbox-less wastelands like IE10 and IE9. 
+So, for the next year or two, this library would be a poor fit if you're targeting the retail web, which is rife with flexbox-less wastelands like IE10 and IE9. 
  
 I can also confirm that none of the components have been designed with mobile in mind, and that there's no attempt to handle media queries.  Its just not that kind of widget library.
 
@@ -74,7 +75,7 @@ Instead, re-com requires `named parameters` more like this:
   :on-change (fn [new-val] (reset! status-icon? new-val))]
 ```
 
-Notice how each parameter value has a short, leading keyword name. The first version, using `positional parameters`, was more concise, the 2nd using `named parameters` is more explicit. Both have their merits - a situation which invariably leads to vigorously contested Religious wars.  We've gone with `named parameters` in the API because:
+Notice how each parameter value has a short, leading keyword name. The first version, using `positional parameters`, was more concise, the 2nd using `named parameters` is more explicit. Both have their merits - a situation which invariably leads to highly contested Religious wars.  We've gone with `named parameters` in the API because:
 	1. the code using the library seems easier to read (despite being longer)
 	2. as a result the code seems more understandable - something we value above all other considerations.
 	3. optionality  -  not all parameters have to be supplied, defaults can be introduced
@@ -82,11 +83,11 @@ Notice how each parameter value has a short, leading keyword name. The first ver
 
 ## Navigating The Source
 
-Unsurprisingly, look in the `src` directory. It contains two sub-directories:
-  - re-com - contains the library itself
-  - re-demo - contains the code for the demo app
+Unsurprisingly, look in the `src` directory. It has two sub-directories:
+  - re-com - the library
+  - re-demo - the demo app
 
-After you clone this repo, `cd` into the root directory.  At that point, you can execute the following commands:
+After you clone this repo, `cd` into the root directory and execute one of the following commands:
 
 ```
 lein run
@@ -133,7 +134,7 @@ lein debug-test
 
 Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto` for recompilation.
 
-## Using It In Your Apps
+## Using re-com In Your Apps
 
 To use re-com in your application, you'll need to add this to your dependencies in project.clj:
 
@@ -200,6 +201,8 @@ Todos:
 
 ## RFP background
 
+
+
 https://gist.github.com/staltz/868e7e9bc2a7b8c1f754/
 http://elm-lang.org/learn/What-is-FRP.elm
 
@@ -207,5 +210,7 @@ Javelin:
 Watch:     http://www.infoq.com/presentations/ClojureScript-Javelin
 Read:        https://github.com/tailrecursion/javelin
 
+
 https://www.youtube.com/watch?v=i__969noyAM
 https://speakerdeck.com/fisherwebdev/flux-react
+
