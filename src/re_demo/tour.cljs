@@ -114,7 +114,7 @@
                 [:p "To finish the tour, call: " [:code "(finish-tour demo-tour)"] "."]]])
 
 
-(defn panel
+(defn panel2
   []
   [v-box
    :children [[panel-title "Tour Components"]
@@ -127,3 +127,8 @@
                            :min-width "400px"
                            :margin    "20px 0px 0px 0px"
                            :children  [[demo]]]]]]])
+
+
+(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panel2])

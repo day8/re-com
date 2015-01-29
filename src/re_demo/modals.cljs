@@ -765,7 +765,7 @@
                [:li "*** TODO ***"]]]])
 
 
-(defn panel
+(defn panel2
   []
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
@@ -792,3 +792,8 @@
                                            (case @selected-demo-id
                                              1 [demo1]
                                              2 [demo2])]]]]]])))
+
+
+(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panel2])

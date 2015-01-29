@@ -1,7 +1,8 @@
 (require 'leiningen.core.eval)
 
+(def fig-port   3449)
 (def os         (leiningen.core.eval/get-os))
-(def server-url "http://localhost:3449/index.html")
+(def server-url (str "http://localhost:" fig-port "/index.html"))
 (def file-url   "run/resources/public/index.html")
 (def test-url   "run/test/test.html")
 
@@ -86,8 +87,9 @@
                                                 :optimizations :none
                                                 :pretty-print true}}]}
 
-  :figwheel {:css-dirs ["run/resources/public/resources/css"]
-             :repl     true}
+  :figwheel {:css-dirs    ["run/resources/public/resources/css"]
+             :server-port ~fig-port
+             :repl        true}
 
   :aliases          {;; *** DEMO ***
 

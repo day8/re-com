@@ -93,7 +93,7 @@
                           [args-table selection-list-args-desc]]]]])
 
 
-(defn panel
+(defn panel2
   []
   (let [panel-width 1024
         h-gap       70
@@ -107,3 +107,8 @@
                  :children [[component-title "[selection-list ... ]"]
                             [notes a-width]
                             [list-with-options b-width]]]]]))
+
+
+(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panel2])

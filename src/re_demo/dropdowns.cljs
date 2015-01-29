@@ -306,7 +306,7 @@
               [args-table single-dropdown-desc]]])
 
 
-(defn panel
+(defn panel2
   []
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
@@ -338,3 +338,8 @@
                                              4 [demo4]
                                              5 [demo5]
                                              6 [demo6])]]]]]])))
+
+
+(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panel2])

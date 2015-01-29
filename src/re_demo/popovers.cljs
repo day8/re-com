@@ -350,7 +350,7 @@
                            :children [[popover-dialog-demo/popover-dialog-demo curr-position]]]]]]])
 
 
-(defn panel
+(defn panel2
   []
   [v-box
    :children [[panel-title "Popover Components"]
@@ -360,3 +360,8 @@
               [popover-tooltip-demo]
               [complex-popover-demo]
               [gap :size "280px"]]])                        ;;TODO: 180px
+
+
+(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panel2])

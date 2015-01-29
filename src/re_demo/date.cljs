@@ -161,7 +161,7 @@
    {:id :dropdown :label "Dropdown"}])
 
 
-(defn panel
+(defn panel2
   []
   (let [panel-width 980
         h-gap       70
@@ -189,3 +189,8 @@
                                                         :width     "200px"
                                                         :on-change #(reset! selected-variation %)]]]
                                            [show-variant @selected-variation b-width]]]]]]])))
+
+
+(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panel2])

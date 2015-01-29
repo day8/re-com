@@ -47,7 +47,7 @@
            [:h4 "Bottom panel"]]])
 
 
-(defn panel
+(defn panel2
   []
   [h-box
    :size "auto"
@@ -66,3 +66,8 @@
                           [v-layout
                            :top-panel    top-panel
                            :bottom-panel bottom-panel]]]]])
+
+
+(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panel2])

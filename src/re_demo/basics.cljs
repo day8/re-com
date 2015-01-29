@@ -566,7 +566,7 @@
             ;{:id 91 :label "v-box"                 :component v-box-demo} ;; Experimental
             ])
 
-(defn panel
+(defn panel2
   []
   (let [selected-demo-id (reagent/atom 0)]
     (fn []
@@ -583,3 +583,8 @@
                                            :tabs      demos
                                            :on-change #(reset! selected-demo-id %)]]]
                               [(get-in demos [@selected-demo-id :component])]]]]])))
+
+
+(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panel2])

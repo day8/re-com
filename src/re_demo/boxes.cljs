@@ -20,7 +20,7 @@
                })
 
 
-(defn panel1
+(defn panelA2
   []
   [v-box
    :size "auto"
@@ -70,12 +70,15 @@
                                    :child [:div {:style side-bar}
                                            [:p "Fixed (but shrinkable) Right Side Bar"]
                                            [:p "scroller auto"]
-                                           [:p "size=initial width=250px"]]]]
-                          ]]
-              ]])
+                                           [:p "size=initial width=250px"]]]]]]]])
 
 
-(defn panel2
+(defn panelA   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panelA2])
+
+
+(defn panelB2
   []
   [v-box
    :size     "auto"
@@ -152,7 +155,9 @@
                                        :width "100px"
                                        :child [:div {:style side-bar}
                                                [:p "Fixed Right Side Bar"]
-                                               [:p "size=initial width=100px"]]]
-                                      ]]
-                          ]]
-              ]])
+                                               [:p "size=initial width=100px"]]]]]]]]])
+
+
+(defn panelB   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panelB2])

@@ -104,7 +104,7 @@
 
 
 
-(defn panel
+(defn panel2
   []
   (fn []
     [v-box
@@ -116,3 +116,8 @@
                             [line]
                             [alert-list-demo]
                             [gap :size "30px"]]]]]))
+
+
+(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panel2])

@@ -166,7 +166,7 @@
                                            :tabs      tab-defs
                                            :on-change #(reset! selected-tab-id %)]]]]]]])))
 
-(defn panel
+(defn panel2
   []
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
@@ -192,3 +192,8 @@
                                              1 [tab-styles-demo]
                                              2 [remembers-demo]
                                              3 [adding-tabs-demo])]]]]]])))
+
+
+(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+  []
+  [panel2])
