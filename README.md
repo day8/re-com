@@ -114,7 +114,6 @@ Your Process:
 - be patient - the inital compile might take anything from 20sec to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
 - keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message, at which point, figwheel will immediately move on and try to start the repl.  
 - In response, you should refresh to HTML page. This refresh is needed for figwheel to complete the repl kick-off.
-- When the repl starts, it produces a `java.lang.NullPointerException` in the terminal - don't know why - but you can safely ignore it and just use the repl normally.
 - to quit figwheel and stop the server/compiler, type ` :cljs/quit` into the repl. 
 
 To run the tests:

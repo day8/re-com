@@ -22,6 +22,6 @@
               [:p "It contains some of layout and widgetry needed to build a desktop-class app."]]])
 
 
-(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+(defn panel
   []
   [panel2])

@@ -1,7 +1,7 @@
 (ns re-demo.core
   (:require-macros [re-com.core            :refer [handler-fn]]
                    [cljs.core.async.macros :refer [go]])
-  (:require [figwheel.client         :as    fw]
+  (:require ;[figwheel.client         :as    fw]
             [reagent.core            :as    reagent]
             [alandipert.storage-atom :refer [local-storage]]
             [re-demo.utils           :refer [panel-title]]
@@ -92,9 +92,9 @@
 (defn main
   []
   (let [id-store        (local-storage (atom nil) ::id-store)
-        selected-tab-id (reagent/atom (if  (nil? @id-store) (:id (first tabs-definition)) @id-store))  ;; id of the selected tab
+        selected-tab-id (reagent/atom (if (nil? @id-store) (:id (first tabs-definition)) @id-store))   ;; id of the selected tab
         _               (add-watch selected-tab-id nil #(reset! id-store %4))]                         ;; remember the current navigation item being viewed.
-    (fn _main
+    (fn ;; _main
       []
       [h-box
        ;; TODO: EXPLAIN both lines below with more clarity
@@ -195,27 +195,11 @@
 ;; ---------------------------------------------------------------------------------------
 
 
-(fw/start {;; configure a websocket url if yor are using your own server
-           ;; :websocket-url "ws://localhost:3449/figwheel-ws"
-
-           ;; optional callback
-           :jsload-callback (fn [] (reagent/force-update-all))
-
-           ;; CSS handled automatically from project.clj > :figwheel > :css-dirs
-           ;:on-cssload (fn [] (println "figwheel CSS updated"))
-
-           ;; The heads up display is enabled by default
-           ;; to disable it:
-           ;; :heads-up-display false
-
-           ;; when the compiler emits warnings figwheel
-           ;; blocks the loading of files.
-           ;; To disable this behavior:
-           ;; :load-warninged-code true
-           })
+;(fw/start {:jsload-callback (fn [] (reagent/force-update-all))})
 
 (defn ^:export  mount-demo
   []
-  (reagent/render-component [main] (util/get-element-by-id "app"))
-  ;(reagent/render-component [display-green-messages] (util/get-element-by-id "app")) ;; TODO: EXPERIMENT - REMOVE
+  ;(fw/start {:jsload-callback (fn [] (reagent/force-update-all))})
+  (reagent/render [(fn [] [main])] (util/get-element-by-id "app"))
+  ;(reagent/render [display-green-messages] (util/get-element-by-id "app")) ;; TODO: EXPERIMENT - REMOVE
   )   ;; 0.5.0 rename render-component ==> render.

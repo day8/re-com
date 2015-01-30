@@ -4,6 +4,7 @@
 (def os         (leiningen.core.eval/get-os))
 (def server-url (str "http://localhost:" fig-port "/index.html"))
 (def file-url   "run/resources/public/index.html")
+(def prod-url   "run/resources/public/index_prod.html")
 (def test-url   "run/test/test.html")
 
 (def command-lookups
@@ -15,6 +16,10 @@
    "launch-file-url"   {:windows ["shell" "cmd" "/c" "start" file-url]
                         :macosx  ["shell" "open"             file-url]
                         :linux   ["shell" "xdg-open"         file-url]}
+
+   "launch-prod-url"   {:windows ["shell" "cmd" "/c" "start" prod-url]
+                        :macosx  ["shell" "open"             prod-url]
+                        :linux   ["shell" "xdg-open"         prod-url]}
 
    "launch-test-url"   {:windows ["shell" "cmd" "/c" "start" test-url]
                         :linux   ["shell" "xdg-open"         test-url]
@@ -32,7 +37,7 @@
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
-                     [org.clojure/clojurescript   "0.0-2665"]
+                     [org.clojure/clojurescript   "0.0-2740"]
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha"]
                      [alandipert/storage-atom     "1.2.3"]
                      [reagent                     "0.5.0-alpha"]
@@ -59,6 +64,7 @@
                                                [lein-shell                      "0.4.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]]}
                      :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled"]}
+                     :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled-prod"]}
                      :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}
 
   ;:jvm-opts         ^:replace ["-Xms2g" "-Xmx2g" "-server"]
@@ -79,6 +85,15 @@
                                                 :output-dir    "run/resources/public/compiled/demo"
                                                 :optimizations :none
                                                 :pretty-print  true}}
+                              {:id "prod"
+                               :source-paths   ["src/re_com" "src/re_demo"]
+                               :compiler       {:output-to     "run/resources/public/compiled-prod/prod.js"
+                                                :output-dir    "run/resources/public/compiled-prod/prod"
+                                                ;:preamble      ["reagent/react.min.js"]
+                                                ;:elide-asserts true
+                                                :optimizations :advanced
+                                                :pretty-print  false
+                                                }}
                               {:id "test"
                                :source-paths   ["src/re_com" "test"]
                                :compiler       {:output-to    "run/test/compiled/test.js"
@@ -102,6 +117,17 @@
                                          ["clean"]
                                          ~(get-command-for-os "launch-server-url")   ;; NOTE: run will initially fail, refresh browser once build complete
                                          ["figwheel" "demo"]]
+
+                     ;; *** PROD ***
+
+                     "run-prod"          ["with-profile" "+prod-run" "do"
+                                         ["clean"]
+                                         ["cljsbuild" "once" "prod"]
+                                         ~(get-command-for-os "launch-prod-url")]
+
+                     "debug-prod"       ["with-profile" "+prod-run" "do"
+                                         ["run-prod"]
+                                         ["cljsbuild" "auto" "prod"]]
 
                      ;; *** TEST ***
 
