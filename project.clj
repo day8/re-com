@@ -64,7 +64,7 @@
                                                [lein-shell                      "0.4.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]]}
                      :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled"]}
-                     :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled-prod"]}
+                     :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
                      :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}
 
   ;:jvm-opts         ^:replace ["-Xms2g" "-Xmx2g" "-server"]
@@ -87,20 +87,26 @@
                                                 :pretty-print  true}}
                               {:id "prod"
                                :source-paths   ["src/re_com" "src/re_demo"]
-                               :compiler       {:output-to     "run/resources/public/compiled-prod/prod.js"
-                                                :output-dir    "run/resources/public/compiled-prod/prod"
+                               :compiler       {:output-to     "run/resources/public/compiled_prod/demo_prod.js"
+                                                ;:source-map    "run/resources/public/compiled_prod/demo_prod.js.map" ;; NOTE: VERY SLOW!
+                                                :output-dir    "run/resources/public/compiled_prod/demo_prod"
                                                 ;:preamble      ["reagent/react.min.js"]
                                                 ;:elide-asserts true
+
+                                                ;:optimizations :none
+                                                ;:optimizations :simple
+                                                ;:optimizations :whitespace
                                                 :optimizations :advanced
+
                                                 :pretty-print  false
                                                 }}
                               {:id "test"
                                :source-paths   ["src/re_com" "test"]
-                               :compiler       {:output-to    "run/test/compiled/test.js"
-                                                :source-map   "run/test/compiled/test.js.map"
-                                                :output-dir   "run/test/compiled/test"
+                               :compiler       {:output-to     "run/test/compiled/test.js"
+                                                :source-map    "run/test/compiled/test.js.map"
+                                                :output-dir    "run/test/compiled/test"
                                                 :optimizations :none
-                                                :pretty-print true}}]}
+                                                :pretty-print  true}}]}
 
   :figwheel {:css-dirs    ["run/resources/public/resources/css"]
              :server-port ~fig-port
