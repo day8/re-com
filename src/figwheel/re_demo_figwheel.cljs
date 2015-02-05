@@ -1,5 +1,7 @@
 (ns re-demo-figwheel
   (:require [figwheel.client :as fw :include-macros true]
-            [reagent.core    :as reagent]))
+            [re-demo.core    :as core]))
 
-(fw/start {:jsload-callback (fn [] (reagent/force-update-all))})
+(defn main []
+  (fw/start {:jsload-callback (fn [] (core/mount-demo))})
+  (core/mount-demo))

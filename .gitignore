@@ -9,5 +9,5 @@ pom.xml.asc
 core/
 out/
 target/
-compiled/
+compiled*/
 misc/

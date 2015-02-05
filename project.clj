@@ -2,8 +2,8 @@
 
 (def fig-port   3449)
 (def os         (leiningen.core.eval/get-os))
-(def server-url (str "http://localhost:" fig-port "/index.html"))
-(def file-url   "run/resources/public/index.html")
+(def server-url (str "http://localhost:" fig-port "/index_dev.html"))
+(def file-url   "run/resources/public/index_dev.html")
 (def prod-url   "run/resources/public/index_prod.html")
 (def test-url   "run/test/test.html")
 
@@ -37,10 +37,10 @@
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
-                     [org.clojure/clojurescript   "0.0-2740"]
+                     [org.clojure/clojurescript   "0.0-2760"] ;; 2665-GOOD, 2719-BAD, 2723-BAD, 2725, 2727, 2740-BAD
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha"]
                      [alandipert/storage-atom     "1.2.3"]
-                     [reagent                     "0.5.0-alpha"]
+                     [reagent                     "0.5.0-alpha2"]
                      [com.andrewmcveigh/cljs-time "0.3.0"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
@@ -63,7 +63,7 @@
                                                [lein-figwheel                   "0.2.2-SNAPSHOT"]
                                                [lein-shell                      "0.4.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]]}
-                     :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled"]}
+                     :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
                      :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
                      :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}
 
@@ -73,38 +73,34 @@
   :test-paths       ["test"]
   :resource-paths   ["run/resources"]
 
-  ;; Exclude the demo/compiled files from the output of either 'lein jar' or 'lein install'
-  :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)compiled\/"]
-
-  ;:clean-targets ^{:protect false} ["run/resources/public/compiled"]
+  ;; Exclude the demo and compiled files from the output of either 'lein jar' or 'lein install'
+  :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)compiled.*\/"]
 
   :cljsbuild        {:builds [{:id "demo"
                                :source-paths   ["src"]
-                               :compiler       {:output-to     "run/resources/public/compiled/demo.js"
-                                                :source-map    "run/resources/public/compiled/demo.js.map"
-                                                :output-dir    "run/resources/public/compiled/demo"
+                               :compiler       {:output-to     "run/resources/public/compiled_dev/demo.js"
+                                                :output-dir    "run/resources/public/compiled_dev/demo"
+                                                :main          "re-demo-figwheel"
+                                                :asset-path    "compiled_dev/demo"
+                                                :source-map    true
                                                 :optimizations :none
                                                 :pretty-print  true}}
                               {:id "prod"
-                               :source-paths   ["src/re_com" "src/re_demo"]
-                               :compiler       {:output-to     "run/resources/public/compiled_prod/demo_prod.js"
-                                                ;:source-map    "run/resources/public/compiled_prod/demo_prod.js.map" ;; NOTE: VERY SLOW!
-                                                :output-dir    "run/resources/public/compiled_prod/demo_prod"
+                               :source-paths   ["src"]
+                               :compiler       {:output-to     "run/resources/public/compiled_prod/demo.js"
+                                                ;:source-map    "run/resources/public/compiled_prod/demo.js.map"  ;; NOTE: VERY SLOW! (and not required for prod anyway)
+                                                ;:output-dir    "run/resources/public/compiled_prod/demo"         ;; Works but not required in this case becasue index_prod.html knows which function to call
+                                                ;:main          "re-demo.core"
+                                                :asset-path    "compiled_prod/demo"
                                                 ;:preamble      ["reagent/react.min.js"]
                                                 ;:elide-asserts true
-
-                                                ;:optimizations :none
-                                                ;:optimizations :simple
-                                                ;:optimizations :whitespace
-                                                :optimizations :advanced
-
-                                                :pretty-print  false
-                                                }}
+                                                :optimizations :advanced ;; or :simple :whitespace
+                                                :pretty-print  false}}
                               {:id "test"
                                :source-paths   ["src/re_com" "test"]
                                :compiler       {:output-to     "run/test/compiled/test.js"
-                                                :source-map    "run/test/compiled/test.js.map"
                                                 :output-dir    "run/test/compiled/test"
+                                                :source-map    true
                                                 :optimizations :none
                                                 :pretty-print  true}}]}
 
@@ -114,35 +110,35 @@
 
   :aliases          {;; *** DEMO ***
 
-                     "run"              ["with-profile" "+dev-run" "do"
-                                         ["clean"]
-                                         ["cljsbuild" "once" "demo"]
-                                         ~(get-command-for-os "launch-file-url")]
+                     "run"        ["with-profile" "+dev-run" "do"
+                                   ["clean"]
+                                   ["cljsbuild" "once" "demo"]
+                                   ~(get-command-for-os "launch-file-url")]
 
-                     "debug"            ["with-profile" "+dev-run" "do"
-                                         ["clean"]
-                                         ~(get-command-for-os "launch-server-url")   ;; NOTE: run will initially fail, refresh browser once build complete
-                                         ["figwheel" "demo"]]
+                     "debug"      ["with-profile" "+dev-run" "do"
+                                   ["clean"]
+                                   ~(get-command-for-os "launch-server-url")   ;; NOTE: run will initially fail, refresh browser once build complete
+                                   ["figwheel" "demo"]]
 
                      ;; *** PROD ***
 
-                     "run-prod"          ["with-profile" "+prod-run" "do"
-                                         ["clean"]
-                                         ["cljsbuild" "once" "prod"]
-                                         ~(get-command-for-os "launch-prod-url")]
+                     "run-prod"   ["with-profile" "+prod-run" "do"
+                                   ["clean"]
+                                   ["cljsbuild" "once" "prod"]
+                                   ~(get-command-for-os "launch-prod-url")]
 
-                     "debug-prod"       ["with-profile" "+prod-run" "do"
-                                         ["run-prod"]
-                                         ["cljsbuild" "auto" "prod"]]
+                     "debug-prod" ["with-profile" "+prod-run" "do"
+                                   ["run-prod"]
+                                   ["cljsbuild" "auto" "prod"]]
 
                      ;; *** TEST ***
 
-                     "run-test"         ["with-profile" "+dev-test" "do"
-                                         ["clean"]
-                                         ["cljsbuild" "once" "test"]
-                                         ~(get-command-for-os "launch-test-url")]
+                     "run-test"   ["with-profile" "+dev-test" "do"
+                                   ["clean"]
+                                   ["cljsbuild" "once" "test"]
+                                   ~(get-command-for-os "launch-test-url")]
 
-                     "debug-test"       ["with-profile" "+dev-test" "do"
-                                         ["run-test"]
-                                         ["cljsbuild" "auto" "test"]]}
+                     "debug-test" ["with-profile" "+dev-test" "do"
+                                   ["run-test"]
+                                   ["cljsbuild" "auto" "test"]]}
   )

@@ -197,9 +197,10 @@
 
 ;(fw/start {:jsload-callback (fn [] (reagent/force-update-all))})
 
-(defn ^:export  mount-demo
+(defn ^:export mount-demo
   []
   ;(fw/start {:jsload-callback (fn [] (reagent/force-update-all))})
-  (reagent/render [(fn [] [main])] (util/get-element-by-id "app"))
+  (reagent/render [main] (util/get-element-by-id "app"))
+  ;(reagent/render [(fn [] [main])] (util/get-element-by-id "app"))
   ;(reagent/render [display-green-messages] (util/get-element-by-id "app")) ;; TODO: EXPERIMENT - REMOVE
   )   ;; 0.5.0 rename render-component ==> render.

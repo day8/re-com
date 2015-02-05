@@ -16,7 +16,7 @@
                "Re-com is a library of ClojureScript UI components, built on top of "
                [hyperlink-href
                 :label  "Reagent"
-                :href   "https://github.com/holmsand/reagent"
+                :href   "https://github.com/reagent-project/reagent"
                 :target "_blank"]
                "."]
               [:p "It contains some of layout and widgetry needed to build a desktop-class app."]]])
