@@ -45,8 +45,20 @@
         // For information on what is going on here refer to -
         //    https://github.com/mike-thompson-day8/cljsbuild-none-test-seed
         //
-        for(var namespace in goog.dependencies_.nameToPath)
-            goog.require(namespace);
+        //
+        // The loop was originally this simple:
+        //     for(var namespace in goog.dependencies_.nameToPath)
+        //         goog.require(namespace);
+        //
+        // But then this happened: http://dev.clojure.org/jira/browse/CLJS-995
+        //
+        // Now we require in all namespaces which depend on `cljs.core`
+        for(var path in goog.dependencies_.requires) {
+            if (goog.dependencies_.requires[path]["cljs.core"]) {              // a cljs file ?
+                for (var namespace in goog.dependencies_.pathToNames[path])    // find the associated namespaces - there should only ever be one
+                    goog.require(namespace);
+            }
+        }
 
         // --------------------------------------------------------------------
         // Output
@@ -91,11 +103,6 @@
                     document.body.style.backgroundColor = "771419";
                     pre.className = "red";
                 }
-            // if (-1 != line.indexOf('Testing complete')) {
-            //     if (-1 != line.indexOf('0 failures, 0 errors'))
-            //     pre.className = "green"
-            //     else
-            //         pre.className = "red"
             }
 
             // replace leading blanks with &nbsp; so text lines up
@@ -112,8 +119,6 @@
             cemerick.cljs.test.set_print_fn_BANG_(testPrintLn);
             var results = cemerick.cljs.test.run_all_tests();
         }
-
-
         // Don't run any tests till this page is fully loaded.
         // Remember there'll be lots of async <script> added by the loop above.
         window.addEventListener('load', run_tests);

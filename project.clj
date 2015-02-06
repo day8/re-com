@@ -41,7 +41,7 @@
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha"]
                      [alandipert/storage-atom     "1.2.3"]
                      [reagent                     "0.5.0-alpha2"]
-                     [com.andrewmcveigh/cljs-time "0.3.0"]]
+                     [com.andrewmcveigh/cljs-time "0.3.1"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
@@ -89,9 +89,9 @@
                                :source-paths   ["src"]
                                :compiler       {:output-to     "run/resources/public/compiled_prod/demo.js"
                                                 ;:source-map    "run/resources/public/compiled_prod/demo.js.map"  ;; NOTE: VERY SLOW! (and not required for prod anyway)
-                                                ;:output-dir    "run/resources/public/compiled_prod/demo"         ;; Works but not required in this case becasue index_prod.html knows which function to call
-                                                ;:main          "re-demo.core"
-                                                :asset-path    "compiled_prod/demo"
+                                                :output-dir    "run/resources/public/compiled_prod/demo"
+                                                ;:main          "re-demo.core"                                    ;; Works but not required in this case becasue index_prod.html knows which function to call
+                                                ;:asset-path    "compiled_prod/demo"
                                                 ;:preamble      ["reagent/react.min.js"]
                                                 ;:elide-asserts true
                                                 :optimizations :advanced ;; or :simple :whitespace
