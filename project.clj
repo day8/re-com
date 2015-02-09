@@ -40,7 +40,7 @@
                      [org.clojure/clojurescript   "0.0-2760"] ;; 2665-GOOD, 2719-BAD, 2723-BAD, 2725, 2727, 2740-BAD
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha"]
                      [alandipert/storage-atom     "1.2.3"]
-                     [reagent                     "0.5.0-alpha2"]
+                     [reagent                     "0.5.0-alpha3"]
                      [com.andrewmcveigh/cljs-time "0.3.1"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
