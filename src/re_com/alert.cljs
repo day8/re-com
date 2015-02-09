@@ -2,8 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.buttons :refer [button]]
             [re-com.box     :refer [h-box v-box scroller border]]
-            [re-com.util    :as    util]
-            [reagent.core   :as    reagent]))
+            [re-com.util    :as    util]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert
@@ -12,8 +11,8 @@
 (def alert-box-args-desc
   [{:name :id              :required false                  :type "anything"         :description "a unique identifier, usually an integer or string"}
    {:name :alert-type      :required false :default "info"  :type "string"           :description "a bootstrap style: info, warning or danger"}
-   {:name :heading         :required false                  :type "hicup | string"   :description "displayed as header. One of :heading or :body must be provided"}
-   {:name :body            :required false                  :type "hicup | string"   :description "displayed within the body of the alert"}
+   {:name :heading         :required false                  :type "hiccup | string"  :description "displayed as header. One of :heading or :body must be provided"}
+   {:name :body            :required false                  :type "hiccup | string"  :description "displayed within the body of the alert"}
    {:name :padding         :required false :default "15px"  :type "string"           :description "padding surounding the alert"}
    {:name :closeable?      :required false :default false   :type "boolean"          :description "if true, render a close button.  :on-close should be supplied"}
    {:name :on-close        :required false                  :type "(:id) -> nil"     :description "called when the user clicks a close 'X'. Passed the :id of the alert to close."}])

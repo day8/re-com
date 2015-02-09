@@ -69,7 +69,7 @@
 
   ;:jvm-opts         ^:replace ["-Xms2g" "-Xmx2g" "-server"]
 
-  :source-paths     ["src"]
+  :source-paths     ["src" "dev"]
   :test-paths       ["test"]
   :resource-paths   ["run/resources"]
 
@@ -77,32 +77,32 @@
   :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)compiled.*\/"]
 
   :cljsbuild        {:builds [{:id "demo"
-                               :source-paths   ["src"]
-                               :compiler       {:output-to     "run/resources/public/compiled_dev/demo.js"
-                                                :output-dir    "run/resources/public/compiled_dev/demo"
-                                                :main          "re-demo-figwheel"
-                                                :asset-path    "compiled_dev/demo"
-                                                :source-map    true
-                                                :optimizations :none
-                                                :pretty-print  true}}
+                               :source-paths   ["src" "dev"]
+                               :compiler       {:output-to       "run/resources/public/compiled_dev/demo.js"
+                                                :output-dir      "run/resources/public/compiled_dev/demo"
+                                                :main            "figwheel-start"
+                                                :asset-path      "compiled_dev/demo"
+                                                :source-map      true
+                                                :optimizations   :none
+                                                :pretty-print    true}}
                               {:id "prod"
                                :source-paths   ["src"]
-                               :compiler       {:output-to     "run/resources/public/compiled_prod/demo.js"
-                                                ;:source-map    "run/resources/public/compiled_prod/demo.js.map"  ;; NOTE: VERY SLOW! (and not required for prod anyway)
-                                                :output-dir    "run/resources/public/compiled_prod/demo"
-                                                ;:main          "re-demo.core"                                    ;; Works but not required in this case becasue index_prod.html knows which function to call
-                                                ;:asset-path    "compiled_prod/demo"
-                                                ;:preamble      ["reagent/react.min.js"]
-                                                ;:elide-asserts true
-                                                :optimizations :advanced ;; or :simple :whitespace
-                                                :pretty-print  false}}
+                               :compiler       {:output-to       "run/resources/public/compiled_prod/demo.js"
+                                                ;:source-map      "run/resources/public/compiled_prod/demo.js.map"
+                                                :output-dir      "run/resources/public/compiled_prod/demo"
+                                                :closure-defines {:goog.DEBUG false}
+                                                ;:main            "re-demo.core"                                    ;; Works but not required in this case becasue index_prod.html knows which function to call
+                                                ;:asset-path      "compiled_prod/demo"
+                                                ;:elide-asserts   true
+                                                :optimizations   :advanced ;; or :simple :whitespace
+                                                :pretty-print    false}}
                               {:id "test"
                                :source-paths   ["src/re_com" "test"]
-                               :compiler       {:output-to     "run/test/compiled/test.js"
-                                                :output-dir    "run/test/compiled/test"
-                                                :source-map    true
-                                                :optimizations :none
-                                                :pretty-print  true}}]}
+                               :compiler       {:output-to       "run/test/compiled/test.js"
+                                                :output-dir      "run/test/compiled/test"
+                                                :source-map      true
+                                                :optimizations   :none
+                                                :pretty-print    true}}]}
 
   :figwheel {:css-dirs    ["run/resources/public/resources/css"]
              :server-port ~fig-port

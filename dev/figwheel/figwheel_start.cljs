@@ -1,4 +1,4 @@
-(ns re-demo-figwheel
+(ns figwheel-start
   (:require [figwheel.client :as fw :include-macros true]
             [re-demo.core    :as core]))
 

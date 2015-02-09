@@ -1,4 +1,5 @@
 (ns re-com.tour
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require [reagent.core   :as    reagent]
             [re-com.buttons :refer [button]]))
 
@@ -84,12 +85,12 @@
       (when-not on-first-button
         [button
          :label    "Previous"
-         :on-click #(prev-tour-step tour)
+         :on-click (handler-fn (prev-tour-step tour))
          :style    {:margin-right "15px"}
          :class     "btn-default"])
       [button
        :label    (if on-last-button "Finish" "Next")
-       :on-click #(if on-last-button
-                   (finish-tour tour)
-                   (next-tour-step tour))
+       :on-click (handler-fn (if on-last-button
+                               (finish-tour tour)
+                               (next-tour-step tour)))
        :class     "btn-default"]]))

@@ -56,7 +56,7 @@
                     :anchor   [button
                                :label "and another"
                                :class "btn-info"
-                               :style (when (:step3 demo-tour) {:position "relative" :z-index 1})] ;; Make the anchor appear above the backdrop
+                               :style (when (:step3 demo-tour) {:position "relative" :z-index 10})] ;; Make the anchor appear above the backdrop
                     :popover [popover-content-wrapper
                               :showing?         (:step3 demo-tour)
                               :position         :right-below

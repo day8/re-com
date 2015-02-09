@@ -1,5 +1,6 @@
 (ns re-com.modal
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go]]
+                   [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [validate-arguments]]
             [cljs.core.async :as    async :refer [<! >! chan close! sliding-buffer put! alts! timeout]]
             [re-com.util     :as    util]
@@ -118,7 +119,7 @@
               :height "100%"
               :background-color "rgba(0,0,0,0.85)"
               :z-index 1020
-              :on-click #(println "clicked backdrop") ;; Gobble up clicks so they don't go to the main window (TODO: Doesn't work)
+              :on-click (handler-fn (println "clicked backdrop")) ;; Gobble up clicks so they don't go to the main window (TODO: Doesn't work)
               }}
      [:div                         ;; Modal window containing div
       {:style {:margin "auto"
