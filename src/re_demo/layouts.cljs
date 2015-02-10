@@ -55,8 +55,8 @@
                :size     "auto"
                :children [[title :label "Horizontal Layout"]
                           [h-layout
-                           :left-panel  left-panel
-                           :right-panel right-panel]]]
+                           :left-panel    left-panel
+                           :right-panel   right-panel]]]
               [gap :size "10px"]
               [line]
               [gap :size "10px"]
@@ -64,8 +64,9 @@
                :size     "auto"
                :children [[title :label "Vertical Layout"]
                           [v-layout
-                           :top-panel    top-panel
-                           :bottom-panel bottom-panel]]]]])
+                           :top-panel     top-panel
+                           :bottom-panel  bottom-panel
+                           :initial-split "25%"]]]]])
 
 
 (defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
