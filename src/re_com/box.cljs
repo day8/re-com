@@ -415,6 +415,7 @@
    {:name :h-scroll        :required false                   :type "keyword"  :description "see <code>:scroll</code>. Overrides that setting."}
    {:name :v-scroll        :required false                   :type "keyword"  :description "see <code>:scroll</code>. Overrides that setting."}
    {:name :width           :required false                   :type "string"   :description "Initial width."}
+   {:name :height          :required false                   :type "string"   :description "Initial height."}
    {:name :min-width       :required false                   :type "string"   :description "a CSS width style. The minimum width to which the box can shrink."}
    {:name :min-height      :required false                   :type "string"   :description "a CSS height style. The minimum height to which the box can shrink."}
    {:name :justify         :required false :default :start   :type "keyword"  :description "one of <code>:start</code>, <code>:end</code>, <code>:center</code>, <code>:between</code> and <code>:around</code>."}
