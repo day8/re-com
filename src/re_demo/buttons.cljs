@@ -257,6 +257,13 @@
                    :gap "10px"
                    :style {:font-size "small"}
                    :children [[component-title "[info-button ... ]"]
+
+                              [label :class "small-caps" :label "notes:"]
+
+                              [label :label "A tiny information button, which is light grey and unobrusive. When pressed, displays a popup contining helpful information. "]
+
+                              [label :label "Designed to be used with input fields, to explain the purpose of the field."]
+
                               [args-table info-button-args-desc]]]
                   [v-box
                    :children [[component-title "Demo"]
@@ -282,53 +289,50 @@
 
 
 (defn data-row
-  []
-  (let []
-    (fn
-      [row first? last? col-widths mouse-over click-msg]
-      (let [mouse-over-row? (identical? @mouse-over row)]
-        [h-box
-         :class    "rc-div-table-row"
-         :attr     {:on-mouse-over (handler-fn (reset! mouse-over row))
-                    :on-mouse-out  (handler-fn (reset! mouse-over nil))}
-         :children [[h-box
-                     :width (:sort col-widths)
-                     :gap "2px"
-                     :align :center
-                     :children [[row-button
-                                 :md-icon-name    "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
-                                 :mouse-over-row? mouse-over-row?
-                                 :tooltip         "Move this line up"
-                                 :disabled?       (and first? mouse-over-row?)
-                                 :on-click        #(reset! click-msg (str "move row " (:id row) " up"))]
-                                [row-button
-                                 :md-icon-name    "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
-                                 :mouse-over-row? mouse-over-row?
-                                 :tooltip         "Move this line down"
-                                 :disabled?       (and last? mouse-over-row?)
-                                 :on-click        #(reset! click-msg (str "move row " (:id row) " down"))]]]
-                    [label :label (:name row) :width (:name col-widths)]
-                    [label :label (:from row) :width (:from col-widths)]
-                    [label :label (:to   row) :width (:to   col-widths)]
-                    [h-box
-                     :gap      "2px"
-                     :width    (:actions col-widths)
-                     :align    :center
-                     :children [[row-button
-                                 :md-icon-name    "md-content-copy"
-                                 :mouse-over-row? mouse-over-row?
-                                 :tooltip         "Copy this line"
-                                 :on-click        #(reset! click-msg (str "copy row " (:id row)))]
-                                [row-button
-                                 :md-icon-name    "md-mode-edit"
-                                 :mouse-over-row? mouse-over-row?
-                                 :tooltip         "Edit this line"
-                                 :on-click        #(reset! click-msg (str "edit row " (:id row)))]
-                                [row-button
-                                 :md-icon-name    "md-delete"
-                                 :mouse-over-row? mouse-over-row?
-                                 :tooltip         "Delete this line"
-                                 :on-click        #(reset! click-msg (str "delete row " (:id row)))]]]]]))))
+  [row first? last? col-widths mouse-over click-msg]
+  (let [mouse-over-row? (identical? @mouse-over row)]
+    [h-box
+     :class    "rc-div-table-row"
+     :attr     {:on-mouse-over (handler-fn (reset! mouse-over row))
+                :on-mouse-out  (handler-fn (reset! mouse-over nil))}
+     :children [[h-box
+                 :width (:sort col-widths)
+                 :gap "2px"
+                 :align :center
+                 :children [[row-button
+                             :md-icon-name    "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
+                             :mouse-over-row? mouse-over-row?
+                             :tooltip         "Move this line up"
+                             :disabled?       (and first? mouse-over-row?)
+                             :on-click        #(reset! click-msg (str "move row " (:id row) " up"))]
+                            [row-button
+                             :md-icon-name    "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
+                             :mouse-over-row? mouse-over-row?
+                             :tooltip         "Move this line down"
+                             :disabled?       (and last? mouse-over-row?)
+                             :on-click        #(reset! click-msg (str "move row " (:id row) " down"))]]]
+                [label :label (:name row) :width (:name col-widths)]
+                [label :label (:from row) :width (:from col-widths)]
+                [label :label (:to   row) :width (:to   col-widths)]
+                [h-box
+                 :gap      "2px"
+                 :width    (:actions col-widths)
+                 :align    :center
+                 :children [[row-button
+                             :md-icon-name    "md-content-copy"
+                             :mouse-over-row? mouse-over-row?
+                             :tooltip         "Copy this line"
+                             :on-click        #(reset! click-msg (str "copy row " (:id row)))]
+                            [row-button
+                             :md-icon-name    "md-mode-edit"
+                             :mouse-over-row? mouse-over-row?
+                             :tooltip         "Edit this line"
+                             :on-click        #(reset! click-msg (str "edit row " (:id row)))]
+                            [row-button
+                             :md-icon-name    "md-delete"
+                             :mouse-over-row? mouse-over-row?
+                             :tooltip         "Delete this line"
+                             :on-click        #(reset! click-msg (str "delete row " (:id row)))]]]]]))
 
 
 (defn data-table
@@ -376,6 +380,9 @@
                    :style {:font-size "small"}
                    :children [[component-title "[row-button ... ]"]
                               [label :class "small-caps" :label "notes:"]
+                              [label :label "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse over."]
+                              [label :label "To experiement, mouse over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
+
                               [:p
                                "Material design icons can be found "
                                [hyperlink-href
@@ -500,29 +507,33 @@
 (def demos [{:id 0 :label "button"                :component button-demo}
             {:id 1 :label "md-circle-icon-button" :component md-circle-icon-button-demo}
             {:id 2 :label "md-icon-button"        :component md-icon-button-demo}
-            {:id 3 :label "info-button"        :component info-button-demo}
+            {:id 3 :label "info-button"           :component info-button-demo}
             {:id 4 :label "row-button"            :component row-button-demo}
             {:id 5 :label "hyperlink"             :component hyperlink-demo}
             {:id 6 :label "hyperlink-href"        :component hyperlink-href-demo}
             ])
 
+
+;; This is not the way you'd store state in a "real" app.  We're just taking shortcuts for demo purposes.
+;; If we put this atom at global scope and use defonce, it works better with figwheel refreshes.
+(defonce selected-demo-id (reagent/atom 0))
+
+
 (defn panel2
   []
-  (let [selected-demo-id (reagent/atom 0)]
-    (fn []
-      [v-box
-       :gap "10px"
-       :children [[panel-title "Button Components" ]
-                  [h-box
-                   :gap      "50px"
-                   :children [[v-box
-                               :gap      "10px"
-                               :children [[component-title "Components"]
-                                          [vertical-bar-tabs
-                                           :model     selected-demo-id
-                                           :tabs      demos
-                                           :on-change #(reset! selected-demo-id %)]]]
-                              [(get-in demos [@selected-demo-id :component])]]]]])))
+  [v-box
+   :gap "10px"
+   :children [[panel-title "Button Components" ]
+              [h-box
+               :gap      "50px"
+               :children [[v-box
+                           :gap      "10px"
+                           :children [[component-title "Components"]
+                                      [vertical-bar-tabs
+                                       :model     selected-demo-id
+                                       :tabs      demos
+                                       :on-change #(reset! selected-demo-id %)]]]
+                          [(get-in demos [@selected-demo-id :component])]]]]])
 
 
 (defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
