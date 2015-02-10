@@ -566,23 +566,25 @@
             ;{:id 91 :label "v-box"                 :component v-box-demo} ;; Experimental
             ])
 
+;; This is not the way you'd store state in a "real" app.  We're just taking shortcuts for demo purposes.
+;; If we put this atom at global scope and use defonce, it works better with figwheel refreshes.
+(defonce selected-demo-id (reagent/atom 0))
+
 (defn panel2
   []
-  (let [selected-demo-id (reagent/atom 0)]
-    (fn []
-      [v-box
-       :gap "10px"
-       :children [[panel-title "Basic Components" ]
-                  [h-box
-                   :gap      "50px"
-                   :children [[v-box
-                               :gap      "10px"
-                               :children [[component-title "Components"]
-                                          [vertical-bar-tabs
-                                           :model     selected-demo-id
-                                           :tabs      demos
-                                           :on-change #(reset! selected-demo-id %)]]]
-                              [(get-in demos [@selected-demo-id :component])]]]]])))
+  [v-box
+   :gap "10px"
+   :children [[panel-title "Basic Components" ]
+              [h-box
+               :gap      "50px"
+               :children [[v-box
+                           :gap      "10px"
+                           :children [[component-title "Components"]
+                                      [vertical-bar-tabs
+                                       :model     selected-demo-id
+                                       :tabs      demos
+                                       :on-change #(reset! selected-demo-id %)]]]
+                          [(get-in demos [@selected-demo-id :component])]]]]])
 
 
 (defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
