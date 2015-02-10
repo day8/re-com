@@ -93,7 +93,8 @@
   []
   (let [id-store        (local-storage (atom nil) ::id-store)
         selected-tab-id (reagent/atom (if (nil? @id-store) (:id (first tabs-definition)) @id-store))   ;; id of the selected tab
-        on-select-tab   #(do (reset! selected-tab-id %1) (reset! id-store %1))]
+        on-select-tab   #(do (reset! selected-tab-id %1)
+                             (reset! id-store %1))]
     (fn ;; _main
       []
       [h-box
