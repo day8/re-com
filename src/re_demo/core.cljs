@@ -48,7 +48,7 @@
 (defn nav-item
   []
   (let [mouse-over? (reagent/atom false)]
-    (fn [tab selected-tab-id]
+    (fn [tab selected-tab-id on-select-tab]
       (let [selected (= @selected-tab-id (:id tab))]
       [:div
        {:style {:color            (if selected "#111")
@@ -60,7 +60,7 @@
         :class "nav-item"
         :on-mouse-over (handler-fn (reset! mouse-over? true))
         :on-mouse-out  (handler-fn (reset! mouse-over? false))
-        :on-click      (handler-fn (reset! selected-tab-id (:id tab)))
+        :on-click      (handler-fn (on-select-tab (:id tab)))
         }
        [:span
         {:style {:cursor "default"}}    ;; removes the I-beam over the label
@@ -68,10 +68,10 @@
 
 
 (defn left-side-nav-bar
-  [selected-tab-id]
+  [selected-tab-id on-select-tab]
     [v-box
      :children (for [tab tabs-definition]
-                 [nav-item tab selected-tab-id])])
+                 [nav-item tab selected-tab-id on-select-tab])])
 
 
 (defn re-com-title
@@ -93,7 +93,7 @@
   []
   (let [id-store        (local-storage (atom nil) ::id-store)
         selected-tab-id (reagent/atom (if (nil? @id-store) (:id (first tabs-definition)) @id-store))   ;; id of the selected tab
-        _               (add-watch selected-tab-id nil #(reset! id-store %4))]                         ;; remember the current navigation item being viewed.
+        on-select-tab   #(do (reset! selected-tab-id %1) (reset! id-store %1))]
     (fn ;; _main
       []
       [h-box
@@ -110,7 +110,7 @@
                    :h-scroll :off
                    :child [v-box
                            :children [[re-com-title]
-                                      [left-side-nav-bar selected-tab-id]]]]
+                                      [left-side-nav-bar selected-tab-id on-select-tab]]]]
                   [scroller
                    :child [box
                            :size      "auto"
