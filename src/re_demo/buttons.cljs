@@ -5,6 +5,7 @@
             [re-com.buttons   :refer [button button-args-desc
                                       md-circle-icon-button md-circle-icon-button-args-desc
                                       md-icon-button md-icon-button-args-desc
+                                      info-button info-button-args-desc
                                       row-button row-button-args-desc
                                       hyperlink hyperlink-args-desc
                                       hyperlink-href hyperlink-href-args-desc]]
@@ -69,7 +70,8 @@
    {:id "md-delete" :label [:i {:class "md-delete"}]}
    {:id "md-undo"   :label [:i {:class "md-undo"}]}
    {:id "md-home"   :label [:i {:class "md-home"}]}
-   {:id "md-person" :label [:i {:class "md-person"}]}])
+   {:id "md-person" :label [:i {:class "md-person"}]}
+   {:id "md-info"   :label [:i {:class "md-info"}]}])
 
 
 (defn example-icons
@@ -212,6 +214,71 @@
                                                        :tooltip      "This is a :larger button"
                                                        :size         :larger
                                                        :on-click #()]]]]]]]]])))
+
+
+(defn info-button-demo
+  []
+  (let [info [:div {:style {:text-align "left"}}            ;; TODO: Eat own dog food
+              [:h3 {:style {:margin-top "6px"}} "if"]
+              [:p {:style {:background "#666" :padding "7px" :font-size "16px"}} "(if test then else?)"]
+              [:p "If test is not false or nil, then is evaluated and returned. Otherwise, else? is evaluated and returned.else? defaults to nil if not provided."]
+              [:p "if is one of ClojureScript's "
+               ;[:a "special forms"]
+               [hyperlink-href
+                :label  "special forms"
+                :href   "http://clojure.org/special_forms"
+                :target "_blank"]
+               " and is a fundamental building block of the language. All other conditionals in ClojureScript are based on ifs notion of truthiness (ie: anything other than false or nil)."]
+              [:p {:style {:margin-top "18px" :margin-bottom "4px"}} "RELATED"]
+              [:p
+               [hyperlink-href
+                :label  "cond"
+                :href   "https://clojuredocs.org/clojure.core/cond"
+                :target "_blank"]
+               " "
+               [hyperlink-href
+                :label  "when"
+                :href   "https://clojuredocs.org/clojure.core/when"
+                :target "_blank"]
+               " "
+               [hyperlink-href
+                :label  "if-let"
+                :href   "https://clojuredocs.org/clojure.core/if-let"
+                :target "_blank"]
+               " "
+               [hyperlink-href
+                :label  "if-not"
+                :href   "https://clojuredocs.org/clojure.core/if-not"
+                :target "_blank"]]]]
+    (fn []
+      [h-box
+       :gap "50px"
+       :children [[v-box
+                   :gap "10px"
+                   :style {:font-size "small"}
+                   :children [[component-title "[info-button ... ]"]
+                              [args-table info-button-args-desc]]]
+                  [v-box
+                   :children [[component-title "Demo"]
+                              [v-box
+                               :gap "15px"
+                               :children [[label :label "Click on the buttons below to see a popup info panel."]
+                                          [h-box
+                                           :gap      "20px"
+                                           :align    :center
+                                           :children [[label :label "Sizes:"]
+                                                      [info-button
+                                                       :info        info
+                                                       :position    :left-center
+                                                       :width       "500px"
+                                                       :size         :smaller]
+                                                      [info-button
+                                                       :info         info]
+                                                      [info-button
+                                                       :info         info
+                                                       :position     :right-center
+                                                       :width        "750px"
+                                                       :size         :larger]]]]]]]]])))
 
 
 (defn data-row
@@ -433,9 +500,10 @@
 (def demos [{:id 0 :label "button"                :component button-demo}
             {:id 1 :label "md-circle-icon-button" :component md-circle-icon-button-demo}
             {:id 2 :label "md-icon-button"        :component md-icon-button-demo}
-            {:id 3 :label "row-button"            :component row-button-demo}
-            {:id 4 :label "hyperlink"             :component hyperlink-demo}
-            {:id 5 :label "hyperlink-href"        :component hyperlink-href-demo}
+            {:id 3 :label "info-button"        :component info-button-demo}
+            {:id 4 :label "row-button"            :component row-button-demo}
+            {:id 5 :label "hyperlink"             :component hyperlink-demo}
+            {:id 6 :label "hyperlink-href"        :component hyperlink-href-demo}
             ])
 
 (defn panel2

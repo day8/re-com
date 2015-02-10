@@ -444,7 +444,7 @@
            :off    Never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen.
            :spill  Never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place.
    Note:   If scroll is set, then setting h-scroll or v-scroll overrides the scroll value."
-  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height align-self margin padding child class style attr]
+  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height justify align align-self margin padding child class style attr]
       :or   {size "auto"}
       :as   args}]
   {:pre [(validate-arguments scroller-args (keys args))]}
@@ -458,13 +458,15 @@
               :height     height
               :min-width  min-width
               :min-height min-height
+              :justify    justify
+              :align      align
               :align-self align-self
               :margin     margin
               :padding    padding
               :child      child
               :class      (str "rc-scroller " class)
               :style      style
-              :attr        attr)))
+              :attr       attr)))
 
 
 ;; ------------------------------------------------------------------------------------

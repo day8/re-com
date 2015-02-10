@@ -140,7 +140,7 @@
   (set (map :name md-icon-button-args-desc)))
 
 (defn md-icon-button
-  "a circular button containing a material design icon"
+  "a square button containing a material design icon"
   []
   (let [showing? (reagent/atom false)]
     (fn
@@ -178,6 +178,58 @@
            :showing? showing?
            :anchor   the-button]
           the-button)))))
+
+
+;;--------------------------------------------------------------------------------------------------
+;; Component: info-button
+;;--------------------------------------------------------------------------------------------------
+
+(def info-button-args-desc
+  [{:name :size             :required false  :default "nil"          :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
+   {:name :info             :required false                          :type "string"     :description "show a popover-tooltip using this text."}
+   {:name :position         :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :width            :required false :default "250px"         :type "string"     :description "width in px"}
+   {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
+   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
+   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+
+(def info-button-args
+  (set (map :name info-button-args-desc)))
+
+(defn info-button
+  "a square button containing a material design icon"
+  []
+  (let [showing? (reagent/atom false)]
+    (fn
+      [& {:keys [size info position width disabled? class style attr]
+          :as   args}]
+      {:pre [(validate-arguments info-button-args (keys args))]}
+      (let [the-button [:div
+                        (merge
+                          {:class    (str
+                                       "rc-info-button "
+                                       (case size
+                                         :smaller "rc-icon-smaller "
+                                         :larger "rc-icon-larger "
+                                         " ")
+                                       ;(when emphasise? "rc-icon-emphasis ")
+                                       (when disabled? "rc-icon-disabled ")
+                                       class)
+                           :style    (merge
+                                       {:cursor (when-not disabled? "pointer")}
+                                       style)
+                           :on-click (handler-fn
+                                       (swap! showing? not))
+                           }
+                          attr)
+                        [:i {:class "md-info"}]]]
+        [popover-tooltip
+         :label    info
+         :position (if position position :below-center)
+         :width    (if width width "250px")
+         :showing? showing?
+         :anchor   the-button]))))
 
 
 ;;--------------------------------------------------------------------------------------------------

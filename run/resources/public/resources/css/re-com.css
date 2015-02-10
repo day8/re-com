@@ -722,6 +722,45 @@ html, body {
 }
 
 /*----------------------------------------------------------------------------------------
+  info-button
+----------------------------------------------------------------------------------------*/
+
+.rc-info-button {
+    height:              24px;
+    font-size:           24px;
+    line-height:         24px;
+    text-align:          center;             /* to horizontally center the icon */
+    color:               #2196f3;
+    // background-color:    inherit;
+    border-radius:       3px;
+    -webkit-user-select: none;
+}
+
+.rc-info-button > i {
+   color: inherit;
+}
+
+.rc-info-button:hover {
+    color: #2839EC;
+}
+
+.rc-icon-smaller {
+    height:      16px;
+    font-size:   16px;
+    line-height: 16px;
+}
+
+.rc-icon-larger {
+    height:      32px;
+    font-size:   32px;
+    line-height: 32px;
+}
+
+.rc-icon-disabled > i {
+   color: lightgrey;
+}
+
+/*----------------------------------------------------------------------------------------
   row-button
 ----------------------------------------------------------------------------------------*/
 

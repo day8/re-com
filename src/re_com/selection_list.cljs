@@ -115,7 +115,7 @@
          (fmap deref-or-value attributes)))
 
 (def selection-list-args-desc
-  [{:name :choices         :required true                   :type "vector"          :description "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see <code>:label-fn</code> bellow."}
+  [{:name :choices         :required true                   :type "vector"          :description "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see <code>:label-fn</code> below."}
    {:name :model           :required true                   :type "set"             :description "the currently selected items. Note: items are considered distinct."}
    {:name :on-change       :required true                   :type "(choice) -> nil" :description "a callback which will be passed set of selected items."}
    {:name :multi-select?   :required false :default true    :type "boolean"         :description "when true, use check boxes, otherwise radio buttons."}
