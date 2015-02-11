@@ -37,11 +37,11 @@
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
-                     [org.clojure/clojurescript   "0.0-2760"] ;; 2665-GOOD, 2719-BAD, 2723-BAD, 2725, 2727, 2740-BAD
-                     [org.clojure/core.async      "0.1.346.0-17112a-alpha"]
-                     [alandipert/storage-atom     "1.2.4"]
-                     [reagent                     "0.5.0-alpha3"]
-                     [com.andrewmcveigh/cljs-time "0.3.2"]]
+                     [org.clojure/clojurescript   "0.0-2760" scope="provided"]
+                     [org.clojure/core.async      "0.1.346.0-17112a-alpha" scope="provided"]
+                     [reagent                     "0.5.0-alpha3" scope="provided"]
+                     [com.andrewmcveigh/cljs-time "0.3.2" scope="provided"]]
+
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
@@ -57,6 +57,7 @@
   ;                    :extract-path "run/resources-frame"}]
 
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
+                                               [alandipert/storage-atom         "1.2.4" ]
                                                [figwheel                        "0.2.2-SNAPSHOT"]
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]]
                                 :plugins      [[lein-cljsbuild                  "1.0.4"]
@@ -69,9 +70,10 @@
 
   ;:jvm-opts         ^:replace ["-Xms2g" "-Xmx2g" "-server"]
 
-  :source-paths     ["src" "dev"]
-  :test-paths       ["test"]
-  :resource-paths   ["run/resources"]
+  :source-paths    ["src" "dev"]
+  :test-paths      ["test"]
+  :resource-paths  ["run/resources"]
+  ; :clean-targets   [:target-path]
 
   ;; Exclude the demo and compiled files from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)compiled.*\/"]
