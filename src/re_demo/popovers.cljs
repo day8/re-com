@@ -318,6 +318,14 @@
                                                         (reset! status :error)
                                                         (reset! showing? false))
                                            :style     {:margin-left "20px"}]
+                                          [radio-button
+                                           :label     ":info - Use for more detailed info tooltips, e.g. for info-button"
+                                           :value     :info
+                                           :model     @status
+                                           :on-change #(do
+                                                        (reset! status :info)
+                                                        (reset! showing? false))
+                                           :style     {:margin-left "20px"}]
                                           [gap :size "15px"]
                                           [h-box
                                            :align    :center

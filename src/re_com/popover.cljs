@@ -286,7 +286,7 @@
    {:name :width            :required false                        :type "string"        :description "a CSS style representing the popover width."}
    {:name :height           :required false  :default "auto"       :type "string"        :description "a CSS style representing the popover height."}
    {:name :backdrop-opacity :required false  :default 0.0          :type "float"         :description "indicates the opacity of the backdrop where 0.0=transparent, 1.0=opaque."}
-   {:name :on-cancel        :required false  :default 0.0          :type "function"      :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."}
+   {:name :on-cancel        :required false                        :type "function"      :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."}
    {:name :title            :required false                        :type "string|markup" :description "describes the title of the popover. The default font size is 18px to make it stand out."}
    {:name :close-button?    :required false  :default true         :type "boolean"       :description "when true, displays the close button."}
    {:name :body             :required false                        :type "markup"        :description "describes the popover body. Must be a single component."}
@@ -402,7 +402,8 @@
 (def popover-tooltip-args-desc
   [{:name :label      :required true                            :type "string"   :description "the text for the tooltip."}
    {:name :showing?   :required true                            :type "atom"     :description "when the value is true, the tooltip shows."}
-   {:name :status     :required false                           :type "keyword"  :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red)."}
+   {:name :on-cancel  :required false                           :type "function" :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."}
+   {:name :status     :required false                           :type "keyword"  :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red, :info = dark grey, left aligned)."}
    {:name :anchor     :required true                            :type "markup"   :description "the component the tooltip is attached to."}
    {:name :position   :required false  :default ":below-center" :type "keyword"  :description "specifies the tooltip's position relative to the anchor. Same as for main popover component."}
    {:name :width      :required false                           :type "string"   :description "specifies width of the tooltip."}
@@ -414,12 +415,13 @@
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style."
-  [& {:keys [label showing? status anchor position width style] :as args}]
+  [& {:keys [label showing? on-cancel status anchor position width style] :as args}]
   {:pre [(validate-arguments popover-tooltip-args (keys args))]}
   (let [label         (deref-or-value label)
         popover-color (case status
                         :warning "#f57c00"
                         :error   "#d50000"
+                        :info    "#333333"
                         "black")]
     [popover-anchor-wrapper
      :showing? showing?
@@ -429,6 +431,7 @@
      :popover [popover-content-wrapper
                :showing?       showing?
                :position       (if position position :below-center)
+               :on-cancel      on-cancel
                :width          width
                :tooltip-style? true
                :popover-color  popover-color
@@ -436,9 +439,12 @@
                :arrow-length   6
                :arrow-width    12
                :body           [:div
-                                {:style {:color       "white"
-                                         :font-size   "12px"
-                                         :font-weight "bold"
-                                         :text-align  "center"
-                                         :line-height "16px"}}
+                                {:style (if (= status :info)
+                                          {:color       "white"
+                                           :font-size   "14px"
+                                           :padding     "4px"}
+                                          {:color       "white"
+                                           :font-size   "12px"
+                                           :font-weight "bold"
+                                           :text-align  "center"})}
                                 label]]]))

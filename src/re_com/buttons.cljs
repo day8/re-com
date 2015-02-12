@@ -185,11 +185,9 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def info-button-args-desc
-  [{:name :size             :required false  :default "nil"          :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
-   {:name :info             :required false                          :type "string"     :description "show a popover-tooltip using this text."}
-   {:name :position         :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+  [{:name :info             :required false                          :type "hiccup"     :description "show a popover-tooltip using this markup."}
+   {:name :position         :required false :default ":right-below"  :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :width            :required false :default "250px"         :type "string"     :description "width in px"}
-   {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
@@ -198,38 +196,30 @@
   (set (map :name info-button-args-desc)))
 
 (defn info-button
-  "a square button containing a material design icon"
+  "A tiny information button, which is light grey and unobrusive. When pressed, displays a popup contining helpful information.
+   Designed to be used with input fields, to explain the purpose of the field."
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [size info position width disabled? class style attr]
-          :as   args}]
+      [& {:keys [info position width class style attr] :as args}]
       {:pre [(validate-arguments info-button-args (keys args))]}
-      (let [the-button [:div
-                        (merge
-                          {:class    (str
-                                       "rc-info-button "
-                                       (case size
-                                         :smaller "rc-icon-smaller "
-                                         :larger "rc-icon-larger "
-                                         " ")
-                                       ;(when emphasise? "rc-icon-emphasis ")
-                                       (when disabled? "rc-icon-disabled ")
-                                       class)
-                           :style    (merge
-                                       {:cursor (when-not disabled? "pointer")}
-                                       style)
-                           :on-click (handler-fn
-                                       (swap! showing? not))
-                           }
-                          attr)
-                        [:i {:class "md-info"}]]]
-        [popover-tooltip
-         :label    info
-         :position (if position position :below-center)
-         :width    (if width width "250px")
-         :showing? showing?
-         :anchor   the-button]))))
+      [popover-tooltip
+       :label     info
+       :status    :info
+       :position  (if position position :right-below)
+       :width     (if width width "250px")
+       :showing?  showing?
+       :on-cancel #(swap! showing? not)
+       :anchor    [:div
+                   (merge
+                     {:class    (str "rc-info-button " class)
+                      :style    (merge {:cursor "pointer"} style)
+                      :on-click (handler-fn (swap! showing? not))}
+                     attr)
+                   [:svg {:width "11" :height "11"}
+                    [:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
+                    [:circle {:cx "5.5" :cy "2.5" :r "1.4" :fill "white"}]
+                    [:line   {:x1 "5.5" :y1 "5.2" :x2 "5.5" :y2 "9.7" :stroke "white" :stroke-width "2.5"}]]]])))
 
 
 ;;--------------------------------------------------------------------------------------------------

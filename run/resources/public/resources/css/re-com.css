@@ -726,38 +726,27 @@ html, body {
 ----------------------------------------------------------------------------------------*/
 
 .rc-info-button {
-    height:              24px;
-    font-size:           24px;
-    line-height:         24px;
-    text-align:          center;             /* to horizontally center the icon */
-    color:               #2196f3;
-    // background-color:    inherit;
-    border-radius:       3px;
+    padding-left:        3px;
+    padding-right:       3px;
+    fill:                #bdbdbd;
     -webkit-user-select: none;
 }
 
-.rc-info-button > i {
-   color: inherit;
-}
-
 .rc-info-button:hover {
-    color: #2839EC;
+    fill:  #2962FF;
 }
 
-.rc-icon-smaller {
-    height:      16px;
-    font-size:   16px;
-    line-height: 16px;
+.popover-content .info-heading {
+    font-size: 22px;
 }
 
-.rc-icon-larger {
-    height:      32px;
-    font-size:   32px;
-    line-height: 32px;
+.popover-content .info-subheading {
+    font-size: 18px;
+    margin-top: 8px;
 }
 
-.rc-icon-disabled > i {
-   color: lightgrey;
+.popover-content a {
+    color: #ccf;
 }
 
 /*----------------------------------------------------------------------------------------

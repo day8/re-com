@@ -1,7 +1,7 @@
 (ns re-demo.buttons
   ;(:require-macros [clairvoyant.core :refer [trace-forms]]) ;;Usage: (trace-forms {:tracer default-tracer} (your-code))
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.core      :refer [label spinner checkbox radio-button]]
+  (:require [re-com.core      :refer [label input-text spinner checkbox radio-button]]
             [re-com.buttons   :refer [button button-args-desc
                                       md-circle-icon-button md-circle-icon-button-args-desc
                                       md-icon-button md-icon-button-args-desc
@@ -218,74 +218,59 @@
 
 (defn info-button-demo
   []
-  (let [info [:div {:style {:text-align "left"}}            ;; TODO: Eat own dog food
-              [:h3 {:style {:margin-top "6px"}} "if"]
-              [:p {:style {:background "#666" :padding "7px" :font-size "16px"}} "(if test then else?)"]
-              [:p "If test is not false or nil, then is evaluated and returned. Otherwise, else? is evaluated and returned.else? defaults to nil if not provided."]
-              [:p "if is one of ClojureScript's "
-               ;[:a "special forms"]
-               [hyperlink-href
-                :label  "special forms"
-                :href   "http://clojure.org/special_forms"
-                :target "_blank"]
-               " and is a fundamental building block of the language. All other conditionals in ClojureScript are based on ifs notion of truthiness (ie: anything other than false or nil)."]
-              [:p {:style {:margin-top "18px" :margin-bottom "4px"}} "RELATED"]
-              [:p
-               [hyperlink-href
-                :label  "cond"
-                :href   "https://clojuredocs.org/clojure.core/cond"
-                :target "_blank"]
-               " "
-               [hyperlink-href
-                :label  "when"
-                :href   "https://clojuredocs.org/clojure.core/when"
-                :target "_blank"]
-               " "
-               [hyperlink-href
-                :label  "if-let"
-                :href   "https://clojuredocs.org/clojure.core/if-let"
-                :target "_blank"]
-               " "
-               [hyperlink-href
-                :label  "if-not"
-                :href   "https://clojuredocs.org/clojure.core/if-not"
-                :target "_blank"]]]]
+  (let [info [v-box
+              :gap      "7px"
+              :children [[label :class "info-heading" :label "Info Popup Heading"]
+                         [label :label "Click away to cause a pop-down."]
+                         [label :label [:span "Here's an example of an embedded hyperlink: "
+                                        [hyperlink-href
+                                         :label "special forms"
+                                         :href "http://clojure.org/special_forms"
+                                         :target "_blank"] "."]]
+                         [label :class "info-subheading" :label "Sub heading"]
+                         [label :label [:span "Note: Styles copied from "
+                                        [hyperlink-href
+                                         :label "ClojureScript Cheatsheet"
+                                         :href "http://cljs.info/cheatsheet"
+                                         :target "_blank"] "."]]]]]
     (fn []
       [h-box
        :gap "50px"
        :children [[v-box
                    :gap "10px"
                    :style {:font-size "small"}
+                   :width "450px"
                    :children [[component-title "[info-button ... ]"]
-
                               [label :class "small-caps" :label "notes:"]
-
                               [label :label "A tiny information button, which is light grey and unobrusive. When pressed, displays a popup contining helpful information. "]
-
                               [label :label "Designed to be used with input fields, to explain the purpose of the field."]
-
                               [args-table info-button-args-desc]]]
                   [v-box
                    :children [[component-title "Demo"]
                               [v-box
-                               :gap "15px"
                                :children [[label :label "Click on the buttons below to see a popup info panel."]
+                                          [gap :size "15px"]
                                           [h-box
-                                           :gap      "20px"
-                                           :align    :center
-                                           :children [[label :label "Sizes:"]
+                                           :gap      "4px"
+                                           :children [[label
+                                                       :class "small-caps"
+                                                       :label "client"]
                                                       [info-button
-                                                       :info        info
-                                                       :position    :left-center
-                                                       :width       "500px"
-                                                       :size         :smaller]
+                                                       :info info]]]
+                                          [input-text
+                                           :placeholder "Example input #1"]
+                                          [gap :size "15px"]
+                                          [h-box
+                                           :gap      "4px"
+                                           :children [[label
+                                                       :class "small-caps"
+                                                       :label "product"]
                                                       [info-button
-                                                       :info         info]
-                                                      [info-button
-                                                       :info         info
-                                                       :position     :right-center
-                                                       :width        "750px"
-                                                       :size         :larger]]]]]]]]])))
+                                                       :position :right-center
+                                                       :width    "420px"
+                                                       :info     info]]]
+                                          [input-text
+                                           :placeholder "Example input #2"]]]]]]])))
 
 
 (defn data-row
