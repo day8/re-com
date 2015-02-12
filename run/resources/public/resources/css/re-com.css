@@ -746,7 +746,7 @@ html, body {
 }
 
 .popover-content .info-bold {
-    background-color: #505050;
+    background-color: #555;
     padding-left: 3px;
     padding-right: 3px;
     border-radius: 3px;
@@ -755,6 +755,12 @@ html, body {
 
 .popover-content a {
     color: #ccf;
+}
+
+.popover-content code {
+    color: white;
+    background-color: #555;
+    border: none;
 }
 
 /*----------------------------------------------------------------------------------------

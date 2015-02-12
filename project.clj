@@ -37,7 +37,7 @@
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
-                     [org.clojure/clojurescript   "0.0-2760" scope="provided"]
+                     [org.clojure/clojurescript   "0.0-2816" scope="provided"]
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha" scope="provided"]
                      [reagent                     "0.5.0-alpha3" scope="provided"]
                      [com.andrewmcveigh/cljs-time "0.3.2" scope="provided"]]
@@ -58,10 +58,10 @@
 
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
                                                [alandipert/storage-atom         "1.2.4" ]
-                                               [figwheel                        "0.2.2-SNAPSHOT"]
+                                               [figwheel                        "0.2.3-SNAPSHOT"]
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]]
                                 :plugins      [[lein-cljsbuild                  "1.0.4"]
-                                               [lein-figwheel                   "0.2.2-SNAPSHOT"]
+                                               [lein-figwheel                   "0.2.3-SNAPSHOT"]
                                                [lein-shell                      "0.4.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]]}
                      :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
@@ -82,7 +82,7 @@
                                :source-paths   ["src" "dev"]
                                :compiler       {:output-to       "run/resources/public/compiled_dev/demo.js"
                                                 :output-dir      "run/resources/public/compiled_dev/demo"
-                                                :main            "figwheel-start"
+                                                :main            "figwheel-start.core"
                                                 :asset-path      "compiled_dev/demo"
                                                 :source-map      true
                                                 :optimizations   :none

@@ -97,7 +97,7 @@
                    :gap "10px"
                    :style {:font-size "small"}
                    :children [[component-title "[md-circle-icon-button ... ]"]
-                              [label :class "small-caps" :label "notes:"]
+                              [:span.small-caps "notes:"]
                               [:p
                                "Material design icons can be found "
                                [hyperlink-href
@@ -162,7 +162,7 @@
                    :gap "10px"
                    :style {:font-size "small"}
                    :children [[component-title "[md-icon-button ... ]"]
-                              [label :class "small-caps" :label "notes:"]
+                              [:span.small-caps "notes:"]
                               [:p
                                "Material design icons can be found "
                                [hyperlink-href
@@ -220,20 +220,22 @@
   []
   (let [info [v-box
               :gap      "7px"
-              :children [[label :class "info-heading" :label "Info Popup Heading"]
-                         [label :label "Click away to cause a pop-down."]
-                         [:span "You can use the " [:span.info-bold "info-bold"] " class to make text bold."] ;; Note: label is not required if you have multiple elements.
-                         [:span "Here's an example of an embedded hyperlink: "
-                          [hyperlink-href
-                           :label "special forms"
-                           :href "http://clojure.org/special_forms"
-                           :target "_blank"] "."]
-                         [label :class "info-subheading" :label "Sub heading"]
-                         [:span "Note: Styles copied from "
+              :children [[:span.info-heading "Info Popup Heading"]
+                         [:span "You can use the " [:span.info-bold "info-bold"] " class to make text bold."]
+                         [:span "Use the " [:span.info-bold "code"] " element to display source code:"]
+                         [:code
+                          "(defn square [n] (* n n))" [:br]
+                          "=> #'user/square" [:br]
+                          "(square 45)" [:br]
+                          "=> 2025" [:br]]
+                         [:span.info-subheading "Sub heading"]
+                         [:span
+                          "Note: Styles copied from "
                           [hyperlink-href
                            :label "ClojureScript Cheatsheet"
                            :href "http://cljs.info/cheatsheet"
-                           :target "_blank"] "."]]]]
+                           :target "_blank"]
+                          "."]]]]
     (fn []
       [h-box
        :gap "50px"
@@ -242,10 +244,10 @@
                    :style {:font-size "small"}
                    :width "450px"
                    :children [[component-title "[info-button ... ]"]
-                              [label :class "small-caps" :label "notes:"]
-                              [label :label "A tiny information button, which is light grey and unobrusive. When pressed, displays a popup contining helpful information. "]
-                              [label :label "Designed to be used with input fields, to explain the purpose of the field."]
-                              [label :label "Helper CSS classes are available to format the text in the popover:"]
+                              [:span.small-caps "notes:"]
+                              [:span "A tiny information button, which is light grey and unobrusive. When pressed, displays a popup contining helpful information. "]
+                              [:span "Designed to be used with input fields, to explain the purpose of the field."]
+                              [:span "Helper CSS classes are available to format the text in the popover:"]
                               [:ul
                                [:li [:span {:style {:font-weight "bold"}} "info-heading"] " - apply heading/title style"]
                                [:li [:span {:style {:font-weight "bold"}} "info-subheading"] " - apply subheading style"]
@@ -254,13 +256,12 @@
                   [v-box
                    :children [[component-title "Demo"]
                               [v-box
-                               :children [[label :label "Click on the buttons below to see a popup info panel."]
+                               :children [[:span "Click on the buttons below to see a popup info panel."]
+                                          [:span "Click away to cause a pop-down."]
                                           [gap :size "15px"]
                                           [h-box
                                            :gap      "4px"
-                                           :children [[label
-                                                       :class "small-caps"
-                                                       :label "client"]
+                                           :children [[:span.small-caps "client"]
                                                       [info-button
                                                        :info info]]]
                                           [input-text
@@ -268,12 +269,10 @@
                                           [gap :size "15px"]
                                           [h-box
                                            :gap      "4px"
-                                           :children [[label
-                                                       :class "small-caps"
-                                                       :label "product"]
+                                           :children [[:span.small-caps "product"]
                                                       [info-button
                                                        :position :right-center
-                                                       :width    "420px"
+                                                       :width    "370px"
                                                        :info     info]]]
                                           [input-text
                                            :placeholder "Example input #2"]]]]]]])))
@@ -371,9 +370,9 @@
                    :gap      "10px"
                    :style    {:font-size "small"}
                    :children [[component-title "[row-button ... ]"]
-                              [label :class "small-caps" :label "notes:"]
-                              [label :label "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse over."]
-                              [label :label "To experiement, mouse over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
+                              [:span.small-caps "notes:"]
+                              [:span "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse over."]
+                              [:span "To experiement, mouse over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
                               [:p
                                "Material design icons can be found "
                                [hyperlink-href
