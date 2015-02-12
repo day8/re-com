@@ -733,7 +733,7 @@ html, body {
 }
 
 .rc-info-button:hover {
-    fill:  #2962FF;
+    fill:  #2962ff;
 }
 
 .popover-content .info-heading {
@@ -743,6 +743,14 @@ html, body {
 .popover-content .info-subheading {
     font-size: 18px;
     margin-top: 8px;
+}
+
+.popover-content .info-bold {
+    background-color: #505050;
+    padding-left: 3px;
+    padding-right: 3px;
+    border-radius: 3px;
+    font-weight: bold;
 }
 
 .popover-content a {
