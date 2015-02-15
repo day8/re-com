@@ -4,32 +4,66 @@
         <meta charset='utf-8'>
         <title>re-com Demo (dev)</title>
 
-        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
         <link rel="stylesheet" href="resources/css/datepicker-bs3.css">
         <link rel="stylesheet" href="resources/css/re-com.css">
         <link rel="stylesheet" href="resources/css/material-design-iconic-font.min.css">
 
-        <!-- Ubuntu Light -->
-        <link href='http://fonts.googleapis.com/css?family=Ubuntu:300' rel='stylesheet' type='text/css'>
-
         <script src="compiled_dev/demo.js" type="text/javascript"></script>
+
+        <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic" rel="stylesheet" type="text/css">
+        <link href='//fonts.googleapis.com/css?family=Roboto+Condensed:400,300' rel='stylesheet' type='text/css'>
         <style>
-            .small-caps {
-                font-variant: small-caps;
+            body {
+                font-family: "RobotoDraft", sans-serif;
+                color: #212121;
+                font-size: 14px;
+                font-weight: 400;
             }
-            .nav-item {
-               width: 150px;
-               line-height: 44px;
-               color:  #333;      // (if selected "#111" "#333");
-               border-top: 1px #f2f2f2 solid;
-               // border-right:   (if selected "4px #e8e8e8 solid");
-               border-color: rgba(1, 1, 1, 0.1);
-               font-family: "Ubuntu";
-               font-weight: 300;
-               font-size: 16px;
-               padding-left: 30px;
-               background-color: #fcfcfc;  //  (if (or(= @selected-tab-id (: id tab)) @mouse-over ?) "#f4f4f4" "#fcfcfc")
-               cursor: default
+
+        </style>
+        <style>
+            .uppercase {
+                text-transform: uppercase;
+            }
+            .all-small-caps {
+                font-variant: all-small-caps;
+            }
+
+            /*
+            http://www.google.com/design/spec/style/typography.html#typography-standard-styles
+            */
+            .display112 {
+                font-size:  112px;
+            }
+            .display56 {
+                font-size:  56px;
+            }
+            .display45 {
+                font-size:  56px;
+            }
+            .display34 {
+                font-size:  34px;
+            }
+            .display24{
+                font-size:  24px;
+            }
+            .display24{
+                font-size:  56px;
+            }
+
+             .nav-item {
+                width: 150px;
+                line-height: 1.2em;
+                // color:  #333;      // (if selected "#111" "#333");
+                // border-top: 1px #f2f2f2 solid;
+                // border-right:   (if selected "4px #e8e8e8 solid");
+                //border-color: rgba(1, 1, 1, 0.1);
+                font-weight: 400;
+                font-size: 15px;
+                padding-left: 30px;
+                background-color: #fcfcfc;  //  (if (or(= @selected-tab-id (: id tab)) @mouse-over ?) "#f4f4f4" "#fcfcfc")
+            cursor: default
             }
         </style>
     </head>
@@ -38,8 +72,7 @@
         <script>
             window.prstr  = function (obj) { return cljs.core.pr_str(obj) };
             window.onload = function () {
-                // notice that "-" gets turned into "_" when in javscript-land
-                // for debugging purposes, let any exceptions be uncaught.
+                // Notice that "-" gets turned into "_" when in javscript-land
                 figwheel_start.core.start();
             }
         </script>
