@@ -37,7 +37,7 @@
 
 ;; -- Args Table --------------------------------------------------------------
 
-(defn arg-row
+#_(defn arg-row
   "I show one argument in an args table."
   [name-ems arg]                       ;; TODO: make name-ems overriddable
   (let [required   (:required arg)
@@ -63,13 +63,13 @@
                             (when-not (:last-arg? arg) [line])]]]]))
 
 
-(defn- add-flag-to-last
+#_(defn- add-flag-to-last
   "I add a :last? key to the last item in vector (of maps) 'v'"
   [v]
   (assoc-in v [(dec (count v)) :last-arg?]  true))
 
 
-(defn args-table
+#_(defn args-table
   "I display a component arguements in an easy to read format"
   [args]
   (let [;; max-chars  (->> args
@@ -89,3 +89,50 @@
                     [gap :size "10px"]]
                    (map (partial arg-row max-ems)  args))])))
 
+
+(defn arg-row
+  "I show one argument in an args table."
+  [name-width arg odd-row?]
+  (let [required   (:required arg)
+        default    (:default arg)
+        arg-type   (:type arg)
+        needed-vec (if (not required)
+                     (if (nil? default)
+                       [[label :label "optional" :class "small-caps"]]
+                       [[label :label "default:" :class "small-caps"] [label :label (str default)]])
+                     [[label :label "required" :class "small-caps"]])]
+    [h-box
+     :style    { :background (if odd-row?  "#F8F8F8" "#FCFCFC" )}
+     :children [[:span {:style {:width name-width
+                               :font-size "15px"
+                               :padding-left "15px"
+                               :align-self :center
+                               }}
+                 (str (:name arg))]
+                [line :size "1px" :color "white"]
+                [v-box
+                 :style {:padding "7px 15px 2px 15px"}
+                 :gap  "4px"
+                 :width "310px"
+                 :children [[h-box
+                             :gap   "4px"
+                             :children (concat [[label :label arg-type]
+                                                [gap :size "10px"]]
+                                               needed-vec)]
+                            [:span  (:description arg)]
+                            ]]]]))
+
+
+(defn args-table
+  "I display a component arguements in an easy to read format"
+  [args]
+  (let [name-width  "130px"]
+    (fn
+      []
+      [v-box
+       :children (concat
+                   [[label
+                     :class "small-caps"
+                     :label "named parameters:"]
+                    [gap :size "10px"]]
+                   (map (partial arg-row name-width)  args (cycle [true false])))])))
