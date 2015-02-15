@@ -4,7 +4,7 @@
   (:require ;[figwheel.client         :as    fw]
             [reagent.core            :as    reagent]
             [alandipert.storage-atom :refer [local-storage]]
-            [re-demo.utils           :refer [panel-title]]
+            [re-demo.utils           :refer [panel-title re-com-title]]
             [re-com.util             :as    util]
             [re-com.core             :as    core]
             [re-com.box              :refer [h-box v-box box gap line scroller border]]
@@ -74,7 +74,7 @@
                  [nav-item tab selected-tab-id on-select-tab])])
 
 
-(defn re-com-title
+(defn re-com-title-box
   []
   [h-box
    :justify  :center
@@ -82,12 +82,7 @@
    :height   "57px"
    :style  {:color "#FEFEFE"
             :background-color "#888"}
-   :children [[core/label
-               :label     "Re-com"
-               :style {:font-size "28px"
-                       :font-family "Ubuntu"
-                       :font-weight "300"
-                      }]]])
+   :children [[re-com-title ]]])
 
 (defn main
   []
@@ -110,7 +105,7 @@
                    :v-scroll :auto
                    :h-scroll :off
                    :child [v-box
-                           :children [[re-com-title]
+                           :children [[re-com-title-box]
                                       [left-side-nav-bar selected-tab-id on-select-tab]]]]
                   [scroller
                    :child [box
