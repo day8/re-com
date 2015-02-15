@@ -306,13 +306,13 @@
 ;; ------------------------------------------------------------------------------------
 
 (def checkbox-args-desc
-  [{:name :model         :required false                  :type "string"     :description "Holds state of the checkbox when it is called"}
-   {:name :on-change     :required false                  :type "string"     :description "When model state is changed, call back with new state"}
-   {:name :label         :required false                  :type "string"     :description "Checkbox label"}
-   {:name :disabled?     :required false  :default false  :type "boolean"    :description "Set to true to disable the checkbox"}
-   {:name :style         :required false                  :type "string"     :description "Checkbox style map"}
-   {:name :label-class   :required false                  :type "string"     :description "Label class string"}
-   {:name :label-style   :required false                  :type "string"     :description "Label style map"}])
+  [{:name :model         :required true                   :type "string | atom"    :description "Holds state of the checkbox when it is called"}
+   {:name :on-change     :required false                  :type "(boolean) -> nil" :description "When model state is changed, call back with new state"}
+   {:name :label         :required false                  :type "string"           :description "The label shown to the right"}
+   {:name :disabled?     :required false  :default false  :type "boolean | atom"   :description "if true, user interaction is disabled"}
+   {:name :style         :required false                  :type "map"              :description "the CSS style style map"}
+   {:name :label-class   :required false                  :type "string"           :description "the CSS class applied to the label"}
+   {:name :label-style   :required false                  :type "string"           :description "the CSS class applied overall to the component"}])
 
 (def checkbox-args
   (set (map :name checkbox-args-desc)))
@@ -357,14 +357,14 @@
 ;; ------------------------------------------------------------------------------------
 
 (def radio-button-args-desc
-  [{:name :model         :required false                  :type "string"     :description "Holds state of the radio button when it is called"}
-   {:name :on-change     :required false                  :type "string"     :description "When model state is changed, call back with new state"}
-   {:name :value         :required false                  :type "string"     :description "Value of the radio button OR button group"}
-   {:name :label         :required false                  :type "string"     :description "Radio button label"}
-   {:name :disabled?     :required false  :default false  :type "string"     :description "Set to true to disable the radio button"}
-   {:name :style         :required false                  :type "string"     :description "Radio button style map"}
-   {:name :label-class   :required false                  :type "string"     :description "Label class string"}
-   {:name :label-style   :required false                  :type "string"     :description "Label style map"}])
+  [{:name :model         :required true                   :type "string | atom"  :description "Holds state of the radio button when it is called"}
+   {:name :on-change     :required false                  :type "() -> nil"      :description "the function to call when the radio button is clicked."}
+   {:name :value         :required false                  :type "string"         :description "Value of the radio button OR button group"}
+   {:name :label         :required false                  :type "string"         :description "Radio button label"}
+   {:name :disabled?     :required false  :default false  :type "string"         :description "Set to true to disable the radio button"}
+   {:name :style         :required false                  :type "string"         :description "Radio button style map"}
+   {:name :label-class   :required false                  :type "string"         :description "the CSS class applied to the label"}
+   {:name :label-style   :required false                  :type "string"         :description "the CSS class applied overall to the component"}])
 
 (def radio-button-args
   (set (map :name radio-button-args-desc)))
@@ -408,16 +408,16 @@
 ;; ------------------------------------------------------------------------------------
 
 (def slider-args-desc
-  [{:name :model         :required false                  :type "string"     :description "Numeric double. Current value of the slider. Can be value or atom."}
-   {:name :min           :required false                  :type "string"     :description "Numeric double. The minimum value of the slider. Default is 0. Can be value or atom."}
-   {:name :max           :required false                  :type "string"     :description "Numeric double. The maximum value of the slider. Default is 100. Can be value or atom."}
-   {:name :step          :required false                  :type "string"     :description "Numeric double. Step value between min and max. Default is 1. Can be value or atom."}
-   {:name :width         :required false                  :type "string"     :description "Standard CSS width setting for the slider. Default is 400px."}
-   {:name :on-change     :required false                  :type "string"     :description "A function which takes one parameter, which is the new value of the slider."}
-   {:name :disabled?     :required false  :default false  :type "string"     :description "Set to true to disable the slider. Can be value or atom."}
-   {:name :class         :required false                  :type "string"     :description "additional CSS classes required."}
-   {:name :style         :required false                  :type "map"        :description "CSS styles to add or override."}
-   {:name :attr          :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :model         :required false                  :type "string | atom" :description "Numeric double. Current value of the slider. Can be value or atom."}
+   {:name :min           :required false                  :type "string"        :description "Numeric double. The minimum value of the slider. Default is 0. Can be value or atom."}
+   {:name :max           :required false                  :type "string"        :description "Numeric double. The maximum value of the slider. Default is 100. Can be value or atom."}
+   {:name :step          :required false                  :type "string"        :description "Numeric double. Step value between min and max. Default is 1. Can be value or atom."}
+   {:name :width         :required false                  :type "string"        :description "Standard CSS width setting for the slider. Default is 400px."}
+   {:name :on-change     :required false                  :type "string"        :description "A function which takes one parameter, which is the new value of the slider."}
+   {:name :disabled?     :required false  :default false  :type "string"        :description "Set to true to disable the slider. Can be value or atom."}
+   {:name :class         :required false                  :type "string"        :description "additional CSS classes required."}
+   {:name :style         :required false                  :type "map"           :description "CSS styles to add or override."}
+   {:name :attr          :required false                  :type "map"           :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def slider-args
   (set (map :name slider-args-desc)))
@@ -454,68 +454,6 @@
                   :on-change (handler-fn (on-change (double (-> event .-target .-value))))
                   }
                  attr)]])))
-
-
-;; ------------------------------------------------------------------------------------
-;;  Component: inline-tooltip
-;; ------------------------------------------------------------------------------------
-
-#_(def inline-tooltip-args-desc
-  [{:name :label         :required true                     :type "string"     :description "the text in the tooltip."}
-   {:name :position      :required false  :default ":below" :type "keyword"    :description "where the tooltip will appear, relative to what it points at (:left, :right, :above, :below)."}
-   {:name :status        :required false  :default "nil"    :type "keyword"    :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red)."}
-   {:name :max-width     :required false  :default "200px"  :type "string"     :description "set max width of the tool tip."}
-   {:name :class         :required false                    :type "string"     :description "CSS classes appended to base component list."}
-   {:name :style         :required false                    :type "map"        :description "CSS styles. Will override (or add to) the base component base styles."}
-   {:name :attr          :required false                    :type "map"        :description "HTML Element attributes. Will override (or add to) those in the base component. Expected to be things like on-mouse-over, etc. (:class/:style not allowed)."}])
-
-#_(def inline-tooltip-args
-  (set (map :name inline-tooltip-args-desc)))
-
-#_(defn inline-tooltip
-  "Returns markup for an inline-tooltip."
-  []
-  (fn
-    [& {:keys [label position status max-width class style attr]
-        :or   {position :above}
-        :as   args}]
-    {:pre [(validate-arguments inline-tooltip-args (keys args))]}
-    (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
-    (let [bg-col       (case status
-                         :warning "#f57c00"
-                         :error   "#d50000"
-                         nil)
-          which-border (case position
-                         :left  :border-left-color
-                         :right :border-right-color
-                         :above :border-top-color
-                         :below :border-bottom-color
-                         :border-bottom-color)]
-      [box
-       :align :start
-       :child [:div
-               (merge
-                 {:class (str "rc-inline-tooltip tooltip "
-                              (case position
-                                :left "left"
-                                :right "right"
-                                :above "top"
-                                :below "bottom"
-                                "bottom")
-                              " "
-                              class)
-                  :style (merge {:flex     "none"
-                                 :position "relative"
-                                 :opacity  1}
-                                style)}
-                 attr)
-               [:div.tooltip-arrow
-                {:style {which-border bg-col}}]
-               [:div.tooltip-inner
-                {:style {:background-color bg-col
-                         :max-width        (when max-width max-width)
-                         :font-weight      "bold"}}
-                label]]])))
 
 
 ;; ------------------------------------------------------------------------------------
