@@ -90,9 +90,10 @@
                               {:id "prod"
                                :source-paths   ["src"]
                                :compiler       {:output-to       "run/resources/public/compiled_prod/demo.js"
-                                                ;:source-map      "run/resources/public/compiled_prod/demo.js.map"
+                                                :source-map      "run/resources/public/compiled_prod/demo.js.map"
                                                 :output-dir      "run/resources/public/compiled_prod/demo"
-                                                :closure-defines {:goog.DEBUG false}
+                                                :closure-defines {:goog.DEBUG false}                                                
+                                                ;:source-map-path "js/out"     ; https://github.com/clojure/clojurescript/wiki/Source-maps#web-server-integration
                                                 ;:main            "re-demo.core"                                    ;; Works but not required in this case becasue index_prod.html knows which function to call
                                                 ;:asset-path      "compiled_prod/demo"
                                                 ;:elide-asserts   true
