@@ -302,7 +302,7 @@
   [v-box
    ;;:width    "400px"
    :style    {:font-size "small"}
-   :children [[component-title  "[single-dropdown ... ]"]
+   :children [#_[component-title  "[single-dropdown ... ]"]
               [args-table single-dropdown-desc]]])
 
 
@@ -312,7 +312,7 @@
     (fn []
       [v-box
        :gap "10px"
-       :children [[panel-title "Dropdown Components"]
+       :children [[panel-title "[single-dropdown ... ]"]
                   [h-box
                    :gap      "60px"
                    :children [[notes]
@@ -320,8 +320,8 @@
                                :gap       "15px"
                                :size      "auto"
                                :min-width "500px"
-                               :margin    "20px 0px 0px 0px"
-                               :children  [[h-box
+                               :children  [[component-title "Demo"]
+                                           [h-box
                                             :gap      "10px"
                                             :align    :center
                                             :children [[label :label "Select a demo"]

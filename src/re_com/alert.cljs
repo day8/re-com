@@ -62,7 +62,7 @@
 (def alert-list-args-desc
   [{:name :alerts        :required false                                :type "vector of maps" :description "alerts to render in a list, in order"}
    {:name :on-close      :required false                                :type "(:id) -> nil"   :description "called when the user clicks a close 'X'. Passed the alert's :id"}
-   {:name :max-height    :required false :default "grow forever"        :type "string"         :description "CSS style for list height."}
+   {:name :max-height    :required false :default "grows forever"       :type "string"         :description "CSS style for list height."}
    {:name :padding       :required false :default "4px"                 :type "string"         :description "CSS padding within the alert."}
    {:name :border-style  :required false :default "1px solid lightgrey" :type "string"         :description "CSS border style surrounding the list"}])
 

@@ -32,7 +32,7 @@
   [title
    :style {
       :font-family "'Roboto Condensed', sans-serif;"
-      :font-size   "24px"
+      :font-size   "20px"
       :font-weight 300}
    :label      component-name
    :underline? false

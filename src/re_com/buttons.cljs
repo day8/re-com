@@ -11,14 +11,14 @@
 ;; ------------------------------------------------------------------------------------
 
 (def button-args-desc
-  [{:name :label            :required true                           :type "string"     :description "Label for the button (can be artitrary markup)."}
-   {:name :on-click         :required false                          :type "() -> nil"  :description "a callback function to be invoked when button is clicked."}
-   {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
-   {:name :tooltip-position :required false :default :below-center   :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
-   {:name :disabled?        :required false :default false           :type "boolean"    :description "Set to true to disable the button."}
-   {:name :class            :required false                          :type "string"     :description "Class string. e.g. \"btn-info\" (see: http://getbootstrap.com/css/#buttons)."}
-   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :label            :required true                           :type "string | hiccup" :description "Label for the button."}
+   {:name :on-click         :required false                          :type "() -> nil"       :description "a callback function to be invoked when button is clicked."}
+   {:name :tooltip          :required false                          :type "string"          :description "show a popover-tooltip using this text."}
+   {:name :tooltip-position :required false :default :below-center   :type "keyword"         :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :disabled?        :required false :default false           :type "boolean"         :description "Set to true to disable the button."}
+   {:name :class            :required false                          :type "string"          :description "Class string. e.g. \"btn-info\" (see: http://getbootstrap.com/css/#buttons)."}
+   {:name :style            :required false                          :type "map"             :description "CSS styles to add or override."}
+   {:name :attr             :required false                          :type "map"             :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def button-args
   (set (map :name button-args-desc)))
@@ -126,7 +126,7 @@
 
 (def md-icon-button-args-desc
   [{:name :md-icon-name     :required true   :default "md-add"       :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
-   {:name :on-click         :required false                          :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
+   {:name :on-click         :required false                          :type "() -> nil"  :description "a callback function to be invoked when button is clicked."}
    {:name :size             :required false  :default "nil"          :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
@@ -196,8 +196,9 @@
   (set (map :name info-button-args-desc)))
 
 (defn info-button
-  "A tiny information button, which is light grey and unobrusive. When pressed, displays a popup contining helpful information.
-   Designed to be used with input fields, to explain the purpose of the field."
+  "A tiny light grey button, with an 'i' in it. Meant to be unobrusive.
+  When pressed, displays a popup assumidly contining helpful information.
+   Primarily designed to be nestled against the label of an input field, explaining the purpose of the field."
   []
   (let [showing? (reagent/atom false)]
     (fn

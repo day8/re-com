@@ -22,7 +22,7 @@
                   [v-box
                    :gap      "10px"
                    :style    {:font-size "small"}
-                   :children [[:h4 "Notes"]
+                   :children [[component-title "Notes"]
                               [label :label "A component which renders a single alert-box."]
                               [args-table alert-box-args-desc]]]
                   [v-box
@@ -83,7 +83,7 @@
                   [v-box
                    :gap      "10px"
                    :style    {:font-size "small"}
-                   :children [[:h4 "Notes"]
+                   :children [[component-title "Notes"]
                               [label :label "A component which renders a list of alert-boxes vertically."]
                               [args-table   alert-list-args-desc]]]
                   [v-box
