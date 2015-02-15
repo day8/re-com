@@ -1,4 +1,5 @@
 (ns re-com.util
+  (:require-macros [re-com.util :refer [assert*]])
   (:require  [clojure.set :refer [superset?]]))
 
 (defn fmap
@@ -99,13 +100,68 @@
 
 ;; ---------------------------------------------------------------------------
 
+(defmulti validate* (fn [val test] test))
+
+(defmethod validate* :prob [x _]
+  (assert* x (and (number? x) (pos? x) (<= x 1.0))))
+
+(defmethod validate* :posint [x _]
+  (assert* x (and (integer? x) (pos? x))))
+
+(defmethod validate* :non-negint [x _]
+  (assert* x (and (integer? x) (not (neg? x)))))
+
+(defmethod validate* :posnum [x _]
+  (assert* x (and (number? x) (pos? x))))
+
+(defmethod validate* :percentage [x _]
+  (assert* x (and (number? x) (pos? x) (<= x 100))))
+
+(defmethod validate* :numseq [x _]
+  (assert* x (and (not (empty? x)) (seq? x) (every? number? x))))
+
+(defmethod validate* :nonzero-numseq [x _]
+  (assert* x (and (not (empty? x)) (seq? x) (every? #(and (number? %) (not (zero? %))) x))))
+
+(defmethod validate* :posint-seq [x _]
+  (assert* x (and (not (empty? x)) (seq? x) (every? #(and (integer? %) (pos? %)) x))))
+
+(defmethod validate* :prob-seq [x _]
+  (assert* x (and (not (empty? x)) (seq? x) (every? #(and (number? %) (pos? %) (<= % 1.0)) x))))
+
+(defmethod validate* :keyword [x _]                         ;; [GR]
+  (assert* x (keyword? x)))
+
+(defmethod validate* :default [x _]
+  (throw (js/Error. (str "Unrecognized validation type"))))
+
+(defn validate [& tests]
+  (doseq [test tests] (apply validate* test)))
+
+
+(defn extract-arg-data
+  ""
+  [args-desc]
+  {:names (set (map :name args-desc))
+   })
+
 (defn validate-arguments
   [defined-args passed-args]
-  ( if (superset? defined-args passed-args)
+  (if (superset? defined-args passed-args)
     true
     (let [missing (remove defined-args passed-args)]
       (.error js/console (str "The following arguments are not supported: " missing))
       false)))
+
+(defn validate-arguments-new
+  [arg-defs passed-args]
+  (let [defined-args    (set (map :name (:names arg-defs)))
+        passed-arg-keys (keys passed-args)]
+    (if (superset? defined-args passed-arg-keys)
+      true
+      (let [missing (remove defined-args passed-arg-keys)]
+        (.error js/console (str "The following arguments are not supported: " missing))
+        false))))
 
 (defn enumerate
   "(for [[index item first? last?] (enumerate coll)] ...)  "
