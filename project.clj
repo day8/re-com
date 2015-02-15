@@ -37,7 +37,10 @@
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
-                     [org.clojure/clojurescript   "0.0-2816" scope="provided"]
+
+                     [org.clojure/clojurescript   "0.0-2843" scope="provided"] ;; TODO: Switch to the one below!
+                     ;[stabilized/clojurescript "1.0.0" scope="provided"]
+
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha" scope="provided"]
                      [reagent                     "0.5.0-alpha3" scope="provided"]
                      [com.andrewmcveigh/cljs-time "0.3.2" scope="provided"]]
@@ -58,12 +61,19 @@
 
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
                                                [alandipert/storage-atom         "1.2.4" ]
-                                               [figwheel                        "0.2.3-SNAPSHOT"]
+
+                                               [figwheel                        "0.2.3-SNAPSHOT"] ;; TODO: Switch to the one below!
+                                               ;[figwheel                        "0.2.4-SNAPSHOT"]
+
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]]
                                 :plugins      [[lein-cljsbuild                  "1.0.4"]
-                                               [lein-figwheel                   "0.2.3-SNAPSHOT"]
+
+                                               [lein-figwheel                   "0.2.3-SNAPSHOT"] ;; TODO: Switch to the one below!
+                                               [lein-figwheel                   "0.2.4-SNAPSHOT"]
+
                                                [lein-shell                      "0.4.0"]
-                                               [com.cemerick/clojurescript.test "0.3.3"]]}
+                                               [com.cemerick/clojurescript.test "0.3.3"]
+                                               [lein-ancient                    "0.6.2"]]}
                      :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
                      :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
                      :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}

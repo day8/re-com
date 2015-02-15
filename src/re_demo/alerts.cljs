@@ -109,7 +109,7 @@
   (fn []
     [v-box
      :gap "10px"
-     :children [[panel-title "Alert Components" ]
+     :children [[panel-title "Alert Components"]
                 [v-box
                  :gap      "20px"
                  :children [[alert-box-demo]
