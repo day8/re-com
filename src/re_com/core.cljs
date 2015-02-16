@@ -57,7 +57,7 @@
    {:name :disabled?        :required false :default false   :type "boolean | atom" :description "if true, the user can't interact (input anything)."}
    {:name :class            :required false                  :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                  :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}
+   {:name :attr             :required false                  :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}
    {:name :input-type       :required true                   :type "keyword"    :description "ONLY applies to super function 'base-input-text': either :input or :textarea ("}
    ])
 
@@ -417,7 +417,7 @@
    {:name :disabled?     :required false  :default false  :type "boolean | atom" :description "if true, the user can't change the slider."}
    {:name :class         :required false                  :type "string"        :description "CSS class names, space seperated."}
    {:name :style         :required false                  :type "map"           :description "CSS styles to add or override."}
-   {:name :attr          :required false                  :type "map"           :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr          :required false                  :type "map"           :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def slider-args
   (set (map :name slider-args-desc)))

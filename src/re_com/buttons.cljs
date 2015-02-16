@@ -18,7 +18,7 @@
    {:name :disabled?        :required false :default false           :type "boolean | atom"  :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"          :description "CSS classes (whitespace specerated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
    {:name :style            :required false                          :type "map"             :description "CSS styles."}
-   {:name :attr             :required false                          :type "map"             :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr             :required false                          :type "map"             :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def button-args
   (set (map :name button-args-desc)))
@@ -75,7 +75,7 @@
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def md-circle-icon-button-args
   (set (map :name md-circle-icon-button-args-desc)))
@@ -136,7 +136,7 @@
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def md-icon-button-args
   (set (map :name md-icon-button-args-desc)))
@@ -194,7 +194,7 @@
    {:name :width            :required false :default "250px"         :type "string"          :description "width in px"}
    {:name :class            :required false                          :type "string"          :description "CSS class names, space seperated"}
    {:name :style            :required false                          :type "map"             :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"             :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr             :required false                          :type "map"             :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def info-button-args
   (set (map :name info-button-args-desc)))
@@ -240,7 +240,7 @@
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def row-button-args
   (set (map :name row-button-args-desc)))
@@ -291,7 +291,7 @@
    {:name :disabled?        :required false :default false           :type "string"     :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def hyperlink-args
   (set (map :name hyperlink-args-desc)))
@@ -347,7 +347,7 @@
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def hyperlink-href-args
   (set (map :name hyperlink-href-args-desc)))

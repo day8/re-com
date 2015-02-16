@@ -127,7 +127,7 @@
    {:name :child        :required false                                 :type "markup"   :description "a child component markup."}
    {:name :class        :required false                                 :type "string"   :description "CSS class names, space seperated."}
    {:name :style        :required false                                 :type "map"      :description "CSS styles to add or override."}
-   {:name :attr         :required false                                 :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr         :required false                                 :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def box-base-args
   (set (map :name box-base-args-desc)))
@@ -186,7 +186,7 @@
    {:name :height          :required false  :type "string"   :description "as per width above."}
    {:name :class           :required false  :type "string"   :description "CSS class names, space seperated."}
    {:name :style           :required false  :type "map"      :description "CSS styles to add or override."}
-   {:name :attr            :required false  :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr            :required false  :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def gap-args
   (set (map :name gap-args-desc)))
@@ -219,7 +219,7 @@
    {:name :color           :required false :default "lightgray" :type "string"   :description "a colour using CSS colour methods."}
    {:name :class           :required false                      :type "string"   :description "CSS class names, space seperated."}
    {:name :style           :required false                      :type "map"      :description "CSS styles to add or override."}
-   {:name :attr            :required false                      :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr            :required false                      :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def line-args
   (set (map :name line-args-desc)))
@@ -260,7 +260,7 @@
    {:name :children        :required false                   :type "vector"    :description "a vector of child component markup."}
    {:name :class           :required false                   :type "string"    :description "CSS class names, space seperated."}
    {:name :style           :required false                   :type "map"       :description "CSS styles to add or override."}
-   {:name :attr            :required false                   :type "map"       :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr            :required false                   :type "map"       :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def h-box-args
   (set (map :name h-box-args-desc)))
@@ -316,7 +316,7 @@
    {:name :children        :required false                   :type "vector"    :description "a vector of child component markup."}
    {:name :class           :required false                   :type "string"    :description "CSS class names, space seperated."}
    {:name :style           :required false                   :type "map"       :description "CSS styles to add or override."}
-   {:name :attr            :required false                   :type "map"       :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr            :required false                   :type "map"       :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def v-box-args
   (set (map :name v-box-args-desc)))
@@ -372,7 +372,7 @@
    {:name :child           :required false                   :type "markup"   :description "a child component markup."}
    {:name :class           :required false                   :type "string"   :description "CSS class names, space seperated."}
    {:name :style           :required false                   :type "string"   :description "CSS styles to add or override."}
-   {:name :attr            :required false                   :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr            :required false                   :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def box-args
   (set (map :name box-args-desc)))
@@ -426,7 +426,7 @@
    {:name :child           :required false                   :type "markup"   :description "a child component markup."}
    {:name :class           :required false                   :type "string"   :description "CSS class names, space seperated."}
    {:name :style           :required false                   :type "map"      :description "CSS styles to add or override."}
-   {:name :attr            :required false                   :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr            :required false                   :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def scroller-args
   (set (map :name scroller-args-desc)))
@@ -490,7 +490,7 @@
    {:name :child        :required false                                 :type "markup"   :description "a child component markup."}
    {:name :class        :required false                                 :type "string"   :description "CSS class names, space seperated."}
    {:name :style        :required false                                 :type "map"      :description "CSS styles to add or override."}
-   {:name :attr         :required false                                 :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
+   {:name :attr         :required false                                 :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
 (def border-args
   (set (map :name border-args-desc)))
