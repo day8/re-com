@@ -52,9 +52,9 @@
    {:name :height           :required false                  :type "string"     :description "standard CSS width setting for this input."}
    {:name :rows             :required false :default "3"     :type "string"     :description "ONLY applies to 'input-textarea': the number of rows of text to show."}
    {:name :on-change        :required true                   :type "(new-text)" :description "a function which takes one parameter, which is the new text (see :change-on-blur?)."}
-   {:name :change-on-blur?  :required false :default true    :type "boolean"    :description "when true, invoke on-change function on blur, otherwise on every change (character by character)."}
+   {:name :change-on-blur?  :required false :default true    :type "boolean | atom"  :description "when true, invoke on-change function on blur, otherwise on every change (character by character)."}
    {:name :validation-regex :required false                  :type "regex"      :description "the regular expression which determines which characters are legal and which aren't."}
-   {:name :disabled?        :required false :default false   :type "boolean"    :description "set to true to disable the input box (can be atom or value)."}
+   {:name :disabled?        :required false :default false   :type "boolean | atom" :description "if true, the user can't interact (input anything)."}
    {:name :class            :required false                  :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                  :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}
@@ -361,7 +361,7 @@
    {:name :on-change     :required false                  :type "(boolean) -> nil" :description "function to call when radio button is clicked."}
    {:name :value         :required false                  :type "string"         :description "Value of the radio button OR button group"}
    {:name :label         :required false                  :type "string"         :description "Radio button label"}
-   {:name :disabled?     :required false  :default false  :type "string"         :description "Set to true to disable the radio button"}
+   {:name :disabled?     :required false  :default false  :type "boolean | atom" :description "if true, the user can't click the radio button"}
    {:name :style         :required false                  :type "string"         :description "Radio button style map"}
    {:name :label-class   :required false                  :type "string"         :description "the CSS class applied to the label"}
    {:name :label-style   :required false                  :type "string"         :description "the CSS class applied overall to the component"}])
@@ -414,7 +414,7 @@
    {:name :step          :required false                  :type "string"        :description "Numeric double. Step value between min and max. Default is 1. Can be value or atom."}
    {:name :width         :required false                  :type "string"        :description "Standard CSS width setting for the slider. Default is 400px."}
    {:name :on-change     :required false                  :type "string"        :description "A function which takes one parameter, which is the new value of the slider."}
-   {:name :disabled?     :required false  :default false  :type "string"        :description "Set to true to disable the slider. Can be value or atom."}
+   {:name :disabled?     :required false  :default false  :type "boolean | atom" :description "if true, the user can't change the slider."}
    {:name :class         :required false                  :type "string"        :description "CSS class names, space seperated."}
    {:name :style         :required false                  :type "map"           :description "CSS styles to add or override."}
    {:name :attr          :required false                  :type "map"           :description "html attributes to add or override (:class/:style not allowed)."}])
