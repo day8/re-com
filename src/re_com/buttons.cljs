@@ -185,12 +185,12 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def info-button-args-desc
-  [{:name :info             :required false                          :type "hiccup"     :description "show a popover-tooltip using this markup."}
-   {:name :position         :required false :default ":right-below"  :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
-   {:name :width            :required false :default "250px"         :type "string"     :description "width in px"}
-   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
-   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
+  [{:name :info             :required false                          :type "string | hiccup" :description "What's shown in the popover."}
+   {:name :position         :required false :default ":right-below"  :type "keyword"         :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :width            :required false :default "250px"         :type "string"          :description "width in px"}
+   {:name :class            :required false                          :type "string"          :description "CSS classes"}
+   {:name :style            :required false                          :type "map"             :description "CSS styles to add or override."}
+   {:name :attr             :required false                          :type "map"             :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def info-button-args
   (set (map :name info-button-args-desc)))
