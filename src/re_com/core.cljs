@@ -12,7 +12,7 @@
 
 (def label-args-desc
   [{:name :label     :required true  :type "string"     :description "text to display"}
-   {:name :on-click  :required false :type "function"   :description "callback function to call when label is clicked"}
+   {:name :on-click  :required false :type "function"   :description "function to call when label is clicked"}
    {:name :width     :required false :type "string"     :description "a CSS width"}
    {:name :class     :required false :type "string"     :description "CSS class names, space seperated"}
    {:name :style     :required false :type "string"     :description "additional CSS styles"}

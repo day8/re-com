@@ -119,8 +119,8 @@
 
 ;; TODO this is going to be difficult to include in the demo help text
 (def backdrop-args-desc
-  [{:name :opacity         :required false :default 0.0     :type "double"   :description "the opacity of the backdrop (0.0 for transparent to 1.0 for fully opaque)."}
-   {:name :on-click        :required false                  :type "function" :description "the callback (no arguments) for when the backdrop is clicked."}])
+  [{:name :opacity         :required false :default 0.0     :type "double"     :description "the opacity of the backdrop (0.0 for transparent to 1.0 for fully opaque)."}
+   {:name :on-click        :required false                  :type "( ) -> nil" :description "the fucntion to call when the backdrop is clicked."}])
 
 (def backdrop-args
   (set (map :name backdrop-args-desc)))

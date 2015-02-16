@@ -14,7 +14,7 @@
   [{:name :label            :required true                           :type "string | hiccup" :description "Label for the button."}
    {:name :on-click         :required false                          :type "( ) -> nil"      :description "function to call when the button is clicked."}
    {:name :tooltip          :required false :default "no tooltop"    :type "string | hiccup" :description "what to show in the tooltip."}
-   {:name :tooltip-position :required false :default :below-center   :type "keyword"         :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :tooltip-position :required false :default :below-center   :type "keyword"         :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :disabled?        :required false :default false           :type "boolean | atom"  :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"          :description "CSS classes (whitespace specerated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
    {:name :style            :required false                          :type "map"             :description "CSS styles."}
@@ -70,7 +70,7 @@
    {:name :on-click         :required false                          :type "( ) -> nil" :description "function to call when the button is clicked"}
    {:name :size             :required false :default ":regular"      :type "keyword"    :description "One of :regular, :smaller or :larger."}
    {:name :tooltip          :required false                          :type "string | hiccup" :description "what to show in the tooltip."}
-   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
@@ -131,7 +131,7 @@
    {:name :on-click         :required false                          :type "( ) -> nil" :description "function to call when button is clicked"}
    {:name :size             :required false :default ":regular"      :type "keyword"    :description "One of :regular, :smaller or :larger."}
    {:name :tooltip          :required false                          :type "string | hiccup" :description "what to show in the tooltip."}
-   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
@@ -190,7 +190,7 @@
 
 (def info-button-args-desc
   [{:name :info             :required false                          :type "string | hiccup" :description "What's shown in the popover."}
-   {:name :position         :required false :default ":right-below"  :type "keyword"         :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :position         :required false :default ":right-below"  :type "keyword"         :description [:span "tooltip relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :width            :required false :default "250px"         :type "string"          :description "width in px"}
    {:name :class            :required false                          :type "string"          :description "CSS class names, space seperated"}
    {:name :style            :required false                          :type "map"             :description "CSS styles to add or override."}
@@ -236,7 +236,7 @@
    {:name :on-click         :required false                          :type "( ) -> nil" :description "function to call when the button is clicked."}
    {:name :mouse-over-row?  :required false :default false           :type "boolean"    :description "true if the mouse is hovering over the row."}
    {:name :tooltip          :required false                          :type "string | hiccup" :description "what to show in the tooltip."}
-   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
@@ -287,7 +287,7 @@
   [{:name :label            :required false                          :type "string"     :description "Label for the button (can be artitrary markup)."}
    {:name :on-click         :required false                          :type "( ) -> nil" :description "function to call when the hyperlink is clicked."}
    {:name :tooltip          :required false                          :type "string | hiccup" :description "what to show in the tooltip."}
-   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :disabled?        :required false :default false           :type "string"     :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
@@ -344,7 +344,7 @@
    {:name :href             :required false                          :type "string"     :description "If specified, the link target URL."}
    {:name :target           :required false :default "_self"         :type "string"     :description "One of \"_self\" or \"_blank\""}
    {:name :tooltip          :required false                          :type "string | hiccup"     :description "show a popover-tooltip using this text."}
-   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
+   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
