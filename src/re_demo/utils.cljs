@@ -47,13 +47,13 @@
         arg-type   (:type arg)
         needed-vec (if (not required)
                      (if (nil? default)
-                       [[label :label "optional" :class "small-caps"]]
-                       [[label :label "default:" :class "small-caps"] [label :label (str default)]])
-                     [[label :label "required" :class "small-caps"]])]
+                       [[:span.semibold.all-small-caps "optional"]]
+                       [[:span.semibold.all-small-caps "default:"] [:span.semibold (str default)]])
+                     [[:span.semibold.all-small-caps "required"]])]
     [h-box
      :style    { :background (if odd-row?  "#F4F4F4" "#FCFCFC" )}
-     :children [[:span {:style {:width name-width
-                                :font-weight 700;
+     :children [[:span {:class  "semibold"
+                        :style {:width name-width
                                 :padding-left "15px"
                                 :align-self :center
                                }}
@@ -65,7 +65,7 @@
                  :width "310px"
                  :children [[h-box
                              :gap   "4px"
-                             :children (concat [[label :label arg-type]
+                             :children (concat [[:span.semibold  arg-type]
                                                 [gap :size "10px"]]
                                                needed-vec)]
                             [:span  (:description arg)]

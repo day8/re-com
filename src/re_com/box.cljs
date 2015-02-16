@@ -125,7 +125,7 @@
    {:name :radius       :required false                                 :type "string"   :description "a CSS radius style eg.\"2px\"."}
    ;;{:name :bk-color   :required false                                 :type "string"   :description "a CSS colour."} ;; TODO is this used?
    {:name :child        :required false                                 :type "markup"   :description "a child component markup."}
-   {:name :class        :required false                                 :type "string"   :description "additional CSS classes required."}
+   {:name :class        :required false                                 :type "string"   :description "CSS class names, space seperated."}
    {:name :style        :required false                                 :type "map"      :description "CSS styles to add or override."}
    {:name :attr         :required false                                 :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -184,7 +184,7 @@
   [{:name :size            :required true   :type "string"   :description "a CSS style to specify size in any sizing amount, usually px, % or em."}
    {:name :width           :required false  :type "string"   :description "<code>:width</code> will overrise size, but best to use size as it knows if it should be width or height."}
    {:name :height          :required false  :type "string"   :description "as per width above."}
-   {:name :class           :required false  :type "string"   :description "additional CSS classes required."}
+   {:name :class           :required false  :type "string"   :description "CSS class names, space seperated."}
    {:name :style           :required false  :type "map"      :description "CSS styles to add or override."}
    {:name :attr            :required false  :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -217,7 +217,7 @@
 (def line-args-desc
   [{:name :size            :required true                       :type "string"   :description "a CSS style to specify size in any sizing amount, usually px, % or em."}
    {:name :color           :required false :default "lightgray" :type "string"   :description "a colour using CSS colour methods."}
-   {:name :class           :required false                      :type "string"   :description "additional CSS classes required."}
+   {:name :class           :required false                      :type "string"   :description "CSS class names, space seperated."}
    {:name :style           :required false                      :type "map"      :description "CSS styles to add or override."}
    {:name :attr            :required false                      :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -258,7 +258,7 @@
    {:name :padding         :required false                   :type "string"    :description "a CSS padding style."}
    {:name :gap             :required false                   :type "string"    :description "a CSS size style. See gap component."}
    {:name :children        :required false                   :type "vector"    :description "a vector of child component markup."}
-   {:name :class           :required false                   :type "string"    :description "additional CSS classes required."}
+   {:name :class           :required false                   :type "string"    :description "CSS class names, space seperated."}
    {:name :style           :required false                   :type "map"       :description "CSS styles to add or override."}
    {:name :attr            :required false                   :type "map"       :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -314,7 +314,7 @@
    {:name :padding         :required false                   :type "string"    :description "a CSS padding style."}
    {:name :gap             :required false                   :type "string"    :description "a CSS size style. See gap component."}
    {:name :children        :required false                   :type "vector"    :description "a vector of child component markup."}
-   {:name :class           :required false                   :type "string"    :description "additional CSS classes required."}
+   {:name :class           :required false                   :type "string"    :description "CSS class names, space seperated."}
    {:name :style           :required false                   :type "map"       :description "CSS styles to add or override."}
    {:name :attr            :required false                   :type "map"       :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -370,7 +370,7 @@
    {:name :margin          :required false                   :type "string"   :description "a CSS margin style."}
    {:name :padding         :required false                   :type "string"   :description "a CSS padding style."}
    {:name :child           :required false                   :type "markup"   :description "a child component markup."}
-   {:name :class           :required false                   :type "string"   :description "additional CSS classes required."}
+   {:name :class           :required false                   :type "string"   :description "CSS class names, space seperated."}
    {:name :style           :required false                   :type "string"   :description "CSS styles to add or override."}
    {:name :attr            :required false                   :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -424,7 +424,7 @@
    {:name :margin          :required false                   :type "string"   :description "a CSS margin style."}
    {:name :padding         :required false                   :type "string"   :description "a CSS padding style."}
    {:name :child           :required false                   :type "markup"   :description "a child component markup."}
-   {:name :class           :required false                   :type "string"   :description "additional CSS classes required."}
+   {:name :class           :required false                   :type "string"   :description "CSS class names, space seperated."}
    {:name :style           :required false                   :type "map"      :description "CSS styles to add or override."}
    {:name :attr            :required false                   :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -488,7 +488,7 @@
    {:name :b-border     :required false :default :boder                 :type "string"   :description "a CSS border style for the bottom. Overrides <code>:border</code>."}
    {:name :radius       :required false                                 :type "string"   :description "a CSS radius style eg.\"2px\"."}
    {:name :child        :required false                                 :type "markup"   :description "a child component markup."}
-   {:name :class        :required false                                 :type "string"   :description "additional CSS classes required."}
+   {:name :class        :required false                                 :type "string"   :description "CSS class names, space seperated."}
    {:name :style        :required false                                 :type "map"      :description "CSS styles to add or override."}
    {:name :attr         :required false                                 :type "map"      :description "html attributes to add or override (:class/:style not allowed)."}])
 

@@ -12,12 +12,12 @@
 
 (def button-args-desc
   [{:name :label            :required true                           :type "string | hiccup" :description "Label for the button."}
-   {:name :on-click         :required false                          :type "() -> nil"       :description "a callback function to be invoked when button is clicked."}
-   {:name :tooltip          :required false                          :type "string"          :description "show a popover-tooltip using this text."}
+   {:name :on-click         :required false                          :type "() -> nil"       :description "the function to callback when button is clicked."}
+   {:name :tooltip          :required false :default "no tooltop"    :type "string"          :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default :below-center   :type "keyword"         :description "position of the popover-tooltip. e.g. :right-below."}
-   {:name :disabled?        :required false :default false           :type "boolean"         :description "Set to true to disable the button."}
+   {:name :disabled?        :required false :default false           :type "boolean | atom"  :description "Set to true to disable the button."}
    {:name :class            :required false                          :type "string"          :description "Class string. e.g. \"btn-info\" (see: http://getbootstrap.com/css/#buttons)."}
-   {:name :style            :required false                          :type "map"             :description "CSS styles to add or override."}
+   {:name :style            :required false                          :type "map"             :description "CSS class names, space seperated."}
    {:name :attr             :required false                          :type "map"             :description "html attributes to add or override (:class/:style not allowed)."}])
 
 (def button-args
@@ -73,7 +73,7 @@
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -132,7 +132,7 @@
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -188,7 +188,7 @@
   [{:name :info             :required false                          :type "string | hiccup" :description "What's shown in the popover."}
    {:name :position         :required false :default ":right-below"  :type "keyword"         :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :width            :required false :default "250px"         :type "string"          :description "width in px"}
-   {:name :class            :required false                          :type "string"          :description "CSS classes"}
+   {:name :class            :required false                          :type "string"          :description "CSS class names, space seperated"}
    {:name :style            :required false                          :type "map"             :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"             :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -234,7 +234,7 @@
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -285,7 +285,7 @@
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :disabled?        :required false :default false           :type "string"     :description "Set to true to disable the hyperlink."}
-   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 
@@ -341,7 +341,7 @@
    {:name :target           :required false                          :type "string"     :description "A string representing where to load href: _self - open in same window/tab (the default), _blank - open in new window/tab, _parent - open in parent window."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
-   {:name :class            :required false                          :type "string"     :description "additional CSS classes required."}
+   {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
 

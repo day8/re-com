@@ -14,7 +14,7 @@
   [{:name :label     :required true  :type "string"     :description "text to display"}
    {:name :on-click  :required false :type "function"   :description "callback function to call when label is clicked"}
    {:name :width     :required false :type "string"     :description "a CSS width"}
-   {:name :class     :required false :type "string"     :description "a CSS class name"}
+   {:name :class     :required false :type "string"     :description "CSS class names, space seperated"}
    {:name :style     :required false :type "string"     :description "additional CSS styles"}
    ])
 
@@ -55,7 +55,7 @@
    {:name :change-on-blur?  :required false :default true    :type "boolean"    :description "when true, invoke on-change function on blur, otherwise on every change (character by character)."}
    {:name :validation-regex :required false                  :type "regex"      :description "the regular expression which determines which characters are legal and which aren't."}
    {:name :disabled?        :required false :default false   :type "boolean"    :description "set to true to disable the input box (can be atom or value)."}
-   {:name :class            :required false                  :type "string"     :description "additional CSS classes required."}
+   {:name :class            :required false                  :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                  :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                  :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}
    {:name :input-type       :required true                   :type "keyword"    :description "ONLY applies to super function 'base-input-text': either :input or :textarea ("}
@@ -415,7 +415,7 @@
    {:name :width         :required false                  :type "string"        :description "Standard CSS width setting for the slider. Default is 400px."}
    {:name :on-change     :required false                  :type "string"        :description "A function which takes one parameter, which is the new value of the slider."}
    {:name :disabled?     :required false  :default false  :type "string"        :description "Set to true to disable the slider. Can be value or atom."}
-   {:name :class         :required false                  :type "string"        :description "additional CSS classes required."}
+   {:name :class         :required false                  :type "string"        :description "CSS class names, space seperated."}
    {:name :style         :required false                  :type "map"           :description "CSS styles to add or override."}
    {:name :attr          :required false                  :type "map"           :description "html attributes to add or override (:class/:style not allowed)."}])
 

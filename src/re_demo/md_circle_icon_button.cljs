@@ -37,16 +37,13 @@
       [v-box
        :gap "10px"
        :children [[panel-title "[md-circle-icon-button ... ]"]
-
                   [h-box
                    :gap "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
-                               :style {:font-size "small"}
                                :children [[component-title "Notes"]
-                                          [:p
+                                          [:span
                                            "Material design icons can be found "
                                            [hyperlink-href
                                             :label  "here"

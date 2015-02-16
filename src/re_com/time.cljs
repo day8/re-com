@@ -133,7 +133,7 @@
    {:name :disabled?       :required false :default false   :type "boolean | atom"   :description "when true, user input is disabled."}
    {:name :show-icon?      :required false :default false   :type "boolean"          :description "when true, a clock icon will be displayed to the right of input field"}
    {:name :hide-border?    :required false :default false   :type "boolean"          :description "when true, input filed is displayed without a border."}
-   {:name :class           :required false                  :type "string"           :description "a CSS class"}
+   {:name :class           :required false                  :type "string"           :description "CSS class names, space seperated"}
    {:name :style           :required false                  :type "map"              :description "CSS style. Eg: {:color \"red\" :width \"50px\"}" }])
 
 ; TODO:  description for 'class' above it wrong.
