@@ -68,7 +68,7 @@
 (def md-circle-icon-button-args-desc
   [{:name :md-icon-name     :required true  :default "md-add"        :type "string"     :description "the name of the icon. "}
    {:name :on-click         :required false                          :type "() -> nil"  :description "function to call when the button is clicked"}
-   {:name :size             :required false :default ":regular"      :type "keyword"    :description "the size of button. One of :regular, :smaller or :larger."}
+   {:name :size             :required false :default ":regular"      :type "keyword"    :description "One of :regular, :smaller or :larger."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
@@ -129,7 +129,7 @@
 (def md-icon-button-args-desc
   [{:name :md-icon-name     :required true  :default "md-add"        :type "string"     :description [:span "the name of the icon."]}
    {:name :on-click         :required false                          :type "() -> nil"  :description "function to call when the button is clicked"}
-   {:name :size             :required false :default "nil"           :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
+   {:name :size             :required false :default ":regular"      :type "keyword"    :description "One of :regular, :smaller or :larger."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
@@ -342,7 +342,7 @@
 (def hyperlink-href-args-desc
   [{:name :label            :required false                          :type "string"     :description "Label for the button (can be artitrary markup)."}
    {:name :href             :required false                          :type "string"     :description "If specified, which URL to jump to when clicked."}
-   {:name :target           :required false                          :type "string"     :description "A string representing where to load href: _self - open in same window/tab (the default), _blank - open in new window/tab, _parent - open in parent window."}
+   {:name :target           :required false :default "_self"         :type "string"     :description "One of \"_self\" or \"_blank\""}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
