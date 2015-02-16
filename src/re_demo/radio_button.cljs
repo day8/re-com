@@ -24,7 +24,7 @@
                                :children [[component-title "Demo"]
                                           [v-box
                                            :children [(doall (for [c ["red" "green" "blue"]]    ;; Notice the ugly "doall"
-                                                               ^{:key c}                        ;; key should be unique within this compenent
+                                                               ^{:key c}                        ;; key should be unique among siblings
                                                                [radio-button
                                                                 :label       c
                                                                 :value       c

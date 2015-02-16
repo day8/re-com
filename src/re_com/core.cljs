@@ -357,8 +357,8 @@
 ;; ------------------------------------------------------------------------------------
 
 (def radio-button-args-desc
-  [{:name :model         :required true                   :type "string | atom"  :description "Holds state of the radio button when it is called"}
-   {:name :on-change     :required false                  :type "() -> nil"      :description "the function to call when the radio button is clicked."}
+  [{:name :model         :required true                   :type "string | atom"    :description "Holds state of the radio button when it is called"}
+   {:name :on-change     :required false                  :type "(boolean) -> nil" :description "function to call when radio button is clicked."}
    {:name :value         :required false                  :type "string"         :description "Value of the radio button OR button group"}
    {:name :label         :required false                  :type "string"         :description "Radio button label"}
    {:name :disabled?     :required false  :default false  :type "string"         :description "Set to true to disable the radio button"}
