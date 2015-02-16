@@ -15,7 +15,7 @@
    {:name :on-click         :required false                          :type "() -> nil"       :description "function to call when the button is clicked."}
    {:name :tooltip          :required false :default "no tooltop"    :type "string"          :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default :below-center   :type "keyword"         :description "position of the popover-tooltip. e.g. :right-below."}
-   {:name :disabled?        :required false :default false           :type "boolean | atom"  :description "Set to true to disable the button."}
+   {:name :disabled?        :required false :default false           :type "boolean | atom"  :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"          :description "Class string. e.g. \"btn-info\" (see: http://getbootstrap.com/css/#buttons)."}
    {:name :style            :required false                          :type "map"             :description "CSS class names, space seperated."}
    {:name :attr             :required false                          :type "map"             :description "html attributes to add or override (:class/:style not allowed)."}])
@@ -66,9 +66,9 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-circle-icon-button-args-desc
-  [{:name :md-icon-name     :required true   :default "md-add"       :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+  [{:name :md-icon-name     :required true  :default "md-add"        :type "string"     :description "the name of the icon. "}
    {:name :on-click         :required false                          :type "() -> nil"  :description "function to call when the button is clicked"}
-   {:name :size             :required false  :default "nil"          :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
+   {:name :size             :required false :default ":regular"      :type "keyword"    :description "the size of button. One of :regular, :smaller or :larger."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
@@ -79,6 +79,8 @@
 
 (def md-circle-icon-button-args
   (set (map :name md-circle-icon-button-args-desc)))
+
+; XXX It should be possible for disabled? to be an atom?
 
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
@@ -125,9 +127,9 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-icon-button-args-desc
-  [{:name :md-icon-name     :required true   :default "md-add"       :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
+  [{:name :md-icon-name     :required true  :default "md-add"        :type "string"     :description [:span "the name of the icon." ]}
    {:name :on-click         :required false                          :type "() -> nil"  :description "function to call when the button is clicked"}
-   {:name :size             :required false  :default "nil"          :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
+   {:name :size             :required false :default "nil"           :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
@@ -138,6 +140,8 @@
 
 (def md-icon-button-args
   (set (map :name md-icon-button-args-desc)))
+
+; XXX It should be possible for disabled? to be an atom?
 
 (defn md-icon-button
   "a square button containing a material design icon"
@@ -284,7 +288,7 @@
    {:name :on-click         :required false                          :type "() -> nil"  :description "function to call when the hyperlink is clicked."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
-   {:name :disabled?        :required false :default false           :type "string"     :description "Set to true to disable the hyperlink."}
+   {:name :disabled?        :required false :default false           :type "string"     :description "if true, the user can't click the button."}
    {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description "html attributes to add or override (:class/:style not allowed)."}])
