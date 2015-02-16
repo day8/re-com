@@ -36,32 +36,32 @@
 (enable-console-print!)
 
 (def tabs-definition
-  [ {:id ::welcome                :label "Welcome"            :panel welcome/panel}
-    {:id ::checkbox               :label "Checkbox"           :panel checkbox/panel}
-    {:id ::radio-button           :label "Radio Button"       :panel radio-button/panel}
-    {:id ::input-text             :label "Input Text"         :panel input-text/panel}
-    {:id ::slider                 :label "Slider"             :panel slider/panel}
-    {:id ::button                 :label "Button"             :panel button/panel}
-    {:id ::md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
-    {:id ::md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
-    {:id ::info-button            :label "Info Button"        :panel info-button/panel}
-    {:id ::row-button             :label "Row Button"         :panel row-button/panel}
-    {:id ::hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
-    {:id ::hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
-    {:id ::dropdown               :label "Dropdowns"          :panel dropdowns/panel}
-    {:id ::alert-box              :label "Alert Box"          :panel alert-box/panel}
-    {:id ::alert-list             :label "Alert List"         :panel alert-list/panel}
-    {:id ::tabs                   :label "Tabs"               :panel tabs/panel}
-    {:id ::popovers               :label "Popovers"           :panel popovers/panel}
-    {:id ::date                   :label "Dates"              :panel date-picker/panel}
-    {:id ::time                   :label "Time"               :panel time/panel}
-    {:id ::lists                  :label "List"               :panel lists/panel}
-    {:id ::tour                   :label "Tour"               :panel tour/panel}
-    {:id ::modals                 :label "Modals"             :panel modals/panel}
-    {:id ::boxes1                 :label "Boxes-1"            :panel boxes/panelA}
-    {:id ::boxes2                 :label "Boxes-2"            :panel boxes/panelB}
-    {:id ::layouts                :label "Layouts"            :panel layouts/panel}
-    ])
+  [{:id ::button                 :label "Button"             :panel button/panel}
+   {:id ::md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
+   {:id ::md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
+   {:id ::info-button            :label "Info Button"        :panel info-button/panel}
+   {:id ::row-button             :label "Row Button"         :panel row-button/panel}
+   {:id ::hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
+   {:id ::hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
+   {:id ::welcome                :label "Welcome"            :panel welcome/panel}
+   {:id ::checkbox               :label "Checkbox"           :panel checkbox/panel}
+   {:id ::radio-button           :label "Radio Button"       :panel radio-button/panel}
+   {:id ::input-text             :label "Input Text"         :panel input-text/panel}
+   {:id ::slider                 :label "Slider"             :panel slider/panel}
+   {:id ::dropdown               :label "Dropdowns"          :panel dropdowns/panel}
+   {:id ::alert-box              :label "Alert Box"          :panel alert-box/panel}
+   {:id ::alert-list             :label "Alert List"         :panel alert-list/panel}
+   {:id ::tabs                   :label "Tabs"               :panel tabs/panel}
+   {:id ::popovers               :label "Popovers"           :panel popovers/panel}
+   {:id ::date                   :label "Dates"              :panel date-picker/panel}
+   {:id ::time                   :label "Time"               :panel time/panel}
+   {:id ::lists                  :label "List"               :panel lists/panel}
+   {:id ::tour                   :label "Tour"               :panel tour/panel}
+   {:id ::modals                 :label "Modals"             :panel modals/panel}
+   {:id ::boxes1                 :label "Boxes-1"            :panel boxes/panelA}
+   {:id ::boxes2                 :label "Boxes-2"            :panel boxes/panelB}
+   {:id ::layouts                :label "Layouts"            :panel layouts/panel}
+   ])
 
 
 (defn nav-item
