@@ -12,7 +12,7 @@
 
 (def button-args-desc
   [{:name :label            :required true                           :type "string | hiccup" :description "Label for the button."}
-   {:name :on-click         :required false                          :type "() -> nil"       :description "the function to callback when button is clicked."}
+   {:name :on-click         :required false                          :type "() -> nil"       :description "function to call when the button is clicked."}
    {:name :tooltip          :required false :default "no tooltop"    :type "string"          :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default :below-center   :type "keyword"         :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :disabled?        :required false :default false           :type "boolean | atom"  :description "Set to true to disable the button."}
@@ -67,7 +67,7 @@
 
 (def md-circle-icon-button-args-desc
   [{:name :md-icon-name     :required true   :default "md-add"       :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
-   {:name :on-click         :required false                          :type "() -> nil"  :description "a callback function to be invoked when button is clicked."}
+   {:name :on-click         :required false                          :type "() -> nil"  :description "function to call when the button is clicked"}
    {:name :size             :required false  :default "nil"          :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
@@ -126,7 +126,7 @@
 
 (def md-icon-button-args-desc
   [{:name :md-icon-name     :required true   :default "md-add"       :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
-   {:name :on-click         :required false                          :type "() -> nil"  :description "a callback function to be invoked when button is clicked."}
+   {:name :on-click         :required false                          :type "() -> nil"  :description "function to call when the button is clicked"}
    {:name :size             :required false  :default "nil"          :type "keyword"    :description "set size of button (nil = regular, or :smaller or :larger."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
@@ -229,7 +229,7 @@
 
 (def row-button-args-desc
   [{:name :md-icon-name     :required true  :default "md-add"        :type "string"     :description "the name of the icon. See http://zavoloklom.github.io/material-design-iconic-font/icons.html"}
-   {:name :on-click         :required false                          :type "() -> nil"  :description "the fucntion to call when the button is clicked."}
+   {:name :on-click         :required false                          :type "() -> nil"  :description "function to call when the button is clicked."}
    {:name :mouse-over-row?  :required false :default false           :type "boolean"    :description "true if the mouse is hovering over the row this button is in."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
@@ -281,7 +281,7 @@
 
 (def hyperlink-args-desc
   [{:name :label            :required false                          :type "string"     :description "Label for the button (can be artitrary markup)."}
-   {:name :on-click         :required false                          :type "string"     :description "Callback when the hyperlink is clicked."}
+   {:name :on-click         :required false                          :type "() -> nil"  :description "function to call when the hyperlink is clicked."}
    {:name :tooltip          :required false                          :type "string"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description "position of the popover-tooltip. e.g. :right-below."}
    {:name :disabled?        :required false :default false           :type "string"     :description "Set to true to disable the hyperlink."}
