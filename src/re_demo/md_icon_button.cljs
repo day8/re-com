@@ -42,13 +42,12 @@
                    :gap "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [:p
-                                           "Material design icons can be found "
+                                          [:span
+                                           "Material design icons can be "
                                            [hyperlink-href
-                                            :label  "here"
+                                            :label  "found here"
                                             :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
                                             :target "_blank"]
                                            "."]

@@ -34,7 +34,6 @@
                    :gap "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :children [[component-title "Notes"]
                                           [:span "A tiny information button, which is light grey and unobrusive. When pressed, displays a popup contining helpful information. "]

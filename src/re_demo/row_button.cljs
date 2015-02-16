@@ -125,7 +125,6 @@
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :children [[component-title "Notes"]
                                           [:span "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse over."]
