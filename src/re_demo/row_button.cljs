@@ -5,7 +5,7 @@
                                       hyperlink-href]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
-            [re-demo.utils    :refer [panel-title component-title args-table]]
+            [re-demo.utils    :refer [panel-title component-title args-table material-design-hyperlink]]
             [re-com.util      :refer [enumerate]]
             [reagent.core     :as    reagent]))
 
@@ -129,13 +129,7 @@
                                :children [[component-title "Notes"]
                                           [:span "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse over."]
                                           [:span "To experiement, mouse over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
-                                          [:p
-                                           "Material design icons can be found "
-                                           [hyperlink-href
-                                            :label  "here"
-                                            :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
-                                            :target "_blank"]
-                                           "."]
+                                          [:span "Material design icons can be " [material-design-hyperlink "found here"] "."]
                                           [args-table row-button-args-desc]]]
                               [v-box
                                :gap      "10px"

@@ -4,9 +4,8 @@
                                       hyperlink-href]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
-            [re-demo.utils    :refer [panel-title component-title args-table]]
+            [re-demo.utils    :refer [panel-title component-title args-table material-design-hyperlink]]
             [reagent.core     :as    reagent]))
-
 
 (def icons
   [{:id "md-add"    :label [:i {:class "md-add"}]}
@@ -44,13 +43,7 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [:span
-                                           "Material design icons can be "
-                                           [hyperlink-href
-                                            :label  "found here"
-                                            :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
-                                            :target "_blank"]
-                                           "."]
+                                          [:span "Material design icons can be " [material-design-hyperlink "found here"] "."]
                                           [args-table md-icon-button-args-desc]]]
                               [v-box
                                :gap      "10px"

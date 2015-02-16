@@ -1,10 +1,9 @@
 (ns re-demo.md-circle-icon-button
   (:require [re-com.core      :refer [label]]
-            [re-com.buttons   :refer [md-circle-icon-button md-circle-icon-button-args-desc
-                                      hyperlink-href]]
+            [re-com.buttons   :refer [md-circle-icon-button md-circle-icon-button-args-desc]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
-            [re-demo.utils    :refer [panel-title component-title args-table]]
+            [re-demo.utils    :refer [panel-title component-title args-table material-design-hyperlink]]
             [reagent.core     :as    reagent]))
 
 
@@ -43,14 +42,7 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [:span
-                                           "Material design icons can be found "
-                                           [hyperlink-href
-                                            :label  "here"
-                                            ;:tooltip "Click here to see all material design icons"
-                                            :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
-                                            :target "_blank"]
-                                           "."]
+                                          [:span "Material design icons can be " [material-design-hyperlink "found here"] "."]
                                           [args-table md-circle-icon-button-args-desc]]]
                               [v-box
                                :gap "10px"

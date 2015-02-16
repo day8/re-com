@@ -1,6 +1,8 @@
 (ns re-demo.utils
   (:require [re-com.core :refer [title label]]
+            [re-com.buttons   :refer [hyperlink-href]]
             [re-com.box  :refer [h-box v-box box gap line]]))
+
 
 
 (defn re-com-title
@@ -68,7 +70,9 @@
                              :children (concat [[:span.semibold  arg-type]
                                                 [gap :size "10px"]]
                                                needed-vec)]
-                            [:span  (:description arg)]
+                            [:p
+                              {:font-size "smaller" :color "red"}
+                              (:description arg)]
                             ]]]]))
 
 
@@ -83,3 +87,11 @@
                    [[component-title "Named Parameters"]
                     [gap :size "10px"]]
                    (map (partial arg-row name-width)  args (cycle [true false])))])))
+
+
+(defn material-design-hyperlink
+  [text]
+  [hyperlink-href
+   :label  text
+   :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
+   :target "_blank"])
