@@ -36,14 +36,15 @@
 (enable-console-print!)
 
 (def tabs-definition
-  [{:id ::button                 :label "Button"             :panel button/panel}
+  [
+   {:id ::welcome                :label "Welcome"            :panel welcome/panel}
+   {:id ::button                 :label "Button"             :panel button/panel}
    {:id ::md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
    {:id ::md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
    {:id ::info-button            :label "Info Button"        :panel info-button/panel}
    {:id ::row-button             :label "Row Button"         :panel row-button/panel}
    {:id ::hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
    {:id ::hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
-   {:id ::welcome                :label "Welcome"            :panel welcome/panel}
    {:id ::checkbox               :label "Checkbox"           :panel checkbox/panel}
    {:id ::radio-button           :label "Radio Button"       :panel radio-button/panel}
    {:id ::input-text             :label "Input Text"         :panel input-text/panel}
