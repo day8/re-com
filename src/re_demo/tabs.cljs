@@ -3,7 +3,7 @@
             [alandipert.storage-atom :refer [local-storage]]
             [re-com.box              :refer [h-box v-box box gap line scroller border]]
             [re-com.dropdown         :refer [single-dropdown]]
-            [re-com.core             :refer [label title checkbox]]
+            [re-com.core             :refer [label]]
             [re-com.buttons          :refer [button]]
             [re-com.util             :refer [item-for-id]]
             [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs tabs-args-desc]]
@@ -33,11 +33,12 @@
     (fn []
       [v-box
        :children [[h-box
-                   :gap "75px"
-                   :children [[box
-                               :width "450px"
-                               :child [:div
-                                       [label :style {:font-variant "small-caps"} :label "notes"]
+                   :gap "50px"
+                   :children [[v-box
+                               :gap      "10px"
+                               :style    {:font-size "small"}
+                               :width    "450px"
+                               :children [[label :style {:font-variant "small-caps"} :label "notes"]
                                        [:ul
                                         [:li "Each of the 4 tab components shown to the right has a distinct visual style."]
                                         [:li "In this demo, all 4 tab compoents share the same state, so they change in lockstep."]
@@ -171,6 +172,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
+       :gap      "10px"
        :children [[panel-title "Tab Components"]
                   [h-box
                    :gap      "50px"

@@ -10,14 +10,15 @@
 (defn notes
   []
   [v-box
+   :gap      "10px"
+   :style    {:font-size "small"}
    :width    "450px"
-   :children [ [:div.h4 "Notes"]
+   :children [ [component-title "Notes"]
                [:div {:style {:font-size "small"}}
                [:p "Allows the user to input time in 24hr format."]
                 [:p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
                  Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
                 [:p "If the user exists the input field with an invalid value, it will be replaced with the last known valid value."]]
-
                [args-table input-time-args-desc]]])
 
 
@@ -61,7 +62,7 @@
     (fn []
       [v-box
        :gap "20px"
-       :children [[:div.h4 "Demo"]
+       :children [[component-title "Demo"]
                   [h-box
                    :gap "40px"
                    :style {:font-size "small"}
@@ -112,18 +113,17 @@
                                                        :label ":maximum 2pm"
                                                        :label-style check-style
                                                        :model (not= @maximum init-maximum)
-                                                       :on-change #(reset! maximum (if % 1400 init-maximum))]]]
-                                          ]]]]]])))
+                                                       :on-change #(reset! maximum (if % 1400 init-maximum))]]]]]]]]])))
 
 
 (defn panel2
   []
   [v-box
-   :children [[panel-title "Time Components"]
+   :gap      "10px"
+   :children [[panel-title "[input-time ... ]"]
               [h-box
                :gap "50px"
-               :children [[component-title "[input-time ... ]"]
-                          [notes]
+               :children [[notes]
                           [basics-demo]]]]])
 
 

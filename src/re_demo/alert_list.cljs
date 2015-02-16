@@ -2,9 +2,7 @@
   (:require [re-com.util        :refer [insert-nth remove-id-item]]
             [re-com.core        :refer [label title]]
             [re-com.buttons     :refer [button]]
-            [re-com.tabs        :refer [vertical-bar-tabs]]
             [re-com.box         :refer [h-box v-box box line gap]]
-            [re-com.dropdown    :refer [single-dropdown]]
             [re-com.alert       :refer [alert-box alert-list alert-box-args-desc alert-list-args-desc]]
             [re-demo.utils      :refer [panel-title component-title args-table]]
             [reagent.core       :as    reagent]))
@@ -30,9 +28,10 @@
        :children [[panel-title "[alert-list ... ]"]
                   [h-box
                    :gap      "50px"
-                   :children [#_[component-title "[alert-list ... ]"]
-                              [v-box
+                   :children [[v-box
                                :gap      "10px"
+                               :style    {:font-size "small"}
+                               :width    "450px"
                                :children [[component-title "Notes"]
                                           [label :label "Renders a dynamic list of alert-boxes vertically."]
                                           [args-table   alert-list-args-desc]]]
@@ -52,8 +51,7 @@
                                            :alerts       alerts
                                            :on-close     #(reset! alerts (remove-id-item % @alerts))
                                            :max-height   "300px"
-                                           :border-style "1px dashed lightgrey"]
-                                          ]]]]]])))
+                                           :border-style "1px dashed lightgrey"]]]]]]])))
 
 
 (defn panel   ;; Introduce a level of naming indirection so that figwheel updates work

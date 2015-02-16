@@ -147,9 +147,11 @@
 
 
 (defn- notes
-  [width selected-variation]
+  []
   [v-box
-   :width (str width "px")
+   :gap      "10px"
+   :style    {:font-size "small"}
+   :width    "450px"
    :children [[component-title "[datepicker ... ]"]
               [component-title "[datepicker-dropdown ... ]"]
               [gap :size "15px"]
@@ -164,22 +166,25 @@
 (defn panel2
   []
   (let [panel-width 980
-        h-gap       70
-        a-width     (- (golden-ratio-a panel-width) h-gap)
+        ;h-gap       70
+        ;a-width     (- (golden-ratio-a panel-width) h-gap)
         b-width     (golden-ratio-b panel-width)
-        selected-variation (r/atom :inline)]
+        selected-variation (r/atom :inline)
+        ]
     (fn []
       [v-box
-       :width (str panel-width "px")
+       :gap      "10px"
+       ;:width (str panel-width "px")
        :children [[panel-title "Date Components"]
                   [h-box
                    :gap      "50px"
-                   :children [[notes a-width selected-variation]
+                   :children [[notes]
                               [v-box
-                               :gap       "30px"
+                               :gap       "20px"
                                :size      "auto"
-                               :margin    "20px 0px 0px 0px"
-                               :children  [[h-box
+                               ;:margin    "20px 0px 0px 0px"
+                               :children  [[component-title "Demo"]
+                                           [h-box
                                             :gap      "10px"
                                             :align    :center
                                             :children [[label :label "Choose Demo:"]

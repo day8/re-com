@@ -47,8 +47,9 @@
                     [h-box
                      :gap      "50px"
                      :children [[v-box
-                                 :width    "500px"
+                                 :gap      "10px"
                                  :style    {:font-size "small"}
+                                 :width    "450px"
                                  :children [[:div.h4 "Notes"]
                                             [:ul
                                              [:li "Popovers appear above other components, and point to an anchor."]
@@ -191,9 +192,10 @@
                   [h-box
                    :gap      "50px"
                    :children [[v-box
-                               :width    "500px"
-                               :margin   "20px 0px 0px 0px"
+                               :gap      "10px"
                                :style    {:font-size "small"}
+                               :width    "450px"
+                               :margin   "20px 0px 0px 0px"
                                :children [[:ul
                                            [:li "The " [:code "hyperlink"] " component is useful for creating link popovers. Use it as the anchor."]]]]
                               [v-box
@@ -223,9 +225,10 @@
                   [h-box
                    :gap      "50px"
                    :children [[v-box
-                               :width    "500px"
-                               :margin   "20px 0px 0px 0px"
+                               :gap      "10px"
                                :style    {:font-size "small"}
+                               :width    "450px"
+                               :margin   "20px 0px 0px 0px"
                                :children [[:ul
                                            [:li "Popovers can be used to create hover tooltips on any component. This example uses a " [:code "[:div]"] "."]
                                            [:li "Simply set the " [:code "on-mouse-over"] " and " [:code "on-mouse-out"] " events to show/hide the popover."]]]]
@@ -263,9 +266,10 @@
                   [h-box
                    :gap      "50px"
                    :children [[v-box
-                               :width    "500px"
-                               :margin   "20px 0px 0px 0px"
+                               :gap      "10px"
                                :style    {:font-size "small"}
+                               :width    "450px"
+                               :margin   "20px 0px 0px 0px"
                                :children [[:ul
                                            [:li "This is a seaprate component which makes it really easy to create tooltips."]
                                            [:li "It also can be coloured for warning or error status."]]]]
@@ -346,9 +350,10 @@
               [h-box
                :gap      "50px"
                :children [[v-box
-                           :width    "500px"
-                           :margin   "20px 0px 0px 0px"
+                           :gap      "10px"
                            :style    {:font-size "small"}
+                           :width    "450px"
+                           :margin   "20px 0px 0px 0px"
                            :children [[:ul
                                        [:li "Popovers can be arbitrarilary complex."]
                                        [:li [:code "popover-content-wrapper"] " is friendly to dialog coding patterns."]]]]

@@ -7,37 +7,36 @@
   []
   [title
    :label    "Re-com"
-   :style    {:font-size "36px"
-              :font-family "'Roboto Condensed', sans-serif"
-              :font-weight 300
-              }])
+   :style    {:font-family "'Roboto Condensed', sans-serif"
+              :font-size "36px"
+              :font-weight 300}])
 
-(def panel-title-style {
-    :font-family "'Roboto Condensed', sans-serif;"
-    :font-size   "24px"
-    :font-weight 300
-   })
+(def panel-title-style
+  {:font-family "'Roboto Condensed', sans-serif;"
+   :font-size   "24px"
+   :font-weight 300})
 
 (defn panel-title
   "Title shown at the top of each Tab Panel"
   [text style]
   [title
-   :label    text
-   :style    (merge panel-title-style style)])
+   :label text
+   :style (merge panel-title-style style)])
 
+
+(def component-title-style
+  {:font-family "'Roboto Condensed', sans-serif;"
+   :font-size   "20px"
+   :font-weight 300})
 
 (defn component-title
   "A title for a component like [something ... ]"
   [component-name style]
   [title
-   :style {
-      :font-family "'Roboto Condensed', sans-serif;"
-      :font-size   "20px"
-      :font-weight 300}
    :label      component-name
+   :style      (merge component-title-style style)
    :underline? false
    ])
-
 
 
 (defn arg-row

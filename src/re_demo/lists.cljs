@@ -1,7 +1,7 @@
 (ns re-demo.lists
   (:require
     [reagent.core          :as    r]
-    [re-com.core           :refer [label checkbox title]]
+    [re-com.core           :refer [label checkbox]]
     [re-com.box            :refer [h-box v-box box]]
     [re-com.selection-list :refer [selection-list selection-list-args-desc]]
     [re-demo.utils         :refer [panel-title component-title args-table]]
@@ -16,8 +16,8 @@
        :width (str width "px")
        :gap      "20px"
        :align    :start
-       :margin   "20px 0px 0px 0px"
-       :children [[label :style {:font-style "italic"} :label "boolean parameters:"]
+       :children [[component-title "Demo"]
+                  [label :style {:font-style "italic"} :label "boolean parameters:"]
                   [h-box
                    :gap      "15px"
                    :align    :start
@@ -81,10 +81,12 @@
 
 
 (defn- notes
-  [width]
+  []
   [v-box
-   :width (str width "px")
-   :children [[:h4 "Notes"]
+   :gap      "10px"
+   :style    {:font-size "small"}
+   :width    "450px"
+   :children [[component-title "Notes"]
               [v-box
                :style {:font-size "small"}
                :children [[:p "Allows the user to select items from a list (single or multi)."]
@@ -96,16 +98,17 @@
 (defn panel2
   []
   (let [panel-width 1024
-        h-gap       70
-        a-width     (- (golden-ratio-a panel-width) h-gap)
+        ;h-gap       70
+        ;a-width     (- (golden-ratio-a panel-width) h-gap)
         b-width     (golden-ratio-b panel-width)]
     [v-box
-     :width    (str panel-width "px")
-     :children [[panel-title "Selection List Components"]
+     :gap      "10px"
+     ;:width    (str panel-width "px")
+     :children [[panel-title "[selection-list ... ]"]
                 [h-box
-                 :gap      (str h-gap "px")
-                 :children [[component-title "[selection-list ... ]"]
-                            [notes a-width]
+                 ;:gap      (str h-gap "px")
+                 :gap      "50px"
+                 :children [[notes]                         ;; Removed a-width - need fixed 450px
                             [list-with-options b-width]]]]]))
 
 

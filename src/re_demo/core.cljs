@@ -1,49 +1,66 @@
 (ns re-demo.core
   (:require-macros [re-com.core            :refer [handler-fn]]
                    [cljs.core.async.macros :refer [go]])
-  (:require ;[figwheel.client         :as    fw]
-            [reagent.core            :as    reagent]
-            [alandipert.storage-atom :refer [local-storage]]
-            [re-demo.utils           :refer [panel-title re-com-title]]
-            [re-com.util             :as    util]
-            [re-com.core             :as    core]
-            [re-com.box              :refer [h-box v-box box gap line scroller border]]
-
-            [re-demo.welcome         :as    welcome]
-            [re-demo.basics          :as    basics]
-            [re-demo.buttons         :as    buttons]
-            [re-demo.dropdowns       :as    dropdowns]
-            [re-demo.alert-box       :as    alert-box]
-            [re-demo.alert-list       :as   alert-list]
-            [re-demo.tabs            :as    tabs]
-            [re-demo.popovers        :as    popovers]
-            [re-demo.date            :as    date-picker]
-            [re-demo.lists           :as    lists]
-            [re-demo.time            :as    time]
-            [re-demo.layouts         :as    layouts]
-            [re-demo.tour            :as    tour]
-            [re-demo.modals          :as    modals]
-            [re-demo.boxes           :as    boxes]))
+  (:require ;[figwheel.client                :as    fw]
+            [reagent.core                   :as    reagent]
+            [alandipert.storage-atom        :refer [local-storage]]
+            [re-demo.utils                  :refer [panel-title re-com-title]]
+            [re-com.util                    :as    util]
+            [re-com.core                    :as    core]
+            [re-com.box                     :refer [h-box v-box box gap line scroller border]]
+            [re-demo.welcome                :as    welcome]
+            [re-demo.radio_button           :as    radio-button]
+            [re-demo.checkbox               :as    checkbox]
+            [re-demo.input_text             :as    input-text]
+            [re-demo.slider                 :as    slider]
+            [re-demo.button                 :as    button]
+            [re-demo.md-circle-icon-button  :as    md-circle-icon-button]
+            [re-demo.md-icon-button         :as    md-icon-button]
+            [re-demo.info-button            :as    info-button]
+            [re-demo.row-button             :as    row-button]
+            [re-demo.hyperlink              :as    hyperlink]
+            [re-demo.hyperlink-href         :as    hyperlink-href]
+            [re-demo.dropdowns              :as    dropdowns]
+            [re-demo.alert-box              :as    alert-box]
+            [re-demo.alert-list             :as    alert-list]
+            [re-demo.tabs                   :as    tabs]
+            [re-demo.popovers               :as    popovers]
+            [re-demo.date                   :as    date-picker]
+            [re-demo.lists                  :as    lists]
+            [re-demo.time                   :as    time]
+            [re-demo.layouts                :as    layouts]
+            [re-demo.tour                   :as    tour]
+            [re-demo.modals                 :as    modals]
+            [re-demo.boxes                  :as    boxes]))
 
 (enable-console-print!)
 
 (def tabs-definition
-  [ {:id ::welcome   :label "Welcome"     :panel welcome/panel}
-    {:id ::basics    :label "Basics"      :panel basics/panel}
-    {:id ::buttons   :label "Buttons"     :panel buttons/panel}
-    {:id ::dropdown  :label "Dropdowns"   :panel dropdowns/panel}
-    {:id ::alert-box :label "Alert Box"   :panel alert-box/panel}
-    {:id ::alert-list :label "Alert List"  :panel alert-list/panel}
-    {:id ::tabs      :label "Tabs"        :panel tabs/panel}
-    {:id ::popovers  :label "Popovers"    :panel popovers/panel}
-    {:id ::date      :label "Dates"       :panel date-picker/panel}
-    {:id ::time      :label "Time"        :panel time/panel}
-    {:id ::lists     :label "List"        :panel lists/panel}
-    {:id ::tour      :label "Tour"        :panel tour/panel}
-    {:id ::modals    :label "Modals"      :panel modals/panel}
-    {:id ::boxes1    :label "Boxes-1"     :panel boxes/panelA}
-    {:id ::boxes2    :label "Boxes-2"     :panel boxes/panelB}
-    {:id ::layouts   :label "Layouts"     :panel layouts/panel}
+  [ {:id ::welcome                :label "Welcome"            :panel welcome/panel}
+    {:id ::checkbox               :label "Checkbox"           :panel checkbox/panel}
+    {:id ::radio-button           :label "Radio Button"       :panel radio-button/panel}
+    {:id ::input-text             :label "Input Text"         :panel input-text/panel}
+    {:id ::slider                 :label "Slider"             :panel slider/panel}
+    {:id ::button                 :label "Button"             :panel button/panel}
+    {:id ::md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
+    {:id ::md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
+    {:id ::info-button            :label "Info Button"        :panel info-button/panel}
+    {:id ::row-button             :label "Row Button"         :panel row-button/panel}
+    {:id ::hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
+    {:id ::hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
+    {:id ::dropdown               :label "Dropdowns"          :panel dropdowns/panel}
+    {:id ::alert-box              :label "Alert Box"          :panel alert-box/panel}
+    {:id ::alert-list             :label "Alert List"         :panel alert-list/panel}
+    {:id ::tabs                   :label "Tabs"               :panel tabs/panel}
+    {:id ::popovers               :label "Popovers"           :panel popovers/panel}
+    {:id ::date                   :label "Dates"              :panel date-picker/panel}
+    {:id ::time                   :label "Time"               :panel time/panel}
+    {:id ::lists                  :label "List"               :panel lists/panel}
+    {:id ::tour                   :label "Tour"               :panel tour/panel}
+    {:id ::modals                 :label "Modals"             :panel modals/panel}
+    {:id ::boxes1                 :label "Boxes-1"            :panel boxes/panelA}
+    {:id ::boxes2                 :label "Boxes-2"            :panel boxes/panelB}
+    {:id ::layouts                :label "Layouts"            :panel layouts/panel}
     ])
 
 
@@ -113,8 +130,7 @@
                    :child [box
                            :size      "auto"
                            ;:padding   "15px 0px 5px 0px"         ;; top right bottom left
-                           :child     [(:panel (util/item-for-id @selected-tab-id tabs-definition))]]]    ;; the tab panel to show, for the selected tab
-                  ]])))
+                           :child     [(:panel (util/item-for-id @selected-tab-id tabs-definition))]]]]])))    ;; the tab panel to show, for the selected tab
 
 
 ;; ---------------------------------------------------------------------------------------
@@ -193,12 +209,8 @@
 ;; ---------------------------------------------------------------------------------------
 
 
-;(fw/start {:jsload-callback (fn [] (reagent/force-update-all))})
-
 (defn ^:export mount-demo
   []
-  ;(fw/start {:jsload-callback (fn [] (reagent/force-update-all))})
   (reagent/render [main] (util/get-element-by-id "app"))
-  ;(reagent/render [(fn [] [main])] (util/get-element-by-id "app"))
   ;(reagent/render [display-green-messages] (util/get-element-by-id "app")) ;; TODO: EXPERIMENT - REMOVE
-  )   ;; 0.5.0 rename render-component ==> render.
+  )
