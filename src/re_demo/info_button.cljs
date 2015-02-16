@@ -41,9 +41,9 @@
                                           [:span "The popup has a dark theme, and uses white text. CSS classes for the text are
                                            available as follows:to format the text in the popover"]
                                           [:ul
-                                           [:li [:span {:style {:font-weight "bold"}} "info-heading"] " - apply heading/title style"]
-                                           [:li [:span {:style {:font-weight "bold"}} "info-subheading"] " - apply subheading style"]
-                                           [:li [:span {:style {:font-weight "bold"}} "info-bold"] " - apply bold style"]]
+                                           [:li [:span.semibold "info-heading"] " - heading/title style"]
+                                           [:li [:span.semibold"info-subheading"] " - subheading style"]
+                                           [:li [:span.semibold "info-bold"] " - bold style"]]
                                           [args-table info-button-args-desc]]]
                               [v-box
                                :gap      "10px"
