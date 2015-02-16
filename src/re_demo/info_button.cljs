@@ -39,7 +39,8 @@
                                :children [[component-title "Notes"]
                                           [:span "A tiny information button, which is light grey and unobrusive. When pressed, displays a popup contining helpful information. "]
                                           [:span "Designed to be used with input fields, to explain the purpose of the field."]
-                                          [:span "Helper CSS classes are available to format the text in the popover:"]
+                                          [:span "The popup has a dark theme, and uses white text. CSS classes for the text are
+                                           available as follows:to format the text in the popover"]
                                           [:ul
                                            [:li [:span {:style {:font-weight "bold"}} "info-heading"] " - apply heading/title style"]
                                            [:li [:span {:style {:font-weight "bold"}} "info-subheading"] " - apply subheading style"]
