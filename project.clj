@@ -69,7 +69,7 @@
                                 :plugins      [[lein-cljsbuild                  "1.0.4"]
 
                                                [lein-figwheel                   "0.2.3-SNAPSHOT"] ;; TODO: Switch to the one below!
-                                               [lein-figwheel                   "0.2.4-SNAPSHOT"]
+                                               ;[lein-figwheel                   "0.2.4-SNAPSHOT"]
 
                                                [lein-shell                      "0.4.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]

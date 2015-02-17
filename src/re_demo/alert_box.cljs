@@ -11,7 +11,7 @@
         show-alert2 (reagent/atom true)]
     (fn []
       [v-box
-       :gap "10px"
+       :gap      "10px"
        :children [[panel-title "[alert-box ... ]"]
 
                   [h-box

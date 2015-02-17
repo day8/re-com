@@ -1,41 +1,31 @@
 (ns re-com.alert
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.buttons :refer [button]]
-            [re-com.box     :refer [h-box v-box scroller border]]
-            [re-com.util    :as    util]))
+  (:require [re-com.buttons  :refer [button]]
+            [re-com.box      :refer [h-box v-box scroller border]]
+            [re-com.validate :refer [extract-arg-data validate-args hiccup-or-string?]]
+            [re-com.util     :as    util]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert
 ;;--------------------------------------------------------------------------------------------------
 
-;(defn )
-
-
 (def alert-box-args-desc
-  [{:name :id              :required false                  :type "anything"                                 :description "a unique identifier, usually an integer or string"}
-   {:name :alert-type      :required false :default "info"  :type "string"           :validate-fn string?    :description "a bootstrap style: info, warning or danger"}
+  [{:name :id              :required false                  :type "anything"                                        :description "a unique identifier, usually an integer or string"}
+   {:name :alert-type      :required false :default "info"  :type "string"           :validate-fn string?           :description "a bootstrap style: info, warning or danger"}
+   {:name :heading         :required false                  :type "hiccup | string"  :validate-fn hiccup-or-string? :description "displayed as header. One of :heading or :body must be provided"}
+   {:name :body            :required false                  :type "hiccup | string"  :validate-fn hiccup-or-string? :description "displayed within the body of the alert"}
+   {:name :padding         :required false :default "15px"  :type "string"           :validate-fn string?           :description "padding surounding the alert"}
+   {:name :closeable?      :required false :default false   :type "boolean"                                         :description "if true, render a close button.  :on-close should be supplied"}
+   {:name :on-close        :required false                  :type "(:id) -> nil"     :validate-fn  fn?              :description "called when the user clicks a close 'X'. Passed the :id of the alert to close."}])
 
-   ;{:name :DUMMY           :required true                   :type "keyword"          :validate-fn keyword?   :description "DUMMY DUMMY"}
-   ;{:name :DUMMY2          :required true                   :type "keyword"          :validate-fn keyword?   :description "DUMMY DUMMY"}
-
-   {:name :heading         :required false                  :type "hiccup | string"                          :description "displayed as header. One of :heading or :body must be provided"}
-   {:name :body            :required false                  :type "hiccup | string"                          :description "displayed within the body of the alert"}
-   {:name :padding         :required false :default "15px"  :type "string"           :validate-fn string?    :description "padding surounding the alert"}
-   {:name :closeable?      :required false :default false   :type "boolean"          :validate-fn #(= false) :description "if true, render a close button.  :on-close should be supplied"}
-   {:name :on-close        :required false                  :type "(:id) -> nil"     :validate-fn  fn?       :description "called when the user clicks a close 'X'. Passed the :id of the alert to close."}])
-
-(def alert-box-args
-  (util/extract-arg-data alert-box-args-desc))
+(def alert-box-args (extract-arg-data alert-box-args-desc))
 
 (defn alert-box
   "Displays one alert box. A close button allows the message to be removed."
   [& {:keys [id alert-type heading body padding closeable? on-close]
       :or   {alert-type "info"}
       :as   args}]
-  {:pre [
-         (util/validate-arguments (set (map :name alert-box-args-desc)) (keys args))
-         ;(util/validate-arguments-new alert-box-args args)
-         ]}
+  {:pre [(validate-args alert-box-args args)]}
   (let [close-button [button
                       :label    "×"
                       :on-click (handler-fn (on-close id))
@@ -70,14 +60,13 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def alert-list-args-desc
-  [{:name :alerts        :required false                                :type "vector of maps" :description "alerts to render in a list, in order"}
-   {:name :on-close      :required false                                :type "(:id) -> nil"   :description "called when the user clicks a close 'X'. Passed the alert's :id"}
-   {:name :max-height    :required false :default "grows forever"       :type "string"         :description "CSS style for list height."}
-   {:name :padding       :required false :default "4px"                 :type "string"         :description "CSS padding within the alert."}
-   {:name :border-style  :required false :default "1px solid lightgrey" :type "string"         :description "CSS border style surrounding the list"}])
+  [{:name :alerts        :required false                                :type "vector of maps"                      :description "alerts to render in a list, in order"}
+   {:name :on-close      :required false                                :type "(:id) -> nil"   :validate-fn fn?     :description "called when the user clicks a close 'X'. Passed the alert's :id"}
+   {:name :max-height    :required false :default "grows forever"       :type "string"         :validate-fn string? :description "CSS style for list height."}
+   {:name :padding       :required false :default "4px"                 :type "string"         :validate-fn string? :description "CSS padding within the alert."}
+   {:name :border-style  :required false :default "1px solid lightgrey" :type "string"         :validate-fn string? :description "CSS border style surrounding the list"}])
 
-(def alert-list-args
-  (set (map :name alert-list-args-desc)))
+(def alert-list-args (extract-arg-data alert-list-args-desc))
 
 (defn alert-list
   "Displays a list of alert-box components in a v-box. Sample alerts object:
@@ -94,7 +83,7 @@
   [& {:keys [alerts on-close max-height padding border-style]
       :or   {padding "4px"}
       :as   args}]
-  {:pre [(util/validate-arguments alert-list-args (keys args))]}
+  {:pre [(validate-args alert-list-args args)]}
   [border
    :padding padding
    :border  border-style
