@@ -85,10 +85,9 @@
    Normally used for a call to the {:pre...} at the beginning of a function."
   [arg-defs passed-args]
   (let [passed-arg-keys (set (keys passed-args))]
-    (and
-      (args-names-valid?     (:names        arg-defs) passed-arg-keys)
-      (required-args-passed? (:required     arg-defs) passed-arg-keys)
-      (validate-fns-pass?    (:validate-fns arg-defs) passed-args))))
+    (and (args-names-valid?     (:names        arg-defs) passed-arg-keys)
+         (required-args-passed? (:required     arg-defs) passed-arg-keys)
+         (validate-fns-pass?    (:validate-fns arg-defs) passed-args))))
 
 
 ;; ----------------------------------------------------------------------------
