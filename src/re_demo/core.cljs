@@ -52,16 +52,18 @@
    {:id ::alert-box              :label "Alert Box"          :panel alert-box/panel}
    {:id ::alert-list             :label "Alert List"         :panel alert-list/panel}
    {:id ::tabs                   :label "Tabs"               :panel tabs/panel}
-   {:id ::popovers               :label "Popovers"           :panel popovers/panel}
+   {:id ::popover-args           :label "Popover Args ***"   :panel popovers/arg-lists}
+   {:id ::popovers               :label "Popover Demos"      :panel popovers/panel}
    {:id ::date                   :label "Dates"              :panel date-picker/panel}
    {:id ::time                   :label "Time"               :panel time/panel}
    {:id ::lists                  :label "List"               :panel lists/panel}
    {:id ::tour                   :label "Tour"               :panel tour/panel}
    {:id ::modals                 :label "Modals"             :panel modals/panel}
-   {:id ::boxes                  :label "Box Args"           :panel boxes/arg-lists}
+   {:id ::box-args               :label "Box Args ***"       :panel boxes/arg-lists}
    {:id ::boxes1                 :label "Box Demo 1"         :panel boxes/panelA}
    {:id ::boxes2                 :label "Box Demo 2"         :panel boxes/panelB}
-   {:id ::layouts                :label "Layouts"            :panel layouts/panel}])
+   {:id ::layout-args            :label "Layout Args ***"    :panel layouts/arg-lists}
+   {:id ::layouts                :label "Layout Demo"        :panel layouts/panel}])
 
 
 (defn nav-item

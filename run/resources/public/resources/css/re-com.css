@@ -546,12 +546,12 @@
 
 
 code {
-    margin-right:   0.3em;
+    margin-right:   0.2em;
     border-radius:  4px;
     color:          #333;
     background:     #eee;
     border:         1px solid #ddd;
-    padding:        0.2em 0.5em;
+    padding:        0.1em 0.3em;
 }
 
 .re-code {

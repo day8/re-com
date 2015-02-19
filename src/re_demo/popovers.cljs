@@ -3,10 +3,12 @@
   (:require [re-com.core                 :refer [label input-text checkbox radio-button title]]
             [re-com.buttons              :refer [button hyperlink]]
             [re-com.box                  :refer [h-box v-box box gap line scroller border]]
-            [re-com.popover              :refer [popover-content-wrapper popover-anchor-wrapper popover-tooltip]]
+            [re-com.popover              :refer [popover-content-wrapper popover-content-wrapper-args-desc
+                                                 popover-anchor-wrapper popover-anchor-wrapper-args-desc
+                                                 popover-tooltip popover-tooltip-args-desc]]
             [re-com.dropdown             :refer [single-dropdown]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
-            [re-demo.utils               :refer [panel-title component-title]]
+            [re-demo.utils               :refer [panel-title component-title args-table]]
             [reagent.core                :as    reagent]))
 
 
@@ -24,6 +26,51 @@
                     {:id :right-center :label ":right-center"}
                     {:id :right-below  :label ":right-below "}])
 
+
+(defn arg-lists
+  []
+  [v-box
+   :gap      "10px"
+   :children [[panel-title "Popover Components"]
+
+              [h-box
+               :gap      "50px"
+               :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "NOTE: Might want to split these into separate pages like buttton and basics" {:font-style "italic"}]
+                                      [component-title "[popover-anchor-wrapper ...]"]
+                                      [:span "The popover-anchor-wrapper is used to..."]
+                                      [args-table popover-anchor-wrapper-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+              [h-box
+               :gap      "50px"
+               :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "[popover-content-wrapper ...]"]
+                                      [:span "The popover-content-wrapper is used to..."]
+                                      [args-table popover-content-wrapper-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+              [h-box
+               :gap      "50px"
+               :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "[popover-tooltip ...]"]
+                                      [:span "The popover-tooltip is used to..."]
+                                      [args-table popover-tooltip-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+              [gap :size "30px"]]])
 
 (defn simple-popover-demo
   []

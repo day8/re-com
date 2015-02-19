@@ -32,7 +32,7 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [label :label "Renders a dynamic list of alert-boxes vertically."]
+                                          [label :label "Renders a dynamic list of alert-boxes vertically. New alerts are added at the top."]
                                           [args-table   alert-list-args-desc]]]
                               [v-box
                                :width    "500px"
@@ -49,8 +49,9 @@
                                           [alert-list
                                            :alerts       alerts
                                            :on-close     #(reset! alerts (remove-id-item % @alerts))
-                                           :max-height   "300px"
-                                           :border-style "1px dashed lightgrey"]]]]]]])))
+                                           ;:max-height   "300px"
+                                           ;:border-style "1px dashed lightgrey"
+                                           ]]]]]]])))
 
 
 (defn panel   ;; Introduce a level of naming indirection so that figwheel updates work

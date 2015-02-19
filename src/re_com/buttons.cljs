@@ -42,8 +42,7 @@
                            :disabled disabled?
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))
-                           }
+                                         (on-click)))}
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})

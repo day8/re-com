@@ -38,7 +38,7 @@
               :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "NOTE: Might want to split these into separate pages like buttton and basics"]
+                           :children [[component-title "NOTE: Might want to split these into separate pages like buttton and basics" {:font-style "italic"}]
                                       [component-title "[h-box ...]"]
                                       [:span "The h-box is used to..."]
                                       [args-table h-box-args-desc]]]
@@ -118,8 +118,7 @@
                            :gap      "10px"
                            :children [[component-title "Demo"]
                                       [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
-              [gap :size "30px"]
-              ]])
+              [gap :size "30px"]]])
 
 
 (defn panelA2
