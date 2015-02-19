@@ -66,31 +66,6 @@
       (let [missing-args (remove passed-args required-args)]
         (log-error "Missing required arguments: " missing-args))))
 
-#_(defn validate-fns-pass-GR?
-  "Call validate-fn for each arg that has one (and only if the arg was actually passed). Return true if ALL were successful. Prints errors to console.
-  NOTE: Return value for validate-fn is boolean (with a twist):
-         - true:   validation success
-         - false:  validation failed - use standard error message
-         - string: validation failed - use this string in place of standard error message"
-  [arg-defs passed-args]
-  (let [validate-arg (fn [arg-def]
-                       (let [arg-name   (:name arg-def)
-                             arg-val    (arg-name passed-args)]
-                         ;(println arg-name "=" arg-val)
-                         (if (contains? passed-args arg-name) ;; Only validate if arg was actually passed
-                           (let [validate-result ((:validate-fn arg-def) arg-val)]
-                             (if (true? validate-result)
-                               true
-                               (let [msg (if (string? validate-result)
-                                           validate-result
-                                           (str "Argument '" arg-name "' failed it's validate function. Expected type '" (:type arg-def)
-                                                "'. Got '" (left-string arg-val 40) "'"))]
-                                 (.error js/console msg)
-                                 false)))
-                           true)))
-        validations (map validate-arg arg-defs)]
-    ;(println validations)
-    (every? true? validations)))
 
 (defn validate-fns-pass?
   "Call validate-fn for each arg that has one (and only if the arg was actually passed). Return true if ALL were successful. Prints errors to console.
