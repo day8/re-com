@@ -38,29 +38,37 @@
   (.warn js/console (apply str args))
   false)
 
+
+(defn hash-map-with-name-keys
+  [v]
+  (zipmap (map :name v) v))
+
+
 (defn extract-arg-data
   "Package up all the relevant data for validation purposes from the xxx-args-desc map into a new map."
   [args-desc]
-  {:names       (set (map :name args-desc))
-   :required    (->> args-desc
-                     (filter :required)
-                     (map :name)
-                     set)
-   :validate-fns (filter :validate-fn args-desc)})
+  {:arg-names      (set (map :name args-desc))
+   :required-args  (->> args-desc
+                        (filter :required)
+                        (map :name)
+                        set)
+   :validated-args (->> (filter :validate-fn args-desc)
+                        vec
+                        (hash-map-with-name-keys))})
 
 ;; ----------------------------------------------------------------------------
 ;; Primary validation functions
 ;; ----------------------------------------------------------------------------
 
-(defn args-names-valid?
-  "Checks that arg names passed in are all one of the expected ones. If so, returns true. Prints errors to console."
+(defn arg-names-valid?
+  "returns true if every passed-args is value. Otherwise log the problem and return false"
   [defined-args passed-args]
   (or (superset? defined-args passed-args)
       (let [missing-args (remove defined-args passed-args)]
         (log-error "Invalid arguments: " missing-args))))
 
 (defn required-args-passed?
-  "Checks that all :required args are included in the arg list. If so, returns true. Prints errors to console"
+  "returns true is all the required args are supplied. Otherwise log the error and return false."
   [required-args passed-args]
   (or (superset? passed-args required-args)
       (let [missing-args (remove passed-args required-args)]
@@ -68,13 +76,14 @@
 
 
 (defn validate-fns-pass?
-  "Call validate-fn for each arg that has one (and only if the arg was actually passed). Return true if ALL were successful. Prints errors to console.
-   NOTE: Return value for validate-fn is boolean (with a twist):
+  "returns true if all argument values are valid  (for args which have a validator).
+   Otherwise log error and return false.
+   Validation functions can return:
          - true:   validation success
          - false:  validation failed - use standard error message
          - string: validation failed - use this string in place of standard error message"
-  [v-arg-defs passed-args]
-  (let [validate-arg (fn [v-arg-def]
+  [args-with-validators passed-args]
+  (let [validate-arg (fn [[_ v-arg-def]]
                        (let [arg-name        (:name v-arg-def)
                              arg-val         (arg-name passed-args)
                              validate-result ((:validate-fn v-arg-def) arg-val)]
@@ -83,7 +92,7 @@
                            (false?  validate-result) (log-error "Argument '" arg-name "' validation failed. Expected '" (:type v-arg-def) "'. Got '" (left-string arg-val 40) "'")
                            (string? validate-result) (log-error validate-result)
                            :else                     (log-error "Invalid return from validate-fn: " validate-result))))]
-    (->> (select-keys v-arg-defs (keys passed-args))
+    (->> (select-keys args-with-validators (vec (keys passed-args)))
          (map validate-arg)
          (every? true?))))
 
@@ -96,9 +105,9 @@
    Normally used for a call to the {:pre...} at the beginning of a function."
   [arg-defs passed-args]
   (let [passed-arg-keys (set (keys passed-args))]
-    (and (args-names-valid?     (:names        arg-defs) passed-arg-keys)
-         (required-args-passed? (:required     arg-defs) passed-arg-keys)
-         (validate-fns-pass?    (:validate-fns arg-defs) passed-args))))
+    (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys)
+         (required-args-passed? (:required-args  arg-defs) passed-arg-keys)
+         (validate-fns-pass?    (:validated-args arg-defs) passed-args))))
 
 
 ;; ----------------------------------------------------------------------------
@@ -107,9 +116,9 @@
 
 (defn validate-arg-against-set
   "Validates the passed argument against the expected set."
-  [arg arg-type valid-args]
-  (or (contains? valid-args arg)
-      (str "Invalid " arg-type ". Expected one of " valid-args ". Got '" (left-string arg 40) "'")))
+  [arg arg-name valid-set]
+  (or (contains? valid-set arg)
+      (str "Invalid " arg-name ". Expected one of " valid-set ". Got '" (left-string arg 40) "'")))
 
 (defn justify-style?
   [arg]
