@@ -3,12 +3,21 @@
              [re-com.util           :refer [deref-or-value]]
              [reagent.impl.template :refer [valid-tag?]]))
 
+
+;; -- Global Switch ------------------------------------------------------------------------------------
+
+;; if true, then validation occurs.
+;; It is expected that will be flicked to off, in production systems.
 (defonce arg-validation (atom true))
 
-(defn set-validation
+
+(defn set-validation!
   "Turns argument validation on or off based on a boolean argument."
   [val]
   (reset! arg-validation val))
+
+
+;; -- Helpers ------------------------------------------------------------------------------------
 
 (defn left-string
   "Converts obj to a string and truncates it to max-len chars if necessary.
@@ -35,10 +44,10 @@
   [args-desc]
   {:names       (set (map :name args-desc))
    :required    (->> args-desc
-                     (filter #(:required %))
+                     (filter :required)
                      (map :name)
                      set)
-   :validate-fns (filter #(:validate-fn %) args-desc)})
+   :validate-fns (filter :validate-fn args-desc)}) 
 
 ;; ----------------------------------------------------------------------------
 ;; Primary validation functions
