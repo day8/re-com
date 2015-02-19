@@ -1,5 +1,4 @@
 (ns re-com.util
-  (:require-macros [re-com.util :refer [assert*]])
   (:require  [clojure.set :refer [superset?]]))
 
 (defn fmap

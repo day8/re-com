@@ -2,21 +2,20 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.buttons  :refer [button]]
             [re-com.box      :refer [h-box v-box scroller border]]
-            [re-com.validate :refer [extract-arg-data validate-args hiccup-or-string?]]
-            [re-com.util     :as    util]))
+            [re-com.validate :refer [extract-arg-data validate-args hiccup-or-string? alert-type? vector-of-maps?]]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert
 ;;--------------------------------------------------------------------------------------------------
 
 (def alert-box-args-desc
-  [{:name :id              :required false                  :type "anything"                                        :description "a unique identifier, usually an integer or string"}
-   {:name :alert-type      :required false :default "info"  :type "string"           :validate-fn string?           :description "a bootstrap style: info, warning or danger"}
-   {:name :heading         :required false                  :type "hiccup | string"  :validate-fn hiccup-or-string? :description "displayed as header. One of :heading or :body must be provided"}
-   {:name :body            :required false                  :type "hiccup | string"  :validate-fn hiccup-or-string? :description "displayed within the body of the alert"}
-   {:name :padding         :required false :default "15px"  :type "string"           :validate-fn string?           :description "padding surounding the alert"}
-   {:name :closeable?      :required false :default false   :type "boolean"                                         :description "if true, render a close button.  :on-close should be supplied"}
-   {:name :on-close        :required false                  :type "(:id) -> nil"     :validate-fn  fn?              :description "called when the user clicks a close 'X'. Passed the :id of the alert to close."}])
+  [{:name :id              :required false                  :type "anything"                                          :description "a unique identifier, usually an integer or string"}
+   {:name :alert-type      :required false :default "info"  :type "string"           :validate-fn alert-type?         :description "a bootstrap style: info, warning or danger"}
+   {:name :heading         :required false                  :type "hiccup | string"  :validate-fn hiccup-or-string?   :description "displayed as header. One of :heading or :body must be provided"}
+   {:name :body            :required false                  :type "hiccup | string"  :validate-fn hiccup-or-string?   :description "displayed within the body of the alert"}
+   {:name :padding         :required false :default "15px"  :type "string"           :validate-fn string?             :description "padding surounding the alert"}
+   {:name :closeable?      :required false :default false   :type "boolean"                                           :description "if true, render a close button.  :on-close should be supplied"}
+   {:name :on-close        :required false                  :type "(:id) -> nil"     :validate-fn  fn?                :description "called when the user clicks a close 'X'. Passed the :id of the alert to close."}])
 
 (def alert-box-args (extract-arg-data alert-box-args-desc))
 
@@ -60,11 +59,11 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def alert-list-args-desc
-  [{:name :alerts        :required false                                :type "vector of maps"                      :description "alerts to render in a list, in order"}
-   {:name :on-close      :required false                                :type "(:id) -> nil"   :validate-fn fn?     :description "called when the user clicks a close 'X'. Passed the alert's :id"}
-   {:name :max-height    :required false :default "grows forever"       :type "string"         :validate-fn string? :description "CSS style for list height."}
-   {:name :padding       :required false :default "4px"                 :type "string"         :validate-fn string? :description "CSS padding within the alert."}
-   {:name :border-style  :required false :default "1px solid lightgrey" :type "string"         :validate-fn string? :description "CSS border style surrounding the list"}])
+  [{:name :alerts        :required false                                :type "atom vector of maps" :validate-fn vector-of-maps? :description "atom containing alerts to render in a list, in order"}
+   {:name :on-close      :required false                                :type "(:id) -> nil"        :validate-fn fn?             :description "called when the user clicks a close 'X'. Passed the alert's :id"}
+   {:name :max-height    :required false :default "grows forever"       :type "string"              :validate-fn string?         :description "CSS style for list height."}
+   {:name :padding       :required false :default "4px"                 :type "string"              :validate-fn string?         :description "CSS padding within the alert."}
+   {:name :border-style  :required false :default "1px solid lightgrey" :type "string"              :validate-fn string?         :description "CSS border style surrounding the list"}])
 
 (def alert-list-args (extract-arg-data alert-list-args-desc))
 

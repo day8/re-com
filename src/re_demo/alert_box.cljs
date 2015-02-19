@@ -1,12 +1,13 @@
 (ns re-demo.alert-box
   (:require [re-com.box    :refer [h-box v-box box line gap]]
-            [re-com.alert  :refer [alert-box alert-list alert-box-args-desc alert-list-args-desc]]
+            [re-com.alert  :refer [alert-box alert-box-args-desc
+                                   alert-list alert-list-args-desc]]
             [re-demo.utils :refer [panel-title component-title args-table]]
             [reagent.core  :as    reagent]))
 
 (defn alert-box-demo
   []
-  (let [show-alert (reagent/atom true)
+  (let [show-alert  (reagent/atom true)
         show-alert1 (reagent/atom true)
         show-alert2 (reagent/atom true)]
     (fn []
@@ -18,7 +19,6 @@
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :children [#_[component-title "Notes"]
                                           #_[label :label "A component which renders a single alert-box."]

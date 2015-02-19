@@ -100,7 +100,6 @@
   []
   [v-box
    :width    "400px"
-   :style    {:font-size "small"}
    :children [[:div.h4 "Notes:"]
                [:p "To create a tour:"]
                 [:ul

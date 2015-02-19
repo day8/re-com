@@ -1,7 +1,14 @@
 (ns re-demo.boxes
-  (:require [re-com.box     :refer [h-box v-box box gap line scroller border]]
+  (:require [re-com.box      :refer [h-box h-box-args-desc
+                                     v-box v-box-args-desc
+                                     box box-args-desc
+                                     gap gap-args-desc
+                                     line line-args-desc
+                                     scroller scroller-args-desc
+                                     border border-args-desc]]
             [re-com.buttons :refer [button]]
-            [re-demo.utils  :refer [panel-title component-title]]))
+            [re-demo.utils   :refer [panel-title component-title args-table]]
+            [re-com.validate :refer [extract-arg-data validate-args hiccup-or-string? alert-type? vector-of-maps?]]))
 
 
 (def rounded-panel {:background-color "#fff4f4"
@@ -18,6 +25,101 @@
                :width            "100%"
                ;:overflow         "auto"
                })
+
+
+(defn arg-lists
+  []
+  [v-box
+   :gap      "10px"
+   :children [[panel-title "Box Components"]
+
+              [h-box
+              :gap      "50px"
+              :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "NOTE: Might want to split these into separate pages like buttton and basics"]
+                                      [component-title "[h-box ...]"]
+                                      [:span "The h-box is used to..."]
+                                      [args-table h-box-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+              [h-box
+              :gap      "50px"
+              :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "[v-box ...]"]
+                                      [:span "The v-box is used to..."]
+                                      [args-table v-box-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+              [h-box
+              :gap      "50px"
+              :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "[box ...]"]
+                                      [:span "The box is used to..."]
+                                      [args-table box-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+              [h-box
+              :gap      "50px"
+              :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "[gap ...]"]
+                                      [:span "The gap is used to..."]
+                                      [args-table gap-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+              [h-box
+              :gap      "50px"
+              :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "[line ...]"]
+                                      [:span "The line is used to..."]
+                                      [args-table line-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+              [h-box
+              :gap      "50px"
+              :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "[scroller ...]"]
+                                      [:span "The scroller is used to..."]
+                                      [args-table scroller-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+              [h-box
+              :gap      "50px"
+              :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "[border ...]"]
+                                      [:span "The border is used to..."]
+                                      [args-table border-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+              [gap :size "30px"]
+              ]])
 
 
 (defn panelA2

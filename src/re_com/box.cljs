@@ -1,7 +1,6 @@
  (ns re-com.box
-  (:require [clojure.string :as    string]
-            [re-com.util    :refer [validate-arguments]]
-            [reagent.core   :as    reagent]))
+  (:require [clojure.string  :as    string]
+            [re-com.validate :refer [extract-arg-data validate-args hiccup-or-string? alert-type? vector-of-maps?]]))
 
 (def debug false)
 
@@ -129,15 +128,14 @@
    {:name :style        :required false                                 :type "map"      :description "CSS styles to add or override."}
    {:name :attr         :required false                                 :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def box-base-args
-  (set (map :name box-base-args-desc)))
+(def box-base-args (extract-arg-data box-base-args-desc))
 
 (defn- box-base
   "This should generally NOT be used as it is the basis for the box, scroller and border components."
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height justify align align-self
              margin padding border l-border r-border t-border b-border radius bk-color child class style attr]
       :as   args}]
-  {:pre [(validate-arguments box-base-args (keys args))]}
+  {:pre [(validate-args box-base-args args)]}
   (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s (merge
             {:display "flex" :flex-flow "inherit"}
@@ -188,14 +186,13 @@
    {:name :style           :required false  :type "map"      :description "CSS styles to add or override."}
    {:name :attr            :required false  :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def gap-args
-  (set (map :name gap-args-desc)))
+(def gap-args (extract-arg-data gap-args-desc))
 
 (defn gap
   "Returns markup which produces a gap between children in a v-box/h-box along the main axis."
   [& {:keys [size width height class style attr]
       :as   args}]
-  {:pre [(validate-arguments gap-args (keys args))]}
+  {:pre [(validate-args gap-args args)]}
   (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s (merge
             ;(when size {:flex (str "0 0 " size)})
@@ -215,14 +212,13 @@
 ;; ------------------------------------------------------------------------------------
 
 (def line-args-desc
-  [{:name :size            :required true                       :type "string"   :description "a CSS style to specify size in any sizing amount, usually px, % or em."}
+  [{:name :size            :required false :default "1px"       :type "string"   :description "a CSS style to specify size in any sizing amount, usually px, % or em."}
    {:name :color           :required false :default "lightgray" :type "string"   :description "a colour using CSS colour methods."}
    {:name :class           :required false                      :type "string"   :description "CSS class names, space seperated."}
    {:name :style           :required false                      :type "map"      :description "CSS styles to add or override."}
    {:name :attr            :required false                      :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def line-args
-  (set (map :name line-args-desc)))
+(def line-args (extract-arg-data line-args-desc))
 
 (defn line
   "Returns markup which produces a line between children in a v-box/h-box along the main axis.
@@ -230,7 +226,7 @@
   [& {:keys [size color class style attr]
       :or   {size "1px" color "lightgray"}
       :as   args}]
-  {:pre [(validate-arguments line-args (keys args))]}
+  {:pre [(validate-args line-args args)]}
   (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s (merge
             {:flex (str "0 0 " size)}
@@ -262,8 +258,7 @@
    {:name :style           :required false                   :type "map"       :description "CSS styles to add or override."}
    {:name :attr            :required false                   :type "map"       :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def h-box-args
-  (set (map :name h-box-args-desc)))
+(def h-box-args (extract-arg-data h-box-args-desc))
 
 (defn h-box
   "Returns markup which produces a horizontal box.
@@ -272,7 +267,7 @@
   [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
-  {:pre [(validate-arguments h-box-args (keys args))]}
+  {:pre [(validate-args h-box-args args)]}
   (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s        (merge
                    {:display "flex" :flex-flow "row nowrap"}
@@ -318,8 +313,7 @@
    {:name :style           :required false                   :type "map"       :description "CSS styles to add or override."}
    {:name :attr            :required false                   :type "map"       :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def v-box-args
-  (set (map :name v-box-args-desc)))
+(def v-box-args (extract-arg-data v-box-args-desc))
 
 (defn v-box
   "Returns markup which produces a vertical box.
@@ -328,7 +322,7 @@
   [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
-  {:pre [(validate-arguments v-box-args (keys args))]}
+  {:pre [(validate-args v-box-args args)]}
   (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s        (merge
                    {:display "flex" :flex-flow "column nowrap"}
@@ -374,9 +368,7 @@
    {:name :style           :required false                   :type "string"   :description "CSS styles to add or override."}
    {:name :attr            :required false                   :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def box-args
-  (set (map :name box-args-desc)))
-
+(def box-args (extract-arg-data box-args-desc))
 
 (defn box
   "Returns markup which produces a box, which is generally used as a child of a v-box or an h-box.
@@ -384,7 +376,7 @@
   [& {:keys [size width height min-width min-height justify align align-self margin padding child class style attr]
       :or   {size "none"}
       :as   args}]
-  {:pre [(validate-arguments box-args (keys args))]}
+  {:pre [(validate-args box-args args)]}
   (box-base :size        size
             :width       width
             :height      height
@@ -428,8 +420,7 @@
    {:name :style           :required false                   :type "map"      :description "CSS styles to add or override."}
    {:name :attr            :required false                   :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def scroller-args
-  (set (map :name scroller-args-desc)))
+(def scroller-args (extract-arg-data scroller-args-desc))
 
 (defn scroller
   "Returns markup which produces a scoller component.
@@ -447,7 +438,7 @@
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height justify align align-self margin padding child class style attr]
       :or   {size "auto"}
       :as   args}]
-  {:pre [(validate-arguments scroller-args (keys args))]}
+  {:pre [(validate-args scroller-args args)]}
   (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
         scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
     (box-base :size       size
@@ -492,8 +483,7 @@
    {:name :style        :required false                                 :type "map"      :description "CSS styles to add or override."}
    {:name :attr         :required false                                 :type "map"      :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def border-args
-  (set (map :name border-args-desc)))
+(def border-args (extract-arg-data border-args-desc))
 
 (defn border
   "Returns markup which produces a border component.
@@ -505,7 +495,7 @@
   [& {:keys [size width height min-width min-height margin padding border l-border r-border t-border b-border radius child class style attr]
       :or   {size "auto"}
       :as   args}]
-  {:pre [(validate-arguments border-args (keys args))]}
+  {:pre [(validate-args border-args args)]}
   (let [no-border      (every? nil? [border l-border r-border t-border b-border])
         default-border "1px solid lightgrey"]
     (box-base :size        size

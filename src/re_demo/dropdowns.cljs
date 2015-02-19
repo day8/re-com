@@ -298,7 +298,6 @@
   []
   [v-box
    :gap      "10px"
-   :style    {:font-size "small"}
    :width    "450px"
    :children [[args-table single-dropdown-desc]]])
 

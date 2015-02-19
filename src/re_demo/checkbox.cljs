@@ -41,7 +41,6 @@
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :children [[args-table checkbox-args-desc]]]
                               [v-box
@@ -91,9 +90,9 @@
                                                        :children [[checkbox
                                                                    :model     something2?
                                                                    :on-change #(reset! something2? %)]
-                                                                  [gap :width "50px"]
+                                                                  [gap :size "50px"]
                                                                   [left-arrow]
-                                                                  [gap :width "5px"]
+                                                                  [gap :size "5px"]
                                                                   [label
                                                                    :label "no label on this one"]]]]]]]]]]])))
 

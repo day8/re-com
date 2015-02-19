@@ -48,7 +48,6 @@
                      :gap      "50px"
                      :children [[v-box
                                  :gap      "10px"
-                                 :style    {:font-size "small"}
                                  :width    "450px"
                                  :children [[:div.h4 "Notes"]
                                             [:ul
@@ -193,7 +192,6 @@
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
                                :children [[:ul
@@ -226,7 +224,6 @@
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
                                :children [[:ul
@@ -267,7 +264,6 @@
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
                                :children [[:ul
@@ -351,7 +347,6 @@
                :gap      "50px"
                :children [[v-box
                            :gap      "10px"
-                           :style    {:font-size "small"}
                            :width    "450px"
                            :margin   "20px 0px 0px 0px"
                            :children [[:ul

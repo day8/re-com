@@ -26,7 +26,6 @@
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :children [[args-table input-text-args-desc]]]
                               [v-box

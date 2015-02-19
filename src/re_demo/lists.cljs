@@ -11,7 +11,7 @@
 (defn- options-with
   [width content multi-select? disabled? required? as-exclusions?]
   (fn []
-    (let [check-style {:font-size "small" :margin-top "1px"}]
+    (let [check-style {:margin-top "1px"}]
       [v-box
        :width (str width "px")
        :gap      "20px"
@@ -84,11 +84,9 @@
   []
   [v-box
    :gap      "10px"
-   :style    {:font-size "small"}
    :width    "450px"
    :children [[component-title "Notes"]
               [v-box
-               :style {:font-size "small"}
                :children [[:p "Allows the user to select items from a list (single or multi)."]
                           [:p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
                           [:p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]

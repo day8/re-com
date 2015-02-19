@@ -15,8 +15,9 @@
 
 (def panel-title-style
   {:font-family "'Roboto Condensed', sans-serif;"
-   :font-size   "24px"
-   :font-weight 300})
+   :font-size   "26px"
+   :color       "#666"
+   :font-weight 500})
 
 (defn panel-title
   "Title shown at the top of each Tab Panel"

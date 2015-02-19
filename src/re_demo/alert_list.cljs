@@ -30,7 +30,6 @@
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :children [[component-title "Notes"]
                                           [label :label "Renders a dynamic list of alert-boxes vertically."]

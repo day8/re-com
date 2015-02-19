@@ -62,9 +62,9 @@
                               [day-check :Th]
                               [day-check :Fr]
                               [day-check :Sa]
-                              [gap :width "5px"]
+                              [gap :size "5px"]
                               [label :label ":enabled-days"]
-                              [gap :width "15px"]
+                              [gap :size "15px"]
                               [:label
                                {:class "day-enabled" :style {:color "orange"}}
                                "(warning: excluding selected day causes assertion error)"]]]
@@ -150,7 +150,6 @@
   []
   [v-box
    :gap      "10px"
-   :style    {:font-size "small"}
    :width    "450px"
    :children [[component-title "[datepicker ... ]"]
               [component-title "[datepicker-dropdown ... ]"]

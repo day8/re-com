@@ -36,7 +36,6 @@
                    :gap "50px"
                    :children [[v-box
                                :gap      "10px"
-                               :style    {:font-size "small"}
                                :width    "450px"
                                :children [[label :style {:font-variant "small-caps"} :label "notes"]
                                        [:ul

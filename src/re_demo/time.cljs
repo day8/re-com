@@ -11,10 +11,9 @@
   []
   [v-box
    :gap      "10px"
-   :style    {:font-size "small"}
    :width    "450px"
    :children [ [component-title "Notes"]
-               [:div {:style {:font-size "small"}}
+               [:div
                [:p "Allows the user to input time in 24hr format."]
                 [:p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
                  Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
@@ -22,7 +21,7 @@
                [args-table input-time-args-desc]]])
 
 
-(def check-style {:font-size "small" :margin-top "1px"})
+(def check-style {:margin-top "1px"})
 
 
 (defn- simulated-bools
@@ -65,7 +64,6 @@
        :children [[component-title "Demo"]
                   [h-box
                    :gap "40px"
-                   :style {:font-size "small"}
                    :children [[input-time
                                :model an-int-time
                                :minimum @minimum
@@ -97,9 +95,9 @@
                                           [h-box
                                            :gap "10px"
                                            :align :center
-                                           :children [[label :label ":minimum" :style {:font-size "small"}]
+                                           :children [[label :label ":minimum"]
                                                       [label :label @minimum :style {:width "40px" :font-size "11px" :text-align "center"}]
-                                                      [label :label ":maximum" :style {:font-size "small"}]
+                                                      [label :label ":maximum"]
                                                       [label :label @maximum :style {:width "40px" :font-size "11px" :text-align "center"}]]]
                                           [h-box
                                            :gap "10px"

@@ -22,14 +22,13 @@
 (defn button-demo
   []
   [v-box
-   :gap "10px"
+   :gap      "10px"
    :children [[panel-title "[button ... ]"]
 
               [h-box
                :gap      "50px"
                :children [[v-box
                            :gap      "10px"
-                           :style    {:font-size "small"}
                            :width    "450px"
                            :children [[args-table button-args-desc]]]
                           [v-box

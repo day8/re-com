@@ -36,8 +36,7 @@
 (enable-console-print!)
 
 (def tabs-definition
-  [
-   {:id ::welcome                :label "Welcome"            :panel welcome/panel}
+  [{:id ::welcome                :label "Welcome"            :panel welcome/panel}
    {:id ::button                 :label "Button"             :panel button/panel}
    {:id ::md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
    {:id ::md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
@@ -59,10 +58,10 @@
    {:id ::lists                  :label "List"               :panel lists/panel}
    {:id ::tour                   :label "Tour"               :panel tour/panel}
    {:id ::modals                 :label "Modals"             :panel modals/panel}
-   {:id ::boxes1                 :label "Boxes-1"            :panel boxes/panelA}
-   {:id ::boxes2                 :label "Boxes-2"            :panel boxes/panelB}
-   {:id ::layouts                :label "Layouts"            :panel layouts/panel}
-   ])
+   {:id ::boxes                  :label "Box Args"           :panel boxes/arg-lists}
+   {:id ::boxes1                 :label "Box Demo 1"         :panel boxes/panelA}
+   {:id ::boxes2                 :label "Box Demo 2"         :panel boxes/panelB}
+   {:id ::layouts                :label "Layouts"            :panel layouts/panel}])
 
 
 (defn nav-item
@@ -99,7 +98,7 @@
   [h-box
    :justify  :center
    :align    :center
-   :height   "57px"
+   :height   "60px"
    :style  {:color "#FEFEFE"
             :background-color "#888"}
    :children [[re-com-title ]]])
