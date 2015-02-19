@@ -1,7 +1,8 @@
 (ns re-com.validate
   (:require  [clojure.set           :refer [superset?]]
              [re-com.util           :refer [deref-or-value]]
-             [reagent.impl.template :refer [valid-tag?]]))
+             [reagent.impl.template :refer [valid-tag?]]
+             [goog.string :as gstring]))
 
 
 ;; -- Global Switch ------------------------------------------------------------------------------------
@@ -23,9 +24,7 @@
   "Converts obj to a string and truncates it to max-len chars if necessary.
    When truncation is necessary, adds an elipsis to the end."
   [obj max-len]
-  (let [obj-str  (str obj)
-        clipped? (> (count obj-str) max-len)]
-    (str (.substring obj-str 0 max-len) (when clipped? "..."))))
+  (gstring/truncate (str obj) max-len))
 
 (defn log-error
   "Sends a message to the DeV Tools console as an error."
@@ -47,7 +46,7 @@
                      (filter :required)
                      (map :name)
                      set)
-   :validate-fns (filter :validate-fn args-desc)}) 
+   :validate-fns (filter :validate-fn args-desc)})
 
 ;; ----------------------------------------------------------------------------
 ;; Primary validation functions
@@ -56,20 +55,18 @@
 (defn args-names-valid?
   "Checks that arg names passed in are all one of the expected ones. If so, returns true. Prints errors to console."
   [defined-args passed-args]
-  (if (superset? defined-args passed-args)
-    true
-    (let [missing-args (remove defined-args passed-args)]
-      (log-error "Invalid arguments: " missing-args))))
+  (or (superset? defined-args passed-args)
+      (let [missing-args (remove defined-args passed-args)]
+        (log-error "Invalid arguments: " missing-args))))
 
 (defn required-args-passed?
   "Checks that all :required args are included in the arg list. If so, returns true. Prints errors to console"
   [required-args passed-args]
-  (if (superset? passed-args required-args)
-    true
-    (let [missing-args (remove passed-args required-args)]
-      (log-error "Missing required arguments: " missing-args))))
+  (or (superset? passed-args required-args)
+      (let [missing-args (remove passed-args required-args)]
+        (log-error "Missing required arguments: " missing-args))))
 
-(defn validate-fns-pass-GR?
+#_(defn validate-fns-pass-GR?
   "Call validate-fn for each arg that has one (and only if the arg was actually passed). Return true if ALL were successful. Prints errors to console.
   NOTE: Return value for validate-fn is boolean (with a twist):
          - true:   validation success
@@ -95,7 +92,7 @@
     ;(println validations)
     (every? true? validations)))
 
-(defn validate-fns-pass?  ;; TODO: Debug this fn then remove the one above
+(defn validate-fns-pass?
   "Call validate-fn for each arg that has one (and only if the arg was actually passed). Return true if ALL were successful. Prints errors to console.
    NOTE: Return value for validate-fn is boolean (with a twist):
          - true:   validation success
@@ -126,7 +123,7 @@
   (let [passed-arg-keys (set (keys passed-args))]
     (and (args-names-valid?     (:names        arg-defs) passed-arg-keys)
          (required-args-passed? (:required     arg-defs) passed-arg-keys)
-         (validate-fns-pass-GR? (:validate-fns arg-defs) passed-args))))
+         (validate-fns-pass?    (:validate-fns arg-defs) passed-args))))
 
 
 ;; ----------------------------------------------------------------------------
@@ -136,25 +133,24 @@
 (defn validate-arg-against-set
   "Validates the passed argument against the expected set."
   [arg arg-type valid-args]
-  (if (contains? valid-args arg)
-    true
-    (str "Invalid " arg-type ". Expected one of " valid-args ". Got '" (left-string arg 40) "'")))
+  (or (contains? valid-args arg)
+      (str "Invalid " arg-type ". Expected one of " valid-args ". Got '" (left-string arg 40) "'")))
 
 (defn justify-style?
   [arg]
-  (validate-arg-against-set arg "justify-style" #{:start :end :center :between :around}))
+  (validate-arg-against-set arg ":justify-style" #{:start :end :center :between :around}))
 
 (defn align-style?
   [arg]
-  (validate-arg-against-set arg "align-style"   #{:start :end :center :baseline :stretch}))
+  (validate-arg-against-set arg ":align-style"   #{:start :end :center :baseline :stretch}))
 
 (defn scroll-style?
   [arg]
-  (validate-arg-against-set arg "scroll-style"  #{:auto :off :on :spill}))
+  (validate-arg-against-set arg ":scroll-style"  #{:auto :off :on :spill}))
 
 (defn alert-type?
   [arg]
-  (validate-arg-against-set arg "alert-type"    #{"info" "warning" "danger"}))
+  (validate-arg-against-set arg ":alert-type"    #{"info" "warning" "danger"}))
 
 ;; ----------------------------------------------------------------------------
 ;; Custom :validate-fn functions
@@ -171,6 +167,6 @@
     - only checks the first element in the vector"
   [arg]
   (let [val (deref-or-value arg)]
-    (if (vector? val)
-      (or (empty? val) (map? (first val)))
-      false)))
+    (and (vector? val)
+         (or (empty? val)
+             (map? (first val))))))
