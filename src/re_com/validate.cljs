@@ -2,7 +2,7 @@
   (:require  [clojure.set           :refer [superset?]]
              [re-com.util           :refer [deref-or-value]]
              [reagent.impl.template :refer [valid-tag?]]
-             [goog.string :as gstring]))
+             [goog.string           :as    gstring]))
 
 
 ;; -- Global Switch ------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@
         (log-error "Invalid arguments: " missing-args))))
 
 (defn required-args-passed?
-  "returns true is all the required args are supplied. Otherwise log the error and return false."
+  "returns true if all the required args are supplied. Otherwise log the error and return false."
   [required-args passed-args]
   (or (superset? passed-args required-args)
       (let [missing-args (remove passed-args required-args)]
@@ -82,16 +82,21 @@
          - true:   validation success
          - false:  validation failed - use standard error message
          - string: validation failed - use this string in place of standard error message"
-  [args-with-validators passed-args]
+  [args-with-validators passed-args component-name]
   (let [validate-arg (fn [[_ v-arg-def]]
                        (let [arg-name        (:name v-arg-def)
                              arg-val         (arg-name passed-args)
+                             required?       (:required v-arg-def)
                              validate-result ((:validate-fn v-arg-def) arg-val)]
+                         ;(println (str "[" component-name "] " arg-name " = '" (if (nil? (deref-or-value arg-val)) "nil" (left-string (deref-or-value arg-val) 40)) "'"))
                          (cond
-                           (true?   validate-result) true
-                           (false?  validate-result) (log-error "Argument '" arg-name "' validation failed. Expected '" (:type v-arg-def) "'. Got '" (left-string arg-val 40) "'")
-                           (string? validate-result) (log-error validate-result)
-                           :else                     (log-error "Invalid return from validate-fn: " validate-result))))]
+                           (or (true? validate-result)
+                               (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
+                                    (not required?))) true
+                           (false?  validate-result)  (log-error "Argument '" arg-name "' validation failed in component '" component-name "'. Expected '" (:type v-arg-def)
+                                                                 "'. Got '" (if (nil? (deref-or-value arg-val)) "nil" (left-string (deref-or-value arg-val) 40)) "'")
+                           (string? validate-result)  (log-error validate-result)
+                           :else                      (log-error "Invalid return from validate-fn: " validate-result))))]
     (->> (select-keys args-with-validators (vec (keys passed-args)))
          (map validate-arg)
          (every? true?))))
@@ -103,44 +108,51 @@
     - Specific valiadation function calls to check arg values if specified
    If they all pass, returns true.
    Normally used for a call to the {:pre...} at the beginning of a function."
-  [arg-defs passed-args]
+  [arg-defs passed-args & component-name]
   (let [passed-arg-keys (set (keys passed-args))]
     (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys)
          (required-args-passed? (:required-args  arg-defs) passed-arg-keys)
-         (validate-fns-pass?    (:validated-args arg-defs) passed-args))))
+         (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name)))))
 
 
 ;; ----------------------------------------------------------------------------
 ;; Custom :validate-fn functions based on (validate-arg-against-set)
 ;; ----------------------------------------------------------------------------
 
+(def justify-options #{:start :end :center :between :around})
+(def align-options   #{:start :end :center :baseline :stretch})
+(def scroll-options  #{:auto :off :on :spill})
+(def alert-types     #{"info" "warning" "danger"})
+
+;TODO: Can use code like this to create a reference table: (into [:div] (map #([:code (str %)]) justify-options))
+
 (defn validate-arg-against-set
   "Validates the passed argument against the expected set."
   [arg arg-name valid-set]
   (or (contains? valid-set arg)
-      (str "Invalid " arg-name ". Expected one of " valid-set ". Got '" (left-string arg 40) "'")))
+      (str "Invalid " arg-name ". Expected one of " valid-set ". Got '" (left-string (deref-or-value arg) 40) "'")))
 
 (defn justify-style?
   [arg]
-  (validate-arg-against-set arg ":justify-style" #{:start :end :center :between :around}))
+  (validate-arg-against-set arg ":justify-style" justify-options))
 
 (defn align-style?
   [arg]
-  (validate-arg-against-set arg ":align-style"   #{:start :end :center :baseline :stretch}))
+  (validate-arg-against-set arg ":align-style"   align-options))
 
 (defn scroll-style?
   [arg]
-  (validate-arg-against-set arg ":scroll-style"  #{:auto :off :on :spill}))
+  (validate-arg-against-set arg ":scroll-style"  scroll-options))
 
 (defn alert-type?
   [arg]
-  (validate-arg-against-set arg ":alert-type"    #{"info" "warning" "danger"}))
+  (validate-arg-against-set arg ":alert-type"    alert-types))
 
 ;; ----------------------------------------------------------------------------
 ;; Custom :validate-fn functions
 ;; ----------------------------------------------------------------------------
 
-(defn hiccup-or-string?
+(defn string-or-hiccup?
   "Returns true if the passed argument is either valid hiccup or a string"
   [arg]
   (valid-tag? arg))

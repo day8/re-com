@@ -1,18 +1,18 @@
 (ns re-demo.core
   (:require-macros [re-com.core            :refer [handler-fn]]
                    [cljs.core.async.macros :refer [go]])
-  (:require ;[figwheel.client                :as    fw]
-            [reagent.core                   :as    reagent]
+  (:require [reagent.core                   :as    reagent]
             [alandipert.storage-atom        :refer [local-storage]]
             [re-demo.utils                  :refer [panel-title re-com-title]]
             [re-com.util                    :as    util]
-            [re-com.core                    :as    core]
             [re-com.box                     :refer [h-box v-box box gap line scroller border]]
             [re-demo.welcome                :as    welcome]
-            [re-demo.radio_button           :as    radio-button]
+            [re-demo.radio-button           :as    radio-button]
             [re-demo.checkbox               :as    checkbox]
-            [re-demo.input_text             :as    input-text]
+            [re-demo.input-text             :as    input-text]
             [re-demo.slider                 :as    slider]
+            [re-demo.label                  :as    label]
+            [re-demo.progress-bar           :as    progress-bar]
             [re-demo.button                 :as    button]
             [re-demo.md-circle-icon-button  :as    md-circle-icon-button]
             [re-demo.md-icon-button         :as    md-icon-button]
@@ -48,6 +48,8 @@
    {:id ::radio-button           :label "Radio Button"       :panel radio-button/panel}
    {:id ::input-text             :label "Input Text"         :panel input-text/panel}
    {:id ::slider                 :label "Slider"             :panel slider/panel}
+   {:id ::label                  :label "Label ***"          :panel label/panel}
+   {:id ::progress-bar           :label "Progress Bar ***"   :panel progress-bar/panel}
    {:id ::dropdown               :label "Dropdowns"          :panel dropdowns/panel}
    {:id ::alert-box              :label "Alert Box"          :panel alert-box/panel}
    {:id ::alert-list             :label "Alert List"         :panel alert-list/panel}
@@ -73,10 +75,10 @@
       (let [selected (= @selected-tab-id (:id tab))]
       [:div
        {:style {:color            (if selected "#111")
-                :border-right     (if selected "4px #e8e8e8 solid")
+                :border-right     (if selected "4px #d0d0d0 solid")
                 :background-color (if (or
                                         (= @selected-tab-id (:id tab))
-                                        @mouse-over?) "#f4f4f4")}
+                                        @mouse-over?) "#eaeaea")}
 
         :class "nav-item"
         :on-mouse-over (handler-fn (reset! mouse-over? true))

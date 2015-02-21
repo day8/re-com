@@ -48,7 +48,6 @@
                                                                :child  [label
                                                                         :label (nth click-outcomes (:outcome-index @state))
                                                                         :style {:margin-left "15px"}]]]]
-
                                                   [gap :size "40px"]
                                                   [h-box
                                                    :gap "50px"

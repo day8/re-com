@@ -45,7 +45,7 @@
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
               [h-box
                :gap      "50px"
                :children [[v-box
@@ -57,7 +57,7 @@
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
               [h-box
                :gap      "50px"
                :children [[v-box
@@ -69,7 +69,7 @@
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
               [gap :size "30px"]]])
 
 (defn simple-popover-demo

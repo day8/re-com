@@ -1,4 +1,4 @@
-(ns re-demo.input_text
+(ns re-demo.input-text
   (:require [re-com.core      :refer [input-text input-textarea input-text-args-desc
                                       label checkbox radio-button slider]]
             [re-com.box       :refer [h-box v-box box gap line]]
@@ -15,7 +15,7 @@
         status-tooltip  (reagent/atom "")
         disabled?       (reagent/atom false)
         change-on-blur? (reagent/atom true)
-        slider-val      (reagent/atom 4)]
+        slider-val      (reagent/atom "4")]
     (fn
       []
       [v-box
@@ -129,10 +129,10 @@
                                                                    :gap "10px"
                                                                    :children [[label :label ":rows (textarea):"]
                                                                               [slider
-                                                                               :model slider-val
-                                                                               :min 1
-                                                                               :max 10
-                                                                               :width "200px"
+                                                                               :model     slider-val
+                                                                               :min       1
+                                                                               :max       10
+                                                                               :width     "200px"
                                                                                :on-change #(reset! slider-val %)]
                                                                               [label :label @slider-val]]]]]]]]]]]]])))
 

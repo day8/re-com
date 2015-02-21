@@ -16,7 +16,7 @@
    {:name :tooltip          :required false :default "no tooltop"    :type "string | hiccup" :description "what to show in the tooltip."}
    {:name :tooltip-position :required false :default :below-center   :type "keyword"         :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :disabled?        :required false :default false           :type "boolean | atom"  :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"          :description "CSS classes (whitespace specerated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
+   {:name :class            :required false                          :type "string"          :description "CSS classes (whitespace separated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
    {:name :style            :required false                          :type "map"             :description "CSS styles."}
    {:name :attr             :required false                          :type "map"             :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
@@ -72,7 +72,7 @@
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
+   {:name :class            :required false                          :type "string"     :description "CSS class names, space separated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
@@ -133,7 +133,7 @@
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
+   {:name :class            :required false                          :type "string"     :description "CSS class names, space separated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
@@ -191,7 +191,7 @@
   [{:name :info             :required false                          :type "string | hiccup" :description "What's shown in the popover."}
    {:name :position         :required false :default ":right-below"  :type "keyword"         :description [:span "tooltip relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :width            :required false :default "250px"         :type "string"          :description "width in px"}
-   {:name :class            :required false                          :type "string"          :description "CSS class names, space seperated"}
+   {:name :class            :required false                          :type "string"          :description "CSS class names, space separated"}
    {:name :style            :required false                          :type "map"             :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"             :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
@@ -237,7 +237,7 @@
    {:name :tooltip          :required false                          :type "string | hiccup" :description "what to show in the tooltip."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
+   {:name :class            :required false                          :type "string"     :description "CSS class names, space separated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
@@ -288,7 +288,7 @@
    {:name :tooltip          :required false                          :type "string | hiccup" :description "what to show in the tooltip."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
    {:name :disabled?        :required false :default false           :type "string"     :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
+   {:name :class            :required false                          :type "string"     :description "CSS class names, space separated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
@@ -344,7 +344,7 @@
    {:name :target           :required false :default "_self"         :type "string"     :description "One of \"_self\" or \"_blank\""}
    {:name :tooltip          :required false                          :type "string | hiccup"     :description "show a popover-tooltip using this text."}
    {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
-   {:name :class            :required false                          :type "string"     :description "CSS class names, space seperated."}
+   {:name :class            :required false                          :type "string"     :description "CSS class names, space separated."}
    {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
@@ -364,18 +364,16 @@
             href       (deref-or-value href)
             target     (deref-or-value target)
             the-button [:a
-                        (merge
-                          {:class  (str "rc-hyperlink-href " class)
-                           :style  (merge
-                                     {:flex                "none"
-                                      :-webkit-user-select "none"}
-                                     style)
-                           :href   href
-                           :target target}
-                          (when tooltip
-                            {:on-mouse-over (handler-fn (reset! showing? true))
-                             :on-mouse-out  (handler-fn (reset! showing? false))})
-                          attr)
+                        (merge {:class  (str "rc-hyperlink-href " class)
+                                :style  (merge {:flex                "none"
+                                                :-webkit-user-select "none"}
+                                               style)
+                                :href   href
+                                :target target}
+                               (when tooltip
+                                 {:on-mouse-over (handler-fn (reset! showing? true))
+                                  :on-mouse-out  (handler-fn (reset! showing? false))})
+                               attr)
                         label]]
 
         (if tooltip

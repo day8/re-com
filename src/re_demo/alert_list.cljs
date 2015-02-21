@@ -49,9 +49,8 @@
                                           [alert-list
                                            :alerts       alerts
                                            :on-close     #(reset! alerts (remove-id-item % @alerts))
-                                           ;:max-height   "300px"
-                                           ;:border-style "1px dashed lightgrey"
-                                           ]]]]]]])))
+                                           :max-height   "300px"
+                                           :border-style "1px dashed lightgrey"]]]]]]])))
 
 
 (defn panel   ;; Introduce a level of naming indirection so that figwheel updates work

@@ -1,4 +1,4 @@
-(ns re-demo.radio_button
+(ns re-demo.radio-button
   (:require [re-com.core      :refer [radio-button radio-button-args-desc]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-demo.utils    :refer [panel-title component-title args-table]]

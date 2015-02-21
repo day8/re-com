@@ -2,8 +2,8 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value]]
             [re-com.buttons  :refer [button]]
-            [re-com.box      :refer [h-box v-box scroller border]]
-            [re-com.validate :refer [extract-arg-data validate-args hiccup-or-string? alert-type? vector-of-maps?]]))
+            [re-com.box      :refer [h-box v-box box scroller border]]
+            [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? vector-of-maps?]]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert
@@ -12,17 +12,20 @@
 (def alert-box-args-desc
   [{:name :id              :required false                  :type "anything"                                          :description [:span "a unique identifier, usually an integer or string. Used to identify this alert for " [:code ":on-close"]]}
    {:name :alert-type      :required false :default "info"  :type "string"           :validate-fn alert-type?         :description "a bootstrap style: \"info\", \"warning\" or \"danger\""}
-   {:name :heading         :required false                  :type "hiccup | string"  :validate-fn hiccup-or-string?   :description [:span "displayed as header. One of " [:code ":heading"] " or " [:code ":body"] " should be provided"]}
-   {:name :body            :required false                  :type "hiccup | string"  :validate-fn hiccup-or-string?   :description "displayed within the body of the alert"}
+   {:name :heading         :required false                  :type "string | hiccup"  :validate-fn string-or-hiccup?   :description [:span "displayed as header. One of " [:code ":heading"] " or " [:code ":body"] " should be provided"]}
+   {:name :body            :required false                  :type "string | hiccup"  :validate-fn string-or-hiccup?   :description "displayed within the body of the alert"}
    {:name :padding         :required false :default "15px"  :type "string"           :validate-fn string?             :description "padding surounding the alert"}
    {:name :closeable?      :required false :default false   :type "boolean"                                           :description [:span "if true, render a close button. " [:code ":on-close"] " should be supplied"]}
-   {:name :on-close        :required false                  :type "(:id) -> nil"     :validate-fn  fn?                :description [:span "called when the user clicks the close 'X' button. Passed the " [:code ":id"] " of the alert to close"]}])
+   {:name :on-close        :required false                  :type "(:id) -> nil"     :validate-fn  fn?                :description [:span "called when the user clicks the close 'X' button. Passed the " [:code ":id"] " of the alert to close"]}
+   {:name :class           :required false                  :type "string"           :validate-fn string?             :description "CSS classes (whitespace separated). Applied to outer container"}
+   {:name :style           :required false                  :type "map"              :validate-fn map?                :description "CSS styles. Applied to outer container"}
+   {:name :attr            :required false                  :type "map"              :validate-fn map?                :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])
 
 (def alert-box-args (extract-arg-data alert-box-args-desc))
 
 (defn alert-box
   "Displays one alert box. A close button allows the message to be removed."
-  [& {:keys [id alert-type heading body padding closeable? on-close]
+  [& {:keys [id alert-type heading body padding closeable? on-close class style attr]
       :or   {alert-type "info"}
       :as   args}]
   {:pre [(validate-args alert-box-args args)]}
@@ -34,14 +37,16 @@
                         "success"
                         alert-type)]
     [:div
-     {:class (str "rc-alert alert fade in alert-" alert-type)
-      :style {:flex    "none"
-              :padding (when padding padding)}}
+     (merge {:class (str "rc-alert alert fade in alert-" alert-type " " class)
+             :style (merge {:flex    "none"
+                            :padding (when padding padding)}
+                           style)}
+            attr)
      (when heading
        [h-box
-        :justify :between
-        :align :center
-        :style {:margin-bottom (if body "10px" "0px")}
+        :justify  :between
+        :align    :center
+        :style    {:margin-bottom (if body "10px" "0px")}
         :children [[:h4
                     {:style {:margin-bottom "0px"}} ;; Override h4
                     heading]
@@ -49,8 +54,8 @@
                      close-button)]])
      (when body
        [h-box
-        :justify :between
-        :align :center
+        :justify  :between
+        :align    :center
         :children [[:div body]
                    (when (and (not heading) closeable? on-close)
                      close-button)]])]))
@@ -64,7 +69,10 @@
    {:name :on-close      :required true                                 :type "(:id) -> nil"        :validate-fn fn?             :description [:span "called when the user clicks the close 'X' button. Passed the alert's " [:code ":id"]]}
    {:name :max-height    :required false :default "grows forever"       :type "string"              :validate-fn string?         :description "CSS style for maximum  list height"}
    {:name :padding       :required false :default "4px"                 :type "string"              :validate-fn string?         :description "CSS padding within the alert"}
-   {:name :border-style  :required false :default "1px solid lightgrey" :type "string"              :validate-fn string?         :description "CSS border style surrounding the list"}])
+   {:name :border-style  :required false :default "1px solid lightgrey" :type "string"              :validate-fn string?         :description "CSS border style surrounding the list"}
+   {:name :class         :required false                                :type "string"              :validate-fn string?         :description "CSS classes (whitespace separated). Applied to outer container"}
+   {:name :style         :required false                                :type "map"                 :validate-fn map?            :description "CSS styles. Applied to outer container"}
+   {:name :attr          :required false                                :type "map"                 :validate-fn map?            :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])
 
 (def alert-list-args (extract-arg-data alert-list-args-desc))
 
@@ -80,26 +88,30 @@
        :alert-type \"info\"
        :heading \"Heading\"
        :body \"Body\"}]"
-  [& {:keys [alerts on-close max-height padding border-style]
+  [& {:keys [alerts on-close max-height padding border-style class style attr]
       :or   {padding "4px"}
       :as   args}]
   {:pre [(validate-args alert-list-args args)]}
   (let [alerts (deref-or-value alerts)]
-    [border
-     :padding padding
-     :border border-style
-     :child [scroller
-             :v-scroll :auto
-             :style {:max-height max-height}
-             :child [v-box
-                     :size "auto"
-                     :children [(for [alert alerts]
-                                  (let [{:keys [id alert-type heading body padding closeable?]} alert]
-                                    ^{:key id} [alert-box
-                                                :id id
-                                                :alert-type alert-type
-                                                :heading heading
-                                                :body body
-                                                :padding padding
-                                                :closeable? closeable?
-                                                :on-close on-close]))]]]]))
+    [box
+     :child [border
+             :padding padding
+             :border border-style
+             :class class
+             :style style
+             :attr attr
+             :child [scroller
+                     :v-scroll :auto
+                     :style {:max-height max-height}
+                     :child [v-box
+                             :size "auto"
+                             :children [(for [alert alerts]
+                                          (let [{:keys [id alert-type heading body padding closeable?]} alert]
+                                            ^{:key id} [alert-box
+                                                        :id id
+                                                        :alert-type alert-type
+                                                        :heading heading
+                                                        :body body
+                                                        :padding padding
+                                                        :closeable? closeable?
+                                                        :on-close on-close]))]]]]]))

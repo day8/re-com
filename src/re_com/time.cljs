@@ -31,7 +31,7 @@
 
 ;; This regular expression matchs all valid forms of time entry, including partial
 ;; forms which happen during user entry.
-;; It is composed of 3 'or' options, seperated by '|',  and within each, is a sub-re which
+;; It is composed of 3 'or' options, separated by '|',  and within each, is a sub-re which
 ;; attempts to match the HH ':' MM parts.
 ;; So any attempt to match against this re, using "re-matches" will return
 ;; a vector of 10 items:
@@ -133,7 +133,7 @@
    {:name :disabled?       :required false :default false   :type "boolean | atom"   :description "when true, user input is disabled."}
    {:name :show-icon?      :required false :default false   :type "boolean"          :description "when true, a clock icon will be displayed to the right of input field"}
    {:name :hide-border?    :required false :default false   :type "boolean"          :description "when true, input filed is displayed without a border."}
-   {:name :class           :required false                  :type "string"           :description "CSS class names, space seperated"}
+   {:name :class           :required false                  :type "string"           :description "CSS class names, space separated"}
    {:name :style           :required false                  :type "map"              :description "CSS style. Eg: {:color \"red\" :width \"50px\"}" }])
 
 ; TODO:  description for 'class' above it wrong.

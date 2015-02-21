@@ -8,7 +8,7 @@
                                      border border-args-desc]]
             [re-com.buttons :refer [button]]
             [re-demo.utils   :refer [panel-title component-title args-table]]
-            [re-com.validate :refer [extract-arg-data validate-args hiccup-or-string? alert-type? vector-of-maps?]]))
+            [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? vector-of-maps?]]))
 
 
 (def rounded-panel {:background-color "#fff4f4"
@@ -45,7 +45,7 @@
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
               [h-box
               :gap      "50px"
               :children [[v-box
@@ -57,7 +57,7 @@
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
               [h-box
               :gap      "50px"
               :children [[v-box
@@ -69,7 +69,7 @@
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
               [h-box
               :gap      "50px"
               :children [[v-box
@@ -81,7 +81,7 @@
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
               [h-box
               :gap      "50px"
               :children [[v-box
@@ -93,7 +93,7 @@
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
               [h-box
               :gap      "50px"
               :children [[v-box
@@ -105,7 +105,7 @@
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
               [h-box
               :gap      "50px"
               :children [[v-box
@@ -117,7 +117,7 @@
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentially Left Blank"]]]]]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
               [gap :size "30px"]]])
 
 

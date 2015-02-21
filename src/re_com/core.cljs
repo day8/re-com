@@ -1,9 +1,10 @@
 (ns re-com.core
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util    :refer [deref-or-value validate-arguments px]]
-            [re-com.popover :refer [popover-tooltip]]
-            [re-com.box     :refer [h-box v-box box gap line]]
-            [reagent.core   :as    reagent]))
+  (:require [re-com.util     :refer [deref-or-value validate-arguments px]]
+            [re-com.popover  :refer [popover-tooltip]]
+            [re-com.box      :refer [h-box v-box box gap line]]
+            [re-com.validate :refer [extract-arg-data validate-args justify-style? align-style? scroll-style? string-or-hiccup?]]
+            [reagent.core    :as    reagent]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -11,21 +12,20 @@
 ;; ------------------------------------------------------------------------------------
 
 (def label-args-desc
-  [{:name :label     :required true  :type "string"     :description "text to display"}
-   {:name :on-click  :required false :type "function"   :description "function to call when label is clicked"}
-   {:name :width     :required false :type "string"     :description "a CSS width"}
-   {:name :class     :required false :type "string"     :description "CSS class names, space seperated"}
-   {:name :style     :required false :type "string"     :description "additional CSS styles"}
-   ])
+  [{:name :label    :required true  :type "anything"                      :description "text to display. Can be anything as it will be converted to a string"}
+   {:name :width    :required false :type "string"   :validate-fn string? :description "a CSS width"}
+   {:name :on-click :required false :type "function" :validate-fn fn?     :description "function to call when label is clicked"}
+   {:name :class    :required false :type "string"   :validate-fn string? :description "CSS class names, space separated"}
+   {:name :style    :required false :type "map"      :validate-fn map?    :description "additional CSS styles"}
+   {:name :attr     :required false :type "map"      :validate-fn map?    :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def label-args
-  (set (map :name label-args-desc)))
+(def label-args (extract-arg-data label-args-desc))
 
 (defn label
   "Returns markup for a basic label"
-  [& {:keys [label on-click width class style]
+  [& {:keys [label on-click width class style attr]
       :as   args}]
-  {:pre [(validate-arguments label-args (keys args))]}
+  {:pre [(validate-args label-args args "label")]}
   [box
    :width width
    :align :start
@@ -34,8 +34,9 @@
              {:class (str "rc-label " class)
               :style (merge {:flex "none"} style)}
              (when on-click
-               {:on-click (handler-fn (on-click))}))
-           label]])
+               {:on-click (handler-fn (on-click))})
+             attr)
+           (str label)]])
 
 
 ;; ------------------------------------------------------------------------------------
@@ -55,7 +56,7 @@
    {:name :change-on-blur?  :required false :default true    :type "boolean | atom"  :description "when true, invoke on-change function on blur, otherwise on every change (character by character)."}
    {:name :validation-regex :required false                  :type "regex"      :description "the regular expression which determines which characters are legal and which aren't."}
    {:name :disabled?        :required false :default false   :type "boolean | atom" :description "if true, the user can't interact (input anything)."}
-   {:name :class            :required false                  :type "string"     :description "CSS class names, space seperated."}
+   {:name :class            :required false                  :type "string"     :description "CSS class names, space separated."}
    {:name :style            :required false                  :type "map"        :description "CSS styles to add or override."}
    {:name :attr             :required false                  :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}
    {:name :input-type       :required true                   :type "keyword"    :description "ONLY applies to super function 'base-input-text': either :input or :textarea ("}
@@ -415,7 +416,7 @@
    {:name :width         :required false                  :type "string"        :description "Standard CSS width setting for the slider. Default is 400px."}
    {:name :on-change     :required false                  :type "string"        :description "A function which takes one parameter, which is the new value of the slider."}
    {:name :disabled?     :required false  :default false  :type "boolean | atom" :description "if true, the user can't change the slider."}
-   {:name :class         :required false                  :type "string"        :description "CSS class names, space seperated."}
+   {:name :class         :required false                  :type "string"        :description "CSS class names, space separated."}
    {:name :style         :required false                  :type "map"           :description "CSS styles to add or override."}
    {:name :attr          :required false                  :type "map"           :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
@@ -451,8 +452,7 @@
                   :step      step
                   :value     model
                   :disabled  disabled?
-                  :on-change (handler-fn (on-change (double (-> event .-target .-value))))
-                  }
+                  :on-change (handler-fn (on-change (double (-> event .-target .-value))))}
                  attr)]])))
 
 
@@ -461,25 +461,37 @@
 ;; ------------------------------------------------------------------------------------
 
 (def progress-bar-args-desc
-  [{:name :model  :required false  :type "string"  :description "Numeric double. Current value of the slider. Can be value or atom."}])
+  [{:name :model    :required true  :type "double"                                       :description "Numeric double (can be a string). Current value of the slider. Value or atom."}
+   {:name :width    :required false :type "string"  :default "100%" :validate-fn string? :description "A CSS width"}
+   {:name :striped? :required false :type "boolean" :default false                       :description "When true, the progress section is a set of animated stripes"}
+   {:name :class    :required false :type "string"                  :validate-fn string? :description "CSS class names, space separated."}
+   {:name :style    :required false :type "map"                     :validate-fn map?    :description "CSS styles to add or override."}
+   {:name :attr     :required false :type "map"                     :validate-fn map?    :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def progress-bar-args
-  (set (map :name progress-bar-args-desc)))
+(def progress-bar-args (extract-arg-data progress-bar-args-desc))
 
 (defn progress-bar
   "Render a bootstrap styled progress bar"
-  [& {:keys [model] :as args}]
-  {:pre [(validate-arguments progress-bar-args (keys args))]}
-  [box
-   :align :start
-   :child [:div
-           {:class "rc-progress-bar progress"
-            :style {:flex "none"}}
-           [:div.progress-bar ;;.progress-bar-striped.active
-            {:role "progressbar"
-             :style {:width (str @model "%")
-                     :transition "none"}} ;; Default BS transitions cause the progress bar to lag behind
-            (str @model "%")]]])
+  [& {:keys [model width striped? class style attr]
+      :or   {width "100%"}
+      :as   args}]
+  {:pre [(validate-args progress-bar-args args "progress-bar")]}
+  (let [model (deref-or-value model)]
+    [box
+     :align :start
+     :child [:div
+             (merge
+               {:class (str "rc-progress-bar progress " class)
+                :style (merge {:flex  "none"
+                               :width width}
+                              style)}
+               attr)
+             [:div
+              {:class (str "progress-bar " (when striped? "progress-bar-striped active"))
+               :role  "progressbar"
+               :style {:width      (str model "%")
+                       :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind
+              (str model "%")]]]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -501,6 +513,8 @@
 ;; ------------------------------------------------------------------------------------
 ;;  Component: title
 ;; ------------------------------------------------------------------------------------
+
+;; TODO: REMOVE THIS (ONLY USED IN POPOVER)
 
 (def title-args-desc
   [{:name :label      :required true                 :type "string"  :description "Text of the title."}

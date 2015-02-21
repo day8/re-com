@@ -289,7 +289,7 @@
    {:name :on-cancel        :required false                        :type "function"      :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."}
    {:name :title            :required false                        :type "string|markup" :description "describes the title of the popover. The default font size is 18px to make it stand out."}
    {:name :close-button?    :required false  :default true         :type "boolean"       :description "when true, displays the close button."}
-   {:name :body             :required false                        :type "markup"        :description "describes the popover body. Must be a single component."}
+   {:name :body             :required false                        :type "hiccup"        :description "describes the popover body. Must be a single component."}
    {:name :tooltip-style?   :required false                        :type "boolean"       :description "setup popover styles for a tooltip."}
    {:name :popover-color    :required false  :default "white"      :type "string"        :description "Fill color of the popover."}
    {:name :arrow-length     :required false  :default 11           :type "integer"       :description "the length in pixels of the arrow (from pointy part to middle of arrow base)."}
@@ -359,8 +359,8 @@
 (def popover-anchor-wrapper-args-desc
   [{:name :showing?         :required true                         :type "atom"     :description "when the value is true, the popover shows."}
    {:name :position         :required true   :default :right-below :type "keyword"  :description "specifies the popover's position relative to the anchor. See the demo to the right for the values."}
-   {:name :anchor           :required true                         :type "markup"   :description "the component the popover is attached to."}
-   {:name :popover          :required false                        :type "markup"   :description "the popover body component."}
+   {:name :anchor           :required true                         :type "hiccup"   :description "the component the popover is attached to."}
+   {:name :popover          :required false                        :type "hiccup"   :description "the popover body component."}
    {:name :style            :required false                        :type "map"      :description "override component style(s) with a style map, only use in case of emergency."}
    ])
 
@@ -404,7 +404,7 @@
    {:name :showing?   :required true                            :type "atom"     :description "when the value is true, the tooltip shows."}
    {:name :on-cancel  :required false                           :type "function" :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."}
    {:name :status     :required false                           :type "keyword"  :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red, :info = dark grey, left aligned)."}
-   {:name :anchor     :required true                            :type "markup"   :description "the component the tooltip is attached to."}
+   {:name :anchor     :required true                            :type "hiccup"   :description "the component the tooltip is attached to."}
    {:name :position   :required false  :default ":below-center" :type "keyword"  :description "specifies the tooltip's position relative to the anchor. Same as for main popover component."}
    {:name :width      :required false                           :type "string"   :description "specifies width of the tooltip."}
    {:name :style      :required false                           :type "map"      :description "override component style(s) with a style map, only use in case of emergency."}
