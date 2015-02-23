@@ -1,6 +1,6 @@
  (ns re-com.box
   (:require [clojure.string  :as    string]
-            [re-com.validate :refer [extract-arg-data validate-args justify-style? align-style? scroll-style? string-or-hiccup?]]))
+            [re-com.validate :refer [extract-arg-data validate-args justify-style? justify-options-list align-style? align-options-list scroll-style? scroll-options-list string-or-hiccup?]]))
 
 (def debug false)
 
@@ -212,8 +212,8 @@
    {:name :height     :required false                   :type "string"  :validate-fn string?        :description "a CSS height style"}
    {:name :min-width  :required false                   :type "string"  :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
    {:name :min-height :required false                   :type "string"  :validate-fn string?        :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :justify    :required false :default :start   :type "keyword" :validate-fn justify-style? :description [:span "one of " [:code ":start"] ", " [:code ":end"] ", " [:code ":center"] ", " [:code ":between"] " and " [:code ":around"]]}
-   {:name :align      :required false :default :stretch :type "keyword" :validate-fn align-style?   :description [:span "one of " [:code ":start"] ", " [:code ":end"] ", " [:code ":center"] ", " [:code ":baseline"] " and " [:code ":stretch"]]}
+   {:name :justify    :required false :default :start   :type "keyword" :validate-fn justify-style? :description [:span "one of " justify-options-list]}
+   {:name :align      :required false :default :stretch :type "keyword" :validate-fn align-style?   :description [:span "one of " align-options-list]}
    {:name :margin     :required false                   :type "string"  :validate-fn string?        :description "a CSS margin style"}
    {:name :padding    :required false                   :type "string"  :validate-fn string?        :description "a CSS padding style"}
    {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "a CSS size style. See gap component"}
@@ -267,8 +267,8 @@
    {:name :height     :required false                   :type "string"  :validate-fn string?        :description "a CSS height style"}
    {:name :min-width  :required false                   :type "string"  :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
    {:name :min-height :required false                   :type "string"  :validate-fn string?        :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :justify    :required false :default :start   :type "keyword" :validate-fn justify-style? :description [:span "one of " [:code ":start"] ", " [:code ":end"] ", " [:code ":center"] ", " [:code ":between"] " and " [:code ":around"]]}
-   {:name :align      :required false :default :stretch :type "keyword" :validate-fn align-style?   :description [:span "one of " [:code ":start"] ", " [:code ":end"] ", " [:code ":center"] ", " [:code ":baseline"] " and " [:code ":stretch"]]}
+   {:name :justify    :required false :default :start   :type "keyword" :validate-fn justify-style? :description [:span "one of " justify-options-list]}
+   {:name :align      :required false :default :stretch :type "keyword" :validate-fn align-style?   :description [:span "one of " align-options-list]}
    {:name :margin     :required false                   :type "string"  :validate-fn string?        :description "a CSS margin style"}
    {:name :padding    :required false                   :type "string"  :validate-fn string?        :description "a CSS padding style"}
    {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "a CSS size style. See gap component"}
@@ -322,8 +322,8 @@
    {:name :height          :required false                   :type "string"          :validate-fn string?           :description "a CSS height style"}
    {:name :min-width       :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
    {:name :min-height      :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :justify         :required false :default :start   :type "keyword"         :validate-fn justify-style?    :description [:span "one of " [:code ":start"] ", " [:code ":end"] ", " [:code ":center"] ", " [:code ":between"] " and " [:code ":around"]]}
-   {:name :align           :required false :default :stretch :type "keyword"         :validate-fn align-style?      :description [:span "one of " [:code ":start"] ", " [:code ":end"] ", " [:code ":center"] ", " [:code ":baseline"] " and " [:code ":stretch"]]}
+   {:name :justify         :required false :default :start   :type "keyword"         :validate-fn justify-style?    :description [:span "one of " justify-options-list]}
+   {:name :align           :required false :default :stretch :type "keyword"         :validate-fn align-style?      :description [:span "one of " align-options-list]}
    {:name :align-self      :required false                   :type "keyword"         :validate-fn align-style?      :description [:span "use to override parent " [:code ":align"] " setting for this component"]}
    {:name :margin          :required false                   :type "string"          :validate-fn string?           :description "a CSS margin style"}
    {:name :padding         :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
@@ -368,15 +368,16 @@
                                                                                                                                   [:code ":auto"] ": only show scroll bar(s) if the content is larger than the scroller" [:br]
                                                                                                                                   [:code ":on"] ": always show scroll bars" [:br]
                                                                                                                                   [:code ":off"] ": never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen" [:br]
-                                                                                                                                  [:code ":spill"] ": never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place"]}
+                                                                                                                                  [:code ":spill"] ": never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place" [:br] [:br]
+                                                                                                                                  "or just the usual " scroll-options-list " ???"]}
    {:name :h-scroll        :required false                   :type "keyword"         :validate-fn scroll-style?     :description [:span "see " [:code ":scroll"] ". Overrides that setting"]}
    {:name :v-scroll        :required false                   :type "keyword"         :validate-fn scroll-style?     :description [:span "see " [:code ":scroll"] ". Overrides that setting"]}
    {:name :width           :required false                   :type "string"          :validate-fn string?           :description "Initial width"}
    {:name :height          :required false                   :type "string"          :validate-fn string?           :description "Initial height"}
    {:name :min-width       :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
    {:name :min-height      :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :justify         :required false :default :start   :type "keyword"         :validate-fn justify-style?    :description [:span "one of " [:code ":start"] ", " [:code ":end"] ", " [:code ":center"] ", " [:code ":between"] " and " [:code ":around"]]}
-   {:name :align           :required false :default :stretch :type "keyword"         :validate-fn align-style?      :description [:span "one of " [:code ":start"] ", " [:code ":end"] ", " [:code ":center"] ", " [:code ":baseline"] " and " [:code ":stretch"]]}
+   {:name :justify         :required false :default :start   :type "keyword"         :validate-fn justify-style?    :description [:span "one of " justify-options-list]}
+   {:name :align           :required false :default :stretch :type "keyword"         :validate-fn align-style?      :description [:span "one of " align-options-list]}
    {:name :align-self      :required false                   :type "keyword"         :validate-fn align-style?      :description [:span "use to override parent " [:code ":align"] " setting for this component"]}
    {:name :margin          :required false                   :type "string"          :validate-fn string?           :description "a CSS margin style"}
    {:name :padding         :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}

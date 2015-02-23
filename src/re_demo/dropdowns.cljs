@@ -176,10 +176,9 @@
                    :align    :center
                    :children [[label :label "Test tabbing"]
                               [input-text
-                               :model      ""
+                               :model     ""
                                :on-change #()
-                               :width     "80px"
-                               ]
+                               :width     "80px"]
                               [single-dropdown
                                :choices     grouped-countries
                                :model       selected-country-id

@@ -1,27 +1,26 @@
 (ns re-com.buttons
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util    :refer [deref-or-value validate-arguments px]]
-            [re-com.popover :refer [popover-tooltip]]
-            [re-com.box     :refer [h-box v-box box gap line]]
-            [reagent.core   :as    reagent]))
-
+  (:require [re-com.util     :refer [deref-or-value validate-arguments px]]
+            [re-com.validate :refer [extract-arg-data validate-args position? position-options-list button-size? button-sizes-list string-or-hiccup?]]
+            [re-com.popover  :refer [popover-tooltip]]
+            [re-com.box      :refer [h-box v-box box gap line]]
+            [reagent.core    :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: button
 ;; ------------------------------------------------------------------------------------
 
 (def button-args-desc
-  [{:name :label            :required true                           :type "string | hiccup" :description "Label for the button."}
-   {:name :on-click         :required false                          :type "( ) -> nil"      :description "function to call when the button is clicked."}
-   {:name :tooltip          :required false :default "no tooltop"    :type "string | hiccup" :description "what to show in the tooltip."}
-   {:name :tooltip-position :required false :default :below-center   :type "keyword"         :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
-   {:name :disabled?        :required false :default false           :type "boolean | atom"  :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"          :description "CSS classes (whitespace separated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
-   {:name :style            :required false                          :type "map"             :description "CSS styles."}
-   {:name :attr             :required false                          :type "map"             :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
+  [{:name :label            :required true                           :type "string | hiccup" :validate-fn string-or-hiccup? :description "Label for the button"}
+   {:name :on-click         :required false                          :type "( ) -> nil"      :validate-fn fn?               :description "function to call when the button is clicked"}
+   {:name :tooltip          :required false :default "no tooltop"    :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+   {:name :tooltip-position :required false :default :below-center   :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :disabled?        :required false :default false           :type "boolean | atom"                                 :description "if true, the user can't click the button."}
+   {:name :class            :required false                          :type "string"          :validate-fn string?           :description "CSS classes (whitespace separated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
+   {:name :style            :required false                          :type "map"             :validate-fn map?              :description "CSS styles."}
+   {:name :attr             :required false                          :type "map"             :validate-fn map?              :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def button-args
-  (set (map :name button-args-desc)))
+(def button-args (extract-arg-data button-args-desc))
 
 (defn button
   "Returns the markup for a basic button."
@@ -31,7 +30,7 @@
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr]
           :or   {class "btn-default"}
           :as   args}]
-      {:pre [(validate-arguments button-args (keys args))]}
+      {:pre [(validate-args button-args args "button")]}
       (let [disabled? (deref-or-value disabled?)
             the-button [:button
                         (merge
@@ -65,19 +64,18 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-circle-icon-button-args-desc
-  [{:name :md-icon-name     :required true  :default "md-add"        :type "string"     :description "the name of the icon. "}
-   {:name :on-click         :required false                          :type "( ) -> nil" :description "function to call when the button is clicked"}
-   {:name :size             :required false :default ":regular"      :type "keyword"    :description "One of :regular, :smaller or :larger."}
-   {:name :tooltip          :required false                          :type "string | hiccup" :description "what to show in the tooltip."}
-   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
-   {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
-   {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "CSS class names, space separated."}
-   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
+  [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description "the name of the icon. "}
+   {:name :on-click         :required false                        :type "( ) -> nil"      :validate-fn fn?               :description "function to call when the button is clicked"}
+   {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "One of " button-sizes-list]}
+   {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip."}
+   {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :emphasise?       :required false :default false         :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out."}
+   {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button."}
+   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated."}
+   {:name :style            :required false                        :type "map"             :validate-fn map?              :description "CSS styles to add or override."}
+   {:name :attr             :required false                        :type "map"             :validate-fn map?              :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def md-circle-icon-button-args
-  (set (map :name md-circle-icon-button-args-desc)))
+(def md-circle-icon-button-args (extract-arg-data md-circle-icon-button-args-desc))
 
 ; XXX It should be possible for disabled? to be an atom?
 
@@ -89,7 +87,7 @@
       [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
           :or   {md-icon-name "md-add"}
           :as   args}]
-      {:pre [(validate-arguments md-circle-icon-button-args (keys args))]}
+      {:pre [(validate-args md-circle-icon-button-args args "md-circle-icon-button")]}
       (let [the-button [:div
                         (merge
                           {:class    (str
@@ -126,19 +124,18 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-icon-button-args-desc
-  [{:name :md-icon-name     :required true  :default "md-add"        :type "string"     :description [:span "the name of the icon."]}
-   {:name :on-click         :required false                          :type "( ) -> nil" :description "function to call when button is clicked"}
-   {:name :size             :required false :default ":regular"      :type "keyword"    :description "One of :regular, :smaller or :larger."}
-   {:name :tooltip          :required false                          :type "string | hiccup" :description "what to show in the tooltip."}
-   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
-   {:name :emphasise?       :required false :default false           :type "boolean"    :description "if true, use emphasised styling so the button really stands out."}
-   {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "CSS class names, space separated."}
-   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
+  [{:name :md-icon-name     :required true  :default "md-add"        :type "string"          :validate-fn string?           :description [:span "the name of the icon."]}
+   {:name :on-click         :required false                          :type "( ) -> nil"      :validate-fn fn?               :description "function to call when the button is clicked"}
+   {:name :size             :required false :default :regular        :type "keyword"         :validate-fn button-size?      :description [:span "One of " button-sizes-list]}
+   {:name :tooltip          :required false                          :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip."}
+   {:name :tooltip-position :required false :default :below-center   :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :emphasise?       :required false :default false           :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out."}
+   {:name :disabled?        :required false :default false           :type "boolean"                                        :description "if true, the user can't click the button."}
+   {:name :class            :required false                          :type "string"          :validate-fn string?           :description "CSS class names, space separated."}
+   {:name :style            :required false                          :type "map"             :validate-fn map?              :description "CSS styles to add or override."}
+   {:name :attr             :required false                          :type "map"             :validate-fn map?              :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def md-icon-button-args
-  (set (map :name md-icon-button-args-desc)))
+(def md-icon-button-args (extract-arg-data md-icon-button-args-desc))
 
 ; XXX It should be possible for disabled? to be an atom?
 
@@ -150,7 +147,7 @@
       [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
           :or   {md-icon-name "md-add"}
           :as   args}]
-      {:pre [(validate-arguments md-icon-button-args (keys args))]}
+      {:pre [(validate-args md-icon-button-args args "md-icon-button")]}
       (let [the-button [:div
                         (merge
                           {:class    (str
@@ -188,15 +185,14 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def info-button-args-desc
-  [{:name :info             :required false                          :type "string | hiccup" :description "What's shown in the popover."}
-   {:name :position         :required false :default ":right-below"  :type "keyword"         :description [:span "tooltip relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
-   {:name :width            :required false :default "250px"         :type "string"          :description "width in px"}
-   {:name :class            :required false                          :type "string"          :description "CSS class names, space separated"}
-   {:name :style            :required false                          :type "map"             :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"             :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
+  [{:name :info     :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "What's shown in the popover."}
+   {:name :position :required false :default :right-below :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :width    :required false :default "250px"      :type "string"          :validate-fn string?           :description "width in px"}
+   {:name :class    :required false                       :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+   {:name :style    :required false                       :type "map"             :validate-fn map?              :description "CSS styles to add or override."}
+   {:name :attr     :required false                       :type "map"             :validate-fn map?              :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def info-button-args
-  (set (map :name info-button-args-desc)))
+(def info-button-args (extract-arg-data info-button-args-desc))
 
 (defn info-button
   "A tiny light grey button, with an 'i' in it. Meant to be unobrusive.
@@ -206,7 +202,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [info position width class style attr] :as args}]
-      {:pre [(validate-arguments info-button-args (keys args))]}
+      {:pre [(validate-args info-button-args args "info-button")]}
       [popover-tooltip
        :label     info
        :status    :info
@@ -231,18 +227,17 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def row-button-args-desc
-  [{:name :md-icon-name     :required true  :default "md-add"        :type "string"     :description "the name of the icon."}
-   {:name :on-click         :required false                          :type "( ) -> nil" :description "function to call when the button is clicked."}
-   {:name :mouse-over-row?  :required false :default false           :type "boolean"    :description "true if the mouse is hovering over the row."}
-   {:name :tooltip          :required false                          :type "string | hiccup" :description "what to show in the tooltip."}
-   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
-   {:name :disabled?        :required false :default false           :type "boolean"    :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "CSS class names, space separated."}
-   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
+  [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description "the name of the icon."}
+   {:name :on-click         :required false                        :type "( ) -> nil"      :validate-fn fn?               :description "function to call when the button is clicked."}
+   {:name :mouse-over-row?  :required false :default false         :type "boolean"                                        :description "true if the mouse is hovering over the row."}
+   {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip."}
+   {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button."}
+   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated."}
+   {:name :style            :required false                        :type "map"             :validate-fn map?              :description "CSS styles to add or override."}
+   {:name :attr             :required false                        :type "map"             :validate-fn map?              :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def row-button-args
-  (set (map :name row-button-args-desc)))
+(def row-button-args (extract-arg-data row-button-args-desc))
 
 (defn row-button
   "a circular button containing a material design icon"
@@ -252,7 +247,7 @@
       [& {:keys [md-icon-name on-click mouse-over-row? tooltip tooltip-position disabled? class style attr]
           :or   {md-icon-name "md-add"}
           :as   args}]
-      {:pre [(validate-arguments row-button-args (keys args))]}
+      {:pre [(validate-args row-button-args args "row-button")]}
       (let [the-button [:div
                         (merge
                           {:class    (str
@@ -283,17 +278,16 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def hyperlink-args-desc
-  [{:name :label            :required false                          :type "string"     :description "Label for the button (can be artitrary markup)."}
-   {:name :on-click         :required false                          :type "( ) -> nil" :description "function to call when the hyperlink is clicked."}
-   {:name :tooltip          :required false                          :type "string | hiccup" :description "what to show in the tooltip."}
-   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
-   {:name :disabled?        :required false :default false           :type "string"     :description "if true, the user can't click the button."}
-   {:name :class            :required false                          :type "string"     :description "CSS class names, space separated."}
-   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
+  [{:name :label            :required true                         :type "string | hiccup" :validate-fn string-or-hiccup? :description "Label/hiccup for the button"}
+   {:name :on-click         :required false                        :type "( ) -> nil"      :validate-fn fn?               :description "function to call when the hyperlink is clicked."}
+   {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip."}
+   {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button."}
+   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated."}
+   {:name :style            :required false                        :type "map"             :validate-fn map?              :description "CSS styles to add or override."}
+   {:name :attr             :required false                        :type "map"             :validate-fn map?              :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def hyperlink-args
-  (set (map :name hyperlink-args-desc)))
+(def hyperlink-args (extract-arg-data hyperlink-args-desc))
 
 (defn hyperlink
   "Renders an underlined text hyperlink component.
@@ -303,7 +297,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr] :as args}]
-      {:pre [(validate-arguments hyperlink-args (keys args))]}
+      {:pre [(validate-args hyperlink-args args "hyperlink")]}
       (let [label      (deref-or-value label)
             disabled?  (deref-or-value disabled?)
             the-button [box
@@ -339,17 +333,16 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def hyperlink-href-args-desc
-  [{:name :label            :required false                          :type "string"     :description "Label for the button (can be artitrary markup)."}
-   {:name :href             :required false                          :type "string"     :description "If specified, the link target URL."}
-   {:name :target           :required false :default "_self"         :type "string"     :description "One of \"_self\" or \"_blank\""}
-   {:name :tooltip          :required false                          :type "string | hiccup"     :description "show a popover-tooltip using this text."}
-   {:name :tooltip-position :required false :default ":below-center" :type "keyword"    :description [:span "relative to this anchor. " [:code ":right-below"] " or " [:code ":above-left"] " or " [:code ":left-center"] ", etc."]}
-   {:name :class            :required false                          :type "string"     :description "CSS class names, space separated."}
-   {:name :style            :required false                          :type "map"        :description "CSS styles to add or override."}
-   {:name :attr             :required false                          :type "map"        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
+  [{:name :label            :required true                         :type "string | hiccup" :validate-fn string-or-hiccup? :description "Label/hiccup for the button"}
+   {:name :href             :required true                         :type "string"          :validate-fn string?           :description "If specified, the link target URL."}
+   {:name :target           :required false :default "_self"       :type "string"          :validate-fn string?           :description "One of \"_self\" or \"_blank\""}
+   {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip."}
+   {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated."}
+   {:name :style            :required false                        :type "map"             :validate-fn map?              :description "CSS styles to add or override."}
+   {:name :attr             :required false                        :type "map"             :validate-fn map?              :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
 
-(def hyperlink-href-args
-  (set (map :name hyperlink-href-args-desc)))
+(def hyperlink-href-args (extract-arg-data hyperlink-href-args-desc))
 
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.
@@ -359,7 +352,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [label href target tooltip tooltip-position class style attr] :as args}]
-      {:pre [(validate-arguments hyperlink-href-args (keys args))]}
+      {:pre [(validate-args hyperlink-href-args args "hyperlink-href")]}
       (let [label      (deref-or-value label)
             href       (deref-or-value href)
             target     (deref-or-value target)

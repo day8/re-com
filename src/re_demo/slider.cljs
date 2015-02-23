@@ -9,10 +9,10 @@
 
 (defn slider-demo
   []
-  (let [slider-val  (reagent/atom 0)
-        slider-min  (reagent/atom 0)
-        slider-max  (reagent/atom 100)
-        slider-step (reagent/atom 1)
+  (let [slider-val  (reagent/atom "0")
+        slider-min  (reagent/atom "0")
+        slider-max  (reagent/atom "100")
+        slider-step (reagent/atom "1")
         disabled?   (reagent/atom false)]
     (fn
       []

@@ -8,7 +8,7 @@
 
 (defn input-text-demo
   []
-  (let [text-val        (reagent/atom nil)
+  (let [text-val        (reagent/atom "")
         regex           (reagent/atom nil)
         status          (reagent/atom nil)
         status-icon?    (reagent/atom false)

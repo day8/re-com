@@ -85,16 +85,16 @@
   [args-with-validators passed-args component-name]
   (let [validate-arg (fn [[_ v-arg-def]]
                        (let [arg-name        (:name v-arg-def)
-                             arg-val         (arg-name passed-args)
+                             arg-val         (deref-or-value (arg-name passed-args)) ;; Automatically extract value if it's in an atom
                              required?       (:required v-arg-def)
                              validate-result ((:validate-fn v-arg-def) arg-val)]
-                         ;(println (str "[" component-name "] " arg-name " = '" (if (nil? (deref-or-value arg-val)) "nil" (left-string (deref-or-value arg-val) 40)) "'"))
+                         ;(println (str "[" component-name "] " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 40)) "'"))
                          (cond
                            (or (true? validate-result)
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
                                     (not required?))) true
                            (false?  validate-result)  (log-error "Argument '" arg-name "' validation failed in component '" component-name "'. Expected '" (:type v-arg-def)
-                                                                 "'. Got '" (if (nil? (deref-or-value arg-val)) "nil" (left-string (deref-or-value arg-val) 40)) "'")
+                                                                 "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 40)) "'")
                            (string? validate-result)  (log-error validate-result)
                            :else                      (log-error "Invalid return from validate-fn: " validate-result))))]
     (->> (select-keys args-with-validators (vec (keys passed-args)))
@@ -119,18 +119,40 @@
 ;; Custom :validate-fn functions based on (validate-arg-against-set)
 ;; ----------------------------------------------------------------------------
 
-(def justify-options #{:start :end :center :between :around})
-(def align-options   #{:start :end :center :baseline :stretch})
-(def scroll-options  #{:auto :off :on :spill})
-(def alert-types     #{"info" "warning" "danger"})
+(def justify-options      [:start :end :center :between :around])
+(def align-options        [:start :end :center :baseline :stretch])
+(def scroll-options       [:auto :off :on :spill])
+(def alert-types          ["info" "warning" "danger"])
+(def button-sizes         [:regular :smaller :larger])
+(def input-status-types   [:warning :error])
+(def popover-status-types [:warning :error :info])
+(def position-options     [:above-left  :above-center :above-right
+                           :below-left  :below-center :below-right
+                           :left-above  :left-center  :left-below
+                           :right-above :right-center :right-below])
 
-;TODO: Can use code like this to create a reference table: (into [:div] (map #([:code (str %)]) justify-options))
+;; TODO: Is here the right place for make-code-list and all the lists? It's efficient because it makes sure they are only defined once
+
+(defn make-code-list
+  "Given a vector or list of codes, create a [:span] hiccup vector containing a comma separated list of the codes"
+  [codes]
+  (into [:span] (interpose ", " (map #(vector :code (str %)) codes))))
+
+(def justify-options-list      (make-code-list justify-options))
+(def align-options-list        (make-code-list align-options))
+(def scroll-options-list       (make-code-list scroll-options))
+(def alert-types-list          (make-code-list alert-types))
+(def button-sizes-list         (make-code-list button-sizes))
+(def input-status-types-list   (make-code-list input-status-types))
+(def popover-status-types-list (make-code-list popover-status-types))
+(def position-options-list     (make-code-list position-options))
 
 (defn validate-arg-against-set
   "Validates the passed argument against the expected set."
   [arg arg-name valid-set]
-  (or (contains? valid-set arg)
-      (str "Invalid " arg-name ". Expected one of " valid-set ". Got '" (left-string (deref-or-value arg) 40) "'")))
+  (let [arg (deref-or-value arg)]
+    (or (not= (some (hash-set arg) valid-set) nil)
+        (str "Invalid " arg-name ". Expected one of " valid-set ". Got '" (left-string arg 40) "'"))))
 
 (defn justify-style?
   [arg]
@@ -148,6 +170,22 @@
   [arg]
   (validate-arg-against-set arg ":alert-type"    alert-types))
 
+(defn button-size?
+  [arg]
+  (validate-arg-against-set arg ":size"          button-sizes))
+
+(defn input-status-type?
+  [arg]
+  (validate-arg-against-set arg ":status"        input-status-types))
+
+(defn popover-status-type?
+  [arg]
+  (validate-arg-against-set arg ":status"        popover-status-types))
+
+(defn position?
+  [arg]
+  (validate-arg-against-set arg ":position"      position-options))
+
 ;; ----------------------------------------------------------------------------
 ;; Custom :validate-fn functions
 ;; ----------------------------------------------------------------------------
@@ -155,14 +193,21 @@
 (defn string-or-hiccup?
   "Returns true if the passed argument is either valid hiccup or a string"
   [arg]
-  (valid-tag? arg))
+  (valid-tag? (deref-or-value arg)))
 
 (defn vector-of-maps?
   "Returns true if the passed argument is a vector of maps (either directly or contained in an atom). Notes:
     - vector can be empty
     - only checks the first element in the vector"
   [arg]
-  (let [val (deref-or-value arg)]
-    (and (vector? val)
-         (or (empty? val)
-             (map? (first val))))))
+  (let [arg (deref-or-value arg)]
+    (and (vector? arg)
+         (or (empty? arg)
+             (map? (first arg))))))
+
+(defn regex?  ;; TODO: Write the code
+  "Returns true if the passed argument is either valid regular expression"
+  [arg]
+  (let [arg (deref-or-value arg)]
+    ;(println "arg=" arg "source=" (.-source js/arg))
+    true))

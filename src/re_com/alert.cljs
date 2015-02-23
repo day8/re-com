@@ -3,7 +3,7 @@
   (:require [re-com.util     :refer [deref-or-value]]
             [re-com.buttons  :refer [button]]
             [re-com.box      :refer [h-box v-box box scroller border]]
-            [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? vector-of-maps?]]))
+            [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? alert-types-list vector-of-maps?]]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert
@@ -11,12 +11,12 @@
 
 (def alert-box-args-desc
   [{:name :id              :required false                  :type "anything"                                          :description [:span "a unique identifier, usually an integer or string. Used to identify this alert for " [:code ":on-close"]]}
-   {:name :alert-type      :required false :default "info"  :type "string"           :validate-fn alert-type?         :description "a bootstrap style: \"info\", \"warning\" or \"danger\""}
+   {:name :alert-type      :required false :default "info"  :type "string"           :validate-fn alert-type?         :description [:span "a bootstrap style: " alert-types-list]}
    {:name :heading         :required false                  :type "string | hiccup"  :validate-fn string-or-hiccup?   :description [:span "displayed as header. One of " [:code ":heading"] " or " [:code ":body"] " should be provided"]}
    {:name :body            :required false                  :type "string | hiccup"  :validate-fn string-or-hiccup?   :description "displayed within the body of the alert"}
    {:name :padding         :required false :default "15px"  :type "string"           :validate-fn string?             :description "padding surounding the alert"}
    {:name :closeable?      :required false :default false   :type "boolean"                                           :description [:span "if true, render a close button. " [:code ":on-close"] " should be supplied"]}
-   {:name :on-close        :required false                  :type "(:id) -> nil"     :validate-fn  fn?                :description [:span "called when the user clicks the close 'X' button. Passed the " [:code ":id"] " of the alert to close"]}
+   {:name :on-close        :required false                  :type "(:id) -> nil"     :validate-fn fn?                 :description [:span "called when the user clicks the close 'X' button. Passed the " [:code ":id"] " of the alert to close"]}
    {:name :class           :required false                  :type "string"           :validate-fn string?             :description "CSS classes (whitespace separated). Applied to outer container"}
    {:name :style           :required false                  :type "map"              :validate-fn map?                :description "CSS styles. Applied to outer container"}
    {:name :attr            :required false                  :type "map"              :validate-fn map?                :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])

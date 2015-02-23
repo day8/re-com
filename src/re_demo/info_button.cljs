@@ -58,7 +58,9 @@
                                                                   [info-button
                                                                    :info info]]]
                                                       [input-text
-                                                       :placeholder "Example input #1"]
+                                                       :model       ""
+                                                       :placeholder "Example input #1"
+                                                       :on-change   #()]
                                                       [gap :size "15px"]
                                                       [h-box
                                                        :gap      "4px"
@@ -68,7 +70,9 @@
                                                                    :width    "370px"
                                                                    :info     info]]]
                                                       [input-text
-                                                       :placeholder "Example input #2"]]]]]]]]])))
+                                                       :model       ""
+                                                       :placeholder "Example input #2"
+                                                       :on-change   #()]]]]]]]]])))
 
 
 (defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser

@@ -48,7 +48,7 @@
                                                                                  :on-change #(reset! target "_self")
                                                                                  :style {:margin-left "20px"}]
                                                                                 [radio-button
-                                                                                 :label "_blank - load link inot new tab"
+                                                                                 :label "_blank - load link into new tab"
                                                                                  :value "_blank"
                                                                                  :model @target
                                                                                  :on-change #(reset! target "_blank")
