@@ -12,6 +12,7 @@
             [re-demo.input-text             :as    input-text]
             [re-demo.slider                 :as    slider]
             [re-demo.label                  :as    label]
+            [re-demo.title                  :as    title]
             [re-demo.progress-bar           :as    progress-bar]
             [re-demo.button                 :as    button]
             [re-demo.md-circle-icon-button  :as    md-circle-icon-button]
@@ -31,41 +32,71 @@
             [re-demo.layouts                :as    layouts]
             [re-demo.tour                   :as    tour]
             [re-demo.modals                 :as    modals]
-            [re-demo.boxes                  :as    boxes]))
+
+            [re-demo.h-box                  :as    h-box]
+            [re-demo.v-box                  :as    v-box]
+            [re-demo.box                    :as    box]
+            [re-demo.gap                    :as    gap]
+            [re-demo.line                   :as    line]
+            [re-demo.scroller               :as    scroller]
+            [re-demo.border                 :as    border]
+            ))
 
 (enable-console-print!)
 
 (def tabs-definition
-  [{:id ::welcome                :label "Welcome"            :panel welcome/panel}
+  [
+   {:id ::welcome                :label "Welcome"            :panel welcome/panel}
+
+   {:id ::h-box                  :label "H-box"              :panel h-box/panel}
+   {:id ::v-box                  :label "V-box"              :panel v-box/panel}
+   {:id ::box                    :label "Box"                :panel box/panel}
+   {:id ::gap                    :label "Gap"                :panel gap/panel}
+   {:id ::line                   :label "Line"               :panel line/panel}
+   {:id ::scroller               :label "Scroller"           :panel scroller/panel}
+   {:id ::border                 :label "Border"             :panel border/panel}
+
+   {:id ::boxes1                 :label "Box Demo 1"         :panel h-box/panelA}
+   {:id ::boxes2                 :label "Box Demo 2"         :panel h-box/panelB}
+
+   {:id ::layouts                :label "Layouts"            :panel layouts/panel}
+
+   {:id ::tabs                   :label "Tabs"               :panel tabs/panel}
+
    {:id ::button                 :label "Button"             :panel button/panel}
    {:id ::md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
    {:id ::md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
-   {:id ::info-button            :label "Info Button"        :panel info-button/panel}
    {:id ::row-button             :label "Row Button"         :panel row-button/panel}
+   {:id ::info-button            :label "Info Button"        :panel info-button/panel}
    {:id ::hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
    {:id ::hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
+
+   {:id ::label                  :label "Label"              :panel label/panel}
+   {:id ::title                  :label "Title"              :panel title/panel}
    {:id ::checkbox               :label "Checkbox"           :panel checkbox/panel}
    {:id ::radio-button           :label "Radio Button"       :panel radio-button/panel}
    {:id ::input-text             :label "Input Text"         :panel input-text/panel}
    {:id ::slider                 :label "Slider"             :panel slider/panel}
-   {:id ::label                  :label "Label ***"          :panel label/panel}
-   {:id ::progress-bar           :label "Progress Bar ***"   :panel progress-bar/panel}
+   {:id ::progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
+
    {:id ::dropdown               :label "Dropdowns"          :panel dropdowns/panel}
+
+   {:id ::lists                  :label "Selection List"     :panel lists/panel}
+
+   {:id ::popover-args           :label "Popover Args"       :panel popovers/arg-lists}
+   {:id ::popovers               :label "Popover Demos"      :panel popovers/panel}
+
    {:id ::alert-box              :label "Alert Box"          :panel alert-box/panel}
    {:id ::alert-list             :label "Alert List"         :panel alert-list/panel}
-   {:id ::tabs                   :label "Tabs"               :panel tabs/panel}
-   {:id ::popover-args           :label "Popover Args ***"   :panel popovers/arg-lists}
-   {:id ::popovers               :label "Popover Demos"      :panel popovers/panel}
-   {:id ::date                   :label "Dates"              :panel date-picker/panel}
-   {:id ::time                   :label "Time"               :panel time/panel}
-   {:id ::lists                  :label "List"               :panel lists/panel}
+
+   {:id ::date                   :label "Date Picker"        :panel date-picker/panel}
+
+   {:id ::time                   :label "Input Time"         :panel time/panel}
+
    {:id ::tour                   :label "Tour"               :panel tour/panel}
+
    {:id ::modals                 :label "Modals"             :panel modals/panel}
-   {:id ::box-args               :label "Box Args ***"       :panel boxes/arg-lists}
-   {:id ::boxes1                 :label "Box Demo 1"         :panel boxes/panelA}
-   {:id ::boxes2                 :label "Box Demo 2"         :panel boxes/panelB}
-   {:id ::layout-args            :label "Layout Args ***"    :panel layouts/arg-lists}
-   {:id ::layouts                :label "Layout Demo"        :panel layouts/panel}])
+   ])
 
 
 (defn nav-item

@@ -1,10 +1,11 @@
 (ns re-demo.popovers
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.core                 :refer [label input-text checkbox radio-button title]]
+  (:require [re-com.core                 :refer [label input-text checkbox radio-button]]
             [re-com.buttons              :refer [button hyperlink]]
             [re-com.box                  :refer [h-box v-box box gap line scroller border]]
             [re-com.popover              :refer [popover-content-wrapper popover-content-wrapper-args-desc
                                                  popover-anchor-wrapper popover-anchor-wrapper-args-desc
+                                                 popover-border popover-border-args-desc
                                                  popover-tooltip popover-tooltip-args-desc]]
             [re-com.dropdown             :refer [single-dropdown]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
@@ -63,6 +64,18 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
+                           :children [[component-title "[popover-border ...]"]
+                                      [:span "The popover-border is used to..."]
+                                      [args-table popover-border-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
+              [h-box
+               :gap      "50px"
+               :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
                            :children [[component-title "[popover-tooltip ...]"]
                                       [:span "The popover-tooltip is used to..."]
                                       [args-table popover-tooltip-args-desc]]]
@@ -90,13 +103,13 @@
     (fn []
       (let [cancel-popover  #(reset! showing? false)]
         [v-box
-         :children [[title :label "[popover ... ] with [button ... ] anchor"]
+         :children [[component-title "[popover ... ] with [button ... ] anchor"]
                     [h-box
                      :gap      "50px"
                      :children [[v-box
                                  :gap      "10px"
                                  :width    "450px"
-                                 :children [[:div.h4 "Notes"]
+                                 :children [[component-title "Notes"]
                                             [:ul
                                              [:li "Popovers appear above other components, and point to an anchor."]
                                              [:li "In the simplest case, we're talking tooltips. In more complex cases, detailed dialog boxes."]
@@ -234,7 +247,7 @@
         pos       :right-below]
     (fn []
       [v-box
-       :children [[title :label "[popover ... ] with [hyperlink ... ] anchor"]
+       :children [[component-title "[popover ... ] with [hyperlink ... ] anchor"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
@@ -266,7 +279,7 @@
         pos      :above-center]
     (fn []
       [v-box
-       :children [[title :label "Proximity Popover (tooltip)"]
+       :children [[component-title "Proximity Popover (tooltip)"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
@@ -306,7 +319,7 @@
     (fn
       []
       [v-box
-       :children [[title :label "[popover-tooltip ... ]"]
+       :children [[component-title "[popover-tooltip ... ]"]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
@@ -389,7 +402,7 @@
 (defn complex-popover-demo
   []
   [v-box
-   :children [[title :label "Complex Popover (dialog box)"]
+   :children [[component-title "Complex Popover (dialog box)"]
               [h-box
                :gap      "50px"
                :children [[v-box

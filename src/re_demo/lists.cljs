@@ -51,14 +51,14 @@
         multi-select? (r/atom true)
         required?     (r/atom true)
         as-exlcusion? (r/atom false)
-        items         (r/atom [{:id "1" :label "1st RULE: You do not talk about FIGHT CLUB." :short "1st RULE"}
-                               {:id "2" :label "2nd RULE: You DO NOT talk about FIGHT CLUB." :short "2nd RULE"}
+        items         (r/atom [{:id "1" :label "1st RULE: You do not talk about FIGHT CLUB."                                  :short "1st RULE"}
+                               {:id "2" :label "2nd RULE: You DO NOT talk about FIGHT CLUB."                                  :short "2nd RULE"}
                                {:id "3" :label "3rd RULE: If someone says \"stop\" or goes limp, taps out the fight is over." :short "3rd RULE"}
-                               {:id "4" :label "4th RULE: Only two guys to a fight." :short "4th RULE"}
-                               {:id "5" :label "5th RULE: One fight at a time." :short "5th RULE"}
-                               {:id "6" :label "6th RULE: No shirts, no shoes." :short "6th RULE"}
-                               {:id "7" :label "7th RULE: Fights will go on as long as they have to." :short "7th RULE"}
-                               {:id "8" :label "8th RULE: If this is your first night at FIGHT CLUB, you HAVE to fight." :short "8th RULE"}])
+                               {:id "4" :label "4th RULE: Only two guys to a fight."                                          :short "4th RULE"}
+                               {:id "5" :label "5th RULE: One fight at a time."                                               :short "5th RULE"}
+                               {:id "6" :label "6th RULE: No shirts, no shoes."                                               :short "6th RULE"}
+                               {:id "7" :label "7th RULE: Fights will go on as long as they have to."                         :short "7th RULE"}
+                               {:id "8" :label "8th RULE: If this is your first night at FIGHT CLUB, you HAVE to fight."      :short "8th RULE"}])
         selections (r/atom (set [(second @items)]))]
     [options-with
      width

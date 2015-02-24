@@ -6,6 +6,7 @@
   (:require
     [reagent.core         :as    reagent]
     [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
+    [re-com.validate      :refer [extract-arg-data validate-args goog-date?]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box]]
@@ -66,7 +67,7 @@
 
 
 (defn- main-div-with
-  [table-div hide-border?]
+  [table-div hide-border? class style attr]
   ;;extra h-box is currently necessary so that calendar & border do not strecth to width of any containing v-box
   [h-box
    :children [[border
@@ -74,13 +75,15 @@
                :size   "none"
                :border (when hide-border? "none")
                :child  [:div
-                        {:class "calendar-date datepicker"
-                         ;; override inherrited body larger 14px font-size
-                         ;; override position from css because we are inline
-                         :style {:font-size "13px"
-                                 :position "static"
-                                 :-webkit-user-select "none" ;; only good on webkit/chrome what do we do for firefox etc
-                                 }}
+                        (merge
+                          {:class (str "rc-datepicker datepicker" class)
+                           ;; override inherrited body larger 14px font-size
+                           ;; override position from css because we are inline
+                           :style (merge {:font-size           "13px"
+                                          :position            "static"
+                                          :-webkit-user-select "none"} ;; only good on webkit/chrome what do we do for firefox etc
+                                          style)}
+                          attr)
                         table-div]]]])
 
 
@@ -157,7 +160,7 @@
 
 
 (defn- table-tr
-  "Return 7 columns of date cells from date inclusive."
+  "Return 7 columns of date cells from date inclusive"
   [date focus-month selected attributes disabled? on-change]
   {:pre [(sunday? date)]}
   (let [table-row (if (:show-weeks? attributes) [:tr (week-td date)] [:tr])
@@ -177,7 +180,7 @@
 
 
 (defn- configure
-  "Augment passed attributes with extra info/defaults."
+  "Augment passed attributes with extra info/defaults"
   [attributes]
   (let [enabled-days (->> (if (seq (:enabled-days attributes))
                             (:enabled-days attributes)
@@ -188,36 +191,42 @@
                        :today (now)})))
 
 (def datepicker-args-desc
-  [{:name :model        :required true                        :type "goog.date.UtcDateTime | atom"    :description "The selected date. Should match :enabled-days."}
-   {:name :on-change    :required true                        :type "(goog.date.UtcDateTime) -> nil"  :description "called when user entry completes and value is new"}
-   {:name :disabled?    :required false :default false        :type "boolean | atom"          :description "when true, the can't select dates but can navigate."}
-   {:name :enabled-days :required false :default "all 7 days" :type "set"                     :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Only dates falling on these days will be user-selectable. "}
-   {:name :show-weeks?  :required false :default false        :type "boolean"                 :description "when true, the first column shows week numbers."}
-   {:name :show-today?  :required false :default false        :type "boolean"                 :description "when true, today's date is highlighted."}
-   {:name :minimum      :required false                       :type "goog.date.UtcDateTime"   :description "selection & navigation are blocked before this date."}
-   {:name :maximum      :required false                       :type "goog.date.UtcDateTime"   :description "selection & navigation are blocked after this date."}
-   {:name :hide-border? :required false :default false        :type "boolean"                 :description "when true, the border is not displayed."}])
+  [{:name :model        :required true                        :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. Should match :enabled-days"}
+   {:name :on-change    :required true                        :type "(goog.date.UtcDateTime) -> nil" :validate-fn fn?        :description "called when user entry completes and value is new"}
+   {:name :disabled?    :required false :default false        :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
+   {:name :enabled-days :required false :default "all 7 days" :type "set"                            :validate-fn set?       :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Only dates falling on these days will be user-selectable. "}
+   {:name :show-weeks?  :required false :default false        :type "boolean"                                                :description "when true, the first column shows week numbers"}
+   {:name :show-today?  :required false :default false        :type "boolean"                                                :description "when true, today's date is highlighted"}
+   {:name :minimum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "selection & navigation are blocked before this date"}
+   {:name :maximum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "selection & navigation are blocked after this date"}
+   {:name :hide-border? :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
+   {:name :class        :required false                       :type "string"                         :validate-fn string?    :description "CSS classes (whitespace separated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
+   {:name :style        :required false                       :type "map"                            :validate-fn map?       :description "CSS styles"}
+   {:name :attr         :required false                       :type "map"                            :validate-fn map?       :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def datepicker-args
-  (set (map :name datepicker-args-desc)))
+(def datepicker-args (extract-arg-data datepicker-args-desc))
 
 (defn datepicker
   [& {:keys [model] :as args}]
-  {:pre [(validate-arguments datepicker-args (keys args))]}
+  {:pre [(validate-args datepicker-args args "datepicker")]}
   (let [current (-> (deref-or-value model) first-day-of-the-month reagent/atom)]
     (fn
-      [& {:keys [model disabled? hide-border? on-change] :as properties}]
+      [& {:keys [model disabled? hide-border? on-change class style attr] :as properties}]
+      {:pre [(validate-args datepicker-args properties "datepicker")]}
       (let [configuration (configure properties)]
-        (main-div-with
-          [:table {:class "table-condensed"}
-           [table-thead current configuration]
-           [table-tbody
-            @current
-            (deref-or-value model)
-            configuration
-            (if (nil? disabled?) false (deref-or-value disabled?))
-            on-change]]
-          hide-border?)))))
+        [main-div-with
+         [:table {:class "table-condensed"}
+          [table-thead current configuration]
+          [table-tbody
+           @current
+           (deref-or-value model)
+           configuration
+           (if (nil? disabled?) false (deref-or-value disabled?))
+           on-change]]
+         hide-border?
+         class
+         style
+         attr]))))
 
 
 (defn- anchor-button
@@ -237,7 +246,7 @@
 
 (def datepicker-dropdown-args-desc
   (conj datepicker-args-desc
-    {:name :format  :required false  :default "yyyy MMM dd"  :type "string"   :description "a represenatation of a date format. See cljs_time.format."}))
+    {:name :format  :required false  :default "yyyy MMM dd"  :type "string"   :description "a represenatation of a date format. See cljs_time.format"}))
 
 (def datepicker-dropdown-args
   (set (map :name datepicker-dropdown-args-desc)))

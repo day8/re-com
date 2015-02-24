@@ -24,7 +24,7 @@
 (def alert-box-args (extract-arg-data alert-box-args-desc))
 
 (defn alert-box
-  "Displays one alert box. A close button allows the message to be removed."
+  "Displays one alert box. A close button allows the message to be removed"
   [& {:keys [id alert-type heading body padding closeable? on-close class style attr]
       :or   {alert-type "info"}
       :as   args}]
@@ -65,14 +65,14 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def alert-list-args-desc
-  [{:name :alerts        :required true                                 :type "vector of maps"      :validate-fn vector-of-maps? :description "alerts to render in a list, in order"}
-   {:name :on-close      :required true                                 :type "(:id) -> nil"        :validate-fn fn?             :description [:span "called when the user clicks the close 'X' button. Passed the alert's " [:code ":id"]]}
-   {:name :max-height    :required false :default "grows forever"       :type "string"              :validate-fn string?         :description "CSS style for maximum  list height"}
-   {:name :padding       :required false :default "4px"                 :type "string"              :validate-fn string?         :description "CSS padding within the alert"}
-   {:name :border-style  :required false :default "1px solid lightgrey" :type "string"              :validate-fn string?         :description "CSS border style surrounding the list"}
-   {:name :class         :required false                                :type "string"              :validate-fn string?         :description "CSS classes (whitespace separated). Applied to outer container"}
-   {:name :style         :required false                                :type "map"                 :validate-fn map?            :description "CSS styles. Applied to outer container"}
-   {:name :attr          :required false                                :type "map"                 :validate-fn map?            :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])
+  [{:name :alerts        :required true                                 :type "vector of maps | atom" :validate-fn vector-of-maps? :description "alerts to render in a list, in order"}
+   {:name :on-close      :required true                                 :type "(:id) -> nil"          :validate-fn fn?             :description [:span "called when the user clicks the close 'X' button. Passed the alert's " [:code ":id"]]}
+   {:name :max-height    :required false :default "grows forever"       :type "string"                :validate-fn string?         :description "CSS style for maximum  list height"}
+   {:name :padding       :required false :default "4px"                 :type "string"                :validate-fn string?         :description "CSS padding within the alert"}
+   {:name :border-style  :required false :default "1px solid lightgrey" :type "string"                :validate-fn string?         :description "CSS border style surrounding the list"}
+   {:name :class         :required false                                :type "string"                :validate-fn string?         :description "CSS classes (whitespace separated). Applied to outer container"}
+   {:name :style         :required false                                :type "map"                   :validate-fn map?            :description "CSS styles. Applied to outer container"}
+   {:name :attr          :required false                                :type "map"                   :validate-fn map?            :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])
 
 (def alert-list-args (extract-arg-data alert-list-args-desc))
 

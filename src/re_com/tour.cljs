@@ -32,13 +32,13 @@
 
 
 (defn- initialise-tour
-  "Resets all poover atoms to false."
+  "Resets all poover atoms to false"
   [tour]
   (doall (for [step (:steps tour)] (reset! (step tour) false))))
 
 
 (defn start-tour
-  "Sets the first popover atom in the tour to true."
+  "Sets the first popover atom in the tour to true"
   [tour]
   (initialise-tour tour)
   (reset! (:current-step tour) 0)
@@ -46,7 +46,7 @@
 
 
 (defn finish-tour
-  "Closes all tour popovers."
+  "Closes all tour popovers"
   [tour]
   (initialise-tour tour))
 
@@ -76,7 +76,7 @@
 (defn make-tour-nav
   "Generate the hr and previous/next buttons markup.
   If first button in tour, don't generate a Previous button.
-  If last button in tour, change Next button to a Finish button."
+  If last button in tour, change Next button to a Finish button"
   [tour]
   (let [on-first-button (= @(:current-step tour) 0)
         on-last-button  (= @(:current-step tour) (dec (count (:steps tour))))]

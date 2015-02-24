@@ -5,7 +5,7 @@
              [goog.string           :as    gstring]))
 
 
-;; -- Global Switch ------------------------------------------------------------------------------------
+;; -- Global Switch -----------------------------------------------------------
 
 ;; if true, then validation occurs.
 ;; It is expected that will be flicked to off, in production systems.
@@ -13,27 +13,27 @@
 
 
 (defn set-validation!
-  "Turns argument validation on or off based on a boolean argument."
+  "Turns argument validation on or off based on a boolean argument"
   [val]
   (reset! arg-validation val))
 
 
-;; -- Helpers ------------------------------------------------------------------------------------
+;; -- Helpers -----------------------------------------------------------------
 
 (defn left-string
   "Converts obj to a string and truncates it to max-len chars if necessary.
-   When truncation is necessary, adds an elipsis to the end."
+   When truncation is necessary, adds an elipsis to the end"
   [obj max-len]
   (gstring/truncate (str obj) max-len))
 
 (defn log-error
-  "Sends a message to the DeV Tools console as an error."
+  "Sends a message to the DeV Tools console as an error"
   [& args]
   (.error js/console (apply str args))
   false)
 
 (defn log-warning
-  "Sends a message to the DeV Tools console as an warning."
+  "Sends a message to the DeV Tools console as an warning"
   [& args]
   (.warn js/console (apply str args))
   false)
@@ -45,7 +45,7 @@
 
 
 (defn extract-arg-data
-  "Package up all the relevant data for validation purposes from the xxx-args-desc map into a new map."
+  "Package up all the relevant data for validation purposes from the xxx-args-desc map into a new map"
   [args-desc]
   {:arg-names      (set (map :name args-desc))
    :required-args  (->> args-desc
@@ -68,7 +68,7 @@
         (log-error "Invalid arguments: " missing-args))))
 
 (defn required-args-passed?
-  "returns true if all the required args are supplied. Otherwise log the error and return false."
+  "returns true if all the required args are supplied. Otherwise log the error and return false"
   [required-args passed-args]
   (or (superset? passed-args required-args)
       (let [missing-args (remove passed-args required-args)]
@@ -107,7 +107,7 @@
     - Have all required args been passed?
     - Specific valiadation function calls to check arg values if specified
    If they all pass, returns true.
-   Normally used for a call to the {:pre...} at the beginning of a function."
+   Normally used for a call to the {:pre...} at the beginning of a function"
   [arg-defs passed-args & component-name]
   (let [passed-arg-keys (set (keys passed-args))]
     (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys)
@@ -133,6 +133,26 @@
 
 ;; TODO: Is here the right place for make-code-list and all the lists? It's efficient because it makes sure they are only defined once
 
+(defn validate-arg-against-set
+  "Validates the passed argument against the expected set"
+  [arg arg-name valid-set]
+  (let [arg (deref-or-value arg)]
+    (or (not= (some (hash-set arg) valid-set) nil)
+        (str "Invalid " arg-name ". Expected one of " valid-set ". Got '" (left-string arg 40) "'"))))
+
+(defn justify-style?       [arg] (validate-arg-against-set arg ":justify-style" justify-options))
+(defn align-style?         [arg] (validate-arg-against-set arg ":align-style"   align-options))
+(defn scroll-style?        [arg] (validate-arg-against-set arg ":scroll-style"  scroll-options))
+(defn alert-type?          [arg] (validate-arg-against-set arg ":alert-type"    alert-types))
+(defn button-size?         [arg] (validate-arg-against-set arg ":size"          button-sizes))
+(defn input-status-type?   [arg] (validate-arg-against-set arg ":status"        input-status-types))
+(defn popover-status-type? [arg] (validate-arg-against-set arg ":status"        popover-status-types))
+(defn position?            [arg] (validate-arg-against-set arg ":position"      position-options))
+
+;; ----------------------------------------------------------------------------
+;; Predefined hiccup lists for streamlined consumption in arg documentation
+;; ----------------------------------------------------------------------------
+
 (defn make-code-list
   "Given a vector or list of codes, create a [:span] hiccup vector containing a comma separated list of the codes"
   [codes]
@@ -147,44 +167,6 @@
 (def popover-status-types-list (make-code-list popover-status-types))
 (def position-options-list     (make-code-list position-options))
 
-(defn validate-arg-against-set
-  "Validates the passed argument against the expected set."
-  [arg arg-name valid-set]
-  (let [arg (deref-or-value arg)]
-    (or (not= (some (hash-set arg) valid-set) nil)
-        (str "Invalid " arg-name ". Expected one of " valid-set ". Got '" (left-string arg 40) "'"))))
-
-(defn justify-style?
-  [arg]
-  (validate-arg-against-set arg ":justify-style" justify-options))
-
-(defn align-style?
-  [arg]
-  (validate-arg-against-set arg ":align-style"   align-options))
-
-(defn scroll-style?
-  [arg]
-  (validate-arg-against-set arg ":scroll-style"  scroll-options))
-
-(defn alert-type?
-  [arg]
-  (validate-arg-against-set arg ":alert-type"    alert-types))
-
-(defn button-size?
-  [arg]
-  (validate-arg-against-set arg ":size"          button-sizes))
-
-(defn input-status-type?
-  [arg]
-  (validate-arg-against-set arg ":status"        input-status-types))
-
-(defn popover-status-type?
-  [arg]
-  (validate-arg-against-set arg ":status"        popover-status-types))
-
-(defn position?
-  [arg]
-  (validate-arg-against-set arg ":position"      position-options))
 
 ;; ----------------------------------------------------------------------------
 ;; Custom :validate-fn functions
@@ -205,8 +187,14 @@
          (or (empty? arg)
              (map? (first arg))))))
 
+(defn goog-date?  ;; TODO: Write the code
+  "Returns true if the passed argument is a valid goog.date.UtcDateTime"
+  [arg]
+  (let [arg (deref-or-value arg)]
+    true))
+
 (defn regex?  ;; TODO: Write the code
-  "Returns true if the passed argument is either valid regular expression"
+  "Returns true if the passed argument is a valid regular expression"
   [arg]
   (let [arg (deref-or-value arg)]
     ;(println "arg=" arg "source=" (.-source js/arg))

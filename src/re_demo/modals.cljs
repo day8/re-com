@@ -1,8 +1,7 @@
 (ns re-demo.modals
   (:require-macros [re-com.core            :refer [handler-fn]]
                    [cljs.core.async.macros :refer [go]])
-  (:require [re-com.util     :as    util]
-            [re-com.core     :refer [label spinner progress-bar title]]
+  (:require [re-com.core     :refer [label spinner progress-bar]]
             [re-com.buttons  :refer [button]]
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown]]

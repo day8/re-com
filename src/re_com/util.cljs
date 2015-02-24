@@ -19,7 +19,7 @@
 
 
 (defn pad-zero
-  "Left pad a string 's' with '0', until 's' has length 'len'. Return 's' unchanged, if it is already len or greater."
+  "Left pad a string 's' with '0', until 's' has length 'len'. Return 's' unchanged, if it is already len or greater"
   [s len]
   (if (< (count s) len)
     (apply str (take-last len (concat (repeat len \0) s)))
@@ -27,13 +27,13 @@
 
 
 (defn pad-zero-number
-  "return 'num' as a string of 'len' characters, left padding with '0' as necessary."
+  "return 'num' as a string of 'len' characters, left padding with '0' as necessary"
   [num len]
   (pad-zero (str num) len))
 
 
 (defn px
-  "takes a number (and optional :negative keyword to indicate a negative value) and returns that number as a string with 'px' at the end."
+  "takes a number (and optional :negative keyword to indicate a negative value) and returns that number as a string with 'px' at the end"
   [val & negative]
   (str (if negative (- 0 val) val) "px"))
 
@@ -78,7 +78,7 @@
 
 (defn position-for-id
   "Takes a vector of maps 'v'. Returns the postion of the first item in 'v' whose :id matches 'id'.
-   Returns nil if id not found."
+   Returns nil if id not found"
   [id v]
   (let [index-fn (fn [index item] (when (= (:id item) id) index))]
     (first (keep-indexed index-fn v))))
@@ -87,7 +87,7 @@
 
 (defn item-for-id
   "Takes a vector of maps 'v'. Returns the first item in 'v' whose :id matches 'id'.
-   Returns nil if id not found."
+   Returns nil if id not found"
   [id v]
   (first (filter #(= (:id %) id) v)))
 

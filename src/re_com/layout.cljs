@@ -1,6 +1,6 @@
 (ns re-com.layout
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util  :refer [validate-arguments]]
+  (:require [re-com.validate    :refer [extract-arg-data validate-args string-or-hiccup?]]
             [reagent.core :as    reagent]))
 
 
@@ -21,21 +21,20 @@
 ;; ------------------------------------------------------------------------------------
 
 (def h-layout-args-desc
-  [{:name :left-panel     :required true                  :type "component"      :description "Markup to go in the left panel."}
-   {:name :right-panel    :required true                  :type "component"      :description "Markup to go in the right panel."}
-   {:name :initial-split  :required false :default 50     :type "number|string"  :description "Initial split percentage of the left panel. Can be number or string percentage."}
-   {:name :splitter-size  :required false :default "8px"  :type "string"         :description "Thickness of the splitter."}
-   {:name :margin         :required false :default "8px"  :type "string"         :description "Thickness of the margin around the panels."}])
+  [{:name :left-panel     :required true                  :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the left panel"}
+   {:name :right-panel    :required true                  :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the right panel"}
+   {:name :initial-split  :required false :default 50     :type "number | string"                                :description "initial split percentage of the left panel. Can be number or string percentage"}
+   {:name :splitter-size  :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the splitter"}
+   {:name :margin         :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
 
-(def h-layout-args
-  (set (map :name h-layout-args-desc)))
+(def h-layout-args (extract-arg-data h-layout-args-desc))
 
 (defn h-layout
-  "Returns markup for a horizontal layout component."
+  "Returns markup for a horizontal layout component"
   [& {:keys [left-panel right-panel initial-split splitter-size margin]
       :or   {initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(validate-arguments h-layout-args (keys args))]}
+  {:pre [(validate-args h-layout-args args "h-layout")]}
   (let [container-id         (gensym "h-layout-")
         this                 (reagent/current-component)
         split-perc           (reagent/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
@@ -110,21 +109,20 @@
 ;; ------------------------------------------------------------------------------------
 
 (def v-layout-args-desc
-  [{:name :top-panel      :required true                  :type "component"      :description "Markup to go in the top panel."}
-   {:name :bottom-panel   :required true                  :type "component"      :description "Markup to go in the bottom panel."}
-   {:name :initial-split  :required false :default 50     :type "number|string"  :description "Initial split percentage of the top panel. Can be number or string percentage."}
-   {:name :splitter-size  :required false :default "8px"  :type "string"         :description "Thickness of the splitter."}
-   {:name :margin         :required false :default "8px"  :type "string"         :description "Thickness of the margin around the panels."}])
+  [{:name :top-panel      :required true                  :type "component"        :validate-fn string-or-hiccup? :description "markup to go in the top panel"}
+   {:name :bottom-panel   :required true                  :type "component"        :validate-fn string-or-hiccup? :description "markup to go in the bottom panel"}
+   {:name :initial-split  :required false :default 50     :type "number | string"                                 :description "initial split percentage of the top panel. Can be number or string percentage"}
+   {:name :splitter-size  :required false :default "8px"  :type "string"           :validate-fn string?           :description "thickness of the splitter"}
+   {:name :margin         :required false :default "8px"  :type "string"           :validate-fn string?           :description "thickness of the margin around the panels"}])
 
-(def v-layout-args
-  (set (map :name v-layout-args-desc)))
+(def v-layout-args (extract-arg-data v-layout-args-desc))
 
 (defn v-layout
-  "Returns markup for a vertical layout component."
+  "Returns markup for a vertical layout component"
   [& {:keys [top-panel bottom-panel initial-split splitter-size margin]
       :or   {initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(validate-arguments v-layout-args (keys args))]}
+  {:pre [(validate-args v-layout-args args "v-layout")]}
   (let [container-id         (gensym "v-layout-")
         this                 (reagent/current-component)
         split-perc           (reagent/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height

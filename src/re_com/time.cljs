@@ -1,11 +1,12 @@
 (ns re-com.time
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
-    [reagent.core   :as    reagent]
-    [clojure.string :as    cljstring]
-    [re-com.core    :refer [label]]
-    [re-com.box     :refer [h-box gap]]
-    [re-com.util    :refer [pad-zero-number deref-or-value validate-arguments]]))
+    [reagent.core    :as    reagent]
+    [clojure.string  :as    cljstring]
+    [re-com.validate :refer [extract-arg-data validate-args]]
+    [re-com.core     :refer [label]]
+    [re-com.box      :refer [h-box gap]]
+    [re-com.util     :refer [pad-zero-number deref-or-value validate-arguments]]))
 
 
 (defn- time->mins
@@ -18,7 +19,7 @@
   (quot time 100))
 
 (defn- to-int
-  "Parse the string 's' to a valid int. On parse failure, return 0."
+  "Parse the string 's' to a valid int. On parse failure, return 0"
   [s]
   (let [val (js/parseInt s)]
     (if (js/isNaN val) 0 val)))
@@ -68,7 +69,7 @@
   "Return true if text passes basic time validation.
    Can't do to much validation because user input might not be finished.
    Why?  On the way to entering 6:30, you must pass through the invalid state of '63'.
-   So we only really check against the triple-extracting regular expression."
+   So we only really check against the triple-extracting regular expression"
   [text]
   (= 3 (count (extract-triple-from-text text))))
 
@@ -90,7 +91,7 @@
 
 (defn- force-valid-time
   "Validate the time supplied.
-   Return either the time or, if it is invalid, return something valid."
+   Return either the time or, if it is invalid, return something valid"
   [time min max previous]
   (cond
     (nil? time) previous
@@ -101,14 +102,14 @@
 
 (defn- on-new-keypress
   "Called each time the <input> field gets a keypress, or paste operation.
-   Rests  the text-model only if the new text is valid."
+   Rests  the text-model only if the new text is valid"
   [event text-model]
   (let [current-text (-> event .-target .-value)]           ;; gets the current input field text
     (when (valid-text? current-text)
       (reset! text-model current-text))))
 
 (defn- lose-focus-if-enter
-  "When Enter is pressed, force the component to lose focus."
+  "When Enter is pressed, force the component to lose focus"
   [ev]
   (when (= (.-keyCode ev) 13)
     (-> ev .-target .blur)
@@ -117,7 +118,7 @@
 (defn- on-defocus
   "Called when the field looses focus.
    Re-validate what has been entered, comparing to mins and maxs.
-   Invoke the callback as necessary."
+   Invoke the callback as necessary"
   [text-model min max callback previous-val]
   (let [time (text->time @text-model)
         time (force-valid-time time min max previous-val)]
@@ -126,30 +127,27 @@
       (callback time))))
 
 (def input-time-args-desc
-  [{:name :model           :required true                   :type "integer | atom"   :description "a time in integer form. e.g. '09:30am' is 930."}
-   {:name :minimum         :required false :default 0       :type "integer"          :description "user can't enter a time less than this value."}
-   {:name :maximum         :required false :default 2359    :type "integer"          :description "user can't enter a time more than this value."}
-   {:name :on-change       :required true                   :type "(integer) -> nil" :description "called when user entry completes and value is new. Passed new value as integer."}
-   {:name :disabled?       :required false :default false   :type "boolean | atom"   :description "when true, user input is disabled."}
-   {:name :show-icon?      :required false :default false   :type "boolean"          :description "when true, a clock icon will be displayed to the right of input field"}
-   {:name :hide-border?    :required false :default false   :type "boolean"          :description "when true, input filed is displayed without a border."}
-   {:name :class           :required false                  :type "string"           :description "CSS class names, space separated"}
-   {:name :style           :required false                  :type "map"              :description "CSS style. Eg: {:color \"red\" :width \"50px\"}" }])
+  [{:name :model        :required true                 :type "integer | atom"                        :description "a time in integer form. e.g. '09:30am' is 930"}
+   {:name :on-change    :required true                 :type "(integer) -> nil" :validate-fn fn?     :description "called when user entry completes and value is new. Passed new value as integer"}
+   {:name :minimum      :required false :default 0     :type "integer"                               :description "user can't enter a time less than this value"}
+   {:name :maximum      :required false :default 2359  :type "integer"                               :description "user can't enter a time more than this value"}
+   {:name :disabled?    :required false :default false :type "boolean | atom"                        :description "when true, user input is disabled"}
+   {:name :show-icon?   :required false :default false :type "boolean"                               :description "when true, a clock icon will be displayed to the right of input field"}
+   {:name :hide-border? :required false :default false :type "boolean"                               :description "when true, input filed is displayed without a border"}
+   {:name :class        :required false                :type "string"           :validate-fn string? :description "CSS class names, space separated"}
+   {:name :style        :required false                :type "map"              :validate-fn map?    :description "CSS style. e.g. {:color \"red\" :width \"50px\"}" }
+   {:name :attr         :required false                :type "map"              :validate-fn map?    :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-; TODO:  description for 'class' above it wrong.
-
-(def input-time-args
-  (set (map :name input-time-args-desc)))
+(def input-time-args (extract-arg-data input-time-args-desc))
 
 (defn input-time
   "I return the markup for an input box which will accept and validate times.
-   Parameters - refer input-time-args above."
-  [& {:keys [model minimum maximum on-change class style] :as args
+   Parameters - refer input-time-args above"
+  [& {:keys [model minimum maximum on-change class style attr] :as args
       :or   {minimum 0 maximum 2359}}]
 
-  {:pre [(validate-arguments input-time-args (keys args))
+  {:pre [(validate-args input-time-args args "input-time")
          (validate-arg-times (deref-or-value model) minimum maximum)]}
-
   (let [deref-model    (deref-or-value model)
         text-model     (reagent/atom (time->text deref-model))
         previous-model (reagent/atom deref-model)]
@@ -169,15 +167,16 @@
 
         [:span.input-append {:style {:flex "none"}}
          [:input
-          {:type      "text"
-           :disabled  (deref-or-value disabled?)
-           :class     (str "time-entry " class)
-           :value     @text-model
-           :style     style
-           :on-change (handler-fn (on-new-keypress event text-model))
-           :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
-           :on-key-up (handler-fn (lose-focus-if-enter event))
-           }]
+          (merge
+            {:type      "text"
+             :class     (str "time-entry " class)
+             :style     style
+             :value     @text-model
+             :disabled  (deref-or-value disabled?)
+             :on-change (handler-fn (on-new-keypress event text-model))
+             :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
+             :on-key-up (handler-fn (lose-focus-if-enter event))}
+            attr)]
          (when show-icon?
            [:span.time-icon [:span.glyphicon.glyphicon-time]])]))))
 

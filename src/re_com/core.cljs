@@ -17,7 +17,7 @@
    {:name :width    :required false :type "string"    :validate-fn string? :description "a CSS width"}
    {:name :class    :required false :type "string"    :validate-fn string? :description "CSS class names, space separated"}
    {:name :style    :required false :type "map"       :validate-fn map?    :description "additional CSS styles"}
-   {:name :attr     :required false :type "map"       :validate-fn map?    :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
+   {:name :attr     :required false :type "map"       :validate-fn map?    :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (def label-args (extract-arg-data label-args-desc))
 
@@ -44,21 +44,21 @@
 ;; ------------------------------------------------------------------------------------
 
 (def input-text-args-desc
-  [{:name :model            :required true                   :type "string"          :validate-fn string?            :description "text of the input (can be atom or value)."}
-   {:name :on-change        :required true                   :type "(string) -> nil" :validate-fn fn?                :description "a function which takes one parameter, which is the new text (see :change-on-blur?)."}
+  [{:name :model            :required true                   :type "string | atom"   :validate-fn string?            :description "text of the input (can be atom or value)"}
+   {:name :on-change        :required true                   :type "(string) -> nil" :validate-fn fn?                :description "a function which takes one parameter, which is the new text (see :change-on-blur?)"}
    {:name :status           :required false                  :type "keyword"         :validate-fn input-status-type? :description [:span "validation status. " [:code "nil/omitted"] " for normal status or one of: " input-status-types-list]}
    {:name :status-icon?     :required false :default false   :type "boolean"                                         :description "when true, display an appropriate icon to match the status (no icon for nil)"}
-   {:name :status-tooltip   :required false                  :type "string"          :validate-fn string?            :description "string to display when hovering over the icon."}
-   {:name :placeholder      :required false                  :type "string"          :validate-fn string?            :description "text to show when there is no under text in the component."}
-   {:name :width            :required false :default "250px" :type "string"          :validate-fn string?            :description "standard CSS width setting for this input."}
-   {:name :height           :required false                  :type "string"          :validate-fn string?            :description "standard CSS width setting for this input."}
-   {:name :rows             :required false :default "3"     :type "string"          :validate-fn string?            :description "ONLY applies to 'input-textarea': the number of rows of text to show."}
-   {:name :change-on-blur?  :required false :default true    :type "boolean | atom"                                  :description "when true, invoke on-change function on blur, otherwise on every change (character by character)."}
-   {:name :validation-regex :required false                  :type "regex"           :validate-fn regex?             :description "the regular expression which determines which characters are legal and which aren't."}
-   {:name :disabled?        :required false :default false   :type "boolean | atom"                                  :description "if true, the user can't interact (input anything)."}
-   {:name :class            :required false                  :type "string"          :validate-fn string?            :description "CSS class names, space separated."}
-   {:name :style            :required false                  :type "map"             :validate-fn map?               :description "CSS styles to add or override."}
-   {:name :attr             :required false                  :type "map"             :validate-fn map?               :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}
+   {:name :status-tooltip   :required false                  :type "string"          :validate-fn string?            :description "string to display when hovering over the icon"}
+   {:name :placeholder      :required false                  :type "string"          :validate-fn string?            :description "text to show when there is no under text in the component"}
+   {:name :width            :required false :default "250px" :type "string"          :validate-fn string?            :description "standard CSS width setting for this input"}
+   {:name :height           :required false                  :type "string"          :validate-fn string?            :description "standard CSS width setting for this input"}
+   {:name :rows             :required false :default "3"     :type "string"          :validate-fn string?            :description "ONLY applies to 'input-textarea': the number of rows of text to show"}
+   {:name :change-on-blur?  :required false :default true    :type "boolean | atom"                                  :description "when true, invoke on-change function on blur, otherwise on every change (character by character)"}
+   {:name :validation-regex :required false                  :type "regex"           :validate-fn regex?             :description "the regular expression which determines which characters are legal and which aren't"}
+   {:name :disabled?        :required false :default false   :type "boolean | atom"                                  :description "if true, the user can't interact (input anything)"}
+   {:name :class            :required false                  :type "string"          :validate-fn string?            :description "CSS class names, space separated"}
+   {:name :style            :required false                  :type "map"             :validate-fn map?               :description "CSS styles to add or override"}
+   {:name :attr             :required false                  :type "map"             :validate-fn map?               :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
    {:name :input-type       :required false                  :type "keyword"         :validate-fn keyword?           :description "ONLY applies to super function 'base-input-text': either :input or :textarea"}])
 
 (def input-text-args (extract-arg-data input-text-args-desc))
@@ -190,9 +190,9 @@
 ;; ------------------------------------------------------------------------------------
 
 (def checkbox-args-desc
-  [{:name :model       :required true                 :type "boolean | atom"                        :description "Holds state of the checkbox when it is called"}
-   {:name :on-change   :required true                 :type "(boolean) -> nil" :validate-fn fn?     :description "When model state is changed, call back with new state"}
-   {:name :label       :required false                :type "string"           :validate-fn string? :description "The label shown to the right"}
+  [{:name :model       :required true                 :type "boolean | atom"                        :description "holds state of the checkbox when it is called"}
+   {:name :on-change   :required true                 :type "(boolean) -> nil" :validate-fn fn?     :description "when model state is changed, call back with new state"}
+   {:name :label       :required false                :type "string"           :validate-fn string? :description "the label shown to the right"}
    {:name :disabled?   :required false :default false :type "boolean | atom"                        :description "if true, user interaction is disabled"}
    {:name :style       :required false                :type "map"              :validate-fn map?    :description "the CSS style style map"}
    {:name :label-style :required false                :type "string"           :validate-fn map?    :description "the CSS class applied overall to the component"}
@@ -202,7 +202,7 @@
 
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
-  "I return the markup for a checkbox, with an optional RHS label."
+  "I return the markup for a checkbox, with an optional RHS label"
   [& {:keys [model on-change label disabled? style label-class label-style]
       :as   args}]
   {:pre [(validate-args checkbox-args args "checkbox")]}
@@ -240,19 +240,19 @@
 
 ;; TODO: Radio-button model could be anything really
 (def radio-button-args-desc
-  [{:name :model       :required true                 :type "anything | atom"                        :description "Holds state of the radio button when it is called"}
-   {:name :on-change   :required true                 :type "(anything) -> nil" :validate-fn fn?     :description "function to call when radio button is clicked."}
-   {:name :value       :required false                :type "anything"                               :description "Value of the radio button OR button group"}
-   {:name :label       :required false                :type "string"            :validate-fn string? :description "Radio button label"}
+  [{:name :model       :required true                 :type "anything | atom"                        :description "holds state of the radio button when it is called"}
+   {:name :on-change   :required true                 :type "(anything) -> nil" :validate-fn fn?     :description "function to call when radio button is clicked"}
+   {:name :value       :required false                :type "anything"                               :description "value of the radio button OR button group"}
+   {:name :label       :required false                :type "string"            :validate-fn string? :description "radio button label"}
    {:name :disabled?   :required false :default false :type "boolean | atom"                         :description "if true, the user can't click the radio button"}
-   {:name :style       :required false                :type "map"               :validate-fn map?    :description "Radio button style map"}
+   {:name :style       :required false                :type "map"               :validate-fn map?    :description "radio button style map"}
    {:name :label-style :required false                :type "map"               :validate-fn map?    :description "the CSS class applied overall to the component"}
    {:name :label-class :required false                :type "string"            :validate-fn string? :description "the CSS class applied to the label"}])
 
 (def radio-button-args (extract-arg-data radio-button-args-desc))
 
 (defn radio-button
-  "I return the markup for a radio button, with an optional RHS label."
+  "I return the markup for a radio button, with an optional RHS label"
   [& {:keys [model on-change value label disabled? style label-class label-style]
       :as   args}]
   {:pre [(validate-args radio-button-args args "radio-button")]}
@@ -290,21 +290,21 @@
 ;; ------------------------------------------------------------------------------------
 
 (def slider-args-desc
-  [{:name :model     :required true                 :type "double | string | atom"                      :description "Current value of the slider. Can be value or atom."}
-   {:name :on-change :required true                 :type "(double) -> nil"        :validate-fn fn?     :description "A function which takes one parameter, which is the new value of the slider."}
-   {:name :min       :required false                :type "double | string | atom"                      :description "The minimum value of the slider. Default is 0. Can be value or atom."}
-   {:name :max       :required false                :type "double | string | atom"                      :description "The maximum value of the slider. Default is 100. Can be value or atom."}
-   {:name :step      :required false                :type "double | string | atom"                      :description "Step value between min and max. Default is 1. Can be value or atom."}
-   {:name :width     :required false                :type "string"                 :validate-fn string? :description "Standard CSS width setting for the slider. Default is 400px."}
-   {:name :disabled? :required false :default false :type "boolean | atom"                              :description "if true, the user can't change the slider."}
-   {:name :class     :required false                :type "string"                 :validate-fn string? :description "CSS class names, space separated."}
-   {:name :style     :required false                :type "map"                    :validate-fn map?    :description "CSS styles to add or override."}
-   {:name :attr      :required false                :type "map"                    :validate-fn map?    :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
+  [{:name :model     :required true                 :type "double | string | atom"                      :description "current value of the slider"}
+   {:name :on-change :required true                 :type "(double) -> nil"        :validate-fn fn?     :description "a function which takes one parameter, which is the new value of the slider"}
+   {:name :min       :required false                :type "double | string | atom"                      :description "the minimum value of the slider. Default is 0"}
+   {:name :max       :required false                :type "double | string | atom"                      :description "the maximum value of the slider. Default is 100"}
+   {:name :step      :required false                :type "double | string | atom"                      :description "step value between min and max. Default is 1"}
+   {:name :width     :required false                :type "string"                 :validate-fn string? :description "standard CSS width setting for the slider. Default is 400px"}
+   {:name :disabled? :required false :default false :type "boolean | atom"                              :description "if true, the user can't change the slider"}
+   {:name :class     :required false                :type "string"                 :validate-fn string? :description "CSS class names, space separated"}
+   {:name :style     :required false                :type "map"                    :validate-fn map?    :description "CSS styles to add or override"}
+   {:name :attr      :required false                :type "map"                    :validate-fn map?    :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (def slider-args (extract-arg-data slider-args-desc))
 
 (defn slider
-  "Returns markup for an HTML5 slider input."
+  "Returns markup for an HTML5 slider input"
   []
   (fn
     [& {:keys [model min max step width on-change disabled? class style attr]
@@ -341,12 +341,12 @@
 ;; ------------------------------------------------------------------------------------
 
 (def progress-bar-args-desc
-  [{:name :model    :required true  :type "double"                                       :description "Numeric double (can be a string). Current value of the slider. Value or atom."}
-   {:name :width    :required false :type "string"  :default "100%" :validate-fn string? :description "A CSS width"}
-   {:name :striped? :required false :type "boolean" :default false                       :description "When true, the progress section is a set of animated stripes"}
-   {:name :class    :required false :type "string"                  :validate-fn string? :description "CSS class names, space separated."}
-   {:name :style    :required false :type "map"                     :validate-fn map?    :description "CSS styles to add or override."}
-   {:name :attr     :required false :type "map"                     :validate-fn map?    :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed."]}])
+  [{:name :model    :required true  :type "double | atom"                                :description "numeric double (can be a string). Current value of the slider. Value or atom"}
+   {:name :width    :required false :type "string"  :default "100%" :validate-fn string? :description "a CSS width"}
+   {:name :striped? :required false :type "boolean" :default false                       :description "when true, the progress section is a set of animated stripes"}
+   {:name :class    :required false :type "string"                  :validate-fn string? :description "CSS class names, space separated"}
+   {:name :style    :required false :type "map"                     :validate-fn map?    :description "CSS styles to add or override"}
+   {:name :attr     :required false :type "map"                     :validate-fn map?    :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (def progress-bar-args (extract-arg-data progress-bar-args-desc))
 
@@ -394,26 +394,28 @@
 ;;  Component: title
 ;; ------------------------------------------------------------------------------------
 
-;; TODO: REMOVE THIS (ONLY USED IN POPOVER)
+;; TODO: Could add proper :h validation
 
 (def title-args-desc
-  [{:name :label      :required true                 :type "string"  :description "Text of the title."}
-   {:name :style      :required false                :type "map"     :description "CSS styles to add or override."}
-   {:name :h          :required false  :default :h3  :type "string"  :description "Something like :h3 or :h4."}
-   {:name :underline? :required false  :default true :type "string"  :description "Boolean determines whether an underline is placed under the title."}])
+  [{:name :label      :required true                 :type "anything"                      :description "text to display. Can be anything as it will be converted to a string"}
+   {:name :h          :required false  :default :h3  :type "keyword" :validate-fn keyword? :description "something like :h3 or :h4"}
+   {:name :underline? :required false  :default true :type "boolean"                       :description "determines whether an underline is placed under the title"}
+   {:name :class      :required false                :type "string"  :validate-fn string?  :description "CSS class names, space separated"}
+   {:name :style      :required false                :type "map"     :validate-fn map?     :description "CSS styles to add or override"}
+   {:name :attr       :required false                :type "map"     :validate-fn map?     :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def title-args
-  (set (map :name title-args-desc)))
+(def title-args (extract-arg-data title-args-desc))
 
 (defn title
   "An underlined, left justified, Title. By default :h3"
-  [& {:keys [label h underline? style]
+  [& {:keys [label h underline? class style attr]
       :or   {underline? true h :h3}
       :as   args}]
-  {:pre [(validate-arguments title-args (keys args))]}
+  {:pre [(validate-args title-args args "title")]}
   [v-box
-   :children [[h {:style (merge
-                           {:display "flex" :flex "none"}
-                           style)}
+   :children [[h (merge {:class (str "rc-title " class)
+                         :style (merge {:display "flex" :flex "none"}
+                                       style)}
+                        attr)
                label]
               (when underline? [line :size "1px"])]])

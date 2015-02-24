@@ -85,7 +85,7 @@
 (defn- scroll-style
   "Determines the value for the 'overflow' attribute.
    The scroll parameter is a keyword.
-   Because we're translating scroll into overflow, the keyword doesn't appear to match the attribute value."
+   Because we're translating scroll into overflow, the keyword doesn't appear to match the attribute value"
   [attribute scroll]
   {attribute (case scroll
                   :auto  "auto"
@@ -99,7 +99,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn- box-base
-  "This should generally NOT be used as it is the basis for the box, scroller and border components."
+  "This should generally NOT be used as it is the basis for the box, scroller and border components"
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height justify align align-self
              margin padding border l-border r-border t-border b-border radius bk-color child class style attr]}]
   (let [s (merge
@@ -154,7 +154,7 @@
 (def gap-args (extract-arg-data gap-args-desc))
 
 (defn gap
-  "Returns a component which produces a gap between children in a v-box/h-box along the main axis."
+  "Returns a component which produces a gap between children in a v-box/h-box along the main axis"
   [& {:keys [size width height class style attr]
       :as   args}]
   {:pre [(validate-args gap-args args "gap")]}
@@ -186,7 +186,7 @@
 
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
-   Specify size in pixels and a stancard CSS colour. Defaults to a 1px red line."
+   Specify size in pixels and a stancard CSS colour. Defaults to a 1px red line"
   [& {:keys [size color class style attr]
       :or   {size "1px" color "lightgray"}
       :as   args}]
@@ -227,7 +227,7 @@
 (defn h-box
   "Returns hiccup which produces a horizontal box.
    It's primary role is to act as a container for components and lays it's children from left to right.
-   By default, it also acts as a child under it's parent."
+   By default, it also acts as a child under it's parent"
   [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
@@ -282,7 +282,7 @@
 (defn v-box
   "Returns hiccup which produces a vertical box.
    It's primary role is to act as a container for components and lays it's children from top to bottom.
-   By default, it also acts as a child under it's parent."
+   By default, it also acts as a child under it's parent"
   [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
@@ -336,7 +336,7 @@
 
 (defn box
   "Returns hiccup which produces a box, which is generally used as a child of a v-box or an h-box.
-   By default, it also acts as a container for further child compenents, or another h-box or v-box."
+   By default, it also acts as a container for further child compenents, or another h-box or v-box"
   [& {:keys [size width height min-width min-height justify align align-self margin padding child class style attr]
       :or   {size "none"}
       :as   args}]
@@ -372,8 +372,8 @@
                                                                                                                                   "or just the usual " scroll-options-list " ???"]}
    {:name :h-scroll        :required false                   :type "keyword"         :validate-fn scroll-style?     :description [:span "see " [:code ":scroll"] ". Overrides that setting"]}
    {:name :v-scroll        :required false                   :type "keyword"         :validate-fn scroll-style?     :description [:span "see " [:code ":scroll"] ". Overrides that setting"]}
-   {:name :width           :required false                   :type "string"          :validate-fn string?           :description "Initial width"}
-   {:name :height          :required false                   :type "string"          :validate-fn string?           :description "Initial height"}
+   {:name :width           :required false                   :type "string"          :validate-fn string?           :description "initial width"}
+   {:name :height          :required false                   :type "string"          :validate-fn string?           :description "initial height"}
    {:name :min-width       :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
    {:name :min-height      :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The minimum height to which the box can shrink"}
    {:name :justify         :required false :default :start   :type "keyword"         :validate-fn justify-style?    :description [:span "one of " justify-options-list]}
@@ -400,7 +400,7 @@
            :on     Always show scroll bar(s).
            :off    Never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen.
            :spill  Never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place.
-   Note:   If scroll is set, then setting h-scroll or v-scroll overrides the scroll value."
+   Note:   If scroll is set, then setting h-scroll or v-scroll overrides the scroll value"
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height justify align align-self margin padding child class style attr]
       :or   {size "auto"}
       :as   args}]

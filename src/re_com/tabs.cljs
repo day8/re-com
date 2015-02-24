@@ -1,7 +1,7 @@
 (ns re-com.tabs
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util  :refer [deref-or-value validate-arguments]]
-            [reagent.core :as    reagent]))
+            [re-com.validate :refer [extract-arg-data validate-args vector-of-maps?]]))
 
 
 
@@ -10,17 +10,16 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def tabs-args-desc
-  [{:name :model     :required true  :type "a tab id | atom" :description "the :id of the currently selected tab."}
-   {:name :tabs      :required true  :type "vector of maps | atom"  :description "one element in the vector for each tab. In each map, at least :id and :label."}
-   {:name :on-change :required true  :type "(:id) -> nil"    :description "called when user alters the selection. Passed the :id of the selection."}])
+  [{:name :tabs      :required true :type "vector of maps | atom" :validate-fn vector-of-maps? :description "one element in the vector for each tab. In each map, at least :id and :label"}
+   {:name :model     :required true :type ":id from :tabs | atom"                              :description "the :id of the currently selected tab"}
+   {:name :on-change :required true :type "(:id) -> nil"          :validate-fn fn?             :description "called when user alters the selection. Passed the :id of the selection"}])
 
-(def tabs-args
-  (set (map :name tabs-args-desc)))
+(def tabs-args (extract-arg-data tabs-args-desc))
 
 (defn horizontal-tabs
   [& {:keys [model tabs on-change]
       :as   args}]
-  {:pre [(validate-arguments tabs-args (keys args))]}
+  {:pre [(validate-args tabs-args args "tabs")]}
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
@@ -70,7 +69,7 @@
 
 (defn horizontal-bar-tabs
   [& {:keys [model tabs on-change] :as args}]
-  {:pre [(validate-arguments tabs-args (keys args))]}
+  {:pre [(validate-args tabs-args args "tabs")]}
   (bar-tabs
     :model     model
     :tabs      tabs
@@ -79,7 +78,7 @@
 
 (defn vertical-bar-tabs
   [& {:keys [model tabs on-change] :as args}]
-  {:pre [(validate-arguments tabs-args (keys args))]}
+  {:pre [(validate-args tabs-args args "tabs")]}
   (bar-tabs
     :model     model
     :tabs      tabs
@@ -118,7 +117,7 @@
 
 (defn horizontal-pill-tabs
   [& {:keys [model tabs on-change] :as args}]
-  {:pre [(validate-arguments tabs-args (keys args))]}
+  {:pre [(validate-args tabs-args args "tabs")]}
   (pill-tabs
     :model     model
     :tabs      tabs
@@ -128,7 +127,7 @@
 
 (defn vertical-pill-tabs
   [& {:keys [model tabs on-change] :as args}]
-  {:pre [(validate-arguments tabs-args (keys args))]}
+  {:pre [(validate-args tabs-args args "tabs")]}
   (pill-tabs
     :model     model
     :tabs      tabs

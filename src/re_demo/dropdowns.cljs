@@ -2,7 +2,7 @@
   (:require [re-com.util     :refer [item-for-id]]
             [re-com.core     :refer [label input-text checkbox title]]
             [re-com.box      :refer [h-box v-box box gap]]
-            [re-com.dropdown :refer [single-dropdown filter-choices-by-keyword single-dropdown-desc]]
+            [re-com.dropdown :refer [single-dropdown filter-choices-by-keyword single-dropdown-args-desc]]
             [re-demo.utils   :refer [panel-title component-title args-table]]
             [reagent.core    :as    reagent]))
 
@@ -298,7 +298,7 @@
   [v-box
    :gap      "10px"
    :width    "450px"
-   :children [[args-table single-dropdown-desc]]])
+   :children [[args-table single-dropdown-args-desc]]])
 
 
 (defn panel2
