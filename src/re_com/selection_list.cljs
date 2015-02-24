@@ -4,7 +4,7 @@
     [re-com.core     :refer [label checkbox radio-button]]
     [re-com.box      :refer [box border h-box v-box]]
     [re-com.validate :refer [extract-arg-data validate-args vector-of-maps?]]
-    [re-com.util     :refer [fmap deref-or-value validate-arguments]]))
+    [re-com.util     :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
 (defn label-style [selected? as-exclusions?]

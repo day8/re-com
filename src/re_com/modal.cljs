@@ -1,8 +1,8 @@
 (ns re-com.modal
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [re-com.core :refer [handler-fn]])
-  (:require [re-com.util     :refer [validate-arguments]]
-            [cljs.core.async :as    async :refer [<! >! chan close! sliding-buffer put! alts! timeout]]
+  (:require [cljs.core.async :as    async :refer [<! >! chan close! sliding-buffer put! alts! timeout]]
+            [re-com.validate :refer [extract-arg-data validate-args]]
             [re-com.util     :as    util]
             [re-com.core     :refer [spinner progress-bar]]
             [re-com.buttons  :refer [button]]
@@ -99,8 +99,7 @@
 (def modal-window-args-desc
   [{:name :markup  :required true   :type "component"  :description "Markup to go in the modal."}])
 
-(def modal-window-args
-  (set (map :name modal-window-args-desc)))
+(def modal-window-args (extract-arg-data modal-window-args-desc))
 
 (defn modal-window
   "Renders a modal window centered on screen. A dark transparent backdrop sits between this and the underlying
@@ -108,7 +107,7 @@
    Parameters:
     - markup  The message to display in the modal (a string or a hiccup vector or function returning a hiccup vector)"
   [& {:keys [markup] :as args}]
-  {:pre [(validate-arguments modal-window-args (keys args))]}
+  {:pre [(validate-args modal-window-args args "modal-window")]}
   (fn []
     [:div
      {:style {:display "flex"      ;; Semi-transparent backdrop

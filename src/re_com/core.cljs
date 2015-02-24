@@ -1,6 +1,6 @@
 (ns re-com.core
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util     :refer [deref-or-value validate-arguments px]]
+  (:require [re-com.util     :refer [deref-or-value px]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [h-box v-box box gap line]]
             [re-com.validate :refer [extract-arg-data validate-args input-status-type? input-status-types-list regex? string-or-hiccup?]]

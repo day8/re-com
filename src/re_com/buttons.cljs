@@ -1,6 +1,6 @@
 (ns re-com.buttons
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util     :refer [deref-or-value validate-arguments px]]
+  (:require [re-com.util     :refer [deref-or-value px]]
             [re-com.validate :refer [extract-arg-data validate-args position? position-options-list button-size? button-sizes-list string-or-hiccup?]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [h-box v-box box gap line]]

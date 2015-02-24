@@ -1,6 +1,6 @@
 (ns re-com.dropdown
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util      :refer [deref-or-value position-for-id validate-arguments item-for-id]]
+  (:require [re-com.util      :refer [deref-or-value position-for-id item-for-id]]
             [clojure.string   :as    string]
             [re-com.validate  :refer [extract-arg-data validate-args vector-of-maps?]]
             [reagent.core     :as    reagent]))

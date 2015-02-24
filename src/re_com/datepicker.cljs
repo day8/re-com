@@ -10,7 +10,7 @@
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box]]
-    [re-com.util          :refer [deref-or-value validate-arguments]]
+    [re-com.util          :refer [deref-or-value]]
     [re-com.popover       :refer [popover-content-wrapper popover-anchor-wrapper backdrop popover-border]]))
 
 ;; --- cljs-time facades ------------------------------------------------------
@@ -248,12 +248,11 @@
   (conj datepicker-args-desc
     {:name :format  :required false  :default "yyyy MMM dd"  :type "string"   :description "a represenatation of a date format. See cljs_time.format"}))
 
-(def datepicker-dropdown-args
-  (set (map :name datepicker-dropdown-args-desc)))
+(def datepicker-dropdown-args (extract-arg-data datepicker-dropdown-args-desc))
 
 (defn datepicker-dropdown
   [& {:as args}]
-  {:pre [(validate-arguments datepicker-dropdown-args (keys args))]}
+  {:pre [(validate-args datepicker-dropdown-args args "datepicker-dropdown")]}
   (let [shown?         (reagent/atom false)
         cancel-popover #(reset! shown? false)
         position       :below-center]

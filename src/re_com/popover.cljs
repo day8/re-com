@@ -1,6 +1,7 @@
 (ns re-com.popover
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util    :refer [validate-arguments get-element-by-id px deref-or-value]]
+  (:require [re-com.util    :refer [get-element-by-id px deref-or-value]]
+            [re-com.validate :refer [extract-arg-data validate-args]]
             [clojure.string :as    string]
             [reagent.core   :as    reagent]))
 
@@ -122,13 +123,12 @@
   [{:name :opacity         :required false :default 0.0     :type "double"     :description "the opacity of the backdrop (0.0 for transparent to 1.0 for fully opaque)"}
    {:name :on-click        :required false                  :type "( ) -> nil" :description "the fucntion to call when the backdrop is clicked"}])
 
-(def backdrop-args
-  (set (map :name backdrop-args-desc)))
+(def backdrop-args (extract-arg-data backdrop-args-desc))
 
 (defn backdrop
   "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
   [& {:keys [opacity on-click] :as args}]
-  {:pre [(validate-arguments backdrop-args (keys args))]}
+  {:pre [(validate-args backdrop-args args "backdrop")]}
   [:div {:class     "rc-backdrop"
          :style    {:position         "fixed"
                     :left             "0px"
@@ -146,7 +146,7 @@
 
 ;; TODO this is going to be difficult to include in the demo help text
 (def popover-border-args-desc
-  [{:name :position       :required false :default ":right-below" :type "keyword"       :description "a keyword specifying the popover's position relative to the anchor. See the demo to the right for the values"}
+  [{:name :position       :required false :default :right-below   :type "keyword"       :description "a keyword specifying the popover's position relative to the anchor. See the demo to the right for the values"}
    {:name :children       :required true                          :type "vector"        :description "a vector of component markups"}
    {:name :width          :required false                         :type "string"        :description "a CSS style describing the popover width"}
    {:name :height         :required false :default "auto"         :type "string"        :description "a CSS style describing the popover height"}
@@ -159,15 +159,14 @@
    {:name :tooltip-style? :required false                         :type "boolean"       :description "setup popover styles for a tooltip"}
    {:name :title          :required false                         :type "string | markup" :description "describes a title"}])
 
-(def popover-border-args
-  (set (map :name popover-border-args-desc)))
+(def popover-border-args (extract-arg-data popover-border-args-desc))
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
   [& {:keys [position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title children]
       :or {arrow-length 11 arrow-width 22}
       :as args}]
-  {:pre [(validate-arguments popover-border-args (keys args))]}
+  {:pre [(validate-args popover-border-args args "popover-border")]}
   (let [rendered-once           (reagent/atom false)
         pop-id                  (gensym "popover-")
         [orientation arrow-pos] (split-keyword (if position position :right-below) "-")
@@ -197,7 +196,7 @@
          [& {:keys [position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title children]
              :or {arrow-length 11 arrow-width 22}
              :as args}]
-         {:pre [(validate-arguments popover-border-args (keys args))]}
+         {:pre [(validate-args popover-border-args args "popover-border")]}
          (let [popover-elem   (get-element-by-id pop-id)]
            (reset! p-width    (if popover-elem (.-clientWidth  popover-elem) 0)) ;; TODO: Duplicate from above but needs to be calculated here to prevent an annoying flicker (so make it a fn)
            (reset! p-height   (if popover-elem (.-clientHeight popover-elem) 0))
@@ -253,14 +252,13 @@
    {:name :close-button?  :required false  :default true    :type "boolean"       :description "when true, displays the close button"}
    {:name :close-callback :required false  :default 11      :type "function"      :description "callback taking no parameters, used when the close button is pressed. Not required if <code>:showing?</code> atom passed in OR <code>:close-button?</code> is set to false"}])
 
-(def popover-title-args
-  (set (map :name popover-title-args-desc)))
+(def popover-title-args (extract-arg-data popover-title-args-desc))
 
 (defn popover-title
   "Renders a title at the top of a popover with an optional close button on the far right"
   [& {:keys [title showing? close-button? close-callback]
       :as args}]
-  {:pre [(validate-arguments popover-title-args (keys args))]}
+  {:pre [(validate-args popover-title-args args "popover-title")]}
   (assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback")
   (let [close-button? (if (nil? close-button?) true close-button?)]
     [:h3.popover-title {:style {:font-size "18px"
@@ -296,15 +294,14 @@
    {:name :padding          :required false                        :type "string"        :description "a CSS style which overrides the inner padding of the popover"}
    {:name :style            :required false                        :type "map"           :description "override component style(s) with a style map, only use in case of emergency"}])
 
-(def popover-content-wrapper-args
-  (set (map :name popover-content-wrapper-args-desc)))
+(def popover-content-wrapper-args (extract-arg-data popover-content-wrapper-args-desc))
 
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes"
   [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width padding style]
       :or {arrow-length 11 arrow-width 22}
       :as args}]
-  {:pre [(validate-arguments popover-content-wrapper-args (keys args))]}
+  {:pre [(validate-args popover-content-wrapper-args args "popover-content-wrapper")]}
   (assert ((complement nil?) showing?) "Must specify a showing? atom")
   (let [left-offset (reagent/atom 0)
         top-offset  (reagent/atom 0)]
@@ -321,7 +318,7 @@
          [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width padding style]
              :or {arrow-length 11 arrow-width 22}
              :as args}]
-         {:pre [(validate-arguments popover-content-wrapper-args (keys args))]}
+         {:pre [(validate-args popover-content-wrapper-args args "popover-content-wrapper")]}
          [:div
           {:class "popover-content-wrapper"
            :style (merge {:flex "inherit"}
@@ -361,13 +358,12 @@
    {:name :popover          :required false                        :type "hiccup"   :description "the popover body component"}
    {:name :style            :required false                        :type "map"      :description "override component style(s) with a style map, only use in case of emergency"}])
 
-(def popover-anchor-wrapper-args
-  (set (map :name popover-anchor-wrapper-args-desc)))
+(def popover-anchor-wrapper-args (extract-arg-data popover-anchor-wrapper-args-desc))
 
 (defn popover-anchor-wrapper
   "Renders an element or control along with a Bootstrap popover"
   [& {:keys [showing? position anchor popover style] :as args}]
-  {:pre [(validate-arguments popover-anchor-wrapper-args (keys args))]}
+  {:pre [(validate-args popover-anchor-wrapper-args args "popover-anchor-wrapper")]}
   (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
         place-anchor-before?    (case orientation (:left :above) false true)
         flex-flow               (case orientation (:left :right) "row" "column")]
@@ -402,17 +398,16 @@
    {:name :on-cancel :required false                           :type "function"      :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
    {:name :status    :required false                           :type "keyword"       :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red, :info = dark grey, left aligned)"}
    {:name :anchor    :required true                            :type "hiccup"        :description "the component the tooltip is attached to"}
-   {:name :position  :required false  :default ":below-center" :type "keyword"       :description "specifies the tooltip's position relative to the anchor. Same as for main popover component"}
+   {:name :position  :required false  :default :below-center   :type "keyword"       :description "specifies the tooltip's position relative to the anchor. Same as for main popover component"}
    {:name :width     :required false                           :type "string"        :description "specifies width of the tooltip"}
    {:name :style     :required false                           :type "map"           :description "override component style(s) with a style map, only use in case of emergency"}])
 
-(def popover-tooltip-args
-  (set (map :name popover-tooltip-args-desc)))
+(def popover-tooltip-args (extract-arg-data popover-tooltip-args-desc))
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style"
   [& {:keys [label showing? on-cancel status anchor position width style] :as args}]
-  {:pre [(validate-arguments popover-tooltip-args (keys args))]}
+  {:pre [(validate-args popover-tooltip-args args "popover-tooltip")]}
   (let [label         (deref-or-value label)
         popover-color (case status
                         :warning "#f57c00"

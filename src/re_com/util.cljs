@@ -100,19 +100,6 @@
 
 
 ;; ----------------------------------------------------------------------------
-;; Argument validation functions
-;; ----------------------------------------------------------------------------
-
-;; TODO: Remove this OLD one!
-(defn validate-arguments
-  [defined-args passed-args]
-  (if (superset? defined-args passed-args)
-    true
-    (let [missing (remove defined-args passed-args)]
-      (.error js/console (str "The following arguments are not supported: " missing))
-      false)))
-
-;; ----------------------------------------------------------------------------
 ;; Other functions
 ;; ----------------------------------------------------------------------------
 

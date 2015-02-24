@@ -1,6 +1,6 @@
 (ns re-com.tabs
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util  :refer [deref-or-value validate-arguments]]
+  (:require [re-com.util  :refer [deref-or-value]]
             [re-com.validate :refer [extract-arg-data validate-args vector-of-maps?]]))
 
 

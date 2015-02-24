@@ -6,7 +6,7 @@
     [re-com.validate :refer [extract-arg-data validate-args]]
     [re-com.core     :refer [label]]
     [re-com.box      :refer [h-box gap]]
-    [re-com.util     :refer [pad-zero-number deref-or-value validate-arguments]]))
+    [re-com.util     :refer [pad-zero-number deref-or-value]]))
 
 
 (defn- time->mins
