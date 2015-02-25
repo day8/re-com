@@ -1,33 +1,11 @@
 (ns re-demo.md-icon-button
-  (:require [re-com.core      :refer [label]]
-            [re-com.buttons   :refer [md-icon-button md-icon-button-args-desc
-                                      hyperlink-href]]
-            [re-com.box       :refer [h-box v-box box gap line]]
-            [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
-            [re-demo.utils    :refer [panel-title component-title args-table material-design-hyperlink]]
-            [reagent.core     :as    reagent]))
-
-(def icons
-  [{:id "md-add"    :label [:i {:class "md-add"}]}
-   {:id "md-delete" :label [:i {:class "md-delete"}]}
-   {:id "md-undo"   :label [:i {:class "md-undo"}]}
-   {:id "md-home"   :label [:i {:class "md-home"}]}
-   {:id "md-person" :label [:i {:class "md-person"}]}
-   {:id "md-info"   :label [:i {:class "md-info"}]}])
-
-
-(defn example-icons
-  [selected-icon]
-  [h-box
-   :align :center
-   :gap "8px"
-   :children [[label :label "Example icons:"]
-              [horizontal-bar-tabs
-               :model     selected-icon
-               :tabs      icons
-               :on-change #(reset! selected-icon %)]
-              [label :label @selected-icon]]])
-
+  (:require [re-com.core                   :refer [label]]
+            [re-com.buttons                :refer [md-icon-button md-icon-button-args-desc]]
+            [re-demo.md-circle-icon-button :refer [icons example-icons]]
+            [re-com.box                    :refer [h-box v-box box gap line]]
+            [re-com.tabs                   :refer [horizontal-bar-tabs vertical-bar-tabs]]
+            [re-demo.utils                 :refer [panel-title component-title args-table material-design-hyperlink]]
+            [reagent.core                  :as    reagent]))
 
 (defn md-icon-button-demo
   []

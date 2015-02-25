@@ -65,14 +65,14 @@
   [defined-args passed-args]
   (or (superset? defined-args passed-args)
       (let [missing-args (remove defined-args passed-args)]
-        (log-error "Invalid arguments: " missing-args))))
+        (log-error "Invalid argument(s): " missing-args))))
 
 (defn required-args-passed?
   "returns true if all the required args are supplied. Otherwise log the error and return false"
   [required-args passed-args]
   (or (superset? passed-args required-args)
       (let [missing-args (remove passed-args required-args)]
-        (log-error "Missing required arguments: " missing-args))))
+        (log-error "Missing required argument(s): " missing-args))))
 
 
 (defn validate-fns-pass?
@@ -88,14 +88,13 @@
                              arg-val         (deref-or-value (arg-name passed-args)) ;; Automatically extract value if it's in an atom
                              required?       (:required v-arg-def)
                              validate-result ((:validate-fn v-arg-def) arg-val)]
-                         ;(println (str "[" component-name "] " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 40)) "'"))
+                         ;(println (str "[" component-name "] " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 40)) "' => " validate-result))
                          (cond
                            (or (true? validate-result)
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
                                     (not required?))) true
-                           (false?  validate-result)  (log-error "Argument '" arg-name "' validation failed in component '" component-name "'. Expected '" (:type v-arg-def)
-                                                                 "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 40)) "'")
-                           (string? validate-result)  (log-error validate-result)
+                           (false?  validate-result)  (log-error "Argument '" arg-name "' validation failed in component '" component-name "': " "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 40)) "'")
+                           (string? validate-result)  (log-error "Argument '" arg-name "' validation failed in component '" component-name "': " validate-result)
                            :else                      (log-error "Invalid return from validate-fn: " validate-result))))]
     (->> (select-keys args-with-validators (vec (keys passed-args)))
          (map validate-arg)
@@ -130,8 +129,6 @@
                            :below-left  :below-center :below-right
                            :left-above  :left-center  :left-below
                            :right-above :right-center :right-below])
-
-;; TODO: Is here the right place for make-code-list and all the lists? It's efficient because it makes sure they are only defined once
 
 (defn validate-arg-against-set
   "Validates the passed argument against the expected set"
@@ -172,6 +169,66 @@
 ;; Custom :validate-fn functions
 ;; ----------------------------------------------------------------------------
 
+;; Reference: http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
+;;            http://facebook.github.io/react/docs/events.html#supported-events  (https://developer.mozilla.org/en-US/docs/Web/Events#Standard_events for more)
+
+(def html-attrs #{; ----- HTML attributes (:class and :style commented out as they are not valid in re-com)
+                  :accept :accept-charset :access-key :action :allow-full-screen :allow-transparency :alt :async :auto-complete :auto-focus :auto-play
+                  :cell-padding :cell-spacing :char-set :checked #_:class :class-name :cols :col-span :content :content-editable :context-menu :controls
+                  :coords :cross-origin :data :date-time :defer :dir :disabled :download :draggable :enc-type :form :form-action :form-enc-type :form-method
+                  :form-no-validate :form-target :frame-border :height :hidden :href :href-lang :html-for :http-equiv :icon :id :label :lang :list :loop :manifest
+                  :margin-height :margin-width :max :max-length :media :media-group :method :min :multiple :muted :name :no-validate :open :pattern :placeholder
+                  :poster :preload :radio-group :read-only :rel :required :role :rows :row-span :sandbox :scope :scrolling :seamless :selected :shape :size :sizes
+                  :span :spell-check :src :src-doc :src-set :start :step #_:style :tab-index :target :title :type :use-map :value :width :wmode
+                  ; ----- SVG attributes
+                  :cx :cy :d :dx :dy :fill :fill-opacity :font-family :font-size :fx :fy :gradient-transform :gradient-units :marker-end :marker-mid :marker-start
+                  :offset :opacity :pattern-content-units :pattern-units :points :preserve-aspect-ratio :r :rx :ry :spread-method :stop-color :stop-opacity :stroke
+                  :stroke-dasharray :stroke-linecap :stroke-opacity :stroke-width :text-anchor :transform :version :view-box :x :x1 :x2 :y :y1 :y2
+                  ; ----- Event attributes
+                  :on-blur :on-change :on-click :on-copy :on-cut :on-double-click :on-drag :on-drag-end :on-drag-enter :on-drag-exit :on-drag-leave
+                  :on-drag-over :on-drag-start :on-drop :on-focus :on-input :on-key-down :on-key-press :on-key-up :on-mouse-down :on-mouse-enter
+                  :on-mouse-leave :on-mouse-move :on-mouse-out :on-mouse-over :on-mouse-up :on-paste :on-scroll :on-submit :on-touch-cancel
+                  :on-touch-end :on-touch-move :on-touch-start :on-wheel})
+
+;; Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference
+
+(def css-styles #{; ----- Standard CSS styles
+                  :align-content :align-items :align-self :all :animation :animation-delay :animation-direction :animation-duration :animation-fill-mode
+                  :animation-iteration-count :animation-name :animation-play-state :animation-timing-function :backface-visibility :background
+                  :background-attachment :background-blend-mode :background-clip :background-color :background-image :background-origin :background-position
+                  :background-repeat :background-size :block-size :border :border-block-end :border-block-end-color :border-block-end-style
+                  :border-block-end-width :border-block-start :border-block-start-color :border-block-start-style :border-block-start-width :border-bottom
+                  :border-bottom-color :border-bottom-left-radius :border-bottom-right-radius :border-bottom-style :border-bottom-width :border-collapse
+                  :border-color :border-image :border-image-outset :border-image-repeat :border-image-slice :border-image-source :border-image-width
+                  :border-inline-end :border-inline-end-color :border-inline-end-style :border-inline-end-width :border-inline-start :border-inline-start-color
+                  :border-inline-start-style :border-inline-start-width :border-left :border-left-color :border-left-style :border-left-width :border-radius
+                  :border-right :border-right-color :border-right-style :border-right-width :border-spacing :border-style :border-top :border-top-color
+                  :border-top-left-radius :border-top-right-radius :border-top-style :border-top-width :border-width :bottom :box-decoration-break :box-shadow
+                  :box-sizing :break-after :break-before :break-inside :caption-side :ch :clear :clip :clip-path :cm :color :column-count :column-fill
+                  :column-gap :column-rule :column-rule-color :column-rule-style :column-rule-width :columns :column-span :column-width :content
+                  :counter-increment :counter-reset :cursor :deg :direction :display :dpcm :dpi :dppx :em :empty-cells :ex :filter :flex :flex-basis
+                  :flex-direction :flex-flow :flex-grow :flex-shrink :flex-wrap :float :font :font-family :font-feature-settings :font-kerning
+                  :font-language-override :font-size :font-size-adjust :font-stretch :font-style :font-synthesis :font-variant :font-variant-alternates
+                  :font-variant-caps :font-variant-east-asian :font-variant-ligatures :font-variant-numeric :font-variant-position :font-weight :grad :grid
+                  :grid-area :grid-auto-columns :grid-auto-flow :grid-auto-position :grid-auto-rows :grid-column :grid-column-end :grid-column-start :grid-row
+                  :grid-row-end :grid-row-start :grid-template :grid-template-areas :grid-template-columns :grid-template-rows :height :hyphens :hz
+                  :image-orientation :image-rendering :image-resolution :ime-mode :in :inherit :initial :inline-size :isolation :justify-content :khz :left
+                  :letter-spacing :line-break :line-height :list-style :list-style-image :list-style-position :list-style-type :margin :margin-block-end
+                  :margin-block-start :margin-bottom :margin-inline-end :margin-inline-start :margin-left :margin-right :margin-top :marks :mask :mask-type
+                  :max-block-size :max-height :max-inline-size :max-width :min-block-size :min-height :min-inline-size :min-width :mix-blend-mode :mm :ms
+                  :object-fit :object-position :offset-block-end :offset-block-start :offset-inline-end :offset-inline-start :opacity :order :orphans :outline
+                  :outline-color :outline-offset :outline-style :outline-width :overflow :overflow-wrap :overflow-x :overflow-y :padding :padding-block-end
+                  :padding-block-start :padding-bottom :padding-inline-end :padding-inline-start :padding-left :padding-right :padding-top :page-break-after
+                  :page-break-before :page-break-inside :pc :perspective :perspective-origin :pointer-events :position :pt :px :quotes :rad :rem :resize
+                  :right :ruby-align :ruby-merge :ruby-position :s :scroll-behavior :shape-image-threshold :shape-margin :shape-outside :table-layout :tab-size
+                  :text-align :text-align-last :text-combine-upright :text-decoration :text-decoration-color :text-decoration-line :text-decoration-style
+                  :text-indent :text-orientation :text-overflow :text-rendering :text-shadow :text-transform :text-underline-position :top :touch-action
+                  :transform :transform-origin :transform-style :transition :transition-delay :transition-duration :transition-property
+                  :transition-timing-function :turn :unicode-bidi :unicode-range :unset :vertical-align :vh :visibility :vmax :vmin :vw :white-space :widows
+                  :width :will-change :word-break :word-spacing :word-wrap :writing-mode :z-index
+                  ; ----- Webkit specific styles
+                  :-webkit-user-select})  ;; https://developer.mozilla.org/en-US/docs/Web/CSS/user-select
+
 (defn string-or-hiccup?
   "Returns true if the passed argument is either valid hiccup or a string"
   [arg]
@@ -179,13 +236,34 @@
 
 (defn vector-of-maps?
   "Returns true if the passed argument is a vector of maps (either directly or contained in an atom). Notes:
-    - vector can be empty
-    - only checks the first element in the vector"
+    - actually is also accepts a list of maps (shoud we rename this? Ugly names: sequential-of-maps?, vector-or-list-of-maps?)
+    - vector/list can be empty
+    - only checks the first element in the vector/list"
   [arg]
   (let [arg (deref-or-value arg)]
-    (and (vector? arg)
+    (and (sequential? arg) ;; Allows lists as well
          (or (empty? arg)
              (map? (first arg))))))
+
+(defn css-style?
+  "Returns true if the passed argument is a valid CSS style"
+  [arg]
+  (let [arg (deref-or-value arg)]
+    (and (map? arg)
+         (let [arg-keys (keys arg)]
+           (or (superset? css-styles arg-keys)
+               (let [invalid-styles (remove css-styles arg-keys)]
+                 (str "Invalid CSS style(s): " invalid-styles)))))))
+
+(defn html-attr?
+  "Returns true if the passed argument is a valid HTML, SVG or event attribute"
+  [arg]
+  (let [arg (deref-or-value arg)]
+    (and (map? arg)
+         (let [arg-keys (keys arg)]
+           (or (superset? html-attrs arg-keys)
+               (let [invalid-attrs (remove html-attrs arg-keys)]
+                 (str "Invalid HTML attribute(s): " invalid-attrs)))))))
 
 (defn goog-date?  ;; TODO: Write the code
   "Returns true if the passed argument is a valid goog.date.UtcDateTime"

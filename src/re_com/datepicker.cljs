@@ -6,7 +6,7 @@
   (:require
     [reagent.core         :as    reagent]
     [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
-    [re-com.validate      :refer [extract-arg-data validate-args goog-date?]]
+    [re-com.validate      :refer [extract-arg-data validate-args goog-date? css-style? html-attr?]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box]]
@@ -201,8 +201,8 @@
    {:name :maximum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "selection & navigation are blocked after this date"}
    {:name :hide-border? :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
    {:name :class        :required false                       :type "string"                         :validate-fn string?    :description "CSS classes (whitespace separated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
-   {:name :style        :required false                       :type "map"                            :validate-fn map?       :description "CSS styles"}
-   {:name :attr         :required false                       :type "map"                            :validate-fn map?       :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :style        :required false                       :type "css style map"                  :validate-fn css-style? :description "CSS styles"}
+   {:name :attr         :required false                       :type "html attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (def datepicker-args (extract-arg-data datepicker-args-desc))
 

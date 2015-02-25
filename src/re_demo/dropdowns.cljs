@@ -255,7 +255,7 @@
 (defn demo6
   []
   (let [selected-country-id (reagent/atom nil)
-        filtered-cities     (reagent/atom nil)
+        filtered-cities     (reagent/atom [])
         selected-city-id    (reagent/atom nil)]
     (fn []
       [v-box

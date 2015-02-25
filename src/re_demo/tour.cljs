@@ -100,7 +100,8 @@
   []
   [v-box
    :width    "400px"
-   :children [[:div.h4 "Notes:"]
+   :gap      "10px"
+   :children [[component-title "Notes"]
                [:p "To create a tour:"]
                 [:ul
                  [:li.spacer "Make a tour object, something like: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
@@ -116,6 +117,7 @@
 (defn panel2
   []
   [v-box
+   :gap      "10px"
    :children [[panel-title "Tour Components"]
               [h-box
                :gap      "50px"

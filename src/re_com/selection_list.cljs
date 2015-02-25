@@ -83,7 +83,7 @@
 
 
 (def selection-list-args-desc
-  [{:name :choices         :required true                      :type "vector of maps | atom"              :validate-fn vector-of-maps? :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below"]}
+  [{:name :choices         :required true                      :type "vector of maps | atom"              :validate-fn vector-of-maps? :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below (list of maps also allowed)"]}
    {:name :model           :required true                      :type "set of :ids within :choices | atom" :validate-fn set?            :description "the currently selected items. Note: items are considered distinct"}
    {:name :on-change       :required true                      :type "(set of :ids) -> nil | atom"        :validate-fn fn?             :description "a callback which will be passed set of selected items"}
    {:name :multi-select?   :required false :default true       :type "boolean | atom"                                                  :description "when true, use check boxes, otherwise radio buttons"}
@@ -94,7 +94,8 @@
    {:name :max-height      :required false                     :type "string | atom"                      :validate-fn string?         :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll"}
    {:name :disabled?       :required false :default false      :type "boolean | atom"                                                  :description "when true, the time input will be disabled. Can be atom or value"}
    {:name :hide-border?    :required false :default false      :type "boolean | atom"                                                  :description "when true, the list will be displayed without a border"}
-   {:name :item-renderer   :required false                     :type "function | atom"                    :validate-fn fn?             :description [:span "called for each element during setup, the returned component renders the element, responds to clicks etc. Following example renders plain label -" [:br]
+   {:name :item-renderer   :required false                     :type "function | atom"                    :validate-fn fn?             :description [:span "[TODO: Need to clean this up]" [:br]
+                                                                                                                                              "called for each element during setup, the returned component renders the element, responds to clicks etc. Following example renders plain label -" [:br]
                                                                                                                                               [:code "(defn as-label" [:br]
                                                                                                                                                "[item selections on-change disabled? label-fn required? as-exclusions?]" [:br]
                                                                                                                                                "[label :label (label-fn item) :style {:width \"200px\" :color \"#428bca\"}])"]]}

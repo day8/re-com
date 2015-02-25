@@ -23,7 +23,7 @@
 (def h-layout-args-desc
   [{:name :left-panel     :required true                  :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the left panel"}
    {:name :right-panel    :required true                  :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the right panel"}
-   {:name :initial-split  :required false :default 50     :type "number | string"                                :description "initial split percentage of the left panel. Can be number or string percentage"}
+   {:name :initial-split  :required false :default 50     :type "double | string"                                :description "initial split percentage of the left panel. Can be double value or string (with/without percentage sign)"}
    {:name :splitter-size  :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the splitter"}
    {:name :margin         :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
 
@@ -111,7 +111,7 @@
 (def v-layout-args-desc
   [{:name :top-panel      :required true                  :type "component"        :validate-fn string-or-hiccup? :description "markup to go in the top panel"}
    {:name :bottom-panel   :required true                  :type "component"        :validate-fn string-or-hiccup? :description "markup to go in the bottom panel"}
-   {:name :initial-split  :required false :default 50     :type "number | string"                                 :description "initial split percentage of the top panel. Can be number or string percentage"}
+   {:name :initial-split  :required false :default 50     :type "double | string"                                 :description "initial split percentage of the top panel. Can be double value or string (with/without percentage sign)"}
    {:name :splitter-size  :required false :default "8px"  :type "string"           :validate-fn string?           :description "thickness of the splitter"}
    {:name :margin         :required false :default "8px"  :type "string"           :validate-fn string?           :description "thickness of the margin around the panels"}])
 

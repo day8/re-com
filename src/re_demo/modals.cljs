@@ -751,16 +751,16 @@
 
 (defn demo2
   []
-  [:span "*** TODO ***"])
+  [:span "TBA"])
 
 
 (defn notes
   []
   [v-box
    :width    "500px"
-   :children [[:div.h4 "General notes"]
-              [:ul
-               [:li "*** TODO ***"]]]])
+   :gap      "10px"
+   :children [[component-title "Notes"]
+              [:span "TBA"]]])
 
 
 (defn panel2
@@ -768,6 +768,7 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
+       :gap      "10px"
        :children [[panel-title "Modal Components"]
                   [h-box
                    :gap      "50px"

@@ -10,7 +10,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def tabs-args-desc
-  [{:name :tabs      :required true :type "vector of maps | atom" :validate-fn vector-of-maps? :description "one element in the vector for each tab. In each map, at least :id and :label"}
+  [{:name :tabs      :required true :type "vector of maps | atom" :validate-fn vector-of-maps? :description "one element in the vector for each tab. In each map, at least :id and :label (list of maps also allowed)"}
    {:name :model     :required true :type ":id from :tabs | atom"                              :description "the :id of the currently selected tab"}
    {:name :on-change :required true :type "(:id) -> nil"          :validate-fn fn?             :description "called when user alters the selection. Passed the :id of the selection"}])
 

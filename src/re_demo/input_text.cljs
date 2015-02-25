@@ -10,12 +10,13 @@
   []
   (let [text-val        (reagent/atom "")
         regex           (reagent/atom nil)
+        regex999        #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$"
         status          (reagent/atom nil)
         status-icon?    (reagent/atom false)
         status-tooltip  (reagent/atom "")
         disabled?       (reagent/atom false)
         change-on-blur? (reagent/atom true)
-        slider-val      (reagent/atom "4")]
+        slider-val      (reagent/atom 4)]
     (fn
       []
       [v-box
@@ -40,9 +41,9 @@
                                                                    :model            text-val
                                                                    :status           @status
                                                                    :status-icon?     @status-icon?
-                                                                   ;:status-tooltip   @status-tooltip
+                                                                   :status-tooltip   @status-tooltip
                                                                    :width            "300px"
-                                                                   :placeholder      "placeholder message"
+                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
                                                                    :on-change        #(reset! text-val %)
                                                                    :validation-regex @regex
                                                                    :change-on-blur?  change-on-blur?
@@ -57,7 +58,7 @@
                                                                    :status-tooltip   @status-tooltip
                                                                    :width            "300px"
                                                                    :rows             @slider-val
-                                                                   :placeholder      "placeholder message"
+                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
                                                                    :on-change        #(reset! text-val %)
                                                                    :validation-regex @regex
                                                                    :change-on-blur?  change-on-blur?
@@ -98,7 +99,7 @@
                                                                                :model     @status
                                                                                :on-change #(do
                                                                                             (reset! status :warning)
-                                                                                            (reset! status-tooltip "Warning tooltip - this appears when there are warnings on input-text components."))
+                                                                                            (reset! status-tooltip "Warning tooltip - this (optionally) appears when there are warnings on input-text components."))
                                                                                :style     {:margin-left "20px"}]
                                                                               [radio-button
                                                                                :label     ":error - Error status"
@@ -106,20 +107,29 @@
                                                                                :model     @status
                                                                                :on-change #(do
                                                                                             (reset! status :error)
-                                                                                            (reset! status-tooltip "Error tooltip - this appears when there are errors on input-text components."))
+                                                                                            (reset! status-tooltip "Error tooltip - this (optionally) appears when there are errors on input-text components."))
                                                                                :style     {:margin-left "20px"}]]]
                                                                   [checkbox
                                                                    :label     ":status-icon?"
                                                                    :model     status-icon?
                                                                    :on-change (fn [val]
                                                                                 (reset! status-icon? val))]
-                                                                  [checkbox
-                                                                   :label     (if @regex
-                                                                                ":validation-regex - set to format '99.9'"
-                                                                                ":validation-regex - nil (no character validation)")
-                                                                   :model     regex
-                                                                   :on-change (fn [val]
-                                                                                (reset! regex (when val #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$")))]
+                                                                  [v-box
+                                                                   :children [[label :label ":validation-regex"]
+                                                                              [radio-button
+                                                                               :label     "nil/omitted - no character validation"
+                                                                               :value     nil
+                                                                               :model     @regex
+                                                                               :on-change #(do (reset! regex nil)
+                                                                                               (reset! text-val ""))
+                                                                               :style     {:margin-left "20px"}]
+                                                                              [radio-button
+                                                                               :label     "set to format '99.9'"
+                                                                               :value     regex999
+                                                                               :model     @regex
+                                                                               :on-change #(do (reset! regex regex999)
+                                                                                               (reset! text-val ""))
+                                                                               :style     {:margin-left "20px"}]]]
                                                                   [checkbox
                                                                    :label     ":disabled?"
                                                                    :model     disabled?
