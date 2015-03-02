@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [re-com.core :refer [handler-fn]])
   (:require [cljs.core.async :as    async :refer [<! >! chan close! sliding-buffer put! alts! timeout]]
-            [re-com.validate :refer [extract-arg-data validate-args]]
+            [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup?]]
             [re-com.util     :as    util]
             [re-com.core     :refer [spinner progress-bar]]
             [re-com.buttons  :refer [button]]
@@ -97,7 +97,13 @@
 ;; ------------------------------------------------------------------------------------
 
 (def modal-window-args-desc
-  [{:name :markup  :required true   :type "component"  :description "Markup to go in the modal."}])
+  [{:name :child            :required true                   :type "string | hiccup" :validate-fn string-or-hiccup? :description "Hiccup to be centered within in the browser window"}
+   {:name :with-panel       :required false :default true    :type "boolean"                                        :description "true will surround your :child hiccup with a white, rounded panel with some padding"}
+   {:name :backdrop-color   :required false :default "black" :type "string"          :validate-fn string?           :description "CSS colour of backdrop"}
+   {:name :backdrop-opacity :required false :default 0.85    :type "double | string"                                :description [:span "Opacity of backdrop from:" [:br] "0 (transparent) to 1 (opaque)"]}
+   {:name :class            :required false                  :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+   {:name :style            :required false                  :type "map"             :validate-fn map?              :description "CSS styles to add or override"}
+   {:name :attr             :required false                  :type "map"             :validate-fn map?              :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (def modal-window-args (extract-arg-data modal-window-args-desc))
 
@@ -105,29 +111,33 @@
   "Renders a modal window centered on screen. A dark transparent backdrop sits between this and the underlying
    main window to prevent UI interactivity and place user focus on the modal window.
    Parameters:
-    - markup  The message to display in the modal (a string or a hiccup vector or function returning a hiccup vector)"
-  [& {:keys [markup] :as args}]
+    - child:  The message to display in the modal (a string or a hiccup vector or function returning a hiccup vector)"
+  [& {:keys [child with-panel backdrop-color backdrop-opacity class style attr]
+      :or   {with-panel true backdrop-color "black" backdrop-opacity 0.85}
+      :as   args}]
   {:pre [(validate-args modal-window-args args "modal-window")]}
   (fn []
-    [:div
-     {:style {:display "flex"      ;; Semi-transparent backdrop
-              :position "fixed"
-              :left "0px"
-              :top "0px"
-              :width "100%"
-              :height "100%"
-              :background-color "rgba(0,0,0,0.85)"
-              :z-index 1020
-              :on-click (handler-fn (println "clicked backdrop")) ;; Gobble up clicks so they don't go to the main window (TODO: Doesn't work)
-              }}
-     [:div                         ;; Modal window containing div
-      {:style {:margin "auto"
-               :background-color "white"
-               :padding "16px"
-               :border-radius "6px"
-               :z-index 1020}}
-      markup]]))
-
+    [:div (merge {:class  (str "rc-modal-window " class)    ;; Containing div
+                  :style (merge {:display  "flex"
+                                 :position "fixed"
+                                 :left     "0px"
+                                 :top      "0px"
+                                 :width    "100%"
+                                 :height   "100%"}
+                                style)}
+                 attr)
+     [:div {:style {:position "fixed"                       ;; Backdrop
+                    :width    "100%"
+                    :height   "100%"
+                    :background-color backdrop-color
+                    :opacity          backdrop-opacity
+                    :z-index 1020}}]
+     [:div {:style (merge {:margin  "auto"                  ;; Child
+                           :z-index 1020}
+                          (when with-panel {:background-color "white"
+                                            :padding          "16px"
+                                            :border-radius    "6px"}))}
+      child]]))
 
 
 ;; ------------------------------------------------------------------------------------

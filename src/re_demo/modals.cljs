@@ -6,9 +6,10 @@
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown]]
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
-            [re-com.modal    :refer [modal-window cancel-button looper domino-process]]
+            [re-com.modal    :refer [modal-window cancel-button looper domino-process
+                                     modal-window-args-desc modal-window-args]]
             [cljs.core.async :refer [<! >! chan close! put! take! alts! timeout]]
-            [re-demo.utils   :refer [panel-title component-title]]
+            [re-demo.utils    :refer [panel-title component-title args-table]]
             [reagent.core    :as    reagent]))
 
 
@@ -100,10 +101,10 @@
   "Show this modal window when loading a url"
   [url loading?]
   [modal-window
-   :markup [:div {:style {:max-width "600px"}}
-            [:p (str "Loading data from '" url "'...")]
-            [spinner]
-            [cancel-button #(reset! loading? false)]]])
+   :child [:div {:style {:max-width "600px"}}
+           [:p (str "Loading data from '" url "'...")]
+           [spinner]
+           [cancel-button #(reset! loading? false)]]])
 
 
 (defn load-url
@@ -161,15 +162,15 @@
   "Show this modal window when saving to disk"
   [path writing?]
   [modal-window
-   :markup [:div {:style {:max-width "600px"}}
-            [:p (str "Saving '" path "'...")]
-            [:div {:style {:display "flex"}}
-             [:div {:style {:margin "auto"}}
-              [:img {:src "resources/img/spinner.gif" :style {:margin-right "12px"}}]
-              [button
-               :label    "STOP!"
-               :on-click #(reset! writing? false)
-               :class    "btn-danger"]]]]])
+   :child [:div {:style {:max-width "600px"}}
+           [:p (str "Saving '" path "'...")]
+           [:div {:style {:display "flex"}}
+            [:div {:style {:margin "auto"}}
+             [:img {:src "resources/img/spinner.gif" :style {:margin-right "12px"}}]
+             [button
+              :label    "STOP!"
+              :on-click #(reset! writing? false)
+              :class    "btn-danger"]]]]])
 
 (defn write-disk
   [path writing?]
@@ -219,9 +220,9 @@
 ;  []
 ;  "Show this modal window when calculating pivot totals"
 ;  [modal-window
-;   :markup [:div {:style {:max-width "200px"}}
-;            [:p {:style {:text-align "center"}}
-;             [:strong "Calculating pivot totals"] [:br] "Please wait..."]]])
+;   :child [:div {:style {:max-width "200px"}}
+;           [:p {:style {:text-align "center"}}
+;            [:strong "Calculating pivot totals"] [:br] "Please wait..."]]])
 ;
 ;(defn calc-pivot-totals
 ;  [calculating?]
@@ -259,13 +260,13 @@
 ;  [calculating?]
 ;  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)"
 ;  [modal-window
-;   :markup [:div {:style {:max-width "200px"}}
-;            [:p {:style {:text-align "center"}}
-;             [:strong "Processing large XML file"] [:br]
-;             [:strong "(actually, just reusing fib)"] [:br]
-;             "Please wait..."]
-;            [spinner]
-;            [cancel-button #(reset! calculating? false)]]])
+;   :child [:div {:style {:max-width "200px"}}
+;           [:p {:style {:text-align "center"}}
+;            [:strong "Processing large XML file"] [:br]
+;            [:strong "(actually, just reusing fib)"] [:br]
+;            "Please wait..."]
+;           [spinner]
+;           [cancel-button #(reset! calculating? false)]]])
 ;
 ;
 ;(defn process-xml
@@ -334,12 +335,12 @@
 ;  [progress-msg progress-percent calculating?]
 ;  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)"
 ;  [modal-window
-;   :markup [:div {:style {:max-width "500px"}}
-;            [:p {:style {:text-align "center"}}
-;             [:strong "Recalculating..."] [:br]
-;             [:strong "Current step: "] [progress-msg-2 progress-msg]]
-;            [progress-bar :model progress-percent]
-;            [cancel-button #(reset! calculating? false)]]])
+;   :child [:div {:style {:max-width "500px"}}
+;           [:p {:style {:text-align "center"}}
+;            [:strong "Recalculating..."] [:br]
+;            [:strong "Current step: "] [progress-msg-2 progress-msg]]
+;           [progress-bar :model progress-percent]
+;           [cancel-button #(reset! calculating? false)]]])
 ;
 ;(defn mwi-steps-2
 ;  []
@@ -424,11 +425,11 @@
                     (println "FINISHED!!!!"))]
        (when @calculating?
          [modal-window
-          :markup [:div {:style {:width "300px"}}
-                   [:p {:style {:text-align "center"}}
-                    [:strong "Calculating fibonacci numbers..."]]
-                   [spinner]
-                   [cancel-button #(reset! calculating? false)]]])])))
+          :child [:div {:style {:width "300px"}}
+                  [:p {:style {:text-align "center"}}
+                   [:strong "Calculating fibonacci numbers..."]]
+                  [spinner]
+                  [cancel-button #(reset! calculating? false)]]])])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -437,19 +438,19 @@
 (defn do-stuff
   [payload]
   (println (str "do-stuff - payload = " payload))
-  (cpu-delay 200)
+  (cpu-delay 4000)
   (assoc payload :do-stuff-result 100))
 
 (defn do-more-stuff
   [payload]
   (println (str "do-more-stuff - payload = " payload))
-  (cpu-delay 300)
+  (cpu-delay 6000)
   (assoc payload :do-more-stuff-result 200))
 
 (defn do-even-more-stuff
   [payload]
   (println (str "do-even-more-stuff - payload = " payload))
-  (cpu-delay 400)
+  (cpu-delay 8000)
   (assoc payload :do-even-more-stuff-result 300 :a 99 :b 99))
 
 (defn do-processing
@@ -513,13 +514,13 @@
         :on-click #(do-processing calculating? progress-msg progress-percent)]
        (when @calculating?
          [modal-window
-          :markup [:div {:style {:width "300px"}}
-                   [:p {:style {:text-align "center"}}
-                    [:strong "Recalculating..."] [:br]
-                    [:strong "Current step: "] [(fn [] [:span @progress-msg])]]
-                   [progress-bar
-                    :model progress-percent]
-                   [cancel-button #(reset! calculating? false)]]])])))
+          :child [:div {:style {:width "300px"}}
+                  [:p {:style {:text-align "center"}}
+                   [:strong "Recalculating..."] [:br]
+                   [:strong "Current step: "] [(fn [] [:span @progress-msg])]]
+                  [progress-bar
+                   :model progress-percent]
+                  [cancel-button #(reset! calculating? false)]]])])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -581,12 +582,12 @@
 ;  [progress-msg progress-percent calculating?]
 ;  "Show this modal window when chunking through an in memory XML file (actualy we're justing calcing fibs)"
 ;  [modal-window
-;   :markup [:div {:style {:max-width "500px"}}
-;            [:p {:style {:text-align "center"}}
-;             [:strong "Recalculating..."] [:br]
-;             [:strong "Current step: "] [progress-msg progress-msg]]
-;            [progress-bar :model progress-percent]
-;            [cancel-button #(reset! calculating? false)]]])
+;   :child [:div {:style {:max-width "500px"}}
+;           [:p {:style {:text-align "center"}}
+;            [:strong "Recalculating..."] [:br]
+;            [:strong "Current step: "] [progress-msg progress-msg]]
+;           [progress-bar :model progress-percent]
+;           [cancel-button #(reset! calculating? false)]]])
 ;
 ;(defn chunked-json
 ;  []
@@ -628,8 +629,8 @@
 
 (defn test-form-markup
   [form-data process-ok process-cancel]
-  [:div {:style {:padding "5px" :background-color "cornsilk" :border "1px solid #eee"}} ;; [:form {:name "pform" :on-submit ptest-form-submit}
-   [:h3 "Welcome to MWI Enhancer"]
+  [:div {:style {:padding "10px" :background-color "cornsilk" :border "1px solid #eee"}} ;; [:form {:name "pform" :on-submit ptest-form-submit}
+   [:h3 "Welcome to MI6. Please log in"]
    [:div.form-group
     [:label {:for "pf-email"} "Email address"]
     [:input#pf-email.form-control
@@ -657,7 +658,7 @@
        :type      "checkbox"
        :checked   (:remember-me @form-data)
        :on-change (handler-fn (swap! form-data assoc :remember-me (-> event .-target .-checked)))}
-      "Remember me"]]]
+      "Forget me"]]]
    [:hr {:style {:margin "10px 0 10px"}}]
    [button
     :label    "Sign in"
@@ -673,7 +674,7 @@
   "Create a button to test the modal component for modal dialogs"
   []
   (let [showing?       (reagent/atom false)
-        form-data      (reagent/atom {:email       "gregg.ramsey@day8.com.au"
+        form-data      (reagent/atom {:email       "james.bond.007@sis.gov.uk"
                                       :password    "abc123"
                                       :remember-me true})
         save-form-data (reagent/atom nil)
@@ -695,11 +696,14 @@
                     (reset! save-form-data @form-data)
                     (reset! showing? true))]
        (when @showing? [modal-window
-                        :markup [test-form-markup
-                                 form-data
-                                 process-ok
-                                 process-cancel]])])))
-
+                        :with-panel       true
+                        :backdrop-color   "grey"
+                        :backdrop-opacity 0.4
+                        :style            {:font-family "Consolas"}
+                        :child            [test-form-markup
+                                           form-data
+                                           process-ok
+                                           process-cancel]])])))
 
 
 (defn demo1
@@ -749,49 +753,23 @@
         ]]]]))
 
 
-(defn demo2
-  []
-  [:span "TBA"])
-
-
-(defn notes
-  []
-  [v-box
-   :width    "500px"
-   :gap      "10px"
-   :children [[component-title "Notes"]
-              [:span "TBA"]]])
-
-
 (defn panel2
   []
-  (let [selected-demo-id (reagent/atom 1)]
-    (fn []
-      [v-box
-       :gap      "10px"
-       :children [[panel-title "Modal Components"]
-                  [h-box
-                   :gap      "50px"
-                   :children [[notes]
-                              [v-box
-                               :gap       "15px"
-                               :size      "auto"
-                               :min-width "500px"
-                               :margin    "20px 0px 0px 0px"
-                               :children  [[h-box
-                                            :gap      "10px"
-                                            :align    :center
-                                            :children [[label :label "Select a demo"]
-                                                       [single-dropdown
-                                                        :choices   demos
-                                                        :model     selected-demo-id
-                                                        :width     "300px"
-                                                        :on-change #(reset! selected-demo-id %)]]]
-                                           [gap :size "0px"] ;; Force a bit more space here
-                                           (case @selected-demo-id
-                                             1 [demo1]
-                                             2 [demo2])]]]]]])))
+  [v-box
+   :gap      "10px"
+   :children [[panel-title "[modal-window ... ]"]
 
+              [h-box
+               :gap      "50px"
+               :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[args-table modal-window-args-desc]]]
+                          [v-box
+                           :gap      "10px"
+                           :children [[component-title "Demo"]
+                                      [v-box
+                                       :children [[demo1]]]]]]]]])
 
 (defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
   []
