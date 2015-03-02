@@ -37,7 +37,7 @@
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
-                     [org.clojure/clojurescript   "0.0-2843" scope="provided"]
+                     [org.clojure/clojurescript   "0.0-2843" scope="provided"] ;; 2843 => 2913
                      ;[stabilized/clojurescript    "1.0.0" scope="provided"]       ;; TODO: Eventually switch to this one (when it works)
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha" scope="provided"]
                      [reagent                     "0.5.0-alpha3" scope="provided"]
@@ -77,6 +77,9 @@
   :resource-paths  ["run/resources"]
   ; :clean-targets   [:target-path]
 
+  :closure-defines {:goog.DEBUG false}
+
+
   ;; Exclude the demo and compiled files from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)compiled.*\/"]
 
@@ -84,6 +87,9 @@
                                :source-paths   ["src" "dev"]
                                :compiler       {:output-to       "run/resources/public/compiled_dev/demo.js"
                                                 :output-dir      "run/resources/public/compiled_dev/demo"
+
+                                                :closure-defines {:goog.DEBUG false}
+
                                                 :main            "figwheel-start.core"
                                                 :asset-path      "compiled_dev/demo"
                                                 :source-map      true

@@ -41,3 +41,14 @@
 (defmacro handler-fn
   ([& body]
     `(fn [~'event] ~@body nil)))  ;; force return nil
+
+
+(defmacro defn-meta
+  [name & defn-args]
+  `(defn ~(vary-meta name assoc :export true) ~@defn-args))
+
+(defmacro add-meta [expr]
+  (let [namespace {:namespace (name cljs.analyzer/*cljs-ns*)}
+        source-details (meta &form)]
+    `(with-meta ~expr '~(merge namespace source-details))))
+

@@ -2,7 +2,7 @@
   (:require  [clojure.set :refer [superset?]]))
 
 (defn fmap
-  "Takes a fucntion 'f' amd a map 'm'.  Applies 'f' to each value in 'm' and returns.
+  "Takes a function 'f' amd a map 'm'.  Applies 'f' to each value in 'm' and returns.
    (fmap  inc  {:a 4  :b 2})   =>   {:a 5  :b 3}"
   [f m]
   (into {} (for [[k val] m] [k (f val)])))

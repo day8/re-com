@@ -1,6 +1,6 @@
 (ns re-com.layout
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.validate    :refer [extract-arg-data validate-args string-or-hiccup?]]
+  (:require [re-com.validate    :refer [extract-arg-data validate-args string-or-hiccup? number-or-string?]]
             [reagent.core :as    reagent]))
 
 
@@ -21,11 +21,11 @@
 ;; ------------------------------------------------------------------------------------
 
 (def h-layout-args-desc
-  [{:name :left-panel     :required true                  :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the left panel"}
-   {:name :right-panel    :required true                  :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the right panel"}
-   {:name :initial-split  :required false :default 50     :type "double | string"                                :description "initial split percentage of the left panel. Can be double value or string (with/without percentage sign)"}
-   {:name :splitter-size  :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the splitter"}
-   {:name :margin         :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
+  [{:name :left-panel    :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the left panel"}
+   {:name :right-panel   :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the right panel"}
+   {:name :initial-split :required false :default 50    :type "double | string" :validate-fn number-or-string? :description "initial split percentage of the left panel. Can be double value or string (with/without percentage sign)"}
+   {:name :splitter-size :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
+   {:name :margin        :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
 
 (def h-layout-args (extract-arg-data h-layout-args-desc))
 
@@ -109,11 +109,11 @@
 ;; ------------------------------------------------------------------------------------
 
 (def v-layout-args-desc
-  [{:name :top-panel      :required true                  :type "component"        :validate-fn string-or-hiccup? :description "markup to go in the top panel"}
-   {:name :bottom-panel   :required true                  :type "component"        :validate-fn string-or-hiccup? :description "markup to go in the bottom panel"}
-   {:name :initial-split  :required false :default 50     :type "double | string"                                 :description "initial split percentage of the top panel. Can be double value or string (with/without percentage sign)"}
-   {:name :splitter-size  :required false :default "8px"  :type "string"           :validate-fn string?           :description "thickness of the splitter"}
-   {:name :margin         :required false :default "8px"  :type "string"           :validate-fn string?           :description "thickness of the margin around the panels"}])
+  [{:name :top-panel     :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the top panel"}
+   {:name :bottom-panel  :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the bottom panel"}
+   {:name :initial-split :required false :default 50    :type "double | string" :validate-fn number-or-string? :description "initial split percentage of the top panel. Can be double value or string (with/without percentage sign)"}
+   {:name :splitter-size :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
+   {:name :margin        :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
 
 (def v-layout-args (extract-arg-data v-layout-args-desc))
 
