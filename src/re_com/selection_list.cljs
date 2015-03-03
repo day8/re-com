@@ -94,12 +94,8 @@
    {:name :max-height     :required false                      :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll"}
    {:name :disabled?      :required false :default false       :type "boolean | atom"                                                  :description "when true, the time input will be disabled. Can be atom or value"}
    {:name :hide-border?   :required false :default false       :type "boolean | atom"                                                  :description "when true, the list will be displayed without a border"}
-   {:name :item-renderer  :required false                      :type "function | atom"                    :validate-fn fn?             :description [:span "[TODO: Need to clean this up]" [:br]
-                                                                                                                                                    "called for each element during setup, the returned component renders the element, responds to clicks etc. Following example renders plain label -" [:br]
-                                                                                                                                                    [:code "(defn as-label" [:br]
-                                                                                                                                                     "[item selections on-change disabled? label-fn required? as-exclusions?]" [:br]
-                                                                                                                                                     "[label :label (label-fn item) :style {:width \"200px\" :color \"#428bca\"}])"]]}
-   {:name :label-fn        :required false :default "#(str %)" :type "function | atom"                    :validate-fn ifn?            :description "called for each element to get label string"}])
+   {:name :item-renderer  :required false                      :type "function | atom"                    :validate-fn fn?             :description "called for each element during setup, the returned component renders the element, responds to clicks etc."}
+   {:name :label-fn       :required false :default "str"       :type "function | atom"                    :validate-fn ifn?            :description "called for each element to get label string"}])
 
 (def selection-list-args (extract-arg-data selection-list-args-desc))
 
@@ -133,7 +129,7 @@
           :required?      false
           :disabled?      false
           :hide-border?   false
-          :label-fn       (partial str)}
+          :label-fn       str}
          (fmap deref-or-value attributes)))
 
 (defn selection-list

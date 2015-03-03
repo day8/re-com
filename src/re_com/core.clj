@@ -43,6 +43,8 @@
     `(fn [~'event] ~@body nil)))  ;; force return nil
 
 
+;; TODO: Experimental macros to aid in reagent stack traces
+
 (defmacro defn-meta
   [name & defn-args]
   `(defn ~(vary-meta name assoc :export true) ~@defn-args))

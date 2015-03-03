@@ -1,7 +1,8 @@
 (ns re-com.popover
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util    :refer [get-element-by-id px deref-or-value]]
-            [re-com.validate :refer [extract-arg-data validate-args position? position-options number-or-string? string-or-atom?]]
+            [re-com.validate :refer [extract-arg-data validate-args position? position-options-list popover-status-type? popover-status-types-list
+                                     number-or-string? string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?]]
             [clojure.string :as    string]
             [reagent.core   :as    reagent]))
 
@@ -119,8 +120,8 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def backdrop-args-desc
-  [{:name :opacity  :required false :default 0.0 :type "double | string" :validate-fn number-or-string? :description "the opacity of the backdrop (0.0 for transparent to 1.0 for fully opaque)"}
-   {:name :on-click :required false              :type "( ) -> nil"      :validate-fn fn?               :description "the function to call when the backdrop is clicked"}])
+  [{:name :opacity  :required false :default 0.0 :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
+   {:name :on-click :required false              :type "( ) -> nil"      :validate-fn fn?               :description "function to call when the backdrop is clicked"}])
 
 (def backdrop-args (extract-arg-data backdrop-args-desc))
 
@@ -144,16 +145,16 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-border-args-desc
-  [{:name :position       :required false :default :right-below :type "keyword"          :validate-fn position?                                  :description "a keyword specifying the popover's position relative to the anchor. See the demo to the right for the values"}
-   {:name :children       :required true                        :type "vector"                                          :description "a vector of component markups"}
-   {:name :width          :required false                       :type "string"                                          :description "a CSS style describing the popover width"}
-   {:name :height         :required false :default "auto"       :type "string"                                          :description "a CSS style describing the popover height"}
-   {:name :popover-color  :required false :default "white"      :type "string"                                          :description "fill color of the popover"}
+  [{:name :children       :required true                        :type "vector"           :validate-fn sequential?       :description "a vector of component markups"}
+   {:name :position       :required false :default :right-below :type "keyword"          :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :width          :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the popover width"}
+   {:name :height         :required false :default "auto"       :type "string"           :validate-fn string?           :description "a CSS style describing the popover height"}
+   {:name :popover-color  :required false :default "white"      :type "string"           :validate-fn string?           :description "fill color of the popover"}
    {:name :arrow-length   :required false :default 11           :type "integer | string" :validate-fn number-or-string? :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
    {:name :arrow-width    :required false :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
-   {:name :padding        :required false                       :type "string"                                          :description "a CSS style which overrides the inner padding of the popover"}
-   {:name :margin-left    :required false                       :type "string"                                          :description "a CSS style describing the horiztonal offset from anchor after position"}
-   {:name :margin-top     :required false                       :type "string"                                          :description "a CSS style describing the vertical offset from anchor after position"}
+   {:name :padding        :required false                       :type "string"           :validate-fn string?           :description "a CSS style which overrides the inner padding of the popover"}
+   {:name :margin-left    :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the horiztonal offset from anchor after position"}
+   {:name :margin-top     :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the vertical offset from anchor after position"}
    {:name :tooltip-style? :required false :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
    {:name :title          :required false                       :type "string | markup"                                 :description "describes a title"}])
 
@@ -161,7 +162,7 @@
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
-  [& {:keys [position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title children]
+  [& {:keys [children position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title]
       :or {arrow-length 11 arrow-width 22}
       :as args}]
   {:pre [(validate-args popover-border-args args "popover-border")]}
@@ -191,7 +192,7 @@
 
        :component-function
        (fn
-         [& {:keys [position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title children]
+         [& {:keys [children position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title]
              :or {arrow-length 11 arrow-width 22}
              :as args}]
          {:pre [(validate-args popover-border-args args "popover-border")]}
@@ -244,10 +245,10 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-title-args-desc
-  [{:name :showing?       :required true                 :type "boolean | atom"  :description "when the value is true, the popover shows."}
-   {:name :title          :required false                :type "string | hiccup" :description "describes the title of the popover. Default font size is 18px to make it stand out"}
-   {:name :close-button?  :required false  :default true :type "boolean"         :description "when true, displays the close button"}
-   {:name :close-callback :required false                :type "function"        :description "callback taking no parameters, used when the close button is pressed. Not required if <code>:showing?</code> atom passed in OR <code>:close-button?</code> is set to false"}])
+  [{:name :showing?       :required true                 :type "boolean | atom"                                 :description "when the value is true, the popover shows."}
+   {:name :title          :required false                :type "string | hiccup" :validate-fn string-or-hiccup? :description "describes the title of the popover. Default font size is 18px to make it stand out"}
+   {:name :close-button?  :required false  :default true :type "boolean"                                        :description "when true, displays the close button"}
+   {:name :close-callback :required false                :type "function"        :validate-fn fn?               :description "callback taking no parameters, used when the close button is pressed. Not required if <code>:showing?</code> atom passed in OR <code>:close-button?</code> is set to false"}])
 
 (def popover-title-args (extract-arg-data popover-title-args-desc))
 
@@ -273,22 +274,22 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-content-wrapper-args-desc
-  [{:name :showing?         :required true                         :type "atom"                                            :description "an atom. when the value is true, the popover shows."}
-   {:name :position         :required true   :default :right-below :type "keyword"                                         :description "specifies the popover's position relative to the anchor. See the demo to the right for the values"}
+  [{:name :showing?         :required true   :default false        :type "boolean | atom"                                  :description "an atom. when the value is true, the popover shows."}
+   {:name :position         :required true   :default :right-below :type "keyword"          :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :no-clip?         :required false  :default false        :type "boolean"                                         :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. By passing true for this parameter, re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
-   {:name :width            :required false                        :type "string"                                          :description "a CSS style representing the popover width"}
-   {:name :height           :required false  :default "auto"       :type "string"                                          :description "a CSS style representing the popover height"}
+   {:name :width            :required false                        :type "string"           :validate-fn string?           :description "a CSS style representing the popover width"}
+   {:name :height           :required false  :default "auto"       :type "string"           :validate-fn string?           :description "a CSS style representing the popover height"}
    {:name :backdrop-opacity :required false  :default 0.0          :type "double | string"  :validate-fn number-or-string? :description "indicates the opacity of the backdrop where 0.0=transparent, 1.0=opaque"}
-   {:name :on-cancel        :required false                        :type "function"                                        :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
-   {:name :title            :required false                        :type "string | hiccup"                                 :description "describes the title of the popover. The default font size is 18px to make it stand out"}
+   {:name :on-cancel        :required false                        :type "function"         :validate-fn fn?               :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
+   {:name :title            :required false                        :type "string | hiccup"  :validate-fn string-or-hiccup? :description "describes the title of the popover. The default font size is 18px to make it stand out"}
    {:name :close-button?    :required false  :default true         :type "boolean"                                         :description "when true, displays the close button"}
-   {:name :body             :required false                        :type "hiccup"                                          :description "describes the popover body. Must be a single component"}
+   {:name :body             :required false                        :type "string | hiccup"  :validate-fn string-or-hiccup? :description "describes the popover body. Must be a single component"}
    {:name :tooltip-style?   :required false  :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
-   {:name :popover-color    :required false  :default "white"      :type "string"                                          :description "fill color of the popover"}
+   {:name :popover-color    :required false  :default "white"      :type "string"           :validate-fn string?           :description "fill color of the popover"}
    {:name :arrow-length     :required false  :default 11           :type "integer | string" :validate-fn number-or-string? :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
    {:name :arrow-width      :required false  :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
-   {:name :padding          :required false                        :type "string"                                          :description "a CSS style which overrides the inner padding of the popover"}
-   {:name :style            :required false                        :type "map"                                             :description "override component style(s) with a style map, only use in case of emergency"}])
+   {:name :padding          :required false                        :type "string"           :validate-fn string?           :description "a CSS style which overrides the inner padding of the popover"}
+   {:name :style            :required false                        :type "map"              :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
 
 (def popover-content-wrapper-args (extract-arg-data popover-content-wrapper-args-desc))
 
@@ -348,11 +349,11 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-anchor-wrapper-args-desc
-  [{:name :showing? :required true  :default false        :type "boolean | atom" :description "when the value is true, the popover shows"}
-   {:name :position :required true  :default :right-below :type "keyword"        :description "specifies the popover's position relative to the anchor. See the demo to the right for the values"}
-   {:name :anchor   :required true                        :type "hiccup"         :description "the component the popover is attached to"}
-   {:name :popover  :required false                       :type "hiccup"         :description "the popover body component"}
-   {:name :style    :required false                       :type "map"            :description "override component style(s) with a style map, only use in case of emergency"}])
+  [{:name :showing? :required true  :default false        :type "boolean | atom"                                 :description "when the value is true, the popover shows"}
+   {:name :position :required true  :default :right-below :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :anchor   :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the component the popover is attached to"}
+   {:name :popover  :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the popover body component"}
+   {:name :style    :required false                       :type "map"             :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
 
 (def popover-anchor-wrapper-args (extract-arg-data popover-anchor-wrapper-args-desc))
 
@@ -389,14 +390,14 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-tooltip-args-desc
-  [{:name :label     :required true                         :type "string | atom" :validate-fn string-or-atom?           :description "the text for the tooltip"}
-   {:name :showing?  :required true  :default false         :type "boolean"                                              :description "when the value is true, the tooltip shows"}
-   {:name :on-cancel :required false                        :type "function"                                             :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
-   {:name :status    :required false                        :type "keyword"                                              :description "controls background colour of the tooltip. Values: nil= black, :warning = orange, :error = red, :info = dark grey, left aligned)"}
-   {:name :anchor    :required true                         :type "hiccup"                                               :description "the component the tooltip is attached to"}
-   {:name :position  :required false :default :below-center :type "keyword"                                              :description "specifies the tooltip's position relative to the anchor. Same as for main popover component"}
-   {:name :width     :required false                        :type "string"                                               :description "specifies width of the tooltip"}
-   {:name :style     :required false                        :type "map"                                                  :description "override component style(s) with a style map, only use in case of emergency"}])
+  [{:name :label     :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup?    :description "the text (or component) for the tooltip"}
+   {:name :showing?  :required true  :default false         :type "boolean"                                                  :description "when the value is true, the tooltip shows"}
+   {:name :on-cancel :required false                        :type "function"               :validate-fn fn?                  :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
+   {:name :status    :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background colour of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
+   {:name :anchor    :required true                         :type "hiccup"                 :validate-fn string-or-hiccup?    :description "the component the tooltip is attached to"}
+   {:name :position  :required false :default :below-center :type "keyword"                :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :width     :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}
+   {:name :style     :required false                        :type "map"                    :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency"}])
 
 (def popover-tooltip-args (extract-arg-data popover-tooltip-args-desc))
 

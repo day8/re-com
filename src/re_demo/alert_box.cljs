@@ -38,13 +38,13 @@
                                              :closeable? true
                                              :on-close   #(reset! show-alert false)
 
-                                             ;; TODO: For testing only - remove!
-                                             ;:style      {:width "900px" :hieght "250px"}
-                                             ;:attr       {:alt "alternate text" :style {} :onwheel #()}
-                                             :attr       {:data-ns   (:ns   (meta #'re-demo.alert-box/alert-box-demo))
-                                                          :data-name (:name (meta #'re-demo.alert-box/alert-box-demo))
-                                                          :data-file (:file (meta #'re-demo.alert-box/alert-box-demo))
-                                                          :data-line (:line (meta #'re-demo.alert-box/alert-box-demo))}
+                                             ;;; TODO: For testing only - remove!
+                                             ;;:style      {:width "900px" :hieght "250px"}
+                                             ;;:attr       {:alt "alternate text" :style {} :onwheel #()}
+                                             ;:attr       {:data-ns   (:ns   (meta #'re-demo.alert-box/alert-box-demo))
+                                             ;             :data-name (:name (meta #'re-demo.alert-box/alert-box-demo))
+                                             ;             :data-file (:file (meta #'re-demo.alert-box/alert-box-demo))
+                                             ;             :data-line (:line (meta #'re-demo.alert-box/alert-box-demo))}
                                              ]
                                             [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
                                           [gap :size "50px"]
@@ -76,22 +76,22 @@
   []
   [alert-box-demo])
 
-;; TODO: For testing only - remove!
-(println "METATDATA for alert-box-demo:" (meta #'alert-box-demo))
-(println "goog.DEBUG-1:" ^boolean (.-DEBUG js/goog))
-(println "goog.DEBUG-2:" ^boolean js/goog.DEBUG)
-(when js/goog.DEBUG (println "It's TRUE"))
-(when ^boolean js/goog.DEBUG (println "It's TRUE"))
-
-(println "ADD-META-1: " (meta (add-meta {:aa "hello"})))
-
-(def aa (add-meta {:bb "goodbye"}))
-
-(println "ADD-META-2: file = '" (:file (meta aa)) "', line = " (:line (meta aa)))
-
-;(dbg alert-box-demo)
-(dbg 'alert-box-demo)
-(dbg #'alert-box-demo)
-
-;(set! (.-DEBUG js/goog) false)
-;(println "goog.DEBUG-2:" js/goog.DEBUG)
+;;; TODO: For testing only - remove!
+;(println "METATDATA for alert-box-demo:" (meta #'alert-box-demo))
+;(println "goog.DEBUG-1:" ^boolean (.-DEBUG js/goog))
+;(println "goog.DEBUG-2:" ^boolean js/goog.DEBUG)
+;(when js/goog.DEBUG (println "It's TRUE"))
+;(when ^boolean js/goog.DEBUG (println "It's TRUE"))
+;
+;(println "ADD-META-1: " (meta (add-meta {:aa "hello"})))
+;
+;(def aa (add-meta {:bb "goodbye"}))
+;
+;(println "ADD-META-2: file = '" (:file (meta aa)) "', line = " (:line (meta aa)))
+;
+;;(dbg alert-box-demo)
+;(dbg 'alert-box-demo)
+;(dbg #'alert-box-demo)
+;
+;;(set! (.-DEBUG js/goog) false)
+;;(println "goog.DEBUG-2:" js/goog.DEBUG)
