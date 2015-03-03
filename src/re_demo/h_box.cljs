@@ -6,7 +6,7 @@
                                      line line-args-desc
                                      scroller scroller-args-desc
                                      border border-args-desc]]
-            [re-com.buttons  :refer [button]]
+            [re-com.buttons  :refer [button hyperlink-href]]
             [re-demo.utils   :refer [panel-title component-title args-table]]
             [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? vector-of-maps?]]))
 
@@ -15,7 +15,14 @@
   []
   [v-box
    :gap      "10px"
-   :children [[panel-title "[h-box ... ]"]
+   :children [[panel-title [:span "[h-box ... ]" [:span
+                                                  {:style {:font-size    "13px"
+                                                           :font-variant "small-caps"
+                                                           :margin-left  "8px"}}
+                                                  [hyperlink-href
+                                                   :label  "Github Source"
+                                                   :href   "https://github.com/Day8/re-com/blob/091ab19b5c7b79b2935aaea82990123d593fa936/src/re_com/box.cljs"
+                                                   :target "_blank"]]]]
 
               [h-box
               :gap      "50px"

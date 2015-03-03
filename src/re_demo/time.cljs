@@ -63,16 +63,18 @@
        :gap "20px"
        :children [[component-title "Demo"]
                   [h-box
-                   :gap "40px"
-                   :children [[input-time
-                               :model an-int-time
-                               :minimum @minimum
-                               :maximum @maximum
-                               :on-change #(reset! an-int-time %)
-                               :disabled? disabled?
-                               :hide-border? @hide-border?
-                               :show-icon? @show-icon?
-                               :style   {:width "50px"}]
+                   ;:gap "40px"
+                   :children [[box
+                               :width "100px"
+                               :child [input-time
+                                       :model an-int-time
+                                       :minimum @minimum
+                                       :maximum @maximum
+                                       :on-change #(reset! an-int-time %)
+                                       :disabled? disabled?
+                                       :hide-border? @hide-border?
+                                       :show-icon? @show-icon?
+                                       :style   {:width "50px"}]]
                               [v-box
                                :gap "10px"
                                :children [[label :style {:font-style "italic"} :label "simulated boolean parameters:"]

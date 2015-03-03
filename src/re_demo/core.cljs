@@ -95,7 +95,7 @@
 
    {:id ::tour                   :label "Tour"               :panel tour/panel}
 
-   {:id ::modals                 :label "Modals"             :panel modals/panel}
+   {:id ::modals                 :label "Modal Panel"        :panel modals/panel}
    ])
 
 

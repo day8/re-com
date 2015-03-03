@@ -39,8 +39,7 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "NOTE: Might want to split these into separate pages like buttton and basics" {:font-style "italic"}]
-                                      [component-title "[popover-anchor-wrapper ...]"]
+                           :children [[component-title "[popover-anchor-wrapper ...]"]
                                       [:span "The popover-anchor-wrapper is used to..."]
                                       [args-table popover-anchor-wrapper-args-desc]]]
                           [v-box
@@ -427,7 +426,7 @@
               [proximity-popover-demo]
               [popover-tooltip-demo]
               [complex-popover-demo]
-              [gap :size "280px"]]])                        ;;TODO: 180px
+              [gap :size "280px"]]]) ;;TODO: 180px
 
 
 (defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser

@@ -9,13 +9,13 @@
 
 ;; if true, then validation occurs.
 ;; It is expected that will be flicked to off, in production systems.
-(defonce arg-validation (atom true))
+;(defonce arg-validation (atom true))
 
 
-(defn set-validation!
-  "Turns argument validation on or off based on a boolean argument"
-  [val]
-  (reset! arg-validation val))
+;(defn set-validation!
+;  "Turns argument validation on or off based on a boolean argument"
+;  [val]
+;  (reset! arg-validation val))
 
 
 ;; -- Helpers -----------------------------------------------------------------
@@ -27,16 +27,16 @@
   (gstring/truncate (str obj) max-len))
 
 (defn log-error
-  "Sends a message to the DeV Tools console as an error"
+  "Sends a message to the DeV Tools console as an error. Returns false to indicate 'error' condition"
   [& args]
   (.error js/console (apply str args))
   false)
 
 (defn log-warning
-  "Sends a message to the DeV Tools console as an warning"
+  "Sends a message to the DeV Tools console as an warning. Returns true to indicate 'not and error' condition"
   [& args]
   (.warn js/console (apply str args))
-  false)
+  true)
 
 
 (defn hash-map-with-name-keys
@@ -76,25 +76,30 @@
 
 
 (defn validate-fns-pass?
-  "returns true if all argument values are valid  (for args which have a validator).
-   Otherwise log error and return false.
+  "Gathers together a list of args that have a validator and...
+   returns true if all argument values are valid OR are just warnings (log warning to the console).
+   Otherwise log an error to the console and return false.
    Validation functions can return:
          - true:   validation success
          - false:  validation failed - use standard error message
-         - string: validation failed - use this string in place of standard error message"
+         - map:    validation failed - includes two keys:
+                                         :status  - :error:   log to console as error
+                                                    :warning: log to console as warning
+                                         :message - use this string in the message of the warning/error"
   [args-with-validators passed-args component-name]
   (let [validate-arg (fn [[_ v-arg-def]]
                        (let [arg-name        (:name v-arg-def)
                              arg-val         (deref-or-value (arg-name passed-args)) ;; Automatically extract value if it's in an atom
                              required?       (:required v-arg-def)
-                             validate-result ((:validate-fn v-arg-def) arg-val)]
-                         ;(println (str "[" component-name "] " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 40)) "' => " validate-result))
+                             validate-result ((:validate-fn v-arg-def) arg-val)
+                             log-msg-base    #(str "Validation failed for argument '" arg-name "' in component '" component-name "': ")]
+                         ;(println (str "[" component-name "] " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 200)) "' => " validate-result))
                          (cond
                            (or (true? validate-result)
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
                                     (not required?))) true
-                           (false?  validate-result)  (log-error "Argument '" arg-name "' validation failed in component '" component-name "': " "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 40)) "'")
-                           (string? validate-result)  (log-error "Argument '" arg-name "' validation failed in component '" component-name "': " validate-result)
+                           (false? validate-result)  (log-error (log-msg-base) "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 60)) "'")
+                           (map?   validate-result)  ((if (= (:status validate-result) :warning) log-warning log-error) (log-msg-base) (:message validate-result))
                            :else                      (log-error "Invalid return from validate-fn: " validate-result))))]
     (->> (select-keys args-with-validators (vec (keys passed-args)))
          (map validate-arg)
@@ -230,13 +235,14 @@
                   :-webkit-user-select})  ;; https://developer.mozilla.org/en-US/docs/Web/CSS/user-select
 
 (defn string-or-hiccup?
-  "Returns true if the passed argument is either valid hiccup or a string"
+  "Returns true if the passed argument is either valid hiccup or a string, otherwise false/error"
   [arg]
   (valid-tag? (deref-or-value arg)))
 
 (defn vector-of-maps?
-  "Returns true if the passed argument is a vector of maps (either directly or contained in an atom). Notes:
-    - actually is also accepts a list of maps (shoud we rename this? Ugly names: sequential-of-maps?, vector-or-list-of-maps?)
+  "Returns true if the passed argument is a vector of maps (either directly or contained in an atom), otherwise false/error
+   Notes:
+    - actually it also accepts a list of maps (should we rename this? Potential long/ugly names: sequential-of-maps?, vector-or-list-of-maps?)
     - vector/list can be empty
     - only checks the first element in the vector/list"
   [arg]
@@ -246,34 +252,60 @@
              (map? (first arg))))))
 
 (defn css-style?
-  "Returns true if the passed argument is a valid CSS style"
+  "Returns true if the passed argument is a valid CSS style.
+   Otherwise returns a warning map"
   [arg]
   (let [arg (deref-or-value arg)]
     (and (map? arg)
          (let [arg-keys (keys arg)]
            (or (superset? css-styles arg-keys)
-               (let [invalid-styles (remove css-styles arg-keys)]
-                 (str "Invalid CSS style(s): " invalid-styles)))))))
+               {:status  :warning
+                :message (str "Unknown CSS style(s): " (remove css-styles arg-keys))})))))
 
 (defn html-attr?
-  "Returns true if the passed argument is a valid HTML, SVG or event attribute"
+  "Returns true if the passed argument is a valid HTML, SVG or event attribute.
+   Otherwise returns a warning map.
+   Notes:
+    - Prevents :class and :style attributes"
   [arg]
   (let [arg (deref-or-value arg)]
     (and (map? arg)
-         (let [arg-keys (keys arg)]
-           (or (superset? html-attrs arg-keys)
-               (let [invalid-attrs (remove html-attrs arg-keys)]
-                 (str "Invalid HTML attribute(s): " invalid-attrs)))))))
+         (let [arg-keys        (set (keys arg))
+               contains-class? (contains? arg-keys :class)
+               contains-style? (contains? arg-keys :style)
+               result   (cond
+                          contains-class?                       ":class not allowed in :attr argument"
+                          contains-style?                       ":style not allowed in :attr argument"
+                          (not (superset? html-attrs arg-keys)) (str "Unknown HTML attribute(s): " (remove html-attrs arg-keys)))]
+           (or (nil? result)
+               {:status  (if (or contains-class? contains-style?) :error :warning)
+                :message result})))))
 
 (defn goog-date?  ;; TODO: Write the code
-  "Returns true if the passed argument is a valid goog.date.UtcDateTime"
+  "Returns true if the passed argument is a valid goog.date.UtcDateTime, otherwise false/error"
   [arg]
   (let [arg (deref-or-value arg)]
     true))
 
 (defn regex?  ;; TODO: Write the code
-  "Returns true if the passed argument is a valid regular expression"
+  "Returns true if the passed argument is a valid regular expression, otherwise false/error"
   [arg]
   (let [arg (deref-or-value arg)]
     ;(println "arg=" arg "source=" (.-source js/arg))
     true))
+
+(defn number-or-string?
+  "Returns true if the passed argument is a number or a string, otherwise false/error"
+  [arg]
+  (let [arg (deref-or-value arg)]
+    (or (number? arg) (string? arg))))
+
+(defn string-or-atom?
+  "Returns true if the passed argument is a string (or a string within an atom), otherwise false/error"
+  [arg]
+  (string? (deref-or-value arg)))
+
+(defn set-or-atom?
+  "Returns true if the passed argument is a set (or a set within an atom), otherwise false/error"
+  [arg]
+  (set? (deref-or-value arg)))

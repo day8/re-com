@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util      :refer [deref-or-value position-for-id item-for-id]]
             [clojure.string   :as    string]
-            [re-com.validate  :refer [extract-arg-data validate-args vector-of-maps? css-style? html-attr?]]
+            [re-com.validate  :refer [extract-arg-data validate-args vector-of-maps? css-style? html-attr? number-or-string?]]
             [reagent.core     :as    reagent]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
@@ -171,19 +171,19 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def single-dropdown-args-desc
-  [{:name :choices         :required true                                   :type "vector of maps | atom"         :validate-fn vector-of-maps? :description "each has an :id, a :label and, optionally, a :group (list of maps also allowed)"}
-   {:name :model           :required true                                   :type "an :id within :choices | atom"                              :description "the :id of the selected choice. If nil, :placeholder text is shown"}
-   {:name :on-change       :required true                                   :type "(:id) -> nil"                  :validate-fn fn?             :description "called with one paramter: the :id of new selection"}
-   {:name :disabled?       :required false :default false                   :type "boolean | atom"                                             :description "if true, no user selection is allowed"}
-   {:name :filter-box?     :required false :default false                   :type "boolean"                                                    :description "if true, a filter text field is put at the top of the dropdown"}
-   {:name :regex-filter?   :required false :default false                   :type "boolean | atom"                                             :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
-   {:name :placeholder     :required false                                  :type "string"                        :validate-fn string?         :description "text displayed if :model is 'nil'"}
-   {:name :width           :required false :default "stretches"             :type "string"                        :validate-fn string?         :description "the CSS width. Eg: \"500px\" or \"20em\""}
-   {:name :max-height      :required false :default "240px"                 :type "string"                        :validate-fn string?         :description "the maximum height the dropdown will occupy"}
-   {:name :tab-index       :required false :default "use natural tab order" :type "integer"                                                    :description "component's tabindex. A value of -1 removes from order"}
-   {:name :class           :required false                                  :type "string"                        :validate-fn string?         :description "CSS classes (whitespace separated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
-   {:name :style           :required false                                  :type "css style map"                 :validate-fn css-style?      :description "CSS styles"}
-   {:name :attr            :required false                                  :type "html attr map"                 :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  [{:name :choices       :required true                                   :type "vector of maps | atom"         :validate-fn vector-of-maps?   :description "each has an :id, a :label and, optionally, a :group (list of maps also allowed)"}
+   {:name :model         :required true                                   :type "an :id within :choices | atom"                                :description "the :id of the selected choice. If nil, :placeholder text is shown"}
+   {:name :on-change     :required true                                   :type "(:id) -> nil"                  :validate-fn fn?               :description "called with one paramter: the :id of new selection"}
+   {:name :disabled?     :required false :default false                   :type "boolean | atom"                                               :description "if true, no user selection is allowed"}
+   {:name :filter-box?   :required false :default false                   :type "boolean"                                                      :description "if true, a filter text field is put at the top of the dropdown"}
+   {:name :regex-filter? :required false :default false                   :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
+   {:name :placeholder   :required false                                  :type "string"                        :validate-fn string?           :description "text displayed if :model is 'nil'"}
+   {:name :width         :required false :default "stretches"             :type "string"                        :validate-fn string?           :description "the CSS width. Eg: \"500px\" or \"20em\""}
+   {:name :max-height    :required false :default "240px"                 :type "string"                        :validate-fn string?           :description "the maximum height the dropdown will occupy"}
+   {:name :tab-index     :required false :default "use natural tab order" :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
+   {:name :class         :required false                                  :type "string"                        :validate-fn string?           :description "CSS classes (whitespace separated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
+   {:name :style         :required false                                  :type "css style map"                 :validate-fn css-style?        :description "CSS styles"}
+   {:name :attr          :required false                                  :type "html attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (def single-dropdown-args (extract-arg-data single-dropdown-args-desc))
 
