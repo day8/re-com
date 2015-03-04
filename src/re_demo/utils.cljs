@@ -4,14 +4,14 @@
             [re-com.box  :refer [h-box v-box box gap line]]))
 
 
-
 (defn re-com-title
   []
   [title
    :label    "Re-com"
    :style    {:font-family "'Roboto Condensed', sans-serif"
-              :font-size "36px"
-              :font-weight 300}])
+              :font-size   "36px"
+              :font-weight 300
+              :margin-top  "12px"}])
 
 (def panel-title-style
   {:font-family "'Roboto Condensed', sans-serif;"
@@ -40,7 +40,6 @@
    :style      (merge component-title-style style)
    :underline? false
    ])
-
 
 (defn arg-row
   "I show one argument in an args table."
@@ -89,10 +88,21 @@
                     [gap :size "10px"]]
                    (map (partial arg-row name-width)  args (cycle [true false])))])))
 
-
 (defn material-design-hyperlink
   [text]
   [hyperlink-href
    :label  text
    :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
    :target "_blank"])
+
+(defn github-hyperlink
+  "given a label and a relative path, return a component which links to that fully qualified GitHub URL in a new tab"
+  [label src-path]
+  (let [base-url "https://github.com/Day8/re-com/tree/develop/"]
+    [hyperlink-href
+     :label  label
+     :style  {:font-size    "13px"
+              :font-variant "small-caps"
+              :margin       "0px 8px 0px 8px"}
+     :href   (str base-url src-path)
+     :target "_blank"]))

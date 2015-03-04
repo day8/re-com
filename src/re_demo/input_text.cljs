@@ -2,7 +2,7 @@
   (:require [re-com.core      :refer [input-text input-textarea input-text-args-desc
                                       label checkbox radio-button slider]]
             [re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
             [reagent.core     :as    reagent]))
 
 
@@ -20,8 +20,11 @@
     (fn
       []
       [v-box
-       :gap "10px"
-       :children [[panel-title "[input-text ... ] & [input-textarea ... ]"]
+       :size     "auto"
+       :gap      "10px"
+       :children [[panel-title [:span "[input-text ... ] & [input-textarea ... ]"
+                                [github-hyperlink "Component Source" "src/re_com/core.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/input_text.cljs"]]]
 
                   [h-box
                    :gap      "50px"

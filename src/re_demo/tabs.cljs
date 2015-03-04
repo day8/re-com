@@ -7,7 +7,7 @@
             [re-com.buttons          :refer [button]]
             [re-com.util             :refer [item-for-id]]
             [re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs tabs-args-desc]]
-            [re-demo.utils           :refer [panel-title component-title args-table]]))
+            [re-demo.utils           :refer [panel-title component-title args-table github-hyperlink]]))
 
 
 (def demos [{:id 1 :label "The Tab Styles"}
@@ -103,6 +103,7 @@
                                                        :border  "1px dashed grey"
                                                        :radius  "10px"
                                                        :padding "20px"
+                                                       :margin  "10px"
                                                        :child   [:p (:say-this (item-for-id @selected-tab-id tabs-definition))]]]]]]]]]])))
 
 
@@ -171,8 +172,11 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
+       :size     "auto"
        :gap      "10px"
-       :children [[panel-title "Tab Components"]
+       :children [[panel-title [:span "Tab Components"
+                                [github-hyperlink "Component Source" "src/re_com/tabs.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/tabs.cljs"]]]
                   [h-box
                    :gap      "50px"
                    :children [[v-box

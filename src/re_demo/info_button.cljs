@@ -2,7 +2,7 @@
   (:require [re-com.core      :refer [label input-text]]
             [re-com.buttons   :refer [info-button info-button-args-desc hyperlink-href]]
             [re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table]]))
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]))
 
 
 (defn info-button-demo
@@ -27,8 +27,11 @@
                           "."]]]]
     (fn []
       [v-box
-       :gap "10px"
-       :children [[panel-title "[info-button ... ]"]
+       :size     "auto"
+       :gap      "10px"
+       :children [[panel-title [:span "[info-button ... ]"
+                                [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/info_button.cljs"]]]
 
                   [h-box
                    :gap "50px"

@@ -1,10 +1,10 @@
-(ns re-demo.time
-  (:require [re-com.core     :refer  [label checkbox]]
-            [re-com.buttons  :refer  [button]]
-            [re-com.time     :refer  [input-time input-time-args-desc]]
-            [re-com.box      :refer  [h-box v-box box gap]]
-            [re-demo.utils   :refer  [panel-title component-title args-table]]
-            [reagent.core    :as     reagent]))
+(ns re-demo.input-time
+  (:require [re-com.core       :refer  [label checkbox]]
+            [re-com.buttons    :refer  [button]]
+            [re-com.input-time :refer  [input-time input-time-args-desc]]
+            [re-com.box        :refer  [h-box v-box box gap]]
+            [re-demo.utils     :refer  [panel-title component-title args-table github-hyperlink]]
+            [reagent.core      :as     reagent]))
 
 
 (defn notes
@@ -119,8 +119,11 @@
 (defn panel2
   []
   [v-box
+   :size     "auto"
    :gap      "10px"
-   :children [[panel-title "[input-time ... ]"]
+   :children [[panel-title [:span "[input-time ... ]"
+                            [github-hyperlink "Component Source" "src/re_com/input_time.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/input_time.cljs"]]]
               [h-box
                :gap "50px"
                :children [[notes]

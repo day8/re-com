@@ -1,13 +1,16 @@
 (ns re-demo.line
   (:require [re-com.box      :refer [h-box v-box box gap line line-args-desc]]
-            [re-demo.utils   :refer [panel-title component-title args-table]]))
+            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink]]))
 
 
 (defn panel
   []
   [v-box
+   :size     "auto"
    :gap      "10px"
-   :children [[panel-title "[line ... ]"]
+   :children [[panel-title [:span "[line ... ]"
+                            [github-hyperlink "Component Source" "src/re_com/box.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/line.cljs"]]]
 
               [h-box
               :gap      "50px"

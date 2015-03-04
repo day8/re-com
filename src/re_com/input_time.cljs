@@ -1,4 +1,4 @@
-(ns re-com.time
+(ns re-com.input-time
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
     [reagent.core    :as    reagent]

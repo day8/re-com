@@ -3,7 +3,7 @@
                                       label checkbox input-text]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
-            [re-demo.utils    :refer [panel-title component-title args-table]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
             [reagent.core     :as    reagent]))
 
 
@@ -17,8 +17,11 @@
     (fn
       []
       [v-box
-       :gap "10px"
-       :children [[panel-title "[slider ... ]"]
+       :size     "auto"
+       :gap      "10px"
+       :children [[panel-title [:span "[slider ... ]"
+                                [github-hyperlink "Component Source" "src/re_com/core.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/slider.cljs"]]]
 
                   [h-box
                    :gap      "50px"

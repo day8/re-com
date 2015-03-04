@@ -1,11 +1,11 @@
-(ns re-demo.modals
+(ns re-demo.modal-panel
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.core     :refer [title label progress-bar input-text checkbox]]
-            [re-com.buttons  :refer [button]]
-            [re-com.box      :refer [h-box v-box box gap line border]]
-            [re-com.modal    :refer [modal-panel modal-panel-args-desc modal-panel-args]]
-            [re-demo.utils   :refer [panel-title component-title args-table]]
-            [reagent.core    :as    reagent]))
+  (:require [re-com.core        :refer [title label progress-bar input-text checkbox]]
+            [re-com.buttons     :refer [button]]
+            [re-com.box         :refer [h-box v-box box gap line border]]
+            [re-com.modal-panel :refer [modal-panel modal-panel-args-desc modal-panel-args]]
+            [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink]]
+            [reagent.core       :as    reagent]))
 
 
 (defn please-wait-message
@@ -79,18 +79,18 @@
                                     :class       "form-control"
                                     :attr        {:id "pf-password" :type "password"}]]]
                        [checkbox
-                        :label "Forget me"
-                        :model (:remember-me @form-data)
+                        :label     "Forget me"
+                        :model     (:remember-me @form-data)
                         :on-change #(swap! form-data assoc :remember-me %)]
                        [line :color "#ddd" :style {:margin "10px 0 10px"}]
                        [h-box
-                        :gap "12px"
+                        :gap      "12px"
                         :children [[button
-                                    :label "Sign in"
-                                    :class "btn-primary"
+                                    :label    "Sign in"
+                                    :class    "btn-primary"
                                     :on-click process-ok]
                                    [button
-                                    :label "Cancel"
+                                    :label    "Cancel"
                                     :on-click process-cancel]]]]]])
 
 
@@ -133,15 +133,20 @@
 (defn panel2
   []
   [v-box
+   :size     "auto"
    :gap      "10px"
-   :children [[panel-title "[modal-panel ... ]"]
+   :children [[panel-title [:span "[modal-panel ... ]"
+                            [github-hyperlink "Component Source" "src/re_com/modal_panel.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/modal_panel.cljs"]]]
 
               [h-box
                :gap      "50px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[args-table modal-panel-args-desc]]]
+                           :children [[component-title "Notes"]
+                                      [:p "This component should be placed at the end of your markup to make sure it does actually cover everything. In certain cases, absolutely positioned components can appear over the backdrop."]
+                                      [args-table modal-panel-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]

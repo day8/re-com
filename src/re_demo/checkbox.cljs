@@ -1,7 +1,7 @@
 (ns re-demo.checkbox
   (:require [re-com.core      :refer [label checkbox checkbox-args-desc]]
             [re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
             [reagent.core     :as    reagent]))
 
 
@@ -34,8 +34,11 @@
     (fn
       []
       [v-box
-       :gap "10px"
-       :children [[panel-title "[checkbox ... ]"]
+       :size     "auto"
+       :gap      "10px"
+       :children [[panel-title [:span "[checkbox ... ]"
+                                [github-hyperlink "Component Source" "src/re_com/core.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/checkbox.cljs"]]]
 
                   [h-box
                    :gap      "50px"

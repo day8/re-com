@@ -3,7 +3,7 @@
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.tour     :refer [make-tour start-tour make-tour-nav]]
             [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
-            [re-demo.utils   :refer [panel-title component-title]]))
+            [re-demo.utils   :refer [panel-title component-title github-hyperlink]]))
 
 
 (defn demo
@@ -117,8 +117,11 @@
 (defn panel2
   []
   [v-box
+   :size     "auto"
    :gap      "10px"
-   :children [[panel-title "Tour Components"]
+   :children [[panel-title [:span "Tour Components"
+                            [github-hyperlink "Component Source" "src/re_com/tour.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/tour.cljs"]]]
               [h-box
                :gap      "50px"
                :children [[notes]

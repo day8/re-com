@@ -1,13 +1,16 @@
 (ns re-demo.scroller
   (:require [re-com.box      :refer [h-box v-box gap scroller scroller-args-desc]]
-            [re-demo.utils   :refer [panel-title component-title args-table]]))
+            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink]]))
 
 
 (defn panel
   []
   [v-box
+   :size     "auto"
    :gap      "10px"
-   :children [[panel-title "[scroller ... ]"]
+   :children [[panel-title [:span "[scroller ... ]"
+                            [github-hyperlink "Component Source" "src/re_com/box.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/scroller.cljs"]]]
 
               [h-box
               :gap      "50px"

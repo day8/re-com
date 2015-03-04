@@ -9,7 +9,7 @@
                                                  popover-tooltip popover-tooltip-args-desc]]
             [re-com.dropdown             :refer [single-dropdown]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
-            [re-demo.utils               :refer [panel-title component-title args-table]]
+            [re-demo.utils               :refer [panel-title component-title args-table github-hyperlink]]
             [reagent.core                :as    reagent]))
 
 
@@ -31,8 +31,11 @@
 (defn arg-lists
   []
   [v-box
+   :size     "auto"
    :gap      "10px"
-   :children [[panel-title "Popover Components"]
+   :children [[panel-title [:span "Popover Components"
+                            [github-hyperlink "Component Source" "src/re_com/popover.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]]]
 
               [h-box
                :gap      "50px"
@@ -46,6 +49,7 @@
                            :gap      "10px"
                            :children [[component-title "Demo"]
                                       [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
+              [line :style {:margin-top "20px"}]
               [h-box
                :gap      "50px"
                :children [[v-box
@@ -58,6 +62,7 @@
                            :gap      "10px"
                            :children [[component-title "Demo"]
                                       [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
+              [line :style {:margin-top "20px"}]
               [h-box
                :gap      "50px"
                :children [[v-box
@@ -70,6 +75,7 @@
                            :gap      "10px"
                            :children [[component-title "Demo"]
                                       [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
+              [line :style {:margin-top "20px"}]
               [h-box
                :gap      "50px"
                :children [[v-box
@@ -420,7 +426,11 @@
 (defn panel2
   []
   [v-box
-   :children [[panel-title "Popover Components"]
+   :size     "auto"
+   :gap      "10px"
+   :children [[panel-title [:span "Popover Components"
+                            [github-hyperlink "Component Source" "src/re_com/popover.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]]]
               [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]

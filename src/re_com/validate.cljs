@@ -281,18 +281,17 @@
                {:status  (if (or contains-class? contains-style?) :error :warning)
                 :message result})))))
 
-(defn goog-date?  ;; TODO: Write the code
+(defn goog-date?
   "Returns true if the passed argument is a valid goog.date.UtcDateTime, otherwise false/error"
   [arg]
   (let [arg (deref-or-value arg)]
-    true))
+    (instance? goog.date.UtcDateTime arg)))
 
-(defn regex?  ;; TODO: Write the code
+(defn regex?
   "Returns true if the passed argument is a valid regular expression, otherwise false/error"
   [arg]
   (let [arg (deref-or-value arg)]
-    ;(println "arg=" arg "source=" (.-source js/arg))
-    true))
+    (instance? js/RegExp arg)))
 
 (defn number-or-string?
   "Returns true if the passed argument is a number or a string, otherwise false/error"

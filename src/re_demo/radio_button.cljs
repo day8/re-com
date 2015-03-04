@@ -1,7 +1,7 @@
 (ns re-demo.radio-button
   (:require [re-com.core      :refer [radio-button radio-button-args-desc]]
             [re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
             [reagent.core     :as    reagent]))
 
 
@@ -11,8 +11,11 @@
     (fn
       []
       [v-box
-       :gap "10px"
-       :children [[panel-title "[radio-button ... ]"]
+       :size     "auto"
+       :gap      "10px"
+       :children [[panel-title [:span "[radio-button ... ]"
+                                [github-hyperlink "Component Source" "src/re_com/core.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/radio_button.cljs"]]]
                   [h-box
                    :gap      "50px"
                    :children [[v-box

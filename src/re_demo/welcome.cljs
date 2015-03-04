@@ -9,7 +9,7 @@
 (defn panel2
   []
   [v-box
-   :width "600px"
+   :size     "auto"
    :children [[panel-title "Welcome"]
               [gap :size "15px"]
               [:p

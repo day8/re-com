@@ -4,7 +4,7 @@
   (:require [cemerick.cljs.test]
             [reagent.core :as reagent]
             ;;[clairvoyant.core :refer [default-tracer]]
-            [re-com.time :as time]))
+            [re-com.input-time :as time]))
 
 
 ;; --- Tests ---
@@ -55,8 +55,8 @@
     true   (time/valid-text? "2359")))
 
 (deftest test-input-time
- (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159)) "Expected a function.")
- (let [input-time-fn (time/input-time :model 1530)]
+ (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159 :on-change #())) "Expected a function.")
+ (let [input-time-fn (time/input-time :model 1530 :on-change #())]
    (is (fn? input-time-fn) "Expected a function.")
    (let [result (input-time-fn :model (reagent/atom 1530) :minimum 600 :maximum 2159)]
      (is (= :span.input-append (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
@@ -65,12 +65,12 @@
        (is (= :input (first input-time-comp)) "Expected time input start with :input")
        (are [expected actual] (= expected actual)
          nil           (:disabled input-time-attrs)
-         "time-entry "  (:class input-time-attrs)
+         "time-entry " (:class input-time-attrs)
          "15:30"       (:value input-time-attrs)
          "text"        (:type input-time-attrs)
-         "time-entry "  (:class input-time-attrs)
-         true     (fn? (:on-blur input-time-attrs))
-         true     (fn? (:on-change input-time-attrs))))))
+         "time-entry " (:class input-time-attrs)
+         true          (fn? (:on-blur input-time-attrs))
+         true          (fn? (:on-change input-time-attrs))))))
  ;; These tests don't work. But i have verified that the check is happening and it works
  #_(is (thrown? js/Error (time/input-time :model "abc") "should fail - model is invalid"))
  #_(is (thrown? js/Error (time/input-time :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
@@ -82,7 +82,7 @@
 
 
 (deftest test-pre-conditions
- (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159)) "Expected a function.")
+ (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159 :on-change #())) "Expected a function.")
  (is (thrown? js/Error (time/input-time :model 1530 :minimum 600 :maximum 2159 :fred "test") "Expected an exception due to invalid parameter.")))
 
 ;; --- WIP ---

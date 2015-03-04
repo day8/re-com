@@ -3,7 +3,7 @@
   (:require [re-com.core      :refer [label spinner]]
             [re-com.buttons   :refer [button button-args-desc]]
             [re-com.box :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
             [reagent.core     :as    reagent]))
 
 
@@ -22,8 +22,11 @@
 (defn button-demo
   []
   [v-box
+   :size     "auto"
    :gap      "10px"
-   :children [[panel-title "[button ... ]"]
+   :children [[panel-title [:span "[button ... ]"
+                            [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/button.cljs"]]]
 
               [h-box
                :gap      "50px"

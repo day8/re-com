@@ -1,10 +1,10 @@
-(ns re-demo.lists
+(ns re-demo.selection-list
   (:require
     [reagent.core          :as    r]
     [re-com.core           :refer [label checkbox]]
     [re-com.box            :refer [h-box v-box box]]
     [re-com.selection-list :refer [selection-list selection-list-args-desc]]
-    [re-demo.utils         :refer [panel-title component-title args-table]]
+    [re-demo.utils         :refer [panel-title component-title args-table github-hyperlink]]
     [re-com.util           :refer [golden-ratio-a golden-ratio-b]]))
 
 
@@ -100,9 +100,11 @@
         ;a-width     (- (golden-ratio-a panel-width) h-gap)
         b-width     (golden-ratio-b panel-width)]
     [v-box
+     :size     "auto"
      :gap      "10px"
-     ;:width    (str panel-width "px")
-     :children [[panel-title "[selection-list ... ]"]
+     :children [[panel-title [:span "[selection-list ... ]"
+                              [github-hyperlink "Component Source" "src/re_com/selection_list.cljs"]
+                              [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]]]
                 [h-box
                  ;:gap      (str h-gap "px")
                  :gap      "50px"

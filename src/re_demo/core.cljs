@@ -26,27 +26,27 @@
             [re-demo.alert-list             :as    alert-list]
             [re-demo.tabs                   :as    tabs]
             [re-demo.popovers               :as    popovers]
-            [re-demo.date                   :as    date-picker]
-            [re-demo.lists                  :as    lists]
-            [re-demo.time                   :as    time]
+            [re-demo.datepicker             :as    datepicker]
+            [re-demo.selection-list         :as    selection-list]
+            [re-demo.input-time             :as    input-time]
             [re-demo.layouts                :as    layouts]
             [re-demo.tour                   :as    tour]
-            [re-demo.modals                 :as    modals]
-
+            [re-demo.modal-panel            :as    modal-panel]
             [re-demo.h-box                  :as    h-box]
             [re-demo.v-box                  :as    v-box]
             [re-demo.box                    :as    box]
             [re-demo.gap                    :as    gap]
             [re-demo.line                   :as    line]
             [re-demo.scroller               :as    scroller]
-            [re-demo.border                 :as    border]
-            ))
+            [re-demo.border                 :as    border]))
 
 (enable-console-print!)
 
 (def tabs-definition
   [
    {:id ::welcome                :label "Welcome"            :panel welcome/panel}
+
+   ;; LAYOUT COMPONENTS
 
    {:id ::h-box                  :label "H-box"              :panel h-box/panel}
    {:id ::v-box                  :label "V-box"              :panel v-box/panel}
@@ -55,13 +55,19 @@
    {:id ::line                   :label "Line"               :panel line/panel}
    {:id ::scroller               :label "Scroller"           :panel scroller/panel}
    {:id ::border                 :label "Border"             :panel border/panel}
-
    {:id ::boxes1                 :label "Box Demo 1"         :panel h-box/panelA}
    {:id ::boxes2                 :label "Box Demo 2"         :panel h-box/panelB}
 
    {:id ::layouts                :label "Layouts"            :panel layouts/panel}
 
    {:id ::tabs                   :label "Tabs"               :panel tabs/panel}
+
+   {:id ::modal-panel            :label "Modal Panel"        :panel modal-panel/panel}
+
+   {:id ::popover-args           :label "Popover Args"       :panel popovers/arg-lists}
+   {:id ::popovers               :label "Popover Demos"      :panel popovers/panel}
+
+   ;; COMPONENTS YOU PLACE IN LAYOUT COMPONENTS
 
    {:id ::button                 :label "Button"             :panel button/panel}
    {:id ::md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
@@ -81,21 +87,18 @@
 
    {:id ::dropdown               :label "Dropdowns"          :panel dropdowns/panel}
 
-   {:id ::lists                  :label "Selection List"     :panel lists/panel}
+   {:id ::lists                  :label "Selection List"     :panel selection-list/panel}
 
-   {:id ::popover-args           :label "Popover Args"       :panel popovers/arg-lists}
-   {:id ::popovers               :label "Popover Demos"      :panel popovers/panel}
+   {:id ::date                   :label "Date Picker"        :panel datepicker/panel}
+
+   {:id ::time                   :label "Input Time"         :panel input-time/panel}
 
    {:id ::alert-box              :label "Alert Box"          :panel alert-box/panel}
    {:id ::alert-list             :label "Alert List"         :panel alert-list/panel}
 
-   {:id ::date                   :label "Date Picker"        :panel date-picker/panel}
-
-   {:id ::time                   :label "Input Time"         :panel time/panel}
+   ;; OTHER TYPES OF COMPONENTS
 
    {:id ::tour                   :label "Tour"               :panel tour/panel}
-
-   {:id ::modals                 :label "Modal Panel"        :panel modals/panel}
    ])
 
 
@@ -136,7 +139,7 @@
    :height   "60px"
    :style  {:color "#FEFEFE"
             :background-color "#888"}
-   :children [[re-com-title ]]])
+   :children [[re-com-title]]])
 
 (defn main
   []

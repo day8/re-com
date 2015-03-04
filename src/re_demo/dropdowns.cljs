@@ -3,7 +3,7 @@
             [re-com.core     :refer [label input-text checkbox title]]
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown filter-choices-by-keyword single-dropdown-args-desc]]
-            [re-demo.utils   :refer [panel-title component-title args-table]]
+            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink]]
             [reagent.core    :as    reagent]))
 
 
@@ -306,8 +306,11 @@
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
+       :size     "auto"
        :gap "10px"
-       :children [[panel-title "[single-dropdown ... ]"]
+       :children [[panel-title [:span "[single-dropdown ... ]"
+                                [github-hyperlink "Component Source" "src/re_com/dropdown.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/dropdowns.cljs"]]]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

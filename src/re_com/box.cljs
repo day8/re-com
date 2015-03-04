@@ -1,4 +1,4 @@
- (ns re-com.box
+(ns re-com.box
   (:require [clojure.string  :as    string]
             [re-com.validate :refer [extract-arg-data validate-args justify-style? justify-options-list align-style? align-options-list scroll-style? scroll-options-list
                                      string-or-hiccup? css-style? html-attr?]]))

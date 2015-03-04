@@ -3,7 +3,7 @@
   (:require [re-com.box    :refer [h-box v-box box line gap]]
             [re-com.alert  :refer [alert-box alert-box-args-desc
                                    alert-list alert-list-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink]]
             [reagent.debug :refer-macros [dbg prn println log dev? warn warn-unless]]
             [reagent.core  :as    reagent]))
 
@@ -14,8 +14,11 @@
         show-alert2 (reagent/atom true)]
     (fn []
       [v-box
+       :size     "auto"
        :gap      "10px"
-       :children [[panel-title "[alert-box ... ]"]
+       :children [[panel-title [:span "[alert-box ... ]"
+                                [github-hyperlink "Component Source" "src/re_com/alert.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/alert_box.cljs"]]]
 
                   [h-box
                    :gap      "50px"

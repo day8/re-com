@@ -1,4 +1,4 @@
-(ns re-demo.date
+(ns re-demo.datepicker
   (:require
     [reagent.core         :as     r]
     [cljs-time.core       :refer  [now days minus]]
@@ -8,7 +8,7 @@
     [re-com.box           :refer  [h-box v-box gap]]
     [re-com.dropdown      :refer  [single-dropdown]]
     [re-com.util          :refer  [golden-ratio-a golden-ratio-b]]
-    [re-demo.utils        :refer  [panel-title component-title args-table]]))
+    [re-demo.utils        :refer  [panel-title component-title args-table github-hyperlink]]))
 
 
 (defn- toggle-inclusion!
@@ -172,9 +172,11 @@
         ]
     (fn []
       [v-box
+       :size     "auto"
        :gap      "10px"
-       ;:width (str panel-width "px")
-       :children [[panel-title "Date Components"]
+       :children [[panel-title [:span "Date Components"
+                                [github-hyperlink "Component Source" "src/re_com/datepicker.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/datepicker.cljs"]]]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

@@ -4,7 +4,7 @@
             [re-com.buttons     :refer [button]]
             [re-com.box         :refer [h-box v-box box line gap]]
             [re-com.alert       :refer [alert-box alert-list alert-box-args-desc alert-list-args-desc]]
-            [re-demo.utils      :refer [panel-title component-title args-table]]
+            [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink]]
             [reagent.core       :as    reagent]))
 
 
@@ -24,8 +24,11 @@
 
     (fn []
       [v-box
-       :gap "10px"
-       :children [[panel-title "[alert-list ... ]"]
+       :size     "auto"
+       :gap      "10px"
+       :children [[panel-title [:span "[alert-list ... ]"
+                                [github-hyperlink "Component Source" "src/re_com/alert.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/alert_list.cljs"]]]
                   [h-box
                    :gap      "50px"
                    :children [[v-box

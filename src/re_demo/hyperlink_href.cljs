@@ -2,7 +2,7 @@
   (:require [re-com.core      :refer [label radio-button]]
             [re-com.buttons   :refer [hyperlink-href hyperlink-href-args-desc]]
             [re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
             [reagent.core     :as    reagent]))
 
 
@@ -13,8 +13,11 @@
     (fn
       []
       [v-box
-       :gap "10px"
-       :children [[panel-title "[hyperlink-href ... ]"]
+       :size     "auto"
+       :gap      "10px"
+       :children [[panel-title [:span "[hyperlink-href ... ]"
+                                [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/hyperlink_href.cljs"]]]
 
                   [h-box
                    :gap      "50px"

@@ -16,6 +16,26 @@
 ;; }
 
 
+;; TODO: MOVE TO utils IF REQUIRED HERE!
+
+(defn sum-scroll-offsets
+  "Given a DOM node, I traverse through all ascendant nodes (until I reach body), summing any scrollLeft and scrollTop values
+   and return these sums in a map"
+  [node]
+  (let [popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
+        point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
+        point-top          (.-offsetTop  popover-point-node)]
+    (loop [current-node    popover-point-node
+           sum-scroll-left 0
+           sum-scroll-top  0]
+      ;(println "tag" (.-tagName current-node) "scrollTop" (.-scrollTop  current-node))
+      (if (not= (.-tagName current-node) "BODY")
+        (recur (.-parentNode current-node)
+               (+ sum-scroll-left (.-scrollLeft current-node))
+               (+ sum-scroll-top  (.-scrollTop  current-node)))
+        {:left (- point-left sum-scroll-left)
+         :top  (- point-top  sum-scroll-top)}))))
+
 ;; ------------------------------------------------------------------------------------
 ;;  Component: h-layout
 ;; ------------------------------------------------------------------------------------
@@ -79,12 +99,12 @@
                                          :on-mouse-out  (handler-fn (mouseout event))})))
 
         make-panel-style (fn [class in-drag? percentage]
-                               {:class class
-                                :style (merge {:display "flex"
-                                               :flex (str percentage " 1 0px")
-                                               :overflow "hidden" ;; TODO: Shouldn't have this...test removing it
-                                               }
-                                              (when in-drag? {:pointer-events "none"}))})
+                           {:class class
+                            :style (merge {:display "flex"
+                                           :flex (str percentage " 1 0px")
+                                           :overflow "hidden" ;; TODO: Shouldn't have this...test removing it
+                                           }
+                                          (when in-drag? {:pointer-events "none"}))})
 
         make-splitter-style  (fn [class]
                                {:class class
@@ -133,10 +153,15 @@
 
         calc-perc            (fn [mouse-y]                                                 ;; turn a mouse y coordinate into a percentage position
                                (let [container  (.getElementById js/document container-id) ;; the outside container
+                                     offsets    (sum-scroll-offsets container)
                                      c-height   (.-clientHeight container)                 ;; the container's height
                                      c-top-y    (.-offsetTop container)                    ;; the container's top Y
-                                     relative-y (- mouse-y c-top-y)]                       ;; the Y of the mouse, relative to container
-                                 (* 100.0 (/ relative-y c-height))))                       ;; do the percentage calculation
+                                     c-top-y-2  (:top offsets)                    ;; the container's top Y
+                                     relative-y (- mouse-y c-top-y)
+                                     relative-y-2 (- mouse-y c-top-y-2)
+                                     ;_          (println "mouse-y" mouse-y "offsets" offsets "c-height" c-height "c-top-y" c-top-y "relative-y" relative-y "c-top-y-2" c-top-y-2 "relative-y-2" relative-y-2)
+                                     ]                       ;; the Y of the mouse, relative to container
+                                 (* 100.0 (/ relative-y-2 c-height))))                       ;; do the percentage calculation
 
         <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
 
@@ -167,12 +192,12 @@
                                          :on-mouse-out  (handler-fn (mouseout event))})))
 
         make-panel-style (fn [class in-drag? percentage]
-                               {:class class
-                                :style (merge {:display "flex"
-                                               :flex (str percentage " 1 0px")
-                                               :overflow "hidden" ;; TODO: Shouldn't have this...test removing it
-                                               }
-                                              (when in-drag? {:pointer-events "none"}))})
+                           {:class class
+                            :style (merge {:display "flex"
+                                           :flex (str percentage " 1 0px")
+                                           :overflow "hidden" ;; TODO: Shouldn't have this...test removing it
+                                           }
+                                          (when in-drag? {:pointer-events "none"}))})
 
         make-splitter-style  (fn [class]
                                {:class class

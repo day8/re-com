@@ -7,25 +7,21 @@
                                      scroller scroller-args-desc
                                      border border-args-desc]]
             [re-com.buttons  :refer [button hyperlink-href]]
-            [re-demo.utils   :refer [panel-title component-title args-table]]
+            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink]]
             [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? vector-of-maps?]]))
 
 
 (defn panel
   []
   [v-box
+   :size     "auto"
    :gap      "10px"
-   :children [[panel-title [:span "[h-box ... ]" [:span
-                                                  {:style {:font-size    "13px"
-                                                           :font-variant "small-caps"
-                                                           :margin-left  "8px"}}
-                                                  [hyperlink-href
-                                                   :label  "Github Source"
-                                                   :href   "https://github.com/Day8/re-com/blob/091ab19b5c7b79b2935aaea82990123d593fa936/src/re_com/box.cljs"
-                                                   :target "_blank"]]]]
+   :children [[panel-title [:span "[h-box ... ]"
+                            [github-hyperlink "Component Source" "src/re_com/box.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]]]
 
               [h-box
-              :gap      "50px"
+               :gap      "50px"
               :children [[v-box
                            :gap      "10px"
                            :width    "450px"
@@ -62,7 +58,9 @@
   []
   [v-box
    :size "auto"
-   :children [[panel-title "Boxes (simple, with scrollers)"]
+   :children [[panel-title [:span "Boxes (simple, with scrollers)"
+                            [github-hyperlink "Component Source" "src/re_com/box.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]]]
               [gap  :size "15px"]
               [line :size "2px"]
               [h-box
@@ -120,7 +118,9 @@
   []
   [v-box
    :size     "auto"
-   :children [[panel-title  "Boxes (min-width/height)"]
+   :children [[panel-title [:span "Boxes (min-width/height)"
+                            [github-hyperlink "Component Source" "src/re_com/box.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]]]
               [gap  :size "15px"]
               [line :size "2px"]
               [v-box

@@ -1,4 +1,4 @@
-(ns re-com.modal
+(ns re-com.modal-panel
   (:require [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? number-or-string? css-style? html-attr?]]))
 
 ;; ------------------------------------------------------------------------------------
