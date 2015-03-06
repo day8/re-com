@@ -41,13 +41,13 @@
                                              :closeable? true
                                              :on-close   #(reset! show-alert false)
 
-                                             ;;; TODO: For testing only - remove!
-                                             ;;:style      {:width "900px" :hieght "250px"}
-                                             ;;:attr       {:alt "alternate text" :style {} :onwheel #()}
-                                             ;:attr       {:data-ns   (:ns   (meta #'re-demo.alert-box/alert-box-demo))
-                                             ;             :data-name (:name (meta #'re-demo.alert-box/alert-box-demo))
-                                             ;             :data-file (:file (meta #'re-demo.alert-box/alert-box-demo))
-                                             ;             :data-line (:line (meta #'re-demo.alert-box/alert-box-demo))}
+                                             ;; TODO: For testing only - remove!
+                                             ;:style      {:width "900px" :hieght "250px"}
+                                             ;:attr       {:alt "alternate text" :style {} :onwheel #()}
+                                             :attr       {:data-ns   (:ns   (meta #'re-demo.alert-box/alert-box-demo))
+                                                          :data-name (:name (meta #'re-demo.alert-box/alert-box-demo))
+                                                          :data-file (:file (meta #'re-demo.alert-box/alert-box-demo))
+                                                          :data-line (:line (meta #'re-demo.alert-box/alert-box-demo))}
                                              ]
                                             [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
                                           [gap :size "50px"]

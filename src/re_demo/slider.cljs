@@ -42,7 +42,7 @@
                                                                    :max       slider-max
                                                                    :step      slider-step
                                                                    :width     "200px"
-                                                                   :on-change #(reset! slider-val %)
+                                                                   :on-change #(reset! slider-val (str %))
                                                                    :disabled? disabled?]]]
                                                       [v-box
                                                        :gap      "15px"

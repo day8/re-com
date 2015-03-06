@@ -79,16 +79,7 @@
                            :children [[component-title "Demo"]
                                       [h-layout
                                        :left-panel    left-panel
-                                       :right-panel   right-panel
-                                       ;:right-panel   [v-layout
-                                       ;                :top-panel     top-panel
-                                       ;                :bottom-panel  bottom-panel
-                                       ;                :initial-split "25%"]
-                                       ;:right-panel   [box
-                                       ;                :size "auto"
-                                       ;                :child [:div {:style rounded-panel}
-                                       ;                        [component-title "Right panel"]]]
-                                       ]]]]]
+                                       :right-panel   right-panel]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
                :gap      "50px"

@@ -1,7 +1,8 @@
 (ns re-com.layout
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.validate    :refer [extract-arg-data validate-args string-or-hiccup? number-or-string?]]
-            [reagent.core :as    reagent]))
+  (:require [re-com.util        :refer [get-element-by-id sum-scroll-offsets]]
+            [re-com.validate    :refer [extract-arg-data validate-args string-or-hiccup? number-or-string?]]
+            [reagent.core       :as    reagent]))
 
 
 ;; CSS
@@ -15,26 +16,6 @@
 ;;   flex-flow: inherit;
 ;; }
 
-
-;; TODO: MOVE TO utils IF REQUIRED HERE!
-
-(defn sum-scroll-offsets
-  "Given a DOM node, I traverse through all ascendant nodes (until I reach body), summing any scrollLeft and scrollTop values
-   and return these sums in a map"
-  [node]
-  (let [popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
-        point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
-        point-top          (.-offsetTop  popover-point-node)]
-    (loop [current-node    popover-point-node
-           sum-scroll-left 0
-           sum-scroll-top  0]
-      ;(println "tag" (.-tagName current-node) "scrollTop" (.-scrollTop  current-node))
-      (if (not= (.-tagName current-node) "BODY")
-        (recur (.-parentNode current-node)
-               (+ sum-scroll-left (.-scrollLeft current-node))
-               (+ sum-scroll-top  (.-scrollTop  current-node)))
-        {:left (- point-left sum-scroll-left)
-         :top  (- point-top  sum-scroll-top)}))))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: h-layout
@@ -56,7 +37,6 @@
       :as   args}]
   {:pre [(validate-args h-layout-args args "h-layout")]}
   (let [container-id         (gensym "h-layout-")
-        this                 (reagent/current-component)
         split-perc           (reagent/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
         dragging?            (reagent/atom false)                       ;; is the user dragging the splitter (mouse is down)?
         over?                (reagent/atom false)                       ;; is the mouse over the splitter, if so, highlight it
@@ -64,10 +44,11 @@
         stop-drag            #(reset! dragging? false)
 
         calc-perc            (fn [mouse-x]                                                 ;; turn a mouse y coordinate into a percentage position
-                               (let [container  (.getElementById js/document container-id) ;; the outside container
-                                     c-width   (.-clientWidth container)                   ;; the container's width
+                               (let [container  (get-element-by-id container-id)           ;; the outside container
+                                     offsets    (sum-scroll-offsets container)             ;; take any scrolling into account
+                                     c-width    (.-clientWidth container)                  ;; the container's width
                                      c-left-x   (.-offsetLeft container)                   ;; the container's left X
-                                     relative-x (- mouse-x c-left-x)]                      ;; the X of the mouse, relative to container
+                                     relative-x (+ (- mouse-x c-left-x) (:left offsets))]  ;; the X of the mouse, relative to container
                                  (* 100.0 (/ relative-x c-width))))                        ;; do the percentage calculation
 
         <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
@@ -144,7 +125,6 @@
       :as   args}]
   {:pre [(validate-args v-layout-args args "v-layout")]}
   (let [container-id         (gensym "v-layout-")
-        this                 (reagent/current-component)
         split-perc           (reagent/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height
         dragging?            (reagent/atom false)                        ;; is the user dragging the splitter (mouse is down)?
         over?                (reagent/atom false)                        ;; is the mouse over the splitter, if so, highlight it
@@ -152,16 +132,12 @@
         stop-drag            #(reset! dragging? false)
 
         calc-perc            (fn [mouse-y]                                                 ;; turn a mouse y coordinate into a percentage position
-                               (let [container  (.getElementById js/document container-id) ;; the outside container
-                                     offsets    (sum-scroll-offsets container)
+                               (let [container  (get-element-by-id container-id)           ;; the outside container
+                                     offsets    (sum-scroll-offsets container)             ;; take any scrolling into account
                                      c-height   (.-clientHeight container)                 ;; the container's height
                                      c-top-y    (.-offsetTop container)                    ;; the container's top Y
-                                     c-top-y-2  (:top offsets)                    ;; the container's top Y
-                                     relative-y (- mouse-y c-top-y)
-                                     relative-y-2 (- mouse-y c-top-y-2)
-                                     ;_          (println "mouse-y" mouse-y "offsets" offsets "c-height" c-height "c-top-y" c-top-y "relative-y" relative-y "c-top-y-2" c-top-y-2 "relative-y-2" relative-y-2)
-                                     ]                       ;; the Y of the mouse, relative to container
-                                 (* 100.0 (/ relative-y-2 c-height))))                       ;; do the percentage calculation
+                                     relative-y (+ (- mouse-y c-top-y) (:top offsets))]    ;; the Y of the mouse, relative to container
+                                 (* 100.0 (/ relative-y c-height))))                       ;; do the percentage calculation
 
         <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
 

@@ -1,6 +1,6 @@
 (ns re-com.popover
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util    :refer [get-element-by-id px deref-or-value]]
+  (:require [re-com.util    :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
             [re-com.validate :refer [extract-arg-data validate-args position? position-options-list popover-status-type? popover-status-types-list
                                      number-or-string? string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?]]
             [clojure.string :as    string]
@@ -95,25 +95,6 @@
                                  (if grey-arrow? "#f7f7f7" "white"))
                          :stroke (when-not no-border? "rgba(0, 0, 0, .2)")
                          :stroke-width "1"}}]]))
-
-
-(defn sum-scroll-offsets
-  "Given a DOM node, I traverse through all ascendant nodes (until I reach body), summing any scrollLeft and scrollTop values
-   and return these sums in a map"
-  [node]
-  (let [popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
-        point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
-        point-top          (.-offsetTop  popover-point-node)]
-    (loop [current-node    popover-point-node
-           sum-scroll-left 0
-           sum-scroll-top  0]
-      (if (not= (.-tagName current-node) "BODY")
-        (recur (.-parentNode current-node)
-               (+ sum-scroll-left (.-scrollLeft current-node))
-               (+ sum-scroll-top  (.-scrollTop  current-node)))
-        {:left (- point-left sum-scroll-left)
-         :top  (- point-top  sum-scroll-top)}))))
-
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: backdrop
@@ -306,9 +287,13 @@
       {:component-did-mount
        (fn [event]
          (when no-clip?
-           (let [offsets (sum-scroll-offsets (reagent/dom-node event))]
-             (reset! left-offset (:left offsets))
-             (reset! top-offset  (:top  offsets)))))
+           (let [node               (reagent/dom-node event)
+                 offsets            (sum-scroll-offsets node)
+                 popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
+                 point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
+                 point-top          (.-offsetTop  popover-point-node)]
+             (reset! left-offset (- point-left (:left offsets)))
+             (reset! top-offset  (- point-top  (:top  offsets))))))
 
        :component-function
        (fn

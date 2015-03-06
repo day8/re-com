@@ -7,10 +7,11 @@
 
 ;; -- Global Switch -----------------------------------------------------------
 
-;; if true, then validation occurs.
-;; It is expected that will be flicked to off, in production systems.
-;(defonce arg-validation (atom true))
+;; TODO: Remove
 
+; if true, then validation occurs.
+; It is expected that will be flicked to off, in production systems.
+;(defonce arg-validation (atom ^boolean js/goog.DEBUG))
 
 ;(defn set-validation!
 ;  "Turns argument validation on or off based on a boolean argument"
@@ -47,14 +48,15 @@
 (defn extract-arg-data
   "Package up all the relevant data for validation purposes from the xxx-args-desc map into a new map"
   [args-desc]
-  {:arg-names      (set (map :name args-desc))
-   :required-args  (->> args-desc
-                        (filter :required)
-                        (map :name)
-                        set)
-   :validated-args (->> (filter :validate-fn args-desc)
-                        vec
-                        (hash-map-with-name-keys))})
+  (when ^boolean js/goog.DEBUG
+    {:arg-names      (set (map :name args-desc))
+     :required-args  (->> args-desc
+                          (filter :required)
+                          (map :name)
+                          set)
+     :validated-args (->> (filter :validate-fn args-desc)
+                          vec
+                          (hash-map-with-name-keys))}))
 
 ;; ----------------------------------------------------------------------------
 ;; Primary validation functions
@@ -113,10 +115,12 @@
    If they all pass, returns true.
    Normally used for a call to the {:pre...} at the beginning of a function"
   [arg-defs passed-args & component-name]
-  (let [passed-arg-keys (set (keys passed-args))]
-    (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys)
-         (required-args-passed? (:required-args  arg-defs) passed-arg-keys)
-         (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name)))))
+  (if ^boolean js/goog.DEBUG
+    (let [passed-arg-keys (set (keys passed-args))]
+      (and (arg-names-valid? (:arg-names arg-defs) passed-arg-keys)
+           (required-args-passed? (:required-args arg-defs) passed-arg-keys)
+           (validate-fns-pass? (:validated-args arg-defs) passed-args (first component-name))))
+    true))
 
 
 ;; ----------------------------------------------------------------------------

@@ -332,7 +332,7 @@
                   :step      step
                   :value     model
                   :disabled  disabled?
-                  :on-change (handler-fn (on-change (double (-> event .-target .-value))))} ;; TODO: Verify that this double fn works
+                  :on-change (handler-fn (on-change (js/Number (-> event .-target .-value))))}
                  attr)]])))
 
 

@@ -37,12 +37,11 @@
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
-                     [org.clojure/clojurescript   "0.0-2843" scope="provided"] ;; 2843 => 2913
+                     [org.clojure/clojurescript   "0.0-2843" scope="provided"] ;; 2843 => 2913 => 2985
                      ;[stabilized/clojurescript    "1.0.0" scope="provided"]       ;; TODO: Eventually switch to this one (when it works)
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha" scope="provided"]
                      [reagent                     "0.5.0-alpha3" scope="provided"]
                      [com.andrewmcveigh/cljs-time "0.3.2" scope="provided"]]
-
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
@@ -77,43 +76,37 @@
   :resource-paths  ["run/resources"]
   ; :clean-targets   [:target-path]
 
-  :closure-defines {:goog.DEBUG false}
-
-
   ;; Exclude the demo and compiled files from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)compiled.*\/"]
 
-  :cljsbuild        {:builds [{:id "demo"
-                               :source-paths   ["src" "dev"]
-                               :compiler       {:output-to       "run/resources/public/compiled_dev/demo.js"
-                                                :output-dir      "run/resources/public/compiled_dev/demo"
-
-                                                :closure-defines {:goog.DEBUG false}
-
-                                                :main            "figwheel-start.core"
-                                                :asset-path      "compiled_dev/demo"
-                                                :source-map      true
-                                                :optimizations   :none
-                                                :pretty-print    true}}
-                              {:id "prod"
-                               :source-paths   ["src"]
-                               :compiler       {:output-to       "run/resources/public/compiled_prod/demo.js"
-                                                :source-map      "run/resources/public/compiled_prod/demo.js.map"
-                                                :output-dir      "run/resources/public/compiled_prod/demo"
-                                                :closure-defines {:goog.DEBUG false}                                                
-                                                ;:source-map-path "js/out"     ; https://github.com/clojure/clojurescript/wiki/Source-maps#web-server-integration
-                                                ;:main            "re-demo.core"                                    ;; Works but not required in this case becasue index_prod.html knows which function to call
-                                                ;:asset-path      "compiled_prod/demo"
-                                                ;:elide-asserts   true
-                                                :optimizations   :advanced ;; or :simple :whitespace
-                                                :pretty-print    false}}
-                              {:id "test"
-                               :source-paths   ["src/re_com" "test"]
-                               :compiler       {:output-to       "run/test/compiled/test.js"
-                                                :output-dir      "run/test/compiled/test"
-                                                :source-map      true
-                                                :optimizations   :none
-                                                :pretty-print    true}}]}
+  :cljsbuild {:builds [{:id           "demo"
+                        :source-paths ["src" "dev"]
+                        :compiler     {:output-to       "run/resources/public/compiled_dev/demo.js"
+                                       :output-dir      "run/resources/public/compiled_dev/demo"
+                                       :main            "figwheel-start.core"
+                                       :asset-path      "compiled_dev/demo"
+                                       :source-map      true
+                                       :optimizations   :none
+                                       :pretty-print    true}}
+                       {:id           "prod"
+                        :source-paths ["src"]
+                        :compiler     {:output-to       "run/resources/public/compiled_prod/demo.js"
+                                       :source-map      "run/resources/public/compiled_prod/demo.js.map"
+                                       :output-dir      "run/resources/public/compiled_prod/demo"
+                                       :closure-defines {:goog.DEBUG false}
+                                       ;:source-map-path "js/out"                  ;; https://github.com/clojure/clojurescript/wiki/Source-maps#web-server-integration
+                                       ;:main            "re-demo.core"            ;; Works but not required in this case becasue index_prod.html knows which function to call
+                                       ;:asset-path      "compiled_prod/demo"
+                                       ;:elide-asserts   true
+                                       :optimizations   :advanced
+                                       :pretty-print    false}}
+                       {:id           "test"
+                        :source-paths ["src/re_com" "test"]
+                        :compiler     {:output-to     "run/test/compiled/test.js"
+                                       :output-dir    "run/test/compiled/test"
+                                       :source-map    true
+                                       :optimizations :none
+                                       :pretty-print  true}}]}
 
   :figwheel {:css-dirs    ["run/resources/public/resources/css"]
              :server-port ~fig-port

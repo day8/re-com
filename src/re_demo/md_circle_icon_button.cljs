@@ -1,6 +1,6 @@
 (ns re-demo.md-circle-icon-button
   (:require [re-com.core      :refer [label]]
-            [re-com.buttons   :refer [md-circle-icon-button md-circle-icon-button-args-desc]]
+            [re-com.buttons   :refer [md-circle-icon-button md-circle-icon-button-args-desc #_round-button]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
             [re-demo.utils    :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink]]
@@ -68,11 +68,24 @@
                                                                    :md-icon-name @selected-icon
                                                                    :tooltip      "This is the default button"
                                                                    :on-click     #()]
+
+                                                                  ;; TODO: Eventually remove
+                                                                  #_[round-button
+                                                                   :md-icon-name @selected-icon
+                                                                   :on-click     #(println "round-button")]
+
                                                                   [md-circle-icon-button
                                                                    :md-icon-name @selected-icon
                                                                    :tooltip      "This button has :disabled? set to true"
                                                                    :disabled?    true
-                                                                   :on-click     #()]]]
+                                                                   :on-click     #()]
+
+                                                                  ;; TODO: Eventually remove
+                                                                  #_[round-button
+                                                                   :md-icon-name @selected-icon
+                                                                   :disabled?    true
+                                                                   :on-click     #(println "round-button disabled")]
+                                                                  ]]
                                                       [h-box
                                                        :gap      "20px"
                                                        :align    :center

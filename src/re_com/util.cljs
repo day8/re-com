@@ -109,3 +109,17 @@
   (let [c (dec (count coll))
         f (fn [index item] [index item (= 0 index) (= c index)])]
     (map-indexed f coll)))
+
+(defn sum-scroll-offsets
+  "Given a DOM node, I traverse through all ascendant nodes (until I reach body), summing any scrollLeft and scrollTop values
+   and return these sums in a map"
+  [node]
+  (loop [current-node    (.-parentNode node) ;; Begin at parent
+         sum-scroll-left 0
+         sum-scroll-top  0]
+    (if (not= (.-tagName current-node) "BODY")
+      (recur (.-parentNode current-node)
+             (+ sum-scroll-left (.-scrollLeft current-node))
+             (+ sum-scroll-top  (.-scrollTop  current-node)))
+      {:left sum-scroll-left
+       :top  sum-scroll-top})))
