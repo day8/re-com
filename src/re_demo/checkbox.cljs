@@ -1,7 +1,8 @@
 (ns re-demo.checkbox
-  (:require [re-com.core      :refer [label checkbox checkbox-args-desc]]
+  (:require [re-com.text      :refer [label]]
+            [re-com.misc      :refer [checkbox checkbox-args-desc]]
             [re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 
 
@@ -37,15 +38,18 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title [:span "[checkbox ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/core.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/checkbox.cljs"]]]
+                                [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/checkbox.cljs"]
+                                [status-text "Beta"]]]
 
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[args-table checkbox-args-desc]]]
+                               :children [[component-title "Notes"]
+                                          [:span "The checkbox is used to..."]
+                                          [args-table checkbox-args-desc]]]
                               [v-box
                                :gap      "10px"
                                :children [[component-title "Demo"]

@@ -1,8 +1,9 @@
 (ns re-demo.info-button
-  (:require [re-com.core      :refer [label input-text]]
+  (:require [re-com.text      :refer [label]]
+            [re-com.misc      :refer [input-text]]
             [re-com.buttons   :refer [info-button info-button-args-desc hyperlink-href]]
             [re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]))
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (defn info-button-demo
@@ -31,7 +32,8 @@
        :gap      "10px"
        :children [[panel-title [:span "[info-button ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/info_button.cljs"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/info_button.cljs"]
+                                [status-text "Beta"]]]
 
                   [h-box
                    :gap "50px"
@@ -52,9 +54,9 @@
                                :gap      "10px"
                                :children [[component-title "Demo"]
                                           [v-box
-                                           :children [[:span "Click on the buttons below to see a popup info panel."]
-                                                      [:span "Click away to cause a pop-down."]
-                                                      [gap :size "15px"]
+                                           :children [[:p "Click on the buttons below to see a popup info panel."]
+                                                      [:p "Click away to cause a pop-down."]
+                                                      [gap :size "30px"]
                                                       [h-box
                                                        :gap      "4px"
                                                        :children [[:span.small-caps "client"]
@@ -64,7 +66,7 @@
                                                        :model       ""
                                                        :placeholder "Example input #1"
                                                        :on-change   #()]
-                                                      [gap :size "15px"]
+                                                      [gap :size "30px"]
                                                       [h-box
                                                        :gap      "4px"
                                                        :children [[:span.small-caps "product"]

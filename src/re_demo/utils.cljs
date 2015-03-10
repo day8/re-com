@@ -1,5 +1,5 @@
 (ns re-demo.utils
-  (:require [re-com.core :refer [title label]]
+  (:require [re-com.text :refer [title label]]
             [re-com.buttons   :refer [hyperlink-href]]
             [re-com.box  :refer [h-box v-box box gap line]]))
 
@@ -98,7 +98,7 @@
 (defn github-hyperlink
   "given a label and a relative path, return a component which links to that fully qualified GitHub URL in a new tab"
   [label src-path]
-  (let [base-url "https://github.com/Day8/re-com/tree/develop/"]
+  (let [base-url (str "https://github.com/Day8/re-com/tree/" (if ^boolean js/goog.DEBUG "develop" "master") "/")]
     [hyperlink-href
      :label  label
      :style  {:font-size    "13px"
@@ -106,3 +106,12 @@
               :margin       "0px 8px 0px 8px"}
      :href   (str base-url src-path)
      :target "_blank"]))
+
+(defn status-text
+  "given some status text, return a component that displays that status"
+  [status]
+  [label
+   :label  (str "Status: " status)
+   :style  {:font-size    "13px"
+            :font-variant "small-caps"
+            :margin       "0px 8px 0px 8px"}])

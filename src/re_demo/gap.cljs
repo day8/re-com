@@ -1,6 +1,6 @@
 (ns re-demo.gap
   (:require [re-com.box      :refer [h-box v-box gap gap-args-desc]]
-            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink]]))
+            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (defn panel
@@ -10,7 +10,8 @@
    :gap      "10px"
    :children [[panel-title [:span "[gap ... ]"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/gap.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/gap.cljs"]
+                            [status-text "Beta"]]]
 
               [h-box
               :gap      "50px"

@@ -1,10 +1,10 @@
 (ns re-demo.alert-list
   (:require [re-com.util        :refer [insert-nth remove-id-item]]
-            [re-com.core        :refer [label title]]
+            [re-com.text        :refer [label title]]
             [re-com.buttons     :refer [button]]
             [re-com.box         :refer [h-box v-box box line gap]]
             [re-com.alert       :refer [alert-box alert-list alert-box-args-desc alert-list-args-desc]]
-            [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core       :as    reagent]))
 
 
@@ -28,7 +28,8 @@
        :gap      "10px"
        :children [[panel-title [:span "[alert-list ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/alert.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/alert_list.cljs"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/alert_list.cljs"]
+                                [status-text "Beta"]]]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
@@ -38,7 +39,7 @@
                                           [label :label "Renders a dynamic list of alert-boxes vertically. New alerts are added at the top."]
                                           [args-table   alert-list-args-desc]]]
                               [v-box
-                               :width    "500px"
+                               :width    "600px"
                                :gap      "10px"
                                :children [[component-title "Demo"]
                                           [:p "To insert alerts at the top of the list, click "

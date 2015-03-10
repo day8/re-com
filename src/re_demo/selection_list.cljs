@@ -1,10 +1,11 @@
 (ns re-demo.selection-list
   (:require
-    [reagent.core          :as    r]
-    [re-com.core           :refer [label checkbox]]
+    [reagent.core          :as    reagent]
+    [re-com.text           :refer [label]]
+    [re-com.misc           :refer [checkbox]]
     [re-com.box            :refer [h-box v-box box]]
     [re-com.selection-list :refer [selection-list selection-list-args-desc]]
-    [re-demo.utils         :refer [panel-title component-title args-table github-hyperlink]]
+    [re-demo.utils         :refer [panel-title component-title args-table github-hyperlink status-text]]
     [re-com.util           :refer [golden-ratio-a golden-ratio-b]]))
 
 
@@ -47,19 +48,19 @@
 
 (defn- list-with-options
   [width]
-  (let [disabled?     (r/atom false)
-        multi-select? (r/atom true)
-        required?     (r/atom true)
-        as-exlcusion? (r/atom false)
-        items         (r/atom [{:id "1" :label "1st RULE: You do not talk about FIGHT CLUB."                                  :short "1st RULE"}
-                               {:id "2" :label "2nd RULE: You DO NOT talk about FIGHT CLUB."                                  :short "2nd RULE"}
-                               {:id "3" :label "3rd RULE: If someone says \"stop\" or goes limp, taps out the fight is over." :short "3rd RULE"}
-                               {:id "4" :label "4th RULE: Only two guys to a fight."                                          :short "4th RULE"}
-                               {:id "5" :label "5th RULE: One fight at a time."                                               :short "5th RULE"}
-                               {:id "6" :label "6th RULE: No shirts, no shoes."                                               :short "6th RULE"}
-                               {:id "7" :label "7th RULE: Fights will go on as long as they have to."                         :short "7th RULE"}
-                               {:id "8" :label "8th RULE: If this is your first night at FIGHT CLUB, you HAVE to fight."      :short "8th RULE"}])
-        selections (r/atom (set [(second @items)]))]
+  (let [disabled?     (reagent/atom false)
+        multi-select? (reagent/atom true)
+        required?     (reagent/atom true)
+        as-exlcusion? (reagent/atom false)
+        items         (reagent/atom [{:id "1" :label "1st RULE: You do not talk about FIGHT CLUB."                                  :short "1st RULE"}
+                                     {:id "2" :label "2nd RULE: You DO NOT talk about FIGHT CLUB."                                  :short "2nd RULE"}
+                                     {:id "3" :label "3rd RULE: If someone says \"stop\" or goes limp, taps out the fight is over." :short "3rd RULE"}
+                                     {:id "4" :label "4th RULE: Only two guys to a fight."                                          :short "4th RULE"}
+                                     {:id "5" :label "5th RULE: One fight at a time."                                               :short "5th RULE"}
+                                     {:id "6" :label "6th RULE: No shirts, no shoes."                                               :short "6th RULE"}
+                                     {:id "7" :label "7th RULE: Fights will go on as long as they have to."                         :short "7th RULE"}
+                                     {:id "8" :label "8th RULE: If this is your first night at FIGHT CLUB, you HAVE to fight."      :short "8th RULE"}])
+        selections (reagent/atom (set [(second @items)]))]
     [options-with
      width
      [v-box ;; TODO: v-box required to constrain height of internal border.
@@ -104,7 +105,8 @@
      :gap      "10px"
      :children [[panel-title [:span "[selection-list ... ]"
                               [github-hyperlink "Component Source" "src/re_com/selection_list.cljs"]
-                              [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]]]
+                              [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]
+                              [status-text "Beta"]]]
                 [h-box
                  ;:gap      (str h-gap "px")
                  :gap      "50px"

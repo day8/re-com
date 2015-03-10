@@ -1,9 +1,9 @@
 (ns re-demo.md-circle-icon-button
-  (:require [re-com.core      :refer [label]]
+  (:require [re-com.text      :refer [label]]
             [re-com.buttons   :refer [md-circle-icon-button md-circle-icon-button-args-desc #_round-button]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
-            [re-demo.utils    :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink]]
+            [re-demo.utils    :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 
 
@@ -38,7 +38,8 @@
        :gap      "10px"
        :children [[panel-title [:span "[md-circle-icon-button ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/md_circle_icon_button.cljs"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/md_circle_icon_button.cljs"]
+                                [status-text "Beta"]]]
                   [h-box
                    :gap "50px"
                    :children [[v-box

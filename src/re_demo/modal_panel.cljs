@@ -1,10 +1,11 @@
 (ns re-demo.modal-panel
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.core        :refer [title label progress-bar input-text checkbox]]
+  (:require [re-com.text        :refer [title label]]
+            [re-com.misc        :refer [progress-bar input-text checkbox]]
             [re-com.buttons     :refer [button]]
             [re-com.box         :refer [h-box v-box box gap line border]]
             [re-com.modal-panel :refer [modal-panel modal-panel-args-desc modal-panel-args]]
-            [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core       :as    reagent]))
 
 
@@ -137,7 +138,8 @@
    :gap      "10px"
    :children [[panel-title [:span "[modal-panel ... ]"
                             [github-hyperlink "Component Source" "src/re_com/modal_panel.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/modal_panel.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/modal_panel.cljs"]
+                            [status-text "Beta"]]]
 
               [h-box
                :gap      "50px"

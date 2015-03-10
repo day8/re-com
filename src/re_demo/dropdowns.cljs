@@ -1,9 +1,10 @@
 (ns re-demo.dropdowns
   (:require [re-com.util     :refer [item-for-id]]
-            [re-com.core     :refer [label input-text checkbox title]]
+            [re-com.text     :refer [label title]]
+            [re-com.misc     :refer [input-text checkbox]]
             [re-com.box      :refer [h-box v-box box gap]]
             [re-com.dropdown :refer [single-dropdown filter-choices-by-keyword single-dropdown-args-desc]]
-            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core    :as    reagent]))
 
 
@@ -293,31 +294,28 @@
                                  (str (:label (item-for-id @selected-city-id cities )) " [" @selected-city-id "]"))]]]]])))
 
 
-(defn notes
-  []
-  [v-box
-   :gap      "10px"
-   :width    "450px"
-   :children [[args-table single-dropdown-args-desc]]])
-
-
 (defn panel2
   []
   (let [selected-demo-id (reagent/atom 1)]
     (fn []
       [v-box
        :size     "auto"
-       :gap "10px"
+       :gap      "10px"
        :children [[panel-title [:span "[single-dropdown ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/dropdown.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/dropdowns.cljs"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/dropdowns.cljs"]
+                                [status-text "Beta"]]]
                   [h-box
                    :gap      "50px"
-                   :children [[notes]
+                   :children [[v-box
+                               :gap      "10px"
+                               :width    "450px"
+                               :children [[component-title "Notes"]
+                                          [:span "The single-dropdown is used to..."]
+                                          [args-table single-dropdown-args-desc]]]
                               [v-box
-                               :gap       "15px"
-                               :size      "auto"
-                               :min-width "500px"
+                               :width     "700px"
+                               :gap       "10px"
                                :children  [[component-title "Demo"]
                                            [h-box
                                             :gap      "10px"

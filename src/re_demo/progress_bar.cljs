@@ -1,7 +1,8 @@
 (ns re-demo.progress-bar
-  (:require [re-com.core      :refer [progress-bar progress-bar-args-desc slider label checkbox]]
+  (:require [re-com.text      :refer [label]]
+            [re-com.misc      :refer [progress-bar progress-bar-args-desc slider checkbox]]
             [re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 
 
@@ -15,14 +16,17 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title [:span "[progress-bar ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/core.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/progress_bar.cljs"]]]
+                                [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/progress_bar.cljs"]
+                                [status-text "Beta"]]]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[args-table progress-bar-args-desc]]]
+                               :children [[component-title "Notes"]
+                                          [:span "The progress-bar is used to..."]
+                                          [args-table progress-bar-args-desc]]]
                               [v-box
                                :gap      "10px"
                                :children [[component-title "Demo"]

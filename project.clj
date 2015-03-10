@@ -32,16 +32,17 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "0.2.0"
+(defproject         re-com "0.2.1"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
-                     [org.clojure/clojurescript   "0.0-2843" scope="provided"] ;; 2843 => 2913 => 2985
+                     [org.clojure/clojurescript   "0.0-3058" scope="provided"]
                      ;[stabilized/clojurescript    "1.0.0" scope="provided"]       ;; TODO: Eventually switch to this one (when it works)
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha" scope="provided"]
                      [reagent                     "0.5.0-alpha3" scope="provided"]
-                     [com.andrewmcveigh/cljs-time "0.3.2" scope="provided"]]
+                     [com.andrewmcveigh/cljs-time "0.3.2" scope="provided"]
+                     [secretary                   "1.2.1" scope="provided"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
@@ -64,6 +65,7 @@
                                                [lein-figwheel                   "0.2.3-SNAPSHOT"]
                                                [lein-shell                      "0.4.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
+                                               [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
                                                [lein-ancient                    "0.6.2"]]}
                      :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
                      :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
@@ -91,7 +93,7 @@
                        {:id           "prod"
                         :source-paths ["src"]
                         :compiler     {:output-to       "run/resources/public/compiled_prod/demo.js"
-                                       :source-map      "run/resources/public/compiled_prod/demo.js.map"
+                                       ;:source-map      "run/resources/public/compiled_prod/demo.js.map"
                                        :output-dir      "run/resources/public/compiled_prod/demo"
                                        :closure-defines {:goog.DEBUG false}
                                        ;:source-map-path "js/out"                  ;; https://github.com/clojure/clojurescript/wiki/Source-maps#web-server-integration
@@ -111,6 +113,11 @@
   :figwheel {:css-dirs    ["run/resources/public/resources/css"]
              :server-port ~fig-port
              :repl        true}
+
+  :aws {:access-key       ~(System/getenv "AWS_ACCESS_KEY_ID")
+        :secret-key       ~(System/getenv "AWS_SECRET_ACCESS_KEY")
+        :s3-static-deploy {:bucket     "re-demo"
+                           :local-root "run/resources/public"}}
 
   :aliases          {;; *** DEMO ***
 

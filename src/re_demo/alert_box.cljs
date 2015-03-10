@@ -1,9 +1,10 @@
 (ns re-demo.alert-box
   (:require-macros [re-com.core :refer [defn-meta add-meta]])
   (:require [re-com.box    :refer [h-box v-box box line gap]]
+            [re-com.text     :refer [label]]
             [re-com.alert  :refer [alert-box alert-box-args-desc
                                    alert-list alert-list-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.debug :refer-macros [dbg prn println log dev? warn warn-unless]]
             [reagent.core  :as    reagent]))
 
@@ -18,18 +19,19 @@
        :gap      "10px"
        :children [[panel-title [:span "[alert-box ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/alert.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/alert_box.cljs"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/alert_box.cljs"]
+                                [status-text "Beta"]]]
 
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [#_[component-title "Notes"]
-                                          #_[label :label "A component which renders a single alert-box."]
+                               :children [[component-title "Notes"]
+                                          [label :label "A component which renders a single alert-box."]
                                           [args-table alert-box-args-desc]]]
                               [v-box
-                               :width    "500px"
+                               :width    "600px"
                                :gap      "10px"
                                :children [[component-title "Demo"]
                                           (if @show-alert

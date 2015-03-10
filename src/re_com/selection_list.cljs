@@ -1,7 +1,8 @@
 (ns re-com.selection-list
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
-    [re-com.core     :refer [label checkbox radio-button]]
+    [re-com.text     :refer [label]]
+    [re-com.misc     :refer [checkbox radio-button]]
     [re-com.box      :refer [box border h-box v-box]]
     [re-com.validate :refer [extract-arg-data validate-args vector-of-maps? string-or-atom? set-or-atom?]]
     [re-com.util     :refer [fmap deref-or-value]]))

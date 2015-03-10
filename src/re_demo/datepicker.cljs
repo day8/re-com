@@ -3,12 +3,13 @@
     [reagent.core         :as     r]
     [cljs-time.core       :refer  [now days minus]]
     [cljs-time.format     :refer  [formatter unparse]]
-    [re-com.core          :refer  [label checkbox title]]
+    [re-com.text          :refer  [label title]]
+    [re-com.misc          :refer  [checkbox]]
     [re-com.datepicker    :refer  [datepicker datepicker-dropdown iso8601->date datepicker-args-desc]]
     [re-com.box           :refer  [h-box v-box gap]]
     [re-com.dropdown      :refer  [single-dropdown]]
     [re-com.util          :refer  [golden-ratio-a golden-ratio-b]]
-    [re-demo.utils        :refer  [panel-title component-title args-table github-hyperlink]]))
+    [re-demo.utils        :refer  [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (defn- toggle-inclusion!
@@ -23,7 +24,7 @@
   {:Su "S" :Mo "M" :Tu "T" :We "W" :Th "T" :Fr "F" :Sa "S"})
 
 (defn- parameters-with
-  [width content enabled-days disabled? show-today? show-weeks?]
+  [content enabled-days disabled? show-today? show-weeks?]
   (let [day-check (fn [day] [v-box
                        :align    :center
                        :children [[:label {:class "day-enabled"} (day days-map)]
@@ -33,7 +34,7 @@
                                    :style     {:margin-top "-2px"}]]])]
     (fn []
       [v-box
-       :width    (str width "px")
+       :width    "600px"
        :gap      "20px"
        :align    :start
        :children [[label :style {:font-style "italic"} :label "parameters:"]
@@ -76,7 +77,7 @@
   (unparse (formatter "dd MMM, yyyy") date))
 
 (defn- show-variant
-  [variation width]
+  [variation]
   (let [model1       (r/atom (minus (now) (days 3)))
         model2       (r/atom (iso8601->date "20140914"))
         disabled?    (r/atom false)
@@ -88,7 +89,6 @@
       :inline [(fn
                  []
                  [parameters-with
-                  width
                   [h-box
                    :gap      "20px"
                    :align    :start
@@ -126,7 +126,6 @@
       :dropdown [(fn
                    []
                    [parameters-with
-                    width
                     [h-box
                      :size     "auto"
                      :align    :start
@@ -164,37 +163,32 @@
 
 (defn panel2
   []
-  (let [panel-width 980
-        ;h-gap       70
-        ;a-width     (- (golden-ratio-a panel-width) h-gap)
-        b-width     (golden-ratio-b panel-width)
-        selected-variation (r/atom :inline)
-        ]
+  (let [selected-variation (r/atom :inline)]
     (fn []
       [v-box
        :size     "auto"
        :gap      "10px"
        :children [[panel-title [:span "Date Components"
                                 [github-hyperlink "Component Source" "src/re_com/datepicker.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/datepicker.cljs"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/datepicker.cljs"]
+                                [status-text "Beta"]]]
                   [h-box
                    :gap      "50px"
                    :children [[notes]
                               [v-box
-                               :gap       "20px"
+                               :gap       "10px"
                                :size      "auto"
-                               ;:margin    "20px 0px 0px 0px"
                                :children  [[component-title "Demo"]
                                            [h-box
                                             :gap      "10px"
                                             :align    :center
-                                            :children [[label :label "Choose Demo:"]
+                                            :children [[label :label "Select a demo"]
                                                        [single-dropdown
                                                         :choices   variations
                                                         :model     selected-variation
                                                         :width     "200px"
                                                         :on-change #(reset! selected-variation %)]]]
-                                           [show-variant @selected-variation b-width]]]]]]])))
+                                           [show-variant @selected-variation]]]]]]])))
 
 
 (defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser

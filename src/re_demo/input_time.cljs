@@ -1,9 +1,10 @@
 (ns re-demo.input-time
-  (:require [re-com.core       :refer  [label checkbox]]
+  (:require [re-com.text       :refer  [label]]
+            [re-com.misc       :refer  [checkbox]]
             [re-com.buttons    :refer  [button]]
             [re-com.input-time :refer  [input-time input-time-args-desc]]
             [re-com.box        :refer  [h-box v-box box gap]]
-            [re-demo.utils     :refer  [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils     :refer  [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core      :as     reagent]))
 
 
@@ -123,7 +124,8 @@
    :gap      "10px"
    :children [[panel-title [:span "[input-time ... ]"
                             [github-hyperlink "Component Source" "src/re_com/input_time.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/input_time.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/input_time.cljs"]
+                            [status-text "Beta"]]]
               [h-box
                :gap "50px"
                :children [[notes]

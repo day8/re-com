@@ -1,7 +1,7 @@
 (ns re-demo.box
   (:require [re-com.box      :refer [h-box v-box box box-args-desc gap]]
             [re-com.buttons  :refer [hyperlink-href]]
-            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink]]))
+            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (defn panel
@@ -11,7 +11,8 @@
    :gap      "10px"
    :children [[panel-title [:span "[box ... ]"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/box.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/box.cljs"]
+                            [status-text "Beta"]]]
 
               [h-box
                :gap      "50px"

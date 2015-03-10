@@ -1,8 +1,8 @@
 (ns re-demo.input-text
-  (:require [re-com.core      :refer [input-text input-textarea input-text-args-desc
-                                      label checkbox radio-button slider]]
+  (:require [re-com.text      :refer [label]]
+            [re-com.misc      :refer [input-text input-textarea input-text-args-desc checkbox radio-button slider]]
             [re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 
 
@@ -23,15 +23,18 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title [:span "[input-text ... ] & [input-textarea ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/core.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/input_text.cljs"]]]
+                                [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/input_text.cljs"]
+                                [status-text "Beta"]]]
 
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[args-table input-text-args-desc]]]
+                               :children [[component-title "Notes"]
+                                          [:span "The input-text is used to..."]
+                                          [args-table input-text-args-desc]]]
                               [v-box
                                :gap      "10px"
                                :children [[component-title "Demo"]

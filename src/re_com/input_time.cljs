@@ -2,9 +2,8 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
     [reagent.core    :as    reagent]
-    [clojure.string  :as    cljstring]
     [re-com.validate :refer [extract-arg-data validate-args css-style? html-attr? number-or-string?]]
-    [re-com.core     :refer [label]]
+    [re-com.text     :refer [label]]
     [re-com.box      :refer [h-box gap]]
     [re-com.util     :refer [pad-zero-number deref-or-value]]))
 

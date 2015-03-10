@@ -1,8 +1,9 @@
 (ns re-demo.hyperlink-href
-  (:require [re-com.core      :refer [label radio-button]]
+  (:require [re-com.text      :refer [label]]
+            [re-com.misc      :refer [radio-button]]
             [re-com.buttons   :refer [hyperlink-href hyperlink-href-args-desc]]
             [re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 
 
@@ -17,14 +18,17 @@
        :gap      "10px"
        :children [[panel-title [:span "[hyperlink-href ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/hyperlink_href.cljs"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/hyperlink_href.cljs"]
+                                [status-text "Beta"]]]
 
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[args-table hyperlink-href-args-desc]]]
+                               :children [[component-title "Notes"]
+                                          [:span "The hyperlink-href is used to..."]
+                                          [args-table hyperlink-href-args-desc]]]
                               [v-box
                                :gap      "10px"
                                :children [[component-title "Demo"]

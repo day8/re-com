@@ -1,8 +1,11 @@
 (ns re-demo.core
   (:require-macros [re-com.core            :refer [handler-fn]]
-                   [cljs.core.async.macros :refer [go]])
-  (:require [reagent.core                   :as    reagent]
+                   [cljs.core.async.macros :refer [go]]
+                   [secretary.core         :refer [defroute]])
+  (:require [goog.events                    :as    events]
+            [reagent.core                   :as    reagent]
             [alandipert.storage-atom        :refer [local-storage]]
+            [secretary.core                 :as    secretary]
             [re-demo.utils                  :refer [panel-title re-com-title]]
             [re-com.util                    :as    util]
             [re-com.box                     :refer [h-box v-box box gap line scroller border]]
@@ -38,140 +41,12 @@
             [re-demo.gap                    :as    gap]
             [re-demo.line                   :as    line]
             [re-demo.scroller               :as    scroller]
-            [re-demo.border                 :as    border]))
+            [re-demo.border                 :as    border]
+            [goog.history.EventType         :as    EventType])
+  (:import [goog History]
+           #_[goog.history EventType]))
 
 (enable-console-print!)
-
-(def tabs-definition
-  [
-   {:id ::welcome                :label "Welcome"            :panel welcome/panel}
-
-   ;; LAYOUT COMPONENTS
-
-   {:id ::h-box                  :label "H-box"              :panel h-box/panel}
-   {:id ::v-box                  :label "V-box"              :panel v-box/panel}
-   {:id ::box                    :label "Box"                :panel box/panel}
-   {:id ::gap                    :label "Gap"                :panel gap/panel}
-   {:id ::line                   :label "Line"               :panel line/panel}
-   {:id ::scroller               :label "Scroller"           :panel scroller/panel}
-   {:id ::border                 :label "Border"             :panel border/panel}
-   {:id ::boxes1                 :label "Box Demo 1"         :panel h-box/panelA}
-   {:id ::boxes2                 :label "Box Demo 2"         :panel h-box/panelB}
-
-   {:id ::layouts                :label "Layouts"            :panel layouts/panel}
-
-   {:id ::tabs                   :label "Tabs"               :panel tabs/panel}
-
-   {:id ::modal-panel            :label "Modal Panel"        :panel modal-panel/panel}
-
-   {:id ::popover-args           :label "Popover Args"       :panel popovers/arg-lists}
-   {:id ::popovers               :label "Popover Demos"      :panel popovers/panel}
-
-   ;; COMPONENTS YOU PLACE IN LAYOUT COMPONENTS
-
-   {:id ::button                 :label "Button"             :panel button/panel}
-   {:id ::md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
-   {:id ::md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
-   {:id ::row-button             :label "Row Button"         :panel row-button/panel}
-   {:id ::info-button            :label "Info Button"        :panel info-button/panel}
-   {:id ::hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
-   {:id ::hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
-
-   {:id ::label                  :label "Label"              :panel label/panel}
-   {:id ::title                  :label "Title"              :panel title/panel}
-   {:id ::checkbox               :label "Checkbox"           :panel checkbox/panel}
-   {:id ::radio-button           :label "Radio Button"       :panel radio-button/panel}
-   {:id ::input-text             :label "Input Text"         :panel input-text/panel}
-   {:id ::slider                 :label "Slider"             :panel slider/panel}
-   {:id ::progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
-
-   {:id ::dropdown               :label "Dropdowns"          :panel dropdowns/panel}
-
-   {:id ::lists                  :label "Selection List"     :panel selection-list/panel}
-
-   {:id ::date                   :label "Date Picker"        :panel datepicker/panel}
-
-   {:id ::time                   :label "Input Time"         :panel input-time/panel}
-
-   {:id ::alert-box              :label "Alert Box"          :panel alert-box/panel}
-   {:id ::alert-list             :label "Alert List"         :panel alert-list/panel}
-
-   ;; OTHER TYPES OF COMPONENTS
-
-   {:id ::tour                   :label "Tour"               :panel tour/panel}
-   ])
-
-
-(defn nav-item
-  []
-  (let [mouse-over? (reagent/atom false)]
-    (fn [tab selected-tab-id on-select-tab]
-      (let [selected (= @selected-tab-id (:id tab))]
-      [:div
-       {:style {:color            (if selected "#111")
-                :border-right     (if selected "4px #d0d0d0 solid")
-                :background-color (if (or
-                                        (= @selected-tab-id (:id tab))
-                                        @mouse-over?) "#eaeaea")}
-
-        :class "nav-item"
-        :on-mouse-over (handler-fn (reset! mouse-over? true))
-        :on-mouse-out  (handler-fn (reset! mouse-over? false))
-        :on-click      (handler-fn (on-select-tab (:id tab)))
-        }
-       [:span
-        {:style {:cursor "default"}}    ;; removes the I-beam over the label
-        (:label tab)]]))))
-
-
-(defn left-side-nav-bar
-  [selected-tab-id on-select-tab]
-    [v-box
-     :children (for [tab tabs-definition]
-                 [nav-item tab selected-tab-id on-select-tab])])
-
-
-(defn re-com-title-box
-  []
-  [h-box
-   :justify  :center
-   :align    :center
-   :height   "60px"
-   :style  {:color "#FEFEFE"
-            :background-color "#888"}
-   :children [[re-com-title]]])
-
-(defn main
-  []
-  (let [id-store        (local-storage (atom nil) ::id-store)
-        selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (util/item-for-id @id-store tabs-definition)))
-                                        (:id (first tabs-definition))
-                                        @id-store))   ;; id of the selected tab
-        on-select-tab   #(do (reset! selected-tab-id %1)
-                             (reset! id-store %1))]
-    (fn ;; _main
-      []
-      [h-box
-       ;; TODO: EXPLAIN both lines below with more clarity
-       ;; Outer-most box height must be 100% to fill the entrie client area
-       ;; (height is 100% of body, which must have already had it's height set to 100%)
-       ;; width doesn't need to be initially set
-       :height   "100%"
-       :gap      "60px"
-       ;:padding  "0px 10px 5px 0px"     ;; top right botton left TODO: [GR] Review whether we want this. I don't think so
-       :children [[scroller
-                   :size  "none"
-                   :v-scroll :auto
-                   :h-scroll :off
-                   :child [v-box
-                           :children [[re-com-title-box]
-                                      [left-side-nav-bar selected-tab-id on-select-tab]]]]
-                  [scroller
-                   :child [box
-                           :size      "auto"
-                           ;:padding   "15px 0px 5px 0px"         ;; top right bottom left
-                           :child     [(:panel (util/item-for-id @selected-tab-id tabs-definition))]]]]])))    ;; the tab panel to show, for the selected tab
-
 
 ;; ---------------------------------------------------------------------------------------
 ;;  EXPERIMENT START - TODO: REMOVE
@@ -247,6 +122,158 @@
 ;; ---------------------------------------------------------------------------------------
 ;;  EXPERIMENT END
 ;; ---------------------------------------------------------------------------------------
+
+
+(def tabs-definition
+  [{:id :welcome                :label "Welcome"            :panel welcome/panel}         ;; TODO: Have removed namespaced keywords for now
+
+   ;; LAYOUT COMPONENTS
+
+   {:id :h-box                  :label "H-box"              :panel h-box/panel}
+   {:id :v-box                  :label "V-box"              :panel v-box/panel}
+   {:id :box                    :label "Box"                :panel box/panel}
+   {:id :gap                    :label "Gap"                :panel gap/panel}
+   {:id :line                   :label "Line"               :panel line/panel}
+   {:id :scroller               :label "Scroller"           :panel scroller/panel}
+   {:id :border                 :label "Border"             :panel border/panel}
+   {:id :boxes1                 :label "Box Demo 1"         :panel h-box/panelA}
+   {:id :boxes2                 :label "Box Demo 2"         :panel h-box/panelB}
+
+   {:id :layouts                :label "Layouts"            :panel layouts/panel}
+
+   {:id :tabs                   :label "Tabs"               :panel tabs/panel}
+
+   {:id :modal-panel            :label "Modal Panel"        :panel modal-panel/panel}
+
+   {:id :popover-args           :label "Popover Args"       :panel popovers/arg-lists}
+   {:id :popovers               :label "Popover Demos"      :panel popovers/panel}
+
+   ;; COMPONENTS YOU PLACE IN LAYOUT COMPONENTS
+
+   {:id :button                 :label "Button"             :panel button/panel}
+   {:id :md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
+   {:id :md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
+   {:id :row-button             :label "Row Button"         :panel row-button/panel}
+   {:id :info-button            :label "Info Button"        :panel info-button/panel}
+   {:id :hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
+   {:id :hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
+
+   {:id :label                  :label "Label"              :panel label/panel}
+   {:id :title                  :label "Title"              :panel title/panel}
+   {:id :checkbox               :label "Checkbox"           :panel checkbox/panel}
+   {:id :radio-button           :label "Radio Button"       :panel radio-button/panel}
+   {:id :input-text             :label "Input Text"         :panel input-text/panel}
+   {:id :slider                 :label "Slider"             :panel slider/panel}
+   {:id :progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
+
+   {:id :dropdown               :label "Dropdowns"          :panel dropdowns/panel}
+
+   {:id :lists                  :label "Selection List"     :panel selection-list/panel}
+
+   {:id :date                   :label "Date Picker"        :panel datepicker/panel}
+
+   {:id :time                   :label "Input Time"         :panel input-time/panel}
+
+   {:id :alert-box              :label "Alert Box"          :panel alert-box/panel}
+   {:id :alert-list             :label "Alert List"         :panel alert-list/panel}
+
+   ;; OTHER TYPES OF COMPONENTS
+
+   {:id :tour                   :label "Tour"               :panel tour/panel}
+   ])
+
+
+(defn nav-item
+  []
+  (let [mouse-over? (reagent/atom false)]
+    (fn [tab selected-tab-id on-select-tab]
+      (let [selected (= @selected-tab-id (:id tab))]
+      [:div
+       {:style {:color            (if selected "#111")
+                :border-right     (if selected "4px #d0d0d0 solid")
+                :background-color (if (or
+                                        (= @selected-tab-id (:id tab))
+                                        @mouse-over?) "#eaeaea")}
+
+        :class "nav-item"
+        :on-mouse-over (handler-fn (reset! mouse-over? true))
+        :on-mouse-out  (handler-fn (reset! mouse-over? false))
+        :on-click      (handler-fn (on-select-tab (:id tab)))       ;; TODO: Do we want to call (secretary/dispatch! (str "/" (:id tab))) here instead?
+        }
+       [:span
+        {:style {:cursor "default"}}    ;; removes the I-beam over the label
+        (:label tab)]]))))
+
+
+(defn left-side-nav-bar
+  [selected-tab-id on-select-tab]
+    [v-box
+     :children (for [tab tabs-definition]
+                 [nav-item tab selected-tab-id on-select-tab])])
+
+
+(defn re-com-title-box
+  []
+  [h-box
+   :justify  :center
+   :align    :center
+   :height   "60px"
+   :style  {:color "#FEFEFE"
+            :background-color "#888"}
+   :children [[re-com-title]]])
+
+
+(def selected-tab-id (reagent/atom (:id (first tabs-definition))))  ;; TODO: Avoid this global?
+
+(defn main
+  []
+  (let [id-store        (local-storage (atom nil) ::id-store)       ;; TODO: Want to get local-storage working with secretary!
+        ;selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (util/item-for-id @id-store tabs-definition)))
+        ;                                (:id (first tabs-definition))
+        ;                                @id-store))   ;; id of the selected tab
+        ;selected-tab-id (reagent/atom (:id (first tabs-definition)))
+        on-select-tab   #(do (reset! selected-tab-id %1)
+                             (reset! id-store %1))]
+
+    (println "CREATE: main")
+    ;(defroute "/"     []    (do (println "defroute - root")     (reset! selected-tab-id :welcome)))
+    ;(defroute "/:tab" [tab] (do (println "defroute - tab:" tab) (reset! selected-tab-id (keyword tab))))
+    ;(defroute "*"     []    (do (println "defroute - DEFAULT")))
+
+    (fn ;; _main
+      []
+
+      (println "RENDER: main")
+
+      [h-box
+       ;; Outer-most box height must be 100% to fill the entrie client height.
+       ;; (height is 100% of body, which must have already had it's height set to 100%)
+       ;; width doesn't need to be initially set
+       :height   "100%"
+       :gap      "60px"
+       :children [[scroller
+                   :size  "none"
+                   :v-scroll :auto
+                   :h-scroll :off
+                   :child [v-box
+                           :children [[re-com-title-box]
+                                      [left-side-nav-bar selected-tab-id on-select-tab]]]]
+                  [scroller
+                   :child [box
+                           :size      "auto"
+                           ;:padding   "15px 0px 5px 0px"         ;; top right bottom left
+                           :child     [(:panel (util/item-for-id @selected-tab-id tabs-definition))]]]]])))    ;; the tab panel to show, for the selected tab
+
+
+;; -- Routes and History ------------------------------------------------------
+
+(defroute "/"     []                 (do (println "defroute - root")                                       (reset! selected-tab-id :welcome)))
+(defroute "/:tab" [tab query-params] (do (println "defroute - tab: '" tab "', query-params:" query-params) (reset! selected-tab-id (keyword tab))))
+(defroute "*"     []                 (do (println "defroute - UNKNOWN ROUTE")))
+
+(def history (History.))
+(events/listen history EventType/NAVIGATE (fn [e] (secretary/dispatch! (.-token e))))
+(.setEnabled history true)
 
 
 (defn ^:export mount-demo

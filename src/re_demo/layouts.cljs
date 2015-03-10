@@ -2,7 +2,7 @@
   (:require [re-com.box     :refer [h-box v-box box gap line scroller border]]
             [re-com.layout  :refer [h-layout h-layout-args-desc
                                     v-layout v-layout-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink]]))
+            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (def rounded-panel {:background-color "#fff4f4"
@@ -63,7 +63,8 @@
    :gap      "10px"
    :children [[panel-title [:span "Layout Components"
                             [github-hyperlink "Component Source" "src/re_com/layout.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/layouts.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/layouts.cljs"]
+                            [status-text "Beta"]]]
 
               [h-box
                :gap      "50px"

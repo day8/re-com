@@ -1,5 +1,5 @@
 (ns re-demo.welcome
-  (:require [re-com.core    :refer [title label]]
+  (:require [re-com.text    :refer [title label]]
             [re-com.buttons :refer [hyperlink-href]]
             [re-com.box     :refer [h-box v-box box gap line]]
             [re-demo.utils  :refer [panel-title component-title]]))

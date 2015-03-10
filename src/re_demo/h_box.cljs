@@ -7,7 +7,7 @@
                                      scroller scroller-args-desc
                                      border border-args-desc]]
             [re-com.buttons  :refer [button hyperlink-href]]
-            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]
             [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? vector-of-maps?]]))
 
 
@@ -18,7 +18,8 @@
    :gap      "10px"
    :children [[panel-title [:span "[h-box ... ]"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]
+                            [status-text "Beta"]]]
 
               [h-box
                :gap      "50px"
@@ -60,7 +61,8 @@
    :size "auto"
    :children [[panel-title [:span "Boxes (simple, with scrollers)"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]
+                            [status-text "Beta"]]]
               [gap  :size "15px"]
               [line :size "2px"]
               [h-box
@@ -120,7 +122,8 @@
    :size     "auto"
    :children [[panel-title [:span "Boxes (min-width/height)"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]
+                            [status-text "Beta"]]]
               [gap  :size "15px"]
               [line :size "2px"]
               [v-box

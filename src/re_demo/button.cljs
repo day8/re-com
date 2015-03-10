@@ -1,9 +1,10 @@
 (ns re-demo.button
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.core      :refer [label spinner]]
+  (:require [re-com.text      :refer [label]]
+            [re-com.misc      :refer [spinner]]
             [re-com.buttons   :refer [button button-args-desc]]
             [re-com.box :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 
 
@@ -26,14 +27,17 @@
    :gap      "10px"
    :children [[panel-title [:span "[button ... ]"
                             [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/button.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/button.cljs"]
+                            [status-text "Beta"]]]
 
               [h-box
                :gap      "50px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[args-table button-args-desc]]]
+                           :children [[component-title "Notes"]
+                                      [:span "The button is used to..."]
+                                      [args-table button-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]

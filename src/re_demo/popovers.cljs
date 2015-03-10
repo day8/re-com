@@ -1,6 +1,7 @@
 (ns re-demo.popovers
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.core                 :refer [label input-text checkbox radio-button]]
+  (:require [re-com.text                 :refer [label]]
+            [re-com.misc                 :refer [input-text checkbox radio-button]]
             [re-com.buttons              :refer [button hyperlink]]
             [re-com.box                  :refer [h-box v-box box gap line scroller border]]
             [re-com.popover              :refer [popover-content-wrapper popover-content-wrapper-args-desc
@@ -9,7 +10,7 @@
                                                  popover-tooltip popover-tooltip-args-desc]]
             [re-com.dropdown             :refer [single-dropdown]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
-            [re-demo.utils               :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils               :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core                :as    reagent]))
 
 
@@ -35,7 +36,8 @@
    :gap      "10px"
    :children [[panel-title [:span "Popover Components"
                             [github-hyperlink "Component Source" "src/re_com/popover.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]
+                            [status-text "Beta"]]]
 
               [h-box
                :gap      "50px"
@@ -430,7 +432,8 @@
    :gap      "10px"
    :children [[panel-title [:span "Popover Components"
                             [github-hyperlink "Component Source" "src/re_com/popover.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]
+                            [status-text "Beta"]]]
               [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]

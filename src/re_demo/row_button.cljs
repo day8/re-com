@@ -1,11 +1,12 @@
 (ns re-demo.row-button
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.core                   :refer [label checkbox]]
+  (:require [re-com.text                   :refer [label]]
+            [re-com.misc                   :refer [checkbox]]
             [re-com.buttons                :refer [row-button row-button-args-desc]]
             [re-demo.md-circle-icon-button :refer [icons example-icons]]
             [re-com.box                    :refer [h-box v-box box gap line]]
             [re-com.tabs                   :refer [horizontal-bar-tabs vertical-bar-tabs]]
-            [re-demo.utils                 :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink]]
+            [re-demo.utils                 :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text]]
             [re-com.util                   :refer [enumerate]]
             [reagent.core                  :as    reagent]))
 
@@ -100,7 +101,8 @@
        :gap      "10px"
        :children [[panel-title [:span "[row-button ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/row_button.cljs"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/row_button.cljs"]
+                                [status-text "Beta"]]]
 
                   [h-box
                    :gap      "50px"

@@ -1,9 +1,9 @@
 (ns re-demo.slider
-  (:require [re-com.core      :refer [slider slider-args-desc
-                                      label checkbox input-text]]
+  (:require [re-com.text      :refer [label]]
+            [re-com.misc      :refer [slider slider-args-desc checkbox input-text]]
             [re-com.box       :refer [h-box v-box box gap line]]
             [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
-            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink]]
+            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 
 
@@ -20,15 +20,18 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title [:span "[slider ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/core.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/slider.cljs"]]]
+                                [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
+                                [github-hyperlink "Page Source"      "src/re_demo/slider.cljs"]
+                                [status-text "Beta"]]]
 
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[args-table slider-args-desc]]]
+                               :children [[component-title "Notes"]
+                                          [:span "The slider is used to..."]
+                                          [args-table slider-args-desc]]]
                               [v-box
                                :gap      "10px"
                                :children [[component-title "Demo"]
