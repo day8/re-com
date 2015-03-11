@@ -1,13 +1,15 @@
 (ns re-demo.row-button
-  (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.text                   :refer [label]]
-            [re-com.misc                   :refer [checkbox]]
-            [re-com.buttons                :refer [row-button row-button-args-desc]]
-            [re-demo.md-circle-icon-button :refer [icons example-icons]]
-            [re-com.box                    :refer [h-box v-box box gap line]]
-            [re-com.tabs                   :refer [horizontal-bar-tabs vertical-bar-tabs]]
-            [re-demo.utils                 :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text]]
+  ;(:require-macros [re-com.core :refer [handler-fn]])
+  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox horizontal-bar-tabs vertical-bar-tabs] :refer-macros [handler-fn]]
+            [re-com.buttons                :refer [row-button-args-desc]]
+            ;[re-com.text                   :refer [label]]
+            ;[re-com.misc                   :refer [checkbox]]
+            ;[re-com.buttons                :refer [row-button row-button-args-desc]]
+            ;[re-com.box                    :refer [h-box v-box box gap line]]
+            ;[re-com.tabs                   :refer [horizontal-bar-tabs vertical-bar-tabs]]
             [re-com.util                   :refer [enumerate]]
+            [re-demo.md-circle-icon-button :refer [icons example-icons]]
+            [re-demo.utils                 :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text]]
             [reagent.core                  :as    reagent]))
 
 

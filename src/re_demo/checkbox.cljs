@@ -1,7 +1,8 @@
 (ns re-demo.checkbox
-  (:require [re-com.text      :refer [label]]
-            [re-com.misc      :refer [checkbox checkbox-args-desc]]
-            [re-com.box       :refer [h-box v-box box gap line]]
+  (:require [re-com.core      :refer [h-box v-box box gap line checkbox label]]
+            [re-com.misc      :refer [checkbox-args-desc]]
+            ;[re-com.text      :refer [label]]
+            ;[re-com.box       :refer [h-box v-box box gap line]]
             [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 
@@ -64,7 +65,8 @@
                                                        :model always-false]
 
                                                       [h-box
-                                                       :gap "10px"
+                                                       :gap      "10px"
+                                                       :height   "20px"
                                                        :children [[checkbox
                                                                    :label     "tick me  "
                                                                    :model     ticked?
@@ -73,13 +75,13 @@
                                                                   (when @ticked? [label :label " is ticked"])]]
 
                                                       [h-box
-                                                       :gap "1px"
+                                                       :gap      "1px"
                                                        :children [[checkbox  :model all-for-one? :on-change #(reset! all-for-one? %)]
                                                                   [checkbox  :model all-for-one? :on-change #(reset! all-for-one? %)]
                                                                   [checkbox  :model all-for-one? :on-change #(reset! all-for-one? %)  :label  "all for one, and one for all.  "]]]
 
                                                       [h-box
-                                                       :gap "15px"
+                                                       :gap      "15px"
                                                        :children [[checkbox
                                                                    :label     "tick this one, to \"disable\""
                                                                    :model     disabled?
@@ -93,7 +95,7 @@
                                                                    :on-change   #(reset! something1? %)]]]
 
                                                       [h-box
-                                                       :gap "1px"
+                                                       :gap      "1px"
                                                        :children [[checkbox
                                                                    :model     something2?
                                                                    :on-change #(reset! something2? %)]

@@ -35,7 +35,7 @@
     (flatten (interleave group-headers groups))))
 
 
-(defn filter-choices
+(defn- filter-choices
   "Filter a list of choices based on a filter string using plain string searches (case insensitive). Less powerful
    than regex's but no confusion with reserved characters"
   [choices filter-text]
@@ -49,7 +49,7 @@
     (filter filter-fn choices)))
 
 
-(defn filter-choices-regex
+(defn- filter-choices-regex
   "Filter a list of choices based on a filter string using regex's (case insensitive). More powerful but can cause
    confusion for users entering reserved characters such as [ ] * + . ( ) etc."
   [choices filter-text]

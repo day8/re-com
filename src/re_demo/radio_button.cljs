@@ -1,6 +1,8 @@
 (ns re-demo.radio-button
-  (:require [re-com.misc      :refer [radio-button radio-button-args-desc]]
-            [re-com.box       :refer [h-box v-box box gap line]]
+  (:require [re-com.core      :refer [h-box v-box box gap line radio-button]]
+            [re-com.misc      :refer [radio-button-args-desc]]
+            ;[re-com.misc      :refer [radio-button radio-button-args-desc]]
+            ;[re-com.box       :refer [h-box v-box box gap line]]
             [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 

@@ -1,12 +1,13 @@
 (ns re-demo.selection-list
-  (:require
-    [reagent.core          :as    reagent]
-    [re-com.text           :refer [label]]
-    [re-com.misc           :refer [checkbox]]
-    [re-com.box            :refer [h-box v-box box]]
-    [re-com.selection-list :refer [selection-list selection-list-args-desc]]
-    [re-demo.utils         :refer [panel-title component-title args-table github-hyperlink status-text]]
-    [re-com.util           :refer [golden-ratio-a golden-ratio-b]]))
+  (:require [re-com.core           :refer [h-box v-box box selection-list label checkbox]]
+            [re-com.selection-list :refer [selection-list-args-desc]]
+            ;[re-com.text           :refer [label]]
+            ;[re-com.misc           :refer [checkbox]]
+            ;[re-com.box            :refer [h-box v-box box]]
+            ;[re-com.selection-list :refer [selection-list selection-list-args-desc]]
+            [re-demo.utils         :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-com.util           :refer [golden-ratio-a golden-ratio-b]]
+            [reagent.core          :as    reagent]))
 
 
 (defn- options-with

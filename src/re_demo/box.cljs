@@ -1,6 +1,7 @@
 (ns re-demo.box
-  (:require [re-com.box      :refer [h-box v-box box box-args-desc gap]]
-            [re-com.buttons  :refer [hyperlink-href]]
+  (:require [re-com.core     :refer [h-box v-box box gap hyperlink-href]]
+            [re-com.box      :refer [box-args-desc]]
+            ;[re-com.buttons  :refer [hyperlink-href]]
             [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 

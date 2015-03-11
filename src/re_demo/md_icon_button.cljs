@@ -1,9 +1,11 @@
 (ns re-demo.md-icon-button
-  (:require [re-com.text                   :refer [label]]
-            [re-com.buttons                :refer [md-icon-button md-icon-button-args-desc]]
+  (:require [re-com.core                   :refer [h-box v-box box gap line md-icon-button label horizontal-bar-tabs vertical-bar-tabs]]
+            [re-com.buttons                :refer [md-icon-button-args-desc]]
+            ;[re-com.text                   :refer [label]]
+            ;[re-com.buttons                :refer [md-icon-button md-icon-button-args-desc]]
+            ;[re-com.box                    :refer [h-box v-box box gap line]]
+            ;[re-com.tabs                   :refer [horizontal-bar-tabs vertical-bar-tabs]]
             [re-demo.md-circle-icon-button :refer [icons example-icons]]
-            [re-com.box                    :refer [h-box v-box box gap line]]
-            [re-com.tabs                   :refer [horizontal-bar-tabs vertical-bar-tabs]]
             [re-demo.utils                 :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text]]
             [reagent.core                  :as    reagent]))
 

@@ -1,8 +1,10 @@
 (ns re-demo.info-button
-  (:require [re-com.text      :refer [label]]
-            [re-com.misc      :refer [input-text]]
-            [re-com.buttons   :refer [info-button info-button-args-desc hyperlink-href]]
-            [re-com.box       :refer [h-box v-box box gap line]]
+  (:require [re-com.core      :refer [h-box v-box box gap line info-button label input-text hyperlink-href]]
+            [re-com.buttons   :refer [info-button-args-desc]]
+            ;[re-com.text      :refer [label]]
+            ;[re-com.misc      :refer [input-text]]
+            ;[re-com.buttons   :refer [info-button info-button-args-desc hyperlink-href]]
+            ;[re-com.box       :refer [h-box v-box box gap line]]
             [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 

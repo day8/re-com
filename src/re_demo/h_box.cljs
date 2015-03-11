@@ -1,12 +1,7 @@
 (ns re-demo.h-box
-  (:require [re-com.box      :refer [h-box h-box-args-desc
-                                     v-box v-box-args-desc
-                                     box box-args-desc
-                                     gap gap-args-desc
-                                     line line-args-desc
-                                     scroller scroller-args-desc
-                                     border border-args-desc]]
-            [re-com.buttons  :refer [button hyperlink-href]]
+  (:require [re-com.core     :refer [h-box v-box box gap line scroller border button hyperlink-href]]
+            [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc]]
+            ;[re-com.buttons  :refer [button hyperlink-href]]
             [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]
             [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? vector-of-maps?]]))
 

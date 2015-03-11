@@ -1,7 +1,9 @@
 (ns re-demo.input-text
-  (:require [re-com.text      :refer [label]]
-            [re-com.misc      :refer [input-text input-textarea input-text-args-desc checkbox radio-button slider]]
-            [re-com.box       :refer [h-box v-box box gap line]]
+  (:require [re-com.core      :refer [h-box v-box box gap line input-text input-textarea label checkbox radio-button slider]]
+            [re-com.misc      :refer [input-text-args-desc]]
+            ;[re-com.text      :refer [label]]
+            ;[re-com.misc      :refer [input-text input-textarea input-text-args-desc checkbox radio-button slider]]
+            ;[re-com.box       :refer [h-box v-box box gap]]
             [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 

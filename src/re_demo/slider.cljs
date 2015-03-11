@@ -1,8 +1,10 @@
 (ns re-demo.slider
-  (:require [re-com.text      :refer [label]]
-            [re-com.misc      :refer [slider slider-args-desc checkbox input-text]]
-            [re-com.box       :refer [h-box v-box box gap line]]
-            [re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
+  (:require [re-com.core      :refer [h-box v-box box gap line label slider checkbox input-text horizontal-bar-tabs vertical-bar-tabs]]
+            [re-com.misc      :refer [slider-args-desc]]
+            ;[re-com.text      :refer [label]]
+            ;[re-com.misc      :refer [slider slider-args-desc checkbox input-text]]
+            ;[re-com.box       :refer [h-box v-box box gap line]]
+            ;[re-com.tabs      :refer [horizontal-bar-tabs vertical-bar-tabs]]
             [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 

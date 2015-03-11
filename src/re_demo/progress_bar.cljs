@@ -1,7 +1,10 @@
 (ns re-demo.progress-bar
-  (:require [re-com.text      :refer [label]]
-            [re-com.misc      :refer [progress-bar progress-bar-args-desc slider checkbox]]
-            [re-com.box       :refer [h-box v-box box gap line]]
+  (:require [re-com.core      :refer [h-box v-box box gap line label progress-bar slider checkbox]]
+            [re-com.misc      :refer [progress-bar-args-desc]]
+            [re-com.text      :refer [label]]
+            ;[re-com.text      :refer [label]]
+            ;[re-com.misc      :refer [progress-bar progress-bar-args-desc slider checkbox]]
+            ;[re-com.box       :refer [h-box v-box box gap line]]
             [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 

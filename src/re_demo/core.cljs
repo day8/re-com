@@ -1,6 +1,5 @@
 (ns re-demo.core
-  (:require-macros [re-com.core            :refer [handler-fn]]
-                   [cljs.core.async.macros :refer [go]]
+  (:require-macros [cljs.core.async.macros :refer [go]]
                    [secretary.core         :refer [defroute]])
   (:require [goog.events                    :as    events]
             [reagent.core                   :as    reagent]
@@ -8,7 +7,7 @@
             [secretary.core                 :as    secretary]
             [re-demo.utils                  :refer [panel-title re-com-title]]
             [re-com.util                    :as    util]
-            [re-com.box                     :refer [h-box v-box box gap line scroller border]]
+            [re-com.core                    :refer [h-box v-box box gap line scroller border] :refer-macros [handler-fn]]
             [re-demo.welcome                :as    welcome]
             [re-demo.radio-button           :as    radio-button]
             [re-demo.checkbox               :as    checkbox]
@@ -223,11 +222,28 @@
    :children [[re-com-title]]])
 
 
-(def selected-tab-id (reagent/atom (:id (first tabs-definition))))  ;; TODO: Avoid this global?
+(def id-store        (local-storage (atom nil) ::id-store))
+
+(def selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (util/item-for-id @id-store tabs-definition)))
+                                     (:id (first tabs-definition))
+                                     @id-store)))  ;; id of the selected tab
+
+;; -- Routes and History ------------------------------------------------------
+
+(defroute "/"     []                 (do (println "defroute - root")                                       (reset! selected-tab-id :welcome)))
+(defroute "/:tab" [tab query-params] (do (println "defroute - tab: '" tab "', query-params:" query-params) (reset! selected-tab-id (keyword tab))))
+(defroute "*"     []                 (do (println "defroute - UNKNOWN ROUTE")))
+
+(def history (History.))
+(events/listen history EventType/NAVIGATE (fn [e] (secretary/dispatch! (.-token e))))
+(.setEnabled history true)
+
+
+
 
 (defn main
   []
-  (let [id-store        (local-storage (atom nil) ::id-store)       ;; TODO: Want to get local-storage working with secretary!
+  (let [;id-store        (local-storage (atom nil) ::id-store)       ;; TODO: Want to get local-storage working with secretary!
         ;selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (util/item-for-id @id-store tabs-definition)))
         ;                                (:id (first tabs-definition))
         ;                                @id-store))   ;; id of the selected tab
@@ -263,17 +279,6 @@
                            :size      "auto"
                            ;:padding   "15px 0px 5px 0px"         ;; top right bottom left
                            :child     [(:panel (util/item-for-id @selected-tab-id tabs-definition))]]]]])))    ;; the tab panel to show, for the selected tab
-
-
-;; -- Routes and History ------------------------------------------------------
-
-(defroute "/"     []                 (do (println "defroute - root")                                       (reset! selected-tab-id :welcome)))
-(defroute "/:tab" [tab query-params] (do (println "defroute - tab: '" tab "', query-params:" query-params) (reset! selected-tab-id (keyword tab))))
-(defroute "*"     []                 (do (println "defroute - UNKNOWN ROUTE")))
-
-(def history (History.))
-(events/listen history EventType/NAVIGATE (fn [e] (secretary/dispatch! (.-token e))))
-(.setEnabled history true)
 
 
 (defn ^:export mount-demo

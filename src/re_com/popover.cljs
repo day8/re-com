@@ -106,7 +106,7 @@
 
 (def backdrop-args (extract-arg-data backdrop-args-desc))
 
-(defn backdrop
+(defn- backdrop
   "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
   [& {:keys [opacity on-click] :as args}]
   {:pre [(validate-args backdrop-args args "backdrop")]}
@@ -233,7 +233,7 @@
 
 (def popover-title-args (extract-arg-data popover-title-args-desc))
 
-(defn popover-title
+(defn- popover-title
   "Renders a title at the top of a popover with an optional close button on the far right"
   [& {:keys [title showing? close-button? close-callback]
       :as args}]

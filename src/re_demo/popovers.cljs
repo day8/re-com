@@ -1,15 +1,18 @@
 (ns re-demo.popovers
-  (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.text                 :refer [label]]
-            [re-com.misc                 :refer [input-text checkbox radio-button]]
-            [re-com.buttons              :refer [button hyperlink]]
-            [re-com.box                  :refer [h-box v-box box gap line scroller border]]
-            [re-com.popover              :refer [popover-content-wrapper popover-content-wrapper-args-desc
-                                                 popover-anchor-wrapper popover-anchor-wrapper-args-desc
-                                                 popover-border popover-border-args-desc
-                                                 popover-tooltip popover-tooltip-args-desc]]
-            [re-com.dropdown             :refer [single-dropdown]]
+  ;(:require-macros [re-com.core :refer [handler-fn]])
+  (:require [re-com.core                 :refer [h-box v-box box gap line scroller border label input-text checkbox radio-button button hyperlink single-dropdown popover-content-wrapper popover-anchor-wrapper popover-border popover-tooltip] :refer-macros [handler-fn]]
+            [re-com.popover              :refer [popover-content-wrapper-args-desc popover-anchor-wrapper-args-desc popover-border-args-desc popover-tooltip-args-desc]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
+            ;[re-com.text                 :refer [label]]
+            ;[re-com.misc                 :refer [input-text checkbox radio-button]]
+            ;[re-com.buttons              :refer [button hyperlink]]
+            ;[re-com.box                  :refer [h-box v-box box gap line scroller border]]
+            ;[re-com.popover              :refer [popover-content-wrapper popover-content-wrapper-args-desc
+            ;                                     popover-anchor-wrapper popover-anchor-wrapper-args-desc
+            ;                                     popover-border popover-border-args-desc
+            ;                                     popover-tooltip popover-tooltip-args-desc]]
+            ;[re-com.dropdown             :refer [single-dropdown]]
+            ;[re-demo.popover-dialog-demo :as    popover-dialog-demo]
             [re-demo.utils               :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core                :as    reagent]))
 

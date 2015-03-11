@@ -1,6 +1,8 @@
 (ns re-demo.label
-  (:require [re-com.text      :refer [label label-args-desc]]
-            [re-com.box       :refer [h-box v-box box gap line]]
+  (:require [re-com.core      :refer [h-box v-box box gap line label]]
+            [re-com.text      :refer [label-args-desc]]
+            ;[re-com.text      :refer [label label-args-desc]]
+            ;[re-com.box       :refer [h-box v-box box gap line]]
             [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 

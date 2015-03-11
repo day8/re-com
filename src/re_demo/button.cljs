@@ -1,9 +1,9 @@
 (ns re-demo.button
-  (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.text      :refer [label]]
-            [re-com.misc      :refer [spinner]]
-            [re-com.buttons   :refer [button button-args-desc]]
-            [re-com.box :refer [h-box v-box box gap line]]
+  (:require [re-com.core      :refer [h-box v-box box gap line button label spinner]]
+            [re-com.buttons   :refer [button-args-desc]]
+            ;[re-com.text      :refer [label]]
+            ;[re-com.misc      :refer [spinner]]
+            ;[re-com.buttons   :refer [button button-args-desc]]
             [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]))
 

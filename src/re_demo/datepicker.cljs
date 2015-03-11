@@ -1,15 +1,16 @@
 (ns re-demo.datepicker
-  (:require
-    [reagent.core         :as     r]
-    [cljs-time.core       :refer  [now days minus]]
-    [cljs-time.format     :refer  [formatter unparse]]
-    [re-com.text          :refer  [label title]]
-    [re-com.misc          :refer  [checkbox]]
-    [re-com.datepicker    :refer  [datepicker datepicker-dropdown iso8601->date datepicker-args-desc]]
-    [re-com.box           :refer  [h-box v-box gap]]
-    [re-com.dropdown      :refer  [single-dropdown]]
-    [re-com.util          :refer  [golden-ratio-a golden-ratio-b]]
-    [re-demo.utils        :refer  [panel-title component-title args-table github-hyperlink status-text]]))
+  (:require [reagent.core      :as    reagent]
+            [cljs-time.core    :refer [now days minus]]
+            [cljs-time.format  :refer [formatter unparse]]
+            ;[re-com.text       :refer [label title]]
+            ;[re-com.misc       :refer [checkbox]]
+            ;[re-com.datepicker :refer [datepicker datepicker-dropdown iso8601->date datepicker-args-desc]]
+            ;[re-com.box        :refer [h-box v-box gap]]
+            ;[re-com.dropdown   :refer [single-dropdown]]
+            [re-com.core       :refer [h-box v-box gap single-dropdown datepicker datepicker-dropdown checkbox label title]]
+            [re-com.datepicker :refer [iso8601->date datepicker-args-desc]]
+            [re-com.util       :refer [golden-ratio-a golden-ratio-b]]
+            [re-demo.utils     :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (defn- toggle-inclusion!
@@ -78,12 +79,12 @@
 
 (defn- show-variant
   [variation]
-  (let [model1       (r/atom (minus (now) (days 3)))
-        model2       (r/atom (iso8601->date "20140914"))
-        disabled?    (r/atom false)
-        show-today?  (r/atom true)
-        show-weeks?  (r/atom false)
-        enabled-days (r/atom (-> days-map keys set))
+  (let [model1       (reagent/atom (minus (now) (days 3)))
+        model2       (reagent/atom (iso8601->date "20140914"))
+        disabled?    (reagent/atom false)
+        show-today?  (reagent/atom true)
+        show-weeks?  (reagent/atom false)
+        enabled-days (reagent/atom (-> days-map keys set))
         label-style  {:font-style "italic" :font-size "smaller" :color "#777"}]
     (case variation
       :inline [(fn
@@ -163,7 +164,7 @@
 
 (defn panel2
   []
-  (let [selected-variation (r/atom :inline)]
+  (let [selected-variation (reagent/atom :inline)]
     (fn []
       [v-box
        :size     "auto"

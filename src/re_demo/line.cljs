@@ -1,5 +1,7 @@
 (ns re-demo.line
-  (:require [re-com.box      :refer [h-box v-box box gap line line-args-desc]]
+  (:require [re-com.core     :refer [h-box v-box box gap line]]
+            [re-com.box      :refer [line-args-desc]]
+            ;[re-com.box      :refer [h-box v-box box gap line line-args-desc]]
             [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
