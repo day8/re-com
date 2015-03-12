@@ -5,8 +5,8 @@ Alpha overall.  But parts are now stable - they are marked as such.
 ## Why Should You Care?
 
 Either:
-1. You need a library of Reagent widgets for your next Chrome-based app.
-2. You can't use these widgets, but you're interested in building your own.  
+  1. You need a library of Reagent widgets for your next Chrome-based app.
+  2. You can't use these widgets, but you're interested in building your own.  
 
 # re-com
 
