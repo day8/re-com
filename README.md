@@ -73,13 +73,13 @@ retail web, which is rife with Flexbox-less wastelands like IE10 and IE9.
 I can also confirm that none of the components have been designed with mobile in mind, and
 that there's no attempt to handle media queries.  It's just not that kind of widget library.
 
-Neither have we been particularly worried about code size. Other design goals have taken precidence.  Our main demo app (aka demo.js) which incldues everything, plus demo code comes to about 167K zipped using `:optimzations` `:advanced` (expands to about 700K).  That number incldued reactjs plus the cljs libs and runtime.  
+Neither have we been particularly worried about code size. Other design goals have taken precidence.  Our main demo app (aka demo.js) which incldues everything, plus demo code comes to about 167K zipped using `:optimzations` `:advanced` (expands to about 700K).  That number incldue ReactJS plus the ClojureScript libs and runtime.  
 
 ## So, Without Ado Being Any Furthered ...
 
 Still here?  Good. I'm glad we got all that negative stuff out the way.  You're going to love  re-com.
 
-You do have Chrome handy, right?  Start by looking at [the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
+So, you do have Chrome handy, right?  Start by looking at [the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
 
 The demo serves as: 
 
@@ -120,15 +120,15 @@ Read a further analysis [here](https://clojurefun.wordpress.com/2012/08/13/keywo
 
 ## Parameter Validation
 
-We make mistakes. We often get re-com parameters wrong: suppying  `onmouseover` when it should have been `on-mouse-over`, or `center` when it should have been `centre`, or we pass in a string when it should have been  a keyword. 
+We often make mistakes and get our re-com parameters wrong. Our sausage fingers type  `onmouseover` instead of `on-mouse-over`, or `center` rather than `centre`, or we pass in a string when it should have been a keyword. 
 
-re-com tries to catch these kinds of mistakes. Every re-com component has a spec for its parameters. Info like the name, data type, validation fucntions, default value and so on.
+re-com tries to catch these kinds of mistakes. Every re-com component has a spec which contains details on each parameter, like name, data type, validation fucntions, default value and so on.
 
-In dev mode, all parameters are validated. In production, that overhead is removed. 
+In dev mode, all component parameters are validated. In production, that overhead is removed. 
 
 If a problem is found, helpful (we hope) messages are displayed in the console. 
 
-re-com uses `goog.DEBUG` to determine dev builds from production builds.  For dev builds, do nothing.  For production builds, in your `project.clj` ensure we have this:
+re-com uses `goog.DEBUG` to determine dev builds from production builds.  For dev builds, do nothing.  For production builds, in your `project.clj` ensure we have this in the build target:
 
 ```Clojure
 :closure-defines {:goog.DEBUG false}
