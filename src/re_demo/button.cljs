@@ -28,7 +28,7 @@
    :children [[panel-title [:span "[button ... ]"
                             [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/button.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
 
               [h-box
                :gap      "50px"

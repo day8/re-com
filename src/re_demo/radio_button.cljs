@@ -18,7 +18,7 @@
        :children [[panel-title [:span "[radio-button ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/radio_button.cljs"]
-                                [status-text "Beta"]]]
+                                [status-text "Alpha"]]]
                   [h-box
                    :gap      "50px"
                    :children [[v-box

@@ -24,7 +24,7 @@
        :children [[panel-title [:span "[slider ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/slider.cljs"]
-                                [status-text "Beta"]]]
+                                [status-text "Alpha"]]]
 
                   [h-box
                    :gap      "50px"

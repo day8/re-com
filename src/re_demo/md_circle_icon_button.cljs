@@ -41,7 +41,7 @@
        :children [[panel-title [:span "[md-circle-icon-button ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/md_circle_icon_button.cljs"]
-                                [status-text "Beta"]]]
+                                [status-text "Alpha"]]]
                   [h-box
                    :gap "50px"
                    :children [[v-box

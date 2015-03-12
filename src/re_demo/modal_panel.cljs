@@ -141,7 +141,7 @@
    :children [[panel-title [:span "[modal-panel ... ]"
                             [github-hyperlink "Component Source" "src/re_com/modal_panel.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/modal_panel.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
 
               [h-box
                :gap      "50px"

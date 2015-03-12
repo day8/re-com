@@ -172,7 +172,7 @@
        :children [[panel-title [:span "Date Components"
                                 [github-hyperlink "Component Source" "src/re_com/datepicker.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/datepicker.cljs"]
-                                [status-text "Beta"]]]
+                                [status-text "Alpha"]]]
                   [h-box
                    :gap      "50px"
                    :children [[notes]

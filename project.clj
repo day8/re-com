@@ -40,7 +40,7 @@
                      [org.clojure/clojurescript   "0.0-2843" scope="provided"]
                      ;[stabilized/clojurescript    "1.0.0" scope="provided"]       ;; TODO: Eventually switch to this one (when it works)
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha" scope="provided"]
-                     [reagent                     "0.5.0-alpha3" scope="provided"]
+                     [reagent                     "0.5.0" scope="provided"]
                      [com.andrewmcveigh/cljs-time "0.3.2" scope="provided"]
                      [secretary                   "1.2.1" scope="provided"]]
 

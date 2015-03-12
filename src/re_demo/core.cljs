@@ -222,45 +222,24 @@
    :children [[re-com-title]]])
 
 
-(def id-store        (local-storage (atom nil) ::id-store))
+;; -- Routes, Local Storage and History ------------------------------------------------------
 
+(def id-store        (local-storage (atom nil) ::id-store))
 (def selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (util/item-for-id @id-store tabs-definition)))
                                      (:id (first tabs-definition))
                                      @id-store)))  ;; id of the selected tab
 
-;; -- Routes and History ------------------------------------------------------
-
-(defroute "/"     []                 (do (println "defroute - root")                                       (reset! selected-tab-id :welcome)))
-(defroute "/:tab" [tab query-params] (do (println "defroute - tab: '" tab "', query-params:" query-params) (reset! selected-tab-id (keyword tab))))
-(defroute "*"     []                 (do (println "defroute - UNKNOWN ROUTE")))
-
+(defroute "/:tab" [tab query-params] (reset! selected-tab-id (keyword tab)))
 (def history (History.))
 (events/listen history EventType/NAVIGATE (fn [e] (secretary/dispatch! (.-token e))))
 (.setEnabled history true)
 
-
-
-
 (defn main
   []
-  (let [;id-store        (local-storage (atom nil) ::id-store)       ;; TODO: Want to get local-storage working with secretary!
-        ;selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (util/item-for-id @id-store tabs-definition)))
-        ;                                (:id (first tabs-definition))
-        ;                                @id-store))   ;; id of the selected tab
-        ;selected-tab-id (reagent/atom (:id (first tabs-definition)))
-        on-select-tab   #(do (reset! selected-tab-id %1)
-                             (reset! id-store %1))]
-
-    (println "CREATE: main")
-    ;(defroute "/"     []    (do (println "defroute - root")     (reset! selected-tab-id :welcome)))
-    ;(defroute "/:tab" [tab] (do (println "defroute - tab:" tab) (reset! selected-tab-id (keyword tab))))
-    ;(defroute "*"     []    (do (println "defroute - DEFAULT")))
-
-    (fn ;; _main
+  (let [on-select-tab #(do (reset! selected-tab-id %1)
+                           (reset! id-store %1))]
+    (fn
       []
-
-      (println "RENDER: main")
-
       [h-box
        ;; Outer-most box height must be 100% to fill the entrie client height.
        ;; (height is 100% of body, which must have already had it's height set to 100%)

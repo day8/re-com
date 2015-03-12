@@ -194,7 +194,7 @@
   [{:name :model        :required true                        :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. Should match :enabled-days"}
    {:name :on-change    :required true                        :type "(goog.date.UtcDateTime) -> nil" :validate-fn fn?        :description "called when user entry completes and value is new"}
    {:name :disabled?    :required false :default false        :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
-   {:name :enabled-days :required false :default "all 7 days" :type "set"                            :validate-fn set?       :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Only dates falling on these days will be user-selectable. "}
+   {:name :enabled-days :required false                       :type "set"                            :validate-fn set?       :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Only dates falling on these days will be user-selectable. Default is all 7 days"}
    {:name :show-weeks?  :required false :default false        :type "boolean"                                                :description "when true, the first column shows week numbers"}
    {:name :show-today?  :required false :default false        :type "boolean"                                                :description "when true, today's date is highlighted"}
    {:name :minimum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "selection & navigation are blocked before this date"}

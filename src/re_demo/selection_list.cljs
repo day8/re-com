@@ -107,7 +107,7 @@
      :children [[panel-title [:span "[selection-list ... ]"
                               [github-hyperlink "Component Source" "src/re_com/selection_list.cljs"]
                               [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]
-                              [status-text "Beta"]]]
+                              [status-text "Alpha"]]]
                 [h-box
                  ;:gap      (str h-gap "px")
                  :gap      "50px"

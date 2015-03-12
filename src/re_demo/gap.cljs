@@ -12,7 +12,7 @@
    :children [[panel-title [:span "[gap ... ]"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/gap.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
 
               [h-box
               :gap      "50px"

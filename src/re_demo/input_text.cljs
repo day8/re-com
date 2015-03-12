@@ -27,7 +27,7 @@
        :children [[panel-title [:span "[input-text ... ] & [input-textarea ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/input_text.cljs"]
-                                [status-text "Beta"]]]
+                                [status-text "Alpha"]]]
 
                   [h-box
                    :gap      "50px"

@@ -21,7 +21,7 @@
        :children [[panel-title [:span "[progress-bar ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/progress_bar.cljs"]
-                                [status-text "Beta"]]]
+                                [status-text "Alpha"]]]
                   [h-box
                    :gap      "50px"
                    :children [[v-box

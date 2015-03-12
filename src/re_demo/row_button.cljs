@@ -104,7 +104,7 @@
        :children [[panel-title [:span "[row-button ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/row_button.cljs"]
-                                [status-text "Beta"]]]
+                                [status-text "Alpha"]]]
 
                   [h-box
                    :gap      "50px"

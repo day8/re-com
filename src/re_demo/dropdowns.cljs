@@ -306,7 +306,7 @@
        :children [[panel-title [:span "[single-dropdown ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/dropdown.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/dropdowns.cljs"]
-                                [status-text "Beta"]]]
+                                [status-text "Alpha"]]]
                   [h-box
                    :gap      "50px"
                    :children [[v-box

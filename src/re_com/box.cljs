@@ -159,7 +159,6 @@
   [& {:keys [size width height class style attr]
       :as   args}]
   {:pre [(validate-args gap-args args "gap")]}
-  (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s (merge
             (when size   (flex-child-style size))
             (when width  {:width width})
@@ -192,7 +191,6 @@
       :or   {size "1px" color "lightgray"}
       :as   args}]
   {:pre [(validate-args line-args args "line")]}
-  (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s (merge
             {:flex (str "0 0 " size)}
             {:background-color color}
@@ -233,7 +231,6 @@
       :or   {size "none" justify :start align :stretch}
       :as   args}]
   {:pre [(validate-args h-box-args args "h-box")]}
-  (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s        (merge
                    {:display "flex" :flex-flow "row nowrap"}
                    (flex-child-style size)
@@ -288,7 +285,6 @@
       :or   {size "none" justify :start align :stretch}
       :as   args}]
   {:pre [(validate-args v-box-args args "v-box")]}
-  (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [s        (merge
                    {:display "flex" :flex-flow "column nowrap"}
                    (flex-child-style size)
@@ -342,7 +338,6 @@
       :or   {size "none"}
       :as   args}]
   {:pre [(validate-args box-args args "box")]}
-  (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (box-base :size        size
             :width       width
             :height      height
@@ -366,7 +361,7 @@
 (def scroller-args-desc
   [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
    {:name :size       :required false :default "auto"   :type "string"          :validate-fn string?           :description [:span "a flexbox type size. Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
-   {:name :scroll     :required false :default "auto"   :type "keyword"         :validate-fn scroll-style?     :description [:span "Sets both h-scroll and v-scroll at once: " [:br]
+   {:name :scroll     :required false                   :type "keyword"         :validate-fn scroll-style?     :description [:span "Sets both h-scroll and v-scroll at once: " [:br]
                                                                                                                              [:code ":auto"] ": only show scroll bar(s) if the content is larger than the scroller" [:br]
                                                                                                                              [:code ":on"] ": always show scroll bars" [:br]
                                                                                                                              [:code ":off"] ": never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen" [:br]
@@ -406,7 +401,6 @@
       :or   {size "auto"}
       :as   args}]
   {:pre [(validate-args scroller-args args "scroller")]}
-  (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
   (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
         scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
     (box-base :size       size
@@ -442,10 +436,10 @@
    {:name :margin     :required false                                :type "string"          :validate-fn string?           :description "a CSS margin style"}
    {:name :padding    :required false                                :type "string"          :validate-fn string?           :description "a CSS padding style"}
    {:name :border     :required false :default "1px solid lightgrey" :type "string"          :validate-fn string?           :description "a CSS border style. A convenience to describe all borders in one parameter"}
-   {:name :l-border   :required false :default :border               :type "string"          :validate-fn string?           :description [:span "a CSS border style for the left border. Overrides " [:code ":border"]]}
-   {:name :r-border   :required false :default :boder                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the right border. Overrides " [:code ":border"]]}
-   {:name :t-border   :required false :default :border               :type "string"          :validate-fn string?           :description [:span "a CSS border style for the top border. Overrides " [:code ":border"]]}
-   {:name :b-border   :required false :default :boder                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the bottom. Overrides " [:code ":border"]]}
+   {:name :l-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the left border. Overrides " [:code ":border"]]}
+   {:name :r-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the right border. Overrides " [:code ":border"]]}
+   {:name :t-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the top border. Overrides " [:code ":border"]]}
+   {:name :b-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the bottom. Overrides " [:code ":border"]]}
    {:name :radius     :required false                                :type "string"          :validate-fn string?           :description "a CSS radius style eg.\"2px\""}
    {:name :class      :required false                                :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style      :required false                                :type "map"             :validate-fn css-style?        :description "CSS styles to add or override"}
@@ -466,7 +460,6 @@
   {:pre [(validate-args border-args args "border")]}
   (let [no-border      (every? nil? [border l-border r-border t-border b-border])
         default-border "1px solid lightgrey"]
-    (assert (not-any? #(contains? #{:style :class} (first %)) attr) ":attr cannot contain :class or :style members")
     (box-base :size        size
               :width       width
               :height      height

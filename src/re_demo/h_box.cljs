@@ -14,7 +14,7 @@
    :children [[panel-title [:span "[h-box ... ]"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
 
               [h-box
                :gap      "50px"
@@ -57,7 +57,7 @@
    :children [[panel-title [:span "Boxes (simple, with scrollers)"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
               [gap  :size "15px"]
               [line :size "2px"]
               [h-box
@@ -118,7 +118,7 @@
    :children [[panel-title [:span "Boxes (min-width/height)"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
               [gap  :size "15px"]
               [line :size "2px"]
               [v-box

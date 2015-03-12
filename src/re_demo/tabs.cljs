@@ -158,7 +158,7 @@
        :children [[panel-title [:span "Tab Components"
                                 [github-hyperlink "Component Source" "src/re_com/tabs.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/tabs.cljs"]
-                                [status-text "Beta"]]]
+                                [status-text "Alpha"]]]
 
 
                   [h-box

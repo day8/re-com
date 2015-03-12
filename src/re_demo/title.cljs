@@ -14,7 +14,7 @@
    :children [[panel-title [:span "[title ... ]"
                             [github-hyperlink "Component Source" "src/re_com/text.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/title.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
               [h-box
                :gap      "50px"
                :children [[v-box

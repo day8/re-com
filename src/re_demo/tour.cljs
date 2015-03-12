@@ -114,7 +114,7 @@
    :children [[panel-title [:span "Tour Components"
                             [github-hyperlink "Component Source" "src/re_com/tour.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/tour.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
               [h-box
                :gap      "50px"
                :children [[notes]

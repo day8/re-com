@@ -12,7 +12,7 @@
    :children [[panel-title [:span "[border ... ]"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/border.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
 
               [h-box
               :gap      "50px"

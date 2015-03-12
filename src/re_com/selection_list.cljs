@@ -84,19 +84,19 @@
 
 
 (def selection-list-args-desc
-  [{:name :choices        :required true                       :type "vector of maps | atom"              :validate-fn vector-of-maps? :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below (list of maps also allowed)"]}
-   {:name :model          :required true                       :type "set of :ids within :choices | atom" :validate-fn set-or-atom?    :description "the currently selected items. Note: items are considered distinct"}
-   {:name :on-change      :required true                       :type "(set of :ids) -> nil | atom"        :validate-fn fn?             :description "a callback which will be passed set of selected items"}
-   {:name :multi-select?  :required false :default true        :type "boolean | atom"                                                  :description "when true, use check boxes, otherwise radio buttons"}
-   {:name :as-exclusions? :required false :default false       :type "boolean | atom"                                                  :description "when true, selected items are shown with struck-out labels"}
-   {:name :required?      :required false :default false       :type "boolean | atom"                                                  :description "when true, at least one item must be selected. Note: being able to un-select a radio button is not a common use case, so this should probably be set to true when in single select mode"}
-   {:name :width          :required false                      :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"250px\". When specified, item labels may be clipped. Otherwise based on widest label"}
-   {:name :height         :required false                      :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"150px\". Size beyond which items will scroll"}
-   {:name :max-height     :required false                      :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll"}
-   {:name :disabled?      :required false :default false       :type "boolean | atom"                                                  :description "when true, the time input will be disabled. Can be atom or value"}
-   {:name :hide-border?   :required false :default false       :type "boolean | atom"                                                  :description "when true, the list will be displayed without a border"}
-   {:name :item-renderer  :required false                      :type "function | atom"                    :validate-fn fn?             :description "called for each element during setup, the returned component renders the element, responds to clicks etc."}
-   {:name :label-fn       :required false :default "str"       :type "function | atom"                    :validate-fn ifn?            :description "called for each element to get label string"}])
+  [{:name :choices        :required true                 :type "vector of maps | atom"              :validate-fn vector-of-maps? :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below (list of maps also allowed)"]}
+   {:name :model          :required true                 :type "set of :ids within :choices | atom" :validate-fn set-or-atom?    :description "the currently selected items. Note: items are considered distinct"}
+   {:name :on-change      :required true                 :type "(set of :ids) -> nil | atom"        :validate-fn fn?             :description "a callback which will be passed set of selected items"}
+   {:name :multi-select?  :required false :default true  :type "boolean | atom"                                                  :description "when true, use check boxes, otherwise radio buttons"}
+   {:name :as-exclusions? :required false :default false :type "boolean | atom"                                                  :description "when true, selected items are shown with struck-out labels"}
+   {:name :required?      :required false :default false :type "boolean | atom"                                                  :description "when true, at least one item must be selected. Note: being able to un-select a radio button is not a common use case, so this should probably be set to true when in single select mode"}
+   {:name :width          :required false                :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"250px\". When specified, item labels may be clipped. Otherwise based on widest label"}
+   {:name :height         :required false                :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"150px\". Size beyond which items will scroll"}
+   {:name :max-height     :required false                :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll"}
+   {:name :disabled?      :required false :default false :type "boolean | atom"                                                  :description "when true, the time input will be disabled. Can be atom or value"}
+   {:name :hide-border?   :required false :default false :type "boolean | atom"                                                  :description "when true, the list will be displayed without a border"}
+   {:name :item-renderer  :required false                :type "function | atom"                    :validate-fn fn?             :description "called for each element during setup, the returned component renders the element, responds to clicks etc."}
+   {:name :label-fn       :required false :default 'str  :type "function | atom"                    :validate-fn ifn?            :description "called for each element to get label string"}])
 
 (def selection-list-args (extract-arg-data selection-list-args-desc))
 

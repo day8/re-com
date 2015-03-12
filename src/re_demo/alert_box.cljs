@@ -20,7 +20,7 @@
        :children [[panel-title [:span "[alert-box ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/alert.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/alert_box.cljs"]
-                                [status-text "Beta"]]]
+                                [status-text "Alpha"]]]
 
                   [h-box
                    :gap      "50px"

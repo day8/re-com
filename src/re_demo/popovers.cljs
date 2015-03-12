@@ -40,7 +40,7 @@
    :children [[panel-title [:span "Popover Components"
                             [github-hyperlink "Component Source" "src/re_com/popover.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
 
               [h-box
                :gap      "50px"
@@ -436,7 +436,7 @@
    :children [[panel-title [:span "Popover Components"
                             [github-hyperlink "Component Source" "src/re_com/popover.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]
-                            [status-text "Beta"]]]
+                            [status-text "Alpha"]]]
               [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]
