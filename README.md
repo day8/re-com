@@ -1,16 +1,20 @@
 ## Status
 
-Still Alpha overall.  But many parts now stable.
+Alpha overall.  But parts are now stable - they are marked as such.
 
-Until we go beta, we're not taking patches or feature requests.
+# Why Should You Care?
+
+Either:
+1. You need a library of Reagent widgets for your next Chrome-based app.
+2. You can't use these widgets, but you're interested in building your own.  
 
 # re-com
 
-A library of ClojureScript UI components, built on top of Dan Holmsand's brilliant
+A ClojureScript library of UI components, built on top of Dan Holmsand's brilliant
 [Reagent](http://reagent-project.github.io)
 which, in turn, is a layer over Facebook's trail blazing [React](http://facebook.github.io/react).
 
-Re-com contains:
+Re-com has:
 
 * familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.  (in Reagent terms these are `components`)
 * layout `components` which organise widgets vertically and horizontally, within splitters, etc. `components`
@@ -24,17 +28,16 @@ progress - for a start some components are missing.
 The layouts and components work harmoniously together (urmm, except for occasional bouts of
 English-soccer-hooligan-like hostility, but that's a bug right?).
 
-If you decide to use re-com, consider using re-frame (an SPA framework) as well.  The two
-dovetail well, although re-com can certainly be used independently -- for example, the demo
+If you decide to use re-com, consider also using [re-frame](https://github.com/Day8/re-frame) (an MVC-ish framework).  The two dovetail well, although both can be used independently -- for example, the demo
 program for re-com does not use re-frame.
 
 ## Are You Sure You Want To Be Here?
 
 We are browser-tech neophytes, who've only spent a year with HTML5, JavaScript, ClojureScript,
-and reactive programming.
+and reactive programming. It has been a steep learning curve.
 
 We're actually displaced refugees from Flash/Flex and, before that, a long time ago in a galaxy far, far away tech
-like QT, MFC, Smalltalk and Interviews.  As you can imagine, we've accumulated a menagerie of paper cuts developing
+like QT, MFC, Smalltalk and Interviews.  As you can imagine, we've accumulated an impressive collection of paper cuts developing
 this library, and there's every chance we've made mistakes in both design and implementation.
 
 For example, having the substrate of React and Reagent imparts great benefits, for sure, but it has also
@@ -45,9 +48,9 @@ we wanted to stay true to the GIU-as-a-function-of-the-data paradigm fostered by
 reactivity. We've come up with (ingenious? tortuous?) solutions for things like Popovers, but because
 of our lack of experience, there might be better ways. We're all ears if there are, BTW.
 
-Despite our inexperience, re-com does hang together fairly well, with only minor quirks. We're
-using it to build production systems, so we've shaken out many bugs and moulded a better API as
-we've gone.  But it is still early days, and your alternative usage patterns might yet unearth
+Despite our inexperience, re-com does seem to hang together fairly well, with only minor quirks. We've
+used it to build production systems, so we've shaken out many bugs and moulded a better API as
+we've gone.  But it is still early days fore re-com, and your alternative usage patterns might yet unearth
 hidden  dragons.
 
 
@@ -64,15 +67,15 @@ Here's a key thing:  the entire layout side of this library plus a couple of the
 rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
 which [only works on modern browsers](http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
 
-So, for the next year or two, this library would be a poor fit if you're targeting the
+So, for the next year, this library would be a poor fit if you're targeting the
 retail web, which is rife with Flexbox-less wastelands like IE10 and IE9.
  
 I can also confirm that none of the components have been designed with mobile in mind, and
 that there's no attempt to handle media queries.  It's just not that kind of widget library.
 
-Neither have we been particularly concerned about code size.
+Neither have we been particularly worried about code size. Other design goals have taken precidence.  Our main demo app (aka demo.js) which incldues everything, plus demo code comes to about 167K zipped using `:optimzations` `:advanced` (expands to about 700K).  That number incldued reactjs plus the cljs libs and runtime.  
 
-Still here?  Good, in that case, you're going to love re-com.
+Still here?  Good. I'm glad we got all that negative stuff out the way.  I think you  are going to love  re-com.
 
 ## So, Without Ado Being Any Furthered ...
 
@@ -117,17 +120,15 @@ Read a further analysis [here](https://clojurefun.wordpress.com/2012/08/13/keywo
 
 ## Parameter Validation
 
-Further, we have added a layer of parameter validation. Every component has an associated vector of maps which contains metadata for each parameter...info like the name, data type, whether it's required, default value and so on.
+We make mistakes. We often get re-com parameters wrong: suppying  `onmouseover` when it should have been `on-mouse-over`, or `center` when it should have been `centre`, or we pass in a string when it should have been  a keyword. 
 
-Each component parameter can also have a validation function which is called on each render, to make sure the data type is correct or the parameter value is contained in the list of expected values.
+re-com tries to catch these kinds of mistakes. Every re-com component has a spec for its parameters. Info like the name, data type, validation fucntions, default value and so on.
 
-If a parameter name is not recognised, or if a required parameter is not specified, or the validation function fails, the validation spits out an exception to the console, explaining what went wrong.
+In dev mode, all parameters are validated. In production, that overhead is removed. 
 
-This will save a lot of development time by catching common (but sometimes very subtle and hard to track down) mistakes.  
+If a problem is found, helpful (we hope) messages are displayed in the console. 
 
-Incidentally, this vector is also used to create the "Named Parameter" tables in the demo app. 
-
-Finally, we make use of the in-built goog.DEBUG variable (which is definable in `project.clj`) to deactivate this parameter validation for production code. Simply include the following line in the production build id:
+re-com uses `goog.DEBUG` to determine dev builds from production builds.  For dev builds, do nothing.  For production builds, in your `project.clj` ensure we have this:
 
 ```Clojure
 :closure-defines {:goog.DEBUG false}
@@ -135,56 +136,73 @@ Finally, we make use of the in-built goog.DEBUG variable (which is definable in 
 
 ## Navigating The Source
 
-Unsurprisingly, look in the `src` directory!!
-
-Notice that it has two sub-directories:
+If you look in the `src` directory, you'll notice that it has two sub-directories:
 
   - re-com - the library
   - re-demo - the demo app
 
-After you clone this repo, `cd` into the root directory and execute one of the following commands:
+1. Getting And Running The Demo
 
-	lein run
+   ```shell
+   git clone https://github.com/Day8/re-com.git
+   ```
+   
+   ```shell
+   cd re-com 
+   ```
+   
+   ```shell
+   lein run
+   ```
 
-This will run the demo, by doing: 
+  This will run the demo, by doing: 
   - a clean 
   - a compile 
   - a load of the right `index.html` into your default browser
 
-To debug the demo with [figwheel](https://github.com/bhauman/lein-figwheel):
 
-	lein debug
+1. Debugging The Demo
 
-This will:
+   Via  [figwheel](https://github.com/bhauman/lein-figwheel):
+   ```shell
+   lein debug
+   ```
+
+  This will:
 
  - clean 
  - start the [figwheel](https://github.com/bhauman/lein-figwheel) server & compiler  (a terminal window will be started)
  - load the right `index.html` (specialised for figwheel use)
  - start a ClojureScript repl in the terminal window (actually, figwheel does this for you)
 
-Your Process:
+  Your Process:
 
-- the initial load of `index.html` will fail because the figwheel compile hasn't yet finished. 
-- be patient - the initial compile might take anything from 20sec to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
-- keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message, at which point, figwheel will immediately move on and try to start the repl.  
-- In response, you should refresh to HTML page. This refresh is needed for figwheel to complete the repl kick-off.
-- to quit figwheel and stop the server/compiler, type ` :cljs/quit` into the repl. 
+  - the initial load of `index.html` will fail because the figwheel compile hasn't yet finished. 
+  - be patient - the initial compile might take anything from 20sec to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
+  - keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message, at which point, figwheel will immediately move on and try to start the repl.  
+  - In response, you should refresh to HTML page. This refresh is needed for figwheel to complete the repl kick-off.
+  - to quit figwheel and stop the server/compiler, type ` :cljs/quit` into the repl. 
 
-To run the tests:
 
-	lein run-test
+1. Run The (Modest) Tests
+ 
+   ```shell
+   lein run-test
+   ```
 
-This will:
+  This will:
 
 - clean 
 - compile the tests 
 - load the required `test.html` into your default browser, so you can see the results.
 
-Debug the tests with:
+1. Debug the tests:
 
-	lein debug-test
+   ```shell
+   lein debug-test
+   ```
 
-Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto` for recompilation.
+  Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto` for recompilation.
 
 ## Using re-com In Your Apps
 
@@ -192,7 +210,6 @@ To use re-com in your application, you'll need to add this to your dependencies 
 
 ```Clojure
 :dependencies [
-  [org.clojure/clojurescript "0.0-XXXX"]
   ...
   [reagent "0.5.0"]
   [re-com "0.2.2"]
@@ -252,19 +269,4 @@ Todos:
 
 ## Component Suggestions
 
-
-## RFP background
-
-
-
-https://gist.github.com/staltz/868e7e9bc2a7b8c1f754/
-http://elm-lang.org/learn/What-is-FRP.elm
-
-Javelin:
-Watch:   http://www.infoq.com/presentations/ClojureScript-Javelin
-Read:    https://github.com/tailrecursion/javelin
-
-
-https://www.youtube.com/watch?v=i__969noyAM
-https://speakerdeck.com/fisherwebdev/flux-react
 
