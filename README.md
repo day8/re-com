@@ -18,7 +18,7 @@ Re-com has:
 
 * familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.  (in Reagent terms these are `components`)
 * layout `components` which organise widgets vertically and horizontally, within splitters, etc. `components`
-  which put borders around their children. Plus these can all nest, etc.
+  which put borders around their children. Layouts can nest. 
 * a [Bootstrap](http://getbootstrap.com/) flavour, mixed in with
   some [Material Design Icons](http://zavoloklom.github.io/material-design-iconic-font/icons.html).
 
