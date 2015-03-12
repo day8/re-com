@@ -75,11 +75,11 @@ that there's no attempt to handle media queries.  It's just not that kind of wid
 
 Neither have we been particularly worried about code size. Other design goals have taken precidence.  Our main demo app (aka demo.js) which incldues everything, plus demo code comes to about 167K zipped using `:optimzations` `:advanced` (expands to about 700K).  That number incldued reactjs plus the cljs libs and runtime.  
 
-Still here?  Good. I'm glad we got all that negative stuff out the way.  I think you  are going to love  re-com.
-
 ## So, Without Ado Being Any Furthered ...
 
-You do have Chrome handy, right?  Good. Start by looking at [the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
+Still here?  Good. I'm glad we got all that negative stuff out the way.  You're going to love  re-com.
+
+You do have Chrome handy, right?  Start by looking at [the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
 
 The demo serves as: 
 
