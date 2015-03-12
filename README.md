@@ -2,7 +2,7 @@
 
 Alpha overall.  But parts are now stable - they are marked as such.
 
-# Why Should You Care?
+## Why Should You Care?
 
 Either:
 1. You need a library of Reagent widgets for your next Chrome-based app.
