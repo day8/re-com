@@ -1,10 +1,10 @@
 (ns re-com.popover
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util    :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
+  (:require [re-com.util     :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
             [re-com.validate :refer [extract-arg-data validate-args position? position-options-list popover-status-type? popover-status-types-list
                                      number-or-string? string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?]]
-            [clojure.string :as    string]
-            [reagent.core   :as    reagent]))
+            [clojure.string  :as    string]
+            [reagent.core    :as    reagent]))
 
 
 (defn point

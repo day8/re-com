@@ -1,12 +1,9 @@
 (ns re-demo.alert-list
-  (:require [re-com.core        :refer [h-box v-box box line gap label title button alert-box alert-list]]
-            [re-com.alert       :refer [alert-box-args-desc alert-list-args-desc]]
-            [re-com.util        :refer [insert-nth remove-id-item]]
-            ;[re-com.text        :refer [label title]]
-            ;[re-com.buttons     :refer [button]]
-            ;[re-com.box         :refer [h-box v-box box line gap]]
-            [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink status-text]]
-            [reagent.core       :as    reagent]))
+  (:require [re-com.core   :refer [h-box v-box box line gap label title button alert-box alert-list]]
+            [re-com.alert  :refer [alert-box-args-desc alert-list-args-desc]]
+            [re-com.util   :refer [insert-nth remove-id-item]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [reagent.core  :as    reagent]))
 
 
 (defn add-alert

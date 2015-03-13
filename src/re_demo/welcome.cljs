@@ -1,9 +1,6 @@
 (ns re-demo.welcome
-  (:require [re-com.core     :refer [h-box v-box box gap line title label hyperlink-href]]
-            ;[re-com.box     :refer [h-box v-box box gap line]]
-            ;[re-com.text    :refer [title label]]
-            ;[re-com.buttons :refer [hyperlink-href]]
-            [re-demo.utils  :refer [panel-title component-title]]))
+  (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href]]
+            [re-demo.utils :refer [panel-title component-title]]))
 
 
 (defn panel2

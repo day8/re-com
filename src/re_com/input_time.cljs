@@ -1,11 +1,10 @@
 (ns re-com.input-time
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require
-    [reagent.core    :as    reagent]
-    [re-com.validate :refer [extract-arg-data validate-args css-style? html-attr? number-or-string?]]
-    [re-com.text     :refer [label]]
-    [re-com.box      :refer [h-box gap]]
-    [re-com.util     :refer [pad-zero-number deref-or-value]]))
+  (:require [reagent.core    :as    reagent]
+            [re-com.validate :refer [extract-arg-data validate-args css-style? html-attr? number-or-string?]]
+            [re-com.text     :refer [label]]
+            [re-com.box      :refer [h-box gap]]
+            [re-com.util     :refer [pad-zero-number deref-or-value]]))
 
 
 (defn- time->mins

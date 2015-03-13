@@ -132,6 +132,7 @@
 (def scroll-options       [:auto :off :on :spill])
 (def alert-types          ["info" "warning" "danger"])
 (def button-sizes         [:regular :smaller :larger])
+(def spinner-sizes        [:regular :small :large])
 (def input-status-types   [:warning :error])
 (def popover-status-types [:warning :error :info])
 (def position-options     [:above-left  :above-center :above-right
@@ -151,6 +152,7 @@
 (defn scroll-style?        [arg] (validate-arg-against-set arg ":scroll-style"  scroll-options))
 (defn alert-type?          [arg] (validate-arg-against-set arg ":alert-type"    alert-types))
 (defn button-size?         [arg] (validate-arg-against-set arg ":size"          button-sizes))
+(defn spinner-size?        [arg] (validate-arg-against-set arg ":size"          spinner-sizes))
 (defn input-status-type?   [arg] (validate-arg-against-set arg ":status"        input-status-types))
 (defn popover-status-type? [arg] (validate-arg-against-set arg ":status"        popover-status-types))
 (defn position?            [arg] (validate-arg-against-set arg ":position"      position-options))
@@ -169,6 +171,7 @@
 (def scroll-options-list       (make-code-list scroll-options))
 (def alert-types-list          (make-code-list alert-types))
 (def button-sizes-list         (make-code-list button-sizes))
+(def spinner-sizes-list        (make-code-list spinner-sizes))
 (def input-status-types-list   (make-code-list input-status-types))
 (def popover-status-types-list (make-code-list popover-status-types))
 (def position-options-list     (make-code-list position-options))

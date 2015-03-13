@@ -4,19 +4,6 @@
             [re-com.validate    :refer [extract-arg-data validate-args string-or-hiccup? number-or-string?]]
             [reagent.core       :as    reagent]))
 
-
-;; CSS
-;;
-;; html, body {
-;;   height: 100%;
-;;   margin: 0px;
-;; }
-;;
-;; .my-page .v-layout-bottom { /* required for iframes to stretch to 100% width */
-;;   flex-flow: inherit;
-;; }
-
-
 ;; ------------------------------------------------------------------------------------
 ;;  Component: h-layout
 ;; ------------------------------------------------------------------------------------

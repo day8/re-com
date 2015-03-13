@@ -1,6 +1,3 @@
-;; Loosly based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
-;; depends: datepicker-bs3.css
-
 (ns re-com.datepicker
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
@@ -12,6 +9,8 @@
     [re-com.box           :refer [border h-box]]
     [re-com.util          :refer [deref-or-value]]
     [re-com.popover       :refer [popover-content-wrapper popover-anchor-wrapper backdrop popover-border]]))
+
+;; Loosely based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
 
 ;; --- cljs-time facades ------------------------------------------------------
 ;; TODO: from day8date should be a common lib

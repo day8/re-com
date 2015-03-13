@@ -1,11 +1,8 @@
 (ns re-demo.button
-  (:require [re-com.core      :refer [h-box v-box box gap line button label spinner]]
-            [re-com.buttons   :refer [button-args-desc]]
-            ;[re-com.text      :refer [label]]
-            ;[re-com.misc      :refer [spinner]]
-            ;[re-com.buttons   :refer [button button-args-desc]]
-            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
-            [reagent.core     :as    reagent]))
+  (:require [re-com.core    :refer [h-box v-box box gap line button label spinner]]
+            [re-com.buttons :refer [button-args-desc]]
+            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [reagent.core   :as    reagent]))
 
 
 (def state (reagent/atom
@@ -57,7 +54,9 @@
                                                                         :style {:margin-left "15px"}]]]]
                                                   [gap :size "40px"]
                                                   [h-box
-                                                   :gap "50px"
+                                                   :height   "50px"
+                                                   :gap      "50px"
+                                                   :align    :center
                                                    :children [[button
                                                                :label             (if (:see-spinner @state)  "Stop it!" "See Spinner")
                                                                :tooltip           "I'm a tooltip on the left"

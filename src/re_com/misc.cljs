@@ -3,7 +3,8 @@
   (:require [re-com.util     :refer [deref-or-value px]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [h-box v-box box gap line]]
-            [re-com.validate :refer [extract-arg-data validate-args input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? number-or-string? string-or-atom?]]
+            [re-com.validate :refer [extract-arg-data validate-args input-status-type? input-status-types-list regex?
+                                     string-or-hiccup? css-style? html-attr? number-or-string? string-or-atom? spinner-size? spinner-sizes-list]]
             [reagent.core    :as    reagent]))
 
 
@@ -346,13 +347,27 @@
 ;;  Component: spinner
 ;; ------------------------------------------------------------------------------------
 
+(def spinner-args-desc
+  [{:name :size     :required false :type "keyword"       :default :regular :validate-fn spinner-size? :description [:span "Size of spinner. One of " spinner-sizes-list]}
+   {:name :class    :required false :type "string"                          :validate-fn string?       :description "CSS class names, space separated"}
+   {:name :style    :required false :type "css style map"                   :validate-fn css-style?    :description "CSS styles to add or override"}
+   {:name :attr     :required false :type "html attr map"                   :validate-fn html-attr?    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+
+(def spinner-args (extract-arg-data spinner-args-desc))
+
 (defn spinner
-  "Render an animated gif spinner"
-  []
+  "Render an animated spinner using CSS"
+  [& {:keys [size class style attr] :as args}]
+  {:pre [(validate-args spinner-args args "spinner")]}
   [box
    :align :start
-   :child [:div {:style {:display "flex"
-                         :flex    "none"
-                         :margin "10px"}}
-           [:img {:src "resources/img/spinner.gif"
-                  :style {:margin "auto"}}]]])
+   :child [:ul
+           (merge {:class (str "loader "
+                               (case size :regular ""
+                                          :small   "small "
+                                          :large   "large "
+                                          "")
+                               class)
+                   :style style}
+                  attr)
+           [:li] [:li] [:li] [:li] [:li] [:li] [:li] [:li]]]) ;; Each :li element represents one of the eight circles in the spinner

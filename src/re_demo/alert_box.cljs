@@ -1,9 +1,6 @@
 (ns re-demo.alert-box
-  ;(:require-macros [re-com.core :refer [defn-meta add-meta]])
-  (:require [re-com.core    :refer [h-box v-box box line gap label alert-box alert-list] :refer-macros [defn-meta add-meta]]
+  (:require [re-com.core   :refer [h-box v-box box line gap label alert-box alert-list] :refer-macros [defn-meta add-meta]]
             [re-com.alert  :refer [alert-box-args-desc alert-list-args-desc]]
-            ;[re-com.box    :refer [h-box v-box box line gap]]
-            ;[re-com.text   :refer [label]]
             [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.debug :refer-macros [dbg prn println log dev? warn warn-unless]]
             [reagent.core  :as    reagent]))

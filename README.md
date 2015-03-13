@@ -120,7 +120,7 @@ Read a further analysis [here](https://clojurefun.wordpress.com/2012/08/13/keywo
 
 ## Parameter Validation
 
-We often make mistakes and get our re-com parameters wrong. Our sausage fingers type  `onmouseover` instead of `on-mouse-over`, or `center` rather than `centre`, or we pass in a string when it should have been a keyword. 
+We often make mistakes and get our re-com parameters wrong. Our sausage fingers type  `onmouseover` instead of `on-mouse-over`, or `centre` rather than `center`, or we pass in a string when it should have been a keyword. 
 
 re-com tries to catch these kinds of mistakes. Every re-com component has a spec which contains details on each parameter, like name, data type, validation fucntions, default value and so on.
 
@@ -228,7 +228,6 @@ and three CSS files included in the resources folder of the re-com library:
 
 ```html
 <link rel="stylesheet" href="resources/css/material-design-iconic-font.min.css">
-<link rel="stylesheet" href="resources/css/datepicker-bs3.css">
 <link rel="stylesheet" href="resources/css/re-com.css">
 ```
 

@@ -1,11 +1,6 @@
 (ns re-demo.tabs
   (:require [re-com.core             :refer [h-box v-box box gap line scroller border horizontal-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs  label button single-dropdown]]
             [re-com.tabs             :refer [tabs-args-desc]]
-            ;[re-com.box              :refer [h-box v-box box gap line scroller border]]
-            ;[re-com.dropdown         :refer [single-dropdown]]
-            ;[re-com.text             :refer [label]]
-            ;[re-com.buttons          :refer [button]]
-            ;[re-com.tabs             :refer [horizontal-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs tabs-args-desc]]
             [re-com.util             :refer [item-for-id]]
             [re-demo.utils           :refer [panel-title component-title args-table github-hyperlink status-text]]
             [alandipert.storage-atom :refer [local-storage]]

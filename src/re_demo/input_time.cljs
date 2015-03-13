@@ -1,13 +1,8 @@
 (ns re-demo.input-time
-  (:require [re-com.core       :refer  [h-box v-box box gap input-time label button checkbox]]
-            [re-com.input-time :refer  [input-time-args-desc]]
-            ;[re-com.text       :refer  [label]]
-            ;[re-com.misc       :refer  [checkbox]]
-            ;[re-com.buttons    :refer  [button]]
-            ;[re-com.input-time :refer  [input-time input-time-args-desc]]
-            ;[re-com.box        :refer  [h-box v-box box gap]]
-            [re-demo.utils     :refer  [panel-title component-title args-table github-hyperlink status-text]]
-            [reagent.core      :as     reagent]))
+  (:require [re-com.core       :refer [h-box v-box box gap input-time label button checkbox]]
+            [re-com.input-time :refer [input-time-args-desc]]
+            [re-demo.utils     :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [reagent.core      :as    reagent]))
 
 
 (defn notes

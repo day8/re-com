@@ -1,7 +1,7 @@
 (ns re-demo.border
-  (:require [re-com.core     :refer [h-box v-box gap border]]
-            [re-com.box      :refer [border-args-desc]]
-            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]))
+  (:require [re-com.core   :refer [h-box v-box gap border]]
+            [re-com.box    :refer [border-args-desc]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (defn panel

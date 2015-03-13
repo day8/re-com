@@ -2,10 +2,6 @@
   (:require [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title]]
             [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-args-desc]]
             [re-com.util     :refer [item-for-id]]
-            ;[re-com.text     :refer [label title]]
-            ;[re-com.misc     :refer [input-text checkbox]]
-            ;[re-com.box      :refer [h-box v-box box gap]]
-            ;[re-com.dropdown :refer [single-dropdown filter-choices-by-keyword single-dropdown-args-desc]]
             [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]
             [reagent.core    :as    reagent]))
 

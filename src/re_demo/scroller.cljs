@@ -1,8 +1,7 @@
 (ns re-demo.scroller
-  (:require [re-com.core     :refer [h-box v-box gap scroller]]
-            [re-com.box      :refer [scroller-args-desc]]
-            ;[re-com.box      :refer [h-box v-box gap scroller scroller-args-desc]]
-            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]))
+  (:require [re-com.core   :refer [h-box v-box gap scroller]]
+            [re-com.box    :refer [scroller-args-desc]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (defn panel

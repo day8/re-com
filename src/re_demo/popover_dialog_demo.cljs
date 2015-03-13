@@ -1,12 +1,8 @@
 (ns re-demo.popover-dialog-demo
-  (:require [reagent.core    :as    reagent]
-            [re-com.util     :refer [deref-or-value]]
-            [re-com.box      :refer [h-box v-box box gap line]]
-            [re-com.text     :refer [label]]
-            [re-com.misc     :refer [checkbox radio-button]]
-            [re-com.buttons  :refer [button]]
-            [re-com.dropdown :refer [single-dropdown]]
-            [re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]))
+  (:require [re-com.core  :refer [h-box v-box box gap line label checkbox radio-button button single-dropdown
+                                  popover-content-wrapper popover-anchor-wrapper]]
+            [re-com.util  :refer [deref-or-value]]
+            [reagent.core :as    reagent]))
 
 
 (defn popover-body

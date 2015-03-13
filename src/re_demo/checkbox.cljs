@@ -1,10 +1,8 @@
 (ns re-demo.checkbox
-  (:require [re-com.core      :refer [h-box v-box box gap line checkbox label]]
-            [re-com.misc      :refer [checkbox-args-desc]]
-            ;[re-com.text      :refer [label]]
-            ;[re-com.box       :refer [h-box v-box box gap line]]
-            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]
-            [reagent.core     :as    reagent]))
+  (:require [re-com.core   :refer [h-box v-box box gap line checkbox label]]
+            [re-com.misc   :refer [checkbox-args-desc]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [reagent.core  :as    reagent]))
 
 
 (defn right-arrow

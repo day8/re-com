@@ -1,9 +1,7 @@
 (ns re-demo.title
-  (:require [re-com.core      :refer [h-box v-box box gap line title]]
-            [re-com.text      :refer [title-args-desc]]
-            ;[re-com.box       :refer [h-box v-box box gap line]]
-            ;[re-com.text      :refer [title title-args-desc]]
-            [re-demo.utils    :refer [panel-title component-title args-table github-hyperlink status-text]]))
+  (:require [re-com.core   :refer [h-box v-box box gap line title]]
+            [re-com.text   :refer [title-args-desc]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (defn title-demo

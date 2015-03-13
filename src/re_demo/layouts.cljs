@@ -1,10 +1,7 @@
 (ns re-demo.layouts
-  (:require [re-com.core    :refer [h-box v-box box gap line scroller border h-layout v-layout]]
-            [re-com.layout  :refer [h-layout-args-desc v-layout-args-desc]]
-            ;[re-com.box     :refer [h-box v-box box gap line scroller border]]
-            ;[re-com.layout  :refer [h-layout h-layout-args-desc
-            ;                        v-layout v-layout-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text]]))
+  (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-layout v-layout]]
+            [re-com.layout :refer [h-layout-args-desc v-layout-args-desc]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (def rounded-panel {:background-color "#fff4f4"

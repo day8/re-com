@@ -1,10 +1,6 @@
 (ns re-demo.tour
-  (:require [re-com.core     :refer [h-box v-box box gap make-tour start-tour make-tour-nav button popover-content-wrapper popover-anchor-wrapper]]
-            ;[re-com.tour     :refer [make-tour start-tour make-tour-nav]]
-            ;[re-com.buttons  :refer [button]]
-            ;[re-com.box      :refer [h-box v-box box gap]]
-            ;[re-com.popover  :refer [popover-content-wrapper popover-anchor-wrapper]]
-            [re-demo.utils   :refer [panel-title component-title github-hyperlink status-text]]))
+  (:require [re-com.core   :refer [h-box v-box box gap make-tour start-tour make-tour-nav button popover-content-wrapper popover-anchor-wrapper]]
+            [re-demo.utils :refer [panel-title component-title github-hyperlink status-text]]))
 
 
 (defn demo

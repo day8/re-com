@@ -1,49 +1,49 @@
 (ns re-demo.core
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [secretary.core         :refer [defroute]])
-  (:require [goog.events                    :as    events]
-            [reagent.core                   :as    reagent]
-            [alandipert.storage-atom        :refer [local-storage]]
-            [secretary.core                 :as    secretary]
-            [re-demo.utils                  :refer [panel-title re-com-title]]
-            [re-com.util                    :as    util]
-            [re-com.core                    :refer [h-box v-box box gap line scroller border] :refer-macros [handler-fn]]
-            [re-demo.welcome                :as    welcome]
-            [re-demo.radio-button           :as    radio-button]
-            [re-demo.checkbox               :as    checkbox]
-            [re-demo.input-text             :as    input-text]
-            [re-demo.slider                 :as    slider]
-            [re-demo.label                  :as    label]
-            [re-demo.title                  :as    title]
-            [re-demo.progress-bar           :as    progress-bar]
-            [re-demo.button                 :as    button]
-            [re-demo.md-circle-icon-button  :as    md-circle-icon-button]
-            [re-demo.md-icon-button         :as    md-icon-button]
-            [re-demo.info-button            :as    info-button]
-            [re-demo.row-button             :as    row-button]
-            [re-demo.hyperlink              :as    hyperlink]
-            [re-demo.hyperlink-href         :as    hyperlink-href]
-            [re-demo.dropdowns              :as    dropdowns]
-            [re-demo.alert-box              :as    alert-box]
-            [re-demo.alert-list             :as    alert-list]
-            [re-demo.tabs                   :as    tabs]
-            [re-demo.popovers               :as    popovers]
-            [re-demo.datepicker             :as    datepicker]
-            [re-demo.selection-list         :as    selection-list]
-            [re-demo.input-time             :as    input-time]
-            [re-demo.layouts                :as    layouts]
-            [re-demo.tour                   :as    tour]
-            [re-demo.modal-panel            :as    modal-panel]
-            [re-demo.h-box                  :as    h-box]
-            [re-demo.v-box                  :as    v-box]
-            [re-demo.box                    :as    box]
-            [re-demo.gap                    :as    gap]
-            [re-demo.line                   :as    line]
-            [re-demo.scroller               :as    scroller]
-            [re-demo.border                 :as    border]
-            [goog.history.EventType         :as    EventType])
-  (:import [goog History]
-           #_[goog.history EventType]))
+  (:require [goog.events                   :as    events]
+            [reagent.core                  :as    reagent]
+            [alandipert.storage-atom       :refer [local-storage]]
+            [secretary.core                :as    secretary]
+            [re-demo.utils                 :refer [panel-title re-com-title]]
+            [re-com.util                   :as    util]
+            [re-com.core                   :refer [h-box v-box box gap line scroller border] :refer-macros [handler-fn]]
+            [re-demo.welcome               :as    welcome]
+            [re-demo.radio-button          :as    radio-button]
+            [re-demo.checkbox              :as    checkbox]
+            [re-demo.input-text            :as    input-text]
+            [re-demo.slider                :as    slider]
+            [re-demo.label                 :as    label]
+            [re-demo.title                 :as    title]
+            [re-demo.progress-bar          :as    progress-bar]
+            [re-demo.spinner               :as    spinner]
+            [re-demo.button                :as    button]
+            [re-demo.md-circle-icon-button :as    md-circle-icon-button]
+            [re-demo.md-icon-button        :as    md-icon-button]
+            [re-demo.info-button           :as    info-button]
+            [re-demo.row-button            :as    row-button]
+            [re-demo.hyperlink             :as    hyperlink]
+            [re-demo.hyperlink-href        :as    hyperlink-href]
+            [re-demo.dropdowns             :as    dropdowns]
+            [re-demo.alert-box             :as    alert-box]
+            [re-demo.alert-list            :as    alert-list]
+            [re-demo.tabs                  :as    tabs]
+            [re-demo.popovers              :as    popovers]
+            [re-demo.datepicker            :as    datepicker]
+            [re-demo.selection-list        :as    selection-list]
+            [re-demo.input-time            :as    input-time]
+            [re-demo.layouts               :as    layouts]
+            [re-demo.tour                  :as    tour]
+            [re-demo.modal-panel           :as    modal-panel]
+            [re-demo.h-box                 :as    h-box]
+            [re-demo.v-box                 :as    v-box]
+            [re-demo.box                   :as    box]
+            [re-demo.gap                   :as    gap]
+            [re-demo.line                  :as    line]
+            [re-demo.scroller              :as    scroller]
+            [re-demo.border                :as    border]
+            [goog.history.EventType        :as    EventType])
+  (:import [goog History]))
 
 (enable-console-print!)
 
@@ -164,6 +164,7 @@
    {:id :input-text             :label "Input Text"         :panel input-text/panel}
    {:id :slider                 :label "Slider"             :panel slider/panel}
    {:id :progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
+   {:id :spinner                :label "Spinner"            :panel spinner/panel}
 
    {:id :dropdown               :label "Dropdowns"          :panel dropdowns/panel}
 
@@ -197,8 +198,7 @@
         :class "nav-item"
         :on-mouse-over (handler-fn (reset! mouse-over? true))
         :on-mouse-out  (handler-fn (reset! mouse-over? false))
-        :on-click      (handler-fn (on-select-tab (:id tab)))       ;; TODO: Do we want to call (secretary/dispatch! (str "/" (:id tab))) here instead?
-        }
+        :on-click      (handler-fn (on-select-tab (:id tab)))}
        [:span
         {:style {:cursor "default"}}    ;; removes the I-beam over the label
         (:label tab)]]))))
@@ -207,6 +207,7 @@
 (defn left-side-nav-bar
   [selected-tab-id on-select-tab]
     [v-box
+     :style {:-webkit-user-select "none"}
      :children (for [tab tabs-definition]
                  [nav-item tab selected-tab-id on-select-tab])])
 
@@ -227,17 +228,19 @@
 (def id-store        (local-storage (atom nil) ::id-store))
 (def selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (util/item-for-id @id-store tabs-definition)))
                                      (:id (first tabs-definition))
-                                     @id-store)))  ;; id of the selected tab
+                                     @id-store)))  ;; id of the selected tab from local storage
 
-(defroute "/:tab" [tab query-params] (reset! selected-tab-id (keyword tab)))
+(defroute demo-page "/:tab" [tab] (let [id (keyword tab)]
+                                    (reset! selected-tab-id id)
+                                    (reset! id-store id)))
+
 (def history (History.))
-(events/listen history EventType/NAVIGATE (fn [e] (secretary/dispatch! (.-token e))))
+(events/listen history EventType/NAVIGATE (fn [event] (secretary/dispatch! (.-token event))))
 (.setEnabled history true)
 
 (defn main
   []
-  (let [on-select-tab #(do (reset! selected-tab-id %1)
-                           (reset! id-store %1))]
+  (let [on-select-tab #(.setToken history (demo-page {:tab (name %1)}))] ;; or can use (str "/" (name %1))
     (fn
       []
       [h-box
@@ -255,9 +258,8 @@
                                       [left-side-nav-bar selected-tab-id on-select-tab]]]]
                   [scroller
                    :child [box
-                           :size      "auto"
-                           ;:padding   "15px 0px 5px 0px"         ;; top right bottom left
-                           :child     [(:panel (util/item-for-id @selected-tab-id tabs-definition))]]]]])))    ;; the tab panel to show, for the selected tab
+                           :size  "auto"
+                           :child [(:panel (util/item-for-id @selected-tab-id tabs-definition))]]]]])))    ;; the tab panel to show, for the selected tab
 
 
 (defn ^:export mount-demo

@@ -1,9 +1,7 @@
 (ns re-demo.v-box
-  (:require [re-com.core     :refer [h-box gap v-box hyperlink-href]]
-            [re-com.box      :refer [v-box-args-desc]]
-            ;[re-com.box      :refer [h-box gap v-box v-box-args-desc]]
-            ;[re-com.buttons  :refer [hyperlink-href]]
-            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]))
+  (:require [re-com.core   :refer [h-box gap v-box hyperlink-href]]
+            [re-com.box    :refer [v-box-args-desc]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]))
 
 
 (defn panel
