@@ -30,15 +30,15 @@
        :gap      "10px"
        :children [[panel-title [:span "[info-button ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/info_button.cljs"]
-                                [status-text "Alpha"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/info_button.cljs"]]]
 
                   [h-box
                    :gap "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[status-text "Alpha"]
+                                          [component-title "Notes"]
                                           [:span "A tiny information button, which is light grey and unobrusive. When pressed, displays a popup contining helpful information. "]
                                           [:span "Designed to be used with input fields, to explain the purpose of the field."]
                                           [:span "The popup has a dark theme, and uses white text. CSS classes for the text are

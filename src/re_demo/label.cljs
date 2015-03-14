@@ -11,14 +11,14 @@
    :gap      "10px"
    :children [[panel-title [:span "[label ... ]"
                             [github-hyperlink "Component Source" "src/re_com/text.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/label.cljs"]
-                            [status-text "Alpha"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/label.cljs"]]]
               [h-box
                :gap      "50px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "Notes"]
+                           :children [[status-text "Alpha"]
+                                      [component-title "Notes"]
                                       [:span "The label is used to..."]
                                       [args-table label-args-desc]]]
                           [v-box

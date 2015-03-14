@@ -84,24 +84,6 @@
                                                             [make-tour-nav demo-tour]]]]]]]])))
 
 
-(defn notes
-  []
-  [v-box
-   :width    "450px"
-   :gap      "10px"
-   :children [[component-title "Notes"]
-               [:p "To create a tour:"]
-                [:ul
-                 [:li.spacer "Make a tour object, something like: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
-                 [:li.spacer "Then, wrap each anchor components in your tour with a popover component."]
-                 [:li.spacer "Each each such popover the " [:code ":showing?"] " parameter should look like this: "
-                     [:br] [:code ":showing? (:step1 demo-tour)"] "."]]
-                [:p "To add navigation buttons to a popover, add the following component to the end of your popover's "
-                  [:code ":body"] " markup: " [:br] [:code "[make-tour-nav demo-tour]"] "."]
-                [:p "To start the tour, call: " [:code "(start-tour demo-tour)"] "."]
-                [:p "To finish the tour, call: " [:code "(finish-tour demo-tour)"] "."]]])
-
-
 (defn panel2
   []
   [v-box
@@ -109,11 +91,24 @@
    :gap      "10px"
    :children [[panel-title [:span "Tour Components"
                             [github-hyperlink "Component Source" "src/re_com/tour.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/tour.cljs"]
-                            [status-text "Alpha"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/tour.cljs"]]]
               [h-box
                :gap      "50px"
-               :children [[notes]
+               :children [[v-box
+                           :width    "450px"
+                           :gap      "10px"
+                           :children [[status-text "Alpha"]
+                                      [component-title "Notes"]
+                                      [:p "To create a tour:"]
+                                      [:ul
+                                       [:li.spacer "Make a tour object, something like: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
+                                       [:li.spacer "Then, wrap each anchor components in your tour with a popover component."]
+                                       [:li.spacer "Each each such popover the " [:code ":showing?"] " parameter should look like this: "
+                                        [:br] [:code ":showing? (:step1 demo-tour)"] "."]]
+                                      [:p "To add navigation buttons to a popover, add the following component to the end of your popover's "
+                                       [:code ":body"] " markup: " [:br] [:code "[make-tour-nav demo-tour]"] "."]
+                                      [:p "To start the tour, call: " [:code "(start-tour demo-tour)"] "."]
+                                      [:p "To finish the tour, call: " [:code "(finish-tour demo-tour)"] "."]]]
                           [v-box
                            :gap       "150px"
                            :size      "auto"

@@ -108,8 +108,4 @@
 (defn status-text
   "given some status text, return a component that displays that status"
   [status]
-  [label
-   :label  (str "Status: " status)
-   :style  {:font-size    "13px"
-            :font-variant "small-caps"
-            :margin       "0px 8px 0px 8px"}])
+  [component-title (str "Status: " status) {:margin "0px"}])

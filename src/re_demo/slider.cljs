@@ -19,15 +19,15 @@
        :gap      "10px"
        :children [[panel-title [:span "[slider ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/slider.cljs"]
-                                [status-text "Alpha"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/slider.cljs"]]]
 
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[status-text "Alpha"]
+                                          [component-title "Notes"]
                                           [:span "The slider is used to..."]
                                           [args-table slider-args-desc]]]
                               [v-box

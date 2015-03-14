@@ -16,14 +16,14 @@
        :gap      "10px"
        :children [[panel-title [:span "[progress-bar ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/progress_bar.cljs"]
-                                [status-text "Alpha"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/progress_bar.cljs"]]]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[status-text "Alpha"]
+                                          [component-title "Notes"]
                                           [:span "The progress-bar is used to..."]
                                           [args-table progress-bar-args-desc]]]
                               [v-box

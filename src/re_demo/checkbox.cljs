@@ -38,15 +38,15 @@
        :gap      "10px"
        :children [[panel-title [:span "[checkbox ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/checkbox.cljs"]
-                                [status-text "Alpha"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/checkbox.cljs"]]]
 
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[status-text "Alpha"]
+                                          [component-title "Notes"]
                                           [:span "The checkbox is used to..."]
                                           [args-table checkbox-args-desc]]]
                               [v-box

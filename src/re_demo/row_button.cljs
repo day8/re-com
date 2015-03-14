@@ -98,15 +98,15 @@
        :gap      "10px"
        :children [[panel-title [:span "[row-button ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/row_button.cljs"]
-                                [status-text "Alpha"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/row_button.cljs"]]]
 
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[status-text "Alpha"]
+                                          [component-title "Notes"]
                                           [:span "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse over."]
                                           [:span "To experiement, mouse over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
                                           [:span "Material design icons can be " [material-design-hyperlink "found here"] "."]

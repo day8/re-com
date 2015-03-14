@@ -31,15 +31,15 @@
    :gap      "10px"
    :children [[panel-title [:span "Popover Components"
                             [github-hyperlink "Component Source" "src/re_com/popover.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]
-                            [status-text "Alpha"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]]]
 
               [h-box
                :gap      "50px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "[popover-anchor-wrapper ...]"]
+                           :children [[status-text "Alpha"]
+                                      [component-title "[popover-anchor-wrapper ...]"]
                                       [:span "The popover-anchor-wrapper is used to..."]
                                       [args-table popover-anchor-wrapper-args-desc]]]
                           [v-box
@@ -105,7 +105,9 @@
     (fn []
       (let [cancel-popover  #(reset! showing? false)]
         [v-box
-         :children [[component-title "[popover ... ] with [button ... ] anchor"]
+         :gap      "10px"
+         :children [[status-text "Alpha"]
+                    [component-title "[popover ... ] with [button ... ] anchor"]
                     [h-box
                      :gap      "50px"
                      :children [[v-box
@@ -427,8 +429,7 @@
    :gap      "10px"
    :children [[panel-title [:span "Popover Components"
                             [github-hyperlink "Component Source" "src/re_com/popover.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]
-                            [status-text "Alpha"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]]]
               [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]

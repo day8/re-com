@@ -62,15 +62,15 @@
    :gap      "10px"
    :children [[panel-title [:span "Layout Components"
                             [github-hyperlink "Component Source" "src/re_com/layout.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/layouts.cljs"]
-                            [status-text "Alpha"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/layouts.cljs"]]]
 
               [h-box
                :gap      "50px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "[h-layout ...]"]
+                           :children [[status-text "Alpha"]
+                                      [component-title "[h-layout ...]"]
                                       [:span "The h-layout is used to..."]
                                       [args-table h-layout-args-desc]]]
                           [v-box

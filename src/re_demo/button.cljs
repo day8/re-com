@@ -24,15 +24,15 @@
    :gap      "10px"
    :children [[panel-title [:span "[button ... ]"
                             [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/button.cljs"]
-                            [status-text "Alpha"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/button.cljs"]]]
 
               [h-box
                :gap      "50px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "Notes"]
+                           :children [[status-text "Alpha"]
+                                      [component-title "Notes"]
                                       [:span "The button is used to..."]
                                       [args-table button-args-desc]]]
                           [v-box

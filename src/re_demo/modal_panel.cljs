@@ -134,15 +134,15 @@
    :gap      "10px"
    :children [[panel-title [:span "[modal-panel ... ]"
                             [github-hyperlink "Component Source" "src/re_com/modal_panel.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/modal_panel.cljs"]
-                            [status-text "Alpha"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/modal_panel.cljs"]]]
 
               [h-box
                :gap      "50px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "Notes"]
+                           :children [[status-text "Alpha"]
+                                      [component-title "Notes"]
                                       [:p "This component should be placed at the end of your markup to make sure it does actually cover everything. In certain cases, absolutely positioned components can appear over the backdrop."]
                                       [args-table modal-panel-args-desc]]]
                           [v-box

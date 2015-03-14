@@ -11,15 +11,15 @@
    :gap      "10px"
    :children [[panel-title [:span "[gap ... ]"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/gap.cljs"]
-                            [status-text "Alpha"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/gap.cljs"]]]
 
               [h-box
-              :gap      "50px"
+               :gap      "50px"
               :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "Notes"]
+                           :children [[status-text "Alpha"]
+                                      [component-title "Notes"]
                                       [:span "The gap is used to..."]
                                       [args-table gap-args-desc]]]
                           [v-box

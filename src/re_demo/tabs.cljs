@@ -152,8 +152,7 @@
        :gap      "10px"
        :children [[panel-title [:span "Tab Components"
                                 [github-hyperlink "Component Source" "src/re_com/tabs.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/tabs.cljs"]
-                                [status-text "Alpha"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/tabs.cljs"]]]
 
 
                   [h-box
@@ -161,7 +160,8 @@
                    :children [[v-box
                                :width    "450px"
                                :gap      "10px"
-                               :children [[component-title "Notes"]
+                               :children [[status-text "Alpha"]
+                                          [component-title "Notes"]
                                           [:span "Tab components are used to..."]
                                           [args-table tabs-args-desc]]]
                               [v-box

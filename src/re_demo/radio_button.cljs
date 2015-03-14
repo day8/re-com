@@ -15,14 +15,14 @@
        :gap      "10px"
        :children [[panel-title [:span "[radio-button ... ]"
                                 [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/radio_button.cljs"]
-                                [status-text "Alpha"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/radio_button.cljs"]]]
                   [h-box
                    :gap      "50px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[status-text "Alpha"]
+                                          [component-title "Notes"]
                                           [:span "The radio-button is used to..."]
                                           [args-table radio-button-args-desc]]]
                               [v-box

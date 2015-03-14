@@ -5,20 +5,6 @@
             [reagent.core      :as    reagent]))
 
 
-(defn notes
-  []
-  [v-box
-   :gap      "10px"
-   :width    "450px"
-   :children [ [component-title "Notes"]
-               [:div
-               [:p "Allows the user to input time in 24hr format."]
-                [:p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
-                 Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
-                [:p "If the user exists the input field with an invalid value, it will be replaced with the last known valid value."]]
-               [args-table input-time-args-desc]]])
-
-
 (def check-style {:margin-top "1px"})
 
 
@@ -121,11 +107,20 @@
    :gap      "10px"
    :children [[panel-title [:span "[input-time ... ]"
                             [github-hyperlink "Component Source" "src/re_com/input_time.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/input_time.cljs"]
-                            [status-text "Alpha"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/input_time.cljs"]]]
               [h-box
                :gap "50px"
-               :children [[notes]
+               :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[status-text "Alpha"]
+                                      [component-title "Notes"]
+                                      [:div
+                                       [:p "Allows the user to input time in 24hr format."]
+                                       [:p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
+                                            Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
+                                       [:p "If the user exists the input field with an invalid value, it will be replaced with the last known valid value."]]
+                                      [args-table input-time-args-desc]]]
                           [basics-demo]]]]])
 
 

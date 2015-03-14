@@ -141,17 +141,6 @@
                     show-weeks?])])))
 
 
-(defn- notes
-  []
-  [v-box
-   :gap      "10px"
-   :width    "450px"
-   :children [[component-title "[datepicker ... ]"]
-              [component-title "[datepicker-dropdown ... ]"]
-              [gap :size "15px"]
-              [args-table datepicker-args-desc]]])
-
-
 (def variations ^:private
   [{:id :inline   :label "Inline"}
    {:id :dropdown :label "Dropdown"}])
@@ -166,11 +155,15 @@
        :gap      "10px"
        :children [[panel-title [:span "Date Components"
                                 [github-hyperlink "Component Source" "src/re_com/datepicker.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/datepicker.cljs"]
-                                [status-text "Alpha"]]]
+                                [github-hyperlink "Page Source"      "src/re_demo/datepicker.cljs"]]]
                   [h-box
                    :gap      "50px"
-                   :children [[notes]
+                   :children [[v-box
+                               :gap      "10px"
+                               :width    "450px"
+                               :children [[status-text "Alpha"]
+                                          [component-title "[datepicker ... ] & [datepicker-dropdown ... ]"]
+                                          [args-table datepicker-args-desc]]]
                               [v-box
                                :gap       "10px"
                                :size      "auto"

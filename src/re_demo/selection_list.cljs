@@ -78,19 +78,6 @@
      as-exlcusion?]))
 
 
-(defn- notes
-  []
-  [v-box
-   :gap      "10px"
-   :width    "450px"
-   :children [[component-title "Notes"]
-              [v-box
-               :children [[:p "Allows the user to select items from a list (single or multi)."]
-                          [:p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
-                          [:p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]
-                          [args-table selection-list-args-desc]]]]])
-
-
 (defn panel2
   []
   (let [panel-width 1024
@@ -102,12 +89,20 @@
      :gap      "10px"
      :children [[panel-title [:span "[selection-list ... ]"
                               [github-hyperlink "Component Source" "src/re_com/selection_list.cljs"]
-                              [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]
-                              [status-text "Alpha"]]]
+                              [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]]]
                 [h-box
                  ;:gap      (str h-gap "px")
                  :gap      "50px"
-                 :children [[notes]                         ;; Removed a-width - need fixed 450px
+                 :children [[v-box
+                             :gap      "10px"
+                             :width    "450px"
+                             :children [[status-text "Alpha"]
+                                        [component-title "Notes"]
+                                        [v-box
+                                         :children [[:p "Allows the user to select items from a list (single or multi)."]
+                                                    [:p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
+                                                    [:p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]
+                                                    [args-table selection-list-args-desc]]]]]
                             [list-with-options b-width]]]]]))
 
 
