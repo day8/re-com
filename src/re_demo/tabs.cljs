@@ -160,8 +160,8 @@
                    :children [[v-box
                                :width    "450px"
                                :gap      "10px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
+                               :children [[component-title "Notes"]
+                                          [status-text "Alpha"]
                                           [:span "Tab components are used to..."]
                                           [args-table tabs-args-desc]]]
                               [v-box

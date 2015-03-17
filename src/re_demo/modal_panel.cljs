@@ -56,7 +56,7 @@
    :child  [v-box
             :padding  "10px"
             :style    {:background-color "cornsilk"}
-            :children [[title :label "Welcome to MI6. Please log in" :h :h3 :underline? false]
+            :children [[title :label "Welcome to MI6. Please log in" :bs-style :h3]
                        [v-box
                         :class    "form-group"
                         :children [[:label {:for "pf-email"} "Email address"]
@@ -141,8 +141,8 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[status-text "Alpha"]
-                                      [component-title "Notes"]
+                           :children [[component-title "Notes"]
+                                      [status-text "Alpha"]
                                       [:p "This component should be placed at the end of your markup to make sure it does actually cover everything. In certain cases, absolutely positioned components can appear over the backdrop."]
                                       [args-table modal-panel-args-desc]]]
                           [v-box

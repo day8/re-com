@@ -32,8 +32,8 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
+                               :children [[component-title "Notes"]
+                                          [status-text "Alpha"]
                                           [label :label "Renders a dynamic list of alert-boxes vertically. New alerts are added at the top."]
                                           [args-table   alert-list-args-desc]]]
                               [v-box

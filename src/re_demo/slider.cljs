@@ -26,8 +26,8 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
+                               :children [[component-title "Notes"]
+                                          [status-text "Alpha"]
                                           [:span "The slider is used to..."]
                                           [args-table slider-args-desc]]]
                               [v-box

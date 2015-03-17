@@ -105,8 +105,8 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
+                               :children [[component-title "Notes"]
+                                          [status-text "Alpha"]
                                           [:span "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse over."]
                                           [:span "To experiement, mouse over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
                                           [:span "Material design icons can be " [material-design-hyperlink "found here"] "."]

@@ -41,28 +41,31 @@
 ;;  Component: title
 ;; ------------------------------------------------------------------------------------
 
-;; TODO: Could add proper :h validation
+;; TODO: Add :bs-type and :md-type keyword validation if we go with this
 
 (def title-args-desc
-  [{:name :label      :required true                 :type "anything"                              :description "text to display. Can be anything as it will be converted to a string"}
-   {:name :h          :required false  :default :h3  :type "keyword"       :validate-fn keyword?   :description "something like :h3 or :h4"}
-   {:name :underline? :required false  :default true :type "boolean"                               :description "determines whether an underline is placed under the title"}
-   {:name :class      :required false                :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style      :required false                :type "css style map" :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr       :required false                :type "html attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  [{:name :label      :required true                   :type "anything"                              :description "text to display. Can be anything as it will be converted to a string"}
+   {:name :bs-style   :required false  :default :span  :type "keyword"       :validate-fn keyword?   :description "Bootstrap styling. One of :h1 to :h6. If none specified, :span will be used"}
+   {:name :md-style   :required false  :default :title :type "keyword"       :validate-fn keyword?   :description "Material Design styling. One of :display4, :display3, :display2, :display1, :headline, :title etc. If not specified, then fall back to :bs-type"}
+   {:name :underline? :required false  :default false  :type "boolean"                               :description "determines whether an underline is placed under the title"}
+   {:name :class      :required false                  :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
+   {:name :style      :required false                  :type "css style map" :validate-fn css-style? :description "CSS styles to add or override"}
+   {:name :attr       :required false                  :type "html attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (def title-args (extract-arg-data title-args-desc))
 
 (defn title
   "An underlined, left justified, Title. By default :h3"
-  [& {:keys [label h underline? class style attr]
-      :or   {underline? true h :h3}
-      :as   args}]
+  [& {:keys [label bs-style md-style underline? class style attr] :as args}]
   {:pre [(validate-args title-args args "title")]}
-  [v-box
-   :children [[h (merge {:class (str "rc-title " class)
-                         :style (merge {:display "flex" :flex "none"}
-                                       style)}
-                        attr)
-               label]
-              (when underline? [line :size "1px"])]])
+  (let [md-class (if (nil? md-style)
+                   (if (nil? bs-style) "title" "")
+                   (name md-style))
+        html-tag (if (nil? bs-style) :span bs-style)]
+    [v-box
+     :children [[html-tag (merge {:class (str "rc-title " md-class " " class)
+                                  :style (merge {:display "flex" :flex "none"}
+                                                style)}
+                                 attr)
+                 label]
+                (when underline? [line :size "1px"])]]))

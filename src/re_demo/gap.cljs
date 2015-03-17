@@ -18,8 +18,8 @@
               :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[status-text "Alpha"]
-                                      [component-title "Notes"]
+                           :children [[component-title "Notes"]
+                                      [status-text "Alpha"]
                                       [:span "The gap is used to..."]
                                       [args-table gap-args-desc]]]
                           [v-box

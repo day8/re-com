@@ -5,9 +5,9 @@
             [reagent.core                  :as    reagent]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
-            [re-demo.utils                 :refer [panel-title re-com-title]]
-            [re-com.util                   :as    util]
-            [re-com.core                   :refer [h-box v-box box gap line scroller border] :refer-macros [handler-fn]]
+            [re-com.core                   :refer [h-box v-box box gap line scroller border label title alert-box] :refer-macros [handler-fn]]
+            [re-com.util                   :refer [get-element-by-id item-for-id]]
+            [re-demo.utils                 :refer [panel-title]]
             [re-demo.welcome               :as    welcome]
             [re-demo.radio-button          :as    radio-button]
             [re-demo.checkbox              :as    checkbox]
@@ -124,7 +124,7 @@
 
 
 (def tabs-definition
-  [{:id :welcome                :label "Welcome"            :panel welcome/panel}         ;; TODO: Have removed namespaced keywords for now
+  [{:id :welcome                :label "Welcome"            :panel welcome/panel}
 
    ;; LAYOUT COMPONENTS
 
@@ -215,18 +215,30 @@
 (defn re-com-title-box
   []
   [h-box
-   :justify  :center
-   :align    :center
-   :height   "60px"
-   :style  {:color "#FEFEFE"
-            :background-color "#888"}
-   :children [[re-com-title]]])
+   :justify :center
+   :align   :center
+   :height  "63px"
+   :style   {:background-color "#888"}
+   :children [[title
+               :label "Re-com"
+               :style {:font-family "Roboto Condensed, sans-serif"
+                       :font-size   "36px"
+                       :font-weight 300
+                       :color       "#fefefe"}]]])
 
+(defn browser-alert
+  []
+  [box
+   :padding "10px"
+   :child   [alert-box
+             :alert-type "danger"
+             :heading    "Works Best in Chrome"
+             :body       "re-com has been verified in Google Chrome. Much of it will run in other browsers but there will be dragons!"]])
 
 ;; -- Routes, Local Storage and History ------------------------------------------------------
 
 (def id-store        (local-storage (atom nil) ::id-store))
-(def selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (util/item-for-id @id-store tabs-definition)))
+(def selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (item-for-id @id-store tabs-definition)))
                                      (:id (first tabs-definition))
                                      @id-store)))  ;; id of the selected tab from local storage
 
@@ -257,13 +269,13 @@
                            :children [[re-com-title-box]
                                       [left-side-nav-bar selected-tab-id on-select-tab]]]]
                   [scroller
-                   :child [box
+                   :child [v-box
                            :size  "auto"
-                           :child [(:panel (util/item-for-id @selected-tab-id tabs-definition))]]]]])))    ;; the tab panel to show, for the selected tab
-
+                           :children [(when-not (>= (.indexOf (.-userAgent (.-navigator js/window)) "Chrome") 0) [browser-alert])
+                                      [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
 (defn ^:export mount-demo
   []
-  (reagent/render [main] (util/get-element-by-id "app"))
+  (reagent/render [main] (get-element-by-id "app"))
   ;(reagent/render [display-green-messages] (util/get-element-by-id "app")) ;; TODO: EXPERIMENT - REMOVE
   )

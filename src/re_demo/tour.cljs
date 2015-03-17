@@ -97,8 +97,8 @@
                :children [[v-box
                            :width    "450px"
                            :gap      "10px"
-                           :children [[status-text "Alpha"]
-                                      [component-title "Notes"]
+                           :children [[component-title "Notes"]
+                                      [status-text "Alpha"]
                                       [:p "To create a tour:"]
                                       [:ul
                                        [:li.spacer "Make a tour object, something like: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]

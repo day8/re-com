@@ -38,8 +38,8 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[status-text "Alpha"]
-                                      [component-title "[popover-anchor-wrapper ...]"]
+                           :children [[component-title "[popover-anchor-wrapper ...]"]
+                                      [status-text "Alpha"]
                                       [:span "The popover-anchor-wrapper is used to..."]
                                       [args-table popover-anchor-wrapper-args-desc]]]
                           [v-box
@@ -106,8 +106,8 @@
       (let [cancel-popover  #(reset! showing? false)]
         [v-box
          :gap      "10px"
-         :children [[status-text "Alpha"]
-                    [component-title "[popover ... ] with [button ... ] anchor"]
+         :children [[component-title "[popover ... ] with [button ... ] anchor"]
+                    [status-text "Alpha"]
                     [h-box
                      :gap      "50px"
                      :children [[v-box

@@ -161,8 +161,8 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "[datepicker ... ] & [datepicker-dropdown ... ]"]
+                               :children [[component-title "[datepicker ... ] & [datepicker-dropdown ... ]"]
+                                          [status-text "Alpha"]
                                           [args-table datepicker-args-desc]]]
                               [v-box
                                :gap       "10px"

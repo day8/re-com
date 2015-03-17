@@ -22,8 +22,8 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
+                               :children [[component-title "Notes"]
+                                          [status-text "Alpha"]
                                           [:span "The progress-bar is used to..."]
                                           [args-table progress-bar-args-desc]]]
                               [v-box

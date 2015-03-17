@@ -30,8 +30,8 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
+                               :children [[component-title "Notes"]
+                                          [status-text "Alpha"]
                                           [:span "The input-text is used to..."]
                                           [args-table input-text-args-desc]]]
                               [v-box

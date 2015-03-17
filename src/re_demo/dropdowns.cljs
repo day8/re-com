@@ -307,8 +307,8 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
+                               :children [[component-title "Notes"]
+                                          [status-text "Alpha"]
                                           [:span "The single-dropdown is used to..."]
                                           [args-table single-dropdown-args-desc]]]
                               [v-box

@@ -37,8 +37,8 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
+                               :children [[component-title "Notes"]
+                                          [status-text "Alpha"]
                                           [:span "A tiny information button, which is light grey and unobrusive. When pressed, displays a popup contining helpful information. "]
                                           [:span "Designed to be used with input fields, to explain the purpose of the field."]
                                           [:span "The popup has a dark theme, and uses white text. CSS classes for the text are

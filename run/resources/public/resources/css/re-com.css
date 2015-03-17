@@ -5,11 +5,30 @@
   To use the library, bootstrap.css is also required, which is best obtained from a CDN.
   So, place the following lines in the <head> section of the html file:
 
-    <link type="text/css" rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
-    <link type="text/css" rel="stylesheet" href="css/re-com.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
+    <link rel="stylesheet" href="resources/css/re-com.css">
 
+  The following is required for constraining an application to the
+  height of the browser window and setting some global defaults like font...
+----------------------------------------------------------------------------------------*/
+
+html, body {
+    font-family: Roboto, sans-serif;
+    color:       #212121;  /* Was #666366 before material design typography changes */
+    font-size:   13px;
+    font-weight: 400;
+    height:      100%;
+    margin:      0px;
+    padding:     0px;
+}
+
+/*----------------------------------------------------------------------------------------
   The section immediately below is required for the drop-down components and comes from
-  the bootstrap-chosen library (https://github.com/alxlit/bootstrap-chosen).
+  the bootstrap-chosen library:
+
+    https://github.com/alxlit/bootstrap-chosen
+    License: MIT.
+
   That library provides it's css as a .less file.
   To compile the less file into the css below, use the following steps from
   a command prompt (you'll need git and the lessc compiler (http://lesscss.org):
@@ -652,7 +671,9 @@
   END OF DATE PICKER SECTION...
 
 
-  START OF CSS SPINNER SECTION (from here: http://jsfiddle.net/mekwall/89S4W)
+  START OF CSS SPINNER SECTION
+    From here: http://jsfiddle.net/mekwall/89S4W
+    License: Unknown
 ----------------------------------------------------------------------------------------*/
 
 @-webkit-keyframes blink {
@@ -768,9 +789,9 @@
   END OF CSS SPINNER SECTION...
 
 
-  Bootstrap list-group-item variation
+  Bootstrap list-group-item variation (only used in selection-list component)
 ----------------------------------------------------------------------------------------*/
-.compact {
+.compact {                          /* TODO: re-demo CSS */
     margin: 0;
     height: 19px;
     white-space: nowrap;
@@ -783,7 +804,7 @@
 }
 
 .list-group-item:hover {
-    background-color: #eeeeee;
+    background-color: #eeeeee;      /* TODO: re-demo CSS */
 }
 
 /*----------------------------------------------------------------------------------------
@@ -820,7 +841,7 @@
 }
 
 /*----------------------------------------------------------------------------------------
-  Override bootstrap warning colour (from horrible browny orange to orange)
+  Override bootstrap warning colour (from horrible brown/orange to orange)
 ----------------------------------------------------------------------------------------*/
 
 .has-warning .form-control {
@@ -871,28 +892,6 @@ code {
     background:     #eee;
     border:         1px solid #ddd;
     padding:        0.1em 0.3em;
-}
-
-.re-code {
-    color:          #333;
-    background:     #eee;
-    font-size:      90%;
-    border-radius:  4px;
-    border:         1px solid #ddd;
-    padding:        0.2em 0.5em;
-}
-
-
-
-/*----------------------------------------------------------------------------------------
-  Required for constraining an application to the height of the browser window
-----------------------------------------------------------------------------------------*/
-
-html, body {
-    height: 100%;
-    margin: 0px;
-    padding: 0px;
-    color:  #666366
 }
 
 /*----------------------------------------------------------------------------------------
@@ -1142,3 +1141,100 @@ html, body {
     padding:     5px;
 }
 
+/*----------------------------------------------------------------------------------------
+  Material Design Typography
+  http://www.google.com/design/spec/style/typography.html#typography-standard-styles
+----------------------------------------------------------------------------------------*/
+
+.semibold {                         /* TODO: re-demo CSS */
+    font-weight: 500;
+}
+.uppercase {
+    text-transform: uppercase;      /* TODO: re-demo CSS */
+}
+.all-small-caps {
+    font-variant: small-caps;       /* TODO: re-demo CSS */
+}
+
+.display4 {
+    font-family: Roboto Condensed;
+    font-size:   112px;
+    font-weight: 300;
+    color:       #757575;
+    letter-spacing: -0.01em;
+    white-space:    nowrap;
+}
+.display3 {
+    font-family: Roboto Condensed;
+    font-size:   56px;
+    font-weight: 400;
+    color:       #757575;
+    letter-spacing: -0.005em;
+    white-space:    nowrap;
+}
+.display2 {
+    font-family: Roboto Condensed;
+    font-size:   45px;
+    font-weight: 400;
+    color:       #757575;
+    //line-height: 48px;
+    letter-spacing: normal;
+}
+.display1 {
+    font-family: Roboto Condensed;
+    font-size:   34px;
+    font-weight: 400;
+    color:       #757575;
+    //line-height: 40px;
+    letter-spacing: normal;
+    //margin-top:     10px;
+    //margin-bottom:  10px;
+}
+.headline {
+    font-family: Roboto Condensed;
+    font-size:   24px;
+    font-weight: 400;
+    color:       #212121;
+    //line-height: 32px;
+    letter-spacing: normal;
+}
+.title {
+    font-size:   20px;
+    font-weight: 500;
+    color:       #212121;
+    letter-spacing: 0.005em;
+}
+.subhead {
+    font-size:   15px;
+    font-weight: 400;
+    color:       #212121;
+    //line-height: 28px;
+    letter-spacing: 0.01em;
+}
+.body-text2 {
+    font-size:   13px;
+    font-weight: 500;
+    color:       #212121;
+    //line-height: 24px;
+    letter-spacing: 0.01em;
+}
+.body-text1 {
+    font-size:   13px;
+    font-weight: 400;
+    color:       #212121;
+    //line-height: 20px;
+    letter-spacing: 0.01em;
+}
+.caption {
+    font-size:   12px;
+    font-weight: 400;
+    color:       #757575;
+    letter-spacing: 0.02em;
+}
+.button-text {
+    font-size:      14px;
+    font-weight:    500;
+    color:       #212121;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+}

@@ -2,42 +2,50 @@
   (:require [re-com.core :refer [h-box v-box box gap line title label hyperlink-href]]))
 
 
-(defn re-com-title
-  []
-  [title
-   :label    "Re-com"
-   :style    {:font-family "'Roboto Condensed', sans-serif"
-              :font-size   "36px"
-              :font-weight 300
-              :margin-top  "12px"}])
-
-(def panel-title-style
-  {:font-family "'Roboto Condensed', sans-serif;"
-   :font-size   "26px"
-   :color       "#666"
-   :font-weight 500})
-
 (defn panel-title
   "Title shown at the top of each Tab Panel"
-  [text style]
+  [panel-name style]
   [title
-   :label text
-   :style (merge panel-title-style style)])
-
-
-(def component-title-style
-  {:font-family "'Roboto Condensed', sans-serif;"
-   :font-size   "20px"
-   :font-weight 300})
+   :label      panel-name
+   :md-style   :display1
+   :underline? true
+   :style      (merge {:margin-top    "10px"
+                       :margin-bottom "4px"}
+                      style)])
 
 (defn component-title
   "A title for a component like [something ... ]"
   [component-name style]
   [title
-   :label      component-name
-   :style      (merge component-title-style style)
-   :underline? false
-   ])
+   :label    component-name
+   :md-style :headline
+   :style    style])
+
+(defn status-text
+  "given some status text, return a component that displays that status"
+  [status]
+  [:span
+   [:span {:style {:font-weight "bold"}} "Status: "]
+   status])
+
+(defn material-design-hyperlink
+  [text]
+  [hyperlink-href
+   :label  text
+   :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
+   :target "_blank"])
+
+(defn github-hyperlink
+  "given a label and a relative path, return a component which links to that fully qualified GitHub URL in a new tab"
+  [label src-path]
+  (let [base-url (str "https://github.com/Day8/re-com/tree/" (if ^boolean js/goog.DEBUG "develop" "master") "/")]
+    [hyperlink-href
+     :label  label
+     :style  {:font-size    "13px"
+              ;:font-variant "small-caps"
+              :margin       "0px 0px 0px 16px"}
+     :href   (str base-url src-path)
+     :target "_blank"]))
 
 (defn arg-row
   "I show one argument in an args table."
@@ -85,27 +93,3 @@
                    [[component-title "Named Parameters"]
                     [gap :size "10px"]]
                    (map (partial arg-row name-width)  args (cycle [true false])))])))
-
-(defn material-design-hyperlink
-  [text]
-  [hyperlink-href
-   :label  text
-   :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
-   :target "_blank"])
-
-(defn github-hyperlink
-  "given a label and a relative path, return a component which links to that fully qualified GitHub URL in a new tab"
-  [label src-path]
-  (let [base-url (str "https://github.com/Day8/re-com/tree/" (if ^boolean js/goog.DEBUG "develop" "master") "/")]
-    [hyperlink-href
-     :label  label
-     :style  {:font-size    "13px"
-              :font-variant "small-caps"
-              :margin       "0px 8px 0px 8px"}
-     :href   (str base-url src-path)
-     :target "_blank"]))
-
-(defn status-text
-  "given some status text, return a component that displays that status"
-  [status]
-  [component-title (str "Status: " status) {:margin "0px"}])

@@ -42,8 +42,8 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
+                               :children [[component-title "Notes"]
+                                          [status-text "Alpha"]
                                           [:span "Material design icons can be " [material-design-hyperlink "found here"] "."]
                                           [args-table md-circle-icon-button-args-desc]]]
                               [v-box
