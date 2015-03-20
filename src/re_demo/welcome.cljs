@@ -17,7 +17,24 @@
                  :href "https://github.com/reagent-project/reagent"
                  :target "_blank"]
                 "."]
-               [:p "It contains some of layout and widgetry needed to build a desktop-class app."]]]])
+               [:p "It contains some of layout and widgetry needed to build a desktop-class app."]
+               [gap :size "10px"]
+               [title :level :level2 :label "This app"]
+               [gap :size "5px"]
+               [:p "The demo app serves as:"
+                [:ul
+                 [:li "a visual showcase of the components"]
+                 [:li "coding demos for using the components"]
+                 [:li "documentation for the components (parameters etc.)"]
+                 [:li "a harness for testing"]
+                 ]]
+               [title :level :level2 :label "Named Parameters"]
+               [:code
+                "[checkbox" [:br] "
+                                           :label     \"Show Status Icon?\"
+                                           :model     status-icon?      ; a ratom
+                                           :on-change (fn [new-val] (reset! status-icon? new-val))]"]
+               ]]])
 
 
 

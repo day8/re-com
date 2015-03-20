@@ -10,26 +10,27 @@ Either:
 
 # re-com
 
-A ClojureScript library of UI components, built on top of Dan Holmsand's brilliant
+A ClojureScript library of UI components, built on top of Dan Holmsand's wonderful
 [Reagent](http://reagent-project.github.io)
 which, in turn, is a layer over Facebook's trail blazing [React](http://facebook.github.io/react).
 
 Re-com has:
 
 * familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.  (in Reagent terms these are `components`)
-* layout `components` which organise widgets vertically and horizontally, within splitters, etc. `components`
-  which put borders around their children. Layouts can nest. 
-* a [Bootstrap](http://getbootstrap.com/) flavour, mixed in with
+* layout `components` which organise widgets vertically and horizontally, within splitters, etc. Plus `components`
+  which put borders around their children. Layouts can nest. Layouts are based on flexbox.
+* a predominately [Bootstrap](http://getbootstrap.com/) flavour, mixed with
   some [Material Design Icons](http://zavoloklom.github.io/material-design-iconic-font/icons.html).
 
-In short, the stuff you'd need to build a desktop-class app. But, it is a work in
+In short, the stuff you'd need to build a desktop-class app. But, very much a work in
 progress - for a start some components are missing.
 
 The layouts and components work harmoniously together (urmm, except for occasional bouts of
 English-soccer-hooligan-like hostility, but that's a bug right?).
 
-If you decide to use re-com, consider also using [re-frame](https://github.com/Day8/re-frame) (an MVC-ish framework).  The two dovetail well, although both can be used independently -- for example, the demo
-program for re-com does not use re-frame.
+If you decide to use re-com, consider also using [re-frame](https://github.com/Day8/re-frame)
+(an MVC-ish framework).  The two dovetail well, although both can be used independently --
+for example, the demo program for re-com does not use re-frame.
 
 ## Are You Sure You Want To Be Here?
 
@@ -80,13 +81,6 @@ Neither have we been particularly worried about code size. Other design goals ha
 Still here?  Good. I'm glad we got all that negative stuff out the way.  You're going to love  re-com.
 
 So, you do have Chrome handy, right?  Start by looking at [the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
-
-The demo serves as: 
-
-  - a way to visually showcase the components (widgets)
-  - a demonstration of how to code using those components
-  - a means to document the components (parameters etc.)
-  - a test harness of sorts
 
 ## Named Parameters
 
