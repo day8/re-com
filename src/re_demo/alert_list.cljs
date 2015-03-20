@@ -2,7 +2,7 @@
   (:require [re-com.core   :refer [h-box v-box box line gap label title button alert-box alert-list]]
             [re-com.alert  :refer [alert-box-args-desc alert-list-args-desc]]
             [re-com.util   :refer [insert-nth remove-id-item]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core  :as    reagent]))
 
 
@@ -33,9 +33,10 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [status-text "Alpha"]
-                                          [label :label "Renders a dynamic list of alert-boxes vertically. New alerts are added at the top."]
-                                          [args-table   alert-list-args-desc]]]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "Renders a dynamic list of alert-boxes vertically, with a scroll bar if necessary."]]
+                                          [args-table alert-list-args-desc]]]
                               [v-box
                                :width    "600px"
                                :gap      "10px"
@@ -45,9 +46,10 @@
                                             :label "Add alert"
                                             :style {:width "100px"}
                                             :on-click #(add-alert alerts (gensym) "info" {:heading "New alert" :body "This alert was added by the \"Add alert\" button ."})]]
-                                          [:p "Also, try clicking the \"x\" on alerts."]
-                                          [:p ":max-height is set to 300px. A scroll bar will appear as necessary."]
-                                          [:p "For demonstration purposes, a 'dotted' :border-style is set."]
+                                          [paragraphs
+                                           [:p "Also, try clicking the \"x\" on alerts."]
+                                           [:p [:code ":max-height"] " is set to 300px. A scroll bar will appear as necessary."]
+                                           [:p "For demonstration purposes, a 'dotted' " [:code ":border-style"] " is set."]]
                                           [alert-list
                                            :alerts       alerts
                                            :on-close     #(reset! alerts (remove-id-item % @alerts))

@@ -1,8 +1,8 @@
 (ns re-demo.dropdowns
-  (:require [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title]]
+  (:require [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href]]
             [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-args-desc]]
             [re-com.util     :refer [item-for-id]]
-            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core    :as    reagent]))
 
 
@@ -96,7 +96,7 @@
 
 (defn demo1
   []
-  [:div
+  [paragraphs
    [:p "The dropdown above is the simple case."]
    [:p "It presents a list of choices and allows one to be selected, via mouse or keyboard."]])
 
@@ -107,11 +107,12 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[:p "The dropdown below shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'EN COUNTRIES'."]
-                  [:p "This feature is triggered if any choice has a :group attribute. Typically all choices will have a :group or none will. It's up to you to ensure that choices with the same :group are adjacent in the vector."]
-                  [:p "Because :model is initially nil, the :placeholder text is initially displayed."]
-                  [:p ":max-width is set here to make the dropdown taller."]
-                  [:p ":label can be a string or arbitrary markup. Notice the boldness of the 'New Zealand'."]
+       :children [[paragraphs
+                   [:p "The dropdown below shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'EN COUNTRIES'."]
+                   [:p "This feature is triggered if any choice has a :group attribute. Typically all choices will have a :group or none will. It's up to you to ensure that choices with the same :group are adjacent in the vector."]
+                   [:p "Because :model is initially nil, the :placeholder text is initially displayed."]
+                   [:p ":max-width is set here to make the dropdown taller."]
+                   [:p ":label can be a string or arbitrary markup. Notice the boldness of the 'New Zealand'."]]
                   [h-box
                    :gap      "10px"
                    :align    :center
@@ -136,10 +137,11 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[:p "The dropdown below adds a filter text box to the dropdown section which is convenient for when there are many choices."]
-                  [:p "The filter text is searched for in both the :group and the :label values. If the text matches the :group, then all
+       :children [[paragraphs
+                   [:p "The dropdown below adds a filter text box to the dropdown section which is convenient for when there are many choices."]
+                   [:p "The filter text is searched for in both the :group and the :label values. If the text matches the :group, then all
                        choices under that group are considered to be 'matched'."]
-                  [:p "The initial model value has been set to 'US'."]
+                   [:p "The initial model value has been set to 'US'."]]
                   [h-box
                    :gap      "10px"
                    :align    :center
@@ -163,13 +165,14 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[:p "[single-dropdown ...] supports tab key navigation."]
-                  [:p "The :tab-index parameter specifies position in the tab order,
+       :children [[paragraphs
+                   [:p "[single-dropdown ...] supports tab key navigation."]
+                   [:p "The :tab-index parameter specifies position in the tab order,
                        or it can be removed from the tab order using a value of -1."]
-                  [:p "Up-arrow and Down-arrow do sensible things."]
-                  [:p "Home and End keys move to the beginning and end of the list."]
-                  [:p "Enter, Tab and Shift+Tab trigger selection of the currently highlighted choice."]
-                  [:p "Esc closes the dropdown without making a selection."]
+                   [:p "Up-arrow and Down-arrow do sensible things."]
+                   [:p "Home and End keys move to the beginning and end of the list."]
+                   [:p "Enter, Tab and Shift+Tab trigger selection of the currently highlighted choice."]
+                   [:p "Esc closes the dropdown without making a selection."]]
                   [h-box
                    :gap      "10px"
                    :align    :center
@@ -205,9 +208,9 @@
                   [h-box
                    :align    :center
                    :children [[checkbox
-                               :label ":disabled?"
+                               :label [box :align :start :child [:code ":disabled?"]]
                                :model disabled?
-                               :label-style {:width "100px"}
+                               :label-style {:width "130px"}
                                :on-change #(reset! disabled? %)]
                               [:span (str @disabled? " - " (if @disabled?
                                                              "the dropwdown is locked and cannot be changed."
@@ -215,9 +218,9 @@
                   [h-box
                    :align    :center
                    :children [[checkbox
-                               :label ":regex-filter?"
+                               :label [box :align :start :child [:code ":regex-filter?"]]
                                :model regex?
-                               :label-style {:width "100px"}
+                               :label-style {:width "130px"}
                                :on-change #(reset! regex? %)]
                               [:span (str @regex? " - " (if @regex?
                                                           "the filter text box supports JavaScript regular expressions."
@@ -225,9 +228,9 @@
                   [h-box
                    :align    :center
                    :children [[checkbox
-                               :label ":width"
+                               :label [box :align :start :child [:code ":width"]]
                                :model width?
-                               :label-style {:width "100px"}
+                               :label-style {:width "130px"}
                                :on-change #(reset! width? %)]
                               [:span (str (if @width?
                                             (str "\"" dropdown-width "\" - the dropdown is fixed to this width.")
@@ -259,7 +262,8 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[:p "Two dropdowns can be tied together in a parent-child relationship. In this case, countries and their cities."]
+       :children [[paragraphs
+                   [:p "Two dropdowns can be tied together in a parent-child relationship. In this case, countries and their cities."]]
                   [h-box
                    :gap      "10px"
                    :align    :center
@@ -308,8 +312,21 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [status-text "Alpha"]
-                                          [:span "The single-dropdown is used to..."]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p
+                                            "A dropdown selection component, similar to "
+                                            [hyperlink-href
+                                             :label  "Chosen"
+                                             :href   "http://harvesthq.github.io/chosen"
+                                             :target "_blank"]
+                                            ", style using "
+                                            [hyperlink-href
+                                             :label  "Bootstrap"
+                                             :href   "https://github.com/alxlit/bootstrap-chosen"
+                                             :target "_blank"]
+                                            "."]
+                                           [:p "Note: Single selection only."]]
                                           [args-table single-dropdown-args-desc]]]
                               [v-box
                                :width     "700px"

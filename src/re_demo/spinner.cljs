@@ -1,7 +1,7 @@
 (ns re-demo.spinner
   (:require [re-com.core    :refer [h-box v-box box gap line button label spinner]]
             [re-com.misc :refer [spinner-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core   :as    reagent]))
 
 
@@ -24,8 +24,9 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[component-title "Notes"]
-                                      [status-text "Alpha"]
-                                      [:span "The spinner is used to..."]
+                                      [status-text "Stable"]
+                                      [paragraphs
+                                       [:p "A CSS spinner, aka Throbber."]]
                                       [args-table spinner-args-desc]]]
                           [v-box
                            :gap      "10px"
@@ -34,17 +35,17 @@
                                        :gap "50px"
                                        :children [[v-box
                                                    :align :center
-                                                   :children [[:span ":small"]
+                                                   :children [[box :align :start :child [:code ":small"]]
                                                               [spinner
                                                                :size  :small
                                                                :color "red"]]]
                                                   [v-box
                                                    :align :center
-                                                   :children [[:span ":regular"]
+                                                   :children [[box :align :start :child [:code ":regular"]]
                                                               [spinner]]]
                                                   [v-box
                                                    :align :center
-                                                   :children [[:span ":large"]
+                                                   :children [[box :align :start :child [:code ":large"]]
                                                               [spinner
                                                                :size  :large
                                                                :color "blue"]]]]]]]]]]])

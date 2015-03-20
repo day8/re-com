@@ -1,7 +1,7 @@
 (ns re-demo.modal-panel
   (:require [re-com.core        :refer [h-box v-box box gap line border title label modal-panel progress-bar input-text checkbox button]]
             [re-com.modal-panel :refer [modal-panel-args-desc modal-panel-args]]
-            [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core       :as    reagent]))
 
 
@@ -19,7 +19,7 @@
                                (js/setTimeout #(reset! show? false) 3000))]
                   (when @show?
                     [modal-panel
-                     :child [:span "Please wait..."]])]])))
+                     :child [:span "Please wait (for 3 seconds)..."]])]])))
 
 
 (defn progress-bar-with-cancel-button
@@ -36,17 +36,18 @@
                     [modal-panel
                      :child [v-box
                              :width    "300px"
-                             :children [[:p {:style {:text-align "center"}}
-                                         [:strong "Recalculating..."] [:br]
-                                         [:strong "Current step: 2 of 3"]]
+                             :children [[title :level :level2 :label "Recalculating..."]
+                                        [gap :size "20px"]
                                         [progress-bar
                                          :model 33]
+                                        [gap :size "10px"]
                                         [:span
                                          [button
                                           :label "Cancel"
                                           :class "btn-danger"
+                                          :style {:margin-right "15px"}
                                           :on-click #(reset! show? false)]
-                                         [:span {:style {:font-variant "small-caps"}} " (static display only, press Cancel)"]]]]])]])))
+                                         [:span "pretend only, click Cancel"]]]]])]])))
 
 
 (defn dialog-markup
@@ -56,7 +57,7 @@
    :child  [v-box
             :padding  "10px"
             :style    {:background-color "cornsilk"}
-            :children [[title :label "Welcome to MI6. Please log in" :bs-style :h3]
+            :children [[title :label "Welcome to MI6. Please log in" :level :level2]
                        [v-box
                         :class    "form-group"
                         :children [[:label {:for "pf-email"} "Email address"]
@@ -142,8 +143,11 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[component-title "Notes"]
-                                      [status-text "Alpha"]
-                                      [:p "This component should be placed at the end of your markup to make sure it does actually cover everything. In certain cases, absolutely positioned components can appear over the backdrop."]
+                                      [status-text "Stable"]
+                                      [paragraphs
+                                       [:p "Displays a " [:code ":child"] " component centered with a semi-transparent backdrop, which prevents other user interaction."]
+                                       [:p "Good for showing progress of long running operations and gathering user input via modal dialogs."]
+                                       [:p "Warning: This component should be placed at the end of surrounding markup to ensure the backdrop covers everything. Otherwise, in certain cases, absolutely positioned components added to the DOM after this component can appear above the backdrop."]]
                                       [args-table modal-panel-args-desc]]]
                           [v-box
                            :gap      "10px"

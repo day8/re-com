@@ -1,7 +1,7 @@
 (ns re-demo.hyperlink-href
-  (:require [re-com.core    :refer [h-box v-box box gap line label radio-button hyperlink-href]]
+  (:require [re-com.core    :refer [h-box v-box box gap line label title radio-button hyperlink-href]]
             [re-com.buttons :refer [hyperlink-href-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core   :as    reagent]))
 
 
@@ -24,9 +24,10 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [status-text "Alpha"]
-                                          [:span "The hyperlink-href is used to..."]
-                                          [args-table hyperlink-href-args-desc]]]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "A blue, clickable hyperlink which launches external URLs."]
+                                           [:p "If you want a hyperlink with a click handler, use the [hyperlink] component."]]                                          [args-table hyperlink-href-args-desc]]]
                               [v-box
                                :gap      "10px"
                                :children [[component-title "Demo"]
@@ -42,10 +43,10 @@
                                                                :target    (when href? target)]]
                                                       [v-box
                                                        :gap "15px"
-                                                       :children [[label :label "parameters:"]
+                                                       :children [[title :level :level3 :label "Parameters"]
                                                                   (when @href?
                                                                     [v-box
-                                                                     :children [[label :label ":target"]
+                                                                     :children [[box :align :start :child [:code ":target"]]
                                                                                 [radio-button
                                                                                  :label "_self - load link into same tab"
                                                                                  :value "_self"

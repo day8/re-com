@@ -1,10 +1,10 @@
 (ns re-demo.row-button
-  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox horizontal-bar-tabs vertical-bar-tabs]
+  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox horizontal-bar-tabs vertical-bar-tabs title]
                                            :refer-macros [handler-fn]]
             [re-com.buttons                :refer [row-button-args-desc]]
             [re-com.util                   :refer [enumerate]]
             [re-demo.md-circle-icon-button :refer [icons example-icons]]
-            [re-demo.utils                 :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text]]
+            [re-demo.utils                 :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text paragraphs]]
             [reagent.core                  :as    reagent]))
 
 
@@ -106,21 +106,27 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [status-text "Alpha"]
-                                          [:span "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse over."]
-                                          [:span "To experiement, mouse over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
-                                          [:span "Material design icons can be " [material-design-hyperlink "found here"] "."]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse-over."]
+                                           [:p "To understand, mouse-over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
+                                           [:p "Notice also that these buttons can have an optional explanatory tooltip."]
+                                           [:p "Material design icons can be " [material-design-hyperlink "found here"] "."]]
                                           [args-table row-button-args-desc]]]
                               [v-box
                                :gap      "10px"
                                :children [[component-title "Demo"]
                                           [v-box
-                                           :gap "40px"
-                                           :children [[example-icons selected-icon]
+                                           :gap "20px"
+                                           :children [[data-table rows col-widths]
+                                                      [gap :size "40px"]
+                                                      [line]
+                                                      [title :level :level3 :label "Row Button States"]
+                                                      [:p "Row buttons have three distinct states."]
+                                                      [example-icons selected-icon]
                                                       [v-box
                                                        :gap      "8px"
-                                                       :children [[label :label "Hover over the buttons below to see a tooltip."]
-                                                                  [h-box
+                                                       :children [[h-box
                                                                    :gap      "2px"
                                                                    :align    :center
                                                                    :children [[label :label "States: ["]
@@ -139,7 +145,9 @@
                                                                                :tooltip         ":disabled? set to true"
                                                                                :disabled?       true
                                                                                :on-click        #()]
-                                                                              [label :label "]"]]]]] [data-table rows col-widths]]]]]]]]])))
+                                                                              [label :label "]"]]]]]
+
+                                                      ]]]]]]]])))
 
 
 (defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser

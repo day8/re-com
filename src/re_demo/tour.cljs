@@ -1,6 +1,6 @@
 (ns re-demo.tour
   (:require [re-com.core   :refer [h-box v-box box gap make-tour start-tour make-tour-nav button popover-content-wrapper popover-anchor-wrapper]]
-            [re-demo.utils :refer [panel-title component-title github-hyperlink status-text]]))
+            [re-demo.utils :refer [panel-title component-title github-hyperlink status-text paragraphs]]))
 
 
 (defn demo
@@ -11,8 +11,9 @@
        :width    "600px"
        :gap      "10px"
        :children [[component-title "Demo"]
-                  [:p "The four buttons below are all part of this tour. Click on the first button to start the tour, then use the navigation buttons to move through the tour."]
-                  [:p "Any individual component can be the included in the tour, as long as you wrap it in a popover and conform the instrucitons on the left."]
+                  [paragraphs
+                   [:p "The four buttons below are all part of this tour. Click on the first button to start the tour, then use the navigation buttons to move through the tour."]
+                   [:p "Any individual component can be the included in the tour, as long as you wrap it in a popover and conform the instrucitons on the left."]]
                   [h-box
                    :height   "150px"
                    :gap      "30px"
@@ -98,17 +99,18 @@
                            :width    "450px"
                            :gap      "10px"
                            :children [[component-title "Notes"]
-                                      [status-text "Alpha"]
-                                      [:p "To create a tour:"]
-                                      [:ul
-                                       [:li.spacer "Make a tour object, something like: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
-                                       [:li.spacer "Then, wrap each anchor components in your tour with a popover component."]
-                                       [:li.spacer "Each each such popover the " [:code ":showing?"] " parameter should look like this: "
-                                        [:br] [:code ":showing? (:step1 demo-tour)"] "."]]
-                                      [:p "To add navigation buttons to a popover, add the following component to the end of your popover's "
-                                       [:code ":body"] " markup: " [:br] [:code "[make-tour-nav demo-tour]"] "."]
-                                      [:p "To start the tour, call: " [:code "(start-tour demo-tour)"] "."]
-                                      [:p "To finish the tour, call: " [:code "(finish-tour demo-tour)"] "."]]]
+                                      [status-text "Stable"]
+                                      [paragraphs
+                                       [:p "To create a tour:"]
+                                       [:ul
+                                        [:li.spacer "Make a tour object, something like: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
+                                        [:li.spacer "Then, wrap each anchor components in your tour with a popover component."]
+                                        [:li.spacer "Each each such popover the " [:code ":showing?"] " parameter should look like this: "
+                                         [:br] [:code ":showing? (:step1 demo-tour)"] "."]]
+                                       [:p "To add navigation buttons to a popover, add the following component to the end of your popover's "
+                                        [:code ":body"] " markup: " [:br] [:code "[make-tour-nav demo-tour]"] "."]
+                                       [:p "To start the tour, call: " [:code "(start-tour demo-tour)"] "."]
+                                       [:p "To finish the tour, call: " [:code "(finish-tour demo-tour)"] "."]]]]
                           [v-box
                            :gap       "150px"
                            :size      "auto"

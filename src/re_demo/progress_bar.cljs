@@ -1,7 +1,7 @@
 (ns re-demo.progress-bar
-  (:require [re-com.core   :refer [h-box v-box box gap line label progress-bar slider checkbox]]
+  (:require [re-com.core   :refer [h-box v-box box gap line label title progress-bar slider checkbox]]
             [re-com.misc   :refer [progress-bar-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core  :as    reagent]))
 
 
@@ -23,8 +23,9 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [status-text "Alpha"]
-                                          [:span "The progress-bar is used to..."]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "A Bootstrap styled progress bar."]]
                                           [args-table progress-bar-args-desc]]]
                               [v-box
                                :gap      "10px"
@@ -35,9 +36,10 @@
                                                        :model    progress
                                                        :width    "350px"
                                                        :striped? @striped?]
+                                                      [title :level :level3 :label "Parameters"]
                                                       [h-box
                                                        :gap "10px"
-                                                       :children [[label :label "Percent:"]
+                                                       :children [[box :align :start :child [:code ":model"]]
                                                                   [slider
                                                                    :model     progress
                                                                    :min       0
@@ -46,7 +48,7 @@
                                                                    :on-change #(reset! progress %)]
                                                                   [label :label @progress]]]
                                                       [checkbox
-                                                       :label     ":striped?"
+                                                       :label     [box :align :start :child [:code ":striped?"]]
                                                        :model     striped?
                                                        :on-change #(reset! striped? %)]]]]]]]]])))
 

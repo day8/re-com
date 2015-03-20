@@ -1,7 +1,7 @@
 (ns re-demo.v-box
   (:require [re-com.core   :refer [h-box gap v-box hyperlink-href]]
             [re-com.box    :refer [v-box-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]))
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]))
 
 
 (defn panel
@@ -19,11 +19,12 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[component-title "Notes"]
-                                      [status-text "Alpha"]
-                                      [:span "The v-box is used to..."]
+                                      [status-text "Stable"]
+                                      [paragraphs
+                                       [:p "TBA..."]]
                                       [args-table v-box-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
+                                      [:span.all-small-caps "TBA..."]]]]]
               [gap :size "30px"]]])

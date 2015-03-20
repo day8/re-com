@@ -7,19 +7,19 @@
   [panel-name style]
   [title
    :label      panel-name
-   :md-style   :display1
+   :level      :level1
    :underline? true
-   :style      (merge {:margin-top    "10px"
-                       :margin-bottom "4px"}
+   :style      (merge {:margin-top "1px"
+                       :margin-bottom "0px"}
                       style)])
 
 (defn component-title
   "A title for a component like [something ... ]"
   [component-name style]
   [title
-   :label    component-name
-   :md-style :headline
-   :style    style])
+   :label component-name
+   :level :level2
+   :style style])
 
 (defn status-text
   "given some status text, return a component that displays that status"
@@ -42,7 +42,6 @@
     [hyperlink-href
      :label  label
      :style  {:font-size    "13px"
-              ;:font-variant "small-caps"
               :margin       "0px 0px 0px 16px"}
      :href   (str base-url src-path)
      :target "_blank"]))
@@ -93,3 +92,10 @@
                    [[component-title "Named Parameters"]
                     [gap :size "10px"]]
                    (map (partial arg-row name-width)  args (cycle [true false])))])))
+
+
+(defn paragraphs
+  [& children]
+  [v-box
+   :width    "380px"
+   :children (into [] children)])

@@ -1,7 +1,7 @@
 (ns re-demo.layouts
   (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-layout v-layout title]]
             [re-com.layout :refer [h-layout-args-desc v-layout-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]))
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]))
 
 
 (def rounded-panel {:background-color "#fff4f4"
@@ -18,6 +18,7 @@
   [text]
   [title
    :label text
+   :level :level3
    :style {:margin-top "15px"}])
 
 (defn left-panel
@@ -76,8 +77,9 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[component-title "[h-layout ...]"]
-                                      [status-text "Alpha"]
-                                      [:span "The h-layout is used to..."]
+                                      [status-text "Stable"]
+                                      [paragraphs
+                                       [:p "TBA..."]]
                                       [args-table h-layout-args-desc]]]
                           [v-box
                            :size     "auto"
@@ -93,7 +95,8 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[component-title "[v-layout ...]"]
-                                      [:span "The v-layout is used to..."]
+                                      [paragraphs
+                                       [:p "TBA..."]]
                                       [args-table v-layout-args-desc]]]
                           [v-box
                            :size     "auto"

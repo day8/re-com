@@ -1,7 +1,7 @@
 (ns re-demo.checkbox
   (:require [re-com.core   :refer [h-box v-box box gap line checkbox label]]
             [re-com.misc   :refer [checkbox-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core  :as    reagent]))
 
 
@@ -46,8 +46,10 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [status-text "Alpha"]
-                                          [:span "The checkbox is used to..."]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "A boostrap-styled checkbox, with optional label (always displayed to the right)."]
+                                           [:p "Clicking on the label is the same as clicking on the checkbox."]]
                                           [args-table checkbox-args-desc]]]
                               [v-box
                                :gap      "10px"

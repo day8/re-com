@@ -126,7 +126,40 @@
 (def tabs-definition
   [{:id :welcome                :label "Welcome"            :panel welcome/panel}
 
-   ;; LAYOUT COMPONENTS
+   {:id :button                 :label "Button"             :panel button/panel}
+   {:id :row-button             :label "Row Button"         :panel row-button/panel}
+   {:id :md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
+   {:id :md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
+   {:id :info-button            :label "Info Button"        :panel info-button/panel}
+   {:id :hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
+   {:id :hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
+
+   {:id :dropdown               :label "Dropdowns"          :panel dropdowns/panel}
+
+   {:id :tabs                   :label "Tabs"               :panel tabs/panel}
+
+   {:id :modal-panel            :label "Modal Panel"        :panel modal-panel/panel}
+
+   {:id :popover-args           :label "Popover Args"       :panel popovers/arg-lists}
+   {:id :popovers               :label "Popover Demos"      :panel popovers/panel}
+
+   {:id :label                  :label "Label"              :panel label/panel}
+   {:id :title                  :label "Title"              :panel title/panel}
+   {:id :checkbox               :label "Checkbox"           :panel checkbox/panel}
+   {:id :radio-button           :label "Radio Button"       :panel radio-button/panel}
+   {:id :input-text             :label "Input Text"         :panel input-text/panel}
+   {:id :slider                 :label "Slider"             :panel slider/panel}
+   {:id :progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
+   {:id :spinner                :label "Spinner"            :panel spinner/panel}
+
+   {:id :lists                  :label "Selection List"     :panel selection-list/panel}
+
+   {:id :date                   :label "Date Picker"        :panel datepicker/panel}
+
+   {:id :time                   :label "Input Time"         :panel input-time/panel}
+
+   {:id :alert-box              :label "Alert Box"          :panel alert-box/panel}
+   {:id :alert-list             :label "Alert List"         :panel alert-list/panel}
 
    {:id :h-box                  :label "H-box"              :panel h-box/panel}
    {:id :v-box                  :label "V-box"              :panel v-box/panel}
@@ -139,45 +172,6 @@
    {:id :boxes2                 :label "Box Demo 2"         :panel h-box/panelB}
 
    {:id :layouts                :label "Layouts"            :panel layouts/panel}
-
-   {:id :tabs                   :label "Tabs"               :panel tabs/panel}
-
-   {:id :modal-panel            :label "Modal Panel"        :panel modal-panel/panel}
-
-   {:id :popover-args           :label "Popover Args"       :panel popovers/arg-lists}
-   {:id :popovers               :label "Popover Demos"      :panel popovers/panel}
-
-   ;; COMPONENTS YOU PLACE IN LAYOUT COMPONENTS
-
-   {:id :button                 :label "Button"             :panel button/panel}
-   {:id :md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
-   {:id :md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
-   {:id :row-button             :label "Row Button"         :panel row-button/panel}
-   {:id :info-button            :label "Info Button"        :panel info-button/panel}
-   {:id :hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
-   {:id :hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
-
-   {:id :label                  :label "Label"              :panel label/panel}
-   {:id :title                  :label "Title"              :panel title/panel}
-   {:id :checkbox               :label "Checkbox"           :panel checkbox/panel}
-   {:id :radio-button           :label "Radio Button"       :panel radio-button/panel}
-   {:id :input-text             :label "Input Text"         :panel input-text/panel}
-   {:id :slider                 :label "Slider"             :panel slider/panel}
-   {:id :progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
-   {:id :spinner                :label "Spinner"            :panel spinner/panel}
-
-   {:id :dropdown               :label "Dropdowns"          :panel dropdowns/panel}
-
-   {:id :lists                  :label "Selection List"     :panel selection-list/panel}
-
-   {:id :date                   :label "Date Picker"        :panel datepicker/panel}
-
-   {:id :time                   :label "Input Time"         :panel input-time/panel}
-
-   {:id :alert-box              :label "Alert Box"          :panel alert-box/panel}
-   {:id :alert-list             :label "Alert List"         :panel alert-list/panel}
-
-   ;; OTHER TYPES OF COMPONENTS
 
    {:id :tour                   :label "Tour"               :panel tour/panel}
    ])

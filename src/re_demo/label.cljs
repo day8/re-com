@@ -1,7 +1,7 @@
 (ns re-demo.label
   (:require [re-com.core   :refer [h-box v-box box gap line label]]
             [re-com.text   :refer [label-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]))
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]))
 
 
 (defn label-demo
@@ -18,8 +18,9 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[component-title "Notes"]
-                                      [status-text "Alpha"]
-                                      [:span "The label is used to..."]
+                                      [status-text "Stable"]
+                                      [paragraphs
+                                       [:p "A short single line of text."]]
                                       [args-table label-args-desc]]]
                           [v-box
                            :gap      "10px"

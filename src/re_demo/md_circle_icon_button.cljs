@@ -1,7 +1,7 @@
 (ns re-demo.md-circle-icon-button
   (:require [re-com.core    :refer [h-box v-box box gap line label md-circle-icon-button horizontal-bar-tabs vertical-bar-tabs #_round-button]]
             [re-com.buttons :refer [md-circle-icon-button-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text]]
+            [re-demo.utils  :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text paragraphs]]
             [reagent.core   :as    reagent]))
 
 
@@ -19,7 +19,7 @@
   [h-box
    :align :center
    :gap "8px"
-   :children [[label :label "Example icons:"]
+   :children [[label :label "Choose an icon:"]
               [horizontal-bar-tabs
                :model     selected-icon
                :tabs      icons
@@ -43,8 +43,9 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [status-text "Alpha"]
-                                          [:span "Material design icons can be " [material-design-hyperlink "found here"] "."]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "Material design icons can be " [material-design-hyperlink "found here"] "."]]
                                           [args-table md-circle-icon-button-args-desc]]]
                               [v-box
                                :gap "10px"
@@ -53,56 +54,45 @@
                                            :gap "15px"
                                            :children [[example-icons selected-icon]
                                                       [gap :size "10px"]
-                                                      [label :label "Hover over the buttons below to see a tooltip."]
+                                                      [paragraphs
+                                                       [:p "Here's what the chosen icon looks like in a Circle Icon Button."]]
                                                       [h-box
                                                        :gap      "20px"
                                                        :align    :center
-                                                       :children [[label :label "States:"]
+                                                       :children [[box :width "90px" :child [:code ":size"]]
                                                                   [md-circle-icon-button
                                                                    :md-icon-name @selected-icon
-                                                                   :emphasise?   true
-                                                                   :tooltip      "This button has :emphasise? set to true"
-                                                                   :on-click     #()]
-                                                                  [md-circle-icon-button
-                                                                   :md-icon-name @selected-icon
-                                                                   :tooltip      "This is the default button"
-                                                                   :on-click     #()]
-
-                                                                  ;; TODO: Eventually remove
-                                                                  #_[round-button
-                                                                   :md-icon-name @selected-icon
-                                                                   :on-click     #(println "round-button")]
-
-                                                                  [md-circle-icon-button
-                                                                   :md-icon-name @selected-icon
-                                                                   :tooltip      "This button has :disabled? set to true"
-                                                                   :disabled?    true
-                                                                   :on-click     #()]
-
-                                                                  ;; TODO: Eventually remove
-                                                                  #_[round-button
-                                                                   :md-icon-name @selected-icon
-                                                                   :disabled?    true
-                                                                   :on-click     #(println "round-button disabled")]
-                                                                  ]]
-                                                      [h-box
-                                                       :gap      "20px"
-                                                       :align    :center
-                                                       :children [[label :label "Sizes:"]
-                                                                  [md-circle-icon-button
-                                                                   :md-icon-name @selected-icon
-                                                                   :tooltip      "This is a :smaller button"
+                                                                   :tooltip      ":size set to :smaller"
                                                                    :size         :smaller
                                                                    :on-click #()]
                                                                   [md-circle-icon-button
                                                                    :md-icon-name @selected-icon
-                                                                   :tooltip      "This button does not specify a :size"
+                                                                   :tooltip      "No :size set. This is the default button"
                                                                    :on-click     #()]
                                                                   [md-circle-icon-button
                                                                    :md-icon-name @selected-icon
-                                                                   :tooltip      "This is a :larger button"
+                                                                   :tooltip      ":size set to :larger"
                                                                    :size         :larger
-                                                                   :on-click #()]]]]]]]]]]])))
+                                                                   :on-click #()]]]
+                                                      [h-box
+                                                       :gap      "20px"
+                                                       :align    :center
+                                                       :justify  :start
+                                                       :children [[box :width "90px" :child [:code ":emphasis?"]]
+                                                                  [md-circle-icon-button
+                                                                   :md-icon-name @selected-icon
+                                                                   :emphasise?   true
+                                                                   :tooltip      "This button has :emphasise? set to true"
+                                                                   :on-click     #()]]]
+                                                      [h-box
+                                                       :gap      "20px"
+                                                       :align    :center
+                                                       :children [[box :width "90px" :child [:code ":disabled?"]]
+                                                                  [md-circle-icon-button
+                                                                   :md-icon-name @selected-icon
+                                                                   :tooltip      "This button has :disabled? set to true"
+                                                                   :disabled?    true
+                                                                   :on-click     #()]]]]]]]]]]])))
 
 
 (defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser

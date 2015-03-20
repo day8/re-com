@@ -191,16 +191,16 @@
 
 (def datepicker-args-desc
   [{:name :model        :required true                        :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. Should match :enabled-days"}
-   {:name :on-change    :required true                        :type "(goog.date.UtcDateTime) -> nil" :validate-fn fn?        :description "called when user entry completes and value is new"}
+   {:name :on-change    :required true                        :type "(goog.date.UtcDateTime) -> nil" :validate-fn fn?        :description "called when a new selection is made"}
    {:name :disabled?    :required false :default false        :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
    {:name :enabled-days :required false                       :type "set"                            :validate-fn set?       :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Only dates falling on these days will be user-selectable. Default is all 7 days"}
-   {:name :show-weeks?  :required false :default false        :type "boolean"                                                :description "when true, the first column shows week numbers"}
+   {:name :show-weeks?  :required false :default false        :type "boolean"                                                :description "when true, week numbers are shown to the left"}
    {:name :show-today?  :required false :default false        :type "boolean"                                                :description "when true, today's date is highlighted"}
-   {:name :minimum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "selection & navigation are blocked before this date"}
-   {:name :maximum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "selection & navigation are blocked after this date"}
+   {:name :minimum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation before this date"}
+   {:name :maximum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
    {:name :hide-border? :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
-   {:name :class        :required false                       :type "string"                         :validate-fn string?    :description "CSS classes (whitespace separated). Perhaps bootstrap like \"btn-info\" \"btn-small\""}
-   {:name :style        :required false                       :type "css style map"                  :validate-fn css-style? :description "CSS styles"}
+   {:name :class        :required false                       :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
+   {:name :style        :required false                       :type "css style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
    {:name :attr         :required false                       :type "html attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (def datepicker-args (extract-arg-data datepicker-args-desc))

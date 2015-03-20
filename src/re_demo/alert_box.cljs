@@ -1,7 +1,7 @@
 (ns re-demo.alert-box
   (:require [re-com.core   :refer [h-box v-box box line gap label alert-box alert-list] :refer-macros [defn-meta add-meta]]
             [re-com.alert  :refer [alert-box-args-desc alert-list-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.debug :refer-macros [dbg prn println log dev? warn warn-unless]]
             [reagent.core  :as    reagent]))
 
@@ -24,8 +24,9 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[component-title "Notes"]
-                                          [status-text "Alpha"]
-                                          [label :label "A component which renders a single alert-box."]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "A component which renders a single alert-box."]]
                                           [args-table alert-box-args-desc]]]
                               [v-box
                                :width    "600px"
@@ -39,15 +40,10 @@
                                              :body       [:p "This is an alert body. This alert has an :alert-type of 'info' which makes it blue, and it includes a :heading, a :body and a close button. Click the x to close it."]
                                              :closeable? true
                                              :on-close   #(reset! show-alert false)
-
-                                             ;; TODO: For testing only - remove!
-                                             ;:style      {:width "900px" :hieght "250px"}
-                                             ;:attr       {:alt "alternate text" :style {} :onwheel #()}
                                              :attr       {:data-ns   (:ns   (meta #'re-demo.alert-box/alert-box-demo))
                                                           :data-name (:name (meta #'re-demo.alert-box/alert-box-demo))
                                                           :data-file (:file (meta #'re-demo.alert-box/alert-box-demo))
-                                                          :data-line (:line (meta #'re-demo.alert-box/alert-box-demo))}
-                                             ]
+                                                          :data-line (:line (meta #'re-demo.alert-box/alert-box-demo))}]
                                             [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
                                           [gap :size "50px"]
                                           [:p "Further Variations ..."]
