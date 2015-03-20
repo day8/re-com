@@ -28,7 +28,7 @@
                                 [github-hyperlink "Component Source" "src/re_com/alert.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/alert_list.cljs"]]]
                   [h-box
-                   :gap      "50px"
+                   :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"

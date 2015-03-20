@@ -94,7 +94,7 @@
                             [github-hyperlink "Component Source" "src/re_com/tour.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/tour.cljs"]]]
               [h-box
-               :gap      "50px"
+               :gap      "100px"
                :children [[v-box
                            :width    "450px"
                            :gap      "10px"

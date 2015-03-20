@@ -84,7 +84,7 @@
                               [github-hyperlink "Component Source" "src/re_com/selection_list.cljs"]
                               [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]]]
                 [h-box
-                 :gap      "50px"
+                 :gap      "100px"
                  :children [[v-box
                              :gap      "10px"
                              :width    "450px"

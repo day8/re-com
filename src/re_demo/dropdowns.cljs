@@ -307,7 +307,7 @@
                                 [github-hyperlink "Component Source" "src/re_com/dropdown.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/dropdowns.cljs"]]]
                   [h-box
-                   :gap      "50px"
+                   :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"

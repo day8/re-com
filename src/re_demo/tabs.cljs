@@ -154,7 +154,7 @@
 
 
                   [h-box
-                   :gap      "50px"
+                   :gap      "100px"
                    :children [[v-box
                                :width    "450px"
                                :gap      "10px"

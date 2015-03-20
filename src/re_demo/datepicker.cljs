@@ -159,7 +159,7 @@
                                 [github-hyperlink "Component Source" "src/re_com/datepicker.cljs"]
                                 [github-hyperlink "Page Source"      "src/re_demo/datepicker.cljs"]]]
                   [h-box
-                   :gap      "50px"
+                   :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"

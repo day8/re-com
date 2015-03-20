@@ -22,7 +22,7 @@
                                 [github-hyperlink "Page Source"      "src/re_demo/slider.cljs"]]]
 
                   [h-box
-                   :gap      "50px"
+                   :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
