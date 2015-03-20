@@ -320,7 +320,7 @@
                                              :label  "Chosen"
                                              :href   "http://harvesthq.github.io/chosen"
                                              :target "_blank"]
-                                            ", style using "
+                                            ", styled using "
                                             [hyperlink-href
                                              :label  "Bootstrap"
                                              :href   "https://github.com/alxlit/bootstrap-chosen"
