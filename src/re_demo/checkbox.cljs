@@ -56,15 +56,7 @@
                                :children [[component-title "Demo"]
                                           [v-box
                                            :gap "15px"
-                                           :children [#_[checkbox
-                   :label "always ticked (state stays true when you click)"
-                   :model (= 1 1)]    ;; true means always ticked
-
-                                                      #_[checkbox
-                                                       :label "untickable (state stays false when you click)"
-                                                       :model always-false]
-
-                                                      [h-box
+                                           :children [[h-box
                                                        :gap      "10px"
                                                        :height   "20px"
                                                        :children [[checkbox

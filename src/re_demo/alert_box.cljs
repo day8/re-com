@@ -26,7 +26,7 @@
                                :children [[component-title "Notes"]
                                           [status-text "Stable"]
                                           [paragraphs
-                                           [:p "A component which renders a single alert-box."]]
+                                           [:p "A component which renders a single bootstrap styled alert-box."]]
                                           [args-table alert-box-args-desc]]]
                               [v-box
                                :width    "600px"
@@ -39,11 +39,7 @@
                                              :heading    "This Is An Alert Heading"
                                              :body       [:p "This is an alert body. This alert has an :alert-type of 'info' which makes it blue, and it includes a :heading, a :body and a close button. Click the x to close it."]
                                              :closeable? true
-                                             :on-close   #(reset! show-alert false)
-                                             :attr       {:data-ns   (:ns   (meta #'re-demo.alert-box/alert-box-demo))
-                                                          :data-name (:name (meta #'re-demo.alert-box/alert-box-demo))
-                                                          :data-file (:file (meta #'re-demo.alert-box/alert-box-demo))
-                                                          :data-line (:line (meta #'re-demo.alert-box/alert-box-demo))}]
+                                             :on-close   #(reset! show-alert false)]
                                             [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
                                           [gap :size "50px"]
                                           [:p "Further Variations ..."]
