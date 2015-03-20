@@ -81,7 +81,10 @@
                                           [label :label "Actions" :width (:actions col-widths)]]]
                               (for [[_ row first? last?] (enumerate (sort-by :sort (vals rows)))]
                                 ^{:key (:id row)} [data-row row first? last? col-widths mouse-over click-msg])]]
-                  [label :label (str "Last row-button click: " @click-msg)]]])))
+                  [h-box
+                   :gap "5px"
+                   :children [[label :label "clicked: "]
+                              [label :label (str @click-msg) :style {:font-weight "bold"}]]]]])))
 
 
 (defn row-button-demo
