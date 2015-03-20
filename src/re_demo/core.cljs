@@ -47,84 +47,9 @@
 
 (enable-console-print!)
 
-;; ---------------------------------------------------------------------------------------
-;;  EXPERIMENT START - TODO: REMOVE
-;; ---------------------------------------------------------------------------------------
-
-(defn green-box
-  [markup]
-  [:div
-   {:style {:width            "200px"
-            :height           "40px"
-            :margin           "10px 0px 10px"
-            :padding          "5px"
-            :text-align       "center"
-            :background-color "lightgreen"}}
-   markup])
-
-(defn green-message-box-bad
-  [msg]
-  [:div
-   [:h3 "Component 1"]
-   [green-box [:p "Message: " [:span @msg]]]])
-
-(defn green-message-box-good
-  [msg]
-  [:div
-   [:h3 "Component 2"]
-   [green-box [:p "Message: " [(fn [] [:span @msg])]]]])
-
-(defn main1
-  [msg show?]
-  [:div
-   {:style {:padding "20px"}}
-   [green-message-box-bad  msg]
-   [green-message-box-good msg]
-   [:br]
-   [:button {:on-click #(swap! show? not)} (if @show? "wax on" "wax off")]
-   [:span " ==> "]
-   [:button {:on-click #(reset! msg (if @show? "WAX ON!" "WAX OFF!"))} "update text"]])
-
-(defn main2
-  []
-  (let [msg   (reagent/atom "initial text")
-        show? (reagent/atom true)]
-    (fn []
-      [:div
-       {:style {:padding "20px"}}
-       [green-message-box-bad  msg]
-       [green-message-box-good msg]
-       [:br]
-       [:button {:on-click #(swap! show? not)} (if @show? "wax on" "wax off")]
-       [:span " ==> "]
-       [:button {:on-click #(reset! msg (if @show? "WAX ON!" "WAX OFF!"))} "update text"]])))
-
-(defn display-green-messages
-  []
-  (let [msg   (reagent/atom "initial text")
-        show? (reagent/atom true)]
-    (fn []
-      #_[:div
-       {:style {:padding "20px"}}
-       [green-message-box-bad  msg]
-       [green-message-box-good msg]
-       [:br]
-       [:button {:on-click #(swap! show? not)} (if @show? "wax on" "wax off")]
-       [:span " ==> "]
-       [:button {:on-click #(reset! msg (if @show? "WAX ON!" "WAX OFF!"))} "update text"]]
-
-      #_[main1 msg show?]
-
-      [main2]
-      )))
-
-;; ---------------------------------------------------------------------------------------
-;;  EXPERIMENT END
-;; ---------------------------------------------------------------------------------------
-
 
 (def tabs-definition
-  [{:id :welcome                :label "Welcome"            :panel welcome/panel}         ;; TODO: Have removed namespaced keywords for now
+  [{:id :welcome                :label "Welcome"            :panel welcome/panel}
 
    ;; LAYOUT COMPONENTS
 
@@ -184,6 +109,8 @@
 
 
 (defn nav-item
+  "a left hand side navigation item. Acts like a tab in a tab bar.
+  Responds to mouseover.  Has a selected state."
   []
   (let [mouse-over? (reagent/atom false)]
     (fn [tab selected-tab-id on-select-tab]
@@ -206,10 +133,10 @@
 
 (defn left-side-nav-bar
   [selected-tab-id on-select-tab]
-    [v-box
-     :style {:-webkit-user-select "none"}
-     :children (for [tab tabs-definition]
-                 [nav-item tab selected-tab-id on-select-tab])])
+  [v-box
+   :style {:-webkit-user-select "none"}          ;; TODO:  -webkit specific
+   :children (for [tab tabs-definition]
+               [nav-item tab selected-tab-id on-select-tab])])
 
 
 (defn re-com-title-box
@@ -264,6 +191,4 @@
 
 (defn ^:export mount-demo
   []
-  (reagent/render [main] (util/get-element-by-id "app"))
-  ;(reagent/render [display-green-messages] (util/get-element-by-id "app")) ;; TODO: EXPERIMENT - REMOVE
-  )
+  (reagent/render [main] (util/get-element-by-id "app")))

@@ -104,6 +104,7 @@
                                                                    :label "no label on this one"]]]]]]]]]]])))
 
 
-(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+;; core holds onto references, so need one level of indirection to get figwheel updates
+(defn panel
   []
   [checkboxes-demo])

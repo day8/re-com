@@ -54,7 +54,7 @@
                                            :max-height   "300px"
                                            :border-style "1px dashed lightgrey"]]]]]]])))
 
-
-(defn panel   ;; Introduce a level of naming indirection so that figwheel updates work
+;; need a level of indirection to get figwheel updates
+(defn panel
   []
   [alert-list-demo])

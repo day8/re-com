@@ -78,6 +78,7 @@
                                                        :on-change   #()]]]]]]]]])))
 
 
-(defn panel   ;; Only required for Reagent to update panel2 when figwheel pushes changes to the browser
+;; core holds a reference to panel, so need one level of indirection to get figwheel updates
+(defn panel
   []
   [info-button-demo])

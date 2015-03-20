@@ -19,6 +19,8 @@
               [:p "It contains some of layout and widgetry needed to build a desktop-class app."]]])
 
 
+
+;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
   []
   [panel2])

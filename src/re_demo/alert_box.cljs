@@ -74,7 +74,8 @@
 
 
 
-(defn panel   ;; Introduce a level of naming indirection so that figwheel updates work
+;; core holds onto references, so need one level of indirection to get figwheel updates
+(defn panel
   []
   [alert-box-demo])
 
