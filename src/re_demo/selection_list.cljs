@@ -1,7 +1,7 @@
 (ns re-demo.selection-list
-  (:require [re-com.core           :refer [h-box v-box box selection-list label checkbox]]
+  (:require [re-com.core           :refer [h-box v-box box selection-list label title checkbox]]
             [re-com.selection-list :refer [selection-list-args-desc]]
-            [re-demo.utils         :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils         :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [re-com.util           :refer [golden-ratio-a golden-ratio-b]]
             [reagent.core          :as    reagent]))
 
@@ -9,37 +9,32 @@
 (defn- options-with
   [width content multi-select? disabled? required? as-exclusions?]
   (fn []
-    (let [check-style {:margin-top "1px"}]
-      [v-box
-       :width (str width "px")
-       :gap      "20px"
-       :align    :start
-       :children [[component-title "Demo"]
-                  [label :style {:font-style "italic"} :label "boolean parameters:"]
-                  [h-box
-                   :gap      "15px"
-                   :align    :start
-                   :children [[checkbox
-                               :label       ":disabled?"
-                               :label-style check-style
-                               :model       disabled?
-                               :on-change   #(reset! disabled? %)]
-                              [checkbox
-                               :label       ":multi-select?"
-                               :label-style check-style
-                               :model       multi-select?
-                               :on-change   #(reset! multi-select? %)]
-                              [checkbox
-                               :label       ":required?"
-                               :label-style check-style
-                               :model       required?
-                               :on-change   #(reset! required? %)]
-                              [checkbox
-                               :label       ":as-exclusions?"
-                               :label-style check-style
-                               :model       as-exclusions?
-                               :on-change   #(reset! as-exclusions? %)]]]
-                  content]])))
+    [v-box
+     :width (str width "px")
+     :gap      "20px"
+     :align    :start
+     :children [[component-title "Demo"]
+                [title :level :level3 :label "Parameters"]
+                [h-box
+                 :gap      "15px"
+                 :align    :start
+                 :children [[checkbox
+                             :label       [box :align :start :child [:code ":disabled?"]]
+                             :model       disabled?
+                             :on-change   #(reset! disabled? %)]
+                            [checkbox
+                             :label       [box :align :start :child [:code ":multi-select?"]]
+                             :model       multi-select?
+                             :on-change   #(reset! multi-select? %)]
+                            [checkbox
+                             :label       [box :align :start :child [:code ":required?"]]
+                             :model       required?
+                             :on-change   #(reset! required? %)]
+                            [checkbox
+                             :label       [box :align :start :child [:code ":as-exclusions?"]]
+                             :model       as-exclusions?
+                             :on-change   #(reset! as-exclusions? %)]]]
+                content]]))
 
 
 
@@ -81,8 +76,6 @@
 (defn panel2
   []
   (let [panel-width 1024
-        ;h-gap       70
-        ;a-width     (- (golden-ratio-a panel-width) h-gap)
         b-width     (golden-ratio-b panel-width)]
     [v-box
      :size     "auto"
@@ -91,18 +84,17 @@
                               [github-hyperlink "Component Source" "src/re_com/selection_list.cljs"]
                               [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]]]
                 [h-box
-                 ;:gap      (str h-gap "px")
                  :gap      "50px"
                  :children [[v-box
                              :gap      "10px"
                              :width    "450px"
-                             :children [[status-text "Alpha"]
-                                        [component-title "Notes"]
-                                        [v-box
-                                         :children [[:p "Allows the user to select items from a list (single or multi)."]
-                                                    [:p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
-                                                    [:p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]
-                                                    [args-table selection-list-args-desc]]]]]
+                             :children [[component-title "Notes"]
+                                        [status-text "Stable"]
+                                        [paragraphs
+                                         [:p "Allows the user to select items from a list (single or multi)."]
+                                         [:p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
+                                         [:p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]]
+                                        [args-table selection-list-args-desc]]]
                             [list-with-options b-width]]]]]))
 
 

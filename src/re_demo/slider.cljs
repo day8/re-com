@@ -1,7 +1,7 @@
 (ns re-demo.slider
-  (:require [re-com.core   :refer [h-box v-box box gap line label slider checkbox input-text horizontal-bar-tabs vertical-bar-tabs]]
+  (:require [re-com.core   :refer [h-box v-box box gap line label title slider checkbox input-text horizontal-bar-tabs vertical-bar-tabs]]
             [re-com.misc   :refer [slider-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core  :as    reagent]))
 
 
@@ -26,81 +26,83 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
-                                          [:span "The slider is used to..."]
+                               :children [[component-title "Notes"]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "Standard HTML5 slider control."]]
                                           [args-table slider-args-desc]]]
                               [v-box
                                :gap      "10px"
                                :children [[component-title "Demo"]
-                                          [h-box
-                                           :gap "40px"
-                                           :children [[v-box
+                                          [v-box
+                                           :gap      "20px"
+                                           :children [[slider
+                                                       :model     slider-val
+                                                       :min       slider-min
+                                                       :max       slider-max
+                                                       :step      slider-step
+                                                       :width     "200px"
+                                                       :on-change #(reset! slider-val (str %))
+                                                       :disabled? disabled?]
+                                                      [gap :size "0px"]
+                                                      [title :level :level3 :label "Parameters"]
+                                                      [h-box
                                                        :gap      "10px"
-                                                       :children [[slider
-                                                                   :model     slider-val
-                                                                   :min       slider-min
-                                                                   :max       slider-max
-                                                                   :step      slider-step
-                                                                   :width     "200px"
-                                                                   :on-change #(reset! slider-val (str %))
-                                                                   :disabled? disabled?]]]
-                                                      [v-box
-                                                       :gap      "15px"
-                                                       :children [[label :label "parameters:"]
-                                                                  [h-box
-                                                                   :gap      "10px"
-                                                                   :align    :center
-                                                                   :children [[label
-                                                                               :label ":model"
-                                                                               :style {:width "60px"}]
-                                                                              [input-text
-                                                                               :model           slider-val
-                                                                               :width           "70px"
-                                                                               :height          "26px"
-                                                                               :on-change       #(reset! slider-val %)
-                                                                               :change-on-blur? false]]]
-                                                                  [h-box
-                                                                   :gap      "10px"
-                                                                   :align    :center
-                                                                   :children [[label
-                                                                               :label ":min"
-                                                                               :style {:width "60px"}]
-                                                                              [input-text
-                                                                               :model           slider-min
-                                                                               :width           "70px"
-                                                                               :height          "26px"
-                                                                               :on-change       #(reset! slider-min %)
-                                                                               :change-on-blur? false]]]
-                                                                  [h-box
-                                                                   :gap      "10px"
-                                                                   :align    :center
-                                                                   :children [[label
-                                                                               :label ":max"
-                                                                               :style {:width "60px"}]
-                                                                              [input-text
-                                                                               :model           slider-max
-                                                                               :width           "70px"
-                                                                               :height          "26px"
-                                                                               :on-change       #(reset! slider-max %)
-                                                                               :change-on-blur? false]]]
-                                                                  [h-box
-                                                                   :gap      "10px"
-                                                                   :align    :center
-                                                                   :children [[label
-                                                                               :label ":step"
-                                                                               :style {:width "60px"}]
-                                                                              [input-text
-                                                                               :model           slider-step
-                                                                               :width           "70px"
-                                                                               :height          "26px"
-                                                                               :on-change       #(reset! slider-step %)
-                                                                               :change-on-blur? false]]]
-                                                                  [checkbox
-                                                                   :label ":disabled?"
-                                                                   :model disabled?
-                                                                   :on-change (fn [val]
-                                                                                (reset! disabled? val))]]]]]]]]]]])))
+                                                       :align    :center
+                                                       :children [[box
+                                                                   :align :start
+                                                                   :width "60px"
+                                                                   :child [:code ":model"]]
+                                                                  [input-text
+                                                                   :model           slider-val
+                                                                   :width           "60px"
+                                                                   :height          "26px"
+                                                                   :on-change       #(reset! slider-val %)
+                                                                   :change-on-blur? false]]]
+                                                      [h-box
+                                                       :gap      "10px"
+                                                       :align    :center
+                                                       :children [[box
+                                                                   :align :start
+                                                                   :width "60px"
+                                                                   :child [:code ":min"]]
+                                                                  [input-text
+                                                                   :model           slider-min
+                                                                   :width           "60px"
+                                                                   :height          "26px"
+                                                                   :on-change       #(reset! slider-min %)
+                                                                   :change-on-blur? false]]]
+                                                      [h-box
+                                                       :gap      "10px"
+                                                       :align    :center
+                                                       :children [[box
+                                                                   :align :start
+                                                                   :width "60px"
+                                                                   :child [:code ":max"]]
+                                                                  [input-text
+                                                                   :model           slider-max
+                                                                   :width           "60px"
+                                                                   :height          "26px"
+                                                                   :on-change       #(reset! slider-max %)
+                                                                   :change-on-blur? false]]]
+                                                      [h-box
+                                                       :gap      "10px"
+                                                       :align    :center
+                                                       :children [[box
+                                                                   :align :start
+                                                                   :width "60px"
+                                                                   :child [:code ":step"]]
+                                                                  [input-text
+                                                                   :model           slider-step
+                                                                   :width           "60px"
+                                                                   :height          "26px"
+                                                                   :on-change       #(reset! slider-step %)
+                                                                   :change-on-blur? false]]]
+                                                      [checkbox
+                                                       :label [box :align :start :child [:code ":disabled?"]]
+                                                       :model disabled?
+                                                       :on-change (fn [val]
+                                                                    (reset! disabled? val))]]]]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

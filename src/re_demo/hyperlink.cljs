@@ -1,7 +1,7 @@
 (ns re-demo.hyperlink
-  (:require [re-com.core    :refer [h-box v-box box gap line label checkbox hyperlink]]
+  (:require [re-com.core    :refer [h-box v-box box gap line label title checkbox hyperlink]]
             [re-com.buttons :refer [hyperlink-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core   :as    reagent]))
 
 
@@ -23,29 +23,33 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
-                                          [:span "The hyperlink is used to..."]
+                               :children [[component-title "Notes"]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "A blue, clickable hyperlink to which you can attach a click handler."]
+                                           [:p "If you want to launch external URLs, use the [hyperlink-href] component."]]
                                           [args-table hyperlink-args-desc]]]
                               [v-box
                                :gap      "10px"
                                :children [[component-title "Demo"]
                                           [h-box
                                            :gap "30px"
-                                           :children [[box
-                                                       :width "200px"
-                                                       :align :start
-                                                       :child [hyperlink
-                                                               :label     (if @disabled? "Now disabled" "Call back")
-                                                               :tooltip   "Click here to increase the click count"
-                                                               :on-click  #(swap! click-count inc)
-                                                               :disabled? disabled?]]
+                                           :children [[v-box
+                                                       :width    "200px"
+                                                       :gap      "10px"
+                                                       :align    :start
+                                                       :children [[hyperlink
+                                                                   :label            "Click me"
+                                                                   :tooltip          "Click here to increase the click count"
+                                                                   :tooltip-position :left-center
+                                                                   :on-click         #(swap! click-count inc)
+                                                                   :disabled?        disabled?]
+                                                                  [label :label (str "click count = " @click-count)]]]
                                                       [v-box
                                                        :gap "15px"
-                                                       :children [[label :label (str "click count = " @click-count)]
-                                                                  [label :label "parameters:"]
+                                                       :children [[title :level :level3 :label "Parameters"]
                                                                   [checkbox
-                                                                   :label ":disabled?"
+                                                                   :label [:code ":disabled?"]
                                                                    :model disabled?
                                                                    :on-change (fn [val]
                                                                                 (reset! disabled? val))]]]]]]]]]]])))

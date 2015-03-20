@@ -2,10 +2,10 @@
   (:require [reagent.core      :as    reagent]
             [cljs-time.core    :refer [now days minus]]
             [cljs-time.format  :refer [formatter unparse]]
-            [re-com.core       :refer [h-box v-box gap single-dropdown datepicker datepicker-dropdown checkbox label title]]
+            [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title]]
             [re-com.datepicker :refer [iso8601->date datepicker-args-desc]]
             [re-com.util       :refer [golden-ratio-a golden-ratio-b]]
-            [re-demo.utils     :refer [panel-title component-title args-table github-hyperlink status-text]]))
+            [re-demo.utils     :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]))
 
 
 (defn- toggle-inclusion!
@@ -33,20 +33,21 @@
        :width    "600px"
        :gap      "20px"
        :align    :start
-       :children [[label :style {:font-style "italic"} :label "parameters:"]
+       :children [[gap :size "20px"]
+                  [title :level :level3 :label "Parameters"]
                   [h-box
                    :gap      "20px"
                    :align    :start
                    :children [[checkbox
-                               :label     ":disabled?"
+                               :label     [box :align :start :child [:code ":disabled?"]]
                                :model     disabled?
                                :on-change #(reset! disabled? %)]
                               [checkbox
-                               :label     ":show-today?"
+                               :label     [box :align :start :child [:code ":show-today?"]]
                                :model     show-today?
                                :on-change #(reset! show-today? %)]
                               [checkbox
-                               :label     ":show-weeks?"
+                               :label     [box :align :start :child [:code ":show-weeks?"]]
                                :model     show-weeks?
                                :on-change #(reset! show-weeks? %)]]]
                   [h-box
@@ -60,11 +61,12 @@
                               [day-check :Fr]
                               [day-check :Sa]
                               [gap :size "5px"]
-                              [label :label ":enabled-days"]
+                              [box :align :start :child [:code ":enabled-days"]]
                               [gap :size "15px"]
                               [:label
                                {:class "day-enabled" :style {:color "orange"}}
                                "(warning: excluding selected day causes assertion error)"]]]
+                  [gap :size "20px"]
                   content]])))
 
 
@@ -161,8 +163,10 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "[datepicker ... ] & [datepicker-dropdown ... ]"]
+                               :children [[component-title "[datepicker ... ] & [datepicker-dropdown ... ]" {:font-size "24px"}]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "An inline or popover date picker component."]]
                                           [args-table datepicker-args-desc]]]
                               [v-box
                                :gap       "10px"

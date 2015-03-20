@@ -1,7 +1,7 @@
 (ns re-demo.radio-button
   (:require [re-com.core   :refer [h-box v-box box gap line radio-button]]
             [re-com.misc   :refer [radio-button-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core  :as    reagent]))
 
 
@@ -21,9 +21,11 @@
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[status-text "Alpha"]
-                                          [component-title "Notes"]
-                                          [:span "The radio-button is used to..."]
+                               :children [[component-title "Notes"]
+                                          [status-text "Stable"]
+                                          [paragraphs
+                                           [:p "A boostrap-styled radio button, with optional label (always displayed to the right)."]
+                                           [:p "Clicking on the label is the same as clicking on the radio button."]]
                                           [args-table radio-button-args-desc]]]
                               [v-box
                                :gap      "10px"
@@ -35,7 +37,8 @@
                                                                 :label       c
                                                                 :value       c
                                                                 :model       colour
-                                                                :label-style (if (= c @colour) {:background-color c  :color "white"})
+                                                                :label-style (if (= c @colour) {:color       c
+                                                                                                :font-weight "bold"})
                                                                 :on-change   #(reset! colour c)]))]]]]]]]])))
 
 

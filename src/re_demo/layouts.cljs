@@ -1,7 +1,7 @@
 (ns re-demo.layouts
-  (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-layout v-layout]]
+  (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-layout v-layout title]]
             [re-com.layout :refer [h-layout-args-desc v-layout-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text]]))
+            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]))
 
 
 (def rounded-panel {:background-color "#fff4f4"
@@ -14,12 +14,19 @@
                     ;:overflow-y       "auto"
                     })
 
+(defn layout-panel-title
+  [text]
+  [title
+   :label text
+   :level :level3
+   :style {:margin-top "15px"}])
+
 (defn left-panel
   []
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [component-title "Left panel"]]])
+           [layout-panel-title "Left panel"]]])
 
 
 #_(defn right-panel
@@ -27,7 +34,7 @@
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [component-title "Right panel"]]])
+           [layout-panel-title "Right panel"]]])
 
 
 (defn top-panel
@@ -35,7 +42,7 @@
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [component-title "Top panel"]]])
+           [layout-panel-title "Top panel"]]])
 
 
 (defn bottom-panel
@@ -43,7 +50,7 @@
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [component-title "Bottom panel"]]])
+           [layout-panel-title "Bottom panel"]]])
 
 
 (defn right-panel
@@ -69,9 +76,10 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[status-text "Alpha"]
-                                      [component-title "[h-layout ...]"]
-                                      [:span "The h-layout is used to..."]
+                           :children [[component-title "[h-layout ...]"]
+                                      [status-text "Stable"]
+                                      [paragraphs
+                                       [:p "TBA..."]]
                                       [args-table h-layout-args-desc]]]
                           [v-box
                            :size     "auto"
@@ -87,7 +95,8 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[component-title "[v-layout ...]"]
-                                      [:span "The v-layout is used to..."]
+                                      [paragraphs
+                                       [:p "TBA..."]]
                                       [args-table v-layout-args-desc]]]
                           [v-box
                            :size     "auto"

@@ -1,7 +1,7 @@
 (ns re-demo.h-box
   (:require [re-com.core     :refer [h-box v-box box gap line scroller border button hyperlink-href]]
             [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc]]
-            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? vector-of-maps?]]))
 
 
@@ -19,14 +19,15 @@
               :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[status-text "Alpha"]
-                                      [component-title "Notes"]
-                                      [:span "The h-box is used to..."]
+                           :children [[component-title "Notes"]
+                                      [status-text "Stable"]
+                                      [paragraphs
+                                       [:p "TBA..."]]
                                       [args-table h-box-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span {:style {:font-variant "small-caps"}} "This Space Intentionally Left Blank"]]]]]
+                                      [:span.all-small-caps "TBA..."]]]]]
               [gap :size "30px"]]])
 
 
@@ -57,7 +58,7 @@
    :children [[panel-title [:span "Boxes (simple, with scrollers)"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]]]
-              [status-text "Alpha"]
+              [status-text "Stable"]
               [gap :size "15px"]
               [line :size "2px"]
               [h-box
@@ -119,7 +120,7 @@
    :children [[panel-title [:span "Boxes (min-width/height)"
                             [github-hyperlink "Component Source" "src/re_com/box.cljs"]
                             [github-hyperlink "Page Source"      "src/re_demo/h_box.cljs"]]]
-              [status-text "Alpha"]
+              [status-text "Stable"]
               [gap :size "15px"]
               [line :size "2px"]
               [v-box

@@ -5,9 +5,9 @@
             [reagent.core                  :as    reagent]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
-            [re-demo.utils                 :refer [panel-title re-com-title]]
-            [re-com.util                   :as    util]
-            [re-com.core                   :refer [h-box v-box box gap line scroller border] :refer-macros [handler-fn]]
+            [re-com.core                   :refer [h-box v-box box gap line scroller border label title alert-box] :refer-macros [handler-fn]]
+            [re-com.util                   :refer [get-element-by-id item-for-id]]
+            [re-demo.utils                 :refer [panel-title]]
             [re-demo.welcome               :as    welcome]
             [re-demo.radio-button          :as    radio-button]
             [re-demo.checkbox              :as    checkbox]
@@ -47,11 +47,119 @@
 
 (enable-console-print!)
 
+;; ---------------------------------------------------------------------------------------
+;;  EXPERIMENT START - TODO: REMOVE
+;; ---------------------------------------------------------------------------------------
+
+(defn green-box
+  [markup]
+  [:div
+   {:style {:width            "200px"
+            :height           "40px"
+            :margin           "10px 0px 10px"
+            :padding          "5px"
+            :text-align       "center"
+            :background-color "lightgreen"}}
+   markup])
+
+(defn green-message-box-bad
+  [msg]
+  [:div
+   [:h3 "Component 1"]
+   [green-box [:p "Message: " [:span @msg]]]])
+
+(defn green-message-box-good
+  [msg]
+  [:div
+   [:h3 "Component 2"]
+   [green-box [:p "Message: " [(fn [] [:span @msg])]]]])
+
+(defn main1
+  [msg show?]
+  [:div
+   {:style {:padding "20px"}}
+   [green-message-box-bad  msg]
+   [green-message-box-good msg]
+   [:br]
+   [:button {:on-click #(swap! show? not)} (if @show? "wax on" "wax off")]
+   [:span " ==> "]
+   [:button {:on-click #(reset! msg (if @show? "WAX ON!" "WAX OFF!"))} "update text"]])
+
+(defn main2
+  []
+  (let [msg   (reagent/atom "initial text")
+        show? (reagent/atom true)]
+    (fn []
+      [:div
+       {:style {:padding "20px"}}
+       [green-message-box-bad  msg]
+       [green-message-box-good msg]
+       [:br]
+       [:button {:on-click #(swap! show? not)} (if @show? "wax on" "wax off")]
+       [:span " ==> "]
+       [:button {:on-click #(reset! msg (if @show? "WAX ON!" "WAX OFF!"))} "update text"]])))
+
+(defn display-green-messages
+  []
+  (let [msg   (reagent/atom "initial text")
+        show? (reagent/atom true)]
+    (fn []
+      #_[:div
+       {:style {:padding "20px"}}
+       [green-message-box-bad  msg]
+       [green-message-box-good msg]
+       [:br]
+       [:button {:on-click #(swap! show? not)} (if @show? "wax on" "wax off")]
+       [:span " ==> "]
+       [:button {:on-click #(reset! msg (if @show? "WAX ON!" "WAX OFF!"))} "update text"]]
+
+      #_[main1 msg show?]
+
+      [main2]
+      )))
+
+;; ---------------------------------------------------------------------------------------
+;;  EXPERIMENT END
+;; ---------------------------------------------------------------------------------------
+
 
 (def tabs-definition
   [{:id :welcome                :label "Welcome"            :panel welcome/panel}
 
-   ;; LAYOUT COMPONENTS
+   {:id :button                 :label "Button"             :panel button/panel}
+   {:id :row-button             :label "Row Button"         :panel row-button/panel}
+   {:id :md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
+   {:id :md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
+   {:id :info-button            :label "Info Button"        :panel info-button/panel}
+   {:id :hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
+   {:id :hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
+
+   {:id :dropdown               :label "Dropdowns"          :panel dropdowns/panel}
+
+   {:id :tabs                   :label "Tabs"               :panel tabs/panel}
+
+   {:id :modal-panel            :label "Modal Panel"        :panel modal-panel/panel}
+
+   {:id :popover-args           :label "Popover Args"       :panel popovers/arg-lists}
+   {:id :popovers               :label "Popover Demos"      :panel popovers/panel}
+
+   {:id :label                  :label "Label"              :panel label/panel}
+   {:id :title                  :label "Title"              :panel title/panel}
+   {:id :checkbox               :label "Checkbox"           :panel checkbox/panel}
+   {:id :radio-button           :label "Radio Button"       :panel radio-button/panel}
+   {:id :input-text             :label "Input Text"         :panel input-text/panel}
+   {:id :slider                 :label "Slider"             :panel slider/panel}
+   {:id :progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
+   {:id :spinner                :label "Spinner"            :panel spinner/panel}
+
+   {:id :lists                  :label "Selection List"     :panel selection-list/panel}
+
+   {:id :date                   :label "Date Picker"        :panel datepicker/panel}
+
+   {:id :time                   :label "Input Time"         :panel input-time/panel}
+
+   {:id :alert-box              :label "Alert Box"          :panel alert-box/panel}
+   {:id :alert-list             :label "Alert List"         :panel alert-list/panel}
 
    {:id :h-box                  :label "H-box"              :panel h-box/panel}
    {:id :v-box                  :label "V-box"              :panel v-box/panel}
@@ -65,52 +173,11 @@
 
    {:id :layouts                :label "Layouts"            :panel layouts/panel}
 
-   {:id :tabs                   :label "Tabs"               :panel tabs/panel}
-
-   {:id :modal-panel            :label "Modal Panel"        :panel modal-panel/panel}
-
-   {:id :popover-args           :label "Popover Args"       :panel popovers/arg-lists}
-   {:id :popovers               :label "Popover Demos"      :panel popovers/panel}
-
-   ;; COMPONENTS YOU PLACE IN LAYOUT COMPONENTS
-
-   {:id :button                 :label "Button"             :panel button/panel}
-   {:id :md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
-   {:id :md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
-   {:id :row-button             :label "Row Button"         :panel row-button/panel}
-   {:id :info-button            :label "Info Button"        :panel info-button/panel}
-   {:id :hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
-   {:id :hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
-
-   {:id :label                  :label "Label"              :panel label/panel}
-   {:id :title                  :label "Title"              :panel title/panel}
-   {:id :checkbox               :label "Checkbox"           :panel checkbox/panel}
-   {:id :radio-button           :label "Radio Button"       :panel radio-button/panel}
-   {:id :input-text             :label "Input Text"         :panel input-text/panel}
-   {:id :slider                 :label "Slider"             :panel slider/panel}
-   {:id :progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
-   {:id :spinner                :label "Spinner"            :panel spinner/panel}
-
-   {:id :dropdown               :label "Dropdowns"          :panel dropdowns/panel}
-
-   {:id :lists                  :label "Selection List"     :panel selection-list/panel}
-
-   {:id :date                   :label "Date Picker"        :panel datepicker/panel}
-
-   {:id :time                   :label "Input Time"         :panel input-time/panel}
-
-   {:id :alert-box              :label "Alert Box"          :panel alert-box/panel}
-   {:id :alert-list             :label "Alert List"         :panel alert-list/panel}
-
-   ;; OTHER TYPES OF COMPONENTS
-
    {:id :tour                   :label "Tour"               :panel tour/panel}
    ])
 
 
 (defn nav-item
-  "a left hand side navigation item. Acts like a tab in a tab bar.
-  Responds to mouseover.  Has a selected state."
   []
   (let [mouse-over? (reagent/atom false)]
     (fn [tab selected-tab-id on-select-tab]
@@ -133,27 +200,39 @@
 
 (defn left-side-nav-bar
   [selected-tab-id on-select-tab]
-  [v-box
-   :style {:-webkit-user-select "none"}          ;; TODO:  -webkit specific
-   :children (for [tab tabs-definition]
-               [nav-item tab selected-tab-id on-select-tab])])
+    [v-box
+     :style {:-webkit-user-select "none"}
+     :children (for [tab tabs-definition]
+                 [nav-item tab selected-tab-id on-select-tab])])
 
 
 (defn re-com-title-box
   []
   [h-box
-   :justify  :center
-   :align    :center
-   :height   "60px"
-   :style  {:color "#FEFEFE"
-            :background-color "#888"}
-   :children [[re-com-title]]])
+   :justify :center
+   :align   :center
+   :height  "63px"
+   :style   {:background-color "#888"}
+   :children [[title
+               :label "Re-com"
+               :style {:font-family "Roboto Condensed, sans-serif"
+                       :font-size   "36px"
+                       :font-weight 300
+                       :color       "#fefefe"}]]])
 
+(defn browser-alert
+  []
+  [box
+   :padding "10px"
+   :child   [alert-box
+             :alert-type "danger"
+             :heading    "Works Best in Chrome"
+             :body       "re-com has been verified in Google Chrome. Much of it will run in other browsers but there will be dragons!"]])
 
 ;; -- Routes, Local Storage and History ------------------------------------------------------
 
 (def id-store        (local-storage (atom nil) ::id-store))
-(def selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (util/item-for-id @id-store tabs-definition)))
+(def selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (item-for-id @id-store tabs-definition)))
                                      (:id (first tabs-definition))
                                      @id-store)))  ;; id of the selected tab from local storage
 
@@ -184,11 +263,13 @@
                            :children [[re-com-title-box]
                                       [left-side-nav-bar selected-tab-id on-select-tab]]]]
                   [scroller
-                   :child [box
+                   :child [v-box
                            :size  "auto"
-                           :child [(:panel (util/item-for-id @selected-tab-id tabs-definition))]]]]])))    ;; the tab panel to show, for the selected tab
-
+                           :children [(when-not (>= (.indexOf (.-userAgent (.-navigator js/window)) "Chrome") 0) [browser-alert])
+                                      [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
 (defn ^:export mount-demo
   []
-  (reagent/render [main] (util/get-element-by-id "app")))
+  (reagent/render [main] (get-element-by-id "app"))
+  ;(reagent/render [display-green-messages] (util/get-element-by-id "app")) ;; TODO: EXPERIMENT - REMOVE
+  )

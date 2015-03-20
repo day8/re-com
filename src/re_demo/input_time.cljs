@@ -1,11 +1,8 @@
 (ns re-demo.input-time
-  (:require [re-com.core       :refer [h-box v-box box gap input-time label button checkbox]]
+  (:require [re-com.core       :refer [h-box v-box box gap input-time label title button checkbox]]
             [re-com.input-time :refer [input-time-args-desc]]
-            [re-demo.utils     :refer [panel-title component-title args-table github-hyperlink status-text]]
+            [re-demo.utils     :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core      :as    reagent]))
-
-
-(def check-style {:margin-top "1px"})
 
 
 (defn- simulated-bools
@@ -17,18 +14,15 @@
                :gap "15px"
                :align :start
                :children [[checkbox
-                           :label ":disabled?"
-                           :label-style check-style
+                           :label [box :align :start :child [:code ":disabled?"]]
                            :model @disabled?
                            :on-change #(reset! disabled? %)]
                           [checkbox
-                           :label ":hide-border?"
-                           :label-style check-style
+                           :label [box :align :start :child [:code ":hide-border?"]]
                            :model @hide-border?
                            :on-change #(reset! hide-border? %)]
                           [checkbox
-                           :label ":show-icon?"
-                           :label-style check-style
+                           :label [box :align :start :child [:code ":show-icon?"]]
                            :model @show-icon?
                            :on-change #(reset! show-icon? %)]]]]])
 
@@ -61,10 +55,10 @@
                                        :style   {:width "50px"}]]
                               [v-box
                                :gap "10px"
-                               :children [[label :style {:font-style "italic"} :label "simulated boolean parameters:"]
+                               :children [[title :level :level3 :label "Parameters"]
                                           [simulated-bools disabled? hide-border? show-icon?]
                                           [gap :size "20px"]
-                                          [label :style {:font-style "italic"} :label "simulated model resets:"]
+                                          [title :level :level3 :label "Model resets"]
                                           [h-box
                                            :gap "10px"
                                            :align :center
@@ -77,7 +71,7 @@
                                                        :class "btn btn-xs"
                                                        :on-click #(reset! an-int-time 1700)]]]
                                           [gap :size "20px"]
-                                          [label :style {:font-style "italic"} :label "simulated minimum & maximum changes:"]
+                                          [title :level :level3 :label "Simulated minimum & maximum changes"]
                                           [h-box
                                            :gap "10px"
                                            :align :center
@@ -89,13 +83,11 @@
                                            :gap "10px"
                                            :align :center
                                            :children [[checkbox
-                                                       :label ":minimum 10am"
-                                                       :label-style check-style
+                                                       :label [box :align :start :child [:code ":minimum 10am"]]
                                                        :model (not= @minimum init-minimum)
                                                        :on-change #(reset! minimum (if % 1000 init-minimum))]
                                                       [checkbox
-                                                       :label ":maximum 2pm"
-                                                       :label-style check-style
+                                                       :label [box :align :start :child [:code ":maximum 2pm"]]
                                                        :model (not= @maximum init-maximum)
                                                        :on-change #(reset! maximum (if % 1400 init-maximum))]]]]]]]]])))
 
@@ -113,13 +105,13 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[status-text "Alpha"]
-                                      [component-title "Notes"]
-                                      [:div
+                           :children [[component-title "Notes"]
+                                      [status-text "Stable"]
+                                      [paragraphs
                                        [:p "Allows the user to input time in 24hr format."]
                                        [:p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
                                             Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
-                                       [:p "If the user exists the input field with an invalid value, it will be replaced with the last known valid value."]]
+                                       [:p "If the user exits the input field with an invalid value, it will be replaced with the last known valid value."]]
                                       [args-table input-time-args-desc]]]
                           [basics-demo]]]]])
 
