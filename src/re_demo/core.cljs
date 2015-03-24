@@ -9,39 +9,39 @@
             [re-com.util                   :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title]]
             [re-demo.welcome               :as    welcome]
-            [re-demo.radio-button          :as    radio-button]
-            [re-demo.checkbox              :as    checkbox]
-            [re-demo.input-text            :as    input-text]
-            [re-demo.slider                :as    slider]
+            ;[re-demo.radio-button          :as    radio-button]
+            ;[re-demo.checkbox              :as    checkbox]
+            ;[re-demo.input-text            :as    input-text]
+            ;[re-demo.slider                :as    slider]
             [re-demo.label                 :as    label]
             [re-demo.title                 :as    title]
-            [re-demo.progress-bar          :as    progress-bar]
-            [re-demo.spinner               :as    spinner]
-            [re-demo.button                :as    button]
-            [re-demo.md-circle-icon-button :as    md-circle-icon-button]
-            [re-demo.md-icon-button        :as    md-icon-button]
-            [re-demo.info-button           :as    info-button]
-            [re-demo.row-button            :as    row-button]
-            [re-demo.hyperlink             :as    hyperlink]
-            [re-demo.hyperlink-href        :as    hyperlink-href]
-            [re-demo.dropdowns             :as    dropdowns]
-            [re-demo.alert-box             :as    alert-box]
-            [re-demo.alert-list            :as    alert-list]
-            [re-demo.tabs                  :as    tabs]
-            [re-demo.popovers              :as    popovers]
-            [re-demo.datepicker            :as    datepicker]
-            [re-demo.selection-list        :as    selection-list]
-            [re-demo.input-time            :as    input-time]
-            [re-demo.layouts               :as    layouts]
-            [re-demo.tour                  :as    tour]
-            [re-demo.modal-panel           :as    modal-panel]
-            [re-demo.h-box                 :as    h-box]
-            [re-demo.v-box                 :as    v-box]
-            [re-demo.box                   :as    box]
-            [re-demo.gap                   :as    gap]
-            [re-demo.line                  :as    line]
-            [re-demo.scroller              :as    scroller]
-            [re-demo.border                :as    border]
+            ;[re-demo.progress-bar          :as    progress-bar]
+            ;[re-demo.spinner               :as    spinner]
+            ;[re-demo.button                :as    button]
+            ;[re-demo.md-circle-icon-button :as    md-circle-icon-button]
+            ;[re-demo.md-icon-button        :as    md-icon-button]
+            ;[re-demo.info-button           :as    info-button]
+            ;[re-demo.row-button            :as    row-button]
+            ;[re-demo.hyperlink             :as    hyperlink]
+            ;[re-demo.hyperlink-href        :as    hyperlink-href]
+            ;[re-demo.dropdowns             :as    dropdowns]
+            ;[re-demo.alert-box             :as    alert-box]
+            ;[re-demo.alert-list            :as    alert-list]
+            ;[re-demo.tabs                  :as    tabs]
+            ;[re-demo.popovers              :as    popovers]
+            ;[re-demo.datepicker            :as    datepicker]
+            ;[re-demo.selection-list        :as    selection-list]
+            ;[re-demo.input-time            :as    input-time]
+            ;[re-demo.layouts               :as    layouts]
+            ;[re-demo.tour                  :as    tour]
+            ;[re-demo.modal-panel           :as    modal-panel]
+            ;[re-demo.h-box                 :as    h-box]
+            ;[re-demo.v-box                 :as    v-box]
+            ;[re-demo.box                   :as    box]
+            ;[re-demo.gap                   :as    gap]
+            ;[re-demo.line                  :as    line]
+            ;[re-demo.scroller              :as    scroller]
+            ;[re-demo.border                :as    border]
             [goog.history.EventType        :as    EventType])
   (:import [goog History]))
 
@@ -126,54 +126,54 @@
 (def tabs-definition
   [{:id :welcome                :label "Welcome"            :panel welcome/panel}
 
-   {:id :button                 :label "Button"             :panel button/panel}
-   {:id :row-button             :label "Row Button"         :panel row-button/panel}
-   {:id :md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
-   {:id :md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
-   {:id :info-button            :label "Info Button"        :panel info-button/panel}
-   {:id :hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
-   {:id :hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
-
-   {:id :dropdown               :label "Dropdowns"          :panel dropdowns/panel}
-
-   {:id :tabs                   :label "Tabs"               :panel tabs/panel}
-
-   {:id :modal-panel            :label "Modal Panel"        :panel modal-panel/panel}
-
-   {:id :popover-args           :label "Popover Args"       :panel popovers/arg-lists}
-   {:id :popovers               :label "Popover Demos"      :panel popovers/panel}
-
+   ;{:id :button                 :label "Button"             :panel button/panel}
+   ;{:id :row-button             :label "Row Button"         :panel row-button/panel}
+   ;{:id :md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
+   ;{:id :md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
+   ;{:id :info-button            :label "Info Button"        :panel info-button/panel}
+   ;{:id :hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
+   ;{:id :hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
+   ;
+   ;{:id :dropdown               :label "Dropdowns"          :panel dropdowns/panel}
+   ;
+   ;{:id :tabs                   :label "Tabs"               :panel tabs/panel}
+   ;
+   ;{:id :modal-panel            :label "Modal Panel"        :panel modal-panel/panel}
+   ;
+   ;{:id :popover-args           :label "Popover Args"       :panel popovers/arg-lists}
+   ;{:id :popovers               :label "Popover Demos"      :panel popovers/panel}
+   ;
    {:id :label                  :label "Label"              :panel label/panel}
    {:id :title                  :label "Title"              :panel title/panel}
-   {:id :checkbox               :label "Checkbox"           :panel checkbox/panel}
-   {:id :radio-button           :label "Radio Button"       :panel radio-button/panel}
-   {:id :input-text             :label "Input Text"         :panel input-text/panel}
-   {:id :slider                 :label "Slider"             :panel slider/panel}
-   {:id :progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
-   {:id :spinner                :label "Spinner"            :panel spinner/panel}
-
-   {:id :lists                  :label "Selection List"     :panel selection-list/panel}
-
-   {:id :date                   :label "Date Picker"        :panel datepicker/panel}
-
-   {:id :time                   :label "Input Time"         :panel input-time/panel}
-
-   {:id :alert-box              :label "Alert Box"          :panel alert-box/panel}
-   {:id :alert-list             :label "Alert List"         :panel alert-list/panel}
-
-   {:id :h-box                  :label "H-box"              :panel h-box/panel}
-   {:id :v-box                  :label "V-box"              :panel v-box/panel}
-   {:id :box                    :label "Box"                :panel box/panel}
-   {:id :gap                    :label "Gap"                :panel gap/panel}
-   {:id :line                   :label "Line"               :panel line/panel}
-   {:id :scroller               :label "Scroller"           :panel scroller/panel}
-   {:id :border                 :label "Border"             :panel border/panel}
-   {:id :boxes1                 :label "Box Demo 1"         :panel h-box/panelA}
-   {:id :boxes2                 :label "Box Demo 2"         :panel h-box/panelB}
-
-   {:id :layouts                :label "Layouts"            :panel layouts/panel}
-
-   {:id :tour                   :label "Tour"               :panel tour/panel}
+   ;{:id :checkbox               :label "Checkbox"           :panel checkbox/panel}
+   ;{:id :radio-button           :label "Radio Button"       :panel radio-button/panel}
+   ;{:id :input-text             :label "Input Text"         :panel input-text/panel}
+   ;{:id :slider                 :label "Slider"             :panel slider/panel}
+   ;{:id :progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
+   ;{:id :spinner                :label "Spinner"            :panel spinner/panel}
+   ;
+   ;{:id :lists                  :label "Selection List"     :panel selection-list/panel}
+   ;
+   ;{:id :date                   :label "Date Picker"        :panel datepicker/panel}
+   ;
+   ;{:id :time                   :label "Input Time"         :panel input-time/panel}
+   ;
+   ;{:id :alert-box              :label "Alert Box"          :panel alert-box/panel}
+   ;{:id :alert-list             :label "Alert List"         :panel alert-list/panel}
+   ;
+   ;{:id :h-box                  :label "H-box"              :panel h-box/panel}
+   ;{:id :v-box                  :label "V-box"              :panel v-box/panel}
+   ;{:id :box                    :label "Box"                :panel box/panel}
+   ;{:id :gap                    :label "Gap"                :panel gap/panel}
+   ;{:id :line                   :label "Line"               :panel line/panel}
+   ;{:id :scroller               :label "Scroller"           :panel scroller/panel}
+   ;{:id :border                 :label "Border"             :panel border/panel}
+   ;{:id :boxes1                 :label "Box Demo 1"         :panel h-box/panelA}
+   ;{:id :boxes2                 :label "Box Demo 2"         :panel h-box/panelB}
+   ;
+   ;{:id :layouts                :label "Layouts"            :panel layouts/panel}
+   ;
+   ;{:id :tour                   :label "Tour"               :panel tour/panel}
    ])
 
 

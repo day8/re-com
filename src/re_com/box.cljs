@@ -144,21 +144,23 @@
 ;;  Component: gap (debug colour: chocolate)
 ;; ------------------------------------------------------------------------------------
 
+(when ^boolean js/goog.DEBUG
 (def gap-args-desc
   [{:name :size   :required true  :type "string" :validate-fn string?    :description "a CSS style to specify size in any sizing amount, usually px, % or em"}
    {:name :width  :required false :type "string" :validate-fn string?    :description [:span "this will override " [:code ":size"] ", but best to use size as it knows if it should be width or height"]}
    {:name :height :required false :type "string" :validate-fn string?    :description [:span "as per " [:code ":width"] " above"]}
    {:name :class  :required false :type "string" :validate-fn string?    :description "CSS class names, space separated"}
    {:name :style  :required false :type "map"    :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr   :required false :type "map"    :validate-fn html-attr? :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :attr   :required false :type "map"    :validate-fn html-attr? :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
-(def gap-args (extract-arg-data gap-args-desc))
+(when ^boolean js/goog.DEBUG
+(def gap-args (extract-arg-data gap-args-desc)))
 
 (defn gap
   "Returns a component which produces a gap between children in a v-box/h-box along the main axis"
   [& {:keys [size width height class style attr]
       :as   args}]
-  {:pre [(validate-args gap-args args "gap")]}
+  ;{:pre [(validate-args gap-args args "gap")]}
   (let [s (merge
             (when size   (flex-child-style size))
             (when width  {:width width})
@@ -175,14 +177,16 @@
 ;;  Component: line
 ;; ------------------------------------------------------------------------------------
 
+(when ^boolean js/goog.DEBUG
 (def line-args-desc
   [{:name :size  :required false :default "1px"       :type "string" :validate-fn string?    :description "a CSS style to specify size in any sizing amount, usually px, % or em"}
    {:name :color :required false :default "lightgray" :type "string" :validate-fn string?    :description "a colour using CSS colour methods"}
    {:name :class :required false                      :type "string" :validate-fn string?    :description "CSS class names, space separated"}
    {:name :style :required false                      :type "map"    :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr  :required false                      :type "map"    :validate-fn html-attr? :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :attr  :required false                      :type "map"    :validate-fn html-attr? :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
-(def line-args (extract-arg-data line-args-desc))
+(when ^boolean js/goog.DEBUG
+(def line-args (extract-arg-data line-args-desc)))
 
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
@@ -190,7 +194,7 @@
   [& {:keys [size color class style attr]
       :or   {size "1px" color "lightgray"}
       :as   args}]
-  {:pre [(validate-args line-args args "line")]}
+  ;{:pre [(validate-args line-args args "line")]}
   (let [s (merge
             {:flex (str "0 0 " size)}
             {:background-color color}
@@ -205,6 +209,7 @@
 ;;  Component: h-box (debug colour: gold)
 ;; ------------------------------------------------------------------------------------
 
+(when ^boolean js/goog.DEBUG
 (def h-box-args-desc
   [{:name :children   :required true                    :type "vector"  :validate-fn sequential?    :description "a vector (or list) of components"}
    {:name :size       :required false :default "none"   :type "string"  :validate-fn string?        :description [:span "a flexbox type size. Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
@@ -219,9 +224,10 @@
    {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "a CSS size style. See gap component"}
    {:name :class      :required false                   :type "string"  :validate-fn string?        :description "CSS class names, space separated"}
    {:name :style      :required false                   :type "map"     :validate-fn css-style?     :description "CSS styles to add or override"}
-   {:name :attr       :required false                   :type "map"     :validate-fn html-attr?     :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :attr       :required false                   :type "map"     :validate-fn html-attr?     :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
-(def h-box-args (extract-arg-data h-box-args-desc))
+(when ^boolean js/goog.DEBUG
+(def h-box-args (extract-arg-data h-box-args-desc)))
 
 (defn h-box
   "Returns hiccup which produces a horizontal box.
@@ -230,7 +236,7 @@
   [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
-  {:pre [(validate-args h-box-args args "h-box")]}
+  ;{:pre [(validate-args h-box-args args "h-box")]}
   (let [s        (merge
                    {:display "flex" :flex-flow "row nowrap"}
                    (flex-child-style size)
@@ -259,7 +265,8 @@
 ;;  Component: v-box (debug colour: antiquewhite)
 ;; ------------------------------------------------------------------------------------
 
- (def v-box-args-desc
+(when ^boolean js/goog.DEBUG
+(def v-box-args-desc
   [{:name :children   :required true                    :type "vector"  :validate-fn sequential?    :description "a vector (or list) of components"}
    {:name :size       :required false :default "none"   :type "string"  :validate-fn string?        :description [:span "a flexbox type size. Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
    {:name :width      :required false                   :type "string"  :validate-fn string?        :description "a CSS width style"}
@@ -273,9 +280,10 @@
    {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "a CSS size style. See gap component"}
    {:name :class      :required false                   :type "string"  :validate-fn string?        :description "CSS class names, space separated"}
    {:name :style      :required false                   :type "map"     :validate-fn css-style?     :description "CSS styles to add or override"}
-   {:name :attr       :required false                   :type "map"     :validate-fn html-attr?     :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :attr       :required false                   :type "map"     :validate-fn html-attr?     :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
-(def v-box-args (extract-arg-data v-box-args-desc))
+(when ^boolean js/goog.DEBUG
+(def v-box-args (extract-arg-data v-box-args-desc)))
 
 (defn v-box
   "Returns hiccup which produces a vertical box.
@@ -284,7 +292,7 @@
   [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
-  {:pre [(validate-args v-box-args args "v-box")]}
+  ;{:pre [(validate-args v-box-args args "v-box")]}
   (let [s        (merge
                    {:display "flex" :flex-flow "column nowrap"}
                    (flex-child-style size)
@@ -313,7 +321,8 @@
 ;;  Component: box
 ;; ------------------------------------------------------------------------------------
 
- (def box-args-desc
+(when ^boolean js/goog.DEBUG
+(def box-args-desc
   [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
    {:name :size       :required false :default "none"   :type "string"          :validate-fn string?           :description [:span "a flexbox type size. Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
    {:name :width      :required false                   :type "string"          :validate-fn string?           :description "a CSS width style"}
@@ -327,9 +336,10 @@
    {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
    {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style      :required false                   :type "map"             :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr       :required false                   :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :attr       :required false                   :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
-(def box-args (extract-arg-data box-args-desc))
+(when ^boolean js/goog.DEBUG
+(def box-args (extract-arg-data box-args-desc)))
 
 (defn box
   "Returns hiccup which produces a box, which is generally used as a child of a v-box or an h-box.
@@ -337,7 +347,7 @@
   [& {:keys [size width height min-width min-height justify align align-self margin padding child class style attr]
       :or   {size "none"}
       :as   args}]
-  {:pre [(validate-args box-args args "box")]}
+  ;{:pre [(validate-args box-args args "box")]}
   (box-base :size        size
             :width       width
             :height      height
@@ -358,6 +368,7 @@
 ;;  Component: scroller
 ;; ------------------------------------------------------------------------------------
 
+(when ^boolean js/goog.DEBUG
 (def scroller-args-desc
   [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
    {:name :size       :required false :default "auto"   :type "string"          :validate-fn string?           :description [:span "a flexbox type size. Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
@@ -380,9 +391,10 @@
    {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
    {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style      :required false                   :type "map"             :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr       :required false                   :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :attr       :required false                   :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
-(def scroller-args (extract-arg-data scroller-args-desc))
+(when ^boolean js/goog.DEBUG
+(def scroller-args (extract-arg-data scroller-args-desc)))
 
 (defn scroller
   "Returns hiccup which produces a scoller component.
@@ -400,7 +412,7 @@
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height justify align align-self margin padding child class style attr]
       :or   {size "auto"}
       :as   args}]
-  {:pre [(validate-args scroller-args args "scroller")]}
+  ;{:pre [(validate-args scroller-args args "scroller")]}
   (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
         scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
     (box-base :size       size
@@ -426,6 +438,7 @@
 ;;  Component: border
 ;; ------------------------------------------------------------------------------------
 
+(when ^boolean js/goog.DEBUG
 (def border-args-desc
   [{:name :child      :required true                                 :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
    {:name :size       :required false :default "auto"                :type "string"          :validate-fn string?           :description [:span "a flexbox type size. Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
@@ -443,9 +456,10 @@
    {:name :radius     :required false                                :type "string"          :validate-fn string?           :description "a CSS radius style eg.\"2px\""}
    {:name :class      :required false                                :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style      :required false                                :type "map"             :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr       :required false                                :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :attr       :required false                                :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
-(def border-args (extract-arg-data border-args-desc))
+(when ^boolean js/goog.DEBUG
+(def border-args (extract-arg-data border-args-desc)))
 
 (defn border
   "Returns hiccup which produces a border component.
@@ -457,7 +471,7 @@
   [& {:keys [size width height min-width min-height margin padding border l-border r-border t-border b-border radius child class style attr]
       :or   {size "auto"}
       :as   args}]
-  {:pre [(validate-args border-args args "border")]}
+  ;{:pre [(validate-args border-args args "border")]}
   (let [no-border      (every? nil? [border l-border r-border t-border b-border])
         default-border "1px solid lightgrey"]
     (box-base :size        size

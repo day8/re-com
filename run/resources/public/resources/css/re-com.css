@@ -844,6 +844,8 @@ html, body {
   background:rgba(0,0,0,0.45);
   }
 
+::-moz-selection { color: gold;  background: red; }
+::selection      { color: gold;  background: red; }
 /*----------------------------------------------------------------------------------------
   Override bootstrap input text placeholder colour (it's too dark)
 ----------------------------------------------------------------------------------------*/
