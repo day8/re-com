@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util      :refer [deref-or-value position-for-id item-for-id]]
             [clojure.string   :as    string]
-            [re-com.validate :as r  :refer [extract-arg-data vector-of-maps? #_css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
+            [re-com.validate  :refer [extract-arg-data vector-of-maps? css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
             [reagent.core     :as    reagent]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
@@ -182,7 +182,7 @@
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
    {:name :class         :required false                  :type "string"                        :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style         :required false                  :type "css style map"                 :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style         :required false                  :type "css style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr          :required false                  :type "html attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def single-dropdown-args (extract-arg-data single-dropdown-args-desc))
@@ -269,11 +269,10 @@
                                  filter-box?))]  ;; Use this boolean to allow/prevent the key from being processed by the text box
         [:div
          (merge
-           {:class (str "rc-dropdown chosen-container chosen-container-single " (when @drop-showing? "chosen-container-active chosen-with-drop ") class)
-            :style (merge {:flex                (if width "0 0 auto" "auto")
-                           :align-self          "flex-start"
-                           :width               (when width width)
-                           :-webkit-user-select "none"}
+           {:class (str "rc-dropdown chosen-container chosen-container-single noselect " (when @drop-showing? "chosen-container-active chosen-with-drop ") class)
+            :style (merge {:flex       (if width "0 0 auto" "auto")
+                           :align-self "flex-start"
+                           :width      (when width width)}
                           style)}
            attr)          ;; Prevent user text selection
          [dropdown-top internal-model choices tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]

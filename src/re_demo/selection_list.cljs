@@ -92,7 +92,7 @@
                                        [:p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
                                        [:p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]]
                                       [args-table selection-list-args-desc]]]
-                          [list-with-options 1024]]]]])   ;; Was (golden-ratio-b 1024)
+                          [list-with-options 600]]]]])
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

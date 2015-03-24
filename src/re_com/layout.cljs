@@ -1,7 +1,7 @@
 (ns re-com.layout
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util        :refer [get-element-by-id sum-scroll-offsets]]
-            [re-com.validate :as r    :refer [extract-arg-data string-or-hiccup? number-or-string?] :refer-macros [validate-args-macro]]
+            [re-com.validate    :refer [extract-arg-data string-or-hiccup? number-or-string?] :refer-macros [validate-args-macro]]
             [reagent.core       :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------

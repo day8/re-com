@@ -3,7 +3,7 @@
   (:require
     [reagent.core         :as    reagent]
     [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
-    [re-com.validate :as r      :refer [extract-arg-data goog-date? #_css-style? html-attr?] :refer-macros [validate-args-macro]]
+    [re-com.validate      :refer [extract-arg-data goog-date? css-style? html-attr?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box]]
@@ -75,12 +75,11 @@
                :border (when hide-border? "none")
                :child  [:div
                         (merge
-                          {:class (str "rc-datepicker datepicker" class)
+                          {:class (str "rc-datepicker datepicker noselect " class)
                            ;; override inherrited body larger 14px font-size
                            ;; override position from css because we are inline
-                           :style (merge {:font-size           "13px"
-                                          :position            "static"
-                                          :-webkit-user-select "none"} ;; only good on webkit/chrome what do we do for firefox etc
+                           :style (merge {:font-size "13px"
+                                          :position  "static"}
                                           style)}
                           attr)
                         table-div]]]])
@@ -200,7 +199,7 @@
    {:name :maximum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
    {:name :hide-border? :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
    {:name :class        :required false                       :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style        :required false                       :type "css style map"                  :validate-fn r/css-style? :description "CSS styles to add or override"}
+   {:name :style        :required false                       :type "css style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
    {:name :attr         :required false                       :type "html attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def datepicker-args (extract-arg-data datepicker-args-desc))
@@ -231,10 +230,9 @@
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   [shown? model format]
-  [:div {:class    "input-group"
-         :style    {:display             "flex"
-                    :flex                "none"
-                    :-webkit-user-select "none"}
+  [:div {:class    "input-group noselect"
+         :style    {:display "flex"
+                    :flex    "none"}
          :on-click (handler-fn (swap! shown? not))}
    [h-box
     :align :center

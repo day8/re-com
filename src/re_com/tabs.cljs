@@ -1,7 +1,7 @@
 (ns re-com.tabs
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value]]
-            [re-com.validate :as r :refer [extract-arg-data vector-of-maps?] :refer-macros [validate-args-macro]]))
+            [re-com.validate :refer [extract-arg-data vector-of-maps?] :refer-macros [validate-args-macro]]))
 
 
 
@@ -24,9 +24,8 @@
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
     [:ul
-     {:class "rc-tabs nav nav-tabs"
-      :style {:flex                "none"
-              :-webkit-user-select "none"}}
+     {:class "rc-tabs nav nav-tabs noselect"
+      :style {:flex "none"}}
      (for [t tabs]
        (let [id        (:id t)
              label     (:label t)
@@ -51,9 +50,8 @@
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
     [:div
-     {:class (str "rc-tabs btn-group" (if vertical? "-vertical"))
-      :style {:flex                "none"
-              :-webkit-user-select "none"}}
+     {:class (str "rc-tabs noselect btn-group" (if vertical? "-vertical"))
+      :style {:flex "none"}}
      (for [t tabs]
        (let [id        (:id t)
              label     (:label t)
@@ -96,9 +94,8 @@
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
     [:ul
-     {:class (str "rc-tabs nav nav-pills" (when vertical? " nav-stacked"))
-      :style {:flex                "none"
-              :-webkit-user-select "none"}
+     {:class (str "rc-tabs noselect nav nav-pills" (when vertical? " nav-stacked"))
+      :style {:flex "none"}
       :role  "tabslist"}
      (for [t tabs]
        (let [id        (:id t)

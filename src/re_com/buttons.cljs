@@ -1,8 +1,8 @@
 (ns re-com.buttons
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value px]]
-            [re-com.validate :as r :refer [extract-arg-data position? position-options-list button-size? button-sizes-list
-                                     string-or-hiccup? #_css-style? html-attr? string-or-atom?] :refer-macros [validate-args-macro]]
+            [re-com.validate :refer [extract-arg-data position? position-options-list button-size? button-sizes-list
+                                     string-or-hiccup? css-style? html-attr? string-or-atom?] :refer-macros [validate-args-macro]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [h-box v-box box gap line]]
             [reagent.core    :as    reagent]))
@@ -18,7 +18,7 @@
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :disabled?        :required false :default false         :type "boolean | atom"                                 :description "if true, the user can't click the button"}
-   {:name :style            :required false                        :type "css style map"   :validate-fn r/css-style?        :description "CSS styles"}
+   {:name :style            :required false                        :type "css style map"   :validate-fn css-style?        :description "CSS styles"}
    {:name :attr             :required false                        :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def button-args (extract-arg-data button-args-desc))
@@ -73,7 +73,7 @@
    {:name :emphasise?       :required false :default false         :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out"}
    {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style            :required false                        :type "css style map"   :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style            :required false                        :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def md-circle-icon-button-args (extract-arg-data md-circle-icon-button-args-desc))
@@ -92,7 +92,7 @@
       (let [the-button [:div
                         (merge
                           {:class    (str
-                                       "rc-md-circle-icon-button "
+                                       "rc-md-circle-icon-button noselect "
                                        (case size
                                          :smaller "rc-circle-smaller "
                                          :larger "rc-circle-larger "
@@ -133,7 +133,7 @@
    {:name :emphasise?       :required false :default false         :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out"}
    {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style            :required false                        :type "css style map"   :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style            :required false                        :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def md-icon-button-args (extract-arg-data md-icon-button-args-desc))
@@ -152,7 +152,7 @@
       (let [the-button [:div
                         (merge
                           {:class    (str
-                                       "rc-md-icon-button "
+                                       "rc-md-icon-button noselect "
                                        (case size
                                          :smaller "rc-icon-smaller "
                                          :larger "rc-icon-larger "
@@ -190,7 +190,7 @@
    {:name :position :required false :default :right-below :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :width    :required false :default "250px"      :type "string"          :validate-fn string?           :description "width in px"}
    {:name :class    :required false                       :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style    :required false                       :type "css style map"   :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style    :required false                       :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr     :required false                       :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def info-button-args (extract-arg-data info-button-args-desc))
@@ -213,7 +213,7 @@
        :on-cancel #(swap! showing? not)
        :anchor    [:div
                    (merge
-                     {:class    (str "rc-info-button " class)
+                     {:class    (str "rc-info-button noselect " class)
                       :style    (merge {:cursor "pointer"} style)
                       :on-click (handler-fn (swap! showing? not))}
                      attr)
@@ -235,7 +235,7 @@
    {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style            :required false                        :type "css style map"   :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style            :required false                        :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def row-button-args (extract-arg-data row-button-args-desc))
@@ -252,7 +252,7 @@
       (let [the-button [:div
                         (merge
                           {:class    (str
-                                       "rc-row-button "
+                                       "rc-row-button noselect "
                                        (when mouse-over-row? "rc-row-mouse-over-row ")
                                        (when disabled? "rc-row-disabled ")
                                        class)
@@ -285,7 +285,7 @@
    {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style            :required false                        :type "css style map"          :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style            :required false                        :type "css style map"          :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "html attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def hyperlink-args (extract-arg-data hyperlink-args-desc))
@@ -305,12 +305,11 @@
                         :align :start
                         :child [:a
                                 (merge
-                                  {:class    (str "rc-hyperlink " class)
+                                  {:class    (str "rc-hyperlink noselect " class)
                                    :style    (merge
-                                               {:flex                "none"
-                                                :cursor              (if disabled? "not-allowed" "pointer")
-                                                :color               (when disabled? "grey")
-                                                :-webkit-user-select "none"}
+                                               {:flex   "none"
+                                                :cursor (if disabled? "not-allowed" "pointer")
+                                                :color  (when disabled? "grey")}
                                                style)
                                    :on-click (handler-fn
                                                (when (and on-click (not disabled?))
@@ -340,7 +339,7 @@
    {:name :tooltip          :required false                        :type "string | hiccup"        :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style            :required false                        :type "css style map"          :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style            :required false                        :type "css style map"          :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "html attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def hyperlink-href-args (extract-arg-data hyperlink-href-args-desc))
@@ -358,9 +357,8 @@
             href       (deref-or-value href)
             target     (deref-or-value target)
             the-button [:a
-                        (merge {:class  (str "rc-hyperlink-href " class)
-                                :style  (merge {:flex                "none"
-                                                :-webkit-user-select "none"}
+                        (merge {:class  (str "rc-hyperlink-href noselect " class)
+                                :style  (merge {:flex "none"}
                                                style)
                                 :href   href
                                 :target target}

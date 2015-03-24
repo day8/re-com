@@ -1,5 +1,5 @@
 (ns re-com.modal-panel
-  (:require [re-com.validate :as r :refer [extract-arg-data string-or-hiccup? number-or-string? #_css-style? html-attr?] :refer-macros [validate-args-macro]]))
+  (:require [re-com.validate :refer [extract-arg-data string-or-hiccup? number-or-string? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  modal-panel
@@ -11,7 +11,7 @@
    {:name :backdrop-color   :required false :default "black" :type "string"          :validate-fn string?           :description "CSS colour of backdrop"}
    {:name :backdrop-opacity :required false :default 0.6     :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
    {:name :class            :required false                  :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style            :required false                  :type "map"             :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style            :required false                  :type "map"             :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                  :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def modal-panel-args (extract-arg-data modal-panel-args-desc))

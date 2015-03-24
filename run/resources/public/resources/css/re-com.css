@@ -949,7 +949,6 @@ code {
     border-radius:       50%;
     background-color:    inherit;
     opacity:             0.9;
-    -webkit-user-select: none;
 }
 
 .rc-md-circle-icon-button > i {
@@ -1018,7 +1017,6 @@ code {
     text-align:          center;             /* to horizontally center the icon */
     background-color:    inherit;
     border-radius:       3px;
-    -webkit-user-select: none;
 }
 
 .rc-md-icon-button > i {
@@ -1076,7 +1074,6 @@ code {
     padding-left:        3px;
     padding-right:       3px;
     fill:                #bdbdbd;
-    -webkit-user-select: none;
 }
 
 .rc-info-button:hover {
@@ -1120,7 +1117,6 @@ code {
     background-color:    inherit;
     opacity:             0;
     cursor:              pointer;
-    -webkit-user-select: none;
 }
 
 .rc-row-button > i {
@@ -1224,4 +1220,11 @@ code {
     letter-spacing: 0.002em;
     font-variant:   small-caps;
     flex:           none;
+}
+
+.noselect {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }

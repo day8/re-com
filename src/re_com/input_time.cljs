@@ -1,7 +1,7 @@
 (ns re-com.input-time
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [reagent.core    :as    reagent]
-            [re-com.validate :as r :refer [extract-arg-data #_css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
+            [re-com.validate :refer [extract-arg-data css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
             [re-com.text     :refer [label]]
             [re-com.box      :refer [h-box gap]]
             [re-com.util     :refer [pad-zero-number deref-or-value]]))
@@ -133,7 +133,7 @@
    {:name :show-icon?   :required false :default false :type "boolean"                                                :description "when true, a clock icon will be displayed to the right of input field"}
    {:name :hide-border? :required false :default false :type "boolean"                                                :description "when true, input filed is displayed without a border"}
    {:name :class        :required false                :type "string"                  :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style        :required false                :type "css style map"           :validate-fn r/css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"}" }
+   {:name :style        :required false                :type "css style map"           :validate-fn css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"}" }
    {:name :attr         :required false                :type "html attr map"           :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def input-time-args (extract-arg-data input-time-args-desc))

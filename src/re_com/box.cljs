@@ -1,7 +1,7 @@
 (ns re-com.box
   (:require [clojure.string  :as    string]
-            [re-com.validate :as r :refer [extract-arg-data justify-style? justify-options-list align-style? align-options-list
-                                     scroll-style? scroll-options-list string-or-hiccup? #_css-style? html-attr?] :refer-macros [validate-args-macro]]))
+            [re-com.validate :refer [extract-arg-data justify-style? justify-options-list align-style? align-options-list
+                                     scroll-style? scroll-options-list string-or-hiccup? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 (def debug false)
 
@@ -149,7 +149,7 @@
    {:name :width  :required false :type "string" :validate-fn string?    :description [:span "this will override " [:code ":size"] ", but best to use size as it knows if it should be width or height"]}
    {:name :height :required false :type "string" :validate-fn string?    :description [:span "as per " [:code ":width"] " above"]}
    {:name :class  :required false :type "string" :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style  :required false :type "map"    :validate-fn r/css-style? :description "CSS styles to add or override"}
+   {:name :style  :required false :type "map"    :validate-fn css-style? :description "CSS styles to add or override"}
    {:name :attr   :required false :type "map"    :validate-fn html-attr? :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def gap-args (extract-arg-data gap-args-desc))
@@ -179,7 +179,7 @@
   [{:name :size  :required false :default "1px"       :type "string" :validate-fn string?    :description "a CSS style to specify size in any sizing amount, usually px, % or em"}
    {:name :color :required false :default "lightgray" :type "string" :validate-fn string?    :description "a colour using CSS colour methods"}
    {:name :class :required false                      :type "string" :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style :required false                      :type "map"    :validate-fn r/css-style? :description "CSS styles to add or override"}
+   {:name :style :required false                      :type "map"    :validate-fn css-style? :description "CSS styles to add or override"}
    {:name :attr  :required false                      :type "map"    :validate-fn html-attr? :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def line-args (extract-arg-data line-args-desc))
@@ -218,7 +218,7 @@
    {:name :padding    :required false                   :type "string"  :validate-fn string?        :description "a CSS padding style"}
    {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "a CSS size style. See gap component"}
    {:name :class      :required false                   :type "string"  :validate-fn string?        :description "CSS class names, space separated"}
-   {:name :style      :required false                   :type "map"     :validate-fn r/css-style?     :description "CSS styles to add or override"}
+   {:name :style      :required false                   :type "map"     :validate-fn css-style?     :description "CSS styles to add or override"}
    {:name :attr       :required false                   :type "map"     :validate-fn html-attr?     :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def h-box-args (extract-arg-data h-box-args-desc))
@@ -272,7 +272,7 @@
    {:name :padding    :required false                   :type "string"  :validate-fn string?        :description "a CSS padding style"}
    {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "a CSS size style. See gap component"}
    {:name :class      :required false                   :type "string"  :validate-fn string?        :description "CSS class names, space separated"}
-   {:name :style      :required false                   :type "map"     :validate-fn r/css-style?     :description "CSS styles to add or override"}
+   {:name :style      :required false                   :type "map"     :validate-fn css-style?     :description "CSS styles to add or override"}
    {:name :attr       :required false                   :type "map"     :validate-fn html-attr?     :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def v-box-args (extract-arg-data v-box-args-desc))
@@ -326,7 +326,7 @@
    {:name :margin     :required false                   :type "string"          :validate-fn string?           :description "a CSS margin style"}
    {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
    {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style      :required false                   :type "map"             :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style      :required false                   :type "map"             :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr       :required false                   :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def box-args (extract-arg-data box-args-desc))
@@ -379,7 +379,7 @@
    {:name :margin     :required false                   :type "string"          :validate-fn string?           :description "a CSS margin style"}
    {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
    {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style      :required false                   :type "map"             :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style      :required false                   :type "map"             :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr       :required false                   :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def scroller-args (extract-arg-data scroller-args-desc))
@@ -442,7 +442,7 @@
    {:name :b-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the bottom. Overrides " [:code ":border"]]}
    {:name :radius     :required false                                :type "string"          :validate-fn string?           :description "a CSS radius style eg.\"2px\""}
    {:name :class      :required false                                :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style      :required false                                :type "map"             :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style      :required false                                :type "map"             :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr       :required false                                :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def border-args (extract-arg-data border-args-desc))

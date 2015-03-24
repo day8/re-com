@@ -1,7 +1,7 @@
 (ns re-com.text
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.box      :refer [v-box box line]]
-            [re-com.validate :as r :refer [extract-arg-data title-levels-list title-level-type? #_css-style?
+            [re-com.validate :refer [extract-arg-data title-levels-list title-level-type? css-style?
                                      html-attr? string-or-hiccup?] :refer-macros [validate-args-macro]]))
 
 
@@ -14,7 +14,7 @@
      {:name :on-click :required false :type "() -> nil"     :validate-fn fn?        :description "called when the label is clicked"}
      {:name :width    :required false :type "string"        :validate-fn string?    :description "a CSS width"}
      {:name :class    :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
-     {:name :style    :required false :type "css style map" :validate-fn r/css-style? :description "additional CSS styles"}
+     {:name :style    :required false :type "css style map" :validate-fn css-style? :description "additional CSS styles"}
      {:name :attr     :required false :type "html attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def label-args (extract-arg-data label-args-desc))
@@ -47,7 +47,7 @@
    {:name :level      :required false                  :type "keyword"         :validate-fn title-level-type? :description [:span "one of " title-levels-list ". If not provided then style the title using " [:code ":class"] " or " [:code ":style"]] }
    {:name :underline? :required false  :default false  :type "boolean"                                        :description "if true, the title is underlined"}
    {:name :class      :required false                  :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style      :required false                  :type "css style map"   :validate-fn r/css-style?        :description "CSS styles to add or override"}
+   {:name :style      :required false                  :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr       :required false                  :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def title-args (extract-arg-data title-args-desc))

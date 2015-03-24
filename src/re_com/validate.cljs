@@ -34,7 +34,7 @@
 (defn extract-arg-data
   "Package up all the relevant data for validation purposes from the xxx-args-desc map into a new map"
   [args-desc]
-  ;(when ^boolean js/goog.DEBUG
+  (when ^boolean js/goog.DEBUG
     {:arg-names      (set (map :name args-desc))
      :required-args  (->> args-desc
                           (filter :required)
@@ -43,7 +43,7 @@
      :validated-args (->> (filter :validate-fn args-desc)
                           vec
                           (hash-map-with-name-keys))}
-    ;)
+    )
   )
 
 ;; ----------------------------------------------------------------------------
@@ -103,13 +103,13 @@
    If they all pass, returns true.
    Normally used for a call to the {:pre...} at the beginning of a function"
   [arg-defs passed-args & component-name]
-  ;(if-not ^boolean js/goog.DEBUG
-  ;  true
+  (if-not ^boolean js/goog.DEBUG
+    true
     (let [passed-arg-keys (set (keys passed-args))]
       (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys)
            (required-args-passed? (:required-args  arg-defs) passed-arg-keys)
            (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name))))
-    ;)
+    )
   )
 
 
@@ -255,15 +255,15 @@
   "Returns true if the passed argument is a valid CSS style.
    Otherwise returns a warning map"
   [arg]
-  ;(if-not ^boolean js/goog.DEBUG
-  ;  true
+  (if-not ^boolean js/goog.DEBUG
+    true
     (let [arg (deref-or-value arg)]
       (and (map? arg)
            (let [arg-keys (keys arg)]
              (or (superset? css-styles arg-keys)
                  {:status  :warning
                   :message (str "Unknown CSS style(s): " (remove css-styles arg-keys))}))))
-    ;)
+    )
   )
 
 (defn html-attr?

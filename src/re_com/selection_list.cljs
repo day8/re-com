@@ -3,7 +3,7 @@
   (:require [re-com.text     :refer [label]]
             [re-com.misc     :refer [checkbox radio-button]]
             [re-com.box      :refer [box border h-box v-box]]
-            [re-com.validate :as r :refer [extract-arg-data vector-of-maps? string-or-atom? set-or-atom?] :refer-macros [validate-args-macro]]
+            [re-com.validate :refer [extract-arg-data vector-of-maps? string-or-atom? set-or-atom?] :refer-macros [validate-args-macro]]
             [re-com.util     :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
@@ -62,8 +62,7 @@
 (def ^:const list-style
   ;;TODO: These should be in CSS resource
   {:overflow-x     "hidden"
-   :overflow-y     "auto" ;;TODO this should be handled by scroller later
-   :-webkit-user-select "none"})
+   :overflow-y     "auto"}) ;;TODO this should be handled by scroller later
 
 (def ^:const spacing-bordered
   {:padding-top         "0px"
@@ -118,7 +117,7 @@
     [border
      :radius "4px"
      :border (when hide-border? "none")
-     :child  (into [:div {:class "list-group" :style (merge list-style bounds spacing)}] items)]))
+     :child  (into [:div {:class "list-group noselect" :style (merge list-style bounds spacing)}] items)]))
 
 
 (defn- configure
