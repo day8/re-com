@@ -197,8 +197,9 @@
 
 (defn info-button
   "A tiny light grey button, with an 'i' in it. Meant to be unobrusive.
-  When pressed, displays a popup assumidly contining helpful information.
-   Primarily designed to be nestled against the label of an input field, explaining the purpose of the field"
+  When pressed, displays a popup assumidly containing helpful information.
+  Primarily designed to be nestled against the label of an input field, explaining the purpose of that field.
+  Create a very small \"i\" icon via SVG"
   []
   (let [showing? (reagent/atom false)]
     (fn
