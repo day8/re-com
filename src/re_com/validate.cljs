@@ -272,8 +272,8 @@
    Notes:
     - Prevents :class and :style attributes"
   [arg]
-  ;(if-not ^boolean js/goog.DEBUG
-  ;  true
+  (if-not ^boolean js/goog.DEBUG
+    true
     (let [arg (deref-or-value arg)]
       (and (map? arg)
            (let [arg-keys        (set (keys arg))
@@ -286,7 +286,7 @@
              (or (nil? result)
                  {:status  (if (or contains-class? contains-style?) :error :warning)
                   :message result}))))
-    ;)
+    )
   )
 
 (defn goog-date?
@@ -317,6 +317,9 @@
   [arg]
   (set? (deref-or-value arg)))
 
+;; -- Used in conjunction with validate-args-macro macro ----------------------
+
 (defn ^boolean debug?
+  "Return the value of goog.DEBUG with the ^boolean type hint attached. Normal way (^boolean goog.DEBUG) doesn't work in macros"
   []
   js/goog.DEBUG)

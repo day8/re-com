@@ -3,7 +3,7 @@
   (:require [re-com.text     :refer [label]]
             [re-com.misc     :refer [checkbox radio-button]]
             [re-com.box      :refer [box border h-box v-box]]
-            [re-com.validate :refer [extract-arg-data validate-args vector-of-maps? string-or-atom? set-or-atom?]]
+            [re-com.validate :as r :refer [extract-arg-data vector-of-maps? string-or-atom? set-or-atom?] :refer-macros [validate-args-macro]]
             [re-com.util     :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
@@ -97,13 +97,13 @@
    {:name :item-renderer  :required false                :type "function | atom"                    :validate-fn fn?             :description "called for each element during setup, the returned component renders the element, responds to clicks etc."}
    {:name :label-fn       :required false :default 'str  :type "function | atom"                    :validate-fn ifn?            :description "called for each element to get label string"}])
 
-(def selection-list-args (extract-arg-data selection-list-args-desc))
+;(def selection-list-args (extract-arg-data selection-list-args-desc))
 
 ;;TODO hide hover highlights for links when disabled
 (defn- list-container
   [{:keys [choices model on-change multi-select? disabled? hide-border? label-fn required? as-exclusions? item-renderer]
     :as   args}]
-  {:pre [(validate-args selection-list-args args "selection-list")]}
+  {:pre [(validate-args-macro selection-list-args-desc args "selection-list")]}
   (let [selected (if multi-select? model (-> model first vector set))
         items    (map (if item-renderer
                         #(item-renderer % selected on-change disabled? label-fn required? as-exclusions?)
@@ -135,7 +135,7 @@
 (defn selection-list
   "Produce a list box with items arranged vertically"
   [& {:as args}]
-  {:pre [(validate-args selection-list-args args "selection-list")]}
+  {:pre [(validate-args-macro selection-list-args-desc args "selection-list")]}
   ;;NOTE: Consumer has complete control over what is selected or not. A current design tradeoff
   ;;      causes all selection changes to trigger a complete list re-render as a result of on-change callback.
   ;;      this approach may be not ideal for very large list choices.

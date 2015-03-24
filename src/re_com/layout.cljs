@@ -1,7 +1,7 @@
 (ns re-com.layout
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util        :refer [get-element-by-id sum-scroll-offsets]]
-            [re-com.validate    :refer [extract-arg-data validate-args string-or-hiccup? number-or-string?]]
+            [re-com.validate :as r    :refer [extract-arg-data string-or-hiccup? number-or-string?] :refer-macros [validate-args-macro]]
             [reagent.core       :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------
@@ -15,14 +15,14 @@
    {:name :splitter-size :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
    {:name :margin        :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
 
-(def h-layout-args (extract-arg-data h-layout-args-desc))
+;(def h-layout-args (extract-arg-data h-layout-args-desc))
 
 (defn h-layout
   "Returns markup for a horizontal layout component"
   [& {:keys [left-panel right-panel initial-split splitter-size margin]
       :or   {initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(validate-args h-layout-args args "h-layout")]}
+  {:pre [(validate-args-macro h-layout-args-desc args "h-layout")]}
   (let [container-id         (gensym "h-layout-")
         split-perc           (reagent/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
         dragging?            (reagent/atom false)                       ;; is the user dragging the splitter (mouse is down)?
@@ -103,14 +103,14 @@
    {:name :splitter-size :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
    {:name :margin        :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
 
-(def v-layout-args (extract-arg-data v-layout-args-desc))
+;(def v-layout-args (extract-arg-data v-layout-args-desc))
 
 (defn v-layout
   "Returns markup for a vertical layout component"
   [& {:keys [top-panel bottom-panel initial-split splitter-size margin]
       :or   {initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(validate-args v-layout-args args "v-layout")]}
+  {:pre [(validate-args-macro v-layout-args-desc args "v-layout")]}
   (let [container-id         (gensym "v-layout-")
         split-perc           (reagent/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height
         dragging?            (reagent/atom false)                        ;; is the user dragging the splitter (mouse is down)?

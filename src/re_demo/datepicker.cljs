@@ -4,7 +4,6 @@
             [cljs-time.format  :refer [formatter unparse]]
             [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title]]
             [re-com.datepicker :refer [iso8601->date datepicker-args-desc]]
-            [re-com.util       :refer [golden-ratio-a golden-ratio-b]]
             [re-demo.utils     :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]))
 
 

@@ -2,7 +2,6 @@
   (:require [re-com.core           :refer [h-box v-box box selection-list label title checkbox]]
             [re-com.selection-list :refer [selection-list-args-desc]]
             [re-demo.utils         :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
-            [re-com.util           :refer [golden-ratio-a golden-ratio-b]]
             [reagent.core          :as    reagent]))
 
 
@@ -75,27 +74,25 @@
 
 (defn panel2
   []
-  (let [panel-width 1024
-        b-width     (golden-ratio-b panel-width)]
-    [v-box
-     :size     "auto"
-     :gap      "10px"
-     :children [[panel-title [:span "[selection-list ... ]"
-                              [github-hyperlink "Component Source" "src/re_com/selection_list.cljs"]
-                              [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]]]
-                [h-box
-                 :gap      "100px"
-                 :children [[v-box
-                             :gap      "10px"
-                             :width    "450px"
-                             :children [[component-title "Notes"]
-                                        [status-text "Stable"]
-                                        [paragraphs
-                                         [:p "Allows the user to select items from a list (single or multi)."]
-                                         [:p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
-                                         [:p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]]
-                                        [args-table selection-list-args-desc]]]
-                            [list-with-options b-width]]]]]))
+  [v-box
+   :size     "auto"
+   :gap      "10px"
+   :children [[panel-title [:span "[selection-list ... ]"
+                            [github-hyperlink "Component Source" "src/re_com/selection_list.cljs"]
+                            [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]]]
+              [h-box
+               :gap      "100px"
+               :children [[v-box
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[component-title "Notes"]
+                                      [status-text "Stable"]
+                                      [paragraphs
+                                       [:p "Allows the user to select items from a list (single or multi)."]
+                                       [:p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
+                                       [:p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]]
+                                      [args-table selection-list-args-desc]]]
+                          [list-with-options 1024]]]]])   ;; Was (golden-ratio-b 1024)
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

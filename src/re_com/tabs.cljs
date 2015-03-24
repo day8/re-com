@@ -1,7 +1,7 @@
 (ns re-com.tabs
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value]]
-            [re-com.validate :refer [extract-arg-data validate-args vector-of-maps?]]))
+            [re-com.validate :as r :refer [extract-arg-data vector-of-maps?] :refer-macros [validate-args-macro]]))
 
 
 
@@ -14,12 +14,12 @@
    {:name :model     :required true :type ":id from :tabs | atom"                              :description "the :id of the currently selected tab"}
    {:name :on-change :required true :type "(:id) -> nil"          :validate-fn fn?             :description "called when user alters the selection. Passed the :id of the selection"}])
 
-(def tabs-args (extract-arg-data tabs-args-desc))
+;(def tabs-args (extract-arg-data tabs-args-desc))
 
 (defn horizontal-tabs
   [& {:keys [model tabs on-change]
       :as   args}]
-  {:pre [(validate-args tabs-args args "tabs")]}
+  {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
@@ -69,7 +69,7 @@
 
 (defn horizontal-bar-tabs
   [& {:keys [model tabs on-change] :as args}]
-  {:pre [(validate-args tabs-args args "tabs")]}
+  {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
   (bar-tabs
     :model     model
     :tabs      tabs
@@ -78,7 +78,7 @@
 
 (defn vertical-bar-tabs
   [& {:keys [model tabs on-change] :as args}]
-  {:pre [(validate-args tabs-args args "tabs")]}
+  {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
   (bar-tabs
     :model     model
     :tabs      tabs
@@ -117,7 +117,7 @@
 
 (defn horizontal-pill-tabs
   [& {:keys [model tabs on-change] :as args}]
-  {:pre [(validate-args tabs-args args "tabs")]}
+  {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
   (pill-tabs
     :model     model
     :tabs      tabs
@@ -127,7 +127,7 @@
 
 (defn vertical-pill-tabs
   [& {:keys [model tabs on-change] :as args}]
-  {:pre [(validate-args tabs-args args "tabs")]}
+  {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
   (pill-tabs
     :model     model
     :tabs      tabs

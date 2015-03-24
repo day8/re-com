@@ -3,7 +3,8 @@
   (:require [re-com.util     :refer [deref-or-value]]
             [re-com.buttons  :refer [button]]
             [re-com.box      :refer [h-box v-box box scroller border]]
-            [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? alert-types-list vector-of-maps? css-style? html-attr?]]))
+            [re-com.validate :as r :refer [extract-arg-data string-or-hiccup? alert-type? alert-types-list
+                                     vector-of-maps? #_css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert
@@ -18,17 +19,17 @@
    {:name :closeable? :required false :default false  :type "boolean"                                        :description [:span "if true, render a close button. " [:code ":on-close"] " should be supplied"]}
    {:name :on-close   :required false                 :type "(:id) -> nil"    :validate-fn fn?               :description [:span "called when the user clicks the close 'X' button. Passed the " [:code ":id"] " of the alert to close"]}
    {:name :class      :required false                 :type "string"          :validate-fn string?           :description "CSS classes (whitespace separated). Applied to outer container"}
-   {:name :style      :required false                 :type "css style map"   :validate-fn css-style?        :description "CSS styles. Applied to outer container"}
+   {:name :style      :required false                 :type "css style map"   :validate-fn r/css-style?        :description "CSS styles. Applied to outer container"}
    {:name :attr       :required false                 :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])
 
-(def alert-box-args (extract-arg-data alert-box-args-desc))
+;(def alert-box-args (extract-arg-data alert-box-args-desc))
 
 (defn alert-box
   "Displays one alert box. A close button allows the message to be removed"
   [& {:keys [id alert-type heading body padding closeable? on-close class style attr]
       :or   {alert-type "info"}
       :as   args}]
-  {:pre [(validate-args alert-box-args args "alert-box")]}
+  {:pre [(validate-args-macro alert-box-args-desc args "alert-box")]}
   (let [close-button [button
                       :label    "×"
                       :on-click (handler-fn (on-close id))
@@ -71,10 +72,10 @@
    {:name :padding      :required false :default "4px"                 :type "string"                :validate-fn string?         :description "CSS padding within the alert"}
    {:name :border-style :required false :default "1px solid lightgrey" :type "string"                :validate-fn string?         :description "CSS border style surrounding the list"}
    {:name :class        :required false                                :type "string"                :validate-fn string?         :description "CSS class names, space separated. Applied to outer container"}
-   {:name :style        :required false                                :type "css style map"         :validate-fn css-style?      :description "CSS styles. Applied to outer container"}
+   {:name :style        :required false                                :type "css style map"         :validate-fn r/css-style?      :description "CSS styles. Applied to outer container"}
    {:name :attr         :required false                                :type "html attr map"         :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])
 
-(def alert-list-args (extract-arg-data alert-list-args-desc))
+;(def alert-list-args (extract-arg-data alert-list-args-desc))
 
 (defn alert-list
   "Displays a list of alert-box components in a v-box. Sample alerts object:
@@ -91,7 +92,7 @@
   [& {:keys [alerts on-close max-height padding border-style class style attr]
       :or   {padding "4px"}
       :as   args}]
-  {:pre [(validate-args alert-list-args args "alert-list")]}
+  {:pre [(validate-args-macro alert-list-args-desc args "alert-list")]}
   (let [alerts (deref-or-value alerts)]
     [box
      :child [border
