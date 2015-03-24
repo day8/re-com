@@ -2,7 +2,7 @@
   (:require [re-com.core     :refer [h-box v-box box gap line scroller border button hyperlink-href]]
             [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc]]
             [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
-            [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? alert-type? vector-of-maps?]]))
+            [re-com.validate :refer [extract-arg-data string-or-hiccup? alert-type? vector-of-maps?]]))
 
 
 (defn panel

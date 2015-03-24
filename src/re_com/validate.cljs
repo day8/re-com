@@ -5,20 +5,6 @@
              [goog.string           :as    gstring]))
 
 
-;; -- Global Switch -----------------------------------------------------------
-
-;; TODO: Remove
-
-; if true, then validation occurs.
-; It is expected that will be flicked to off, in production systems.
-;(defonce arg-validation (atom ^boolean js/goog.DEBUG))
-
-;(defn set-validation!
-;  "Turns argument validation on or off based on a boolean argument"
-;  [val]
-;  (reset! arg-validation val))
-
-
 ;; -- Helpers -----------------------------------------------------------------
 
 (defn left-string
@@ -56,7 +42,9 @@
                           set)
      :validated-args (->> (filter :validate-fn args-desc)
                           vec
-                          (hash-map-with-name-keys))}))
+                          (hash-map-with-name-keys))}
+    )
+  )
 
 ;; ----------------------------------------------------------------------------
 ;; Primary validation functions
@@ -115,12 +103,14 @@
    If they all pass, returns true.
    Normally used for a call to the {:pre...} at the beginning of a function"
   [arg-defs passed-args & component-name]
-  (if ^boolean js/goog.DEBUG
+  (if-not ^boolean js/goog.DEBUG
+    true
     (let [passed-arg-keys (set (keys passed-args))]
-      (and (arg-names-valid? (:arg-names arg-defs) passed-arg-keys)
-           (required-args-passed? (:required-args arg-defs) passed-arg-keys)
-           (validate-fns-pass? (:validated-args arg-defs) passed-args (first component-name))))
-    true))
+      (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys)
+           (required-args-passed? (:required-args  arg-defs) passed-arg-keys)
+           (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name))))
+    )
+  )
 
 
 ;; ----------------------------------------------------------------------------
@@ -135,6 +125,7 @@
 (def spinner-sizes        [:regular :small :large])
 (def input-status-types   [:warning :error])
 (def popover-status-types [:warning :error :info])
+(def title-levels         [:level1 :level2 :level3 :level4])
 (def position-options     [:above-left  :above-center :above-right
                            :below-left  :below-center :below-right
                            :left-above  :left-center  :left-below
@@ -155,6 +146,7 @@
 (defn spinner-size?        [arg] (validate-arg-against-set arg ":size"          spinner-sizes))
 (defn input-status-type?   [arg] (validate-arg-against-set arg ":status"        input-status-types))
 (defn popover-status-type? [arg] (validate-arg-against-set arg ":status"        popover-status-types))
+(defn title-level-type?    [arg] (validate-arg-against-set arg ":level"         title-levels))
 (defn position?            [arg] (validate-arg-against-set arg ":position"      position-options))
 
 ;; ----------------------------------------------------------------------------
@@ -174,6 +166,7 @@
 (def spinner-sizes-list        (make-code-list spinner-sizes))
 (def input-status-types-list   (make-code-list input-status-types))
 (def popover-status-types-list (make-code-list popover-status-types))
+(def title-levels-list         (make-code-list title-levels))
 (def position-options-list     (make-code-list position-options))
 
 
@@ -262,12 +255,16 @@
   "Returns true if the passed argument is a valid CSS style.
    Otherwise returns a warning map"
   [arg]
-  (let [arg (deref-or-value arg)]
-    (and (map? arg)
-         (let [arg-keys (keys arg)]
-           (or (superset? css-styles arg-keys)
-               {:status  :warning
-                :message (str "Unknown CSS style(s): " (remove css-styles arg-keys))})))))
+  (if-not ^boolean js/goog.DEBUG
+    true
+    (let [arg (deref-or-value arg)]
+      (and (map? arg)
+           (let [arg-keys (keys arg)]
+             (or (superset? css-styles arg-keys)
+                 {:status  :warning
+                  :message (str "Unknown CSS style(s): " (remove css-styles arg-keys))}))))
+    )
+  )
 
 (defn html-attr?
   "Returns true if the passed argument is a valid HTML, SVG or event attribute.
@@ -275,18 +272,22 @@
    Notes:
     - Prevents :class and :style attributes"
   [arg]
-  (let [arg (deref-or-value arg)]
-    (and (map? arg)
-         (let [arg-keys        (set (keys arg))
-               contains-class? (contains? arg-keys :class)
-               contains-style? (contains? arg-keys :style)
-               result   (cond
-                          contains-class?                       ":class not allowed in :attr argument"
-                          contains-style?                       ":style not allowed in :attr argument"
-                          (not (superset? html-attrs arg-keys)) (str "Unknown HTML attribute(s): " (remove html-attrs arg-keys)))]
-           (or (nil? result)
-               {:status  (if (or contains-class? contains-style?) :error :warning)
-                :message result})))))
+  (if-not ^boolean js/goog.DEBUG
+    true
+    (let [arg (deref-or-value arg)]
+      (and (map? arg)
+           (let [arg-keys        (set (keys arg))
+                 contains-class? (contains? arg-keys :class)
+                 contains-style? (contains? arg-keys :style)
+                 result   (cond
+                            contains-class?                       ":class not allowed in :attr argument"
+                            contains-style?                       ":style not allowed in :attr argument"
+                            (not (superset? html-attrs arg-keys)) (str "Unknown HTML attribute(s): " (remove html-attrs arg-keys)))]
+             (or (nil? result)
+                 {:status  (if (or contains-class? contains-style?) :error :warning)
+                  :message result}))))
+    )
+  )
 
 (defn goog-date?
   "Returns true if the passed argument is a valid goog.date.UtcDateTime, otherwise false/error"
@@ -315,3 +316,10 @@
   "Returns true if the passed argument is a set (or a set within an atom), otherwise false/error"
   [arg]
   (set? (deref-or-value arg)))
+
+;; -- Used in conjunction with validate-args-macro macro ----------------------
+
+(defn ^boolean debug?
+  "Return the value of goog.DEBUG with the ^boolean type hint attached. Normal way (^boolean goog.DEBUG) doesn't work in macros"
+  []
+  js/goog.DEBUG)

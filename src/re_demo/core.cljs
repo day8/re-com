@@ -201,7 +201,7 @@
 (defn left-side-nav-bar
   [selected-tab-id on-select-tab]
     [v-box
-     :style {:-webkit-user-select "none"}
+     :class    "noselect"
      :children (for [tab tabs-definition]
                  [nav-item tab selected-tab-id on-select-tab])])
 

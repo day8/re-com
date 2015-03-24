@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util      :refer [deref-or-value position-for-id item-for-id]]
             [clojure.string   :as    string]
-            [re-com.validate  :refer [extract-arg-data validate-args vector-of-maps? css-style? html-attr? number-or-string?]]
+            [re-com.validate  :refer [extract-arg-data vector-of-maps? css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
             [reagent.core     :as    reagent]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
@@ -185,7 +185,7 @@
    {:name :style         :required false                  :type "css style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr          :required false                  :type "html attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def single-dropdown-args (extract-arg-data single-dropdown-args-desc))
+;(def single-dropdown-args (extract-arg-data single-dropdown-args-desc))
 
 (defn single-dropdown
   "Render a single dropdown component which emulates the bootstrap-choosen style. Sample choices object:
@@ -194,13 +194,13 @@
       {:id \"GB\" :label \"United Kingdom\" :group \"Group 1\"}
       {:id \"AF\" :label \"Afghanistan\"    :group \"Group 2\"}]"
   [& {:keys [model] :as args}]
-  {:pre [(validate-args single-dropdown-args args "single-dropdown")]}
+  {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
         filter-text    (reagent/atom "")]
     (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index class style attr] :as args}]
-      {:pre [(validate-args single-dropdown-args args "single-dropdown")]}
+      {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
       (let [choices          (deref-or-value choices)
             disabled?        (deref-or-value disabled?)
             regex-filter?    (deref-or-value regex-filter?)
@@ -269,11 +269,10 @@
                                  filter-box?))]  ;; Use this boolean to allow/prevent the key from being processed by the text box
         [:div
          (merge
-           {:class (str "rc-dropdown chosen-container chosen-container-single " (when @drop-showing? "chosen-container-active chosen-with-drop ") class)
-            :style (merge {:flex                (if width "0 0 auto" "auto")
-                           :align-self          "flex-start"
-                           :width               (when width width)
-                           :-webkit-user-select "none"}
+           {:class (str "rc-dropdown chosen-container chosen-container-single noselect " (when @drop-showing? "chosen-container-active chosen-with-drop ") class)
+            :style (merge {:flex       (if width "0 0 auto" "auto")
+                           :align-self "flex-start"
+                           :width      (when width width)}
                           style)}
            attr)          ;; Prevent user text selection
          [dropdown-top internal-model choices tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
