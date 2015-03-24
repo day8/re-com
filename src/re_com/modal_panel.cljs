@@ -1,5 +1,5 @@
 (ns re-com.modal-panel
-  (:require [re-com.validate :refer [extract-arg-data validate-args string-or-hiccup? number-or-string? css-style? html-attr?]]))
+  (:require [re-com.validate :refer [extract-arg-data string-or-hiccup? number-or-string? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  modal-panel
@@ -14,7 +14,7 @@
    {:name :style            :required false                  :type "map"             :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                  :type "map"             :validate-fn html-attr?        :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def modal-panel-args (extract-arg-data modal-panel-args-desc))
+;(def modal-panel-args (extract-arg-data modal-panel-args-desc))
 
 (defn modal-panel
   "Renders a modal window centered on screen. A dark transparent backdrop sits between this and the underlying
@@ -24,7 +24,7 @@
   [& {:keys [child wrap-nicely? backdrop-color backdrop-opacity class style attr]
       :or   {wrap-nicely? true backdrop-color "black" backdrop-opacity 0.6}
       :as   args}]
-  {:pre [(validate-args modal-panel-args args "modal-panel")]}
+  {:pre [(validate-args-macro modal-panel-args-desc args "modal-panel")]}
   (fn []
     [:div
      (merge {:class  (str "rc-modal-panel " class)    ;; Containing div

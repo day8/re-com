@@ -1,6 +1,6 @@
 (ns re-demo.modal-panel
   (:require [re-com.core        :refer [h-box v-box box gap line border title label modal-panel progress-bar input-text checkbox button]]
-            [re-com.modal-panel :refer [modal-panel-args-desc modal-panel-args]]
+            [re-com.modal-panel :refer [modal-panel-args-desc]]
             [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core       :as    reagent]))
 

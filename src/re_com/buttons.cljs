@@ -1,8 +1,8 @@
 (ns re-com.buttons
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value px]]
-            [re-com.validate :refer [extract-arg-data validate-args position? position-options-list button-size?
-                                     button-sizes-list string-or-hiccup? css-style? html-attr? string-or-atom?]]
+            [re-com.validate :refer [extract-arg-data position? position-options-list button-size? button-sizes-list
+                                     string-or-hiccup? css-style? html-attr? string-or-atom?] :refer-macros [validate-args-macro]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [h-box v-box box gap line]]
             [reagent.core    :as    reagent]))
@@ -21,7 +21,7 @@
    {:name :style            :required false                        :type "css style map"   :validate-fn css-style?        :description "CSS styles"}
    {:name :attr             :required false                        :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def button-args (extract-arg-data button-args-desc))
+;(def button-args (extract-arg-data button-args-desc))
 
 (defn button
   "Returns the markup for a basic button"
@@ -31,7 +31,7 @@
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr]
           :or   {class "btn-default"}
           :as   args}]
-      {:pre [(validate-args button-args args "button")]}
+      {:pre [(validate-args-macro button-args-desc args "button")]}
       (let [disabled? (deref-or-value disabled?)
             the-button [:button
                         (merge
@@ -76,7 +76,7 @@
    {:name :style            :required false                        :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def md-circle-icon-button-args (extract-arg-data md-circle-icon-button-args-desc))
+;(def md-circle-icon-button-args (extract-arg-data md-circle-icon-button-args-desc))
 
 ; XXX It should be possible for disabled? to be an atom?
 
@@ -88,11 +88,11 @@
       [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
           :or   {md-icon-name "md-add"}
           :as   args}]
-      {:pre [(validate-args md-circle-icon-button-args args "md-circle-icon-button")]}
+      {:pre [(validate-args-macro md-circle-icon-button-args-desc args "md-circle-icon-button")]}
       (let [the-button [:div
                         (merge
                           {:class    (str
-                                       "rc-md-circle-icon-button "
+                                       "rc-md-circle-icon-button noselect "
                                        (case size
                                          :smaller "rc-circle-smaller "
                                          :larger "rc-circle-larger "
@@ -136,7 +136,7 @@
    {:name :style            :required false                        :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def md-icon-button-args (extract-arg-data md-icon-button-args-desc))
+;(def md-icon-button-args (extract-arg-data md-icon-button-args-desc))
 
 ; XXX It should be possible for disabled? to be an atom?
 
@@ -148,11 +148,11 @@
       [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
           :or   {md-icon-name "md-add"}
           :as   args}]
-      {:pre [(validate-args md-icon-button-args args "md-icon-button")]}
+      {:pre [(validate-args-macro md-icon-button-args-desc args "md-icon-button")]}
       (let [the-button [:div
                         (merge
                           {:class    (str
-                                       "rc-md-icon-button "
+                                       "rc-md-icon-button noselect "
                                        (case size
                                          :smaller "rc-icon-smaller "
                                          :larger "rc-icon-larger "
@@ -193,7 +193,7 @@
    {:name :style    :required false                       :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr     :required false                       :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def info-button-args (extract-arg-data info-button-args-desc))
+;(def info-button-args (extract-arg-data info-button-args-desc))
 
 (defn info-button
   "A tiny light grey button, with an 'i' in it. Meant to be unobrusive.
@@ -204,7 +204,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [info position width class style attr] :as args}]
-      {:pre [(validate-args info-button-args args "info-button")]}
+      {:pre [(validate-args-macro info-button-args-desc args "info-button")]}
       [popover-tooltip
        :label     info
        :status    :info
@@ -214,7 +214,7 @@
        :on-cancel #(swap! showing? not)
        :anchor    [:div
                    (merge
-                     {:class    (str "rc-info-button " class)
+                     {:class    (str "rc-info-button noselect " class)
                       :style    (merge {:cursor "pointer"} style)
                       :on-click (handler-fn (swap! showing? not))}
                      attr)
@@ -239,7 +239,7 @@
    {:name :style            :required false                        :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def row-button-args (extract-arg-data row-button-args-desc))
+;(def row-button-args (extract-arg-data row-button-args-desc))
 
 (defn row-button
   "a circular button containing a material design icon"
@@ -249,11 +249,11 @@
       [& {:keys [md-icon-name on-click mouse-over-row? tooltip tooltip-position disabled? class style attr]
           :or   {md-icon-name "md-add"}
           :as   args}]
-      {:pre [(validate-args row-button-args args "row-button")]}
+      {:pre [(validate-args-macro row-button-args-desc args "row-button")]}
       (let [the-button [:div
                         (merge
                           {:class    (str
-                                       "rc-row-button "
+                                       "rc-row-button noselect "
                                        (when mouse-over-row? "rc-row-mouse-over-row ")
                                        (when disabled? "rc-row-disabled ")
                                        class)
@@ -289,7 +289,7 @@
    {:name :style            :required false                        :type "css style map"          :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "html attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def hyperlink-args (extract-arg-data hyperlink-args-desc))
+;(def hyperlink-args (extract-arg-data hyperlink-args-desc))
 
 (defn hyperlink
   "Renders an underlined text hyperlink component.
@@ -299,19 +299,18 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr] :as args}]
-      {:pre [(validate-args hyperlink-args args "hyperlink")]}
+      {:pre [(validate-args-macro hyperlink-args-desc args "hyperlink")]}
       (let [label      (deref-or-value label)
             disabled?  (deref-or-value disabled?)
             the-button [box
                         :align :start
                         :child [:a
                                 (merge
-                                  {:class    (str "rc-hyperlink " class)
+                                  {:class    (str "rc-hyperlink noselect " class)
                                    :style    (merge
-                                               {:flex                "none"
-                                                :cursor              (if disabled? "not-allowed" "pointer")
-                                                :color               (when disabled? "grey")
-                                                :-webkit-user-select "none"}
+                                               {:flex   "none"
+                                                :cursor (if disabled? "not-allowed" "pointer")
+                                                :color  (when disabled? "grey")}
                                                style)
                                    :on-click (handler-fn
                                                (when (and on-click (not disabled?))
@@ -344,7 +343,7 @@
    {:name :style            :required false                        :type "css style map"          :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "html attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def hyperlink-href-args (extract-arg-data hyperlink-href-args-desc))
+;(def hyperlink-href-args (extract-arg-data hyperlink-href-args-desc))
 
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.
@@ -354,14 +353,13 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [label href target tooltip tooltip-position class style attr] :as args}]
-      {:pre [(validate-args hyperlink-href-args args "hyperlink-href")]}
+      {:pre [(validate-args-macro hyperlink-href-args-desc args "hyperlink-href")]}
       (let [label      (deref-or-value label)
             href       (deref-or-value href)
             target     (deref-or-value target)
             the-button [:a
-                        (merge {:class  (str "rc-hyperlink-href " class)
-                                :style  (merge {:flex                "none"
-                                                :-webkit-user-select "none"}
+                        (merge {:class  (str "rc-hyperlink-href noselect " class)
+                                :style  (merge {:flex "none"}
                                                style)
                                 :href   href
                                 :target target}

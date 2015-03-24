@@ -57,7 +57,7 @@
                                                        :gap      "20px"
                                                        :align    :center
                                                        :justify  :start
-                                                       :children [[box :width "90px" :child [:code ":emphasis?"]]
+                                                       :children [[box :width "90px" :child [:code ":emphasise?"]]
                                                                   [md-icon-button
                                                                    :md-icon-name @selected-icon
                                                                    :emphasise?   true

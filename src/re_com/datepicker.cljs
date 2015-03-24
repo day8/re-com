@@ -3,7 +3,7 @@
   (:require
     [reagent.core         :as    reagent]
     [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
-    [re-com.validate      :refer [extract-arg-data validate-args goog-date? css-style? html-attr?]]
+    [re-com.validate      :refer [extract-arg-data goog-date? css-style? html-attr?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box]]
@@ -75,12 +75,11 @@
                :border (when hide-border? "none")
                :child  [:div
                         (merge
-                          {:class (str "rc-datepicker datepicker" class)
+                          {:class (str "rc-datepicker datepicker noselect " class)
                            ;; override inherrited body larger 14px font-size
                            ;; override position from css because we are inline
-                           :style (merge {:font-size           "13px"
-                                          :position            "static"
-                                          :-webkit-user-select "none"} ;; only good on webkit/chrome what do we do for firefox etc
+                           :style (merge {:font-size "13px"
+                                          :position  "static"}
                                           style)}
                           attr)
                         table-div]]]])
@@ -203,15 +202,15 @@
    {:name :style        :required false                       :type "css style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
    {:name :attr         :required false                       :type "html attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-(def datepicker-args (extract-arg-data datepicker-args-desc))
+;(def datepicker-args (extract-arg-data datepicker-args-desc))
 
 (defn datepicker
   [& {:keys [model] :as args}]
-  {:pre [(validate-args datepicker-args args "datepicker")]}
+  {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
   (let [current (-> (deref-or-value model) first-day-of-the-month reagent/atom)]
     (fn
       [& {:keys [model disabled? hide-border? on-change class style attr] :as properties}]
-      {:pre [(validate-args datepicker-args properties "datepicker")]}
+      {:pre [(validate-args-macro datepicker-args-desc properties "datepicker")]}
       (let [configuration (configure properties)]
         [main-div-with
          [:table {:class "table-condensed"}
@@ -231,10 +230,9 @@
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   [shown? model format]
-  [:div {:class    "input-group"
-         :style    {:display             "flex"
-                    :flex                "none"
-                    :-webkit-user-select "none"}
+  [:div {:class    "input-group noselect"
+         :style    {:display "flex"
+                    :flex    "none"}
          :on-click (handler-fn (swap! shown? not))}
    [h-box
     :align :center
@@ -247,11 +245,11 @@
   (conj datepicker-args-desc
     {:name :format  :required false  :default "yyyy MMM dd"  :type "string"   :description "a represenatation of a date format. See cljs_time.format"}))
 
-(def datepicker-dropdown-args (extract-arg-data datepicker-dropdown-args-desc))
+;(def datepicker-dropdown-args (extract-arg-data datepicker-dropdown-args-desc))
 
 (defn datepicker-dropdown
   [& {:as args}]
-  {:pre [(validate-args datepicker-dropdown-args args "datepicker-dropdown")]}
+  {:pre [(validate-args-macro datepicker-dropdown-args-desc args "datepicker-dropdown")]}
   (let [shown?         (reagent/atom false)
         cancel-popover #(reset! shown? false)
         position       :below-center]
