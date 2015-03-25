@@ -110,7 +110,7 @@
   "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
   [& {:keys [opacity on-click] :as args}]
   {:pre [(validate-args-macro backdrop-args-desc args "backdrop")]}
-  [:div {:class     "rc-backdrop"
+  [:div {:class     "rc-backdrop noselect"
          :style    {:position         "fixed"
                     :left             "0px"
                     :top              "0px"

@@ -34,7 +34,6 @@
 (defn extract-arg-data
   "Package up all the relevant data for validation purposes from the xxx-args-desc map into a new map"
   [args-desc]
-  (when ^boolean js/goog.DEBUG
     {:arg-names      (set (map :name args-desc))
      :required-args  (->> args-desc
                           (filter :required)
@@ -42,9 +41,7 @@
                           set)
      :validated-args (->> (filter :validate-fn args-desc)
                           vec
-                          (hash-map-with-name-keys))}
-    )
-  )
+                          (hash-map-with-name-keys))})
 
 ;; ----------------------------------------------------------------------------
 ;; Primary validation functions
@@ -108,9 +105,7 @@
     (let [passed-arg-keys (set (keys passed-args))]
       (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys)
            (required-args-passed? (:required-args  arg-defs) passed-arg-keys)
-           (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name))))
-    )
-  )
+           (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name))))))
 
 
 ;; ----------------------------------------------------------------------------
@@ -120,7 +115,7 @@
 (def justify-options      [:start :end :center :between :around])
 (def align-options        [:start :end :center :baseline :stretch])
 (def scroll-options       [:auto :off :on :spill])
-(def alert-types          ["info" "warning" "danger"])
+(def alert-types          [:info :warning :danger])
 (def button-sizes         [:regular :smaller :larger])
 (def spinner-sizes        [:regular :small :large])
 (def input-status-types   [:warning :error])
@@ -262,9 +257,7 @@
            (let [arg-keys (keys arg)]
              (or (superset? css-styles arg-keys)
                  {:status  :warning
-                  :message (str "Unknown CSS style(s): " (remove css-styles arg-keys))}))))
-    )
-  )
+                  :message (str "Unknown CSS style(s): " (remove css-styles arg-keys))}))))))
 
 (defn html-attr?
   "Returns true if the passed argument is a valid HTML, SVG or event attribute.
@@ -285,9 +278,7 @@
                             (not (superset? html-attrs arg-keys)) (str "Unknown HTML attribute(s): " (remove html-attrs arg-keys)))]
              (or (nil? result)
                  {:status  (if (or contains-class? contains-style?) :error :warning)
-                  :message result}))))
-    )
-  )
+                  :message result}))))))
 
 (defn goog-date?
   "Returns true if the passed argument is a valid goog.date.UtcDateTime, otherwise false/error"
@@ -316,10 +307,3 @@
   "Returns true if the passed argument is a set (or a set within an atom), otherwise false/error"
   [arg]
   (set? (deref-or-value arg)))
-
-;; -- Used in conjunction with validate-args-macro macro ----------------------
-
-(defn ^boolean debug?
-  "Return the value of goog.DEBUG with the ^boolean type hint attached. Normal way (^boolean goog.DEBUG) doesn't work in macros"
-  []
-  js/goog.DEBUG)

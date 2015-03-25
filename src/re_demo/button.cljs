@@ -77,7 +77,7 @@
                                           [paragraphs
                                            [:p "This button is completely restyled (using the " [:code ":style"] " and " [:code ":attr"] " arguments) to look like a Microsoft Modern UI button and demonstrates the use of hiccup for the label."]
                                            [button
-                                            :label    [:span "Microsoft Modern Button " [:i {:class "md-file-download"}]] ;;[:i {:class "glyphicon glyphicon glyphicon-download"}]
+                                            :label    [:span "Microsoft Modern Button " [:i.md-file-download]]
                                             :on-click #()
                                             :style    {:color            "white"
                                                        :background-color (if @hover? "#0072bb" "#4d90fe")

@@ -1,6 +1,6 @@
 (ns re-demo.title
   (:require [re-com.core   :refer [h-box v-box box gap line title label checkbox hyperlink-href]]
-            ;[re-com.text   :refer [title-args-desc]]
+            [re-com.text   :refer [title-args-desc]]
             [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core  :as    reagent]))
 
@@ -45,7 +45,7 @@
                                                :href (str base-url "run/resources/public/resources/css/re-com.css")
                                                :target "_blank"]
                                               "."]]
-                                            #_[args-table title-args-desc]]]
+                                            [args-table title-args-desc]]]
                                 [v-box
                                  :gap "10px"
                                  :children [[component-title "Demo"]

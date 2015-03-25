@@ -70,9 +70,7 @@
                                     "")
                                   (when (and status status-icon?) "has-feedback")
                                   )
-                      :style {:flex          "auto"
-                              ;:margin-bottom "0px"
-                              }}
+                      :style {:flex "auto"}}
                      [input-type
                       (merge
                         {:class       (str "form-control noselect " class)
@@ -80,8 +78,7 @@
                          :rows        (when (= input-type :textarea) (if rows rows 3))
                          :style       (merge
                                         {:flex          "none"
-                                         ;:width         (if width width "250px")
-                                         :height        (when height height)
+                                         :height        height
                                          :padding-right "12px"} ;; override for when icon exists
                                         style)
                          :placeholder placeholder

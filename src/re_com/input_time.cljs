@@ -125,16 +125,18 @@
       (callback time))))
 
 (def input-time-args-desc
-  [{:name :model        :required true                 :type "integer | string | atom" :validate-fn number-or-string? :description "a time in integer form. e.g. '09:30am' is 930"}
-   {:name :on-change    :required true                 :type "(integer) -> nil"        :validate-fn fn?               :description "called when user entry completes and value is new. Passed new value as integer"}
-   {:name :minimum      :required false :default 0     :type "integer | string"        :validate-fn number-or-string? :description "user can't enter a time less than this value"}
-   {:name :maximum      :required false :default 2359  :type "integer | string"        :validate-fn number-or-string? :description "user can't enter a time more than this value"}
-   {:name :disabled?    :required false :default false :type "boolean | atom"                                         :description "when true, user input is disabled"}
-   {:name :show-icon?   :required false :default false :type "boolean"                                                :description "when true, a clock icon will be displayed to the right of input field"}
-   {:name :hide-border? :required false :default false :type "boolean"                                                :description "when true, input filed is displayed without a border"}
-   {:name :class        :required false                :type "string"                  :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style        :required false                :type "css style map"           :validate-fn css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"}" }
-   {:name :attr         :required false                :type "html attr map"           :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  [{:name :model        :required true                   :type "integer | string | atom" :validate-fn number-or-string? :description "a time in integer form. e.g. '09:30am' is 930"}
+   {:name :on-change    :required true                   :type "(integer) -> nil"        :validate-fn fn?               :description "called when user entry completes and value is new. Passed new value as integer"}
+   {:name :minimum      :required false :default 0       :type "integer | string"        :validate-fn number-or-string? :description "user can't enter a time less than this value"}
+   {:name :maximum      :required false :default 2359    :type "integer | string"        :validate-fn number-or-string? :description "user can't enter a time more than this value"}
+   {:name :disabled?    :required false :default false   :type "boolean | atom"                                         :description "when true, user input is disabled"}
+   {:name :show-icon?   :required false :default false   :type "boolean"                                                :description "when true, a clock icon will be displayed to the right of input field"}
+   {:name :hide-border? :required false :default false   :type "boolean"                                                :description "when true, input filed is displayed without a border"}
+   {:name :width        :required false                  :type "string"                  :validate-fn string?           :description "standard CSS width setting for width of the input box (excluding the icon if present)"}
+   {:name :height       :required false                  :type "string"                  :validate-fn string?           :description "standard CSS height setting"}
+   {:name :class        :required false                  :type "string"                  :validate-fn string?           :description "CSS class names, space separated"}
+   {:name :style        :required false                  :type "css style map"           :validate-fn css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"}" }
+   {:name :attr         :required false                  :type "html attr map"           :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def input-time-args (extract-arg-data input-time-args-desc))
 
@@ -143,15 +145,16 @@
    Parameters - refer input-time-args above"
   [& {:keys [model minimum maximum on-change class style attr] :as args
       :or   {minimum 0 maximum 2359}}]
-
   {:pre [(validate-args-macro input-time-args-desc args "input-time")
          (validate-arg-times (deref-or-value model) minimum maximum)]}
   (let [deref-model    (deref-or-value model)
         text-model     (reagent/atom (time->text deref-model))
         previous-model (reagent/atom deref-model)]
-
     (fn
-      [& {:keys [model minimum maximum disabled? hide-border? show-icon?]}]
+      [& {:keys [model minimum maximum width height disabled? hide-border? show-icon?] :as args
+          :or   {minimum 0 maximum 2359}}]
+      {:pre [(validate-args-macro input-time-args-desc args "input-time")
+             (validate-arg-times (deref-or-value model) minimum maximum)]}
       (let [style (merge (when hide-border? {:border "none"})
                          style)
             new-val (deref-or-value model)
@@ -163,18 +166,26 @@
           (reset! text-model (time->text new-val))
           (reset! previous-model new-val))
 
-        [:span.input-append {:style {:flex "none"}}
-         [:input
-          (merge
-            {:type      "text"
-             :class     (str "time-entry " class)
-             :style     style
-             :value     @text-model
-             :disabled  (deref-or-value disabled?)
-             :on-change (handler-fn (on-new-keypress event text-model))
-             :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
-             :on-key-up (handler-fn (lose-focus-if-enter event))}
-            attr)]
-         (when show-icon?
-           [:span.time-icon [:span.glyphicon.glyphicon-time]])]))))
-
+        [h-box
+         :class    "rc-input-time"
+         :style    (merge {:height height}
+                          style)
+         :children [[:input
+                     (merge
+                       {:type      "text"
+                        :class     (str "time-entry " class)
+                        :style     (merge {:width width}
+                                          style)
+                        :value     @text-model
+                        :disabled  (deref-or-value disabled?)
+                        :on-change (handler-fn (on-new-keypress event text-model))
+                        :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
+                        :on-key-up (handler-fn (lose-focus-if-enter event))}
+                       attr)]
+                    (when show-icon?
+                      #_[:div.time-icon ;; TODO: Remove
+                       [:span.glyphicon.glyphicon-time
+                        {:style {:position "static" :margin "auto"}}]]
+                      [:div.time-icon
+                       [:i.md-access-time
+                        {:style {:position "static" :margin "auto"}}]])]]))))

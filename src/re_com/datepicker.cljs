@@ -97,13 +97,25 @@
         template-row  (if show-weeks? [:tr [:th]] [:tr])]
     [:thead
      (conj template-row
-           [:th {:class (str "prev " (if prev-enabled? "available selectable" "disabled"))}
-            [:i {:class "fa fa-arrow-left icon-arrow-left glyphicon glyphicon-chevron-left"
-                        :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}]]
+           #_[:th {:class    (str "prev " (if prev-enabled? "available selectable" "disabled"))} ;; TODO: Remove
+            [:i {:class    "glyphicon glyphicon-chevron-left"
+                 :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}]]
+           [:th {:class (str "prev " (if prev-enabled? "available selectable" "disabled"))
+                 :style {:padding "0px"}}
+            [:i.md-chevron-left
+             {:style    {:font-size "24px"}
+              :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}]]
+
            [:th {:class "month" :col-span "5"} (month-label @current)]
-           [:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))}
-            [:i {:class "fa fa-arrow-right icon-arrow-right glyphicon glyphicon-chevron-right"
-                        :on-click (handler-fn (when next-enabled? (reset! current next-date)))}]])
+
+           #_[:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))} ;; TODO: Remove
+            [:i {:class    "glyphicon glyphicon-chevron-right"
+                 :on-click (handler-fn (when next-enabled? (reset! current next-date)))}]]
+           [:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))
+                 :style {:padding "0px"}}
+            [:i.md-chevron-right
+             {:style    {:font-size "24px"}
+              :on-click (handler-fn (when next-enabled? (reset! current next-date)))}]])
      ;; could be done via more clever mapping but avoiding abscurity here.
      ;; style each day label based on if it is in enabled-days
      (conj template-row
@@ -236,10 +248,14 @@
          :on-click (handler-fn (swap! shown? not))}
    [h-box
     :align :center
+    :class "noselect"
     :children [[:label {:class "form-control dropdown-button"}
                 (unparse (if (seq format) (formatter format) date-format) @model)]
-               [:span  {:class "dropdown-button activator input-group-addon"}
-                [:i {:class "glyphicon glyphicon-th"}]]]]])
+               #_[:span  {:class "dropdown-button activator input-group-addon"} ;; TODO: Remove
+                [:i {:class "glyphicon glyphicon-th"}]]
+               [:span.dropdown-button.activator.input-group-addon
+                {:style {:padding "3px 0 0 0"}}
+                [:i.md-apps {:style {:font-size "24px"}}]]]]])
 
 (def datepicker-dropdown-args-desc
   (conj datepicker-args-desc

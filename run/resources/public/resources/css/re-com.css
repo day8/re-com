@@ -13,24 +13,14 @@
 ----------------------------------------------------------------------------------------*/
 
 html, body {
-    font-family: Roboto, sans-serif;
-    /*font-family: Segoe UI, Arial, sans-serif;*/
-
-    /*color:       #212121;*/  /* Was #666366 before material design typography changes */
-
-    /*font-size:   13px;*/
-    font-size:   14px;
-
-    /*font-weight: 400;*/
-    font-weight: 400;
-
+    font-family:    Roboto, sans-serif;
+    font-size:      14px;
+    font-weight:    400;
     color:          rgba(68, 68, 68, 1.0);
     letter-spacing: 0.002em;
-
-
-    height:      100%;
-    margin:      0px;
-    padding:     0px;
+    height:         100%;
+    margin:         0px;
+    padding:        0px;
 }
 
 /*----------------------------------------------------------------------------------------
@@ -914,27 +904,25 @@ code {
   Time component
 ----------------------------------------------------------------------------------------*/
 
-.time-icon {
-  border: 1px solid #bbb;
-  border-radius: 0 4px 4px 0;
-  background-color: #ddd;
-  display: inline-block;
-  height: 20px;
-  line-height: 20px;
-  margin-top: 1px;
-  text-align: center;
-  vertical-align: middle;
-  width: 20px;
-}
+
 .time-entry {
-  flex:  none;
-  padding-left: 2px;
-  padding-top:  0px;
-  font-size:    11px;
-  width:        35px;
+  flex:          none;
+  padding-left:  0.3em;
+  padding-top:   2px;
+  border:        1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+  width:         3.3em;
 }
-.test-time {
-  font-size:    16px;
+.time-entry:last-child {
+  border-radius:    4px;
+}
+.time-icon {
+  display:          flex;
+  padding:          0 0.3em;
+  border:           1px solid #ccc;
+  border-left:      none;
+  border-radius:    0 4px 4px 0;
+  background-color: #ddd;
 }
 
 /*----------------------------------------------------------------------------------------

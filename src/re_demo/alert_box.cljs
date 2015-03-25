@@ -35,9 +35,9 @@
                                           (if @show-alert
                                             [alert-box      ;(alert-box-meta alert-box)
                                              :id         1
-                                             :alert-type "info"
+                                             :alert-type :info
                                              :heading    "This Is An Alert Heading"
-                                             :body       [:p "This is an alert body. This alert has an :alert-type of 'info' which makes it blue, and it includes a :heading, a :body and a close button. Click the x to close it."]
+                                             :body       [:p "This is an alert body. This alert has an :alert-type of :info which makes it blue, and it includes a :heading, a :body and a close button. Click the x to close it."]
                                              :closeable? true
                                              :on-close   #(reset! show-alert false)]
                                             [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
@@ -46,21 +46,21 @@
                                           (when @show-alert1
                                             [:div
                                              [alert-box
-                                              :alert-type "info"
+                                              :alert-type :info
                                               :heading    "Alert with :heading but no :body"
                                               :closeable? true
                                               :on-close   #(reset! show-alert1 false)]])
                                           (when @show-alert2
                                             [:div
                                              [alert-box
-                                              :alert-type "warning"
+                                              :alert-type :warning
                                               :body       "Alert with :body but no :heading (:padding set to 6px)."
                                               :padding    "6px"
                                               :closeable? true
                                               :on-close   #(reset! show-alert2 false)]])
                                           [alert-box
-                                           :alert-type "danger"
-                                           :heading    ":alert-type is \"danger\""
+                                           :alert-type :danger
+                                           :heading    ":alert-type is :danger"
                                            :body       [:span "This is the :body of an danger-styled alert with :closeable? omitted (defaults to false). "
                                                         [:a {:href "http://google.com" :target "_blank"} "Link to Google"] "."]]]]]]]])))
 

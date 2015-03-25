@@ -12,7 +12,7 @@
 
 (def alert-box-args-desc
   [{:name :id         :required false                 :type "anything"                                       :description [:span "a unique identifier, usually an integer or string."]}
-   {:name :alert-type :required false :default "info" :type "string"          :validate-fn alert-type?       :description [:span "a bootstrap style: " alert-types-list]}
+   {:name :alert-type :required false :default :info  :type "keyword"         :validate-fn alert-type?       :description [:span "one of " alert-types-list]}
    {:name :heading    :required false                 :type "string | hiccup" :validate-fn string-or-hiccup? :description [:span "displayed as a larger heading. One of " [:code ":heading"] " or " [:code ":body"] " should be provided"]}
    {:name :body       :required false                 :type "string | hiccup" :validate-fn string-or-hiccup? :description "displayed within the body of the alert"}
    {:name :padding    :required false :default "15px" :type "string"          :validate-fn string?           :description "padding surounding the alert"}
@@ -27,16 +27,16 @@
 (defn alert-box
   "Displays one alert box. A close button allows the message to be removed"
   [& {:keys [id alert-type heading body padding closeable? on-close class style attr]
-      :or   {alert-type "info"}
+      :or   {alert-type :info}
       :as   args}]
   {:pre [(validate-args-macro alert-box-args-desc args "alert-box")]}
   (let [close-button [button
                       :label    "×"
                       :on-click (handler-fn (on-close id))
                       :class    "close"]
-        alert-type    (if (= alert-type "info")
+        alert-type    (if (= alert-type :info)
                         "success"
-                        alert-type)]
+                        (name alert-type))]
     [:div
      (merge {:class (str "rc-alert alert fade in alert-" alert-type " " class)
              :style (merge {:flex    "none"
@@ -80,13 +80,13 @@
 (defn alert-list
   "Displays a list of alert-box components in a v-box. Sample alerts object:
      [{:id 2
-       :alert-type \"warning\"
+       :alert-type :warning
        :heading \"Heading\"
        :body \"Body\"
        :padding \"8px\"
        :closeable? true}
       {:id 1
-       :alert-type \"info\"
+       :alert-type :info
        :heading \"Heading\"
        :body \"Body\"}]"
   [& {:keys [alerts on-close max-height padding border-style class style attr]

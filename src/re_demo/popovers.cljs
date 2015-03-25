@@ -49,7 +49,7 @@
                                       [:span.all-small-caps "TBA..."]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
-               :gap      "50px"
+               :gap      "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
@@ -63,7 +63,7 @@
                                       [:span.all-small-caps "TBA..."]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
-               :gap      "50px"
+               :gap      "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
@@ -77,7 +77,7 @@
                                       [:span.all-small-caps "TBA..."]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
-               :gap      "50px"
+               :gap      "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
@@ -113,7 +113,7 @@
          :children [[component-title "[popover ... ] with [button ... ] anchor"]
                     [status-text "Stable"]
                     [h-box
-                     :gap      "50px"
+                     :gap      "100px"
                      :children [[v-box
                                  :gap      "10px"
                                  :width    "450px"
@@ -260,7 +260,7 @@
       [v-box
        :children [[component-title "[popover ... ] with [hyperlink ... ] anchor"]
                   [h-box
-                   :gap      "50px"
+                   :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
@@ -292,7 +292,7 @@
       [v-box
        :children [[component-title "Proximity Popover (tooltip)"]
                   [h-box
-                   :gap      "50px"
+                   :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
@@ -332,7 +332,7 @@
       [v-box
        :children [[component-title "[popover-tooltip ... ]"]
                   [h-box
-                   :gap      "50px"
+                   :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
@@ -417,7 +417,7 @@
   [v-box
    :children [[component-title "Complex Popover (dialog box)"]
               [h-box
-               :gap      "50px"
+               :gap      "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
