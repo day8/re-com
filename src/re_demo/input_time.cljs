@@ -38,21 +38,34 @@
         maximum      (reagent/atom init-maximum)]
     (fn []
       [v-box
-       :gap "20px"
+       :gap "10px"
        :children [[component-title "Demo"]
+                  [paragraphs
+                   [:p "There are two instances of this component below."]
+                   [:p "The first one is the default size."]
+                   [:p "The second one specifies " [:code ":style {:font-size \"11px\"}"] " to make a smaller version."]]
+                  [gap :size "20px"]
                   [h-box
-                   ;:gap "40px"
-                   :children [[box
-                               :width "100px"
-                               :child [input-time
-                                       :model an-int-time
-                                       :minimum @minimum
-                                       :maximum @maximum
-                                       :on-change #(reset! an-int-time %)
-                                       :disabled? disabled?
-                                       :hide-border? @hide-border?
-                                       :show-icon? @show-icon?
-                                       :style   {:width "50px"}]]
+                   :children [[v-box
+                               :width "140px"
+                               :gap   "30px"
+                               :children [[input-time
+                                           :model        an-int-time
+                                           :minimum      @minimum
+                                           :maximum      @maximum
+                                           :on-change    #(reset! an-int-time %)
+                                           :disabled?    disabled?
+                                           :hide-border? @hide-border?
+                                           :show-icon?   @show-icon?]
+                                          [input-time
+                                           :model        an-int-time
+                                           :minimum      @minimum
+                                           :maximum      @maximum
+                                           :on-change    #(reset! an-int-time %)
+                                           :disabled?    disabled?
+                                           :hide-border? @hide-border?
+                                           :show-icon?   @show-icon?
+                                           :style        {:font-size "11px"}]]]
                               [v-box
                                :gap "10px"
                                :children [[title :level :level3 :label "Parameters"]
@@ -63,12 +76,12 @@
                                            :gap "10px"
                                            :align :center
                                            :children [[button
-                                                       :label "11am"
-                                                       :class "btn btn-xs"
+                                                       :label    "11am"
+                                                       :class    "btn btn-default"
                                                        :on-click #(reset! an-int-time 1100)]
                                                       [button
-                                                       :label "5pm"
-                                                       :class "btn btn-xs"
+                                                       :label    "5pm"
+                                                       :class    "btn btn-default"
                                                        :on-click #(reset! an-int-time 1700)]]]
                                           [gap :size "20px"]
                                           [title :level :level3 :label "Simulated minimum & maximum changes"]
@@ -83,12 +96,12 @@
                                            :gap "10px"
                                            :align :center
                                            :children [[checkbox
-                                                       :label [box :align :start :child [:code ":minimum 10am"]]
-                                                       :model (not= @minimum init-minimum)
+                                                       :label     [box :align :start :child [:code ":minimum 10am"]]
+                                                       :model     (not= @minimum init-minimum)
                                                        :on-change #(reset! minimum (if % 1000 init-minimum))]
                                                       [checkbox
-                                                       :label [box :align :start :child [:code ":maximum 2pm"]]
-                                                       :model (not= @maximum init-maximum)
+                                                       :label     [box :align :start :child [:code ":maximum 2pm"]]
+                                                       :model     (not= @maximum init-maximum)
                                                        :on-change #(reset! maximum (if % 1400 init-maximum))]]]]]]]]])))
 
 

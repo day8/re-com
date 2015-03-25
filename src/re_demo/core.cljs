@@ -225,7 +225,7 @@
   [box
    :padding "10px"
    :child   [alert-box
-             :alert-type "danger"
+             :alert-type :danger
              :heading    "Works Best in Chrome"
              :body       "re-com has been verified in Google Chrome. Much of it will run in other browsers but there will be dragons!"]])
 

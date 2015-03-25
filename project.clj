@@ -32,7 +32,7 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "0.2.6"
+(defproject         re-com "0.2.7"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
 
