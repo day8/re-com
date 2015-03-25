@@ -672,11 +672,28 @@ html, body {
   END OF DATE PICKER SECTION...
 
 
-  START OF CSS SPINNER SECTION
-    From here: http://jsfiddle.net/mekwall/89S4W
-    License: Unknown
+  CSS SPINNER / THROBER
 ----------------------------------------------------------------------------------------*/
-
+@keyframes  blink {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(.5);
+        opacity: 0;
+    }
+}
+@-moz-keyframes blink {
+    0% {
+        -moz-transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        -moz-transform: scale(.5);
+        opacity: 0;
+    }
+}
 @-webkit-keyframes blink {
     0% {
         -webkit-transform: scale(1);
@@ -709,53 +726,70 @@ html, body {
     margin-left: -3px;
     opacity: 0;
     -webkit-animation: blink .8s ease infinite;
+    -moz-animation: blink .8s ease infinite;
+    animation: blink .8s ease infinite;
 }
 
 .loader li:nth-child(1) {
     top: 0%;
     left: 50%;
+    -webkit-animation-delay: -.7s;
+    -moz-animation-delay: -.7s;
+    animation-delay: -.7s;
 }
 
 .loader li:nth-child(2) {
     top: 15%;
     left: 85%;
-    -webkit-animation-delay: .1s;
+    -webkit-animation-delay: -.6s;
+    -moz-animation-delay: -.6s;
+    animation-delay: -.6s;
 }
 
 .loader li:nth-child(3) {
     top: 50%;
     left: 100%;
-    -webkit-animation-delay: .2s;
+    -webkit-animation-delay: -.5s;
+    -moz-animation-delay: -.5s;
+    animation-delay: -.5s;
 }
 
 .loader li:nth-child(4) {
     top: 85%;
     left: 85%;
-    -webkit-animation-delay: .3s;
+    -webkit-animation-delay: -.4s;
+    -moz-animation-delay: -.4s;
+    animation-delay: -.4s;
 }
 
 .loader li:nth-child(5) {
     top: 100%;
     left: 50%;
-    -webkit-animation-delay: .4s;
+    -webkit-animation-delay: -.3s;
+    -moz-animation-delay: -.3s;
+    animation-delay: -.3s;
 }
 
 .loader li:nth-child(6) {
     top: 85%;
     left: 15%;
-    -webkit-animation-delay: .5s;
+    -webkit-animation-delay: -.2s;
+    -moz-animation-delay: -.2s;
+    animation-delay: -.2s;
 }
 
 .loader li:nth-child(7) {
     top: 50%;
     left: 0%;
-    -webkit-animation-delay: .6s;
+    -webkit-animation-delay: -.1s;
+    -moz-animation-delay: -.1s;
+    animation-delay: -.1s;
+
 }
 
 .loader li:nth-child(8) {
     top: 15%;
     left: 15%;
-    -webkit-animation-delay: .7s;
 }
 
 
