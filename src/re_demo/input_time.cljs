@@ -47,8 +47,8 @@
                   [gap :size "20px"]
                   [h-box
                    :children [[v-box
-                               :width "140px"
-                               :gap   "30px"
+                               :width    "140px"
+                               :gap      "30px"
                                :children [[input-time
                                            :model        an-int-time
                                            :minimum      @minimum
@@ -67,7 +67,7 @@
                                            :show-icon?   @show-icon?
                                            :style        {:font-size "11px"}]]]
                               [v-box
-                               :gap "10px"
+                               :gap      "10px"
                                :children [[title :level :level3 :label "Parameters"]
                                           [simulated-bools disabled? hide-border? show-icon?]
                                           [gap :size "20px"]
@@ -86,15 +86,15 @@
                                           [gap :size "20px"]
                                           [title :level :level3 :label "Simulated minimum & maximum changes"]
                                           [h-box
-                                           :gap "10px"
-                                           :align :center
+                                           :gap      "10px"
+                                           :align    :center
                                            :children [[label :label ":minimum"]
                                                       [label :label @minimum :style {:width "40px" :font-size "11px" :text-align "center"}]
                                                       [label :label ":maximum"]
                                                       [label :label @maximum :style {:width "40px" :font-size "11px" :text-align "center"}]]]
                                           [h-box
-                                           :gap "10px"
-                                           :align :center
+                                           :gap      "10px"
+                                           :align    :center
                                            :children [[checkbox
                                                        :label     [box :align :start :child [:code ":minimum 10am"]]
                                                        :model     (not= @minimum init-minimum)

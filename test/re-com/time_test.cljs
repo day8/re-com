@@ -58,9 +58,10 @@
  (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159 :on-change #())) "Expected a function.")
  (let [input-time-fn (time/input-time :model 1530 :on-change #())]
    (is (fn? input-time-fn) "Expected a function.")
-   (let [result (input-time-fn :model (reagent/atom 1530) :minimum 600 :maximum 2159)]
-     (is (= :span.input-append (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
-     (let [input-time-comp (nth result 2)
+   (let [result (input-time-fn :model (reagent/atom 1530) :on-change #() :minimum 600 :maximum 2159)]
+     ;(is (= :span.input-append (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
+     (is (fn? (first result)) "Expected first element to be a function")
+     (let [input-time-comp (first (nth result 6))
            input-time-attrs (last input-time-comp)]
        (is (= :input (first input-time-comp)) "Expected time input start with :input")
        (are [expected actual] (= expected actual)

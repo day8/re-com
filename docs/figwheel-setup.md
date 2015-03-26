@@ -99,7 +99,7 @@ Note: Here are some [tips](https://github.com/bhauman/lein-figwheel#writing-relo
 figwheel can monitor changes to CSS files. It needs to be configured in the [Server configuration] section in `project.clj`.
 
 ```Clojure
-:figwheel {:css-dirs ["run/resources/public/resources/css"]}
+:figwheel {:css-dirs ["run/resources/public/assets/css"]}
 ```
 
 Every time figwheel reloads updated CSS to the browser, it calls the function specified at `:on-cssload`:

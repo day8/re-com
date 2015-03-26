@@ -1,22 +1,22 @@
-(ns re-demo.spinner
-  (:require [re-com.core    :refer [h-box v-box box gap line button label spinner]]
-            [re-com.misc :refer [spinner-args-desc]]
+(ns re-demo.throbber
+  (:require [re-com.core    :refer [h-box v-box box gap line button label throbber]]
+            [re-com.misc    :refer [throbber-args-desc]]
             [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core   :as    reagent]))
 
 
 (def state (reagent/atom
              {:outcome-index 0
-              :see-spinner  false}))
+              :see-throbber  false}))
 
-(defn spinner-demo
+(defn throbber-demo
   []
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title [:span "[spinner ... ]"
+   :children [[panel-title [:span "[throbber ... ]"
                             [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/spinner.cljs"]]]
+                            [github-hyperlink "Page Source"      "src/re_demo/throbber.cljs"]]]
 
               [h-box
                :gap      "100px"
@@ -26,8 +26,8 @@
                            :children [[component-title "Notes"]
                                       [status-text "Stable"]
                                       [paragraphs
-                                       [:p "A CSS spinner, aka Throbber."]]
-                                      [args-table spinner-args-desc]]]
+                                       [:p "A CSS Throbber."]]
+                                      [args-table throbber-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
@@ -36,17 +36,17 @@
                                        :children [[v-box
                                                    :align :center
                                                    :children [[box :align :start :child [:code ":small"]]
-                                                              [spinner
+                                                              [throbber
                                                                :size  :small
                                                                :color "red"]]]
                                                   [v-box
                                                    :align :center
                                                    :children [[box :align :start :child [:code ":regular"]]
-                                                              [spinner]]]
+                                                              [throbber]]]
                                                   [v-box
                                                    :align :center
                                                    :children [[box :align :start :child [:code ":large"]]
-                                                              [spinner
+                                                              [throbber
                                                                :size  :large
                                                                :color "blue"]]]]]]]]]]])
 
@@ -54,4 +54,4 @@
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
   []
-  [spinner-demo])
+  [throbber-demo])

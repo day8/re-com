@@ -23,10 +23,10 @@
 
 (defn status-text
   "given some status text, return a component that displays that status"
-  [status]
+  [status style]
   [:span
    [:span {:style {:font-weight "bold"}} "Status: "]
-   status])
+   [:span {:style style} status]])
 
 (defn material-design-hyperlink
   [text]

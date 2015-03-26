@@ -42,7 +42,7 @@
                                               " as its default font. See "
                                               [hyperlink-href
                                                :label "re-com.css"
-                                               :href (str base-url "run/resources/public/resources/css/re-com.css")
+                                               :href (str base-url "run/resources/public/assets/css/re-com.css")
                                                :target "_blank"]
                                               "."]]
                                             [args-table title-args-desc]]]
