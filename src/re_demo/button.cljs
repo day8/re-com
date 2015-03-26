@@ -75,7 +75,8 @@
                                                       (when (:see-spinner @state)  [spinner])]]
                                           [gap :size "20px"]
                                           [paragraphs
-                                           [:p "This button is completely restyled (using the " [:code ":style"] " and " [:code ":attr"] " arguments) to look like a Microsoft Modern UI button and demonstrates the use of hiccup for the label."]
+                                           [:p "The two buttons above are styled using Bootstrap. For the " [:code ":class"] " parameter, we passed in the name of a standard Bootstrap class, like \"btn-default\"."]
+                                           [:p "But the button below was created by supplying inline styles via the " [:code ":style"] " and " [:code ":attr"] " parameters. To see the code, click the \"Page Source\" hyperlink at the top."]
                                            [button
                                             :label    [:span "Microsoft Modern Button " [:i.md-file-download]]
                                             :on-click #()
