@@ -110,7 +110,7 @@
                                        :optimizations :none
                                        :pretty-print  true}}]}
 
-  :figwheel {:css-dirs    ["run/resources/public/resources/css"]
+  :figwheel {:css-dirs    ["run/resources/public/assets/css"]
              :server-port ~fig-port
              :repl        true}
 
