@@ -16,7 +16,7 @@
             [re-demo.label                 :as    label]
             [re-demo.title                 :as    title]
             [re-demo.progress-bar          :as    progress-bar]
-            [re-demo.spinner               :as    spinner]
+            [re-demo.throbber               :as   throbber]
             [re-demo.button                :as    button]
             [re-demo.md-circle-icon-button :as    md-circle-icon-button]
             [re-demo.md-icon-button        :as    md-icon-button]
@@ -150,7 +150,7 @@
    {:id :input-text             :label "Input Text"         :panel input-text/panel}
    {:id :slider                 :label "Slider"             :panel slider/panel}
    {:id :progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
-   {:id :spinner                :label "Spinner"            :panel spinner/panel}
+   {:id :throbber               :label "Throbber"           :panel throbber/panel}
 
    {:id :lists                  :label "Selection List"     :panel selection-list/panel}
 

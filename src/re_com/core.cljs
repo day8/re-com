@@ -53,7 +53,7 @@
 (def radio-button               misc/radio-button)
 (def slider                     misc/slider)
 (def progress-bar               misc/progress-bar)
-(def spinner                    misc/spinner)
+(def throbber                    misc/throbber)
 
 (def modal-panel                modal-panel/modal-panel)
 

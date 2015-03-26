@@ -5,7 +5,7 @@
             [re-com.box      :refer [h-box v-box box gap line]]
             [re-com.validate :refer [extract-arg-data input-status-type? input-status-types-list regex?
                                      string-or-hiccup? css-style? html-attr? number-or-string?
-                                     string-or-atom? spinner-size? spinner-sizes-list] :refer-macros [validate-args-macro]]
+                                     string-or-atom? throbber-size? throbber-sizes-list] :refer-macros [validate-args-macro]]
             [reagent.core    :as    reagent]))
 
 
@@ -340,27 +340,27 @@
 
 
 ;; ------------------------------------------------------------------------------------
-;;  Component: spinner
+;;  Component: throbber
 ;; ------------------------------------------------------------------------------------
 
-(def spinner-args-desc
-  [{:name :size     :required false :type "keyword"       :default :regular :validate-fn spinner-size? :description [:span "one of " spinner-sizes-list]}
-   {:name :color    :required false :type "string"        :default "#999"   :validate-fn string?       :description "CSS color"}
-   {:name :class    :required false :type "string"                          :validate-fn string?       :description "CSS class names, space separated"}
-   {:name :style    :required false :type "css style map"                   :validate-fn css-style?    :description "CSS styles to add or override"}
-   {:name :attr     :required false :type "html attr map"                   :validate-fn html-attr?    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+(def throbber-args-desc
+  [{:name :size     :required false :type "keyword"       :default :regular :validate-fn throbber-size? :description [:span "one of " throbber-sizes-list]}
+   {:name :color    :required false :type "string"        :default "#999"   :validate-fn string?        :description "CSS color"}
+   {:name :class    :required false :type "string"                          :validate-fn string?        :description "CSS class names, space separated"}
+   {:name :style    :required false :type "css style map"                   :validate-fn css-style?     :description "CSS styles to add or override"}
+   {:name :attr     :required false :type "html attr map"                   :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-;(def spinner-args (extract-arg-data spinner-args-desc))
+;(def throbber-args (extract-arg-data throbber-args-desc))
 
-(defn spinner
-  "Render an animated spinner using CSS"
+(defn throbber
+  "Render an animated throbber using CSS"
   [& {:keys [size color class style attr] :as args}]
-  {:pre [(validate-args-macro spinner-args-desc args "spinner")]}
+  {:pre [(validate-args-macro throbber-args-desc args "throbber")]}
   (let [seg (fn [] [:li (when color {:style {:background-color color}})])]
     [box
      :align :start
      :child [:ul
-             (merge {:class (str "rc-spinner loader "
+             (merge {:class (str "rc-throbber loader "
                                  (case size :regular ""
                                             :small "small "
                                             :large "large "
@@ -369,4 +369,4 @@
                      :style style}
                     attr)
              [seg] [seg] [seg] [seg]
-             [seg] [seg] [seg] [seg]]])) ;; Each :li element in [seg] represents one of the eight circles in the spinner
+             [seg] [seg] [seg] [seg]]])) ;; Each :li element in [seg] represents one of the eight circles in the throbber

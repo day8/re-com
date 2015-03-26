@@ -672,7 +672,7 @@ html, body {
   END OF DATE PICKER SECTION...
 
 
-  CSS SPINNER / THROBER
+  CSS THROBBER
 ----------------------------------------------------------------------------------------*/
 @keyframes  blink {
     0% {
@@ -821,7 +821,7 @@ html, body {
 }
 
 /*----------------------------------------------------------------------------------------
-  END OF CSS SPINNER SECTION...
+  END OF CSS THROBBER SECTION...
 
 
   Bootstrap list-group-item variation (only used in selection-list component)

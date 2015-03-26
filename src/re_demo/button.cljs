@@ -1,5 +1,5 @@
 (ns re-demo.button
-  (:require [re-com.core    :refer [h-box v-box box gap line button label spinner hyperlink-href] :refer-macros [handler-fn]]
+  (:require [re-com.core    :refer [h-box v-box box gap line button label throbber hyperlink-href] :refer-macros [handler-fn]]
             [re-com.buttons :refer [button-args-desc]]
             [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
             [reagent.core   :as    reagent]))
@@ -7,7 +7,7 @@
 
 (def state (reagent/atom
              {:outcome-index 0
-              :see-spinner  false}))
+              :see-throbber  false}))
 
 (def click-outcomes
   [""   ;; start blank
@@ -68,11 +68,11 @@
                                            :gap      "50px"
                                            :align    :center
                                            :children [[button
-                                                       :label             (if (:see-spinner @state)  "Stop it!" "See Spinner")
+                                                       :label             (if (:see-throbber @state)  "Stop it!" "See Throbber")
                                                        :tooltip           "I'm a tooltip on the left"
                                                        :tooltip-position :left-center
-                                                       :on-click          #(swap! state update-in [:see-spinner] not)]
-                                                      (when (:see-spinner @state)  [spinner])]]
+                                                       :on-click          #(swap! state update-in [:see-throbber] not)]
+                                                      (when (:see-throbber @state) [throbber])]]
                                           [gap :size "20px"]
                                           [paragraphs
                                            [:p "The two buttons above are styled using Bootstrap. For the " [:code ":class"] " parameter, we passed in the name of a standard Bootstrap class, like \"btn-default\"."]
