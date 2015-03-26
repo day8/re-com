@@ -162,8 +162,8 @@
        :component-did-update
        (fn []
          (let [popover-elem   (get-element-by-id pop-id)]
-           (reset! p-width    (if popover-elem (.-clientWidth  popover-elem) 0))
-           (reset! p-height   (if popover-elem (.-clientHeight popover-elem) 0))
+           (reset! p-width    (if popover-elem (-> (.-clientWidth  popover-elem) inc (/ 2) int (* 2)) 0)) ;; Convert to next highest even integer to avoid wiggling popovers
+           (reset! p-height   (if popover-elem (-> (.-clientHeight popover-elem) inc (/ 2) int (* 2)) 0))
            (reset! pop-offset (case arrow-pos
                                 :center nil
                                 :right  20
@@ -178,8 +178,8 @@
              :as args}]
          {:pre [(validate-args-macro popover-border-args-desc args "popover-border")]}
          (let [popover-elem   (get-element-by-id pop-id)]
-           (reset! p-width    (if popover-elem (.-clientWidth  popover-elem) 0)) ;; TODO: Duplicate from above but needs to be calculated here to prevent an annoying flicker (so make it a fn)
-           (reset! p-height   (if popover-elem (.-clientHeight popover-elem) 0))
+           (reset! p-width    (if popover-elem (-> (.-clientWidth  popover-elem) inc (/ 2) int (* 2)) 0)) ;; TODO: Duplicate from above but needs to be calculated here to prevent an annoying flicker (so make it a fn)
+           (reset! p-height   (if popover-elem (-> (.-clientHeight popover-elem) inc (/ 2) int (* 2)) 0))
            (reset! pop-offset (case arrow-pos
                                 :center nil
                                 :right  20

@@ -148,9 +148,7 @@
                                                                                :tooltip         ":disabled? set to true"
                                                                                :disabled?       true
                                                                                :on-click        #()]
-                                                                              [label :label "]"]]]]]
-
-                                                      ]]]]]]]])))
+                                                                              [label :label "]"]]]]]]]]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

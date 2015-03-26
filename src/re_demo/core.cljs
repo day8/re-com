@@ -47,133 +47,56 @@
 
 (enable-console-print!)
 
-;; ---------------------------------------------------------------------------------------
-;;  EXPERIMENT START - TODO: REMOVE
-;; ---------------------------------------------------------------------------------------
-
-(defn green-box
-  [markup]
-  [:div
-   {:style {:width            "200px"
-            :height           "40px"
-            :margin           "10px 0px 10px"
-            :padding          "5px"
-            :text-align       "center"
-            :background-color "lightgreen"}}
-   markup])
-
-(defn green-message-box-bad
-  [msg]
-  [:div
-   [:h3 "Component 1"]
-   [green-box [:p "Message: " [:span @msg]]]])
-
-(defn green-message-box-good
-  [msg]
-  [:div
-   [:h3 "Component 2"]
-   [green-box [:p "Message: " [(fn [] [:span @msg])]]]])
-
-(defn main1
-  [msg show?]
-  [:div
-   {:style {:padding "20px"}}
-   [green-message-box-bad  msg]
-   [green-message-box-good msg]
-   [:br]
-   [:button {:on-click #(swap! show? not)} (if @show? "wax on" "wax off")]
-   [:span " ==> "]
-   [:button {:on-click #(reset! msg (if @show? "WAX ON!" "WAX OFF!"))} "update text"]])
-
-(defn main2
-  []
-  (let [msg   (reagent/atom "initial text")
-        show? (reagent/atom true)]
-    (fn []
-      [:div
-       {:style {:padding "20px"}}
-       [green-message-box-bad  msg]
-       [green-message-box-good msg]
-       [:br]
-       [:button {:on-click #(swap! show? not)} (if @show? "wax on" "wax off")]
-       [:span " ==> "]
-       [:button {:on-click #(reset! msg (if @show? "WAX ON!" "WAX OFF!"))} "update text"]])))
-
-(defn display-green-messages
-  []
-  (let [msg   (reagent/atom "initial text")
-        show? (reagent/atom true)]
-    (fn []
-      #_[:div
-       {:style {:padding "20px"}}
-       [green-message-box-bad  msg]
-       [green-message-box-good msg]
-       [:br]
-       [:button {:on-click #(swap! show? not)} (if @show? "wax on" "wax off")]
-       [:span " ==> "]
-       [:button {:on-click #(reset! msg (if @show? "WAX ON!" "WAX OFF!"))} "update text"]]
-
-      #_[main1 msg show?]
-
-      [main2]
-      )))
-
-;; ---------------------------------------------------------------------------------------
-;;  EXPERIMENT END
-;; ---------------------------------------------------------------------------------------
-
-
 (def tabs-definition
-  [{:id :welcome                :label "Welcome"            :panel welcome/panel}
+  [{:id :welcome                :level :major :label "Welcome"            :panel welcome/panel}
 
-   {:id :button                 :label "Button"             :panel button/panel}
-   {:id :row-button             :label "Row Button"         :panel row-button/panel}
-   {:id :md-circle-icon-button  :label "Circle Icon Button" :panel md-circle-icon-button/panel}
-   {:id :md-icon-button         :label "Icon Button"        :panel md-icon-button/panel}
-   {:id :info-button            :label "Info Button"        :panel info-button/panel}
-   {:id :hyperlink              :label "Hyperlink"          :panel hyperlink/panel}
-   {:id :hyperlink-href         :label "Hyperlink (href)"   :panel hyperlink-href/panel}
+   {:id :buttons                :level :major :label "Buttons"}
+   {:id :button                 :level :minor :label "Basic"              :panel button/panel}
+   {:id :row-button             :level :minor :label "Row Button"         :panel row-button/panel}
+   {:id :md-circle-icon-button  :level :minor :label "Circle Icon Button" :panel md-circle-icon-button/panel}
+   {:id :md-icon-button         :level :minor :label "Icon Button"        :panel md-icon-button/panel}
+   {:id :info-button            :level :minor :label "Info Button"        :panel info-button/panel}
+   {:id :hyperlink              :level :minor :label "Hyperlink"          :panel hyperlink/panel}
+   {:id :hyperlink-href         :level :minor :label "Hyperlink (href)"   :panel hyperlink-href/panel}
 
-   {:id :dropdown               :label "Dropdowns"          :panel dropdowns/panel}
+   {:id :typography             :level :major :label "Typography"}
+   {:id :label                  :level :minor :label "Label"              :panel label/panel}
+   {:id :title                  :level :minor :label "Title"              :panel title/panel} ;; TODO: field-label?
+   {:id :alert-box              :level :minor :label "Alert Box"          :panel alert-box/panel}
+   {:id :alert-list             :level :minor :label "Alert List"         :panel alert-list/panel}
 
-   {:id :tabs                   :label "Tabs"               :panel tabs/panel}
+   {:id :basics                 :level :major :label "Basics"}
+   {:id :checkbox               :level :minor :label "Checkbox"           :panel checkbox/panel}
+   {:id :radio-button           :level :minor :label "Radio Button"       :panel radio-button/panel}
+   {:id :input-text             :level :minor :label "Input Text"         :panel input-text/panel}
+   {:id :slider                 :level :minor :label "Slider"             :panel slider/panel}
+   {:id :progress-bar           :level :minor :label "Progress Bar"       :panel progress-bar/panel}
+   {:id :throbber               :level :minor :label "Throbber"           :panel throbber/panel}
+   {:id :date                   :level :minor :label "Date Picker"        :panel datepicker/panel}
+   {:id :time                   :level :minor :label "Input Time"         :panel input-time/panel}
 
-   {:id :modal-panel            :label "Modal Panel"        :panel modal-panel/panel}
+   {:id :selection              :level :major :label "Selection"}
+   {:id :dropdown               :level :minor :label "Dropdowns"          :panel dropdowns/panel}
+   {:id :lists                  :level :minor :label "Selection List"     :panel selection-list/panel}
+   {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
 
-   {:id :popover-args           :label "Popover Args"       :panel popovers/arg-lists}
-   {:id :popovers               :label "Popover Demos"      :panel popovers/panel}
+   {:id :layers                 :level :major :label "Layers"}
+   {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}
+   {:id :popover-args           :level :minor :label "Popover Args"       :panel popovers/arg-lists}
+   {:id :popovers               :level :minor :label "Popover Demos"      :panel popovers/panel}
+   {:id :tour                   :level :minor :label "Tour"               :panel tour/panel}
 
-   {:id :label                  :label "Label"              :panel label/panel}
-   {:id :title                  :label "Title"              :panel title/panel}
-   {:id :checkbox               :label "Checkbox"           :panel checkbox/panel}
-   {:id :radio-button           :label "Radio Button"       :panel radio-button/panel}
-   {:id :input-text             :label "Input Text"         :panel input-text/panel}
-   {:id :slider                 :label "Slider"             :panel slider/panel}
-   {:id :progress-bar           :label "Progress Bar"       :panel progress-bar/panel}
-   {:id :throbber               :label "Throbber"           :panel throbber/panel}
-
-   {:id :lists                  :label "Selection List"     :panel selection-list/panel}
-
-   {:id :date                   :label "Date Picker"        :panel datepicker/panel}
-
-   {:id :time                   :label "Input Time"         :panel input-time/panel}
-
-   {:id :alert-box              :label "Alert Box"          :panel alert-box/panel}
-   {:id :alert-list             :label "Alert List"         :panel alert-list/panel}
-
-   {:id :h-box                  :label "H-box"              :panel h-box/panel}
-   {:id :v-box                  :label "V-box"              :panel v-box/panel}
-   {:id :box                    :label "Box"                :panel box/panel}
-   {:id :gap                    :label "Gap"                :panel gap/panel}
-   {:id :line                   :label "Line"               :panel line/panel}
-   {:id :scroller               :label "Scroller"           :panel scroller/panel}
-   {:id :border                 :label "Border"             :panel border/panel}
-   {:id :boxes1                 :label "Box Demo 1"         :panel h-box/panelA}
-   {:id :boxes2                 :label "Box Demo 2"         :panel h-box/panelB}
-
-   {:id :layouts                :label "Layouts"            :panel layouts/panel}
-
-   {:id :tour                   :label "Tour"               :panel tour/panel}
+   {:id :layout                 :level :major :label "Layout"}
+   {:id :layouts                :level :minor :label "Layouts"            :panel layouts/panel}
+   {:id :h-box                  :level :minor :label "H-box"              :panel h-box/panel}
+   {:id :v-box                  :level :minor :label "V-box"              :panel v-box/panel}
+   {:id :box                    :level :minor :label "Box"                :panel box/panel}
+   {:id :gap                    :level :minor :label "Gap"                :panel gap/panel}
+   {:id :line                   :level :minor :label "Line"               :panel line/panel}
+   {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
+   {:id :border                 :level :minor :label "Border"             :panel border/panel}
+   {:id :boxes1                 :level :minor :label "Box Demo 1"         :panel h-box/panelA}
+   {:id :boxes2                 :level :minor :label "Box Demo 2"         :panel h-box/panelB}
    ])
 
 
@@ -181,18 +104,25 @@
   []
   (let [mouse-over? (reagent/atom false)]
     (fn [tab selected-tab-id on-select-tab]
-      (let [selected (= @selected-tab-id (:id tab))]
+      (let [selected   (= @selected-tab-id (:id tab))
+            is-major?  (= (:level tab) :major)
+            has-panel? (some? (:panel tab))]
       [:div
-       {:style {:color            (if selected "#111")
+       {:style {:width            "150px"
+                :line-height      "1.3em"
+                :padding-left     (if is-major? "24px" "32px")
+                :padding-top      (when is-major? "6px")
+                :font-size        (when is-major? "15px")
+                :font-weight      (when is-major? "bold")
+                :color            (if selected "#111")
                 :border-right     (if selected "4px #d0d0d0 solid")
                 :background-color (if (or
                                         (= @selected-tab-id (:id tab))
                                         @mouse-over?) "#eaeaea")}
 
-        :class "nav-item"
-        :on-mouse-over (handler-fn (reset! mouse-over? true))
+        :on-mouse-over (handler-fn (when has-panel? (reset! mouse-over? true)))
         :on-mouse-out  (handler-fn (reset! mouse-over? false))
-        :on-click      (handler-fn (on-select-tab (:id tab)))}
+        :on-click      (handler-fn (when has-panel? (on-select-tab (:id tab))))}
        [:span
         {:style {:cursor "default"}}    ;; removes the I-beam over the label
         (:label tab)]]))))

@@ -29,11 +29,12 @@
                  [:li "a harness for testing"]
                  ]]
                [title :level :level2 :label "Named Parameters"]
-               [:code
-                "[checkbox" [:br] "
-                                           :label     \"Show Status Icon?\"
-                                           :model     status-icon?      ; a ratom
-                                           :on-change (fn [new-val] (reset! status-icon? new-val))]"]
+               [:pre
+                {:style {:width "40em"}}
+                "[checkbox
+ :label     \"Show Status Icon?\"
+ :model     status-icon?      ; a ratom
+ :on-change (fn [new-val] (reset! status-icon? new-val))]"]
                ]]])
 
 

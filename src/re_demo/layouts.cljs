@@ -7,12 +7,8 @@
 (def rounded-panel {:background-color "#fff4f4"
                     :border           "1px solid lightgray"
                     :border-radius    "8px"
-                    ;:margin           "8px"
                     :padding          "0px 20px 0px 20px"
-                    :flex             "1"
-                    ;:overflow-x       "hidden"
-                    ;:overflow-y       "auto"
-                    })
+                    :flex             "1"})
 
 (defn layout-panel-title
   [text]
@@ -29,7 +25,7 @@
            [layout-panel-title "Left panel"]]])
 
 
-#_(defn right-panel
+(defn right-panel
   []
   [box
    :size "auto"
@@ -53,7 +49,7 @@
            [layout-panel-title "Bottom panel"]]])
 
 
-(defn right-panel
+#_(defn right-panel
   []
   [v-layout
    :top-panel     top-panel
@@ -79,7 +75,9 @@
                            :children [[component-title "[h-layout ...]"]
                                       [status-text "Stable"]
                                       [paragraphs
-                                       [:p "TBA..."]]
+                                       [:p "Arranges two components horizontally and provides a splitter bar between them."]
+                                       [:p "By dragging the splitter bar, a user can change the width allocated to each."]
+                                       [:p "Can contain further nested layout components."]]
                                       [args-table h-layout-args-desc]]]
                           [v-box
                            :size     "auto"
@@ -96,7 +94,7 @@
                            :width    "450px"
                            :children [[component-title "[v-layout ...]"]
                                       [paragraphs
-                                       [:p "TBA..."]]
+                                       [:p "Same as above, but vertical."]]
                                       [args-table v-layout-args-desc]]]
                           [v-box
                            :size     "auto"

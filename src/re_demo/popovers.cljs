@@ -39,7 +39,7 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[component-title "[popover-anchor-wrapper ...]"]
-                                      [status-text "Stable"]
+                                      [status-text "Alpha" {:color "#EA6B00"}]
                                       [paragraphs
                                        [:p "TBA..."]]
                                       [args-table popover-anchor-wrapper-args-desc]]]
@@ -111,7 +111,7 @@
         [v-box
          :gap      "10px"
          :children [[component-title "[popover ... ] with [button ... ] anchor"]
-                    [status-text "Stable"]
+                    [status-text "Alpha" {:color "#EA6B00"}]
                     [h-box
                      :gap      "100px"
                      :children [[v-box

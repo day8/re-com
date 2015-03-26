@@ -99,7 +99,7 @@
                            :width    "450px"
                            :gap      "10px"
                            :children [[component-title "Notes"]
-                                      [status-text "Stable"]
+                                      [status-text "Alpha" {:color "#EA6B00"}]
                                       [paragraphs
                                        [:p "To create a tour:"]
                                        [:ul
