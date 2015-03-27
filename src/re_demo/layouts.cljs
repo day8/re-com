@@ -6,7 +6,7 @@
 
 (def rounded-panel {:background-color "#fff4f4"
                     :border           "1px solid lightgray"
-                    :border-radius    "8px"
+                    :border-radius    "4px"
                     :padding          "0px 20px 0px 20px"
                     :flex             "1"})
 
@@ -15,14 +15,14 @@
   [title
    :label text
    :level :level3
-   :style {:margin-top "15px"}])
+   :style {:margin-top "20px"}])
 
 (defn left-panel
   []
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [layout-panel-title "Left panel"]]])
+           [layout-panel-title [:code ":panel-1"]]]])
 
 
 (defn right-panel
@@ -30,7 +30,7 @@
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [layout-panel-title "Right panel"]]])
+           [layout-panel-title [:code ":panel-2"]]]])
 
 
 (defn top-panel
@@ -38,7 +38,7 @@
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [layout-panel-title "Top panel"]]])
+           [layout-panel-title [:code ":panel-1"]]]])
 
 
 (defn bottom-panel
@@ -46,7 +46,7 @@
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [layout-panel-title "Bottom panel"]]])
+           [layout-panel-title [:code ":panel-2"]]]])
 
 
 (defn panel
@@ -75,8 +75,8 @@
                            :gap      "10px"
                            :children [[component-title "Demo"]
                                       [h-layout
-                                       :left-panel [left-panel]
-                                       :right-panel [right-panel]]]]]]
+                                       :panel-1 [left-panel]
+                                       :panel-2 [right-panel]]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
                :gap      "100px"
@@ -92,7 +92,7 @@
                            :gap      "10px"
                            :children [[component-title "Demo"]
                                       [v-layout
-                                       :top-panel     [top-panel]
-                                       :bottom-panel  [bottom-panel]
+                                       :panel-1       [top-panel]
+                                       :panel-2       [bottom-panel]
                                        :initial-split "25%"]]]]]
               [gap :size "30px"]]])

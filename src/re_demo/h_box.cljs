@@ -5,6 +5,13 @@
             [re-com.validate :refer [extract-arg-data string-or-hiccup? alert-type? vector-of-maps?]]))
 
 
+(def rounded-panel {:background-color "#fff4f4"
+                    :border           "1px solid lightgray"
+                    :border-radius    "4px"
+                    :margin           "4px"
+                    :padding          "8px"
+                    :flex             "1"})
+
 (defn panel
   []
   [v-box
@@ -16,33 +23,66 @@
 
               [h-box
                :gap      "100px"
-              :children [[v-box
+               :children [[v-box
                            :gap      "10px"
                            :width    "450px"
                            :children [[component-title "Notes"]
                                       [status-text "Stable"]
                                       [paragraphs
-                                       [:p "TBA..."]]
+                                       [:p "h-box is a container which lays out its  " [:code ":children"] " in a single horizontal row."]
+                                       [:p
+                                        "To understand it fully and use it powerfully, you must have a good understanding of the "
+                                        [hyperlink-href
+                                         :label "CSS Flexbox"
+                                         :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
+                                         :target "_blank"]
+                                        " layout system."]
+                                       [:p "The actual layout is a function of the " [:code ":size"] " of the container and the " [:code ":size"] " provided for each of the children."]
+                                       [:p "Todo: Nestability with v-box"]
+                                       ]
                                       [args-table h-box-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span.all-small-caps "TBA..."]]]]]
+                                      [paragraphs
+                                       [:p "The h-box, which is normally invisible, has been styled with a dashed red border to make it visible."]
+                                       [:p "Each child box component (which includes an 4px magin) describes it's own settings and allows you to modify them."]]
+                                      [h-box
+                                       :width    "800px"
+                                       :height   "200px"
+                                       :style    {:border "dashed 1px red"}
+                                       :children [[box
+                                                   :size  "60%"
+                                                   :child [:div {:style rounded-panel} "Box 1" [:br] ":size 60%"]]
+                                                  [box
+                                                   :size  "100px"
+                                                   :child [:div {:style rounded-panel} "Box 2" [:br] ":size 100px"]]
+                                                  [box
+                                                   :size  "40%"
+                                                   :child [:div {:style rounded-panel} "Box 3" [:br] ":size 40%"]]
+                                                  ]]
+                                      [paragraphs
+                                       [:br]
+                                       [:p "Now here is the a v-box with exactly the same children (although the height has been halved."]]
+                                      [v-box
+                                       :width    "200px"
+                                       :height   "400px"
+                                       :style    {:border "dashed 1px red"}
+                                       :children [[box
+                                                   :size  "60%"
+                                                   :child [:div {:style rounded-panel} "Box 1" [:br] ":size 60%"]]
+                                                  [box
+                                                   :size  "100px"
+                                                   :child [:div {:style rounded-panel} "Box 2" [:br] ":size 100px"]]
+                                                  [box
+                                                   :size  "40%"
+                                                   :child [:div {:style rounded-panel} "Box 3" [:br] ":size 40%"]]
+                                                  ]]]]]]
               [gap :size "30px"]]])
 
 
 ;;====================================================================================
 
-
-(def rounded-panel {:background-color "#fff4f4"
-                    :border           "1px solid lightgray"
-                    :border-radius    "8px"
-                    :margin           "8px"
-                    :padding          "8px"
-                    :flex             "1"
-                    ;:overflow-x       "hidden"
-                    ;:overflow-y       "auto"
-                    })
 
 (def side-bar {:background-color "#f0f0ff"
                :width            "100%"

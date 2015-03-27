@@ -13,22 +13,21 @@
   (let [vertical? (= orientation :vertical)
         length    "20px"
         width     "8px"
-        pos1      "2px"
-        pos2      "5px"
+        pos1      "3px"
+        pos2      "3px"
         color     (if over? "#999" "#ccc")
-        l-width   "1"]
-    [:svg {:style {:width           (if vertical? width length)
-                   :height          (if vertical? length width)
-                   :margin          "auto"
-                   :stroke          color
-                   :stroke-width    l-width
-                   :shape-rendering "crispEdges"}}
-     [:line (if vertical?
-              {:x1 pos1 :y1 "0"  :x2 pos1   :y2 length}
-              {:x1 "0"  :y1 pos1 :x2 length :y2 pos1})]
-     [:line (if vertical?
-              {:x1 pos2 :y1 "0"  :x2 pos2   :y2 length}
-              {:x1 "0"  :y1 pos2 :x2 length :y2 pos2})]]))
+        border    (str "solid 1px " color)]
+    [:div {:style {:display   "flex"
+                   :flex-flow (str (if vertical? "row" "column") " nowrap")
+                   :width     (if vertical? width length)
+                   :height    (if vertical? length width)
+                   :margin    "auto"}}
+     [:div {:style (if vertical?
+                     {:width pos1   :height length :border-right  border}
+                     {:width length :height pos1   :border-bottom border})}]
+     [:div {:style (if vertical?
+                     {:width pos2   :height length :border-right  border}
+                     {:width length :height pos2   :border-bottom border})}]]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -36,8 +35,8 @@
 ;; ------------------------------------------------------------------------------------
 
 (def h-layout-args-desc
-  [{:name :left-panel    :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the left panel"}
-   {:name :right-panel   :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the right panel"}
+  [{:name :panel-1       :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the left panel"}
+   {:name :panel-2       :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the right panel"}
    {:name :initial-split :required false :default 50    :type "double | string" :validate-fn number-or-string? :description "initial split percentage of the left panel. Can be double value or string (with/without percentage sign)"}
    {:name :splitter-size :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
    {:name :margin        :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
@@ -46,7 +45,7 @@
 
 (defn h-layout
   "Returns markup for a horizontal layout component"
-  [& {:keys [left-panel right-panel initial-split splitter-size margin]
+  [& {:keys [panel-1 panel-2 initial-split splitter-size margin]
       :or   {initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   {:pre [(validate-args-macro h-layout-args-desc args "h-layout")]}
@@ -114,11 +113,11 @@
     (fn []
       [:div (make-container-style "rc-h-layout" @dragging?)
        [:div (make-panel-style "rc-h-layout-top" @dragging? @split-perc)
-        left-panel]
+        panel-1]
        [:div (make-splitter-style "rc-h-layout-splitter")
         [drag-handle :vertical @over?]]
        [:div (make-panel-style "rc-h-layout-bottom" @dragging? (- 100 @split-perc))
-        right-panel]])))
+        panel-2]])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -126,8 +125,8 @@
 ;; ------------------------------------------------------------------------------------
 
 (def v-layout-args-desc
-  [{:name :top-panel     :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the top panel"}
-   {:name :bottom-panel  :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the bottom panel"}
+  [{:name :panel-1       :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the top panel"}
+   {:name :panel-2       :required true                 :type "component"       :validate-fn string-or-hiccup? :description "markup to go in the bottom panel"}
    {:name :initial-split :required false :default 50    :type "double | string" :validate-fn number-or-string? :description "initial split percentage of the top panel. Can be double value or string (with/without percentage sign)"}
    {:name :splitter-size :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
    {:name :margin        :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
@@ -136,7 +135,7 @@
 
 (defn v-layout
   "Returns markup for a vertical layout component"
-  [& {:keys [top-panel bottom-panel initial-split splitter-size margin]
+  [& {:keys [panel-1 panel-2 initial-split splitter-size margin]
       :or   {initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   {:pre [(validate-args-macro v-layout-args-desc args "v-layout")]}
@@ -204,8 +203,8 @@
     (fn []
       [:div (make-container-style "re-v-layout" @dragging?)
        [:div (make-panel-style "re-v-layout-top" @dragging? @split-perc)
-        top-panel]
+        panel-1]
        [:div (make-splitter-style "re-v-layout-splitter")
         [drag-handle :horizontal @over?]]
        [:div (make-panel-style "re-v-layout-bottom" @dragging? (- 100 @split-perc))
-        bottom-panel]])))
+        panel-2]])))

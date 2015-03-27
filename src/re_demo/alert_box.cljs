@@ -37,7 +37,7 @@
                                              :id         1
                                              :alert-type :info
                                              :heading    "This Is An Alert Heading"
-                                             :body       [:p "This is an alert body. This alert has an :alert-type of :info which makes it blue, and it includes a :heading, a :body and a close button. Click the x to close it."]
+                                             :body       [:p "This is an alert body. This alert has an :alert-type of :info which makes it green, and it includes a :heading, a :body and a close button. Click the x to close it."]
                                              :closeable? true
                                              :on-close   #(reset! show-alert false)]
                                             [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
