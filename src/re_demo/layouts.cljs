@@ -49,15 +49,6 @@
            [layout-panel-title "Bottom panel"]]])
 
 
-#_(defn right-panel
-  []
-  [v-layout
-   :top-panel     top-panel
-   :bottom-panel  bottom-panel
-   :margin        "0px"
-   :initial-split "25%"])
-
-
 (defn panel
   []
   [v-box
@@ -84,8 +75,8 @@
                            :gap      "10px"
                            :children [[component-title "Demo"]
                                       [h-layout
-                                       :left-panel    left-panel
-                                       :right-panel   right-panel]]]]]
+                                       :left-panel [left-panel]
+                                       :right-panel [right-panel]]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
                :gap      "100px"
@@ -101,7 +92,7 @@
                            :gap      "10px"
                            :children [[component-title "Demo"]
                                       [v-layout
-                                       :top-panel     top-panel
-                                       :bottom-panel  bottom-panel
+                                       :top-panel     [top-panel]
+                                       :bottom-panel  [bottom-panel]
                                        :initial-split "25%"]]]]]
               [gap :size "30px"]]])

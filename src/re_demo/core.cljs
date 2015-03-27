@@ -51,7 +51,7 @@
   [{:id :welcome                :level :major :label "Welcome"            :panel welcome/panel}
 
    {:id :buttons                :level :major :label "Buttons"}
-   {:id :button                 :level :minor :label "Basic"              :panel button/panel}
+   {:id :button                 :level :minor :label "Basic Button"       :panel button/panel}
    {:id :row-button             :level :minor :label "Row Button"         :panel row-button/panel}
    {:id :md-circle-icon-button  :level :minor :label "Circle Icon Button" :panel md-circle-icon-button/panel}
    {:id :md-icon-button         :level :minor :label "Icon Button"        :panel md-icon-button/panel}
@@ -104,7 +104,7 @@
   []
   (let [mouse-over? (reagent/atom false)]
     (fn [tab selected-tab-id on-select-tab]
-      (let [selected   (= @selected-tab-id (:id tab))
+      (let [selected?   (= @selected-tab-id (:id tab))
             is-major?  (= (:level tab) :major)
             has-panel? (some? (:panel tab))]
       [:div
@@ -114,8 +114,8 @@
                 :padding-top      (when is-major? "6px")
                 :font-size        (when is-major? "15px")
                 :font-weight      (when is-major? "bold")
-                :color            (if selected "#111")
-                :border-right     (if selected "4px #d0d0d0 solid")
+                :color            (when selected? "#111")
+                :border-right     (when selected? "4px #d0d0d0 solid")
                 :background-color (if (or
                                         (= @selected-tab-id (:id tab))
                                         @mouse-over?) "#eaeaea")}

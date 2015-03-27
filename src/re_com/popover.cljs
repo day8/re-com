@@ -125,6 +125,19 @@
 ;; Component: popover-border
 ;;--------------------------------------------------------------------------------------------------
 
+(defn next-even-integer
+  [num]
+  (-> num inc (/ 2) int (* 2)))
+
+(defn calc-pop-offset
+  [arrow-pos p-width p-height]
+  (case arrow-pos
+    :center nil
+    :right  20
+    :below  20
+    :left   (if p-width (- p-width 25) p-width)
+    :above  (if p-height (- p-height 25) p-height)))
+
 (def popover-border-args-desc
   [{:name :children       :required true                        :type "vector"           :validate-fn sequential?       :description "a vector of component markups"}
    {:name :position       :required false :default :right-below :type "keyword"          :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
@@ -162,14 +175,9 @@
        :component-did-update
        (fn []
          (let [popover-elem   (get-element-by-id pop-id)]
-           (reset! p-width    (if popover-elem (-> (.-clientWidth  popover-elem) inc (/ 2) int (* 2)) 0)) ;; Convert to next highest even integer to avoid wiggling popovers
-           (reset! p-height   (if popover-elem (-> (.-clientHeight popover-elem) inc (/ 2) int (* 2)) 0))
-           (reset! pop-offset (case arrow-pos
-                                :center nil
-                                :right  20
-                                :below  20
-                                :left   (if @p-width (- @p-width 25) @p-width)
-                                :above  (if @p-height (- @p-height 25) @p-height)))))
+           (reset! p-width    (if popover-elem (next-even-integer (.-clientWidth  popover-elem)) 0)) ;; next-even-integer required to avoid wiggling popovers (width/height appears to prefer being even and toggles without this call)
+           (reset! p-height   (if popover-elem (next-even-integer (.-clientHeight popover-elem)) 0))
+           (reset! pop-offset (calc-pop-offset arrow-pos @p-width @p-height))))
 
        :component-function
        (fn
@@ -178,14 +186,9 @@
              :as args}]
          {:pre [(validate-args-macro popover-border-args-desc args "popover-border")]}
          (let [popover-elem   (get-element-by-id pop-id)]
-           (reset! p-width    (if popover-elem (-> (.-clientWidth  popover-elem) inc (/ 2) int (* 2)) 0)) ;; TODO: Duplicate from above but needs to be calculated here to prevent an annoying flicker (so make it a fn)
-           (reset! p-height   (if popover-elem (-> (.-clientHeight popover-elem) inc (/ 2) int (* 2)) 0))
-           (reset! pop-offset (case arrow-pos
-                                :center nil
-                                :right  20
-                                :below  20
-                                :left   (if @p-width (- @p-width 25) @p-width)
-                                :above  (if @p-height (- @p-height 25) @p-height)))
+           (reset! p-width    (if popover-elem (next-even-integer (.-clientWidth  popover-elem)) 0)) ;; TODO: Duplicate from above but needs to be calculated here to prevent an annoying flicker (so make it a fn)
+           (reset! p-height   (if popover-elem (next-even-integer (.-clientHeight popover-elem)) 0))
+           (reset! pop-offset (calc-pop-offset arrow-pos @p-width @p-height))
            [:div.popover.fade.in
             {:id pop-id
              :class (case orientation :left "left" :right "right" :above "top" :below "bottom")

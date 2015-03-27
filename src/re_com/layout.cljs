@@ -4,6 +4,33 @@
             [re-com.validate    :refer [extract-arg-data string-or-hiccup? number-or-string?] :refer-macros [validate-args-macro]]
             [reagent.core       :as    reagent]))
 
+
+(defn drag-handle
+  "Return a drag handle to go into a vertical or horizontal splitter bar:
+    orientation: Can be :horizonal or :vertical
+    over?:       When true, the mouse is assumed to be over the splitter so show a bolder color"
+  [orientation over?]
+  (let [vertical? (= orientation :vertical)
+        length    "20px"
+        width     "8px"
+        pos1      "2px"
+        pos2      "5px"
+        color     (if over? "#999" "#ccc")
+        l-width   "1"]
+    [:svg {:style {:width           (if vertical? width length)
+                   :height          (if vertical? length width)
+                   :margin          "auto"
+                   :stroke          color
+                   :stroke-width    l-width
+                   :shape-rendering "crispEdges"}}
+     [:line (if vertical?
+              {:x1 pos1 :y1 "0"  :x2 pos1   :y2 length}
+              {:x1 "0"  :y1 pos1 :x2 length :y2 pos1})]
+     [:line (if vertical?
+              {:x1 pos2 :y1 "0"  :x2 pos2   :y2 length}
+              {:x1 "0"  :y1 pos2 :x2 length :y2 pos2})]]))
+
+
 ;; ------------------------------------------------------------------------------------
 ;;  Component: h-layout
 ;; ------------------------------------------------------------------------------------
@@ -57,10 +84,10 @@
         make-container-style (fn [class in-drag?]
                                (merge {:class class
                                        :id container-id
-                                       :style {:display "flex"
+                                       :style {:display   "flex"
                                                :flex-flow "row nowrap"
-                                               :flex "auto"
-                                               :margin margin}}
+                                               :flex      "auto"
+                                               :margin    margin}}
                                       (when in-drag?                             ;; only listen when we are dragging
                                         {:on-mouse-up   (handler-fn (stop-drag))
                                          :on-mouse-move (handler-fn (mousemove event))
@@ -79,17 +106,19 @@
                                 :on-mouse-down (handler-fn (mousedown event))
                                 :on-mouse-over (handler-fn (mouseover-split))
                                 :on-mouse-out  (handler-fn (mouseout-split))
-                                :style (merge {:flex (str "0 0 " splitter-size)
-                                               :cursor "ew-resize"}
-                                              (when @over? {:background-color "#eeeeee"}))})]
+                                :style (merge {:display "flex"
+                                               :flex    (str "0 0 " splitter-size)
+                                               :cursor  "col-resize"}
+                                              (when @over? {:background-color "#f8f8f8"}))})]
 
     (fn []
       [:div (make-container-style "rc-h-layout" @dragging?)
        [:div (make-panel-style "rc-h-layout-top" @dragging? @split-perc)
-        [left-panel]]
-       [:div (make-splitter-style "rc-h-layout-splitter")]
+        left-panel]
+       [:div (make-splitter-style "rc-h-layout-splitter")
+        [drag-handle :vertical @over?]]
        [:div (make-panel-style "rc-h-layout-bottom" @dragging? (- 100 @split-perc))
-        [right-panel]]])))
+        right-panel]])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -145,10 +174,10 @@
         make-container-style (fn [class in-drag?]
                                (merge {:class class
                                        :id container-id
-                                       :style {:display "flex"
+                                       :style {:display   "flex"
                                                :flex-flow "column nowrap"
-                                               :flex "auto"
-                                               :margin margin}}
+                                               :flex      "auto"
+                                               :margin    margin}}
                                       (when in-drag?                             ;; only listen when we are dragging
                                         {:on-mouse-up   (handler-fn (stop-drag))
                                          :on-mouse-move (handler-fn (mousemove event))
@@ -167,14 +196,16 @@
                                 :on-mouse-down (handler-fn (mousedown event))
                                 :on-mouse-over (handler-fn (mouseover-split))
                                 :on-mouse-out  (handler-fn (mouseout-split))
-                                :style (merge {:flex (str "0 0 " splitter-size)
-                                               :cursor "ns-resize"}
-                                              (when @over? {:background-color "#eeeeee"}))})]
+                                :style (merge {:display "flex"
+                                               :flex    (str "0 0 " splitter-size)
+                                               :cursor "row-resize"}
+                                              (when @over? {:background-color "#f8f8f8"}))})]
 
     (fn []
       [:div (make-container-style "re-v-layout" @dragging?)
        [:div (make-panel-style "re-v-layout-top" @dragging? @split-perc)
-        [top-panel]]
-       [:div (make-splitter-style "re-v-layout-splitter")]
+        top-panel]
+       [:div (make-splitter-style "re-v-layout-splitter")
+        [drag-handle :horizontal @over?]]
        [:div (make-panel-style "re-v-layout-bottom" @dragging? (- 100 @split-perc))
-        [bottom-panel]]])))
+        bottom-panel]])))
