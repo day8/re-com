@@ -1,6 +1,6 @@
 (ns re-demo.popovers
   (:require [re-com.core                 :refer [h-box v-box box gap line scroller border label title input-text checkbox radio-button button hyperlink
-                                                 single-dropdown popover-content-wrapper popover-anchor-wrapper popover-border popover-tooltip]
+                                                 single-dropdown popover-content-wrapper popover-anchor-wrapper popover-border popover-tooltip flex-child-style]
                                          :refer-macros [handler-fn]]
             [re-com.popover              :refer [popover-content-wrapper-args-desc popover-anchor-wrapper-args-desc popover-border-args-desc
                                                  popover-tooltip-args-desc]]
@@ -147,7 +147,10 @@
                                                          :align    :center
                                                          :style    {:border   "1px solid lightgrey"             ;; turn a v-box into a border-scroller - this is a special case
                                                                     :overflow (when @add-scroller? "overlay")}  ;; Use overlay instead of scroll, otherwise things jump around
-                                                         :children [[:span {:style {:flex "inherit" :color "lightgrey"}} (clojure.string/join (repeat 42 "text "))]
+                                                         :children [[:span
+                                                                     {:style (merge (flex-child-style "inherit")
+                                                                                    {:color "lightgrey"})}
+                                                                     (clojure.string/join (repeat 42 "text "))]
                                                                     [popover-anchor-wrapper
                                                                      :showing? showing?
                                                                      :position @curr-position
@@ -168,7 +171,10 @@
                                                                                                     (if @no-clip?
                                                                                                       [:span {:style {:color "brown"}} [:strong "NOTE: "] (str no-clip-text (when @long-paragraph? extra-text))]
                                                                                                       [:span (str standard-text (when @long-paragraph? extra-text))]))]]
-                                                                    [:span {:style {:flex "inherit" :color "lightgrey"}} (clojure.string/join (repeat (if @add-scroller? 98 49) "text "))]]]
+                                                                    [:span
+                                                                     {:style (merge (flex-child-style "inherit")
+                                                                                    {:color "lightgrey"})}
+                                                                     (clojure.string/join (repeat (if @add-scroller? 98 49) "text "))]]]
                                                         [v-box
                                                          :gap      "15px"
                                                          :align    :start

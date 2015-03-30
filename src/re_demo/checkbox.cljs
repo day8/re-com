@@ -8,7 +8,7 @@
 (defn right-arrow
   []
   [:svg
-   {:height 20  :width 25  :style {:display "flex" :align-self "center"} }
+   {:height 20  :width 25}
    [:line {:x1 "0" :y1 "10" :x2 "20" :y2 "10"
            :style {:stroke "#888"}}]
    [:polygon {:points "20,6 20,14 25,10" :style {:stroke "#888" :fill "#888"}}]])
@@ -17,7 +17,7 @@
 (defn left-arrow
   []
   [:svg
-   {:height 20  :width 25  :style {:display "flex" :align-self "center"} }
+   {:height 20  :width 25}
    [:line {:x1 "5" :y1 "10" :x2 "20" :y2 "10"
            :style {:stroke "#888"}}]
    [:polygon {:points "5,6 5,14 0,10" :style {:stroke "#888" :fill "#888"}}]])

@@ -56,7 +56,7 @@
                                                          :model underline?
                                                          :on-change #(reset! underline? %)]
                                                         [gap :size "40px"]
-                                                        [title :level :level1 :underline? @underline? :attr {:blah true} :label ":level1 - Light 42px"] ;; TODO: Remove blah code
+                                                        [title :level :level1 :underline? @underline? :label ":level1 - Light 42px"]
                                                         [title :level :level2 :underline? @underline? :label ":level2 - Light 26px"]
                                                         [title :level :level3 :underline? @underline? :label ":level3 - Semibold 15px"]
                                                         [title :level :level4 :underline? @underline? :label ":level4 - Semibold 15px"]]]]]]]]]))))

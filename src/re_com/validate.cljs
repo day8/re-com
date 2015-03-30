@@ -226,8 +226,10 @@
                   :transform :transform-origin :transform-style :transition :transition-delay :transition-duration :transition-property
                   :transition-timing-function :turn :unicode-bidi :unicode-range :unset :vertical-align :vh :visibility :vmax :vmin :vw :white-space :widows
                   :width :will-change :word-break :word-spacing :word-wrap :writing-mode :z-index
-                  ; ----- Webkit specific styles
-                  :-webkit-user-select})  ;; https://developer.mozilla.org/en-US/docs/Web/CSS/user-select
+                  ; ----- Browser specific styles
+                  ::-webkit-user-select :-moz-user-select :-ms-user-select :user-select
+                  :-webkit-flex-flow :-webkit-flex-direction :-webkit-flex-wrap :-webkit-justify-content :-webkit-align-items :-webkit-align-content
+                  :-webkit-flex :-webkit-flex-grow :-webkit-flex-shrink :-webkit-flex-basis :-webkit-order :-webkit-align-self})
 
 (defn string-or-hiccup?
   "Returns true if the passed argument is either valid hiccup or a string, otherwise false/error"

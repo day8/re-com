@@ -1250,8 +1250,21 @@ code {
 }
 
 .noselect {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+/*----------------------------------------------------------------------------------------
+  Flexbox "display" styles
+  Requires 2 display values which we can't represent in a Clojure map
+----------------------------------------------------------------------------------------*/
+
+.display-flex {
+    display: -webkit-flex;
+    display: flex;
+}
+.display-inline-flex {
+    display: -webkit-inline-flex;
+    display: inline-flex;
 }

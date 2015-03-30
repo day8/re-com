@@ -1,6 +1,6 @@
 (ns re-com.text
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.box      :refer [v-box box line]]
+  (:require [re-com.box      :refer [v-box box line flex-child-style]]
             [re-com.validate :refer [extract-arg-data title-levels-list title-level-type? css-style?
                                      html-attr? string-or-hiccup?] :refer-macros [validate-args-macro]]))
 
@@ -27,11 +27,12 @@
   [box
    :width width
    :align :start
-   :style {:display "inline-flex"}
+   :class "display-inline-flex"
    :child [:span
            (merge
              {:class (str "rc-label " class)
-              :style (merge {:flex "none"} style)}
+              :style (merge (flex-child-style "none")
+                            style)}
              (when on-click
                {:on-click (handler-fn (on-click))})
              attr)
@@ -58,8 +59,8 @@
   {:pre [(validate-args-macro title-args-desc args "title")]}
   (let [preset-class (if (nil? level) "" (name level))]
     [v-box
-     :children [[:span (merge {:class (str "rc-title " preset-class " " class)
-                               :style (merge {:display "flex" :flex "none"}
+     :children [[:span (merge {:class (str "rc-title display-flex " preset-class " " class)
+                               :style (merge (flex-child-style "none")
                                              style)}
                               attr)
                  label]

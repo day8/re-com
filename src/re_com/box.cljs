@@ -10,7 +10,7 @@
 ;;  Private Helper functions
 ;; ------------------------------------------------------------------------------------
 
-(defn- flex-child-style
+(defn flex-child-style
   "Determines the value for the 'flex' attribute (which has grow, shrink and basis), based on the size parameter.
    IMPORTANT: The term 'size' means width of the item in the case of flex-direction 'row' OR height of the item in the case of flex-direction 'column'.
    Flex property explanation:
@@ -52,38 +52,50 @@
         flex            (if (and size-only (not pass-through?))
                           (str grow " " shrink " " basis)
                           size)]
-    {:flex flex}))
+    {:-webkit-flex flex
+             :flex flex}))
 
 
-(defn- justify-style
+(defn flex-flow-style
+  "A cross-browser helper function to output flex-flow with all it's potential browser prefixes"
+  [flex-flow]
+  {:-webkit-flex-flow flex-flow
+           :flex-flow flex-flow})
+
+(defn justify-style
   "Determines the value for the flex 'justify-content' attribute.
    This parameter determines how children are aligned along the main axis.
    The justify parameter is a keyword.
    Reference: http://www.w3.org/TR/css3-flexbox/#justify-content-property"
   [justify]
-  {:justify-content (case justify
-                      :start   "flex-start"
-                      :end     "flex-end"
-                      :center  "center"
-                      :between "space-between"
-                      :around  "space-around")})
+  (let [js (case justify
+             :start   "flex-start"
+             :end     "flex-end"
+             :center  "center"
+             :between "space-between"
+             :around  "space-around")]
+    {:-webkit-justify-content js
+             :justify-content js}))
 
 
-(defn- align-style
+(defn align-style
   "Determines the value for the flex align type attributes.
    This parameter determines how children are aligned on the cross axis.
    The justify parameter is a keyword.
    Reference: http://www.w3.org/TR/css3-flexbox/#align-items-property"
   [attribute align]
-  {attribute (case align
-               :start    "flex-start"
-               :end      "flex-end"
-               :center   "center"
-               :baseline "baseline"
-               :stretch  "stretch")})
+  (let [attribute-wk (->> attribute name (str "-webkit-") keyword)
+        as           (case align
+                       :start    "flex-start"
+                       :end      "flex-end"
+                       :center   "center"
+                       :baseline "baseline"
+                       :stretch  "stretch")]
+    {attribute-wk as
+     attribute    as}))
 
 
-(defn- scroll-style
+(defn scroll-style
   "Determines the value for the 'overflow' attribute.
    The scroll parameter is a keyword.
    Because we're translating scroll into overflow, the keyword doesn't appear to match the attribute value"
@@ -102,11 +114,10 @@
 (defn- box-base
   "This should generally NOT be used as it is the basis for the box, scroller and border components"
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height justify align align-self
-             margin padding border l-border r-border t-border b-border radius bk-color child class style attr]}]
+             margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr]}]
   (let [s (merge
-            {:display "flex" :flex-flow "inherit"}
+            (flex-flow-style "inherit")
             (flex-child-style size)
-
             (when scroll      (scroll-style :overflow scroll))
             (when h-scroll    (scroll-style :overflow-x h-scroll))
             (when v-scroll    (scroll-style :overflow-y v-scroll))
@@ -114,12 +125,10 @@
             (when height      {:height height})
             (when min-width   {:min-width min-width})
             (when min-height  {:min-height min-height})
-
             ;(when (and f-container justify) (justify-style justify))
             ;(when (and f-container align) (align-style :align-items align))
             (when justify (justify-style justify))
             (when align (align-style :align-items align))
-
             (when align-self  (align-style :align-self align-self))
             (when margin      {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
             (when padding     {:padding padding})
@@ -135,7 +144,7 @@
             style)]
     [:div
      (merge
-       {:class class :style s}
+       {:class (str class-name "display-flex " class) :style s}
        attr)
      child]))
 
@@ -186,13 +195,13 @@
 
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
-   Specify size in pixels and a stancard CSS colour. Defaults to a 1px red line"
+   Specify size in pixels and a stancard CSS colour. Defaults to a 1px lightgray line"
   [& {:keys [size color class style attr]
       :or   {size "1px" color "lightgray"}
       :as   args}]
   {:pre [(validate-args-macro line-args-desc args "line")]}
   (let [s (merge
-            {:flex (str "0 0 " size)}
+            (flex-child-style (str "0 0 " size))
             {:background-color color}
             style)]
     [:div
@@ -232,7 +241,7 @@
       :as   args}]
   {:pre [(validate-args-macro h-box-args-desc args "h-box")]}
   (let [s        (merge
-                   {:display "flex" :flex-flow "row nowrap"}
+                   (flex-flow-style "row nowrap")
                    (flex-child-style size)
                    (if width {:width width})
                    (when height {:height height})
@@ -250,7 +259,7 @@
                    children)]
     (into [:div
            (merge
-             {:class (str "rc-h-box " class) :style s}
+             {:class (str "rc-h-box display-flex " class) :style s}
              attr)]
           children)))
 
@@ -286,7 +295,7 @@
       :as   args}]
   {:pre [(validate-args-macro v-box-args-desc args "v-box")]}
   (let [s        (merge
-                   {:display "flex" :flex-flow "column nowrap"}
+                   (flex-flow-style "column nowrap")
                    (flex-child-style size)
                    (when width      {:width width})
                    (when height     {:height height})
@@ -304,7 +313,7 @@
                    children)]
     (into [:div
            (merge
-             {:class (str "rc-v-box " class) :style s}
+             {:class (str "rc-v-box display-flex " class) :style s}
              attr)]
           children)))
 
@@ -349,7 +358,8 @@
             :margin      margin
             :padding     padding
             :child       child
-            :class       (str "rc-box " class)
+            :class-name  "rc-box "
+            :class       class
             :style       style
             :attr        attr))
 
@@ -417,7 +427,8 @@
               :margin     margin
               :padding    padding
               :child      child
-              :class      (str "rc-scroller " class)
+              :class-name "rc-scroller "
+              :class      class
               :style      style
               :attr       attr)))
 
@@ -474,6 +485,7 @@
               :b-border    b-border
               :radius      radius
               :child       child
-              :class       (str "rc-border " class)
+              :class-name  "rc-border "
+              :class       class
               :style       style
               :attr        attr)))

@@ -27,9 +27,8 @@
   {:pre [(validate-args-macro modal-panel-args-desc args "modal-panel")]}
   (fn []
     [:div
-     (merge {:class  (str "rc-modal-panel " class)    ;; Containing div
-             :style (merge {:display  "flex"
-                            :position "fixed"
+     (merge {:class  (str "rc-modal-panel display-flex " class)    ;; Containing div
+             :style (merge {:position "fixed"
                             :left     "0px"
                             :top      "0px"
                             :width    "100%"

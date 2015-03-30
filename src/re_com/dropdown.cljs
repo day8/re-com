@@ -1,8 +1,9 @@
 (ns re-com.dropdown
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util      :refer [deref-or-value position-for-id item-for-id]]
-            [clojure.string   :as    string]
+            [re-com.box       :refer [align-style flex-child-style]]
             [re-com.validate  :refer [extract-arg-data vector-of-maps? css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
+            [clojure.string   :as    string]
             [reagent.core     :as    reagent]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
@@ -270,9 +271,9 @@
         [:div
          (merge
            {:class (str "rc-dropdown chosen-container chosen-container-single noselect " (when @drop-showing? "chosen-container-active chosen-with-drop ") class)
-            :style (merge {:flex       (if width "0 0 auto" "auto")
-                           :align-self "flex-start"
-                           :width      (when width width)}
+            :style (merge (flex-child-style (if width "0 0 auto" "auto"))
+                          (align-style :align-self :start)
+                          {:width (when width width)}
                           style)}
            attr)          ;; Prevent user text selection
          [dropdown-top internal-model choices tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]

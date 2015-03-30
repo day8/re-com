@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value px]]
             [re-com.popover  :refer [popover-tooltip]]
-            [re-com.box      :refer [h-box v-box box gap line]]
+            [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
             [re-com.validate :refer [extract-arg-data input-status-type? input-status-types-list regex?
                                      string-or-hiccup? css-style? html-attr? number-or-string?
                                      string-or-atom? throbber-size? throbber-sizes-list] :refer-macros [validate-args-macro]]
@@ -70,15 +70,15 @@
                                     "")
                                   (when (and status status-icon?) "has-feedback")
                                   )
-                      :style {:flex "auto"}}
+                      :style (flex-child-style "auto")}
                      [input-type
                       (merge
                         {:class       (str "form-control noselect " class)
                          :type        (when (= input-type :text) "text")
                          :rows        (when (= input-type :textarea) (if rows rows 3))
                          :style       (merge
-                                        {:flex          "none"
-                                         :height        height
+                                        (flex-child-style "none")
+                                        {:height        height
                                          :padding-right "12px"} ;; override for when icon exists
                                         style)
                          :placeholder placeholder
@@ -125,19 +125,19 @@
                                                       }
                                       :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
                                       :on-mouse-out  (handler-fn (reset! showing? false))}]
-                         :style {:flex        "none"
-                                 :align-self  :center
-                                 :font-size   "130%"
-                                 :margin-left "4px"}]
+                         :style (merge (flex-child-style "none")
+                                       (align-style :align-self :center)
+                                       {:font-size   "130%"
+                                        :margin-left "4px"})]
                         [:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
-                             :style {:flex        "none"
-                                     :align-self  :center
-                                     :position    "static"
-                                     :font-size   "130%"
-                                     :margin-left "4px"
-                                     :opacity     (if (and status-icon? status) "1" "0")
-                                     :width       "auto"
-                                     :height      "auto"}
+                             :style (merge (flex-child-style "none")
+                                           (align-style :align-self :center)
+                                           {:position    "static"
+                                            :font-size   "130%"
+                                            :margin-left "4px"
+                                            :opacity     (if (and status-icon? status) "1" "0")
+                                            :width       "auto"
+                                            :height      "auto"})
                              :title status-tooltip}]))]]))))
 
 
@@ -183,8 +183,8 @@
      :children [[:input
                  {:class     "rc-checkbox"
                   :type      "checkbox"
-                  :style     (merge {:flex   "none"
-                                     :cursor cursor}
+                  :style     (merge (flex-child-style "none")
+                                    {:cursor cursor}
                                     style)
                   :disabled  disabled?
                   :checked   model
@@ -193,8 +193,8 @@
                   [:span
                    {:on-click (handler-fn (callback-fn))
                     :class    label-class
-                    :style    (merge {:padding-left "8px"
-                                      :flex         "none"
+                    :style    (merge (flex-child-style "none")
+                                     {:padding-left "8px"
                                       :cursor       cursor}
                                      label-style)}
                    label])]]))
@@ -233,8 +233,8 @@
                  {:class     "rc-radio-button"
                   :type      "radio"
                   :style     (merge
-                               {:flex   "none"
-                                :cursor cursor}
+                               (flex-child-style "none")
+                               {:cursor cursor}
                                style)
                   :disabled  disabled?
                   :checked   (= model value)
@@ -243,8 +243,8 @@
                   [:span
                    {:on-click (handler-fn (callback-fn))
                     :class    label-class
-                    :style    (merge {:padding-left "8px"
-                                      :flex         "none"
+                    :style    (merge (flex-child-style "none")
+                                     {:padding-left "8px"
                                       :cursor       cursor}
                                      label-style)}
                    label])]]))
@@ -287,8 +287,11 @@
                (merge
                  {:class     (str "rc-slider " class)
                   :type      "range"
+                  ;:orient    "vertical" ;; Make Firefox slider vertical (doesn't work because React ignores it, I think)
                   :style     (merge
-                               {:flex   "none"
+                               (flex-child-style "none")
+                               {;:-webkit-appearance "slider-vertical"   ;; TODO: Make a :orientation (:horizontal/:vertical) option
+                                ;:writing-mode       "bt-lr"             ;; Make IE slider vertical
                                 :width  (if width width "400px")
                                 :cursor (if disabled? "not-allowed" "default")}
                                style)
@@ -327,8 +330,8 @@
      :child [:div
              (merge
                {:class (str "rc-progress-bar progress " class)
-                :style (merge {:flex  "none"
-                               :width width}
+                :style (merge (flex-child-style "none")
+                              {:width width}
                               style)}
                attr)
              [:div

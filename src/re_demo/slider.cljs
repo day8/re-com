@@ -41,7 +41,7 @@
                                                        :min       slider-min
                                                        :max       slider-max
                                                        :step      slider-step
-                                                       :width     "200px"
+                                                       :width     "300px"
                                                        :on-change #(reset! slider-val (str %))
                                                        :disabled? disabled?]
                                                       [gap :size "0px"]

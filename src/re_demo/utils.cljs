@@ -1,5 +1,5 @@
 (ns re-demo.utils
-  (:require [re-com.core :refer [h-box v-box box gap line title label hyperlink-href]]))
+  (:require [re-com.core :refer [h-box v-box box gap line title label hyperlink-href align-style]]))
 
 
 (defn panel-title
@@ -58,12 +58,11 @@
                        [[:span.semibold.all-small-caps "default:"] [:span.semibold (str default)]])
                      [[:span.semibold.all-small-caps "required"]])]
     [h-box
-     :style    { :background (if odd-row?  "#F4F4F4" "#FCFCFC" )}
-     :children [[:span {:class  "semibold"
-                        :style {:width name-width
-                                :padding-left "15px"
-                                :align-self :center
-                               }}
+     :style    {:background (if odd-row? "#F4F4F4" "#FCFCFC")}
+     :children [[:span {:class "semibold"
+                        :style (merge (align-style :align-self :center)
+                                      {:width        name-width
+                                       :padding-left "15px"})}
                  (str (:name arg))]
                 [line :size "1px" :color "white"]
                 [v-box
