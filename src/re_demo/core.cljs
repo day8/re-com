@@ -152,11 +152,11 @@
 (defn browser-alert
   []
   [box
-   :padding "10px"
+   :padding "10px 0px 10px 10px"
    :child   [alert-box
              :alert-type :danger
-             :heading    "Works Best in Chrome"
-             :body       "re-com has been verified in Google Chrome. Much of it will run in other browsers but there will be dragons!"]])
+             :heading    "Use Chrome Instead?"
+             :body       "re-com should work on all modern browsers, but there might be dragons!"]])
 
 ;; -- Routes, Local Storage and History ------------------------------------------------------
 
