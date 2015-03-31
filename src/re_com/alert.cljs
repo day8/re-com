@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value]]
             [re-com.buttons  :refer [button]]
-            [re-com.box      :refer [h-box v-box box scroller border]]
+            [re-com.box      :refer [h-box v-box box scroller border flex-child-style]]
             [re-com.validate :refer [extract-arg-data string-or-hiccup? alert-type? alert-types-list
                                      vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
@@ -39,8 +39,8 @@
                         (name alert-type))]
     [:div
      (merge {:class (str "rc-alert alert fade in alert-" alert-type " " class)
-             :style (merge {:flex    "none"
-                            :padding (when padding padding)}
+             :style (merge (flex-child-style "none")
+                           {:padding (when padding padding)}
                            style)}
             attr)
      (when heading

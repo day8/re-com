@@ -1,6 +1,7 @@
 (ns re-com.popover
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
+            [re-com.box      :refer [h-box flex-child-style flex-flow-style align-style]]
             [re-com.validate :refer [extract-arg-data position? position-options-list popover-status-type? popover-status-types-list number-or-string?
                                      string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]
             [clojure.string  :as    string]
@@ -243,14 +244,13 @@
   {:pre [(validate-args-macro popover-title-args-desc args "popover-title")]}
   (assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback")
   (let [close-button? (if (nil? close-button?) true close-button?)]
-    [:h3.popover-title {:style {:font-size "18px"
-                                :flex      "inherit"}}
-     [:div {:style {:display         "flex"
-                    :flex-flow       "row nowrap"
-                    :justify-content "space-between"
-                    :align-items     "center"}}
-      title
-      (when close-button? [close-button showing? close-callback])]]))
+    [:h3.popover-title {:style (merge (flex-child-style "inherit")
+                                      {:font-size "18px"})}
+     [h-box
+      :justify  :between
+      :align    :center
+      :children [title
+                 (when close-button? [close-button showing? close-callback])]]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -306,7 +306,7 @@
          {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
          [:div
           {:class "popover-content-wrapper"
-           :style (merge {:flex "inherit"}
+           :style (merge (flex-child-style "inherit")
                          (when no-clip? {:position "fixed"
                                          :left      (px @left-offset)
                                          :top       (px @top-offset)})
@@ -352,23 +352,20 @@
   (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
         place-anchor-before?    (case orientation (:left :above) false true)
         flex-flow               (case orientation (:left :right) "row" "column")]
-    [:div {:class  "rc-popover-anchor-wrapper"
-           :style (merge {:display "inline-flex"
-                          :flex    "inherit"}
+    [:div {:class  "rc-popover-anchor-wrapper display-inline-flex"
+           :style (merge (flex-child-style "inherit")
                          style)}
      [:div                                ;; Wrapper around the anchor and the "point"
-      {:class "rc-point-wrapper"
-       :style {:display     "inline-flex"
-               :flex-flow   flex-flow
-               :align-items "center"}}
+      {:class "rc-point-wrapper display-inline-flex"
+       :style (merge (flex-flow-style flex-flow)
+                     (align-style :align-items :center))}
       (when place-anchor-before? anchor)
       (when @showing?
         [:div                             ;; The "point" that connects the anchor to the popover
-         {:class "rc-popover-point"
-          :style {:position "relative"
-                  :z-index  "4"
-                  :display  "inline-flex"
-                  :flex     "auto"}}
+         {:class "rc-popover-point display-inline-flex"
+          :style (merge (flex-child-style "auto")
+                        {:position "relative"
+                         :z-index  "4"})}
          popover])
       (when-not place-anchor-before? anchor)]]))
 
@@ -381,7 +378,7 @@
   [{:name :label     :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup?    :description "the text (or component) for the tooltip"}
    {:name :showing?  :required true  :default false         :type "boolean"                                                  :description "when the value is true, the tooltip shows"}
    {:name :on-cancel :required false                        :type "function"               :validate-fn fn?                  :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
-   {:name :status    :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background colour of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
+   {:name :status    :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background color of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
    {:name :anchor    :required true                         :type "hiccup"                 :validate-fn string-or-hiccup?    :description "the component the tooltip is attached to"}
    {:name :position  :required false :default :below-center :type "keyword"                :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :width     :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}

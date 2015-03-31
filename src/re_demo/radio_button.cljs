@@ -7,7 +7,7 @@
 
 (defn radios-demo
   []
-  (let [colour (reagent/atom "green")]
+  (let [color (reagent/atom "green")]
     (fn
       []
       [v-box
@@ -36,10 +36,10 @@
                                                                [radio-button
                                                                 :label       c
                                                                 :value       c
-                                                                :model       colour
-                                                                :label-style (if (= c @colour) {:color       c
+                                                                :model       color
+                                                                :label-style (if (= c @color) {:color       c
                                                                                                 :font-weight "bold"})
-                                                                :on-change   #(reset! colour c)]))]]]]]]]])))
+                                                                :on-change   #(reset! color c)]))]]]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

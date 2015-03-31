@@ -21,10 +21,37 @@
                            :children [[component-title "Notes"]
                                       [status-text "Stable"]
                                       [paragraphs
-                                       [:p "TBA..."]]
+                                       [paragraphs
+                                        [:p "Draws a line. Typically placed between the children of a v-box or h-box."]
+                                        [:p "The line is added in the expected direction (i.e. vertically for h-box or horizontally for v-box)."]]]
                                       [args-table line-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span.all-small-caps "TBA..."]]]]]
+                                      [paragraphs
+                                       [:span "Here is some sample code..."]]
+                                      [:pre
+                                       {:style {:width "40em"}}
+"[h-box
+ :gap      \"10px\"
+ :children [[grey-box-1]
+            [line
+             :size  \"3px\"
+             :color \"red\"]
+            [grey-box-2]]]"]
+                                      [paragraphs
+                                       [:p "Here is the result..."]]
+                                      [h-box
+                                       :gap      "10px"
+                                       :children [[box
+                                                   :style {:background-color "lightgrey"
+                                                           :padding          "20px"}
+                                                   :child "Box 1"]
+                                                  [line
+                                                   :size  "3px"
+                                                   :color "red"]
+                                                  [box
+                                                   :style {:background-color "lightgrey"
+                                                           :padding          "20px"}
+                                                   :child "Box 2"]]]]]]]
               [gap :size "30px"]]])

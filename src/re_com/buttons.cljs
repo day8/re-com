@@ -4,7 +4,7 @@
             [re-com.validate :refer [extract-arg-data position? position-options-list button-size? button-sizes-list
                                      string-or-hiccup? css-style? html-attr? string-or-atom?] :refer-macros [validate-args-macro]]
             [re-com.popover  :refer [popover-tooltip]]
-            [re-com.box      :refer [h-box v-box box gap line]]
+            [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
             [reagent.core    :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@
                         (merge
                           {:class    (str "rc-button btn " class)
                            :style    (merge
-                                       {:flex "none"}
+                                       (flex-child-style "none")
                                        style)
                            :disabled disabled?
                            :on-click (handler-fn
@@ -49,7 +49,7 @@
                           attr)
                         label]]
         [box
-         :style {:display "inline-flex"}
+         :class "display-inline-flex"
          :align :start
          :child (if tooltip
                   [popover-tooltip
@@ -308,8 +308,8 @@
                                 (merge
                                   {:class    (str "rc-hyperlink noselect " class)
                                    :style    (merge
-                                               {:flex   "none"
-                                                :cursor (if disabled? "not-allowed" "pointer")
+                                               (flex-child-style "none")
+                                               {:cursor (if disabled? "not-allowed" "pointer")
                                                 :color  (when disabled? "grey")}
                                                style)
                                    :on-click (handler-fn
@@ -359,7 +359,7 @@
             target     (deref-or-value target)
             the-button [:a
                         (merge {:class  (str "rc-hyperlink-href noselect " class)
-                                :style  (merge {:flex "none"}
+                                :style  (merge (flex-child-style "none")
                                                style)
                                 :href   href
                                 :target target}

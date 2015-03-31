@@ -1,6 +1,7 @@
 (ns re-com.layout
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util        :refer [get-element-by-id sum-scroll-offsets]]
+            [re-com.box         :refer [flex-child-style flex-flow-style]]
             [re-com.validate    :refer [extract-arg-data string-or-hiccup? number-or-string?] :refer-macros [validate-args-macro]]
             [reagent.core       :as    reagent]))
 
@@ -16,12 +17,13 @@
         pos1      "3px"
         pos2      "3px"
         color     (if over? "#999" "#ccc")
-        border    (str "solid 1px " color)]
-    [:div {:style {:display   "flex"
-                   :flex-flow (str (if vertical? "row" "column") " nowrap")
-                   :width     (if vertical? width length)
-                   :height    (if vertical? length width)
-                   :margin    "auto"}}
+        border    (str "solid 1px " color)
+        flex-flow (str (if vertical? "row" "column") " nowrap")]
+    [:div {:class "display-flex"
+           :style (merge (flex-flow-style flex-flow)
+                         {:width  (if vertical? width length)
+                          :height (if vertical? length width)
+                          :margin "auto"})}
      [:div {:style (if vertical?
                      {:width pos1   :height length :border-right  border}
                      {:width length :height pos1   :border-bottom border})}]
@@ -81,34 +83,31 @@
         mouseout-split       #(reset! over? false)
 
         make-container-style (fn [class in-drag?]
-                               (merge {:class class
-                                       :id container-id
-                                       :style {:display   "flex"
-                                               :flex-flow "row nowrap"
-                                               :flex      "auto"
-                                               :margin    margin}}
+                               (merge {:class (str "display-flex " class)
+                                       :id    container-id
+                                       :style (merge (flex-child-style "auto")
+                                                     (flex-flow-style "row nowrap")
+                                                     {:margin margin})}
                                       (when in-drag?                             ;; only listen when we are dragging
                                         {:on-mouse-up   (handler-fn (stop-drag))
                                          :on-mouse-move (handler-fn (mousemove event))
                                          :on-mouse-out  (handler-fn (mouseout event))})))
 
         make-panel-style (fn [class in-drag? percentage]
-                           {:class class
-                            :style (merge {:display "flex"
-                                           :flex (str percentage " 1 0px")
-                                           :overflow "hidden" ;; TODO: Shouldn't have this...test removing it
+                           {:class (str "display-flex " class)
+                            :style (merge (flex-child-style (str percentage " 1 0px"))
+                                          {:overflow "hidden" ;; TODO: Shouldn't have this...test removing it
                                            }
                                           (when in-drag? {:pointer-events "none"}))})
 
         make-splitter-style  (fn [class]
-                               {:class class
+                               {:class         (str "display-flex " class)
                                 :on-mouse-down (handler-fn (mousedown event))
                                 :on-mouse-over (handler-fn (mouseover-split))
                                 :on-mouse-out  (handler-fn (mouseout-split))
-                                :style (merge {:display "flex"
-                                               :flex    (str "0 0 " splitter-size)
-                                               :cursor  "col-resize"}
-                                              (when @over? {:background-color "#f8f8f8"}))})]
+                                :style         (merge (flex-child-style (str "0 0 " splitter-size))
+                                                      {:cursor "col-resize"}
+                                                      (when @over? {:background-color "#f8f8f8"}))})]
 
     (fn []
       [:div (make-container-style "rc-h-layout" @dragging?)
@@ -171,34 +170,31 @@
         mouseout-split       #(reset! over? false)
 
         make-container-style (fn [class in-drag?]
-                               (merge {:class class
-                                       :id container-id
-                                       :style {:display   "flex"
-                                               :flex-flow "column nowrap"
-                                               :flex      "auto"
-                                               :margin    margin}}
+                               (merge {:class (str "display-flex " class)
+                                       :id    container-id
+                                       :style (merge (flex-child-style "auto")
+                                                     (flex-flow-style "column nowrap")
+                                                     {:margin margin})}
                                       (when in-drag?                             ;; only listen when we are dragging
                                         {:on-mouse-up   (handler-fn (stop-drag))
                                          :on-mouse-move (handler-fn (mousemove event))
                                          :on-mouse-out  (handler-fn (mouseout event))})))
 
         make-panel-style (fn [class in-drag? percentage]
-                           {:class class
-                            :style (merge {:display "flex"
-                                           :flex (str percentage " 1 0px")
-                                           :overflow "hidden" ;; TODO: Shouldn't have this...test removing it
+                           {:class (str "display-flex " class)
+                            :style (merge (flex-child-style (str percentage " 1 0px"))
+                                          {:overflow "hidden" ;; TODO: Shouldn't have this...test removing it
                                            }
                                           (when in-drag? {:pointer-events "none"}))})
 
         make-splitter-style  (fn [class]
-                               {:class class
+                               {:class         (str "display-flex " class)
                                 :on-mouse-down (handler-fn (mousedown event))
                                 :on-mouse-over (handler-fn (mouseover-split))
                                 :on-mouse-out  (handler-fn (mouseout-split))
-                                :style (merge {:display "flex"
-                                               :flex    (str "0 0 " splitter-size)
-                                               :cursor "row-resize"}
-                                              (when @over? {:background-color "#f8f8f8"}))})]
+                                :style         (merge (flex-child-style (str "0 0 " splitter-size))
+                                                      {:cursor  "row-resize"}
+                                                      (when @over? {:background-color "#f8f8f8"}))})]
 
     (fn []
       [:div (make-container-style "re-v-layout" @dragging?)

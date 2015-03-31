@@ -1,14 +1,14 @@
 (ns re-demo.layouts
-  (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-layout v-layout title]]
+  (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-layout v-layout title flex-child-style]]
             [re-com.layout :refer [h-layout-args-desc v-layout-args-desc]]
             [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]))
 
 
-(def rounded-panel {:background-color "#fff4f4"
-                    :border           "1px solid lightgray"
-                    :border-radius    "4px"
-                    :padding          "0px 20px 0px 20px"
-                    :flex             "1"})
+(def rounded-panel (merge (flex-child-style "1")
+                          {:background-color "#fff4f4"
+                           :border           "1px solid lightgray"
+                           :border-radius    "4px"
+                           :padding          "0px 20px 0px 20px"}))
 
 (defn layout-panel-title
   [text]

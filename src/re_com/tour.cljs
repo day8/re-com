@@ -1,6 +1,7 @@
 (ns re-com.tour
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [reagent.core   :as    reagent]
+            [re-com.box     :refer [flex-child-style]]
             [re-com.buttons :refer [button]]))
 
 
@@ -78,7 +79,8 @@
   (let [on-first-button (= @(:current-step tour) 0)
         on-last-button  (= @(:current-step tour) (dec (count (:steps tour))))]
     [:div
-     [:hr {:style {:margin "10px 0 10px" :flex "none"}}]
+     [:hr {:style (merge (flex-child-style "none")
+                         {:margin "10px 0 10px"})}]
       (when-not on-first-button
         [button
          :label    "Previous"

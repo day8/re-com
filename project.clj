@@ -32,7 +32,7 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "0.2.9"
+(defproject         re-com "0.3.0"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
 
@@ -141,6 +141,8 @@
                      "debug-prod" ["with-profile" "+prod-run" "do"
                                    ["run-prod"]
                                    ["cljsbuild" "auto" "prod"]]
+
+                     "deploy"     ["s3-static-deploy"]
 
                      ;; *** TEST ***
 

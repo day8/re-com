@@ -6,7 +6,7 @@
     [re-com.validate      :refer [extract-arg-data goog-date? css-style? html-attr?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
-    [re-com.box           :refer [border h-box]]
+    [re-com.box           :refer [border h-box flex-child-style]]
     [re-com.util          :refer [deref-or-value]]
     [re-com.popover       :refer [popover-content-wrapper popover-anchor-wrapper backdrop popover-border]]))
 
@@ -242,9 +242,8 @@
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   [shown? model format]
-  [:div {:class    "input-group noselect"
-         :style    {:display "flex"
-                    :flex    "none"}
+  [:div {:class    "input-group display-flex noselect"
+         :style    (flex-child-style "none")
          :on-click (handler-fn (swap! shown? not))}
    [h-box
     :align :center
@@ -283,7 +282,7 @@
          :showing? shown?
          :position position
          :anchor   [anchor-button shown? model format]
-         :popover  [:div {:style {:flex "inherit"}}
+         :popover  [:div {:style (flex-child-style "inherit")}
                     (when shown? [backdrop :on-click cancel-popover])
                     [popover-border
                      :position     position

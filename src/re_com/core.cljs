@@ -21,6 +21,12 @@
 (def alert-box                  alert/alert-box)
 (def alert-list                 alert/alert-list)
 
+(def flex-child-style           box/flex-child-style)
+(def flex-flow-style            box/flex-flow-style)
+(def justify-style              box/justify-style)
+(def align-style                box/align-style)
+(def scroll-style               box/scroll-style)
+
 (def h-box                      box/h-box)
 (def v-box                      box/v-box)
 (def box                        box/box)
