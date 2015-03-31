@@ -1,86 +1,66 @@
-## Status
-
-Alpha overall.  But parts are now stable - they are marked as such.
-
-## Why Should You Care?
-
-Either:
-  1. You need a library of Reagent widgets for your next Chrome-based app.
-  2. You can't use these widgets, but you're interested in building your own.  
-
 # re-com
 
 A ClojureScript library of UI components, built on top of Dan Holmsand's wonderful
 [Reagent](http://reagent-project.github.io)
 which, in turn, is a layer over Facebook's trail blazing [React](http://facebook.github.io/react).
 
+
 Re-com has:
 
-* familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.  (in Reagent terms these are `components`)
-* layout `components` which organise widgets vertically and horizontally, within splitters, etc. Plus `components`
+* familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.
+  (in Reagent terms these are `components`)
+* layout `components` which organise widgets vertically and horizontally, within
+  splitters, etc. Plus `components`
   which put borders around their children. Layouts can nest. Layouts are based on flexbox.
-* a predominately [Bootstrap](http://getbootstrap.com/) flavour, mixed with
+* a largely [Bootstrap](http://getbootstrap.com/) looked, mixed with
   some [Material Design Icons](http://zavoloklom.github.io/material-design-iconic-font/icons.html).
 
-In short, the stuff you'd need to build a desktop-class app. But, very much a work in
-progress - for a start some components are missing.
-
-The layouts and components work harmoniously together (urmm, except for occasional bouts of
-English-soccer-hooligan-like hostility, but that's a bug right?).
+In short, re-com has the stuff you'd need to build a desktop-class app.
 
 If you decide to use re-com, consider also using [re-frame](https://github.com/Day8/re-frame)
 (an MVC-ish framework).  The two dovetail well, although both can be used independently --
-for example, the demo program for re-com does not use re-frame.
-
-## Are You Sure You Want To Be Here?
-
-We are browser-tech neophytes, who've only spent a year with HTML5, JavaScript, ClojureScript,
-and reactive programming. It has been a steep learning curve.
-
-We're actually displaced refugees from Flash/Flex and, before that, a long time ago in a galaxy far, far away tech
-like QT, MFC, Smalltalk and Interviews.  As you can imagine, we've accumulated an impressive collection of paper cuts developing
-this library, and there's every chance we've made mistakes in both design and implementation.
-
-For example, having the substrate of React and Reagent imparts great benefits, for sure, but it has also
-posed us some serious challenges for things like Popups. Most JavaScript libs achieve
-popovers by adding absolutely positioned `<div>s` directly to the `<body>` element. But we couldn't do
-that - not if
-we wanted to stay true to the GIU-as-a-function-of-the-data paradigm fostered by ClojureScript and React/Reagent
-reactivity. We've come up with (ingenious? tortuous?) solutions for things like Popovers, but because
-of our lack of experience, there might be better ways. We're all ears if there are, BTW.
-
-Despite our inexperience, re-com does seem to hang together fairly well, with only minor quirks. We've
-used it to build production systems, so we've shaken out many bugs and moulded a better API as
-we've gone.  But it is still early days fore re-com, and your alternative usage patterns might yet unearth
-hidden  dragons.
+for example, re-com's demo program does not use re-frame.
 
 
-## No really, re-com Might Not Be For You
+## Warning: re-com Probably Isn't For You (yet)
 
-We build desktop-class apps which will run in chrome environments like
+We build desktop-class apps to run in controlled chrome environments like
 [node-webkit](https://github.com/rogerwang/node-webkit) 
-and [atom-shell](https://github.com/atom/atom-shell). So we have only tested re-com in Chrome.
+and [atom-shell](https://github.com/atom/atom-shell).
 
-In theory, re-com should work on any modern browser, but there'd probably be teething
-issues like correctly vendor-prefixing the CSS etc.
+If you are like us, or you work on Intranet apps where you can mandate a modern browser,
+re-com could be ideal for you. Otherwise you might have to wait 9 months.
 
-Here's a key thing:  the entire layout side of this library plus a couple of the widgets
+
+**Here's the thing:**  the entire layout side of this library plus a few of the widgets
 rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
-which [only works on modern browsers](http://caniuse.com/#feat=flexbox): Chrome, Firefox or IE11.
+which [only works on modern browsers](http://caniuse.com/#feat=flexbox).
+
+And even when it comes to modern browsers there might be teething issues. Based on 5 minutes of
+testing once a month, re-com seems to work on IE11 and Safari,
+but Firefox has the performance of a snail on performance reducing drugs. Nested flexbox
+containers bring Firefox to its knees.  So, yeah, "teething issues".
 
 So, for the next year, this library would be a poor fit if you're targeting the
-retail web, which is rife with Flexbox-less wastelands like IE10 and IE9.
+retail web, which is rife with flexbox-less wastelands like IE10 and IE9. Having said that,
+the end is coming for various old IE browsers much more quickly than in the
+past - [come Jan 12th 2016 most corporates will be forced across onto IE11](http://blogs.msdn.com/b/ie/archive/2014/08/07/stay-up-to-date-with-internet-explorer.aspx)
  
 I can also confirm that none of the components have been designed with mobile in mind, and
-that there's no attempt to handle media queries.  It's just not that kind of widget library.
+that there's no attempt to handle media queries.  I said we had a desktop focus, right?
 
-Neither have we been particularly worried about code size. Other design goals have taken precidence.  Our main demo app (aka demo.js) which incldues everything, plus demo code comes to about 167K zipped using `:optimzations` `:advanced` (expands to about 700K).  That number incldue ReactJS plus the ClojureScript libs and runtime.  
+Neither have we been focused on code size because other design goals have
+taken precedence.  Our main demo app which includes every component, plus all demo
+code comes to about 167K compressed and using `:optimzations` `:advanced` (700K pre compress).
+That number includes ReactJS plus the ClojureScript libs and runtime. Everything.
 
 ## So, Without Ado Being Any Furthered ...
 
-Still here?  Good. I'm glad we got all that negative stuff out the way.  You're going to love  re-com.
+Still here?  Good. I'm glad we got all that negative stuff out the way.  You're
+going to like re-com.
 
-So, you do have Chrome handy, right?  Start by looking at [the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
+So, you do have Chrome handy, right?  Start by looking
+at [the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
 
 ## Named Parameters
 
@@ -200,7 +180,7 @@ If you look in the `src` directory, you'll notice that it has two sub-directorie
 
 ## Using re-com In Your Apps
 
-To use re-com in your application, you'll need to add this to your dependencies in project.clj:
+First, add these dependencies in your project.clj:
 
 ```Clojure
 :dependencies [
@@ -212,54 +192,44 @@ To use re-com in your application, you'll need to add this to your dependencies 
 
 Note that Reagent comes bundled with the matching version of the React JavaScript library so you don't need to include that anywhere.
 
-You will however, need to add Bootstrap to your html page. We normally grab it from a CDN:
+In your index.html:
+
+Add Bootstrap, normally via a CDN:
 
 ```html
 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
 ```
 
-and three CSS files included in the resources folder of the re-com library:
-
+Add the two CSS files needed by re-com (they are in this repo):
 ```html
 <link rel="stylesheet" href="resources/css/material-design-iconic-font.min.css">
 <link rel="stylesheet" href="resources/css/re-com.css">
 ```
 
-TODO: Will need to expand on this when we get a resources solution. 
-
-## Dependencies
-
-These components make use of the following libraries:
-
- * [Reagent](http://reagent-project.github.io) is a ClojureScript wrapper for the [Facebook React](http://facebook.github.io/react) 
-   library which is used to build web-based user interfaces.
- * [Bootstrap](http://getbootstrap.com) is a CSS/JavaScript library, but we're just using it for the CSS styling.
+TODO: expand this. Check. XXX
 
 ## Leaky Abstractions
 
 The layout side of re-com is built on top of Flexbox, but our abstractions are leaky.  At some point
-you're going to have to do the [Flexbox tutorials](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) to understand what's going on. 
+you're going to have to do the [Flexbox tutorials](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) to understand what's going on.
 
 This is compounded by the viral nature of Flexbox. We've found that it's use viral. It's reach tends to spread.
 
 ## The Missing Parts
 
 * tree  (not hard but haven't needed one yet)
-* a grid. HTML is good at small grids, so no problem there. But when the number of 
+* accordion
+* big grid. HTML is good at small grids, so no problem there. But when the number of
 rows gets huge, you need a widget that does virtual rows. Otherwise there's just too many DOM nodes.  Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-table)?
 * Add a timed alert box which appears for a set period of time. This would probably be absolutely positioned over the UI and then fade away after the set time expires.
 * drag and drop   (we have somewhat sorted this).
 * animations / transitions.  We have ideas.  They seem clunky.
-* Focus management - When the user presses tab, to which field does focus move? 
-* A testing story. 
+* Focus management - When the user presses tab, to which field does focus move?
 
-## Future 
 
-Todos:
+### License
 
-* Use [GSS](http://gridstylesheets.org) for layout instead of Flexbox. Performance problems apparently.
-* Create a re-com template. 
+Copyright © 2015 Michael Thompson
 
-## Component Suggestions
-
+Distributed under The MIT License (MIT) - See LICENSE.txt
 
