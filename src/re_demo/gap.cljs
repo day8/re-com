@@ -32,10 +32,10 @@
                                       [:pre
                                        {:style {:width "40em"}}
 "[h-box
- :gap      \"10px\"  ; all children separated by this amount
+ :gap      \"10px\"                ; <-- in between children
  :children [[component-1]
             [component-2]
-            [gap :size \"5px\"]
+            [gap :size \"5px\"]    ; <-- one off
             [component-3]]]"]
                                       [paragraphs
                                        [:span "Notes:"]

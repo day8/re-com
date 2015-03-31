@@ -70,12 +70,6 @@
    {:id :hyperlink              :level :minor :label "Hyperlink"          :panel hyperlink/panel}
    {:id :hyperlink-href         :level :minor :label "Hyperlink (href)"   :panel hyperlink-href/panel}
 
-   {:id :typography             :level :major :label "Typography"}
-   {:id :label                  :level :minor :label "Label"              :panel label/panel}
-   {:id :title                  :level :minor :label "Title"              :panel title/panel} ;; TODO: field-label?
-   {:id :alert-box              :level :minor :label "Alert Box"          :panel alert-box/panel}
-   {:id :alert-list             :level :minor :label "Alert List"         :panel alert-list/panel}
-
    {:id :basics                 :level :major :label "Basics"}
    {:id :checkbox               :level :minor :label "Checkbox"           :panel checkbox/panel}
    {:id :radio-button           :level :minor :label "Radio Button"       :panel radio-button/panel}
@@ -96,6 +90,12 @@
    {:id :popover-args           :level :minor :label "Popover Args"       :panel popovers/arg-lists}
    {:id :popovers               :level :minor :label "Popover Demos"      :panel popovers/panel}
    {:id :tour                   :level :minor :label "Tour"               :panel tour/panel}
+
+   {:id :typography             :level :major :label "Typography"}
+   {:id :label                  :level :minor :label "Label"              :panel label/panel}
+   {:id :title                  :level :minor :label "Title"              :panel title/panel} ;; TODO: field-label?
+   {:id :alert-box              :level :minor :label "Alert Box"          :panel alert-box/panel}
+   {:id :alert-list             :level :minor :label "Alert List"         :panel alert-list/panel}
    ])
 
 
@@ -144,7 +144,7 @@
    :style   {:background-color "#888"}
    :children [[title
                :label "Re-com"
-               :style {:font-family "Roboto Condensed, sans-serif"
+               :style {:font-family "Roboto, sans-serif"
                        :font-size   "36px"
                        :font-weight 300
                        :color       "#fefefe"}]]])

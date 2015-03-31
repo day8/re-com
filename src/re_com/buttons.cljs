@@ -125,7 +125,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-icon-button-args-desc
-  [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description [:span "the name of the icon"]}
+  [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"md-add\""] " or " [:code "\"md-undo\""]]}
    {:name :on-click         :required false                        :type "( ) -> nil"      :validate-fn fn?               :description "called when the button is clicked"}
    {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
@@ -380,7 +380,7 @@
 
 ;; TODO: Eventually remove
 ;;----------------------------------------------------------------------
-;; Round button with no dependencies - for use in re-frame
+;; Round button with no dependencies - for use in re-frame demo
 ;;----------------------------------------------------------------------
 
 #_(defn round-button

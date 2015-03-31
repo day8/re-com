@@ -183,8 +183,8 @@
 ;; ------------------------------------------------------------------------------------
 
 (def line-args-desc
-  [{:name :size  :required false :default "1px"       :type "string" :validate-fn string?    :description "a CSS style to specify size in any sizing amount, usually px, % or em"}
-   {:name :color :required false :default "lightgray" :type "string" :validate-fn string?    :description "a color using CSS color methods"}
+  [{:name :size  :required false :default "1px"       :type "string" :validate-fn string?    :description "a CSS style for the thickness of the line. Usually px, % or em"}
+   {:name :color :required false :default "lightgray" :type "string" :validate-fn string?    :description "a CSS color"}
    {:name :class :required false                      :type "string" :validate-fn string?    :description "CSS class names, space separated"}
    {:name :style :required false                      :type "map"    :validate-fn css-style? :description "CSS styles to add or override"}
    {:name :attr  :required false                      :type "map"    :validate-fn html-attr? :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
