@@ -26,16 +26,14 @@
                  [:li "a visual showcase of the components"]
                  [:li "coding demos for using the components"]
                  [:li "documentation for the components (parameters etc.)"]
-                 [:li "a harness for testing"]
-                 ]]
+                 [:li "a harness for testing"]]]
                [title :level :level2 :label "Named Parameters"]
                [:pre
                 {:style {:width "40em"}}
-                "[checkbox
+"[checkbox
  :label     \"Show Status Icon?\"
  :model     status-icon?      ; a ratom
- :on-change (fn [new-val] (reset! status-icon? new-val))]"]
-               ]]])
+ :on-change (fn [new-val] (reset! status-icon? new-val))]"]]]])
 
 
 

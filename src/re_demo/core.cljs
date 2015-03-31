@@ -32,6 +32,7 @@
             [re-demo.datepicker            :as    datepicker]
             [re-demo.selection-list        :as    selection-list]
             [re-demo.input-time            :as    input-time]
+            [re-demo.layout                :as    layout]
             [re-demo.layouts               :as    layouts]
             [re-demo.tour                  :as    tour]
             [re-demo.modal-panel           :as    modal-panel]
@@ -49,6 +50,16 @@
 
 (def tabs-definition
   [{:id :welcome                :level :major :label "Welcome"            :panel welcome/panel}
+
+   {:id :layout                 :level :major :label "Layout"             :panel layout/panel}
+   {:id :h-box                  :level :minor :label "H-box"              :panel h-box/panel}
+   {:id :v-box                  :level :minor :label "V-box"              :panel v-box/panel}
+   {:id :box                    :level :minor :label "Box"                :panel box/panel}
+   {:id :gap                    :level :minor :label "Gap"                :panel gap/panel}
+   {:id :line                   :level :minor :label "Line"               :panel line/panel}
+   {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
+   {:id :border                 :level :minor :label "Border"             :panel border/panel}
+   {:id :layouts                :level :minor :label "Layouts"            :panel layouts/panel}
 
    {:id :buttons                :level :major :label "Buttons"}
    {:id :button                 :level :minor :label "Basic Button"       :panel button/panel}
@@ -85,18 +96,6 @@
    {:id :popover-args           :level :minor :label "Popover Args"       :panel popovers/arg-lists}
    {:id :popovers               :level :minor :label "Popover Demos"      :panel popovers/panel}
    {:id :tour                   :level :minor :label "Tour"               :panel tour/panel}
-
-   {:id :layout                 :level :major :label "Layout"}
-   {:id :layouts                :level :minor :label "Layouts"            :panel layouts/panel}
-   {:id :h-box                  :level :minor :label "H-box"              :panel h-box/panel}
-   {:id :v-box                  :level :minor :label "V-box"              :panel v-box/panel}
-   {:id :box                    :level :minor :label "Box"                :panel box/panel}
-   {:id :gap                    :level :minor :label "Gap"                :panel gap/panel}
-   {:id :line                   :level :minor :label "Line"               :panel line/panel}
-   {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
-   {:id :border                 :level :minor :label "Border"             :panel border/panel}
-   {:id :boxes1                 :level :minor :label "Box Demo 1"         :panel h-box/panelA}
-   {:id :boxes2                 :level :minor :label "Box Demo 2"         :panel h-box/panelB}
    ])
 
 

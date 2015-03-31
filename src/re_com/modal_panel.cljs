@@ -8,7 +8,7 @@
 (def modal-panel-args-desc
   [{:name :child            :required true                   :type "string | hiccup" :validate-fn string-or-hiccup? :description "hiccup to be centered within in the browser window"}
    {:name :wrap-nicely?     :required false :default true    :type "boolean"                                        :description [:span "if true, wrap " [:code ":child"] " in a white, rounded panel"]}
-   {:name :backdrop-color   :required false :default "black" :type "string"          :validate-fn string?           :description "CSS colour of backdrop"}
+   {:name :backdrop-color   :required false :default "black" :type "string"          :validate-fn string?           :description "CSS color of backdrop"}
    {:name :backdrop-opacity :required false :default 0.6     :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
    {:name :class            :required false                  :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style            :required false                  :type "map"             :validate-fn css-style?        :description "CSS styles to add or override"}

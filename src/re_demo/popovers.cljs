@@ -345,7 +345,7 @@
                                :margin   "20px 0px 0px 0px"
                                :children [[paragraphs
                                            [:p "This is a seaprate component which makes it really easy to create tooltips."]
-                                           [:p "It also can be coloured for warning or error status."]]]]
+                                           [:p "It also can be colored for warning or error status."]]]]
                               [v-box
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"

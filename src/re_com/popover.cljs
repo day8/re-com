@@ -378,7 +378,7 @@
   [{:name :label     :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup?    :description "the text (or component) for the tooltip"}
    {:name :showing?  :required true  :default false         :type "boolean"                                                  :description "when the value is true, the tooltip shows"}
    {:name :on-cancel :required false                        :type "function"               :validate-fn fn?                  :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
-   {:name :status    :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background colour of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
+   {:name :status    :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background color of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
    {:name :anchor    :required true                         :type "hiccup"                 :validate-fn string-or-hiccup?    :description "the component the tooltip is attached to"}
    {:name :position  :required false :default :below-center :type "keyword"                :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :width     :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}

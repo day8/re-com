@@ -21,10 +21,26 @@
                            :children [[component-title "Notes"]
                                       [status-text "Stable"]
                                       [paragraphs
-                                       [:p "TBA..."]]
+                                       [:p "Introduces white space into layouts. Typically placed between the children of a v-box or h-box."]
+                                       [:p "The white space added will be in the expected direction (i.e. horizontally for h-box or vertically for v-box)."]]
                                       [args-table gap-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[component-title "Demo"]
-                                      [:span.all-small-caps "TBA..."]]]]]
+                                      [paragraphs
+                                       [:span "Here is some sample code..."]]
+                                      [:pre
+                                       {:style {:width "40em"}}
+"[h-box
+ :gap      \"10px\"  ; all children separated by this amount
+ :children [[component-1]
+            [component-2]
+            [gap :size \"5px\"]
+            [component-3]]]"]
+                                      [paragraphs
+                                       [:span "Notes:"]
+                                       [:ul
+                                        [:li "h-box and v-box allow a " [:code ":gap"] " parameter which inserts a given amount of white space between children."]
+                                        [:li "Where you need more adhoc control, use the gap component."]
+                                        [:li "In the example above, the gap between the second and third components will be 25px because the gap component (5px) is surrounded above and below by 10px " [:code ":gap"] "s."]]]]]]]
               [gap :size "30px"]]])

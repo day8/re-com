@@ -21,10 +21,23 @@
                            :children [[component-title "Notes"]
                                       [status-text "Stable"]
                                       [paragraphs
-                                       [:p "TBA..."]]
+                                       [:p "Wraps a child component in scroll bars."]
+                                       [:p "The scroller can be used at any level in a box heirarchy. For example, it could be a child of an h-box and it's child could be a v-box."]]
                                       [args-table scroller-args-desc]]]
-                          [v-box
-                           :gap      "10px"
-                           :children [[component-title "Demo"]
-                                      [:span.all-small-caps "TBA..."]]]]]
+                         [v-box
+                          :gap      "10px"
+                          :children [[component-title "Demo"]
+                                     [paragraphs
+                                      [:span "Here is some sample code..."]]
+                                     [:pre
+                                      {:style {:width "40em"}}
+"[scroller
+ :v-scroll \"auto\"
+ :height   \"300px\"
+ :child    [some-component]]"]
+                                     [paragraphs
+                                      [:span "Notes:"]
+                                      [:ul
+                                       [:li "In this example, if the height of [some-component] is greater than 300px, a vertical scroll bar will be added."]
+                                       [:li "Hiccup is typically supplied for " [:code ":child"] ". Notice that [some-component] is supplied, not some-component."]]]]]]]
               [gap :size "30px"]]])
