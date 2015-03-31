@@ -155,7 +155,7 @@
    :padding "10px 0px 10px 10px"
    :child   [alert-box
              :alert-type :danger
-             :heading    "Use Chrome Instead?"
+             :heading    "Only Tested On Chrome"
              :body       "re-com should work on all modern browsers, but there might be dragons!"]])
 
 ;; -- Routes, Local Storage and History ------------------------------------------------------
