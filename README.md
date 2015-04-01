@@ -1,57 +1,67 @@
 # re-com
 
-A ClojureScript library of UI components, built on top of Dan Holmsand's wonderful
+A ClojureScript library of UI components, built on top of Dan Holmsand's terrific
 [Reagent](http://reagent-project.github.io)
-which, in turn, is a layer over Facebook's trail blazing [React](http://facebook.github.io/react).
+which, in turn, is a layer over Facebook's trailblazing [React](http://facebook.github.io/react).
 
+Confirming: that's 100% ClojureScript. We're not wrapping jquery plugins here.
 
 Re-com has:
 
 * familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.
   (in Reagent terms these are `components`)
-* layout `components` which organise widgets vertically and horizontally, within
+* layout `components` which arrange widgets vertically and horizontally, within
   splitters, etc. Plus `components`
-  which put borders around their children. Layouts can nest. Layouts are based on flexbox.
+  which put borders around their children. These various pieces can be arbitrarily nested
+  to create sophisticated layouts.
 * a largely [Bootstrap](http://getbootstrap.com/) looked, mixed with
   some [Material Design Icons](http://zavoloklom.github.io/material-design-iconic-font/icons.html).
 
-In short, re-com has the stuff you'd need to build a desktop-class app.
+In short, re-com attempts to provide the kind of basics you'd need to build a desktop-class app.
 
 If you decide to use re-com, consider also using [re-frame](https://github.com/Day8/re-frame)
-(an MVC-ish framework).  The two dovetail well, although both can be used independently --
-for example, re-com's demo program does not use re-frame.
+(an MVC-ish framework).  Although both can be used independently, they dovetail well.
 
 
-## Warning: re-com Probably Isn't For You (yet)
+## Warning: re-com Might Not Be For You (just yet)
 
-We build desktop-class apps to run in controlled chrome environments like
-[node-webkit](https://github.com/rogerwang/node-webkit) 
-and [atom-shell](https://github.com/atom/atom-shell).
+We build desktop-class apps to run in controlled browser environments
+like [atom-shell](https://github.com/atom/atom-shell).  We know we're dealing with Chrome.
 
-If you are like us, or you work on Intranet apps where you can mandate a modern browser,
-re-com could be ideal for you. Otherwise you might have to wait 9 months.
+If you are similar, or if you work on Intranet apps where you can mandate a modern browser,
+re-com could be ideal for you, right now.
 
+On the other hand, if you target the retail web, you might have to wait till early 2016
+(10 months away, at the time of writing).
 
-**Here's the thing:**  the entire layout side of this library plus a few of the widgets
+Why?  **Well, here's the thing:**  the entire layout side of this library plus a few of the widgets
 rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
 which [only works on modern browsers](http://caniuse.com/#feat=flexbox).
 
-And even when it comes to modern browsers there might be teething issues. Based on 5 minutes of
-testing once a month, re-com seems to work on IE11 and Safari,
-but Firefox has the performance of a snail on performance reducing drugs. Nested flexbox
-containers bring Firefox to its knees.  So, yeah, "teething issues".
 
-So, for the next year, this library would be a poor fit if you're targeting the
-retail web, which is rife with flexbox-less wastelands like IE10 and IE9. Having said that,
-the end is coming for various old IE browsers much more quickly than in the
-past - [come Jan 12th 2016 most corporates will be forced across onto IE11](http://blogs.msdn.com/b/ie/archive/2014/08/07/stay-up-to-date-with-internet-explorer.aspx)
- 
+Now, the grinding pain and longevity of IE6 has conditioned many to
+expect 8, 9 and 10 to hang around forever too.  But, this time around, there's
+quite a different dynamic. Microsoft
+itself is very actively forcing the pace -
+[come Jan 12th 2016 corporates will have to be on IE11](http://blogs.msdn.com/b/ie/archive/2014/08/07/stay-up-to-date-with-internet-explorer.aspx)
+
+So, by Q1 2016, the market share of IE9 and IE10 will have diminished sufficiently that they could be ignored. Probably.
+In which case, a modern flexbox implementation will be available on all the browsers you then care about.
+**So that's soon, but not now!**
+
+But, even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
+testing once a month, re-com appears to work reasonably on IE11 and Safari. On the other hand,
+Firefox has all the speed of a snail
+on performance reducing drugs.
+So, yeah, "teething issues".  (Update: Firefox 38, due May 2015
+[fixes the performance problems](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) caused by nested flexboxes.)
+
 I can also confirm that none of the components have been designed with mobile in mind, and
-that there's no attempt to handle media queries.  I said we had a desktop focus, right?
+that there's no attempt to handle media queries.  I said we had a desktop app focus, right?
 
-Neither have we been focused on code size because other design goals have
+Neither have we been worried too much about code size because other design goals have
 taken precedence.  Our main demo app which includes every component, plus all demo
-code comes to about 167K compressed and using `:optimzations` `:advanced` (700K pre compress).
+code and a bit of yadda yadda, comes to about 167K compressed when using `:optimzations` `:advanced` (700K pre-compress).
 That number includes ReactJS plus the ClojureScript libs and runtime. Everything.
 
 ## So, Without Ado Being Any Furthered ...
@@ -59,7 +69,7 @@ That number includes ReactJS plus the ClojureScript libs and runtime. Everything
 Still here?  Good. I'm glad we got all that negative stuff out the way.  You're
 going to like re-com.
 
-So, you do have Chrome handy, right?  Start by looking
+Start by looking
 at [the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
 
 ## Named Parameters
@@ -110,7 +120,12 @@ re-com uses `goog.DEBUG` to determine dev builds from production builds.  For de
 
 ## Navigating The Source
 
-If you look in the `src` directory, you'll notice that it has two sub-directories:
+When you are running the demo app, you'll see hyperlinks (top of most pages) which
+take you to the associated source code.  That's a nice way to navigate to either
+the components themselves or the demo code.
+
+When browsing more generally, look in the `src` directory or this repo, you'll notice
+two sub-directories:
 
   - re-com - the library
   - re-demo - the demo app
@@ -137,7 +152,9 @@ If you look in the `src` directory, you'll notice that it has two sub-directorie
 
 1. Debugging The Demo
 
-   Via  [figwheel](https://github.com/bhauman/lein-figwheel):
+   We love using [figwheel](https://github.com/bhauman/lein-figwheel) to debug.
+
+   To begin a debug session, do this:
    ```shell
    lein debug
    ```
@@ -152,13 +169,13 @@ If you look in the `src` directory, you'll notice that it has two sub-directorie
   Your Process:
 
   - the initial load of `index.html` will fail because the figwheel compile hasn't yet finished. 
-  - be patient - the initial compile might take anything from 20sec to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
+  - be patient - the initial compile might take anything from 10 seconds to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
   - keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message, at which point, figwheel will immediately move on and try to start the repl.  
-  - In response, you should refresh to HTML page. This refresh is needed for figwheel to complete the repl kick-off.
-  - to quit figwheel and stop the server/compiler, type ` :cljs/quit` into the repl. 
+  - In response, you should refresh the HTML page. This refresh is needed for figwheel to complete the repl kick-off.
+  - to quit figwheel and stop the server/compiler, type ` :cljs/quit` into the repl started by figwheel.
 
 
-1. Run The (Modest) Tests
+1. Run The (erm, modest) Tests
  
    ```shell
    lein run-test
@@ -176,9 +193,10 @@ If you look in the `src` directory, you'll notice that it has two sub-directorie
    lein debug-test
    ```
 
-  Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto` for recompilation.
+  Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto` for
+  recompilation.  This probably isn't a good idea, but that's the way it is right now.
 
-## Using re-com In Your Apps
+## Using re-com In Your App
 
 First, add these dependencies in your project.clj:
 
@@ -190,41 +208,44 @@ First, add these dependencies in your project.clj:
 ]
 ```
 
-Note that Reagent comes bundled with the matching version of the React JavaScript library so you don't need to include that anywhere.
+Note that Reagent comes bundled with the matching version of the React JavaScript library
+so you don't need to include React anywhere.
 
-In your index.html:
+As far as your `index.html` is concerned, take inspiration from here:
+https://github.com/Day8/re-com/tree/master/run/resources/public
 
-Add Bootstrap, normally via a CDN:
-
+In particular, you'll need bootstrap (assumidly via a CDN):
 ```html
-<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
 ```
 
-Add the two CSS files needed by re-com (they are in this repo):
+You'll then need these assets, including the re-com.css:
+https://github.com/Day8/re-com/tree/master/run/resources/public/assets
+
 ```html
 <link rel="stylesheet" href="resources/css/material-design-iconic-font.min.css">
 <link rel="stylesheet" href="resources/css/re-com.css">
 ```
 
-TODO: expand this. Check. XXX
 
-## Leaky Abstractions
+## The Missing Components
 
-The layout side of re-com is built on top of Flexbox, but our abstractions are leaky.  At some point
-you're going to have to do the [Flexbox tutorials](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) to understand what's going on.
-
-This is compounded by the viral nature of Flexbox. We've found that it's use viral. It's reach tends to spread.
-
-## The Missing Parts
-
-* tree  (not hard but haven't needed one yet)
+* tree  (not hard, just haven't needed one yet)
 * accordion
-* big grid. HTML is good at small grids, so no problem there. But when the number of
-rows gets huge, you need a widget that does virtual rows. Otherwise there's just too many DOM nodes.  Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-table)?
-* Add a timed alert box which appears for a set period of time. This would probably be absolutely positioned over the UI and then fade away after the set time expires.
-* drag and drop   (we have somewhat sorted this).
+* virtual grid. HTML is good at small grids, so no problem there. But when the number of
+rows gets huge, you need a widget which does virtual rows, otherwise there's just too much DOM
+and there's performance problems.
+Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-table)?
+* drag and drop.
 * animations / transitions.  We have ideas.  They seem clunky.
 * Focus management - When the user presses tab, to which field does focus move?
+
+## Helping
+
+1. A lein template is needed.
+2. Where our docs are wrong or fall short, write up the alternative.
+3. See the list of missing things above
+4. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
 
 
 ### License
