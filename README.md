@@ -9,13 +9,12 @@ components with ClojureScript and Reagent is really quite delightful.
 
 Re-com has:
 
-* familiar UI widgetry such as dropdowns, date pickers, popovers, tabs, etc.
-  (in Reagent terms these are `components`)
-* layout `components` which arrange widgets vertically and horizontally, within
-  splitters, etc. Plus `components`
+* familiar UI widgetry **components** such as dropdowns, date pickers, popovers, tabs, etc.
+* layout **components**, which arrange widgets vertically and horizontally, within
+  splitters, etc. Plus components
   which put borders around their children. These various pieces can be arbitrarily nested
   to create sophisticated layouts.
-* a largely [Bootstrap](http://getbootstrap.com/) looked, mixed with
+* a mostly [Bootstrap](http://getbootstrap.com/) look, mixed with
   some [Material Design Icons](http://zavoloklom.github.io/material-design-iconic-font/icons.html).
 
 In short, re-com attempts to provide the kind of basics you'd need to build a desktop-class app.
@@ -48,13 +47,13 @@ itself is very actively forcing the pace -
 
 So, by Q1 2016, the market share of IE9 and IE10 will have diminished sufficiently that they could be ignored. Probably.
 In which case, a modern flexbox implementation will be available on all the browsers you then care about.
-**So that's soon, but not now!**
+**So that's surprisingly soon, but not now!**
 
 But, even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
 testing once a month, re-com appears to work reasonably on IE11 and Safari. On the other hand,
 Firefox has all the speed of a snail
 on performance reducing drugs.
-So, yeah, "teething issues".  (Update: Firefox 38, due May 2015
+So, yeah, "teething issues".  (Update: Firefox 38, due May 2015,
 [fixes](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) the performance problems caused by nested flexboxes.)
 
 I can also confirm that none of the components have been designed with mobile in mind, and
@@ -62,7 +61,7 @@ that there's no attempt to handle media queries.  I said we had a desktop app fo
 
 Neither have we been worried too much about code size because other design goals have
 taken precedence.  Our main demo app which includes every component, plus all demo
-code and a bit of yadda yadda, comes to about 167K compressed when using `:optimzations` `:advanced` (700K pre-compress).
+code and a bit of yadda yadda, comes to about 167K compressed when using `:optimzations :advanced` (700K pre-compress).
 That number includes ReactJS plus the ClojureScript libs and runtime. Everything.
 
 ## So, Without Ado Being Any Furthered ...
@@ -70,8 +69,7 @@ That number includes ReactJS plus the ClojureScript libs and runtime. Everything
 Still here?  Good. I'm glad we got all that negative stuff out the way.  You're
 going to like re-com.
 
-Start by [looking
-at the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
+Start by [looking at the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
 
 ## Named Parameters
 
@@ -131,18 +129,22 @@ two sub-directories:
   - re-com - the library
   - re-demo - the demo app
 
-Some useful commands:
+## Useful Commands
 
-1. Getting And Running The Demo
+1. Getting The Repo
+
 
    ```shell
    git clone https://github.com/Day8/re-com.git
    ```
-   
+
    ```shell
-   cd re-com 
+   cd re-com
    ```
-   
+
+2. Compiling And Running The Demo
+
+
    ```shell
    lein run
    ```
@@ -153,7 +155,7 @@ Some useful commands:
   - a load of the right `index.html` into your default browser
 
 
-1. Debugging The Demo
+3. Debugging The Demo
 
    We love using [figwheel](https://github.com/bhauman/lein-figwheel) to debug.
 
@@ -164,12 +166,12 @@ Some useful commands:
 
   This will:
 
- - clean 
- - start the [figwheel](https://github.com/bhauman/lein-figwheel) server & compiler  (a terminal window will be started)
- - load the right `index.html` (specialised for figwheel use)
- - start a ClojureScript repl in the terminal window (actually, figwheel does this for you)
+  - clean
+  - start the [figwheel](https://github.com/bhauman/lein-figwheel) server & compiler  (a terminal window will be started)
+  - load the right `index.html` (specialised for figwheel use)
+  - start a ClojureScript repl in the terminal window (actually, figwheel does this for you)
 
-  Your Process:
+  Your part in the process:
 
   - the initial load of `index.html` will fail because the figwheel compile hasn't yet finished. 
   - be patient - the initial compile might take anything from 10 seconds to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
@@ -178,7 +180,7 @@ Some useful commands:
   - to quit figwheel and stop the server/compiler, type ` :cljs/quit` into the repl started by figwheel.
 
 
-1. Run The (erm, modest) Tests
+4. Run The (erm, modest) Tests
  
    ```shell
    lein run-test
@@ -190,7 +192,8 @@ Some useful commands:
   - compile the tests
   - load the required `test.html` into your default browser, so you can see the results.
 
-1. Debug the tests:
+
+5. Debug the tests:
 
    ```shell
    lein debug-test
@@ -224,12 +227,12 @@ You'll then need these assets, including the re-com.css:
 https://github.com/Day8/re-com/tree/master/run/resources/public/assets
 
 ```html
-<link rel="stylesheet" href="resources/css/material-design-iconic-font.min.css">
-<link rel="stylesheet" href="resources/css/re-com.css">
+<link rel="stylesheet" href="assets/css/material-design-iconic-font.min.css">
+<link rel="stylesheet" href="assets/css/re-com.css">
 ```
 
-Reagent comes bundled with a matching version of React
-so you don't need to include ReactJS anywhere.
+Reagent comes bundled with a matching version of ReactJS,
+so you don't need to include it explicitly.
 
 ## The Missing Components
 
@@ -245,7 +248,7 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
 
 ## Helping
 
-1. A lein template is needed.
+1. A lein template would be nice.
 2. Where the docs are wrong or fall short, write up something better.  <crickets>  :-)
 3. See the list of missing things above
 4. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
