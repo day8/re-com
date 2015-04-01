@@ -144,7 +144,7 @@
    :style   {:background-color "#888"}
    :children [[title
                :label "Re-com"
-               :style {:font-family "Roboto, sans-serif"
+               :style {:font-family "Roboto Condensed, sans-serif"
                        :font-size   "36px"
                        :font-weight 300
                        :color       "#fefefe"}]]])

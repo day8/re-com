@@ -44,24 +44,33 @@
 ;; ------------------------------------------------------------------------------------
 
 (def title-args-desc
-  [{:name :label      :required true                   :type "anything"                                       :description "title or hiccup or anything to display"}
-   {:name :level      :required false                  :type "keyword"         :validate-fn title-level-type? :description [:span "one of " title-levels-list ". If not provided then style the title using " [:code ":class"] " or " [:code ":style"]] }
-   {:name :underline? :required false  :default false  :type "boolean"                                        :description "if true, the title is underlined"}
-   {:name :class      :required false                  :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style      :required false                  :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr       :required false                  :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  [{:name :label         :required true                    :type "anything"                                       :description "title or hiccup or anything to display"}
+   {:name :level         :required false                   :type "keyword"         :validate-fn title-level-type? :description [:span "one of " title-levels-list ". If not provided then style the title using " [:code ":class"] " or " [:code ":style"]] }
+   {:name :underline?    :required false  :default false   :type "boolean"                                        :description "if true, the title is underlined"}
+   {:name :margin-top    :required false  :default "0.4em" :type "string"          :validate-fn string?           :description "CSS size for space above the title"}
+   {:name :margin-bottom :required false  :default "0.1em" :type "string"          :validate-fn string?           :description "CSS size for space below the title"}
+   {:name :class         :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+   {:name :style         :required false                   :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
+   {:name :attr          :required false                   :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def title-args (extract-arg-data title-args-desc))
 
 (defn title
   "A title with four preset styles"
-  [& {:keys [label level underline? class style attr] :as args}]
+  [& {:keys [label level underline? margin-top margin-bottom class style attr]
+      :or   {margin-top "0.4em" margin-bottom "0.1em"}
+      :as   args}]
   {:pre [(validate-args-macro title-args-desc args "title")]}
   (let [preset-class (if (nil? level) "" (name level))]
     [v-box
+     :class    preset-class
      :children [[:span (merge {:class (str "rc-title display-flex " preset-class " " class)
                                :style (merge (flex-child-style "none")
+                                             {:margin-top margin-top}
+                                             (when-not underline? {:margin-bottom margin-bottom})
                                              style)}
                               attr)
                  label]
-                (when underline? [line :size "1px"])]]))
+                (when underline? [line
+                                  :size "1px"
+                                  :style {:margin-bottom margin-bottom}])]]))

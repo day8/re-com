@@ -10,7 +10,8 @@
   (let [underline? (reagent/atom false)]
     (fn
       []
-      (let [base-url (str "https://github.com/Day8/re-com/tree/" (if ^boolean js/goog.DEBUG "develop" "master") "/")]
+      (let [base-url (str "https://github.com/Day8/re-com/tree/" (if ^boolean js/goog.DEBUG "develop" "master") "/")
+            para     (fn [] [:p "Sample paragraph of text using a [:p] element. Used to judge the default spacing above and below the different titles."])]
         [v-box
          :size "auto"
          :gap "10px"
@@ -50,16 +51,21 @@
                                  :gap "10px"
                                  :children [[component-title "Demo"]
                                             [v-box
-                                             :gap "10px"
                                              :children [[checkbox
                                                          :label [box :align :start :child [:code ":underline?"]]
                                                          :model underline?
                                                          :on-change #(reset! underline? %)]
                                                         [gap :size "40px"]
-                                                        [title :level :level1 :underline? @underline? :label ":level1 - Light 42px"]
-                                                        [title :level :level2 :underline? @underline? :label ":level2 - Light 26px"]
-                                                        [title :level :level3 :underline? @underline? :label ":level3 - Semibold 15px"]
-                                                        [title :level :level4 :underline? @underline? :label ":level4 - Semibold 15px"]]]]]]]]]))))
+                                                        [paragraphs
+                                                         [para]
+                                                         [title :level :level1 :underline? @underline? :label ":level1 - Light 42px"]
+                                                         [para]
+                                                         [title :level :level2 :underline? @underline? :label ":level2 - Light 26px"]
+                                                         [para]
+                                                         [title :level :level3 :underline? @underline? :label ":level3 - Semibold 15px"]
+                                                         [para]
+                                                         [title :level :level4 :underline? @underline? :label ":level4 - Semibold 15px"]
+                                                         [para]]]]]]]]]]))))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

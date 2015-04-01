@@ -83,8 +83,9 @@
                                 ^{:key (:id row)} [data-row row first? last? col-widths mouse-over click-msg])]]
                   [h-box
                    :gap "5px"
-                   :children [[label :label "clicked: "]
-                              [label :label (str @click-msg) :style {:font-weight "bold"}]]]]])))
+                   :width "300px"
+                   :children [[:span "clicked: "]
+                              [:span.bold (str @click-msg)]]]]])))
 
 
 (defn row-button-demo
@@ -122,12 +123,12 @@
                                           [v-box
                                            :gap "20px"
                                            :children [[data-table rows col-widths]
-                                                      [gap :size "40px"]
-                                                      [line]
-                                                      [title :level :level3 :label "Row Button States"]
-                                                      [:p "Row buttons have three distinct states."]
-                                                      [example-icons selected-icon]
-                                                      [v-box
+                                                      #_[gap :size "40px"]
+                                                      #_[line]
+                                                      #_[title :level :level3 :label "Row Button States"]
+                                                      #_[:p "Row buttons have three distinct states."]
+                                                      #_[example-icons selected-icon]
+                                                      #_[v-box
                                                        :gap      "8px"
                                                        :children [[h-box
                                                                    :gap      "2px"
