@@ -4,7 +4,8 @@ A ClojureScript library of UI components, built on top of Dan Holmsand's terrifi
 [Reagent](http://reagent-project.github.io)
 which, in turn, is a layer over Facebook's trailblazing [React](http://facebook.github.io/react).
 
-Confirming: that's 100% ClojureScript. We're not wrapping jquery plugins here.
+Confirming: 100% ClojureScript. We're not wrapping jquery plugins here. Creating
+components with ClojureScript and Reagent is really quite delightful.
 
 Re-com has:
 
@@ -36,7 +37,7 @@ On the other hand, if you target the retail web, you might have to wait till ear
 
 Why?  **Well, here's the thing:**  the entire layout side of this library plus a few of the widgets
 rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
-which [only works on modern browsers](http://caniuse.com/#feat=flexbox).
+which only works on [modern browsers](http://caniuse.com/#feat=flexbox).
 
 
 Now, the grinding pain and longevity of IE6 has conditioned many to
@@ -54,7 +55,7 @@ testing once a month, re-com appears to work reasonably on IE11 and Safari. On t
 Firefox has all the speed of a snail
 on performance reducing drugs.
 So, yeah, "teething issues".  (Update: Firefox 38, due May 2015
-[fixes the performance problems](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) caused by nested flexboxes.)
+[fixes](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) the performance problems caused by nested flexboxes.)
 
 I can also confirm that none of the components have been designed with mobile in mind, and
 that there's no attempt to handle media queries.  I said we had a desktop app focus, right?
@@ -69,8 +70,8 @@ That number includes ReactJS plus the ClojureScript libs and runtime. Everything
 Still here?  Good. I'm glad we got all that negative stuff out the way.  You're
 going to like re-com.
 
-Start by looking
-at [the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
+Start by [looking
+at the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
 
 ## Named Parameters
 
@@ -130,6 +131,8 @@ two sub-directories:
   - re-com - the library
   - re-demo - the demo app
 
+Some useful commands:
+
 1. Getting And Running The Demo
 
    ```shell
@@ -183,9 +186,9 @@ two sub-directories:
 
   This will:
 
-- clean 
-- compile the tests 
-- load the required `test.html` into your default browser, so you can see the results.
+  - clean
+  - compile the tests
+  - load the required `test.html` into your default browser, so you can see the results.
 
 1. Debug the tests:
 
@@ -204,12 +207,10 @@ First, add these dependencies in your project.clj:
 :dependencies [
   ...
   [reagent "0.5.0"]
-  [re-com "0.2.2"]
+  [re-com "0.4.0"]
 ]
 ```
 
-Note that Reagent comes bundled with the matching version of the React JavaScript library
-so you don't need to include React anywhere.
 
 As far as your `index.html` is concerned, take inspiration from here:
 https://github.com/Day8/re-com/tree/master/run/resources/public
@@ -227,6 +228,8 @@ https://github.com/Day8/re-com/tree/master/run/resources/public/assets
 <link rel="stylesheet" href="resources/css/re-com.css">
 ```
 
+Reagent comes bundled with a matching version of React
+so you don't need to include ReactJS anywhere.
 
 ## The Missing Components
 
@@ -243,7 +246,7 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
 ## Helping
 
 1. A lein template is needed.
-2. Where our docs are wrong or fall short, write up the alternative.
+2. Where the docs are wrong or fall short, write up something better.  <crickets>  :-)
 3. See the list of missing things above
 4. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
 
