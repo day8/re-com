@@ -17,16 +17,11 @@
 (def h-box-style {:border-right  "dashed 1px blue" :overflow "hidden"})
 (def v-box-style {:border-bottom "dashed 1px blue" :overflow "hidden"})
 
-(def size-options
-  [{:id :inital :label "initial"}
-   {:id :auto   :label "auto"}
-   {:id :none   :label "none"}
-   {:id :px     :label "px"}
-   {:id :%      :label "%"}])
-
-(def box1-db (reagent/atom {:size :%  :px 100 :% 60 :show? true}))
-(def box2-db (reagent/atom {:size :px :px 100 :% 50 :show? true}))
-(def box3-db (reagent/atom {:size :%  :px 100 :% 40 :show? true}))
+(def size-options [{:id :inital :label "initial"}
+                   {:id :auto   :label "auto"}
+                   {:id :none   :label "none"}
+                   {:id :px     :label "px"}
+                   {:id :%      :label "%"}])
 
 (defn box-controls
   [box-name control]
@@ -75,7 +70,10 @@
   (defn panel
   []
   (let [container-size (reagent/atom 500)
-        gap-size       (reagent/atom 0)]
+        gap-size       (reagent/atom 0)
+        box1-db        (reagent/atom {:size :%  :px 100 :% 60 :show? true})
+        box2-db        (reagent/atom {:size :px :px 100 :% 50 :show? true})
+        box3-db        (reagent/atom {:size :%  :px 100 :% 40 :show? true})]
     (fn
       []
       [v-box
