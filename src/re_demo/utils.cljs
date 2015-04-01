@@ -95,5 +95,5 @@
 (defn paragraphs
   [& children]
   [v-box
-   :width    "380px"
-   :children (into [] children)])
+   :width    "400px"
+   :children children])
