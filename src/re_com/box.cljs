@@ -11,12 +11,13 @@
 ;; ------------------------------------------------------------------------------------
 
 (defn flex-child-style
-  "Determines the value for the 'flex' attribute (which has grow, shrink and basis), based on the size parameter.
+  "Determines the value for the 'flex' attribute (which has grow, shrink and basis), based on the :size parameter.
    IMPORTANT: The term 'size' means width of the item in the case of flex-direction 'row' OR height of the item in the case of flex-direction 'column'.
    Flex property explanation:
     - grow    Integer ratio (used with other siblings) to determined how a flex item grows it's size if there is extra space to distribute. 0 for no growing.
     - shrink  Integer ratio (used with other siblings) to determined how a flex item shrinks it's size if space needs to be removed. 0 for no shrinking.
     - basis   Initial size (width, actually) of item before any growing or shrinking. Can be any size value, e.g. 60%, 100px, auto
+              Note: auto will cause the initial size to be calculated to take up as much space as possible, in conjunction with it's siblings :flex settings.
    Supported values:
     - initial            '0 1 auto'  - Use item's width/height for dimensions (or content dimensions if w/h not specifed). Never grow. Shrink (to min-size) if necessary.
                                        Good for creating boxes with fixed maximum size, but that can shrink to a fixed smaller size (min-width/height) if space becomes tight.
@@ -221,6 +222,7 @@
    {:name :min-height :required false                   :type "string"  :validate-fn string?        :description "a CSS height style. The minimum height to which the box can shrink"}
    {:name :justify    :required false :default :start   :type "keyword" :validate-fn justify-style? :description [:span "one of " justify-options-list]}
    {:name :align      :required false :default :stretch :type "keyword" :validate-fn align-style?   :description [:span "one of " align-options-list]}
+   {:name :align-self :required false                   :type "keyword" :validate-fn align-style?   :description [:span "use to override parent " [:code ":align"] " setting for this component"]}
    {:name :margin     :required false                   :type "string"  :validate-fn string?        :description "a CSS margin style"}
    {:name :padding    :required false                   :type "string"  :validate-fn string?        :description "a CSS padding style"}
    {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "a CSS size style. See gap component"}
@@ -234,7 +236,7 @@
   "Returns hiccup which produces a horizontal box.
    It's primary role is to act as a container for components and lays it's children from left to right.
    By default, it also acts as a child under it's parent"
-  [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]
+  [& {:keys [size width height min-width min-height justify align align-self margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
   {:pre [(validate-args-macro h-box-args-desc args "h-box")]}
@@ -247,6 +249,7 @@
                    (when min-height {:min-height min-height})
                    (justify-style justify)
                    (align-style :align-items align)
+                   (when align-self  (align-style :align-self align-self))
                    (when margin {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
                    (when padding {:padding padding})
                    (when debug {:background-color "gold"})
@@ -275,6 +278,7 @@
    {:name :min-height :required false                   :type "string"  :validate-fn string?        :description "a CSS height style. The minimum height to which the box can shrink"}
    {:name :justify    :required false :default :start   :type "keyword" :validate-fn justify-style? :description [:span "one of " justify-options-list]}
    {:name :align      :required false :default :stretch :type "keyword" :validate-fn align-style?   :description [:span "one of " align-options-list]}
+   {:name :align-self :required false                   :type "keyword" :validate-fn align-style?   :description [:span "use to override parent " [:code ":align"] " setting for this component"]}
    {:name :margin     :required false                   :type "string"  :validate-fn string?        :description "a CSS margin style"}
    {:name :padding    :required false                   :type "string"  :validate-fn string?        :description "a CSS padding style"}
    {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "a CSS size style. See gap component"}
@@ -288,7 +292,7 @@
   "Returns hiccup which produces a vertical box.
    It's primary role is to act as a container for components and lays it's children from top to bottom.
    By default, it also acts as a child under it's parent"
-  [& {:keys [size width height min-width min-height justify align margin padding gap children class style attr]
+  [& {:keys [size width height min-width min-height justify align align-self margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
   {:pre [(validate-args-macro v-box-args-desc args "v-box")]}
@@ -301,6 +305,7 @@
                    (when min-height {:min-height min-height})
                    (justify-style justify)
                    (align-style :align-items align)
+                   (when align-self  (align-style :align-self align-self))
                    (when margin     {:margin margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
                    (when padding    {:padding padding})
                    (when debug      {:background-color "antiquewhite"})

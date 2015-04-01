@@ -29,9 +29,8 @@
 (defn this-app
   []
   [v-box
-   :children [
-              [title :level :level2 :label "This app"]
-              [gap :size "5px"]
+   :children [[title :level :level2 :label "This app"]
+              ;[gap :size "5px"]
               [:p "The demo app serves as:"
                [:ul
                 [:li "a visual showcase of the components"]
@@ -56,13 +55,11 @@
                  :target "_blank"]
                 "."]
                [:p "It contains the sort of layout and controls you'd need to build a desktop-class app."]]
-               [gap :size "10px"]
+               ;[gap :size "10px"]
                [this-app]
-               [gap :size "10px"]
+               ;[gap :size "10px"]
                [line]
                [named-params]
-
-
                ]])
 
 

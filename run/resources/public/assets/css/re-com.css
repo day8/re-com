@@ -1197,15 +1197,18 @@ code {
   General Typography
 ----------------------------------------------------------------------------------------*/
 
-/* TODO: re-demo CSS */
 .semibold {
     font-weight: 500;
 }
-/* TODO: re-demo CSS */
+.bold {
+    font-weight: 700;
+}
+.italic {
+    font-style: italic;
+}
 .uppercase {
     text-transform: uppercase;
 }
-/* TODO: re-demo CSS */
 .all-small-caps {
     font-variant: small-caps;
 }

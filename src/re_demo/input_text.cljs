@@ -80,7 +80,7 @@
                                                                    :gap      "5px"
                                                                    :children [[:code ":on-change"]
                                                                               " last called with this value: "
-                                                                              [:span {:style {:font-weight "bold"}} (if @text-val @text-val "nil")]]]
+                                                                              [:span.bold (if @text-val @text-val "nil")]]]
                                                                   [title :level :level3 :label "Parameters"]
                                                                   [v-box
                                                                    :children [[box :align :start :child [:code ":change-on-blur?"]]

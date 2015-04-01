@@ -6,12 +6,12 @@
   "Title shown at the top of each Tab Panel"
   [panel-name style]
   [title
-   :label      panel-name
-   :level      :level1
-   :underline? true
-   :style      (merge {:margin-top "1px"
-                       :margin-bottom "0px"}
-                      style)])
+   :label         panel-name
+   :level         :level1
+   :underline?    true
+   :margin-top    "1px"
+   :margin-bottom "0px"
+   :style         style])
 
 (defn component-title
   "A title for a component like [something ... ]"
@@ -25,7 +25,7 @@
   "given some status text, return a component that displays that status"
   [status style]
   [:span
-   [:span {:style {:font-weight "bold"}} "Status: "]
+   [:span.bold "Status: "]
    [:span {:style style} status]])
 
 (defn material-design-hyperlink
@@ -76,8 +76,7 @@
                                                needed-vec)]
                             [:p
                               {:font-size "smaller" :color "red"}
-                              (:description arg)]
-                            ]]]]))
+                              (:description arg)]]]]]))
 
 
 (defn args-table

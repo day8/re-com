@@ -142,7 +142,7 @@
                                    ["run-prod"]
                                    ["cljsbuild" "auto" "prod"]]
 
-                     "deploy"     ["s3-static-deploy"]
+                     "deploy-aws"  ["s3-static-deploy"]
 
                      ;; *** TEST ***
 
