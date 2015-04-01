@@ -12,7 +12,8 @@
                 components are not themselves visible."]
                [:p "Instead, their purpose is to arrange other components."]
                [title :level :level2 :label "Two Boxes"]
-               [:p "The two key components are h-box and v-box, which lay out their children horizontally and vertically respectively."]
+               [:p "The two key components are " [:span.bold "h-box"] " and " [:span.bold "v-box"] ", which lay out
+               their children horizontally and vertically respectively."]
                [:p "They are mutually composable, and can be arbitrarily nested to create complex arrangements."]
                [:p "Here's example code showing them nesting..."]]
                [:pre
@@ -44,59 +45,52 @@
    :children [[title :level :level2 :label "Flexbox"]
               [paragraphs
                [:p
-                "Re-com's layout model is a thin layer over "
-                [hyperlink-href
-                 :label "CSS Flexbox"
-                 :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
-                 :target "_blank"]
-                "."]
+                "Re-com's layout model is a thin layer over " [:span.bold "CSS Flexbox"] "."]
                [:p "While Re-com's components work in their own right, to understand them fully and use them
-               powerfully, you need to have a strong understanding of Flexbox. Do the tutorials soon."]
-               [:p "Flexbox works via the interplay between container (parent) attributes and item (child)
-               attributes. Intermediate DOM nodes almost always play the role of both parent and child."]
-               [:p.bold "Inserting block-level elements (divs?) into this tree
-               can break this interplay and can cause a variety of layout issues."]
-               [:p "As a result, we have found Flexbox use to be quite viral. Once you start using it, you seem to
-               have to use it everywhere. The use of non-dispay-flex elements causes problems.
-               So, we recommend you go 100% all-in on the re-com h-box/v-box layout method.
-               If you do, everything should \"just work\". But, if instead you mix block-level and flex, you
-               may spend alot of time playing layout whack-a-mole."]
-               [:p.bold "Just to be clear: when using re-com, don't create [:divs].
-               Always use an h-box or a v-box, or one of the widget components, like label."]
+               powerfully, you " [:span.bold "will"] " need to have a strong understanding of Flexbox. Do these tutorials very soon:"]
+               [:ul
+                [:li
+                 [hyperlink-href
+                  :label "CSS-Tricks guide to flexbox"
+                  :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
+                  :target "_blank"]]
+                [:li
+                 [hyperlink-href
+                  :label "The Ultimate Flexbox Cheat Sheet"
+                  :href "http://www.sketchingwithcss.com/samplechapter/cheatsheet.html"
+                  :target "_blank"]]]
+
+               [:p "Flexbox works via the interplay of " [:span.bold "container"] " (parent) styles and " [:span.bold "item"] " (child)
+               styles. In any interesting layout, intermediate DOM elements play the role of both container and item."]
+               [:p "But, if block-level elements (divs?) are inserted, they
+               can break the flex style interplay up and down the DOM hierarchy, and cause a variety of layout issues."]
+               [:p [:span.bold "As a result, we have found Flexbox use to be quite viral."] " Once you start using it, you
+               have to use it everywhere - right up and down the DOM tree."]
+               [:p "So, we recommend you go 100% all-in on using h-box and v-box. If you do, everything should \"just work\"."]
+               [:p [:span.bold "Never use a naked [:div]"] " or you may spend alot of time playing layout whack-a-mole (unless
+                you adroitly apply the correct flexbox styles to that :div, which is ardulous and error prone.)"]
+
                ;[gap :size "10px"]
                [title :level :level2 :label "Non-Flex Leaf"]
                [:p "When we first put bootstrap buttons into re-com, they were streched.
-               It turned out their block display didn't play well with flex containers."]
-               [:p "So we created the box component which allows you to wrap
+               It turned out their block display didn't play well with flex containers like h-box."]
+               [:p "So we created the " [:span.bold "[box ...]"] "  component which allows you to wrap
                non-flex leaf widgets for use in flex containers."]
                ]]])
 
-(defn flex-property
+
+(defn size-table
   []
   (let [col1 "50px"
         col2 "130px"
         col3 "500px"]
     [v-box
-     :children [[title :level :level2 :label "Understanding Flexbox"]
+     :children [[title :level :level2 :label ":size"]
                 [paragraphs
-                 [:p "In the Flexbox world, there are two parties in any layout - " [:span.bold "containers"] " and their child " [:span.bold "items"] "."]
-                 [:p "There are many good tutorials giving an overview of Flexbox. We've found that the key to getting a Flexbox layout right is understanding the way that child flex styles interact."]
-                 [:p "We use :size in place of :flex."]
-                 ]
-                [title :level :level2 :label "The :size Parameter"]
-                [paragraphs
-                 [:p "Any flex style resolves to a triple of sub-values:"]
-                 [:ul
-                  [:li [:span [:span.bold "grow"]   " - Integer ratio (used with other siblings) which determines how an item grows in size if there is extra container space to distribute. 0 for no growing."]]
-                  [:li [:span [:span.bold "shrink"] " - Integer ratio (used with other siblings) which determines how an item shrinks in size if container space is reduced. 0 for no shrinking."]]
-                  [:li [:span [:span.bold "basis"]  " - The default size of an item before any necessary growing or shrinking. Can be any values like 60%, 100px, auto"]]]
-                 [:li [:span [:span.bold "Note:"]  " A basis value of \"auto\" will cause the initial size to be calculated to take up as much space as possible, in conjunction with it's siblings :flex settings."]]
-                 [:p "Even a single flex style value such as auto is transformed into the triple " [:span.bold "1 1 auto"] "."]
-                 [:p "Determines the value for the 'flex' attribute (which has grow, shrink and basis), based on the :size parameter."]
-                 [:p.bold "IMPORTANT: The term 'size' means width of the item in the case of flex-direction 'row' OR height of the item in the case of flex-direction 'column'."]
-                 [:p "Flex property explanation:"]
-                 ]
-                [:p "Supported values:"]
+                 [:p "v-box and h-box have a parameter called :size. This mirrors the flex sytle. In the Flexbox world, there are two parties in any layout - " [:span.bold "containers"] " and their child " [:span.bold "items"] "."]
+                 [:p "While the tutorials walk you through the menagerie of flexbox related styles, we've found that one style more than any other is
+                 critical to getting what you want: the " [:span.bold "flex"] " style of the children."]
+                 [:p "When we're having a bad day with layouts, 90% of the time it is because we didn't get the flex style of a child right."]]
                 [v-box
                  :class "rc-div-table"
                  :align-self :start
@@ -146,15 +140,45 @@
                              :class "rc-div-table-row"
                              :children [[label :width col1 :label "g s b"]
                                         [label :width col2 :label "grow shrink basis"]
-                                        [:span {:style {:width col3}} "If none of the above common valaues above meet your needs, this gives you precise control."]]]
+                                        [:span {:style {:width col3}} "If none of the above common valaues above meet your needs, this gives you precise control."]]]]]]]))
 
-                            ]]
-                [gap :size "20px"]
-                [paragraphs
-                 [:p "If number of words is not 1 or 3, an exception is thrown."]
-                 [:p "Reference: http://www.w3.org/TR/css3-flexbox/#flexibility"]
-                 [:p "Diagram:   http://www.w3.org/TR/css3-flexbox/#flex-container"]
-                 [:p "Regex101 testing: ^(initial|auto|none)|(\\d+)(px|%|em)|(\\d+)\\w(\\d+)\\w(.*) - remove double backslashes"]]]]))
+
+(defn the-key-style
+  []
+  [v-box
+   :children [[title :level :level2 :label "The Key Style"]
+              [paragraphs
+               [:p "In the Flexbox world, there are two parties in any layout - " [:span.bold "containers"] " and their child " [:span.bold "items"] "."]
+               [:p "While the tutorials walk you through the menagerie of flexbox related styles, we've found that one style more than any other is
+                 critical to getting what you want: the " [:span.bold "flex"] " style of the children."]
+               [:p "When we're having a bad day with layouts, 90% of the time it is because we didn't get the flex style of a child right."]]
+              [title :level :level2 :label "flex=??"]
+              [paragraphs
+               [:p "The tutorials tell you that the " [:span.bold "flex"] " style can be single values like " [:span.bold "none"] "  and " [:span.bold "auto"] ".
+                 But realise that every single time, flex resolves to a triple of sub-values:"]
+               [:ul
+                [:li [:span [:span.bold "grow"]   " - Integer which determines how an item grows in size if there is extra container space to distribute. 0 for no growing."]]
+                [:li [:span [:span.bold "shrink"] " - Integer which determines how an item shrinks in size if container space is reduced. 0 for no shrinking."]]
+                [:li [:span [:span.bold "basis"]  " - The default size of an item before any necessary growing or shrinking. Can be
+                  values like 60% or 100px. It can also be " [:span.bold "auto"] " which means to use the natural size of the item (or its further children)"]]]
+
+               [:p "So even if you provide a single value like " [:span.bold "flex=\"none\""]  ",
+                 what you are really providing is " [:span.bold "flex=\"0 0 auto\""] ". It always resolves to a triple. If you get this point, you are half way there."]
+
+               [:p "Confusion reigns a bit because you can do this " [:span.bold "flex=\"auto\""]  ",
+                 which resolves to " [:span.bold "flex=\"1 1 auto\""] ".  Eh?  My \"auto\" begates another \"auto\". Breeding like rabits."]
+               [:p "Determines the value for the 'flex' attribute (which has grow, shrink and basis), based on the :size parameter."]
+               [:p.bold "IMPORTANT: The term 'size' means width of the item in the case of flex-direction 'row' OR height of the item in the case of flex-direction 'column'."]
+               [:p "Flex property explanation:"]
+               ]
+              [:p "Supported values:"]
+
+              [gap :size "20px"]
+              [paragraphs
+               [:p "If number of words is not 1 or 3, an exception is thrown."]
+               [:p "Reference: http://www.w3.org/TR/css3-flexbox/#flexibility"]
+               [:p "Diagram:   http://www.w3.org/TR/css3-flexbox/#flex-container"]
+                 [:p "Regex101 testing: ^(initial|auto|none)|(\\d+)(px|%|em)|(\\d+)\\w(\\d+)\\w(.*) - remove double backslashes"]]]])
 
 
 
@@ -168,7 +192,11 @@
                :children [[left-column]
                           [right-column]]]
               [line]
-              [flex-property]]])
+              [h-box
+               :gap      "100px"
+               :children [[the-key-style]
+                          [size-table]]]
+              ]])
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
