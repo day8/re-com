@@ -131,6 +131,8 @@
   [selected-tab-id on-select-tab]
     [v-box
      :class    "noselect"
+     :style    {:background-color "#fefefe"}
+     :size    "1 0 auto"
      :children (for [tab tabs-definition]
                  [nav-item tab selected-tab-id on-select-tab])])
 
