@@ -1,7 +1,7 @@
 (ns re-demo.throbber
-  (:require [re-com.core    :refer [h-box v-box box gap line button label throbber]]
+  (:require [re-com.core    :refer [h-box v-box box gap line button label throbber p]]
             [re-com.misc    :refer [throbber-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils  :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core   :as    reagent]))
 
 
@@ -14,23 +14,22 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title [:span "[throbber ... ]"
-                            [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/throbber.cljs"]]]
+   :children [[panel-title "[throbber ... ]"
+                            "src/re_com/misc.cljs"
+                            "src/re_demo/throbber.cljs"]
 
               [h-box
                :gap      "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "Notes"]
+                           :children [[title2 "Notes"]
                                       [status-text "Stable"]
-                                      [paragraphs
-                                       [:p "A CSS Throbber."]]
+                                      [p "A CSS Throbber."]
                                       [args-table throbber-args-desc]]]
                           [v-box
                            :gap      "10px"
-                           :children [[component-title "Demo"]
+                           :children [[title2 "Demo"]
                                       [h-box
                                        :gap "50px"
                                        :children [[v-box

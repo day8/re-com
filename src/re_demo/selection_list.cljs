@@ -1,7 +1,7 @@
 (ns re-demo.selection-list
-  (:require [re-com.core           :refer [h-box v-box box selection-list label title checkbox]]
+  (:require [re-com.core           :refer [h-box v-box box selection-list label title checkbox p]]
             [re-com.selection-list :refer [selection-list-args-desc]]
-            [re-demo.utils         :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils         :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core          :as    reagent]))
 
 
@@ -12,7 +12,7 @@
      :width (str width "px")
      :gap      "20px"
      :align    :start
-     :children [[component-title "Demo"]
+     :children [[title2 "Demo"]
                 [title :level :level3 :label "Parameters"]
                 [h-box
                  :gap      "15px"
@@ -77,20 +77,19 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title [:span "[selection-list ... ]"
-                            [github-hyperlink "Component Source" "src/re_com/selection_list.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/selection_list.cljs"]]]
+   :children [[panel-title "[selection-list ... ]"
+                            "src/re_com/selection_list.cljs"
+                            "src/re_demo/selection_list.cljs"]
               [h-box
                :gap      "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "Notes"]
+                           :children [[title2 "Notes"]
                                       [status-text "Alpha (API will change)" {:color "#EA6B00"}]
-                                      [paragraphs
-                                       [:p "Allows the user to select items from a list (single or multi)."]
-                                       [:p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
-                                       [:p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]]
+                                      [p "Allows the user to select items from a list (single or multi)."]
+                                      [p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
+                                      [p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]
                                       [args-table selection-list-args-desc]]]
                           [list-with-options 600]]]]])
 

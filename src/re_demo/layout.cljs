@@ -1,22 +1,21 @@
 (ns re-demo.layout
-  (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href]]
-            [re-demo.utils :refer [panel-title component-title paragraphs]]))
+  (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href p]]
+            [re-demo.utils :refer [panel-title title2]]))
 
 
 (defn top-left-column
   []
   [v-box
    :children [[title :level :level2 :label "Components"]
-              [paragraphs
-               [:p "Re-com comes with a flexible set of layout components. These
+              [p "Re-com comes with a flexible set of layout components. These
                 components are not themselves visible - their job is to arrange other components."]
-               ;[title :level :level2 :label "Two Boxes"]
-               [:p "The key components are " [:span.bold "h-box"] " and " [:span.bold "v-box"] ", which arrange
+              ;[title :level :level2 :label "Two Boxes"]
+              [p "The key components are " [:span.bold "h-box"] " and " [:span.bold "v-box"] ", which arrange
                their children horizontally and vertically respectively."]
-               [:p "They are mutually nestable, and can be used to create complex layouts."]
-               [:p "Example code:"]]
-               [:pre
-                {:style {:width "460px"}}
+              [p "They are mutually nestable, and can be used to create complex layouts."]
+              [p "Example code:"]
+              [:pre
+               {:style {:width "460px"}}
 "[v-box
  :children [[box :child \"Header\"]
             [h-box
@@ -24,55 +23,54 @@
              :children [[box :size \"70px\" :child \"Nav\"]
                         [box :size \"100%\" :child \"Content\"]]
             [box :child \"Footer\"]]]"]
-               [gap :size "15px"]
-               [:p "results in:"]
-
-               [v-box
-                :gap      "1px"
-                :children [[box :style {:background-color "lightgrey"} :child "Header"]
-                           [h-box
-                            :gap "1px"
-                            :height "100px"
-                            :children [[box :size "70px" :style {:background-color "lightgrey"} :child "Nav"]
-                                       [box :size "100%" :style {:background-color "lightgrey"} :child "Content"]]]
-                           [box :style {:background-color "lightgrey"} :child "Footer"]]]
               [gap :size "15px"]
-              [:p "Other pages will show you more of h-box and v-box, but first ..."]
-              ]])
+              [p "results in:"]
+
+              [v-box
+               :gap      "1px"
+               :children [[box :style {:background-color "lightgrey"} :child "Header"]
+                          [h-box
+                           :gap "1px"
+                           :height "100px"
+                           :children [[box :size "70px" :style {:background-color "lightgrey"} :child "Nav"]
+                                      [box :size "100%" :style {:background-color "lightgrey"} :child "Content"]]]
+                          [box :style {:background-color "lightgrey"} :child "Footer"]]]
+              [gap :size "15px"]
+              [p "Other pages will show you more of h-box and v-box, but first ..."]]])
 
 (defn top-right-column
   []
   [v-box
    :children [[title :level :level2 :label "Flexbox"]
-              [paragraphs
-               [:p
-                "Re-com's layout model is a thin layer over " [:span.bold "CSS Flexbox"] "."]
-               [:p "To fully understand Re-com's layout components and use them
-               powerfully, you " [:span.bold "will"] " need to have a strong understanding of Flexbox. You should do these tutorials very soon:"]
-               [:ul
-                [:li
-                 [hyperlink-href
-                  :label "CSS-Tricks guide to flexbox"
-                  :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
-                  :target "_blank"]]
-                [:li
-                 [hyperlink-href
-                  :label "The Ultimate Flexbox Cheat Sheet"
-                  :href "http://www.sketchingwithcss.com/samplechapter/cheatsheet.html"
-                  :target "_blank"]]]
+              [p
+               "Re-com's layout model is a thin layer over " [:span.bold "CSS Flexbox"] "."]
+              [p "To fully understand Re-com's layout components and use them
+               powerfully, you " [:span.bold "will"] " need to have a strong understanding of
+               Flexbox. You should do these tutorials very soon:"]
+              [:ul
+               [:li
+                [hyperlink-href
+                 :label "CSS-Tricks guide to flexbox"
+                 :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
+                 :target "_blank"]]
+               [:li
+                [hyperlink-href
+                 :label "The Ultimate Flexbox Cheat Sheet"
+                 :href "http://www.sketchingwithcss.com/samplechapter/cheatsheet.html"
+                 :target "_blank"]]]
 
                [title :level :level2 :label "Be All In"]
-               [:p "Flexbox works via the interplay of styles present on a " [:span.bold "container"] " (parent) and its " [:span.bold "items"] " (children).
+               [p "Flexbox works via the interplay of styles present on a " [:span.bold "container"] " (parent) and its " [:span.bold "items"] " (children).
                In any interesting layout, many DOM elements sit in a tree, acting as both a container for the level below, and an item for the level above."]
-               [:p "If block-level elements (divs?) are present in this tree, they
+               [p "If block-level elements (divs?) are present in this tree, they
                can break the flex style interplay up and down the DOM hierarchy, and cause a variety of layout issues."]
-               [:p [:span.bold "As a result, we have found Flexbox use to be quite viral."] " Once you start using it, you
+               [p [:span.bold "As a result, we have found Flexbox use to be quite viral."] " Once you start using it, you
                end up using it everywhere - right up and down the DOM tree."]
-               [:p "So, we recommend you go 100% all-in on using h-box and v-box. If you do, everything should \"just work\"."]
-               [:p "So, never mint your own container " [:span.bold "[:div]"] " or "  [:span.bold "[:span]"] " unless
+               [p "So, we recommend you go 100% all-in on using h-box and v-box. If you do, everything should \"just work\"."]
+               [p "So, never mint your own container " [:span.bold "[:div]"] " or "  [:span.bold "[:span]"] " unless
                you also  give them the correct flex styles, which is arduous and error prone."]
 
-               ]]])
+               ]])
 
 
 (defn size-table
@@ -82,9 +80,8 @@
         col3 "500px"]
     [v-box
      :children [[title :level :level2 :label "The :size Parameter (aka flex)"]
-                [paragraphs
-                 [:p "Both " [:span.bold "v-box"] " and " [:span.bold "h-box"] " have a parameter called " [:span.bold ":size"] ".
-                 This parameter is the equivalent of the style " [:span.bold "flex"] " talked about to the left."]]
+                [p "Both " [:span.bold "v-box"] " and " [:span.bold "h-box"] " have a parameter called " [:span.bold ":size"] ".
+                 This parameter is the equivalent of the style " [:span.bold "flex"] " talked about to the left."]
                 [gap :size "10px"]
                 [:p "Possible values:"]
                 [v-box
@@ -144,17 +141,15 @@
   []
   [v-box
    :children [[title :level :level2 :label "The Key Style"]
-              [paragraphs
-               [:p "Flexbox is about styles on " [:span.bold "containers"] " and their child " [:span.bold "items"] "."]
-               [:p "While tutorials will walk you through the menagerie of flexbox related styles,
+              [p "Flexbox is about styles on " [:span.bold "containers"] " and their child " [:span.bold "items"] "."]
+              [p "While tutorials will walk you through the menagerie of flexbox related styles,
                we've found that one, more than any other, is
                critical to getting what you want: the " [:span.bold "flex"] " style of the items."]
-               [:p "Worth repeating: if you are having trouble with a layout, pay particular attention to the
-               " [:span.bold "flex"] " style you have given to the items of that layout."]]
+              [p "Worth repeating: if you are having trouble with a layout, pay particular attention to the
+               " [:span.bold "flex"] " style you have given to the items of that layout."]
               [title :level :level2 :label "flex=GSB"]
-              [paragraphs
-               [:p "Tutorials might tell you that the " [:span.bold "flex"] " style can be single value like " [:span.bold "none"] "  or " [:span.bold "auto"] ".
-                 But those are shortcuts. Every flex style resolves to a triple of sub-values:"]
+              [p "Tutorials might tell you that the " [:span.bold "flex"] " style can be single value like " [:span.bold "none"] "  or " [:span.bold "auto"] ".
+                 But those are shortcuts. Every flex style resolves to a triple of sub-values:"
                [:ul
                 [:li [:span [:span.bold "grow"]   " - Integer which determines how an item grows in size (proportionally to its siblngs) if there is
                 extra container space to distribute. 0 for no growing."]]
@@ -163,15 +158,15 @@
                 [:li [:span [:span.bold "basis"]  " - The default size of an item before any necessary growing or
                 shrinking. Can be
                   values like 60% or 100px. It can also be " [:span.bold "auto"] " which means to use the natural size
-                  of the item (or its further children)"]]]
+                  of the item (or its further children)"]]]]
 
-               [:p "When you provide a shortcut value like " [:span.bold "flex=\"none\""]  ",
+              [p "When you provide a shortcut value like " [:span.bold "flex=\"none\""]  ",
                  what you are really providing is " [:span.bold "flex=\"0 0 auto\""] "."]
 
-               [:p "And, " [:span.bold "flex=\"auto\""]  ",
+              [p "And, " [:span.bold "flex=\"auto\""]  ",
                  resolves to " [:span.bold "flex=\"1 1 auto\""] ", which includes \"auto\" for the \"basis\"."]
-               [:p "In re-com, v-box and h-box components will be items (children of a higher v-box or h-box container).
-               When organising a layout, always pay attention to " [:span.bold "flex"] " style of these children."]]
+              [p "In re-com, v-box and h-box components will be items (children of a higher v-box or h-box container).
+               When organising a layout, always pay attention to " [:span.bold "flex"] " style of these children."]
               [gap :size "10px"]]])
 
 (defn panel2
@@ -184,6 +179,7 @@
                :gap      "100px"
                :children [[top-left-column]
                           [top-right-column]]]
+              [line]
               [line]
               [gap :size "15px"]
               [h-box

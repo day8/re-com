@@ -58,7 +58,7 @@
 (defn title
   "A title with four preset levels"
   [& {:keys [label level underline? margin-top margin-bottom class style attr]
-      :or   {margin-top "0.4em" margin-bottom "0.1em"}
+      :or   {margin-top "0.6em" margin-bottom "0.3em"}
       :as   args}]
   {:pre [(validate-args-macro title-args-desc args "title")]}
   (let [preset-class (if (nil? level) "" (name level))]
@@ -67,6 +67,7 @@
      :children [[:span (merge {:class (str "rc-title display-flex " preset-class " " class)
                                :style (merge (flex-child-style "none")
                                              {:margin-top margin-top}
+                                             {:line-height 1}             ;; so that the margins are correct
                                              (when-not underline? {:margin-bottom margin-bottom})
                                              style)}
                               attr)
@@ -74,3 +75,18 @@
                 (when underline? [line
                                   :size "1px"
                                   :style {:margin-bottom margin-bottom}])]]))
+
+
+(defn p
+  "acts like [:p ]
+   Designed for paragraphs of body text.
+   First child can be a map of styles / attributes
+   Sets appropriate font-size and line length."
+  [& children]
+  (let [f            (first children)    ;; it might be a map
+        [m children] (if (map? f)
+                       [f   (rest children)]
+                       [nil children])
+        m             (merge {:style {:width    "450px" :font-size "15px"}}
+                             m)]
+    [:span m (into [:p] children)]))    ;; having the wrapping span allow children to contain [:ul] etc

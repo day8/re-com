@@ -1,8 +1,8 @@
 (ns re-demo.h-box
-  (:require [re-com.core     :refer [h-box v-box box gap line scroller border label title button checkbox hyperlink-href slider horizontal-bar-tabs]]
+  (:require [re-com.core     :refer [p h-box v-box box gap line scroller border label title button checkbox hyperlink-href slider horizontal-bar-tabs]]
             [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc flex-child-style]]
             [re-com.util     :refer [px]]
-            [re-demo.utils   :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]
             [re-com.validate :refer [extract-arg-data string-or-hiccup? alert-type? vector-of-maps?]]
             [reagent.core    :as    reagent]))
 
@@ -79,38 +79,36 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[h-box ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/box.cljs"]
-                                [github-hyperlink "Page Source" "src/re_demo/h_box.cljs"]]]
+       :children [[panel-title "[h-box ... ]"
+                                "src/re_com/box.cljs"
+                                "src/re_demo/h_box.cljs"]
 
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "h-box is a container which lays out its  " [:code ":children"] " in a single horizontal row."]
-                                           [:p
-                                            "To understand it fully and use it powerfully, you must have a good understanding of the "
-                                            [hyperlink-href
-                                             :label "CSS Flexbox"
-                                             :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
-                                             :target "_blank"]
-                                            " layout system."]
-                                           [:p "The actual layout is a function of the " [:code ":size"] " of the container and the " [:code ":size"] " provided for each of the children."]
-                                           [:p "Todo: Nestability with v-box"]
-                                           ]
+                                          [p "h-box is a container which lays out its  " [:code ":children"] " in a single horizontal row."]
+                                          [p
+                                           "To understand it fully and use it powerfully, you must have a good understanding of the "
+                                           [hyperlink-href
+                                            :label "CSS Flexbox"
+                                            :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
+                                            :target "_blank"]
+                                           " layout system."]
+                                          [p "The actual layout is a function of the " [:code ":size"] " of the container and the " [:code ":size"] " provided for each of the children."]
+                                          [p "Todo: Nestability with v-box"]
+
                                           [args-table h-box-args-desc]]]
                               [v-box
                                :gap      "10px"
-                               :children [[component-title "Demo"]
-                                          [paragraphs
-                                           [:p "Descriptions removed for now."]
-                                           ;[:p "The h-box, which is normally invisible, has been styled with a dashed red border to make it visible."]
-                                           ;[:p "Each child box component (which includes an 4px magin) describes it's own settings and allows you to modify them."]
-                                           #_[:p "Dashed red lines have been added between the boxes."]]
+                               :children [[title2 "Demo"]
+                                          [p "Descriptions removed for now."]
+                                          ;[p "The h-box, which is normally invisible, has been styled with a dashed red border to make it visible."]
+                                          ;[p "Each child box component (which includes an 4px magin) describes it's own settings and allows you to modify them."]
+                                          #_[p "Dashed red lines have been added between the boxes."]
                                           [title :level :level3 :label "Container (h-box/v-box) - red border"]
                                           [h-box
                                            :gap      "10px"
@@ -158,9 +156,9 @@
                                                          :size (box-size @box3-db)
                                                          :style h-box-style
                                                          :child [:div {:style rounded-panel} "Box 3" [:br] ":size " (box-size @box3-db)]])]]
-                                          [paragraphs
-                                           [:br]
-                                           [:p "Now here is a v-box with exactly the same children."]]
+
+                                          [:br]
+                                          [p "Now here is a v-box with exactly the same children."]
                                           [v-box
                                            :width    "100px"
                                            :height   (px @container-size)

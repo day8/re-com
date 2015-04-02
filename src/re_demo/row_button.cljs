@@ -1,10 +1,12 @@
 (ns re-demo.row-button
-  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox horizontal-bar-tabs vertical-bar-tabs title]
+  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox
+                                                   horizontal-bar-tabs vertical-bar-tabs title p]
                                            :refer-macros [handler-fn]]
             [re-com.buttons                :refer [row-button-args-desc]]
             [re-com.util                   :refer [enumerate]]
             [re-demo.md-circle-icon-button :refer [icons example-icons]]
-            [re-demo.utils                 :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text paragraphs]]
+            [re-demo.utils                 :refer [panel-title title2 args-table material-design-hyperlink
+                                                   github-hyperlink status-text]]
             [reagent.core                  :as    reagent]))
 
 
@@ -100,26 +102,25 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[row-button ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/row_button.cljs"]]]
+       :children [[panel-title  "[row-button ... ]"
+                                "src/re_com/buttons.cljs"
+                                "src/re_demo/row_button.cljs"]
 
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse-over."]
-                                           [:p "To understand, mouse-over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
-                                           [:p "Notice also that these buttons can have an optional explanatory tooltip."]
-                                           [:p "Material design icons can be " [material-design-hyperlink "found here"] "."]]
+                                          [p "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse-over."]
+                                          [p "To understand, mouse-over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
+                                          [p "Notice also that these buttons can have an optional explanatory tooltip."]
+                                          [p "Material design icons can be " [material-design-hyperlink "found here"] "."]
                                           [args-table row-button-args-desc]]]
                               [v-box
                                :gap      "10px"
-                               :children [[component-title "Demo"]
+                               :children [[title2 "Demo"]
                                           [v-box
                                            :gap "20px"
                                            :children [[data-table rows col-widths]

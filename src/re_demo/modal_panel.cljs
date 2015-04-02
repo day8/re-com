@@ -1,7 +1,7 @@
 (ns re-demo.modal-panel
-  (:require [re-com.core        :refer [h-box v-box box gap line border title label modal-panel progress-bar input-text checkbox button]]
+  (:require [re-com.core        :refer [h-box v-box box gap line border title label modal-panel progress-bar input-text checkbox button p]]
             [re-com.modal-panel :refer [modal-panel-args-desc]]
-            [re-demo.utils      :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils      :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core       :as    reagent]))
 
 
@@ -133,25 +133,29 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title [:span "[modal-panel ... ]"
-                            [github-hyperlink "Component Source" "src/re_com/modal_panel.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/modal_panel.cljs"]]]
+   :children [[panel-title "[modal-panel ... ]"
+                            "src/re_com/modal_panel.cljs"
+                            "src/re_demo/modal_panel.cljs"]
 
               [h-box
                :gap      "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "Notes"]
+                           :children [[title2 "Notes"]
                                       [status-text "Stable"]
-                                      [paragraphs
-                                       [:p "Displays a " [:code ":child"] " component centered with a semi-transparent backdrop, which prevents other user interaction."]
-                                       [:p "Good for showing progress of long running operations and gathering user input via modal dialogs."]
-                                       [:p "Warning: This component should be placed at the end of surrounding markup to ensure the backdrop covers everything. Otherwise, in certain cases, absolutely positioned components added to the DOM after this component can appear above the backdrop."]]
+                                       [p "Displays a " [:code ":child"] " component centered with a semi-transparent
+                                       backdrop, which prevents other user interaction."]
+                                       [p "Good for showing progress of long running operations and gathering user
+                                       input via modal dialogs."]
+                                       [p "Warning: This component should be placed at the end of surrounding markup
+                                       to ensure the backdrop covers everything. Otherwise, in certain cases,
+                                       absolutely positioned components added to the DOM after this component can
+                                       appear above the backdrop."]
                                       [args-table modal-panel-args-desc]]]
                           [v-box
                            :gap      "10px"
-                           :children [[component-title "Demo"]
+                           :children [[title2 "Demo"]
                                       [v-box
                                        :gap      "10px"
                                        :children [[please-wait-message]

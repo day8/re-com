@@ -1,7 +1,7 @@
 (ns re-demo.radio-button
-  (:require [re-com.core   :refer [h-box v-box box gap line radio-button]]
+  (:require [re-com.core   :refer [h-box v-box box gap line radio-button p]]
             [re-com.misc   :refer [radio-button-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core  :as    reagent]))
 
 
@@ -13,23 +13,22 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[radio-button ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/radio_button.cljs"]]]
+       :children [[panel-title "[radio-button ... ]"
+                                "src/re_com/misc.cljs"
+                                "src/re_demo/radio_button.cljs"]
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "A boostrap-styled radio button, with optional label (always displayed to the right)."]
-                                           [:p "Clicking on the label is the same as clicking on the radio button."]]
+                                          [p "A boostrap-styled radio button, with optional label (always displayed to the right)."]
+                                          [p "Clicking on the label is the same as clicking on the radio button."]
                                           [args-table radio-button-args-desc]]]
                               [v-box
                                :gap      "10px"
-                               :children [[component-title "Demo"]
+                               :children [[title2 "Demo"]
                                           [v-box
                                            :children [(doall (for [c ["red" "green" "blue"]]    ;; Notice the ugly "doall"
                                                                ^{:key c}                        ;; key should be unique among siblings

@@ -1,7 +1,7 @@
 (ns re-demo.alert-box
-  (:require [re-com.core   :refer [h-box v-box box line gap label alert-box alert-list]]
+  (:require [re-com.core   :refer [h-box v-box box line gap label alert-box alert-list p]]
             [re-com.alert  :refer [alert-box-args-desc alert-list-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.debug :refer-macros [dbg prn println log dev? warn warn-unless]]
             [reagent.core  :as    reagent]))
 
@@ -14,24 +14,23 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[alert-box ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/alert.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/alert_box.cljs"]]]
+       :children [[panel-title "[alert-box ... ]"
+                                "src/re_com/alert.cljs"
+                                "src/re_demo/alert_box.cljs"]
 
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "A component which renders a single bootstrap styled alert-box."]]
+                                          [p "A component which renders a single bootstrap styled alert-box."]
                                           [args-table alert-box-args-desc]]]
                               [v-box
                                :width    "600px"
                                :gap      "10px"
-                               :children [[component-title "Demo"]
+                               :children [[title2 "Demo"]
                                           (if @show-alert
                                             [alert-box      ;(alert-box-meta alert-box)
                                              :id         1
@@ -71,22 +70,4 @@
   []
   [alert-box-demo])
 
-;;; TODO: For testing only - remove!
-;(println "METATDATA for alert-box-demo:" (meta #'alert-box-demo))
-;(println "goog.DEBUG-1:" ^boolean (.-DEBUG js/goog))
-;(println "goog.DEBUG-2:" ^boolean js/goog.DEBUG)
-;(when js/goog.DEBUG (println "It's TRUE"))
-;(when ^boolean js/goog.DEBUG (println "It's TRUE"))
-;
-;(println "ADD-META-1: " (meta (add-meta {:aa "hello"})))
-;
-;(def aa (add-meta {:bb "goodbye"}))
-;
-;(println "ADD-META-2: file = '" (:file (meta aa)) "', line = " (:line (meta aa)))
-;
-;;(dbg alert-box-demo)
-;(dbg 'alert-box-demo)
-;(dbg #'alert-box-demo)
-;
-;;(set! (.-DEBUG js/goog) false)
-;;(println "goog.DEBUG-2:" js/goog.DEBUG)
+

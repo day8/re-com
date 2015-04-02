@@ -1,7 +1,7 @@
 (ns re-demo.input-text
-  (:require [re-com.core   :refer [h-box v-box box gap line input-text input-textarea label checkbox radio-button slider title]]
+  (:require [re-com.core   :refer [h-box v-box box gap line input-text input-textarea label checkbox radio-button slider title p]]
             [re-com.misc   :refer [input-text-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core  :as    reagent]))
 
 
@@ -21,26 +21,25 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[input-text ... ] & [input-textarea ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/input_text.cljs"]]]
+       :children [[panel-title  "[input-text ... ] & [input-textarea ... ]"
+                                "src/re_com/misc.cljs"
+                                "src/re_demo/input_text.cljs"]
 
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "Text entry components."]
-                                           [:p "You can control the input format via " [:code ":validation-regex"] "."]
-                                           [:p "The " [:code ":on-change"] " function will be called either after each character is entered or on blur."]
-                                           [:p "Input warnings and errors can be indicated visually by border colors and icons."]]
+                                          [p "Text entry components."]
+                                          [p "You can control the input format via " [:code ":validation-regex"] "."]
+                                          [p "The " [:code ":on-change"] " function will be called either after each character is entered or on blur."]
+                                          [p "Input warnings and errors can be indicated visually by border colors and icons."]
                                           [args-table input-text-args-desc]]]
                               [v-box
                                :gap      "10px"
-                               :children [[component-title "Demo"]
+                               :children [[title2 "Demo"]
                                           [h-box
                                            :gap "40px"
                                            :children [[v-box

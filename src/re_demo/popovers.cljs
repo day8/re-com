@@ -1,11 +1,11 @@
 (ns re-demo.popovers
   (:require [re-com.core                 :refer [h-box v-box box gap line scroller border label title input-text checkbox radio-button button hyperlink
-                                                 single-dropdown popover-content-wrapper popover-anchor-wrapper popover-border popover-tooltip flex-child-style]
+                                                 p single-dropdown popover-content-wrapper popover-anchor-wrapper popover-border popover-tooltip flex-child-style]
                                          :refer-macros [handler-fn]]
             [re-com.popover              :refer [popover-content-wrapper-args-desc popover-anchor-wrapper-args-desc popover-border-args-desc
                                                  popover-tooltip-args-desc]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
-            [re-demo.utils               :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils               :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core                :as    reagent]))
 
 
@@ -29,23 +29,22 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title [:span "Popover Components"
-                            [github-hyperlink "Component Source" "src/re_com/popover.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]]]
+   :children [[panel-title "Popover Components"
+                            "src/re_com/popover.cljs"
+                            "src/re_demo/popovers.cljs"]
 
               [h-box
                :gap      "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "[popover-anchor-wrapper ...]"]
+                           :children [[title2 "[popover-anchor-wrapper ...]"]
                                       [status-text "Alpha" {:color "#EA6B00"}]
-                                      [paragraphs
-                                       [:p "TBA..."]]
+                                      [p "TBA..."]
                                       [args-table popover-anchor-wrapper-args-desc]]]
                           [v-box
                            :gap      "10px"
-                           :children [[component-title "Demo"]
+                           :children [[title2 "Demo"]
                                       [:span.all-small-caps "TBA..."]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
@@ -53,13 +52,12 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "[popover-content-wrapper ...]"]
-                                      [paragraphs
-                                       [:p "TBA..."]]
+                           :children [[title2 "[popover-content-wrapper ...]"]
+                                      [p "TBA..."]
                                       [args-table popover-content-wrapper-args-desc]]]
                           [v-box
                            :gap      "10px"
-                           :children [[component-title "Demo"]
+                           :children [[title2 "Demo"]
                                       [:span.all-small-caps "TBA..."]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
@@ -67,13 +65,12 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "[popover-border ...]"]
-                                      [paragraphs
-                                       [:p "TBA..."]]
+                           :children [[title2 "[popover-border ...]"]
+                                      [p "TBA..."]
                                       [args-table popover-border-args-desc]]]
                           [v-box
                            :gap      "10px"
-                           :children [[component-title "Demo"]
+                           :children [[title2 "Demo"]
                                       [:span.all-small-caps "TBA..."]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
@@ -81,13 +78,12 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "[popover-tooltip ...]"]
-                                      [paragraphs
-                                       [:p "TBA..."]]
+                           :children [[title2 "[popover-tooltip ...]"]
+                                      [p "TBA..."]
                                       [args-table popover-tooltip-args-desc]]]
                           [v-box
                            :gap      "10px"
-                           :children [[component-title "Demo"]
+                           :children [[title2 "Demo"]
                                       [:span.all-small-caps "TBA..."]]]]]
               [gap :size "30px"]]])
 
@@ -110,24 +106,24 @@
       (let [cancel-popover  #(reset! showing? false)]
         [v-box
          :gap      "10px"
-         :children [[component-title "[popover ... ] with [button ... ] anchor"]
+         :children [[title2 "[popover ... ] with [button ... ] anchor"]
                     [status-text "Alpha" {:color "#EA6B00"}]
                     [h-box
                      :gap      "100px"
                      :children [[v-box
                                  :gap      "10px"
                                  :width    "450px"
-                                 :children [[paragraphs
-                                             [:p "Popovers appear above other components, and point to an anchor."]
-                                             [:p "In the simplest case, we're talking tooltips. In more complex cases, detailed dialog boxes."]
-                                             [:p "Even when the absolute position of the anchor changes, the popover stays pointing at it."]
-                                             [:p "To create a popover, wrap the anchor with " [:code "popover-anchor-wrapper"] ". The arguments are:"]
+                                 :children [
+                                            [p "Popovers appear above other components, and point to an anchor."]
+                                            [p "In the simplest case, we're talking tooltips. In more complex cases, detailed dialog boxes."]
+                                            [p "Even when the absolute position of the anchor changes, the popover stays pointing at it."]
+                                            [p "To create a popover, wrap the anchor with " [:code "popover-anchor-wrapper"] ". The arguments are:"
                                              [:ul
                                               [:li [:code ":showing?"] " - An atom. When true, the popover shows."]
                                               [:li [:code ":position"] " - A keyword specifying the popover's position relative to the anchor. See the demo to the right for the values."]
                                               [:li [:code ":anchor"] " - The anchor component to wrap."]
-                                              [:li [:code ":popover"] " - The popover body component (what gets shown in the popover)."]]
-                                             [:p "You should use the " [:code "popover-body-wrapper"] " component to wrap the body content. The main arguments are:"]
+                                              [:li [:code ":popover"] " - The popover body component (what gets shown in the popover)."]]]
+                                            [p "You should use the " [:code "popover-body-wrapper"] " component to wrap the body content. The main arguments are:"
                                              [:ul
                                               [:li [:code ":title"] " - Title of the popover. Can be ommitted."]
                                               [:li [:code ":close-button?"] " - Add close button in the top right. Default is true."]
@@ -264,15 +260,15 @@
   (let [showing?  (reagent/atom false)]
     (fn []
       [v-box
-       :children [[component-title "[popover ... ] with [hyperlink ... ] anchor"]
+       :children [[title2 "[popover ... ] with [hyperlink ... ] anchor"]
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
-                               :children [[paragraphs
-                                           [:p "The " [:code "hyperlink"] " component is useful for creating link popovers. Use it as the anchor."]]]]
+                               :children [
+                                           [p "The " [:code "hyperlink"] " component is useful for creating link popovers. Use it as the anchor."]]]
                               [v-box
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
@@ -296,16 +292,15 @@
         pos      :above-center]
     (fn []
       [v-box
-       :children [[component-title "Proximity Popover (tooltip)"]
+       :children [[title2 "Proximity Popover (tooltip)"]
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
-                               :children [[paragraphs
-                                           [:p "Popovers can be used to create hover tooltips on any component. This example uses a " [:code "[:div]"] "."]
-                                           [:p "Simply set the " [:code "on-mouse-over"] " and " [:code "on-mouse-out"] " events to show/hide the popover."]]]]
+                               :children [ [p "Popovers can be used to create hover tooltips on any component. This example uses a " [:code "[:div]"] "."]
+                                           [p "Simply set the " [:code "on-mouse-over"] " and " [:code "on-mouse-out"] " events to show/hide the popover."]]]
                               [v-box
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
@@ -336,16 +331,16 @@
     (fn
       []
       [v-box
-       :children [[component-title "[popover-tooltip ... ]"]
+       :children [[title2 "[popover-tooltip ... ]"]
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
-                               :children [[paragraphs
-                                           [:p "This is a seaprate component which makes it really easy to create tooltips."]
-                                           [:p "It also can be colored for warning or error status."]]]]
+                               :children [
+                                           [p "This is a seaprate component which makes it really easy to create tooltips."]
+                                           [p "It also can be colored for warning or error status."]]]
                               [v-box
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
@@ -421,16 +416,15 @@
 (defn complex-popover-demo
   []
   [v-box
-   :children [[component-title "Complex Popover (dialog box)"]
+   :children [[title2 "Complex Popover (dialog box)"]
               [h-box
                :gap      "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
                            :margin   "20px 0px 0px 0px"
-                           :children [[paragraphs
-                                       [:p "Popovers can be arbitrarilary complex."]
-                                       [:p [:code "popover-content-wrapper"] " is friendly to dialog coding patterns."]]]]
+                           :children [ [p "Popovers can be arbitrarilary complex."]
+                                       [p [:code "popover-content-wrapper"] " is friendly to dialog coding patterns."]]]
                           [v-box
                            :gap      "30px"
                            :margin   "20px 0px 0px 0px"
@@ -442,9 +436,9 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title [:span "Popover Components"
-                            [github-hyperlink "Component Source" "src/re_com/popover.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/popovers.cljs"]]]
+   :children [[panel-title "Popover Components"
+                            "src/re_com/popover.cljs"
+                            "src/re_demo/popovers.cljs"]
               [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]

@@ -1,7 +1,7 @@
 (ns re-demo.progress-bar
-  (:require [re-com.core   :refer [h-box v-box box gap line label title progress-bar slider checkbox]]
+  (:require [re-com.core   :refer [h-box v-box box gap line label title progress-bar slider checkbox p]]
             [re-com.misc   :refer [progress-bar-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core  :as    reagent]))
 
 
@@ -14,22 +14,21 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[progress-bar ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/progress_bar.cljs"]]]
+       :children [[panel-title "[progress-bar ... ]"
+                                "src/re_com/misc.cljs"
+                                "src/re_demo/progress_bar.cljs"]
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "A Bootstrap styled progress bar."]]
+                                          [p "A Bootstrap styled progress bar."]
                                           [args-table progress-bar-args-desc]]]
                               [v-box
                                :gap      "10px"
-                               :children [[component-title "Demo"]
+                               :children [[title2 "Demo"]
                                           [v-box
                                            :gap      "20px"
                                            :children [[progress-bar

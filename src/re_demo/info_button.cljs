@@ -1,7 +1,7 @@
 (ns re-demo.info-button
-  (:require [re-com.core    :refer [h-box v-box box gap line info-button label input-text hyperlink-href]]
+  (:require [re-com.core    :refer [h-box v-box box gap line info-button label input-text hyperlink-href p]]
             [re-com.buttons :refer [info-button-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]))
+            [re-demo.utils  :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
 (defn info-button-demo
@@ -28,21 +28,20 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[info-button ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/info_button.cljs"]]]
+       :children [[panel-title "[info-button ... ]"
+                                "src/re_com/buttons.cljs"
+                                "src/re_demo/info_button.cljs"]
 
                   [h-box
                    :gap "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "A tiny information button, which is light grey and unobrusive. When clicked, displays a popup containing helpful information. "]
-                                           [:p "Designed to be used with input fields, to explain the purpose of the field."]
-                                           [:p "The popup has a dark theme, and uses white text. CSS classes for the text are available as follows:to format the text in the popover"]
+                                           [p "A tiny information button, which is light grey and unobrusive. When clicked, displays a popup containing helpful information. "]
+                                           [p "Designed to be used with input fields, to explain the purpose of the field."]
+                                           [p "The popup has a dark theme, and uses white text. CSS classes for the text are available as follows:to format the text in the popover"
                                            [:ul
                                             [:li [:span.semibold "info-heading"] " - heading/title style"]
                                             [:li [:span.semibold"info-subheading"] " - subheading style"]
@@ -50,9 +49,8 @@
                                           [args-table info-button-args-desc]]]
                               [v-box
                                :gap      "10px"
-                               :children [[component-title "Demo"]
-                                          [paragraphs
-                                           [:p "Notice the small round information icon above each input box. On hover, the icon become blue. On click, a popoover appears with artbitrary explanation."]]
+                               :children [[title2 "Demo"]
+                                           [p "Notice the small round information icon above each input box. On hover, the icon become blue. On click, a popoover appears with artbitrary explanation."]
                                           [gap :size "5px"]
                                           [v-box
                                            :children [[h-box

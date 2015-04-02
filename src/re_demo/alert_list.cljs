@@ -1,8 +1,8 @@
 (ns re-demo.alert-list
-  (:require [re-com.core   :refer [h-box v-box box line gap label title button alert-box alert-list]]
+  (:require [re-com.core   :refer [h-box v-box box line gap label title button alert-box alert-list p]]
             [re-com.alert  :refer [alert-box-args-desc alert-list-args-desc]]
             [re-com.util   :refer [insert-nth remove-id-item]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core  :as    reagent]))
 
 
@@ -24,32 +24,30 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[alert-list ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/alert.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/alert_list.cljs"]]]
+       :children [[panel-title "[alert-list ... ]"
+                                "src/re_com/alert.cljs"
+                                "src/re_demo/alert_list.cljs"]
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "Renders a dynamic list of alert-boxes vertically, with a scroll bar if necessary."]]
+                                          [p "Renders a dynamic list of alert-boxes vertically, with a scroll bar if necessary."]
                                           [args-table alert-list-args-desc]]]
                               [v-box
                                :width    "600px"
                                :gap      "10px"
-                               :children [[component-title "Demo"]
-                                          [:p "To insert alerts at the top of the list, click "
+                               :children [[title2 "Demo"]
+                                          [p "To insert alerts at the top of the list, click "
                                            [button
                                             :label "Add alert"
                                             :style {:width "100px"}
                                             :on-click #(add-alert alerts (gensym) :info {:heading "New alert" :body "This alert was added by the \"Add alert\" button ."})]]
-                                          [paragraphs
-                                           [:p "Also, try clicking the \"x\" on alerts."]
-                                           [:p [:code ":max-height"] " is set to 300px. A scroll bar will appear as necessary."]
-                                           [:p "For demonstration purposes, a 'dotted' " [:code ":border-style"] " is set."]]
+                                           [p "Also, try clicking the \"x\" on alerts."]
+                                           [p [:code ":max-height"] " is set to 300px. A scroll bar will appear as necessary."]
+                                           [p "For demonstration purposes, a 'dotted' " [:code ":border-style"] " is set."]
                                           [alert-list
                                            :alerts       alerts
                                            :on-close     #(reset! alerts (remove-id-item % @alerts))

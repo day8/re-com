@@ -1,7 +1,7 @@
 (ns re-demo.input-time
-  (:require [re-com.core       :refer [h-box v-box box gap input-time label title button checkbox]]
+  (:require [re-com.core       :refer [h-box v-box box gap input-time label title button checkbox p]]
             [re-com.input-time :refer [input-time-args-desc]]
-            [re-demo.utils     :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core      :as    reagent]))
 
 
@@ -39,11 +39,10 @@
     (fn []
       [v-box
        :gap "10px"
-       :children [[component-title "Demo"]
-                  [paragraphs
+       :children [[title2 "Demo"]
                    [:p "There are two instances of this component below."]
                    [:p "The first one is the default size."]
-                   [:p "The second one specifies " [:code ":style {:font-size \"11px\"}"] " to make a smaller version."]]
+                   [:p "The second one specifies " [:code ":style {:font-size \"11px\"}"] " to make a smaller version."]
                   [gap :size "20px"]
                   [h-box
                    :children [[v-box
@@ -110,21 +109,20 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title [:span "[input-time ... ]"
-                            [github-hyperlink "Component Source" "src/re_com/input_time.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/input_time.cljs"]]]
+   :children [[panel-title "[input-time ... ]"
+                            "src/re_com/input_time.cljs"
+                            "src/re_demo/input_time.cljs"]
               [h-box
                :gap "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "Notes"]
+                           :children [[title2 "Notes"]
                                       [status-text "Stable"]
-                                      [paragraphs
-                                       [:p "Allows the user to input time in 24hr format."]
-                                       [:p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
+                                       [p "Allows the user to input time in 24hr format."]
+                                       [p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
                                             Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
-                                       [:p "If the user exits the input field with an invalid value, it will be replaced with the last known valid value."]]
+                                       [p "If the user exits the input field with an invalid value, it will be replaced with the last known valid value."]
                                       [args-table input-time-args-desc]]]
                           [basics-demo]]]]])
 

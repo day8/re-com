@@ -1,8 +1,10 @@
 (ns re-demo.tabs
-  (:require [re-com.core             :refer [h-box v-box box gap line scroller border horizontal-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs  label button single-dropdown]]
+  (:require [re-com.core             :refer [h-box v-box box gap line scroller border horizontal-tabs horizontal-bar-tabs
+                                             vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs label button
+                                             single-dropdown p]]
             [re-com.tabs             :refer [tabs-args-desc]]
             [re-com.util             :refer [item-for-id]]
-            [re-demo.utils           :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils           :refer [panel-title title2 args-table github-hyperlink status-text]]
             [alandipert.storage-atom :refer [local-storage]]
             [reagent.core            :as    reagent]))
 
@@ -30,14 +32,14 @@
     (fn []
       [v-box
        :gap      "20px"
-       :children [[paragraphs
-                   [:p "Each of the five tab components shown below have a distinct visual style."]
-                   [:p "In this demo, all five tab components share the same state, so they change in lockstep."]
-                   [:p "For effect, some fake  \"Tab Contents\" (a string of text) is shown in the dotted border below."]
-                   [:p "The implementation here is simple and your selection is forgotten when you change to another demo panel."]]
+       :children [
+                   [p "Each of the five tab components shown below have a distinct visual style."]
+                   [p "In this demo, all five tab components share the same state, so they change in lockstep."]
+                   [p "For effect, some fake  \"Tab Contents\" (a string of text) is shown in the dotted border below."]
+                   [p "The implementation here is simple and your selection is forgotten when you change to another demo panel."]
                   [h-box
                    :align    :center
-                   :children [[component-title
+                   :children [[title2
                                "[horizontal-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
                               [horizontal-tabs
@@ -46,7 +48,7 @@
                                :on-change change-tab]]]
                   [h-box
                    :align    :center
-                   :children [[component-title
+                   :children [[title2
                                "[horizontal-bar-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
                               [horizontal-bar-tabs
@@ -55,7 +57,7 @@
                                :on-change change-tab]]]
                   [h-box
                    :align    :center
-                   :children [[component-title
+                   :children [[title2
                                "[vertical-bar-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
                               [vertical-bar-tabs
@@ -64,7 +66,7 @@
                                :on-change change-tab]]]
                   [h-box
                    :align    :center
-                   :children [[component-title
+                   :children [[title2
                                "[horizontal-pill-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
                               [horizontal-pill-tabs
@@ -73,7 +75,7 @@
                                :on-change change-tab]]]
                   [h-box
                    :align    :center
-                   :children [[component-title
+                   :children [[title2
                                "[vertical-pill-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
                               [vertical-pill-tabs
@@ -103,9 +105,10 @@
     (fn []
       [v-box
        :gap   "10px"
-       :children [[paragraphs
-                   [:p "Any tab selection you make below will persist, because your choice will be remembered using HTML5's local-storage."]
-                   [:p "If you refresh the entire browser page and return here, you'll see the same selection."]]
+       :children [
+                  [p "Any tab selection you make below will persist, because your choice will be
+                  remembered using HTML5's local-storage."]
+                  [p "If you refresh the entire browser page and return here, you'll see the same selection."]
                   [gap :size "20px"]
                   [horizontal-tabs
                    :model     selected-tab-id
@@ -122,8 +125,9 @@
     (fn []
       [v-box
        :gap   "10px"
-       :children [[paragraphs
-                   [:p "If the " [:code ":tabs"] " parameter is an atom and the value in that atom changes, the display will change dynamically"]]
+       :children [
+                  [p "If the " [:code ":tabs"] " parameter is an atom and the value in that atom changes,
+                   the display will change dynamically"]
                   [gap :size "20px"]
                   [horizontal-tabs
                    :model     selected-tab-id
@@ -148,9 +152,9 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "Tab Components"
-                                [github-hyperlink "Component Source" "src/re_com/tabs.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/tabs.cljs"]]]
+       :children [[panel-title "Tab Components"
+                                "src/re_com/tabs.cljs"
+                                "src/re_demo/tabs.cljs"]
 
 
                   [h-box
@@ -158,16 +162,17 @@
                    :children [[v-box
                                :width    "450px"
                                :gap      "10px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "A variety of horizontal and vertical tab selection components, styled using Bootstrap."]
-                                           [:p "It is quite straight formward to roll your own tab components. The left side navigation in this demo is effectively a hand-rolled tab component."]]
+                                          [p "A variety of horizontal and vertical tab selection components, styled
+                                            using Bootstrap."]
+                                          [p "It is quite straight formward to roll your own tab components. The left
+                                           side navigation in this demo is effectively a hand-rolled tab component."]
                                           [args-table tabs-args-desc]]]
                               [v-box
                                :width    "600px"
                                :gap      "10px"
-                               :children [[component-title "Demo"]
+                               :children [[title2 "Demo"]
                                           [v-box
                                            :children [[h-box
                                                        :gap      "10px"

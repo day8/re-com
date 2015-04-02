@@ -1,7 +1,7 @@
 (ns re-demo.md-circle-icon-button
-  (:require [re-com.core    :refer [h-box v-box box gap line label md-circle-icon-button horizontal-bar-tabs vertical-bar-tabs #_round-button]]
+  (:require [re-com.core    :refer [h-box v-box box gap line label md-circle-icon-button horizontal-bar-tabs vertical-bar-tabs p]]
             [re-com.buttons :refer [md-circle-icon-button-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table material-design-hyperlink github-hyperlink status-text paragraphs]]
+            [re-demo.utils  :refer [panel-title title2 args-table material-design-hyperlink github-hyperlink status-text]]
             [reagent.core   :as    reagent]))
 
 
@@ -34,28 +34,26 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[md-circle-icon-button ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/md_circle_icon_button.cljs"]]]
+       :children [[panel-title "[md-circle-icon-button ... ]"
+                                "src/re_com/buttons.cljs"
+                                "src/re_demo/md_circle_icon_button.cljs"]
                   [h-box
                    :gap "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "Material design icons can be " [material-design-hyperlink "found here"] "."]]
+                                          [p "Material design icons can be " [material-design-hyperlink "found here"] "."]
                                           [args-table md-circle-icon-button-args-desc]]]
                               [v-box
                                :gap "10px"
-                               :children [[component-title "Demo"]
+                               :children [[title2 "Demo"]
                                           [v-box
                                            :gap "15px"
                                            :children [[example-icons selected-icon]
                                                       [gap :size "10px"]
-                                                      [paragraphs
-                                                       [:p "Here's what the chosen icon looks like in a Circle Icon Button."]]
+                                                      [p "Here's what the chosen icon looks like in a Circle Icon Button."]
                                                       [h-box
                                                        :gap      "20px"
                                                        :align    :center

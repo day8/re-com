@@ -1,6 +1,7 @@
 (ns re-demo.tour
-  (:require [re-com.core   :refer [h-box v-box box gap align-style make-tour start-tour make-tour-nav button popover-content-wrapper popover-anchor-wrapper]]
-            [re-demo.utils :refer [panel-title component-title github-hyperlink status-text paragraphs]]))
+  (:require [re-com.core   :refer [h-box v-box box gap align-style make-tour start-tour make-tour-nav button
+                                   popover-content-wrapper popover-anchor-wrapper p]]
+            [re-demo.utils :refer [panel-title title2 github-hyperlink status-text]]))
 
 
 (defn demo
@@ -10,10 +11,11 @@
       [v-box
        :width    "600px"
        :gap      "10px"
-       :children [[component-title "Demo"]
-                  [paragraphs
-                   [:p "The four buttons below are all part of this tour. Click on the first button to start the tour, then use the navigation buttons to move through the tour."]
-                   [:p "Any individual component can be the included in the tour, as long as you wrap it in a popover and conform the instrucitons on the left."]]
+       :children [[title2 "Demo"]
+                  [p "The four buttons below are all part of this tour. Click on the first button to
+                   start the tour, then use the navigation buttons to move through the tour."]
+                  [p "Any individual component can be the included in the tour, as long as you wrap
+                   it in a popover and conform the instrucitons on the left."]
                   [h-box
                    :height   "150px"
                    :gap      "30px"
@@ -86,27 +88,29 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title [:span "Tour Components"
-                            [github-hyperlink "Component Source" "src/re_com/tour.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/tour.cljs"]]]
+   :children [[panel-title  "Tour Components"
+                            "src/re_com/tour.cljs"
+                            "src/re_demo/tour.cljs"]
               [h-box
                :gap      "100px"
                :children [[v-box
                            :width    "450px"
                            :gap      "10px"
-                           :children [[component-title "Notes"]
+                           :children [[title2 "Notes"]
                                       [status-text "Alpha" {:color "#EA6B00"}]
-                                      [paragraphs
-                                       [:p "To create a tour:"]
+
+                                      [p "To create a tour:"
                                        [:ul
-                                        [:li.spacer "Make a tour object, something like: " [:br] [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
+                                        [:li.spacer "Make a tour object, something like: " [:br]
+                                         [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
                                         [:li.spacer "Then, wrap each anchor components in your tour with a popover component."]
                                         [:li.spacer "Each each such popover the " [:code ":showing?"] " parameter should look like this: "
-                                         [:br] [:code ":showing? (:step1 demo-tour)"] "."]]
-                                       [:p "To add navigation buttons to a popover, add the following component to the end of your popover's "
-                                        [:code ":body"] " markup: " [:br] [:code "[make-tour-nav demo-tour]"] "."]
-                                       [:p "To start the tour, call: " [:code "(start-tour demo-tour)"] "."]
-                                       [:p "To finish the tour, call: " [:code "(finish-tour demo-tour)"] "."]]]]
+                                         [:br] [:code ":showing? (:step1 demo-tour)"] "."]]]
+                                      [p "To add navigation buttons to a popover, add the following component to
+                                       the end of your popover's "
+                                       [:code ":body"] " markup: " [:br] [:code "[make-tour-nav demo-tour]"] "."]
+                                      [p "To start the tour, call: " [:code "(start-tour demo-tour)"] "."]
+                                      [p "To finish the tour, call: " [:code "(finish-tour demo-tour)"] "."]]]
                           [v-box
                            :gap       "150px"
                            :size      "auto"

@@ -1,7 +1,7 @@
 (ns re-demo.slider
-  (:require [re-com.core   :refer [h-box v-box box gap line label title slider checkbox input-text horizontal-bar-tabs vertical-bar-tabs]]
+  (:require [re-com.core   :refer [h-box v-box box gap line label title slider checkbox input-text horizontal-bar-tabs vertical-bar-tabs p]]
             [re-com.misc   :refer [slider-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core  :as    reagent]))
 
 
@@ -17,23 +17,22 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[slider ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/misc.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/slider.cljs"]]]
+       :children [[panel-title "[slider ... ]"
+                                "src/re_com/misc.cljs"
+                                "src/re_demo/slider.cljs"]
 
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "Standard HTML5 slider control."]]
+                                          [p "Standard HTML5 slider control."]
                                           [args-table slider-args-desc]]]
                               [v-box
                                :gap      "10px"
-                               :children [[component-title "Demo"]
+                               :children [[title2 "Demo"]
                                           [v-box
                                            :gap      "20px"
                                            :children [[slider

@@ -2,9 +2,9 @@
   (:require [reagent.core      :as    reagent]
             [cljs-time.core    :refer [now days minus]]
             [cljs-time.format  :refer [formatter unparse]]
-            [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title]]
+            [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p]]
             [re-com.datepicker :refer [iso8601->date datepicker-args-desc]]
-            [re-demo.utils     :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]))
+            [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
 (defn- toggle-inclusion!
@@ -154,23 +154,22 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "Date Components"
-                                [github-hyperlink "Component Source" "src/re_com/datepicker.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/datepicker.cljs"]]]
+       :children [[panel-title "Date Components"
+                               "src/re_com/datepicker.cljs"
+                               "src/re_demo/datepicker.cljs"]
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "[datepicker ... ] & [datepicker-dropdown ... ]" {:font-size "24px"}]
+                               :children [[title2 "[datepicker ... ] & [datepicker-dropdown ... ]" {:font-size "24px"}]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "An inline or popover date picker component."]]
+                                          [p "An inline or popover date picker component."]
                                           [args-table datepicker-args-desc]]]
                               [v-box
                                :gap       "10px"
                                :size      "auto"
-                               :children  [[component-title "Demo"]
+                               :children  [[title2 "Demo"]
                                            [h-box
                                             :gap      "10px"
                                             :align    :center

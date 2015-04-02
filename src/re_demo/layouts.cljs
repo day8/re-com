@@ -1,7 +1,7 @@
 (ns re-demo.layouts
-  (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-layout v-layout title flex-child-style]]
+  (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-layout v-layout title flex-child-style p]]
             [re-com.layout :refer [h-layout-args-desc v-layout-args-desc]]
-            [re-demo.utils :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]))
+            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
 (def rounded-panel (merge (flex-child-style "1")
@@ -54,26 +54,25 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title [:span "Layout Components"
-                            [github-hyperlink "Component Source" "src/re_com/layout.cljs"]
-                            [github-hyperlink "Page Source"      "src/re_demo/layouts.cljs"]]]
+   :children [[panel-title "Layout Components"
+                            "src/re_com/layout.cljs"
+                            "src/re_demo/layouts.cljs"]
 
               [h-box
                :gap      "100px"
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "[h-layout ...]"]
+                           :children [[title2 "[h-layout ...]"]
                                       [status-text "Stable"]
-                                      [paragraphs
-                                       [:p "Arranges two components horizontally and provides a splitter bar between them."]
-                                       [:p "By dragging the splitter bar, a user can change the width allocated to each."]
-                                       [:p "Can contain further nested layout components."]]
+                                       [p "Arranges two components horizontally and provides a splitter bar between them."]
+                                       [p "By dragging the splitter bar, a user can change the width allocated to each."]
+                                       [p "Can contain further nested layout components."]
                                       [args-table h-layout-args-desc]]]
                           [v-box
                            :size     "auto"
                            :gap      "10px"
-                           :children [[component-title "Demo"]
+                           :children [[title2 "Demo"]
                                       [h-layout
                                        :panel-1 [left-panel]
                                        :panel-2 [right-panel]]]]]]
@@ -83,14 +82,13 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[component-title "[v-layout ...]"]
-                                      [paragraphs
-                                       [:p "Same as above, but vertical."]]
+                           :children [[title2 "[v-layout ...]"]
+                                      [p "Same as above, but vertical."]
                                       [args-table v-layout-args-desc]]]
                           [v-box
                            :size     "auto"
                            :gap      "10px"
-                           :children [[component-title "Demo"]
+                           :children [[title2 "Demo"]
                                       [v-layout
                                        :panel-1       [top-panel]
                                        :panel-2       [bottom-panel]

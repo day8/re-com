@@ -131,7 +131,7 @@
   [selected-tab-id on-select-tab]
     [v-box
      :class    "noselect"
-     :style    {:background-color "#fefefe"}
+     :style    {:background-color "#fcfcfc"}
      :size    "1 0 auto"
      :children (for [tab tabs-definition]
                  [nav-item tab selected-tab-id on-select-tab])])
@@ -142,19 +142,19 @@
   [h-box
    :justify :center
    :align   :center
-   :height  "63px"
-   :style   {:background-color "#888"}
+   :height  "62px"
+   :style   {:background-color "#666"}
    :children [[title
                :label "Re-com"
-               :style {:font-family "Roboto Condensed, sans-serif"
-                       :font-size   "36px"
-                       :font-weight 300
-                       :color       "#fefefe"}]]])
+               :level :level1
+               :style {:font-size   "32px"
+                       :color       "#fefefe"}
+               ]]])
 
 (defn browser-alert
   []
   [box
-   :padding "10px 0px 10px 10px"
+   :padding "10px 10px 0px 0px"
    :child   [alert-box
              :alert-type :danger
              :heading    "Only Tested On Chrome"

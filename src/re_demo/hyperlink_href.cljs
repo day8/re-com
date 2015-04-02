@@ -1,7 +1,7 @@
 (ns re-demo.hyperlink-href
-  (:require [re-com.core    :refer [h-box v-box box gap line label title radio-button hyperlink-href]]
+  (:require [re-com.core    :refer [h-box v-box box gap line label title radio-button hyperlink-href p]]
             [re-com.buttons :refer [hyperlink-href-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils  :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core   :as    reagent]))
 
 
@@ -14,23 +14,23 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[hyperlink-href ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/hyperlink_href.cljs"]]]
+       :children [[panel-title "[hyperlink-href ... ]"
+                                "src/re_com/buttons.cljs"
+                                "src/re_demo/hyperlink_href.cljs"]
 
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "A blue, clickable hyperlink which launches external URLs."]
-                                           [:p "If you want a hyperlink with a click handler, use the [hyperlink] component."]]                                          [args-table hyperlink-href-args-desc]]]
+                                          [p "A blue, clickable hyperlink which launches external URLs."]
+                                          [p "If you want a hyperlink with a click handler, use the [hyperlink] component."]
+                                          [args-table hyperlink-href-args-desc]]]
                               [v-box
                                :gap      "10px"
-                               :children [[component-title "Demo"]
+                               :children [[title2 "Demo"]
                                           [h-box
                                            :gap "40px"
                                            :children [[box

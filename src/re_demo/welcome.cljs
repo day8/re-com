@@ -1,6 +1,6 @@
 (ns re-demo.welcome
-  (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href input-text]]
-            [re-demo.utils :refer [panel-title title2 paragraphs]]))
+  (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href input-text p]]
+            [re-demo.utils :refer [panel-title title2]]))
 
 (defn named-params
   []
@@ -46,19 +46,17 @@
    :width    "600px"
    :children [[panel-title "Welcome"]
               [gap :size "15px"]
-              [paragraphs
-               [:p
-                "Re-com is a library of ClojureScript UI components, built on top of "
-                [hyperlink-href
-                 :label "Reagent"
-                 :href "https://github.com/reagent-project/reagent"
-                 :target "_blank"]
-                "."]
-               [:p "It contains the sort of layout and controls you'd need to build a desktop-class app."]]
-               [this-app]
-               [line]
-               [named-params]
-               ]])
+              [p
+               "Re-com is a library of ClojureScript UI components, built on top of "
+               [hyperlink-href
+                :label "Reagent"
+                :href "https://github.com/reagent-project/reagent"
+                :target "_blank"]
+               "."]
+              [p "It contains the sort of layout and controls you'd need to build a desktop-class app."]
+              [this-app]
+              [line]
+              [named-params]]])
 
 
 

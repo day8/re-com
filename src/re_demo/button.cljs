@@ -1,7 +1,7 @@
 (ns re-demo.button
-  (:require [re-com.core    :refer [h-box v-box box gap line button label throbber hyperlink-href] :refer-macros [handler-fn]]
+  (:require [re-com.core    :refer [h-box v-box box gap line button label throbber hyperlink-href p] :refer-macros [handler-fn]]
             [re-com.buttons :refer [button-args-desc]]
-            [re-demo.utils  :refer [panel-title component-title args-table github-hyperlink status-text paragraphs]]
+            [re-demo.utils  :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core   :as    reagent]))
 
 
@@ -25,30 +25,30 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title [:span "[button ... ]"
-                                [github-hyperlink "Component Source" "src/re_com/buttons.cljs"]
-                                [github-hyperlink "Page Source"      "src/re_demo/button.cljs"]]]
+       :children [[panel-title "[button ... ]"
+                                "src/re_com/buttons.cljs"
+                                "src/re_demo/button.cljs"]
 
                   [h-box
                    :gap      "100px"
                    :children [[v-box
                                :gap      "10px"
                                :width    "450px"
-                               :children [[component-title "Notes"]
+                               :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [paragraphs
-                                           [:p "A button component with optional tooltip."]
-                                           [:p "Styling to be provided via the " [:code ":class"] " attribute. Typically you'll be using Bootstrap CSS styles such as \"btn-info\"."]
-                                           [:p "See "
+
+                                           [p "A button component with optional tooltip."]
+                                           [p "Styling to be provided via the " [:code ":class"] " attribute. Typically you'll be using Bootstrap CSS styles such as \"btn-info\"."]
+                                           [p "See "
                                             [hyperlink-href
                                              :label "Bootstrap Button Options"
                                              :href "http://getbootstrap.com/css/#buttons-options"
                                              :target "_blank"]
-                                            " for information on available classes."]]
+                                            " for information on available classes."]
                                           [args-table button-args-desc]]]
                               [v-box
                                :gap      "10px"
-                               :children [[component-title "Demo"]
+                               :children [[title2 "Demo"]
                                           [h-box
                                            :children [[button
                                                        :label            "No Clicking!"
@@ -74,9 +74,9 @@
                                                        :on-click          #(swap! state update-in [:see-throbber] not)]
                                                       (when (:see-throbber @state) [throbber])]]
                                           [gap :size "20px"]
-                                          [paragraphs
-                                           [:p "The two buttons above are styled using Bootstrap. For the " [:code ":class"] " parameter, we passed in the name of a standard Bootstrap class, like \"btn-default\"."]
-                                           [:p "But the button below was created by supplying inline styles via the " [:code ":style"] " and " [:code ":attr"] " parameters. To see the code, click the \"Page Source\" hyperlink at the top."]
+
+                                           [p "The two buttons above are styled using Bootstrap. For the " [:code ":class"] " parameter, we passed in the name of a standard Bootstrap class, like \"btn-default\"."]
+                                           [p "But the button below was created by supplying inline styles via the " [:code ":style"] " and " [:code ":attr"] " parameters. To see the code, click the \"Page Source\" hyperlink at the top."]
                                            [button
                                             :label    [:span "Microsoft Modern Button " [:i.md-file-download]]
                                             :on-click #()
@@ -88,7 +88,7 @@
                                                        :border-radius    "0px"
                                                        :padding          "20px 26px"}
                                             :attr     {:on-mouse-over (handler-fn (reset! hover? true))
-                                                       :on-mouse-out  (handler-fn (reset! hover? false))}]]]]]]]])))
+                                                       :on-mouse-out  (handler-fn (reset! hover? false))}]]]]]]])))
 
 
 ;; core holds onto references, so need one level of indirection to get figwheel updates
