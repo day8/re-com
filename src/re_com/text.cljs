@@ -56,7 +56,7 @@
 ;(def title-args (extract-arg-data title-args-desc))
 
 (defn title
-  "A title with four preset styles"
+  "A title with four preset levels"
   [& {:keys [label level underline? margin-top margin-bottom class style attr]
       :or   {margin-top "0.4em" margin-bottom "0.1em"}
       :as   args}]
