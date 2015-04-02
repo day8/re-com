@@ -29,7 +29,8 @@
                            :gap      "10px"
                            :children [[component-title "Demo"]
                                       [paragraphs
-                                       [:span "Here is some sample code..."]]
+                                       [:p "Look at the title up the top, and notice the line under it."]
+                                       [:p "Here is some sample code..."]]
                                       [:pre
                                        {:style {:width "40em"}}
 "[h-box
