@@ -1,6 +1,6 @@
 (ns re-demo.welcome
   (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href input-text]]
-            [re-demo.utils :refer [panel-title component-title paragraphs]]))
+            [re-demo.utils :refer [panel-title title2 paragraphs]]))
 
 (defn named-params
   []
@@ -55,9 +55,7 @@
                  :target "_blank"]
                 "."]
                [:p "It contains the sort of layout and controls you'd need to build a desktop-class app."]]
-               ;[gap :size "10px"]
                [this-app]
-               ;[gap :size "10px"]
                [line]
                [named-params]
                ]])
