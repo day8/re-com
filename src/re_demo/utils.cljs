@@ -5,16 +5,17 @@
 (defn panel-title
   "Title shown at the top of each Tab Panel"
   [panel-name style]
-  [title
-   :label         panel-name
-   :level         :level1
-   :underline?    true
-   :margin-top    "1px"
-   :margin-bottom "0px"
-   :style         style])
+  [v-box
+   :children [ [title
+                :label         panel-name
+                :level         :level1
+                :margin-top    "3px"
+                ;:underline?    true
+                :style         style]
+               [line]]])
 
 (defn component-title
-  "A title for a component like [something ... ]"
+  "A title for a component like [some-name ... ]"
   [component-name style]
   [title
    :label component-name
@@ -95,5 +96,6 @@
 (defn paragraphs
   [& children]
   [v-box
-   :width    "400px"
+   :width    "450px"
+   :style   {:font-size "15px"}
    :children children])
