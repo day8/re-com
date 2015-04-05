@@ -116,7 +116,7 @@
                                           [p "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse-over."]
                                           [p "To understand, mouse-over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
                                           [p "Notice also that these buttons can have an optional explanatory tooltip."]
-                                          [p "Material design icons can be " [material-design-hyperlink "found here"] "."]
+                                          [p "Material design icons, and their names, can be " [material-design-hyperlink "found here"] "."]
                                           [args-table row-button-args-desc]]]
                               [v-box
                                :gap      "10px"

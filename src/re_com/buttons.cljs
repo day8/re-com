@@ -229,7 +229,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def row-button-args-desc
-  [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description "the name of the icon"}
+  [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"md-add\""] " or " [:code "\"md-undo\""]]}
    {:name :on-click         :required false                        :type "( ) -> nil"      :validate-fn fn?               :description "called when the button is clicked"}
    {:name :mouse-over-row?  :required false :default false         :type "boolean"                                        :description "true if the mouse is hovering over the row"}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}

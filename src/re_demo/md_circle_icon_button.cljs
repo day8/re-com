@@ -44,7 +44,7 @@
                                :width    "450px"
                                :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [p "Material design icons can be " [material-design-hyperlink "found here"] "."]
+                                          [p "Material design icons, and their names, can be " [material-design-hyperlink "found here"] "."]
                                           [args-table md-circle-icon-button-args-desc]]]
                               [v-box
                                :gap "10px"
