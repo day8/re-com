@@ -36,18 +36,19 @@
                                       [:pre
                                        {:style {:width "40em"}}
 "[h-box
- :gap      \"10px\"                ; <-- in between children
+ :gap      \"10px\"                ; <-- in between each children
  :children [[component-1]
             [component-2]
-            [gap :size \"5px\"]    ; <-- one off
+            [gap :size \"5px\"]    ; <-- ad hoc
             [component-3]]]"]
 
                                        [p "Notes:"
                                         [:ul
-                                         [:li "h-box and v-box allow a " [:code ":gap"] " parameter which inserts a
-                                         given amount of white space between " [:span.bold "all"] " children."]
-                                         [:li "For more adhoc gaps, use the " [:span.bold "[gap ...]"] " component."]
-                                         [:li "In the example above, the gap between the second and third components will be 25px because the gap component (5px) is surrounded above and below by a 10px " [:code ":gap"] "."]]]
+                                         [:li "h-box and v-box have a " [:code ":gap"] " parameter which inserts a
+                                         given amount of white space between each child."]
+                                         [:li "For more ad hoc gaps, use the " [:span.bold "[gap ...]"] " component itself."]
+                                         [:li "In this example, the gap between components 2and 3 will be 25px
+                                         because the [gap ] is a child of the h-box and will have \"10px\" above and below."]]]
 
                                       [gap :size "10px"]
                                       [line]
@@ -85,6 +86,6 @@
                                        [:ul
                                         [:li "This example has a gap with a " [:span.bold "proporational size"] ", not an absolute size. "]
                                         [:li "Because it \"grows\" to fill all available space, it \"pushes\" box2 and box3 as far apart as possible."]
-                                        [:li "Imagine these boxes as buttons, to see the utility."]]]
+                                        [:li "Imagine the boxes as buttons, to see the utility."]]]
                                       ]]]]
               [gap :size "30px"]]])
