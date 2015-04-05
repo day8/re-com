@@ -1,9 +1,15 @@
 (ns re-demo.gap
-  (:require [re-com.core   :refer [h-box v-box gap p]]
+  (:require [re-com.core   :refer [h-box v-box gap p line box]]
             [re-com.box    :refer [gap-args-desc]]
             [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
+(def rounded-panel
+                          {:background-color "#fff4f4"
+                           :border           "1px solid lightgray"
+                           :border-radius    "4px"
+                           :margin           "4px"
+                           :padding          "8px"})
 (defn panel
   []
   [v-box
@@ -24,9 +30,9 @@
                                       [p "The white space added will be in the expected direction (i.e. horizontally for h-box or vertically for v-box)."]
                                       [args-table gap-args-desc]]]
                           [v-box
-                           :gap      "10px"
-                           :children [[title2 "Demo"]
-                                      [p "Here is some sample code..."]
+                           :children [[title2 "Demo #1"]
+                                      [gap :size "10px"]
+                                      [p "Example code..."]
                                       [:pre
                                        {:style {:width "40em"}}
 "[h-box
@@ -38,7 +44,47 @@
 
                                        [p "Notes:"
                                         [:ul
-                                         [:li "h-box and v-box allow a " [:code ":gap"] " parameter which inserts a given amount of white space between children."]
-                                         [:li "Where you need more adhoc control, use the gap component."]
-                                         [:li "In the example above, the gap between the second and third components will be 25px because the gap component (5px) is surrounded above and below by 10px " [:code ":gap"] "s."]]]]]]]
+                                         [:li "h-box and v-box allow a " [:code ":gap"] " parameter which inserts a
+                                         given amount of white space between " [:span.bold "all"] " children."]
+                                         [:li "For more adhoc gaps, use the " [:span.bold "[gap ...]"] " component."]
+                                         [:li "In the example above, the gap between the second and third components will be 25px because the gap component (5px) is surrounded above and below by a 10px " [:code ":gap"] "."]]]
+
+                                      [gap :size "10px"]
+                                      [line]
+                                      [title2 "Demo #2"]
+                                      [gap :size "10px"]
+                                      [p " "]
+                                      [:pre
+                                       {:style {:width "40em"}}
+                                       "[h-box               ; <-- no :gap, so children seperated by 0px
+ :children [[grey-box]
+            [gap :size \"10px\"]  ; <-- abolsolute gap
+            [grey-box]        ; <-- pushed as far left as possible
+            [gap :size \"1\"]   ; <-- grows as much as possible
+            [grey-box]]]      ; <-- pushed as far right as possible"]
+
+                                      [p "Result:"]
+                                      [h-box
+                                       :style    {:border "dashed 1px red"}
+                                       :children [[box
+                                                   :style {:background-color "lightgrey"
+                                                           :padding          "20px"}
+                                                   :child "Box 1"]
+                                                  [gap :size "10px"]
+                                                  [box
+                                                   :style {:background-color "lightgrey"
+                                                           :padding          "20px"}
+                                                   :child "Box 2"]
+                                                  [gap :size "1"]
+                                                  [box
+                                                   :style {:background-color "lightgrey"
+                                                           :padding          "20px"}
+                                                   :child "Box 3"]]]
+                                      [gap :size "10px"]
+                                      [p "Notes:"
+                                       [:ul
+                                        [:li "This example has a gap with a " [:span.bold "proporational size"] ", not an absolute size. "]
+                                        [:li "Because it \"grows\" to fill all available space, it \"pushes\" box2 and box3 as far apart as possible."]
+                                        [:li "Imagine these boxes as buttons, to see the utility."]]]
+                                      ]]]]
               [gap :size "30px"]]])

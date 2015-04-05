@@ -215,7 +215,7 @@
 
 (def h-box-args-desc
   [{:name :children   :required true                    :type "vector"  :validate-fn sequential?    :description "a vector (or list) of components"}
-   {:name :size       :required false :default "none"   :type "string"  :validate-fn string?        :description [:span "a flexbox type size. Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
+   {:name :size       :required false :default "none"   :type "string"  :validate-fn string?        :description [:span "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
    {:name :width      :required false                   :type "string"  :validate-fn string?        :description "a CSS width style"}
    {:name :height     :required false                   :type "string"  :validate-fn string?        :description "a CSS height style"}
    {:name :min-width  :required false                   :type "string"  :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
@@ -271,7 +271,7 @@
 
 (def v-box-args-desc
   [{:name :children   :required true                    :type "vector"  :validate-fn sequential?    :description "a vector (or list) of components"}
-   {:name :size       :required false :default "none"   :type "string"  :validate-fn string?        :description [:span "a flexbox type size. Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
+   {:name :size       :required false :default "none"   :type "string"  :validate-fn string?        :description [:span "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
    {:name :width      :required false                   :type "string"  :validate-fn string?        :description "a CSS width style"}
    {:name :height     :required false                   :type "string"  :validate-fn string?        :description "a CSS height style"}
    {:name :min-width  :required false                   :type "string"  :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
@@ -327,7 +327,7 @@
 
 (def box-args-desc
   [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
-   {:name :size       :required false :default "none"   :type "string"          :validate-fn string?           :description [:span "a flexbox type size. Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
+   {:name :size       :required false :default "none"   :type "string"          :validate-fn string?           :description [:span "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
    {:name :width      :required false                   :type "string"          :validate-fn string?           :description "a CSS width style"}
    {:name :height     :required false                   :type "string"          :validate-fn string?           :description "a CSS height style"}
    {:name :min-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}

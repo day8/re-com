@@ -158,7 +158,7 @@
                                                          :child [:div {:style rounded-panel} "Box 3" [:br] ":size " (box-size @box3-db)]])]]
 
                                           [:br]
-                                          [p "Now here is a v-box with exactly the same children."]
+                                           [p "Now here is a v-box with exactly the same children."]
                                           [v-box
                                            :width    "100px"
                                            :height   (px @container-size)

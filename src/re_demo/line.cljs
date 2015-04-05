@@ -26,7 +26,8 @@
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [p "Look at the title up the top, and notice the line under it."]
+                                      [p "For an example, look at the top of this page, there's a title " [:span.bold "[Line ...]"]
+                                       ", and notice the line under it."]
                                       [p "Here is some sample code..."]
                                       [:pre
                                        {:style {:width "40em"}}

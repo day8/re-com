@@ -23,7 +23,7 @@
 
                                       [p "When we first put bootstrap buttons into re-com, they were streched.
                It turned out their block display didn't play well with flex containers like h-box."]
-                                      [p "But once we fixed that, there were other problem like they wouldn't justify correctly in a container."]
+                                      [p "We fixed that, but then there were other problem like they wouldn't justify correctly in a container."]
                                       [p "So we created the " [:span.bold "[box ...]"] " component which allows you to wrap
                non-flex \"leaf\" elements for use in flex containers."]
                                       [p "You probably won't need to use it directly."]

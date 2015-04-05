@@ -32,13 +32,12 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "0.3.0"
+(defproject         re-com "0.4.0.SNAPSHOT"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
                      [org.clojure/clojurescript   "0.0-3169" scope="provided"]
-                     ;[stabilized/clojurescript    "1.0.0" scope="provided"]       ;; TODO: Eventually switch to this one (when it works)
                      [org.clojure/core.async      "0.1.346.0-17112a-alpha" scope="provided"]
                      [reagent                     "0.5.0" scope="provided"]
                      [com.andrewmcveigh/cljs-time "0.3.2" scope="provided"]

@@ -8,9 +8,9 @@
    :children [
               [title :level :level2 :label "Named Parameters"]
 
-               [:p {:width "60em"} "re-com components take " [:code "named parameters"] ", rather than " [:code "positional parameters"] ]
-               [:p {:width "60em"}"When you use a re-com component like " [:code "checkbox"] ", you will not be asked to use positional parameters like this:"
-               [:pre {:width "60em"} "[checkbox
+               [p  "re-com components take " [:span.bold "named parameters"] ", rather than " [:span.bold "positional parameters "]]
+               [p "When you use a re-com component like " [:code "checkbox"] ", you will not be asked to use positional parameters like this:"
+               [:pre "[checkbox
                \"Show Status Icon?\"
                status-icon?
                (fn [new-val] (reset! status-icon? new-val))]"]
@@ -31,21 +31,20 @@
   [v-box
    :children [[title :level :level2 :label "This app"]
               ;[gap :size "5px"]
-              [:p "The demo app serves as:"
+              [p "The demo app serves as:"
                [:ul
                 [:li "a visual showcase of the components"]
-                [:li "coding demos for using the components"]
+                [:li "example code for using the components"]
                 [:li "documentation for the components (parameters etc.)"]
-                [:li "a harness for testing"]]]]])
+                [:li "something of a test harness"]]]]])
 
 
-(defn panel2
+(defn first-column
   []
   [v-box
    :size     "auto"
-   :width    "600px"
-   :children [[panel-title "Welcome"]
-              [gap :size "15px"]
+   ;:width    "600px"
+   :children [
               [p
                "Re-com is a library of ClojureScript UI components, built on top of "
                [hyperlink-href
@@ -55,8 +54,22 @@
                "."]
               [p "It contains the sort of layout and controls you'd need to build a desktop-class app."]
               [this-app]
+              [gap :size "30px"]
               [line]
               [named-params]]])
+
+
+(defn panel2
+  []
+  [v-box
+   :size     "auto"
+   ;:width    "600px"
+   :children [[panel-title "Welcome"]
+              [gap :size "15px"]
+              [h-box
+               :gap      "100px"
+               :children [[first-column]
+                          [first-column]]]]])
 
 
 
