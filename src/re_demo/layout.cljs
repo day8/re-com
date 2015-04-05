@@ -3,7 +3,56 @@
             [re-demo.utils :refer [panel-title title2]]))
 
 
-(defn flex-box
+
+(defn components-section
+  []
+  [v-box
+   :children [[title :level :level2 :label "The Components"]
+              [p "Re-com has layout components which are not themselves visible -
+              they just arrange other components."]
+              [p "The key components are " [:span.bold "h-box"] " and " [:span.bold "v-box"] " which arange
+               their children horizontally and vertically respectively. Because they are
+               mutually nestable, you can combine them to create arbitrarily complex layouts."]]])
+
+(defn example-section
+  []
+  [v-box
+   :children [[title :level :level2 :label "Simple Example"]
+              [h-box
+               ;:gap "40px"
+               :children [
+                          [v-box
+                           :children [
+                                      [p "This code ..."]
+                                      [:pre
+                                       {:style {:width "460px"}}
+                                       "[v-box
+  :children [[box :child \"Header\"]
+             [h-box
+              :height \"100px\"
+              :children [[box :size \"70px\" :child \"Nav\"]
+                         [box :size \"1\" :child \"Content\"]]
+             [box :child \"Footer\"]]]"]]]
+                          [box
+                           :size "100px"
+                           :align-self  :center
+                           :justify :center
+                           :child  [:div {:class "md-forward rc-icon-larger"
+                                          :style {:color "lightgrey"}}]]
+                          [v-box
+                           :children [[p "... results in:"]
+                                      [v-box
+                                       :gap      "1px"
+                                       :children [[box :style {:background-color "lightgrey"} :child "Header"]
+                                                  [h-box
+                                                   :gap "1px"
+                                                   :height "100px"
+                                                   :children [[box :size "70px" :style {:background-color "lightgrey"} :child "Nav"]
+                                                              [box :size "1" :style {:background-color "lightgrey"} :child "Content"]]]
+                                                  [box :style {:background-color "lightgrey"} :child "Footer"]]]
+                                      [gap :size "15px"]]]]]]])
+
+(defn flex-box-section
   []
   [v-box
    :gap "10px"
@@ -42,7 +91,7 @@
                                         :href "http://i.stanford.edu/pub/cstr/reports/csl/tr/88/358/CSL-TR-88-358.pdf"
                                         :target "_blank"]
                                        ", and yet HTML5 only has a weak, half-arsed version?"]
-                                      [p {:style {:width "250px"}} "Talk about regression."]]]]]
+                                      ]]]]
               [v-box
                :children [[title :level :level2 :label "Warning: Be All In"]
                           [p "Flexbox works via the interplay of styles present on a " [:span.bold "container"] " (parent) and its " [:span.bold "items"] " (children).
@@ -57,7 +106,7 @@
                ]]]])
 
 
-(defn the-key-style
+(defn key-style-section
   []
   [v-box
    :children [[title :level :level2 :label "The Key Style"]
@@ -90,11 +139,23 @@
               [p "Sure, use the shortcuts. But it is only by understanding triples that you become a power user of flexbox (or re-com layouts)."]
               [gap :size "10px"]]])
 
-(defn size-table
-  []
+
+(defn table-row
+  [size gsb description header?]
   (let [col1 "80px"
         col2 "130px"
-        col3 "500px"]
+        col3 "500px"
+        col3-style {:style {:width col3}}]
+  [h-box
+   :class (if header? "rc-div-table-header" "rc-div-table-row")
+   :children [[label :width col1 :label size]
+              [label :width col2 :label gsb]
+              (if header?
+                [label :width col3 :label description]
+                [:span col3-style description])]]))
+
+(defn size-table
+  []
     [v-box
      :children [[title :level :level2 :label ":size is flex"]
                 [p "Both " [:span.bold "v-box"] " and " [:span.bold "h-box"] " take a " [:span.bold ":size"] " parameter which "
@@ -110,129 +171,77 @@
                 [v-box
                  :class "rc-div-table"
                  :align-self :start
-                 :children [[h-box
-                             :class "rc-div-table-header"
-                             :children [[label :width col1 :label ":size"]
-                                        [label :width col2 :label "G S B"]
-                                        [label :width col3 :label "Description"]]]
-                            [h-box
-                             :class "rc-div-table-row"
-                             :children [[label :width col1 :label "initial"]
-                                        [label :width col2 :label "0 1 auto"]
-                                        [:span {:style {:width col3}} "Use the item's length. Never grow. Shrink if necessary.
-                                                                       Good for creating items with a natural maximum size, which can
-                                                                       shrink to some smaller size, typically given by min-width/height, if space becomes tight. "]]]
-                            [h-box
-                             :class "rc-div-table-row"
-                             :children [[label :width col1 :label "auto"]
-                                        [label :width col2 :label "1 1 auto"]
-                                        [:span {:style {:width col3}} "Use the item's length. Grow if necessary. Shrink (to min-size) if necessary.
-                                                                       Good for creating items that happily take as much
-                                                                       space as they are allowed, or can shrink as much as they are forced to.
-                                                                       If necessary, use min-width/height to provide limits."]]]
-                            [h-box
-                             :class "rc-div-table-row"
-                             :children [[label :width col1 :label "none"]
-                                        [label :width col2 :label "0 0 auto"]
-                                        [:span {:style {:width col3}} "Use the item's length. Never grow. Never shrink.
-                                                                      Good for creating rigid items that stick to their width/height if specified, otherwise their content size."]]]
-                            [h-box
-                             :class "rc-div-table-row"
-                             :children [[label :width col1 :label "100px"]
-                                        [label :width col2 :label "0 0 100px"]
-                                        [:span {:style {:width col3}} "Item is given a fixed length of 100px (in the flex direction).
-                                                                      Good for headers/footers of fixed size, or LHS nav columns."]]]
+                 :children [[table-row
+                             ":size"
+                             "G S B"
+                             "Description"
+                             true]
+                            [table-row
+                             "initial"
+                             "0 1 auto"
+                             "Use the item's length. Never grow. Shrink if necessary.
+                             Good for creating items with a natural maximum size, which can
+                             shrink to some smaller size, typically given by min-width/height, if space becomes tight. "]
+                            [table-row
+                             "auto"
+                             "1 1 auto"
+                             "Use the item's length. Grow if necessary. Shrink (to min-size) if necessary.
+                             Good for creating items that happily take as much
+                             space as they are allowed, or can shrink as much as they are forced to.
+                             If necessary, use min-width/height to provide limits."]
+                            [table-row
+                             "none"
+                             "0 0 auto"
+                             "Use the item's length. Never grow. Never shrink.
+                             Good for creating rigid items that stick to their width/height if specified, otherwise their content size."]
+                            [table-row
+                             "100px"
+                             "0 0 100px"
+                             "Item is given a fixed length of 100px (in the flex direction).
+                                                           Good for headers/footers of fixed size, or LHS nav columns."]
 
-                            [h-box
-                             :class "rc-div-table-row"
-                             :children [[label :width col1 :label "60"]
-                                        [label :width col2 :label "60 1 0px"]
-                                        [:span {:style {:width col3}} "Set the item's default length to be 60 proportional units.
-                                        Allow it to streach. And it can shrink to nothing."]]]
-                            [h-box
-                             :class "rc-div-table-row"
-                             :children [[label :width col1 :label "g s b"]
-                                        [label :width col2 :label "grow shrink basis"]
-                                        [:span {:style {:width col3}} "If none of the shortcut values above meet your needs,
-                                        you can always provide the triple yourself, to gain precise control. For example, the following item ..."]]]
-                            [h-box
-                             :class "rc-div-table-row"
-                             :children [[label :width col1 :label "1 0 auto"]
-                                        [label :width col2 :label "1 0 auto"]
-                                        [:span {:style {:width col3}} "In this very app, the light grey part of the LHS nav has this " [:span.bold ":size"] ". The light
-                                        grey background colour must always strech to the bottom of the page, hence
-                                        the streach.  The basis comes from its child nav items, hence the auto.
-                                        But it can't go smaller than its children, hence shrink of 0."]]]
-                            ]]]]))
+                            [table-row
+                             "60"
+                             "60 1 0px"
+                             [:span "Set the item's default length to be 60 sibling-proportional units.
+                                    Allow it to streach. And it can shrink to nothing."
+                                    [:br]
+                                    "Look back at the \"Sample Example\" up the
+                                     top.  Notice that the \"content\" part has a :size of \"1\". Because the other child had a fixed
+                                     size of 70px, the Content streaches to fill all available space. No other sibling is making claims for space, so \"1\" might as well be \"100%\"."]]
+                            [table-row
+                             "g s b"
+                             "grow shrink basis"
+                             "If none of the shortcut values above meet your needs,
+                             you can always provide the triple yourself, to gain precise control. For example, the following item ..."]
+                            [table-row
+                             "1 0 auto"
+                             "1 0 auto"
+                             [:span "In this very app, the light grey part of the LHS nav has this " [:span.bold ":size"] ". The light
+                             grey background colour must always strech to the bottom of the page, hence
+                             the streach.  The basis comes from its child nav items, hence the auto.
+                             But it can't go smaller than its children, hence shrink of 0."]]
+                            ]]]])
 
 
 
 
-(defn example
-  []
-  [v-box
-   :children [[title :level :level2 :label "Example"]
-              [h-box
-               ;:gap "40px"
-               :children [
-                          [v-box
-                           :children [
-                                      [p "Some code:"]
-                                      [:pre
-                                       {:style {:width "460px"}}
-                                       "[v-box
-  :children [[box :child \"Header\"]
-             [h-box
-              :height \"100px\"
-              :children [[box :size \"70px\" :child \"Nav\"]
-                         [box :size \"100\" :child \"Content\"]]
-             [box :child \"Footer\"]]]"]]]
-                          [box
-                           :size "100px"
-                           :align-self  :center
-                           :justify :center
-                           :child  [:div {:class "md-forward rc-icon-larger"
-                                          :style {:color "lightgrey"}}]]
-                          [v-box
-                           :children [[p "will result in:"]
-                                      [v-box
-                                       :gap      "1px"
-                                       :children [[box :style {:background-color "lightgrey"} :child "Header"]
-                                                  [h-box
-                                                   :gap "1px"
-                                                   :height "100px"
-                                                   :children [[box :size "70px" :style {:background-color "lightgrey"} :child "Nav"]
-                                                              [box :size "100" :style {:background-color "lightgrey"} :child "Content"]]]
-                                                  [box :style {:background-color "lightgrey"} :child "Footer"]]]
-                                      [gap :size "15px"]]]]]]])
-
-(defn components
-  []
-  [v-box
-   :children [[title :level :level2 :label "The Components"]
-              [p "Re-com has layout components which are not themselves visible -
-              they just arrange other components."]
-              [p "The two key components are " [:span.bold "h-box"] " and " [:span.bold "v-box"] " which arange
-               their children horizontally and vertically respectively. Because they are
-               mutually nestable, they combine to create arbitrarily complex layouts."]]])
 (defn panel2
   []
   [v-box
    :gap "10px"
    :children [[panel-title "Layout"]
-              [components]
-              [example]
-              [line]
-              [flex-box]
-              [line]
-              [gap :size "15px"]
+              [components-section]
+              [example-section]
+              [gap :size "10px"] [line]
+              [flex-box-section]
+              [gap :size "10px"] [line]
               [h-box
                :gap      "100px"
-               :children [[the-key-style]
-                          [size-table]]]]])
+               :children [[key-style-section]
+                          [size-table]]]
 
-
-
+              [gap :size "20px"]]])
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
