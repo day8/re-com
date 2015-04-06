@@ -2,29 +2,24 @@
   (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href input-text p]]
             [re-demo.utils :refer [panel-title title2]]))
 
-(defn named-params
+
+(defn welecome
   []
   [v-box
+   :size     "auto"
+   ;:width    "600px"
    :children [
-              [title :level :level2 :label "Named Parameters"]
+              [p
+               "Re-com is a library of ClojureScript UI components, built on top of "
+               [hyperlink-href
+                :label "Reagent"
+                :href "https://github.com/reagent-project/reagent"
+                :target "_blank"]
+               "."]
+              [p "It contains the sort of layout and controls you'd need to build a desktop-class app."]
 
-               [p  "re-com components take " [:span.bold "named parameters"] ", rather than " [:span.bold "positional parameters "]]
-               [p "When you use a re-com component like " [:code "checkbox"] ", you will not be asked to use positional parameters like this:"
-               [:pre "[checkbox
-               \"Show Status Icon?\"
-               status-icon?
-               (fn [new-val] (reset! status-icon? new-val))]"]
-               ]
-              [:pre
-               {:style {:width "40em"}}
-               "[checkbox
-  :label     \"Show Status Icon?\" "
-               [input-text  :model "hello" :on-change #()]
 
-               "
-  :model     status-icon?      ; a ratom
-  :on-change (fn [new-val] (reset! status-icon? new-val))]"]]])
-
+              ]])
 
 (defn this-app
   []
@@ -39,24 +34,44 @@
                 [:li "something of a test harness"]]]]])
 
 
-(defn first-column
+(defn named-params
   []
   [v-box
-   :size     "auto"
-   ;:width    "600px"
    :children [
-              [p
-               "Re-com is a library of ClojureScript UI components, built on top of "
+              [title :level :level2 :label "Named Parameters"]
+
+              [p  "re-com components take " [:span.bold "named parameters"] ", rather than " [:span.bold "positional parameters"] "."]
+              [p "So, use of a re-com component like " [:span.bold "checkbox"] ", looks like this:"]
+              [:pre
+               {:style {:width "450px"}}
+               "[checkbox
+  :label     \"Show Status Icon?\"
+  :model     status-icon?      ; a ratom
+  :on-change (fn [new-val] (reset! status-icon? new-val))]"]
+              [p "Notice how each parameter has a short, leading keyword name."]
+              [p "Using positional parameters (no naming), is more concise while using named parameters is more explicit.
+              Both approaches have their merits - a situation which invariably leads to highly contested
+              Religious Wars. "]
+              [p "We've gone with named parameters in the API because:"
+               [:ol
+                [:li "the code seems easier to read (despite being longer)"]
+                [:li "as a result the code seems more understandable - something we value above all other considerations."]
+                [:li "optionality - not all parameters have to be supplied, defaults can be introduced"]
+                [:li "API flexibility - new parameters are easily added"]]]
+              [p "Read further analysis "
                [hyperlink-href
-                :label "Reagent"
-                :href "https://github.com/reagent-project/reagent"
-                :target "_blank"]
-               "."]
-              [p "It contains the sort of layout and controls you'd need to build a desktop-class app."]
-              [this-app]
-              [gap :size "30px"]
-              [line]
-              [named-params]]])
+                :label "here"
+                :href "https://clojurefun.wordpress.com/2012/08/13/keyword-arguments-in-clojure/"
+                :target "_blank"] "."]
+              ]])
+
+
+(defn param-validation
+  []
+  [v-box
+   :children [
+              [title :level :level2 :label "Named Parameters"]
+              ]])
 
 
 (defn panel2
@@ -66,10 +81,14 @@
    ;:width    "600px"
    :children [[panel-title "Welcome"]
               [gap :size "15px"]
+              [welecome]
+              [this-app]
+              [gap :size "30px"]
+              [line]
+
               [h-box
                :gap      "100px"
-               :children [[first-column]
-                          [first-column]]]]])
+               :children [[named-params]]]]])
 
 
 
