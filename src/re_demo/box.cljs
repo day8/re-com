@@ -31,5 +31,5 @@
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [:span.all-small-caps "This space intentionally left free of dark pixels. "]]]]]
+                                      [:span.all-small-caps "This space intentionally free of dark pixels."]]]]]
               [gap :size "30px"]]])
