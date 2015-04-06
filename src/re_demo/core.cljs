@@ -182,8 +182,8 @@
       []
       [h-box
        ;; Outer-most box height must be 100% to fill the entrie client height.
-       ;; (height is 100% of body, which must have already had it's height set to 100%)
-       ;; width doesn't need to be initially set
+       ;; This assumes that height of <body> is itself also set to 100%.
+       ;; width does not need to be set.
        :height   "100%"
        :gap      "60px"
        :children [[scroller
@@ -201,6 +201,4 @@
 
 (defn ^:export mount-demo
   []
-  (reagent/render [main] (get-element-by-id "app"))
-  ;(reagent/render [display-green-messages] (util/get-element-by-id "app")) ;; TODO: EXPERIMENT - REMOVE
-  )
+  (reagent/render [main] (get-element-by-id "app")))
