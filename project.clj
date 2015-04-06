@@ -37,11 +37,10 @@
   :url              "https://github.com/Day8/re-com.git"
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
-                     [org.clojure/clojurescript   "0.0-3169" scope="provided"]
-                     [org.clojure/core.async      "0.1.346.0-17112a-alpha" scope="provided"]
-                     [reagent                     "0.5.0" scope="provided"]
-                     [com.andrewmcveigh/cljs-time "0.3.2" scope="provided"]
-                     [secretary                   "1.2.3" scope="provided"]]
+                     [org.clojure/clojurescript   "0.0-3169"]
+                     [reagent                     "0.5.0"]
+                     [com.andrewmcveigh/cljs-time "0.3.2"]
+                     [secretary                   "1.2.3"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
