@@ -158,7 +158,7 @@
   []
     [v-box
      :children [[title :level :level2 :label ":size is flex"]
-                [p "Both " [:span.bold "v-box"] " and " [:span.bold "h-box"] " take a " [:span.bold ":size"] " parameter which "
+                [p "Various layout components, such as " [:span.bold "v-box"] " and " [:span.bold "h-box"] " and " [:span.bold "gap"] " take a " [:span.bold ":size"] " parameter which "
                  "exactly matches the  " [:span.bold "flex"] " style talked about to the left."]
                 [gap :size "10px"]
                 [:pre
@@ -166,7 +166,9 @@
                  "[v-box
   :size \"auto\"     ;; <-- equivalent of \"flex\" style
   :children [...]]"]
-                [gap :size "10px"]
+                [p "Look again at the Simple Example up the top of this page, and you'll see  "
+                 [:span.bold ":size"] " being used. Values like \"70px\" and \"1\" are provided."]
+                 [gap :size "10px"]
                 [p "This table of useful shortcuts might help."]
                 [v-box
                  :class "rc-div-table"
