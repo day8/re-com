@@ -4,7 +4,7 @@ A ClojureScript library of UI components, built on top of Dan Holmsand's terrifi
 [Reagent](http://reagent-project.github.io)
 which, in turn, is a layer over Facebook's trailblazing [React](http://facebook.github.io/react).
 
-Confirming: 100% ClojureScript. We're not wrapping jquery plugins here. Creating
+Confirming: this is all 100% ClojureScript. We're not wrapping jquery plugins. Creating
 components with ClojureScript and Reagent is really quite delightful.
 
 Re-com has:
@@ -211,6 +211,7 @@ First, add these dependencies in your project.clj:
   ...
   [reagent "0.5.0"]
   [re-com "0.4.0"]
+  [com.andrewmcveigh/cljs-time "0.3.2"]      ;; date picker
 ]
 ```
 
@@ -252,6 +253,10 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
 2. Where the docs are wrong or fall short, write up something better.  <crickets>  :-)
 3. See the list of missing things above
 4. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
+
+When creating new components, we have found it useful to use the CSS from existing
+javascript projects (assuming their licence is compatible with MIT) and then
+replace the javascript with ClojureScript. Reagent really is is very nice.
 
 
 ### License
