@@ -84,8 +84,8 @@
                                       [gap :size "10px"]
                                       [p "Notes:"
                                        [:ul
-                                        [:li "This example has a gap with a " [:span.bold "proporational size"] " of \"1\", not an absolute size. "]
+                                        [:li "This example has a gap with a " [:span.bold "proportional size"] " of \"1\", not an absolute size. "]
                                         [:li "Because it \"grows\" to fill all available space, it \"pushes\" box2 and box3 as far apart as possible."]
-                                        [:li "Imagine the boxes as buttons, to see the utility."]]]
+                                        [:li "Imagine the boxes as buttons, to see how this might be useful."]]]
                                       ]]]]
               [gap :size "30px"]]])
