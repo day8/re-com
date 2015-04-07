@@ -4,8 +4,8 @@ A ClojureScript library of UI components, built on top of Dan Holmsand's terrifi
 [Reagent](http://reagent-project.github.io)
 which, in turn, is a layer over Facebook's trailblazing [React](http://facebook.github.io/react).
 
-Confirming: this is all 100% ClojureScript. We're not wrapping jquery plugins. Creating
-components with ClojureScript and Reagent is really quite delightful.
+Just to be clear: this is all 100% ClojureScript. We're not wrapping jquery plugins. Creating
+components with ClojureScript and Reagent is really quite a nice process.
 
 Re-com has:
 
@@ -66,68 +66,23 @@ That number includes ReactJS plus the ClojureScript libs and runtime. Everything
 
 ## So, Without Ado Being Any Furthered ...
 
-Still here?  Good. I'm glad we got all that negative stuff out the way.  You're
+Still here?  Good. I'm glad we got all that negative stuff out the way.  I think you're
 going to like re-com.
 
 Start by [looking at the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
 
-## Named Parameters
-
-re-com components take `named parameters`, rather than `positional parameters`.
-
-So, when you use a re-com component like `checkbox`, you **will not** be asked to use positional parameters like this:
-
-```Clojure
-[checkbox "Show Status Icon?" status-icon?  (fn [new-val] (reset! status-icon? new-val))]
-```
-
-**Instead**, re-com requires `named parameters` like this:
-
-```Clojure
-[checkbox
-  :label     "Show Status Icon?"
-  :model     status-icon?      ; a ratom
-  :on-change (fn [new-val] (reset! status-icon? new-val))]
-```
-
-Notice how each parameter value has a short, leading keyword name. The first version, using `positional parameters`,
-was more concise, the 2nd using `named parameters` is more explicit. Both have their merits - a situation which
-invariably leads to highly contested Religious wars.  We've gone with `named parameters` in the API because:
-
-1. the code using the library seems easier to read (despite being longer)
-2. as a result the code seems more understandable - something we value above all other considerations.
-3. optionality  -  not all parameters have to be supplied, defaults can be introduced
-4. flexibility - new parameters are easily added
-
-Read a further analysis [here](https://clojurefun.wordpress.com/2012/08/13/keyword-arguments-in-clojure/)
-
-## Parameter Validation
-
-We often make mistakes and get our re-com parameters wrong. Our sausage fingers type  `onmouseover` instead of `on-mouse-over`, or `centre` rather than `center`, or we pass in a string when it should have been a keyword. 
-
-re-com tries to catch these kinds of mistakes. Every re-com component has a spec which contains details on each parameter, like name, data type, validation fucntions, default value and so on.
-
-In dev mode, all component parameters are validated. In production, that overhead is removed. 
-
-If a problem is found, helpful (we hope) messages are displayed in the console. 
-
-re-com uses `goog.DEBUG` to determine dev builds from production builds.  For dev builds, do nothing.  For production builds, in your `project.clj` ensure we have this in the build target:
-
-```Clojure
-:closure-defines {:goog.DEBUG false}
-```
 
 ## Navigating The Source
 
-When you are running the demo app, you'll see hyperlinks (top of most pages) which
-take you to the associated source code.  That's a nice way to navigate to either
+When you are running the demo app, you'll see hyperlinks, to the right of page titles, which
+take you to the associated source code.  That's a convenient way to navigate to either
 the components themselves or the demo code.
 
 When browsing more generally, look in the `src` directory or this repo, you'll notice
 two sub-directories:
 
-  - re-com - the library
-  - re-demo - the demo app
+  - re-com - the library itself, containing components
+  - re-demo - the demo app, which uses the components
 
 ## Useful Commands
 
@@ -202,6 +157,15 @@ two sub-directories:
   Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto` for
   recompilation.  This probably isn't a good idea, but that's the way it is right now.
 
+
+6. Deploy The demo app
+
+   Will only work if you have the right credentials in your env:
+   ```shell
+   lein deploy-aws
+   ```
+
+
 ## Using re-com In Your App
 
 First, add these dependencies in your project.clj:
@@ -238,8 +202,10 @@ so you don't need to include it explicitly.
 ## The Missing Components
 
 * tree  (not hard, just haven't needed one yet)
+* menus - there's a dropdown, but no cascading menus
 * accordion
-* virtual grid. HTML is good at small grids, so no problem there. But when the number of
+* maybe a dockable LHS navbar
+* virtual grid. Straight v-box is good enough at small grids, so no problem there. But when the number of
 rows gets huge, you need a widget which does virtual rows, otherwise there's just too much DOM
 and there's performance problems.
 Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-table)?
@@ -250,8 +216,11 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
 ## Helping
 
 1. A lein template would be nice.
-2. Where the docs are wrong or fall short, write up something better.  <crickets>  :-)
-3. See the list of missing things above
+2. Where the docs are wrong or fall short, write up something better. Because
+   our docs take the form of an app written in ClojureScrip using re-com, your actually
+   be exercising your knowledge of re-com as you do this.
+3. See the list of missing components above. You'll have to produce the
+   component itself, including a params spec, plue the extra page in the demo app.
 4. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
 
 When creating new components, we have found it useful to use the CSS from existing
