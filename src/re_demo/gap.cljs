@@ -26,8 +26,8 @@
                            :width    "450px"
                            :children [[title2 "Notes"]
                                       [status-text "Stable"]
-                                      [p "Introduces white space into layouts. Typically placed between the children of a v-box or h-box."]
-                                      [p "The white space added will be in the expected direction (i.e. horizontally for h-box or vertically for v-box)."]
+                                      [p "Introduces whitespace into layouts. Typically placed between the children of a v-box or h-box."]
+                                      [p "The whitespace added will be in the expected direction (i.e. horizontally for h-box or vertically for v-box)."]
                                       [args-table gap-args-desc]]]
                           [v-box
                            :children [[title2 "Demo #1"]
@@ -59,7 +59,7 @@
                                        {:style {:width "40em"}}
                                        "[h-box               ; <-- no :gap, so children seperated by 0px
  :children [[grey-box]
-            [gap :size \"10px\"]  ; <-- abolsolute gap
+            [gap :size \"10px\"]  ; <-- absolute gap
             [grey-box]        ; <-- pushed as far left as possible
             [gap :size \"1\"]   ; <-- grows as much as possible
             [grey-box]]]      ; <-- pushed as far right as possible"]
