@@ -215,17 +215,17 @@
 
 (def h-box-args-desc
   [{:name :children   :required true                    :type "vector"  :validate-fn sequential?    :description "a vector (or list) of components"}
-   {:name :size       :required false :default "none"   :type "string"  :validate-fn string?        :description [:span "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60%"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
+   {:name :size       :required false :default "none"   :type "string"  :validate-fn string?        :description [:span "Equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow/shrink/basis"]]}
    {:name :width      :required false                   :type "string"  :validate-fn string?        :description "a CSS width style"}
    {:name :height     :required false                   :type "string"  :validate-fn string?        :description "a CSS height style"}
    {:name :min-width  :required false                   :type "string"  :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
    {:name :min-height :required false                   :type "string"  :validate-fn string?        :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :justify    :required false :default :start   :type "keyword" :validate-fn justify-style? :description [:span "one of " justify-options-list]}
-   {:name :align      :required false :default :stretch :type "keyword" :validate-fn align-style?   :description [:span "one of " align-options-list]}
-   {:name :align-self :required false                   :type "keyword" :validate-fn align-style?   :description [:span "use to override parent " [:code ":align"] " setting for this component"]}
+   {:name :justify    :required false :default :start   :type "keyword" :validate-fn justify-style? :description [:span "Equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
+   {:name :align      :required false :default :stretch :type "keyword" :validate-fn align-style?   :description [:span "Equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
+   {:name :align-self :required false                   :type "keyword" :validate-fn align-style?   :description [:span "Equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
    {:name :margin     :required false                   :type "string"  :validate-fn string?        :description "a CSS margin style"}
    {:name :padding    :required false                   :type "string"  :validate-fn string?        :description "a CSS padding style"}
-   {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "a CSS size style. See gap component"}
+   {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "The amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
    {:name :class      :required false                   :type "string"  :validate-fn string?        :description "CSS class names, space separated"}
    {:name :style      :required false                   :type "map"     :validate-fn css-style?     :description "CSS styles to add or override"}
    {:name :attr       :required false                   :type "map"     :validate-fn html-attr?     :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
@@ -271,17 +271,17 @@
 
 (def v-box-args-desc
   [{:name :children   :required true                    :type "vector"  :validate-fn sequential?    :description "a vector (or list) of components"}
-   {:name :size       :required false :default "none"   :type "string"  :validate-fn string?        :description [:span "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "100px"] ", " [:code "60"] " or the generic :flex version " [:code "{grow} {shrink} {basis}"]]}
+   {:name :size       :required false :default "none"   :type "string"  :validate-fn string?        :description [:span "Equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow/shrink/basis"]]}
    {:name :width      :required false                   :type "string"  :validate-fn string?        :description "a CSS width style"}
    {:name :height     :required false                   :type "string"  :validate-fn string?        :description "a CSS height style"}
    {:name :min-width  :required false                   :type "string"  :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
    {:name :min-height :required false                   :type "string"  :validate-fn string?        :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :justify    :required false :default :start   :type "keyword" :validate-fn justify-style? :description [:span "one of " justify-options-list]}
-   {:name :align      :required false :default :stretch :type "keyword" :validate-fn align-style?   :description [:span "one of " align-options-list]}
-   {:name :align-self :required false                   :type "keyword" :validate-fn align-style?   :description [:span "use to override parent " [:code ":align"] " setting for this component"]}
+   {:name :justify    :required false :default :start   :type "keyword" :validate-fn justify-style? :description [:span "Equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
+   {:name :align      :required false :default :stretch :type "keyword" :validate-fn align-style?   :description [:span "Equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
+   {:name :align-self :required false                   :type "keyword" :validate-fn align-style?   :description [:span "Equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
    {:name :margin     :required false                   :type "string"  :validate-fn string?        :description "a CSS margin style"}
    {:name :padding    :required false                   :type "string"  :validate-fn string?        :description "a CSS padding style"}
-   {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "a CSS size style. See gap component"}
+   {:name :gap        :required false                   :type "string"  :validate-fn string?        :description "The amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
    {:name :class      :required false                   :type "string"  :validate-fn string?        :description "CSS class names, space separated"}
    {:name :style      :required false                   :type "map"     :validate-fn css-style?     :description "CSS styles to add or override"}
    {:name :attr       :required false                   :type "map"     :validate-fn html-attr?     :description [:span "html attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
