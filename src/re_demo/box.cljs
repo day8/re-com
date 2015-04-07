@@ -23,10 +23,12 @@
 
                                       [p "When we first put bootstrap buttons into re-com, they were streched.
                It turned out their block display didn't play well with flex containers like h-box."]
-                                      [p "We fixed that, but then there were other problem like they wouldn't justify correctly in a container."]
+                                      [p "We fixed that, but then there were other problems like they
+                                      wouldn't justify correctly in a container. All this issues arose because they
+                                      were never designed (styled) to be the children of flexbaox containers."]
                                       [p "So we created the " [:span.bold "[box ...]"] " component which allows you to wrap
-               non-flex \"leaf\" elements for use in flex containers."]
-                                      [p "You probably won't need to use it directly."]
+               a single non-flex \"leaf\" element for use in a flex container."]
+                                      [p "You won't often need to use it directly."]
                                       [args-table box-args-desc]]]
                           [v-box
                            :gap      "10px"
