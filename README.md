@@ -20,8 +20,6 @@ Re-com has:
 
 In short, re-com attempts to provide the kind of UI basics you'd need to build a desktop-class app.
 
-If you decide to use re-com, consider also using [re-frame](https://github.com/Day8/re-frame)
-(an MVC-ish framework).  Although both can be used independently, they dovetail well.
 
 
 ## Warning: re-com Might Not Be For You (just yet)
@@ -201,6 +199,14 @@ https://github.com/Day8/re-com/tree/master/run/resources/public/assets
 
 Reagent comes bundled with a matching version of ReactJS,
 so you don't need to include it explicitly.
+
+## MVC
+
+If you decide to use re-com, consider also using [re-frame](https://github.com/Day8/re-frame)
+(an MVC-ish framework).
+
+Although both `re-frame` and `re-com` can be used independently of each other, they dovetail well.
+
 
 ## The Missing Components
 
