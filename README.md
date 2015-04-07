@@ -1,11 +1,12 @@
 # re-com
 
-A ClojureScript library of UI components, built on top of Dan Holmsand's terrific
+A ClojureScript library of UI components.
+
+It is built on top of Dan Holmsand's terrific
 [Reagent](http://reagent-project.github.io)
 which, in turn, is a layer over Facebook's trailblazing [React](http://facebook.github.io/react).
 
-Just to be clear: this is all 100% ClojureScript. We're not wrapping jquery plugins. Creating
-components with ClojureScript and Reagent is really quite a nice process.
+Just to be clear: this library is 100% ClojureScript. We're not wrapping jquery plugins here.
 
 Re-com has:
 
@@ -17,7 +18,7 @@ Re-com has:
 * a mostly [Bootstrap](http://getbootstrap.com/) look, mixed with
   some [Material Design Icons](http://zavoloklom.github.io/material-design-iconic-font/icons.html).
 
-In short, re-com attempts to provide the kind of basics you'd need to build a desktop-class app.
+In short, re-com attempts to provide the kind of UI basics you'd need to build a desktop-class app.
 
 If you decide to use re-com, consider also using [re-frame](https://github.com/Day8/re-frame)
 (an MVC-ish framework).  Although both can be used independently, they dovetail well.
@@ -26,7 +27,7 @@ If you decide to use re-com, consider also using [re-frame](https://github.com/D
 ## Warning: re-com Might Not Be For You (just yet)
 
 We build desktop-class apps to run in controlled browser environments
-like [atom-shell](https://github.com/atom/atom-shell).  We know we're dealing with Chrome.
+like [atom-shell](https://github.com/atom/atom-shell).  So, we know we're dealing with Chrome.
 
 If you are similar, or if you work on Intranet apps where you can mandate a modern browser,
 re-com could be ideal for you, right now.
@@ -36,17 +37,18 @@ On the other hand, if you target the retail web, you might have to wait till ear
 
 Why?  **Well, here's the thing:**  the entire layout side of this library plus a few of the widgets
 rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
-which only works on [modern browsers](http://caniuse.com/#feat=flexbox).
+which only works on [modern browsers](http://caniuse.com/#feat=flexbox), and specifically not IE 9 and 10.
 
 
 Now, the grinding pain and longevity of IE6 has conditioned many to
 expect 8, 9 and 10 to hang around forever too.  But, this time around, there's
 quite a different dynamic. Microsoft
-itself is very actively forcing the pace -
+itself is very actively forcing their demise -
 [come Jan 12th 2016 corporates will have to be on IE11](http://blogs.msdn.com/b/ie/archive/2014/08/07/stay-up-to-date-with-internet-explorer.aspx)
 
-So, by Q1 2016, the market share of IE9 and IE10 will have diminished sufficiently that they could be ignored. Probably.
-In which case, a modern flexbox implementation will be available on all the browsers you then care about.
+So, by Q1 2016, the market share of IE9 and IE10 will have diminished sufficiently
+that they could be ignored. Probably. Myabe.
+If so, a modern flexbox implementation will be available on all the browsers you then care about.
 **So that's surprisingly soon, but not now!**
 
 But, even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
@@ -61,8 +63,9 @@ that there's no attempt to handle media queries.  I said we had a desktop app fo
 
 Neither have we been worried too much about code size because other design goals have
 taken precedence.  Our main demo app which includes every component, plus all demo
-code and a bit of yadda yadda, comes to about 167K compressed when using `:optimzations :advanced` (700K pre-compress).
-That number includes ReactJS plus the ClojureScript libs and runtime. Everything.
+code and plenty of yadda yadda, comes to about 167K compressed when
+using `:optimzations :advanced` (700K pre-compress).
+That number includes ReactJS plus the ClojureScript libs and runtime. So, everything.
 
 ## So, Without Ado Being Any Furthered ...
 
@@ -81,8 +84,8 @@ the components themselves or the demo code.
 When browsing more generally, look in the `src` directory or this repo, you'll notice
 two sub-directories:
 
-  - re-com - the library itself, containing components
-  - re-demo - the demo app, which uses the components
+  - re-com - the library itself - the components
+  - re-demo - the demo app, which shows how to use the components
 
 ## Useful Commands
 
@@ -126,7 +129,7 @@ two sub-directories:
   - load the right `index.html` (specialised for figwheel use)
   - start a ClojureScript repl in the terminal window (actually, figwheel does this for you)
 
-  Your part in the process:
+  Your part to play in the process:
 
   - the initial load of `index.html` will fail because the figwheel compile hasn't yet finished. 
   - be patient - the initial compile might take anything from 10 seconds to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
