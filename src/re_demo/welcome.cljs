@@ -6,32 +6,35 @@
 (defn welecome
   []
   [v-box
-   :size     "auto"
-   ;:width    "600px"
-   :children [
-              [p
+   :children [[p
                "Re-com is a library of ClojureScript UI components, built on top of "
                [hyperlink-href
                 :label "Reagent"
                 :href "https://github.com/reagent-project/reagent"
                 :target "_blank"]
                "."]
-              [p "It contains the sort of layout and controls you'd need to build a desktop-class app."]
-
-
-              ]])
+              [p "It contains the sort of layout and controls you'd need to build a desktop-class app."]]])
 
 (defn this-app
   []
   [v-box
-   :children [[title :level :level2 :label "This app"]
-              ;[gap :size "5px"]
-              [p "The demo app serves as:"
-               [:ul
-                [:li "a visual showcase of the components"]
-                [:li "example code for using the components"]
-                [:li "documentation for the components (parameters etc.)"]
-                [:li "something of a test harness"]]]]])
+   :children [
+              [title :level :level2 :label "This app"]
+
+              [h-box
+               :gap "100px"
+               :children [[v-box
+                           :children [[p "The demo app serves as:"
+                                       [:ul
+                                        [:li "a visual showcase of the components"]
+                                        [:li "documentation for the components (parameters etc.)"]
+                                        [:li "shows, via its own code, how to use the components"]
+                                        [:li "something of a test harness"]]]]]
+                          [v-box
+                           :style {:font-size "13px" :color "#aaa"}
+                           :children [[p {:style {:width "250px"}} [:br] [:br] [:br] "Most pages in this app have
+                           hyperlinks near the title which take you
+                           directly to the associated source code in github."]]]]]]])
 
 
 (defn named-params
@@ -39,39 +42,43 @@
   [v-box
    :children [
               [title :level :level2 :label "Named Parameters"]
-
               [p  "re-com components take " [:span.bold "named parameters"] ", rather than " [:span.bold "positional parameters"] "."]
-              [p "So, use of a re-com component like " [:span.bold "checkbox"] ", looks like this:"]
-              [:pre
-               {:style {:width "450px"}}
-               "[checkbox
+
+              [h-box
+               :gap "100px"
+               :children [[v-box
+                          :children [[p "When you use a re-com component, like " [:span.bold "checkbox"] ", it looks like this:"]
+                                     [:pre
+                                      {:style {:width "450px"}}
+                                      "[checkbox
   :label     \"Show Status Icon?\"
   :model     status-icon?      ; a ratom
   :on-change (fn [new-val] (reset! status-icon? new-val))]"]
-              [p "Notice how each parameter has a short, leading keyword name."]
-              [p "Using positional parameters (no naming), is more concise while using named parameters is more explicit.
-              Both approaches have their merits - a situation which invariably leads to highly contested
-              Religious Wars. "]
-              [p "We've gone with named parameters in the API because:"
-               [:ol
-                [:li "the code seems easier to read (despite being longer)"]
-                [:li "as a result the code seems more understandable - something we value above all other considerations."]
-                [:li "optionality - not all parameters have to be supplied, defaults can be introduced"]
-                [:li "API flexibility - new parameters are easily added"]]]
-              [p "Read further analysis "
-               [hyperlink-href
-                :label "here"
-                :href "https://clojurefun.wordpress.com/2012/08/13/keyword-arguments-in-clojure/"
-                :target "_blank"] "."]
+                                     [p "Each parameter has a leading keyword name."]
+                                     [p "Now, our sausage fingers sometimes type onmouseover instead of on-mouse-over,
+                                     or centre rather than center, and sometimes we pass in a string where  there should be keyword."]
+                                     [p "re-com tries to catch these kinds of mistakes by validating all parameter names and values."]
+                                     [p "But there is overhead in this checking which you'd like to avoid in production. So, to remove it,
+                                      be sure to
+                                     include the following in your project.clj for your productuion builds:"]
+                                     [:pre
+                                      {:style {:width "450px"}}
+                                      ":closure-defines {:goog.DEBUG false}"]]]
+                          [v-box
+                           :style {:font-size "13px" :color "#aaa"}
+                           :children [[p {:style {:width "250px"}} "We use named parameters because:"
+                                        [:ol
+                                         [:li "the code seems more easily read and understood (although longer)"]
+                                         [:li "optionality - not all parameters need be supplied and defaults can be introduced"]
+                                         [:li "API flexibility - easy to add new parameters"]]]
+                                       [p {:style {:width "250px"}} "Read further analysis "
+                                        [hyperlink-href
+                                         :label "here"
+                                         :href "https://clojurefun.wordpress.com/2012/08/13/keyword-arguments-in-clojure/"
+                                         :target "_blank"] "."]]]
+                          ]]
               ]])
 
-
-(defn param-validation
-  []
-  [v-box
-   :children [
-              [title :level :level2 :label "Named Parameters"]
-              ]])
 
 
 (defn panel2
@@ -85,10 +92,8 @@
               [this-app]
               [gap :size "30px"]
               [line]
-
-              [h-box
-               :gap      "100px"
-               :children [[named-params]]]]])
+              [named-params]
+              [gap :size "40px"]]])
 
 
 
