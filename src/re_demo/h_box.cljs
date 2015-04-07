@@ -11,11 +11,9 @@
                           {:background-color "#fff4f4"
                            :border           "1px solid lightgray"
                            :border-radius    "4px"
-                           :margin           "4px"
-                           :padding          "8px"}))
+                           :padding          "4px"}))
 
-(def h-box-style {:border-right  "dashed 1px blue" :overflow "hidden"})
-(def v-box-style {:border-bottom "dashed 1px blue" :overflow "hidden"})
+(def h-box-style {}) ;{ :overflow "hidden"})
 
 (def size-options [{:id :inital :label "initial"}
                    {:id :auto   :label "auto"}
@@ -23,57 +21,137 @@
                    {:id :px     :label "px"}
                    {:id :%      :label "%"}])
 
-(defn box-controls
-  [box-name control]
-  [h-box
-   :align    :center
-   :width    "630px"
-   :gap      "8px"
-   :padding  "4px"
-   :style    {:background-color "#f8f8f8"}
-   :children [[box :align :start :child [:span box-name " " [:code ":size"]]]
-              [checkbox
-               :model     (:show? @control)
-               :on-change #(swap! control assoc :show? %)]
-              [horizontal-bar-tabs
-               :model     (:size @control)
-               :tabs      size-options
-               :on-change #(swap! control assoc :size %)]
-              (when (= (:size @control) :%)
-                [h-box
-                 :gap "5px"
-                 :children [[slider
-                             :model     (:% @control)
-                             :min       0
-                             :max       100
-                             :width     "200px"
-                             :on-change #(swap! control assoc :% %)]
-                            [:span (str (:% @control) "%")]]])
-              (when (= (:size @control) :px)
-                [h-box
-                 :gap "5px"
-                 :children [[slider
-                             :model     (:px @control)
-                             :min       0
-                             :max       500
-                             :width     "200px"
-                             :on-change #(swap! control assoc :px %)]
-                            [:span (str (:px @control) "px")]]])]])
+(def config (reagent/atom
+              {:hbox {:width   "500px"
+                     :height  "100px"
+                     :justify :start
+                     :gap     "4px"}
+               :box1 {:size "auto"
+                      :min-width "200px"
+                      ; :height  "20px"
+                      :align-self :end
+                      :text "Box1"}
+               :box2 {:size "0 1 100px"
 
-(defn box-size
-  "Works out what to pass to :size from a map like: {:size :%  :px 100 :% 60 :show? true}"
-  [control]
-  (cond (= (:size control) :%)  (str (:% control) "%")
-        (= (:size control) :px) (str (:px control) "px")
-        :else                   (name (:size control))))
+                      :text "Box2"}
+               :box3 {:size "0 1 100px"
+                      :text "Box3"}
+               :box4 {:size "0 1 100px"
+                     :text "Box4"}}))
 
-  (defn panel
+(defn merge-named-params
+  "given a hiccup vector v, and a map m containing named parameters, add the named parameters to v
+      (merge-named-params [box :a 1] {:b 2  :c 3})
+      ;; =>  [box :a 1 :b 2  :c 3]
+  "
+  [v m]
+  (let [not-nil-value #(identity (second %))]
+    (->> m
+         (filter not-nil-value)
+         (reduce concat [])
+         (into v)
+         vec)))
+
+
+(defn make-box
+  "produces something like:
+     [box
+        :size      \"0 1 100px\"
+        :style     h-box-style
+        :min-width \"200px\"
+        :child [:div {:style rounded-panel} \"Box 1\"]]
+  "
+  [box-parameters]
+  (-> [box :style h-box-style]
+      (merge-named-params  (dissoc box-parameters :text))
+      (conj :child)
+      (conj [:div {:style rounded-panel} (:text box-parameters)])))
+
+
+(defn demo
+  []
+  [v-box
+   :gap      "10px"
+   :children [[title2 "Demo"]
+              (-> [h-box
+                    :padding  "4px"
+                    :style {:border "dashed 1px red"}]
+                  (merge-named-params (:hbox @config))
+                  (conj :children)
+                  (conj [(make-box (:box1 @config))
+                         (make-box (:box2 @config))
+                         (make-box (:box3 @config))
+                         (make-box (:box4 @config))]))]])
+
+
+
+#_(defn demo
   []
   (let [container-size (reagent/atom 500)
         gap-size       (reagent/atom 0)
         box1-db        (reagent/atom {:size :%  :px 100 :% 60 :show? true})
         box2-db        (reagent/atom {:size :px :px 100 :% 50 :show? true})
         box3-db        (reagent/atom {:size :%  :px 100 :% 40 :show? true})]
+    [v-box
+     :gap      "10px"
+     :children [[title2 "Demo"]
+                #_[p "Descriptions removed for now."]
+                [p "An h-box is normally invisible, but for this demo we've styled it with a dashed red border."]
+                ;[p "Each child box component (which includes an 4px magin) describes it's own settings and allows you to modify them."]
+                #_[p "Dashed red lines have been added between the boxes."]
+                [title :level :level3 :label "Container (h-box/v-box) - red border"]
+                [h-box
+                 :gap      "10px"
+                 :children [[box :align :start :width "100px" :child [:span "h/v-box " [:code ":w/:h"]]]
+                            [slider
+                             :model     container-size
+                             :min       0
+                             :max       800
+                             :width     "200px"
+                             :on-change #(reset! container-size %)]
+                            [:span @container-size "px"]]]
+                [h-box
+                 :gap      "10px"
+                 :children [[box :align :start :width "100px" :child [:span "gap " [:code ":size"]]]
+                            [slider
+                             :model     gap-size
+                             :min       0
+                             :max       50
+                             :width     "200px"
+                             :on-change #(reset! gap-size %)]
+                            [:span @gap-size "px"]]]
+                [gap :size "10px"]
+                [title :level :level3 :label "Children (box) - blue border at end of box"]
+                [box-controls "Box1" box1-db]
+                [box-controls "Box2" box2-db]
+                [box-controls "Box3" box3-db]
+                [gap :size "10px"]
+                [h-box
+                 :width    (px @container-size)
+                 :height   "100px"
+                 :gap      (px @gap-size)
+                 :style    {:border "dashed 1px red"}
+                 :children [(when (:show? @box1-db)
+                              [box
+                               :size (box-size @box1-db)
+                               :style h-box-style
+                               :child [:div {:style rounded-panel} "Box 1" [:br] ":size " (box-size @box1-db)]])
+                            (when (:show? @box2-db)
+                              [box
+                               :size (box-size @box2-db)
+                               :style h-box-style
+                               :child [:div {:style rounded-panel} "Box 2" [:br] ":size " (box-size @box2-db)]])
+                            (when (:show? @box3-db)
+                              [box
+                               :size (box-size @box3-db)
+                               :style h-box-style
+                               :child [:div {:style rounded-panel} "Box 3" [:br] ":size " (box-size @box3-db)]])]]
+                ]]))
+
+
+  (defn panel
+    []
+
     (fn
       []
       [v-box
@@ -102,82 +180,5 @@
                                           [p "Todo: Nestability with v-box"]
 
                                           [args-table h-box-args-desc]]]
-                              [v-box
-                               :gap      "10px"
-                               :children [[title2 "Demo"]
-                                          [p "Descriptions removed for now."]
-                                          ;[p "The h-box, which is normally invisible, has been styled with a dashed red border to make it visible."]
-                                          ;[p "Each child box component (which includes an 4px magin) describes it's own settings and allows you to modify them."]
-                                          #_[p "Dashed red lines have been added between the boxes."]
-                                          [title :level :level3 :label "Container (h-box/v-box) - red border"]
-                                          [h-box
-                                           :gap      "10px"
-                                           :children [[box :align :start :width "100px" :child [:span "h/v-box " [:code ":w/:h"]]]
-                                                      [slider
-                                                       :model     container-size
-                                                       :min       0
-                                                       :max       800
-                                                       :width     "200px"
-                                                       :on-change #(reset! container-size %)]
-                                                      [:span @container-size "px"]]]
-                                          [h-box
-                                           :gap      "10px"
-                                           :children [[box :align :start :width "100px" :child [:span "gap " [:code ":size"]]]
-                                                      [slider
-                                                       :model     gap-size
-                                                       :min       0
-                                                       :max       50
-                                                       :width     "200px"
-                                                       :on-change #(reset! gap-size %)]
-                                                      [:span @gap-size "px"]]]
-                                          [gap :size "10px"]
-                                          [title :level :level3 :label "Children (box) - blue border at end of box"]
-                                          [box-controls "Box1" box1-db]
-                                          [box-controls "Box2" box2-db]
-                                          [box-controls "Box3" box3-db]
-                                          [gap :size "10px"]
-                                          [h-box
-                                           :width    (px @container-size)
-                                           :height   "100px"
-                                           :gap      (px @gap-size)
-                                           :style    {:border "dashed 1px red"}
-                                           :children [(when (:show? @box1-db)
-                                                        [box
-                                                         :size (box-size @box1-db)
-                                                         :style h-box-style
-                                                         :child [:div {:style rounded-panel} "Box 1" [:br] ":size " (box-size @box1-db)]])
-                                                      (when (:show? @box2-db)
-                                                        [box
-                                                         :size (box-size @box2-db)
-                                                         :style h-box-style
-                                                         :child [:div {:style rounded-panel} "Box 2" [:br] ":size " (box-size @box2-db)]])
-                                                      (when (:show? @box3-db)
-                                                        [box
-                                                         :size (box-size @box3-db)
-                                                         :style h-box-style
-                                                         :child [:div {:style rounded-panel} "Box 3" [:br] ":size " (box-size @box3-db)]])]]
-
-                                          [:br]
-                                           [p "Now here is a v-box with exactly the same children."]
-                                          [v-box
-                                           :width    "100px"
-                                           :height   (px @container-size)
-                                           :gap      (px @gap-size)
-                                           :style    {:border "dashed 1px red"}
-                                           :children [
-                                                      (when (:show? @box1-db)
-                                                        [box
-                                                         :size (box-size @box1-db)
-                                                         :style v-box-style
-                                                         :child [:div {:style rounded-panel} "Box 1" [:br] ":size " (box-size @box1-db)]])
-                                                      (when (:show? @box2-db)
-                                                        [box
-                                                         :size (box-size @box2-db)
-                                                         :style v-box-style
-                                                         :child [:div {:style rounded-panel} "Box 2" [:br] ":size " (box-size @box2-db)]])
-                                                      (when (:show? @box3-db)
-                                                        [box
-                                                         :size (box-size @box3-db)
-                                                         :style v-box-style
-                                                         :child [:div {:style rounded-panel} "Box 3" [:br] ":size " (box-size @box3-db)]])]]]]]]
-                  [gap :size "30px"]]])))
+                              [demo]]]
+                  [gap :size "30px"]]]))
