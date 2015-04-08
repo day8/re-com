@@ -159,9 +159,9 @@ two sub-directories:
   recompilation.  This probably isn't a good idea, but that's the way it is right now.
 
 
-6. Deploy The demo app
+6. Deploy The Demo App To S3 bucket
 
-   Will only work if you have the right credentials in your env:
+   This will only work if you have the right credentials in your env:
    ```shell
    lein deploy-aws
    ```
