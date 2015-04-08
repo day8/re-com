@@ -33,25 +33,25 @@
 
 
 ;; ------------------------------------------------------------------------------------
-;;  Component: h-layout
+;;  Component: h-split
 ;; ------------------------------------------------------------------------------------
 
-(def h-layout-args-desc
+(def h-split-args-desc
   [{:name :panel-1       :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the left panel"}
    {:name :panel-2       :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the right panel"}
    {:name :initial-split :required false :default 50    :type "double | string" :validate-fn number-or-string? :description "initial split percentage of the left panel. Can be double value or string (with/without percentage sign)"}
    {:name :splitter-size :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
    {:name :margin        :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
 
-;(def h-layout-args (extract-arg-data h-layout-args-desc))
+;(def h-split-args (extract-arg-data h-split-args-desc))
 
-(defn h-layout
+(defn h-split
   "Returns markup for a horizontal layout component"
   [& {:keys [panel-1 panel-2 initial-split splitter-size margin]
       :or   {initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(validate-args-macro h-layout-args-desc args "h-layout")]}
-  (let [container-id         (gensym "h-layout-")
+  {:pre [(validate-args-macro h-split-args-desc args "h-split")]}
+  (let [container-id         (gensym "h-split-")
         split-perc           (reagent/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
         dragging?            (reagent/atom false)                       ;; is the user dragging the splitter (mouse is down)?
         over?                (reagent/atom false)                       ;; is the mouse over the splitter, if so, highlight it
@@ -110,35 +110,35 @@
                                                       (when @over? {:background-color "#f8f8f8"}))})]
 
     (fn []
-      [:div (make-container-style "rc-h-layout" @dragging?)
-       [:div (make-panel-style "rc-h-layout-top" @dragging? @split-perc)
+      [:div (make-container-style "rc-h-split" @dragging?)
+       [:div (make-panel-style "rc-h-split-top" @dragging? @split-perc)
         panel-1]
-       [:div (make-splitter-style "rc-h-layout-splitter")
+       [:div (make-splitter-style "rc-h-split-splitter")
         [drag-handle :vertical @over?]]
-       [:div (make-panel-style "rc-h-layout-bottom" @dragging? (- 100 @split-perc))
+       [:div (make-panel-style "rc-h-split-bottom" @dragging? (- 100 @split-perc))
         panel-2]])))
 
 
 ;; ------------------------------------------------------------------------------------
-;;  Component: v-layout
+;;  Component: v-split
 ;; ------------------------------------------------------------------------------------
 
-(def v-layout-args-desc
+(def v-split-args-desc
   [{:name :panel-1       :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the top panel"}
    {:name :panel-2       :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the bottom panel"}
    {:name :initial-split :required false :default 50    :type "double | string" :validate-fn number-or-string? :description "initial split percentage of the top panel. Can be double value or string (with/without percentage sign)"}
    {:name :splitter-size :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
    {:name :margin        :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}])
 
-;(def v-layout-args (extract-arg-data v-layout-args-desc))
+;(def v-split-args (extract-arg-data v-split-args-desc))
 
-(defn v-layout
+(defn v-split
   "Returns markup for a vertical layout component"
   [& {:keys [panel-1 panel-2 initial-split splitter-size margin]
       :or   {initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(validate-args-macro v-layout-args-desc args "v-layout")]}
-  (let [container-id         (gensym "v-layout-")
+  {:pre [(validate-args-macro v-split-args-desc args "v-split")]}
+  (let [container-id         (gensym "v-split-")
         split-perc           (reagent/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height
         dragging?            (reagent/atom false)                        ;; is the user dragging the splitter (mouse is down)?
         over?                (reagent/atom false)                        ;; is the mouse over the splitter, if so, highlight it
@@ -197,10 +197,10 @@
                                                       (when @over? {:background-color "#f8f8f8"}))})]
 
     (fn []
-      [:div (make-container-style "re-v-layout" @dragging?)
-       [:div (make-panel-style "re-v-layout-top" @dragging? @split-perc)
+      [:div (make-container-style "re-v-split" @dragging?)
+       [:div (make-panel-style "re-v-split-top" @dragging? @split-perc)
         panel-1]
-       [:div (make-splitter-style "re-v-layout-splitter")
+       [:div (make-splitter-style "re-v-split-splitter")
         [drag-handle :horizontal @over?]]
-       [:div (make-panel-style "re-v-layout-bottom" @dragging? (- 100 @split-perc))
+       [:div (make-panel-style "re-v-split-bottom" @dragging? (- 100 @split-perc))
         panel-2]])))

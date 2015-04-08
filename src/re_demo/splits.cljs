@@ -54,7 +54,7 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title "Layout Components"
+   :children [[panel-title "Spliter Components"
                             "src/re_com/layout.cljs"
                             "src/re_demo/layouts.cljs"]
 

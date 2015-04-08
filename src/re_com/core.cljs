@@ -5,7 +5,7 @@
             [re-com.datepicker     :as datepicker]
             [re-com.dropdown       :as dropdown]
             [re-com.input-time     :as input-time]
-            [re-com.layout         :as layout]
+            [re-com.splits         :as splits]
             [re-com.misc           :as misc]
             [re-com.modal-panel    :as modal-panel]
             [re-com.popover        :as popover]
@@ -50,8 +50,8 @@
 
 (def input-time                 input-time/input-time)
 
-(def h-layout                   layout/h-layout)
-(def v-layout                   layout/v-layout)
+(def h-split                    splits/h-split)
+(def v-split                   splits/v-split)
 
 (def input-text                 misc/input-text)
 (def input-textarea             misc/input-textarea)
@@ -59,7 +59,7 @@
 (def radio-button               misc/radio-button)
 (def slider                     misc/slider)
 (def progress-bar               misc/progress-bar)
-(def throbber                    misc/throbber)
+(def throbber                   misc/throbber)
 
 (def modal-panel                modal-panel/modal-panel)
 
