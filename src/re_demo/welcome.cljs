@@ -24,7 +24,7 @@
               [h-box
                :gap "100px"
                :children [[v-box
-                           :children [[p "The demo app is build using re-com and serves as:"
+                           :children [[p "The demo app itself is built using re-com and serves as:"
                                        [:ul
                                         [:li "a visual showcase of the components"]
                                         [:li "documentation for the components (parameters etc.)"]
