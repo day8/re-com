@@ -1,6 +1,6 @@
-(ns re-demo.layouts
-  (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-layout v-layout title flex-child-style p]]
-            [re-com.layout :refer [h-layout-args-desc v-layout-args-desc]]
+(ns re-demo.splits
+  (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-split v-split title flex-child-style p]]
+            [re-com.splits :refer [h-split-args-desc v-split-args-desc]]
             [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
@@ -63,17 +63,17 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[title2 "[h-layout ...]"]
+                           :children [[title2 "[h-split ...]"]
                                       [status-text "Stable"]
                                        [p "Arranges two components horizontally and provides a splitter bar between them."]
                                        [p "By dragging the splitter bar, a user can change the width allocated to each."]
                                        [p "Can contain further nested layout components."]
-                                      [args-table h-layout-args-desc]]]
+                                      [args-table h-split-args-desc]]]
                           [v-box
                            :size     "auto"
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [h-layout
+                                      [h-split
                                        :panel-1 [left-panel]
                                        :panel-2 [right-panel]]]]]]
               [line :style {:margin-top "20px"}]
@@ -82,14 +82,14 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[title2 "[v-layout ...]"]
+                           :children [[title2 "[v-split ...]"]
                                       [p "Same as above, but vertical."]
-                                      [args-table v-layout-args-desc]]]
+                                      [args-table v-split-args-desc]]]
                           [v-box
                            :size     "auto"
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [v-layout
+                                      [v-split
                                        :panel-1       [top-panel]
                                        :panel-2       [bottom-panel]
                                        :initial-split "25%"]]]]]

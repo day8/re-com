@@ -1,4 +1,4 @@
-(ns re-com.layout
+(ns re-com.splits
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util        :refer [get-element-by-id sum-scroll-offsets]]
             [re-com.box         :refer [flex-child-style flex-flow-style]]
