@@ -25,7 +25,7 @@
                It turned out their block display didn't play well with flex containers like h-box."]
                                       [p "We fixed that, but then there were other problems like they
                                       wouldn't justify correctly in a container. All this issues arose because they
-                                      were never designed (styled) to be the children of flexbaox containers."]
+                                      were never designed (styled) to be the children of flexbox containers."]
                                       [p "So we created the " [:span.bold "[box ...]"] " component which allows you to wrap
                a single non-flex \"leaf\" element for use in a flex container."]
                                       [p "You won't often need to use it directly."]
