@@ -140,7 +140,10 @@
                                    ["run-prod"]
                                    ["cljsbuild" "auto" "prod"]]
 
-                     "deploy-aws"  ["s3-static-deploy"]
+                     "deploy-aws"  ["with-profile" "+prod-run" "do"
+                                    ["clean"]
+                                    ["cljsbuild" "once" "prod"]
+                                    ["s3-static-deploy"]]
 
                      ;; *** TEST ***
 
