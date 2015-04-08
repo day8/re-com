@@ -20,15 +20,15 @@
                            :width    "450px"
                            :children [[title2 "Notes"]
                                       [status-text "Stable"]
-
-                                      [p "When we first put bootstrap buttons into re-com, they were streched.
+                                      [p "If you need to introduce leaf nodes into a layout and they are not
+                                      already correctly styled for use as flexbox items, then wrap them in (make them the child of) a " [:span.bold "[box ..]"] "."]
+                                      [p "Leaf nodes which need this treatment are typically block level elements from outside of re-com."]
+                                      [p "Back in the beginning, when we first put bootstrap styled buttons into re-com, they were streched. Alarmingly.
                It turned out their block display didn't play well with flex containers like h-box."]
                                       [p "We fixed that, but then there were other problems like they
-                                      wouldn't justify correctly in a container. All this issues arose because they
-                                      were never designed (styled) to be the children of flexbox containers."]
-                                      [p "So we created the " [:span.bold "[box ...]"] " component which allows you to wrap
-               a single non-flex \"leaf\" element for use in a flex container."]
-                                      [p "You won't often need to use it directly."]
+                                      wouldn't justify correctly in a container. All these issues arose because they
+                                      were never designed (styled) to be the children of flexbox containers. That's why we created [box]"]
+
                                       [args-table box-args-desc]]]
                           [v-box
                            :gap      "10px"

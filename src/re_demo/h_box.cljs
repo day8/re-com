@@ -21,7 +21,7 @@
                    {:id :px     :label "px"}
                    {:id :%      :label "num"}])
 
-(def demo-state (reagent/atom
+(def box-state (reagent/atom
               {:hbox {:width   "500px"
                      :height  "100px"
                      :justify :start
@@ -29,14 +29,12 @@
                :box1 {:size "none"
                       ; :min-width "200px"
                       ; :height  "200px"
-                      :align-self :center
                       :text "Box1"}
                :box2 {:size "0 1 50px"
-                      :text "Box2"}
+                      :text "Box2"
+                      :align-self :center}
                :box3 {:size "0 1 100px"
-                      :text "Box3"}
-               :box4 {:size "1 1 100px"
-                     :text "Box4"}}))
+                      :text "Box3"}}))
 
 (defn merge-named-params
   "given a hiccup vector v, and a map m containing named parameters, add the named parameters to v
@@ -73,47 +71,72 @@
   (-> [h-box
        :padding  "4px"
        :style {:border "dashed 1px red"}]
-      (merge-named-params (:hbox @demo-state))
+      (merge-named-params (:hbox @box-state))
       (conj :children)
-      (conj [(make-box (:box1 @demo-state))
-             (make-box (:box2 @demo-state))
-             (make-box (:box3 @demo-state))
-             (make-box (:box4 @demo-state))])))
+      (conj [(make-box (:box1 @box-state))
+             (make-box (:box2 @box-state))
+             (make-box (:box3 @box-state)) ])))
 
-(defn code-row
-  [& {:keys [indent1 indent2 on-over editor]}]
-
-  (let  [local-mouse-over  (reagent/atom false)
-         mouse-over       (fn [val]
-                            (reset! local-mouse-over val)
-                            (if on-over (on-over val))
-                            nil)
-         ;indent1           [:span {:style  {:flex (str "0 0 " indent1)}}]
-         ;indent2           [:span {:style  {:flex (str "0 0 " indent2)}}]
-         ; value-style       {:style {:flex (str "0 0 80px")}}}
-         ]
-    (fn [& {:keys [text1 text2 editor]}]
-    [h-box
-     :attr  {:on-mouse-over  #(mouse-over true)
-             :on-mouse-out   #(mouse-over false)}
-     :style {:background-color (if @local-mouse-over "#f0f0f0")}
-     :children [[gap :size indent1]             ;; leading indent
-                [box :size indent2 :child text1]        ;; often the parameter
-                [box :size indent2 :child text2]        ;; initial text
-                (if editor  editor)
-                ]])))
 
 (defn gap-editor
-  [over?-ratom path]
+  [overrow? path]
   (let [open (reagent/atom false)]
-  [:div "hello"]
-  ))
+
+    ))
+
+(defn editor-button
+  [mouse-over-row? open?]
+
+  [box
+   :size "100px"
+   :align-self  :center
+   :justify :center
+   :child  [:div {:class "md-play-arrow rc-icon-smaller"
+                  :style {:color "lightgrey"
+                          :XXXX 1}}]])
+
+(defn indent-px
+  [ident]
+  (ident {:0  "0px"
+          :1  "15px"
+          :2  "25px"
+          :3  "35px"}))
+
+(defn code-row
+  "A code row consists of:
+    - up to three pieces of text (all optional), typically:
+      1. parameter name
+      2. parameter value
+      3. rarely, a closing ']'
+    - an editor openn"
+  [indent text1 text2 text3 on-over editor]
+
+  (let  [mouse-over-row?  (reagent/atom false)
+         mouse-over-fn    (fn [val]
+                            (reset! mouse-over-row? val)
+                            (if on-over (on-over val))
+                            nil)
+         editor-open?     (reagent/atom false)
+         ]
+    (fn [indent text1 text2 text3 on-over editor]
+      [h-box
+       :attr  {:on-mouse-over  #(mouse-over-fn true)
+               :on-mouse-out   #(mouse-over-fn false)}
+       :style {:background-color (if @mouse-over-row? "#f0f0f0")}
+       :children [[gap :size (indent-px indent)]          ;; leading indent
+                  [box :size "100px" :child text1]        ;; often the parameter
+                  [box :size "100px"  :child text2]        ;; often the parameter value
+                  [box :size "5px"    :child text3]        ;; often the parameter value
+                  #_(if editor  editor)
+                  ]])))
+
 
 (defn editable-code
   "Shows the code in a way that values can be edited, allowing for an interactive demo."
   []
   (let [over-hbox  (fn [over?] )
-        over-box1  (fn [over?] )]
+        over-box1  (fn [over?] )
+        over-box2  (fn [over?] )]
     (fn []
       [v-box
        :children [[gap :size "20px"]
@@ -124,13 +147,27 @@
                            :border           "1px solid lightgray"
                            :border-radius    "4px"
                            :padding          "8px"}
-                   :children [[code-row :on-over over-hbox :indent1 "0px"   :text1 "[h-box"     :indent2 "80px"  :text2  ""  ]
-                              [code-row :on-over over-hbox :indent1 "15px"  :text1  ":size"     :indent2 "80px"  :text2  "\"1\"" ]
-                              [code-row :on-over over-hbox :indent1 "15px"  :text1  ":gap"      :indent2 "80px"  :text2  "\"1px\""  :editor [gap-editor]]
-                              [code-row :on-over over-hbox :indent1 "15px"  :text1  ":children" :indent2 "80px"  :text2  " ["]
-                              [code-row :on-over over-box1 :indent1 "25px"  :text1  "[box "     :indent2 "80px"  :text2  ""]
-                              [code-row :on-over over-box1 :indent1 "35px"  :text1  ":child "   :indent2 "80px"  :text2  "\"Box1\""]
-                              [code-row :on-over over-box1 :indent1 "35px"  :text1  ":size"     :indent2 "80px"  :text2  "\"auto\""]]]]])))
+                   :children [[code-row :0 "[h-box"        ""          ""  over-hbox   :indent :0   :indent2 "80px"     ]
+                              [code-row :1 "  :size"       "\"500px\"" ""  over-hbox   :indent :1  :indent2 "100px"   ]
+                              [code-row :1 "  :gap"        "\"1px\""   ""  over-hbox   :indent :1  :indent2 "100px"    :editor [gap-editor]]
+                              [code-row :1 "  :children"   " ["        ""  over-hbox   :indent :1  :indent2 "100px"   ]
+
+                              [code-row :2 "[box "          ""          ""  over-box1]
+                              [code-row :3 "  :child"       "\"Box1\""  ""  over-box1]
+                              [code-row :3 "  :size"        "\"auto\""  ""  over-box1]
+                              [code-row :3 "  :align-self"  ":center"   ""  over-box1]
+                              [code-row :3 "  :height"      "\"50px\""  ""  over-box1]
+                              [code-row :3 "  :min-width"   "100px"     "]" over-box1]
+
+                              [code-row :2 "[box "          ""          ""  over-box2]
+                              [code-row :3 "  :child"       "\"Box2\""  ""  over-box2]
+                              [code-row :3 "  :size"        "\"auto\""  ""  over-box2]
+                              [code-row :3 "  :align-self"  ":center"   ""  over-box2]
+                              [code-row :3 "  :height"      "\"50px\""  ""  over-box2]
+                              [code-row :3 "  :min-width"   "100px"     "]" over-box2]
+
+                              [code-row :0  "]"  "" "" over-hbox   ]
+                              ]]]])))
 
 
 
@@ -163,7 +200,7 @@
                                :gap      "10px"
                                :width    "500px"
                                :children [[title2 "Demo"]
-                                          [p "This is an intereactive demo.  Edit the \"code\" (in grey) and watch the boxes change."]
+                                          [p "This is an intereactive demo.  Edit the \"code\" (in grey) and watch the boxes change. The red-dashed box is an h-box whch contains up to four children."]
                                           [demo]
                                           [editable-code]]]
                               ]]
