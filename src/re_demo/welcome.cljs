@@ -13,7 +13,7 @@
                 :href "https://github.com/reagent-project/reagent"
                 :target "_blank"]
                "."]
-              [p "It contains the sort of layout and controls you'd need to build a desktop-class app."]]])
+              [p "It provides layouts and controls for building desktop-class apps (incomplete)."]]])
 
 (defn this-app
   []
@@ -24,12 +24,12 @@
               [h-box
                :gap "100px"
                :children [[v-box
-                           :children [[p "The demo app serves as:"
+                           :children [[p "The demo app is build using re-com and serves as:"
                                        [:ul
                                         [:li "a visual showcase of the components"]
                                         [:li "documentation for the components (parameters etc.)"]
                                         [:li "shows, via its own code, how to use the components"]
-                                        [:li "something of a test harness"]]]]]
+                                        [:li "a test harness"]]]]]
                           [v-box
                            :style {:font-size "13px" :color "#aaa"}
                            :children [[p {:style {:width "250px"}} [:br] [:br] [:br] "Most pages in this app have
@@ -41,26 +41,30 @@
   []
   [v-box
    :children [
-              [title :level :level2 :label "Named Parameters"]
+              [title :level :level2 :label "Component Parameters"]
               [p  "re-com components take " [:span.bold "named parameters"] ", rather than " [:span.bold "positional parameters"] "."]
-
+              [p  "Where a normal reagent component might be used like this:"]
+              [:pre
+               {:style {:width "450px"}}
+               "[:input {:type \"button\" :value \"Click me!\"
+         :on-click #(swap! click-count inc)
+         :style {:background-color \"blue\"}]"]
               [h-box
                :gap "100px"
                :children [[v-box
-                          :children [[p "When you use a re-com component, like " [:span.bold "checkbox"] ", it looks like this:"]
+                          :children [[p "When you use a re-com component, like " [:span.bold "button"] ", it looks like this:"]
                                      [:pre
                                       {:style {:width "450px"}}
-                                      "[checkbox
-  :label     \"Show Status Icon?\"
-  :model     status-icon?      ; a ratom
-  :on-change (fn [new-val] (reset! status-icon? new-val))]"]
+                                      "[button
+  :label     \"Click me!\"
+  :on-click #(swap! click-count inc)
+  :style    {:background-color \"blue\"}]"]
                                      [p "Each parameter has a leading keyword name."]
                                      [p "Now, our sausage fingers sometimes type onmouseover instead of on-mouse-over,
                                      or centre rather than center, and sometimes we pass in a string where  there should be keyword."]
-                                     [p "re-com tries to catch these kinds of mistakes by validating all parameter names and values."]
-                                     [p "But there is overhead in this checking which you'd like to avoid in production. So, to remove it,
-                                      be sure to
-                                     include the following in your project.clj for your productuion builds:"]
+                                     [p "re-com catches these errors early by validating parameter names and values."]
+                                     [p "To avoid the overhead in this checking,
+                                         include the following in your project.clj for your productuion builds:"]
                                      [:pre
                                       {:style {:width "450px"}}
                                       ":closure-defines {:goog.DEBUG false}"]]]
