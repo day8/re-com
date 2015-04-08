@@ -447,7 +447,7 @@
    {:name :t-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the top border. Overrides " [:code ":border"]]}
    {:name :b-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the bottom. Overrides " [:code ":border"]]}
    {:name :radius     :required false                                :type "string"          :validate-fn string?           :description "a CSS radius style eg.\"2px\""}
-   {:name :size       :required false :default "auto"                :type "string"          :validate-fn string?           :description [:span "Equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow/shrink/basis"]]}
+   {:name :size       :required false :default "none"                :type "string"          :validate-fn string?           :description [:span "Equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow/shrink/basis"]]}
    {:name :width      :required false                                :type "string"          :validate-fn string?           :description "a CSS style describing the initial width"}
    {:name :height     :required false                                :type "string"          :validate-fn string?           :description "a CSS style describing the initial height"}
    {:name :min-width  :required false                                :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
@@ -468,7 +468,7 @@
     - border-style: none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset
     - color:        standard CSS color (e.g. grey #88ffee)"
   [& {:keys [size width height min-width min-height margin padding border l-border r-border t-border b-border radius child class style attr]
-      :or   {size "auto"}
+      :or   {size "none"}
       :as   args}]
   {:pre [(validate-args-macro border-args-desc args "border")]}
   (let [no-border      (every? nil? [border l-border r-border t-border b-border])
