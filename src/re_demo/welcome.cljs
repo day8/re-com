@@ -3,17 +3,36 @@
             [re-demo.utils :refer [panel-title title2]]))
 
 
+; narrow, light grey column of text, on the RHS
+(def RHS-column-style
+  {:style {:width "250px"
+           :font-size "13px"
+           :color "#aaa"}})
+
+;; the gap betwen the the two columns
+(def center-gap-px "100px")
+
 (defn welecome
   []
   [v-box
-   :children [[p
+   :children [[gap :size "10px"]
+              [p
                "Re-com is a library of ClojureScript UI components, built on top of "
                [hyperlink-href
                 :label "Reagent"
                 :href "https://github.com/reagent-project/reagent"
                 :target "_blank"]
                "."]
-              [p "It provides layouts and controls for building desktop-class apps (incomplete)."]]])
+              [h-box
+               :gap center-gap-px
+               :children [
+                          [p "It attempts to provide layouts and widgets for building desktop-class apps. Some widgets are still missing."]
+                          [p RHS-column-style [:br] "The "
+                           [hyperlink-href
+                            :label "github repo"
+                            :href "https://github.com/Day8/re-com"
+                            :target "_blank"]]]]]])
+
 
 (defn this-app
   []
@@ -22,19 +41,18 @@
               [title :level :level2 :label "This app"]
 
               [h-box
-               :gap "100px"
+               :gap center-gap-px
                :children [[v-box
-                           :children [[p "The demo app itself is built using re-com and serves as:"
+                           :children [[p "The demo app is an SPA, built using re-com. It serves as:"
                                        [:ul
                                         [:li "a visual showcase of the components"]
                                         [:li "documentation for the components (parameters etc.)"]
                                         [:li "shows, via its own code, how to use the components"]
                                         [:li "a test harness"]]]]]
                           [v-box
-                           :style {:font-size "13px" :color "#aaa"}
-                           :children [[p {:style {:width "250px"}} [:br] [:br] [:br] "Most pages in this app have
-                           hyperlinks near the title which take you
-                           directly to the associated source code in github."]]]]]]])
+                           :children [[p RHS-column-style [:br] [:br] [:br] "Most pages of this app have
+                           hyperlinks which take you
+                           directly to the associated source code (github)."]]]]]]])
 
 
 (defn named-params
@@ -42,40 +60,40 @@
   [v-box
    :children [
               [title :level :level2 :label "Component Parameters"]
-              [p  "re-com components take " [:span.bold "named parameters"] ", rather than " [:span.bold "positional parameters"] "."]
-              [p  "Where a normal reagent component might be used like this:"]
+              [gap :size "10px"]
+              [p  "Generally, use of a Reagent component looks  like this:"]
               [:pre
                {:style {:width "450px"}}
-               "[:input {:type \"button\" :value \"Click me!\"
-         :on-click #(swap! click-count inc)
-         :style {:background-color \"blue\"}]"]
+               "[component-name style-map param1 param2  param3]"]
+              [p  "The name of a component is optionally followed by a style map, and then some number of " [:span.bold "positional parameters"] "."]
+              [gap :size "10px"]
+              [p  "Re-com uses a slightly different approach.  All re-com components take " [:span.bold "named parameters"] "."]
               [h-box
-               :gap "100px"
+               :gap center-gap-px
                :children [[v-box
-                          :children [[p "When you use a re-com component, like " [:span.bold "button"] ", it looks like this:"]
+                          :children [[p "For example, using the re-com " [:span.bold "button"] " component, looks like:"]
                                      [:pre
                                       {:style {:width "450px"}}
                                       "[button
   :label     \"Click me!\"
-  :on-click #(swap! click-count inc)
-  :style    {:background-color \"blue\"}]"]
-                                     [p "Each parameter has a leading keyword name."]
+  :on-click  #(swap! click-count inc)
+  :style     {:background-color \"blue\"}]"]
+                                     [p "Each parameter involves a leading keyword name, followed by a value.  Always pairs. "]
                                      [p "Now, our sausage fingers sometimes type onmouseover instead of on-mouse-over,
                                      or centre rather than center, and sometimes we pass in a string where  there should be keyword."]
-                                     [p "re-com catches these errors early by validating parameter names and values."]
+                                     [p "re-com catches these errors early by validating parameter names and values. Problems are written to the console."]
                                      [p "To avoid the overhead in this checking,
                                          include the following in your project.clj for your productuion builds:"]
                                      [:pre
                                       {:style {:width "450px"}}
                                       ":closure-defines {:goog.DEBUG false}"]]]
                           [v-box
-                           :style {:font-size "13px" :color "#aaa"}
-                           :children [[p {:style {:width "250px"}} "We use named parameters because:"
+                           :children [[p RHS-column-style "We use named parameters because:"
                                         [:ol
                                          [:li "the code seems more easily read and understood (although longer)"]
                                          [:li "optionality - not all parameters need be supplied and defaults can be introduced"]
                                          [:li "API flexibility - easy to add new parameters"]]]
-                                       [p {:style {:width "250px"}} "Read further analysis "
+                                       [p RHS-column-style "Read further analysis "
                                         [hyperlink-href
                                          :label "here"
                                          :href "https://clojurefun.wordpress.com/2012/08/13/keyword-arguments-in-clojure/"
