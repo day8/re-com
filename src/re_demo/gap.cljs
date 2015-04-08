@@ -57,12 +57,13 @@
                                       [p " "]
                                       [:pre
                                        {:style {:width "40em"}}
-                                       "[h-box               ; <-- no :gap, so children seperated by 0px
- :children [[grey-box]
-            [gap :size \"10px\"]  ; <-- absolute gap
-            [grey-box]        ; <-- pushed as far left as possible
-            [gap :size \"1\"]   ; <-- grows as much as possible
-            [grey-box]]]      ; <-- pushed as far right as possible"]
+                                       "[h-box                 ; <-- no :gap, children seperated by 0px
+ :children [
+    [grey-box]
+    [gap :size \"10px\"] ; <-- absolute gap
+    [grey-box]         ; <-- pushed as far left as possible
+    [gap :size \"1\"]    ; <-- grows as much as possible
+    [grey-box]]]       ; <-- pushed as far right as possible"]
 
                                       [p "Result:"]
                                       [h-box
@@ -84,7 +85,7 @@
                                       [gap :size "10px"]
                                       [p "Notes:"
                                        [:ul
-                                        [:li "This example has a gap with a " [:span.bold "proportional size"] " of \"1\", not an absolute size. "]
+                                        [:li "This example has a gap with a " [:span.bold "proportional size"] " of \"1\", not an absolute size. Synonymous to 100%."]
                                         [:li "Because it \"grows\" to fill all available space, it \"pushes\" box2 and box3 as far apart as possible."]
                                         [:li "Imagine the boxes as buttons, to see how this might be useful."]]]
                                       ]]]]
