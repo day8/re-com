@@ -200,8 +200,9 @@
                                :gap      "10px"
                                :width    "500px"
                                :children [[title2 "Demo"]
-                                          [p "This is an intereactive demo.  Edit the \"code\" (in grey) and watch the boxes change. The red-dashed box is an h-box whch contains up to four children."]
-                                          [demo]
-                                          [editable-code]]]
+                                          [p "An interactive demo is coming ..."]
+                                          #_[p "This is an intereactive demo.  Edit the \"code\" (in grey) and watch the boxes change. The red-dashed box is an h-box whch contains up to four children."]
+                                          #_[demo]
+                                          #_[editable-code]]]
                               ]]
                   [gap :size "30px"]]]))

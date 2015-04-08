@@ -8,7 +8,7 @@
             [re-com.core                   :refer [h-box v-box box gap line scroller border label title alert-box] :refer-macros [handler-fn]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title]]
-            [re-demo.welcome               :as    welcome]
+            [re-demo.introduction          :as    introduction]
             [re-demo.radio-button          :as    radio-button]
             [re-demo.checkbox              :as    checkbox]
             [re-demo.input-text            :as    input-text]
@@ -49,17 +49,8 @@
 (enable-console-print!)
 
 (def tabs-definition
-  [{:id :welcome                :level :major :label "Welcome"            :panel welcome/panel}
+  [{:id :introduction           :level :major :label "Introduction"       :panel introduction/panel}
 
-   {:id :layout                 :level :major :label "Layout"             :panel layout/panel}
-   {:id :h-box                  :level :minor :label "H-box"              :panel h-box/panel}
-   {:id :v-box                  :level :minor :label "V-box"              :panel v-box/panel}
-   {:id :box                    :level :minor :label "Box"                :panel box/panel}
-   {:id :gap                    :level :minor :label "Gap"                :panel gap/panel}
-   {:id :line                   :level :minor :label "Line"               :panel line/panel}
-   {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
-   {:id :border                 :level :minor :label "Border"             :panel border/panel}
-   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}
 
    {:id :buttons                :level :major :label "Buttons"}
    {:id :button                 :level :minor :label "Basic Button"       :panel button/panel}
@@ -96,6 +87,16 @@
    {:id :title                  :level :minor :label "Title"              :panel title/panel} ;; TODO: field-label?
    {:id :alert-box              :level :minor :label "Alert Box"          :panel alert-box/panel}
    {:id :alert-list             :level :minor :label "Alert List"         :panel alert-list/panel}
+
+   {:id :layout                 :level :major :label "Layout"             :panel layout/panel}
+   {:id :h-box                  :level :minor :label "H-box"              :panel h-box/panel}
+   {:id :v-box                  :level :minor :label "V-box"              :panel v-box/panel}
+   {:id :box                    :level :minor :label "Box"                :panel box/panel}
+   {:id :gap                    :level :minor :label "Gap"                :panel gap/panel}
+   {:id :line                   :level :minor :label "Line"               :panel line/panel}
+   {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
+   {:id :border                 :level :minor :label "Border"             :panel border/panel}
+   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}
    ])
 
 

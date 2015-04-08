@@ -14,16 +14,16 @@
                their children horizontally and vertically respectively. Because they are
                mutually nestable, you can combine them to create arbitrarily complex layouts."]]])
 
-(defn example-section
+
+(defn example-layout
   []
   [v-box
-   :children [[title :level :level2 :label "Simple Example"]
+   :children [
               [h-box
-               ;:gap "40px"
                :children [
                           [v-box
                            :children [
-                                      [p "This code ..."]
+                                      [p "And this example code, showing an " [:span.bold "h-box"] " as a child of a " [:span.bold "v-box"] " ..."]
                                       [:pre
                                        {:style {:width "460px"}}
                                        "[v-box
@@ -40,7 +40,7 @@
                            :child  [:div {:class "md-forward rc-icon-larger"
                                           :style {:color "lightgrey"}}]]
                           [v-box
-                           :children [[p "... results in:"]
+                           :children [[p "... results in this kind of structure:"]
                                       [v-box
                                        :gap      "1px"
                                        :children [[box :style {:background-color "lightgrey"} :child "Header"]
@@ -234,7 +234,7 @@
    :gap "10px"
    :children [[panel-title "Layout"]
               [components-section]
-              [example-section]
+              [example-layout]
               [gap :size "10px"] [line]
               [flex-box-section]
               [gap :size "10px"] [line]

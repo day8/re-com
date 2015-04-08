@@ -1,4 +1,4 @@
-(ns re-demo.welcome
+(ns re-demo.introduction
   (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href input-text p]]
             [re-demo.utils :refer [panel-title title2]]))
 
@@ -26,7 +26,8 @@
               [h-box
                :gap center-gap-px
                :children [
-                          [p "It attempts to provide layouts and widgets for building desktop-class apps. Some widgets are still missing."]
+                          [p "It provides " [:span.bold "layout"] " and " [:span.bold "widget"] " components
+                          for building desktop-class apps. The set of widgets is incomplete but growing."]
                           [p RHS-column-style [:br] "The github repo "
                            [hyperlink-href
                             :label "is here"
@@ -50,9 +51,9 @@
                                         [:li "shows, via its own code, how to use the components"]
                                         [:li "a test harness"]]]]]
                           [v-box
-                           :children [[p RHS-column-style [:br] [:br] [:br] "Most pages of this app have
-                           hyperlinks which take you
-                           directly to the associated source code (github)."]]]]]]])
+                           :children [[p RHS-column-style [:br] [:br] [:br]
+                                       "Most pages of this app have hyperlinks which take you
+                                        directly to the associated source code (in github)."]]]]]]])
 
 
 (defn params-validation
@@ -69,7 +70,7 @@
               [h-box
                :gap center-gap-px
                :children [[v-box
-                           :children [[p "re-com catches these errors early by validating parameter names and values."]
+                           :children [[p "re-com catches these errors early by validating both parameter names and values."]
                                       [p "To avoid the overhead in this checking,
                                          include the following in your project.clj for your productuion builds:"]
                                       [:pre
@@ -121,13 +122,83 @@
               ]])
 
 
+(defn layouts-section
+  []
+  [v-box
+   :children [[title :level :level2 :label "Layouts"]
+
+              [gap :size "10px"]
+              [p "Re-com has layout components which are not themselves visible -
+              they just arrange other components."]
+              [h-box
+               :gap center-gap-px
+               :children [[v-box
+                           :children [
+                                      [p "The key components are " [:span.bold "h-box"] " and " [:span.bold "v-box"] " which arange
+               their children horizontally and vertically respectively. Because they are
+               mutually nestable, you can combine them to create arbitrarily complex layouts."]
+                                      [p "This very page involves a " [:span.bold "v-box"] " arranging other components:"]
+                                      [:pre
+                                       {:style {:width "450px"}}
+                                       "[v-box
+   :children [[title \"Introduction\"]
+              [gap :size \"15px\"]
+              [this-app]
+              [gap :size \"30px\"]
+              [line]
+              [named-params]
+              ... etc
+              ]]"]]]
+                           [v-box
+                            :children [[p RHS-column-style "The underlying technology is "
+                                        [hyperlink-href
+                                         :label "flexbox"
+                                         :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
+                                         :target "_blank"]]
+                                       ]]]]]])
+
+
+(defn example-layout
+  []
+  [v-box
+   :children [
+              [h-box
+               :children [
+                          [v-box
+                           :children [
+                                      [p "And this example code, showing an " [:span.bold "h-box"] " as a child of a " [:span.bold "v-box"] " ..."]
+                                      [:pre
+                                       {:style {:width "460px"}}
+                                       "[v-box
+  :children [[box :child \"Header\"]
+             [h-box
+              :height \"100px\"
+              :children [[box :size \"70px\" :child \"Nav\"]
+                         [box :size \"1\" :child \"Content\"]]
+             [box :child \"Footer\"]]]"]]]
+                          [box
+                           :size "100px"
+                           :align-self  :center
+                           :justify :center
+                           :child  [:div {:class "md-forward rc-icon-larger"
+                                          :style {:color "lightgrey"}}]]
+                          [v-box
+                           :children [[p "... results in this kind of structure:"]
+                                      [v-box
+                                       :gap      "1px"
+                                       :children [[box :style {:background-color "lightgrey"} :child "Header"]
+                                                  [h-box
+                                                   :gap "1px"
+                                                   :height "100px"
+                                                   :children [[box :size "70px" :style {:background-color "lightgrey"} :child "Nav"]
+                                                              [box :size "1" :style {:background-color "lightgrey"} :child "Content"]]]
+                                                  [box :style {:background-color "lightgrey"} :child "Footer"]]]
+                                      [gap :size "15px"]]]]]]])
 
 (defn panel2
   []
   [v-box
-   :size     "auto"
-   ;:width    "600px"
-   :children [[panel-title "Welcome"]
+   :children [[panel-title "Introduction"]
               [gap :size "15px"]
               [welecome]
               [this-app]
@@ -137,6 +208,11 @@
               [gap :size "30px"]
               [line]
               [params-validation]
+              [gap :size "30px"]
+              [line]
+              [layouts-section]
+              [gap :size "30px"]
+              [example-layout]
               [gap :size "40px"]]])
 
 
