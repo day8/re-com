@@ -25,6 +25,7 @@
                                      [args-table border-args-desc]]]
                          [v-box
                           :gap      "10px"
+                          ; :size     "0 0 auto"
                           ;:align    :start
                           :children [[title2 "Demo"]
                                      [p "Here is some sample code..."]
@@ -32,12 +33,10 @@
                                       {:style {:width "40em"}}
 "[border
  :border \"1px dashed red\"
- :size   \"100px\"
- :child  [box :child \"Hello\"]]"]
+ :child  [box :height \"100px\" :child \"Hello\"]]"]
 
                                      [p "Here is the result..."]
                                      [border
                                       :border "1px dashed red"
-                                      :size   "100px"
-                                      :child  [box :child "Hello"]]]]]]
+                                      :child  [box :height "100px" :child "Hello"]]]]]]
               [gap :size "30px"]]])
