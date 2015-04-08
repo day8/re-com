@@ -33,7 +33,7 @@
             [re-demo.selection-list        :as    selection-list]
             [re-demo.input-time            :as    input-time]
             [re-demo.layout                :as    layout]
-            [re-demo.layouts               :as    layouts]
+            [re-demo.splits               :as     splits]
             [re-demo.tour                  :as    tour]
             [re-demo.modal-panel           :as    modal-panel]
             [re-demo.h-box                 :as    h-box]
@@ -59,7 +59,7 @@
    {:id :line                   :level :minor :label "Line"               :panel line/panel}
    {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
    {:id :border                 :level :minor :label "Border"             :panel border/panel}
-   {:id :layouts                :level :minor :label "Layouts"            :panel layouts/panel}
+   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}
 
    {:id :buttons                :level :major :label "Buttons"}
    {:id :button                 :level :minor :label "Basic Button"       :panel button/panel}
