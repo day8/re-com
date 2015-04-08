@@ -19,24 +19,23 @@
                    {:id :auto   :label "auto"}
                    {:id :none   :label "none"}
                    {:id :px     :label "px"}
-                   {:id :%      :label "%"}])
+                   {:id :%      :label "num"}])
 
-(def config (reagent/atom
+(def demo-state (reagent/atom
               {:hbox {:width   "500px"
                      :height  "100px"
                      :justify :start
                      :gap     "4px"}
-               :box1 {:size "auto"
-                      :min-width "200px"
-                      ; :height  "20px"
-                      :align-self :end
+               :box1 {:size "none"
+                      ; :min-width "200px"
+                      ; :height  "200px"
+                      :align-self :center
                       :text "Box1"}
-               :box2 {:size "0 1 100px"
-
+               :box2 {:size "0 1 50px"
                       :text "Box2"}
                :box3 {:size "0 1 100px"
                       :text "Box3"}
-               :box4 {:size "0 1 100px"
+               :box4 {:size "1 1 100px"
                      :text "Box4"}}))
 
 (defn merge-named-params
@@ -45,12 +44,11 @@
       ;; =>  [box :a 1 :b 2  :c 3]
   "
   [v m]
-  (let [not-nil-value #(identity (second %))]
-    (->> m
-         (filter not-nil-value)
-         (reduce concat [])
-         (into v)
-         vec)))
+  (->> m
+       (filter second)        ;; remove nil valued members
+       (reduce concat [])
+       (into v)
+       vec))
 
 
 (defn make-box
@@ -68,85 +66,51 @@
       (conj [:div {:style rounded-panel} (:text box-parameters)])))
 
 
+
 (defn demo
+  "creates the hiccup for the real demo, with its child boxes and all"
+  []
+  (-> [h-box
+       :padding  "4px"
+       :style {:border "dashed 1px red"}]
+      (merge-named-params (:hbox @demo-state))
+      (conj :children)
+      (conj [(make-box (:box1 @demo-state))
+             (make-box (:box2 @demo-state))
+             (make-box (:box3 @demo-state))
+             (make-box (:box4 @demo-state))])))
+
+(defn code-row
+  [indent text & args]
+  (let  [mouse-over   (reagent/atom false)]
+    (fn [indent text & args]
+    [h-box
+     :attr  {:on-mouse-over  #(do (reset! mouse-over true) (println "over") nil)
+             :on-mouse-out   #(do (reset! mouse-over false) nil)
+             }
+     :style {:background-color (if @mouse-over "#f0f0f0")}
+     :children [[gap :size (str (* indent 10) "px")]   ;; leading indent
+                [:span {:style {:flex "0 0 100px"}} text]
+                args]])))
+
+
+(defn editable-code
+  "Shows the code in a way that values can be edited, allowing for an interactive demo."
   []
   [v-box
-   :gap      "10px"
-   :children [[title2 "Demo"]
-              (-> [h-box
-                    :padding  "4px"
-                    :style {:border "dashed 1px red"}]
-                  (merge-named-params (:hbox @config))
-                  (conj :children)
-                  (conj [(make-box (:box1 @config))
-                         (make-box (:box2 @config))
-                         (make-box (:box3 @config))
-                         (make-box (:box4 @config))]))]])
+   :children [[gap :size "20px"]
+              [p "the demo above is produced by the code below"]
+              [v-box
+               :style {:font-family      "Consolas, \"Courier New\", monospace"
+                       :background-color "#f5f5f5"
+                       :border           "1px solid lightgray"
+                       :border-radius    "4px"
+                       :padding          "8px"}
+               :children [[code-row 0 "[h-box"        ]
+                          [code-row 2 "  :size"      "\"1\"" ]
+                          [code-row 2 "  :gap"     "\"1px\"" ]
+                          [code-row 2 "  :children"  " ["]]]]])
 
-
-
-#_(defn demo
-  []
-  (let [container-size (reagent/atom 500)
-        gap-size       (reagent/atom 0)
-        box1-db        (reagent/atom {:size :%  :px 100 :% 60 :show? true})
-        box2-db        (reagent/atom {:size :px :px 100 :% 50 :show? true})
-        box3-db        (reagent/atom {:size :%  :px 100 :% 40 :show? true})]
-    [v-box
-     :gap      "10px"
-     :children [[title2 "Demo"]
-                #_[p "Descriptions removed for now."]
-                [p "An h-box is normally invisible, but for this demo we've styled it with a dashed red border."]
-                ;[p "Each child box component (which includes an 4px magin) describes it's own settings and allows you to modify them."]
-                #_[p "Dashed red lines have been added between the boxes."]
-                [title :level :level3 :label "Container (h-box/v-box) - red border"]
-                [h-box
-                 :gap      "10px"
-                 :children [[box :align :start :width "100px" :child [:span "h/v-box " [:code ":w/:h"]]]
-                            [slider
-                             :model     container-size
-                             :min       0
-                             :max       800
-                             :width     "200px"
-                             :on-change #(reset! container-size %)]
-                            [:span @container-size "px"]]]
-                [h-box
-                 :gap      "10px"
-                 :children [[box :align :start :width "100px" :child [:span "gap " [:code ":size"]]]
-                            [slider
-                             :model     gap-size
-                             :min       0
-                             :max       50
-                             :width     "200px"
-                             :on-change #(reset! gap-size %)]
-                            [:span @gap-size "px"]]]
-                [gap :size "10px"]
-                [title :level :level3 :label "Children (box) - blue border at end of box"]
-                [box-controls "Box1" box1-db]
-                [box-controls "Box2" box2-db]
-                [box-controls "Box3" box3-db]
-                [gap :size "10px"]
-                [h-box
-                 :width    (px @container-size)
-                 :height   "100px"
-                 :gap      (px @gap-size)
-                 :style    {:border "dashed 1px red"}
-                 :children [(when (:show? @box1-db)
-                              [box
-                               :size (box-size @box1-db)
-                               :style h-box-style
-                               :child [:div {:style rounded-panel} "Box 1" [:br] ":size " (box-size @box1-db)]])
-                            (when (:show? @box2-db)
-                              [box
-                               :size (box-size @box2-db)
-                               :style h-box-style
-                               :child [:div {:style rounded-panel} "Box 2" [:br] ":size " (box-size @box2-db)]])
-                            (when (:show? @box3-db)
-                              [box
-                               :size (box-size @box3-db)
-                               :style h-box-style
-                               :child [:div {:style rounded-panel} "Box 3" [:br] ":size " (box-size @box3-db)]])]]
-                ]]))
 
 
   (defn panel
@@ -169,16 +133,16 @@
                                :children [[title2 "Notes"]
                                           [status-text "Stable"]
                                           [p "h-box is a container which lays out its  " [:code ":children"] " in a single horizontal row."]
-                                          [p
-                                           "To understand it fully and use it powerfully, you must have a good understanding of the "
-                                           [hyperlink-href
-                                            :label "CSS Flexbox"
-                                            :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
-                                            :target "_blank"]
-                                           " layout system."]
-                                          [p "The actual layout is a function of the " [:code ":size"] " of the container and the " [:code ":size"] " provided for each of the children."]
+
+                                          [p "The " [:span.bold "Layout"] " page (look LHS) describes the importance of " [:span.bold ":size"] "The actual layout is a function of the " [:code ":size"] " of the container and the " [:code ":size"] " provided for each of the children."]
                                           [p "Todo: Nestability with v-box"]
 
                                           [args-table h-box-args-desc]]]
-                              [demo]]]
+                              [v-box
+                               :gap      "10px"
+                               :width    "500px"
+                               :children [[title2 "Demo"]
+                                          [demo]
+                                          [editable-code]]]
+                              ]]
                   [gap :size "30px"]]]))
