@@ -81,35 +81,56 @@
              (make-box (:box4 @demo-state))])))
 
 (defn code-row
-  [indent text & args]
-  (let  [mouse-over   (reagent/atom false)]
-    (fn [indent text & args]
-    [h-box
-     :attr  {:on-mouse-over  #(do (reset! mouse-over true) (println "over") nil)
-             :on-mouse-out   #(do (reset! mouse-over false) nil)
-             }
-     :style {:background-color (if @mouse-over "#f0f0f0")}
-     :children [[gap :size (str (* indent 10) "px")]   ;; leading indent
-                [:span {:style {:flex "0 0 100px"}} text]
-                args]])))
+  [& {:keys [indent1 indent2 on-over editor]}]
 
+  (let  [local-mouse-over  (reagent/atom false)
+         mouse-over       (fn [val]
+                            (reset! local-mouse-over val)
+                            (if on-over (on-over val))
+                            nil)
+         ;indent1           [:span {:style  {:flex (str "0 0 " indent1)}}]
+         ;indent2           [:span {:style  {:flex (str "0 0 " indent2)}}]
+         ; value-style       {:style {:flex (str "0 0 80px")}}}
+         ]
+    (fn [& {:keys [text1 text2 editor]}]
+    [h-box
+     :attr  {:on-mouse-over  #(mouse-over true)
+             :on-mouse-out   #(mouse-over false)}
+     :style {:background-color (if @local-mouse-over "#f0f0f0")}
+     :children [[gap :size indent1]             ;; leading indent
+                [box :size indent2 :child text1]        ;; often the parameter
+                [box :size indent2 :child text2]        ;; initial text
+                (if editor  editor)
+                ]])))
+
+(defn gap-editor
+  [over?-ratom path]
+  (let [open (reagent/atom false)]
+  [:div "hello"]
+  ))
 
 (defn editable-code
   "Shows the code in a way that values can be edited, allowing for an interactive demo."
   []
-  [v-box
-   :children [[gap :size "20px"]
-              [p "the demo above is produced by the code below"]
-              [v-box
-               :style {:font-family      "Consolas, \"Courier New\", monospace"
-                       :background-color "#f5f5f5"
-                       :border           "1px solid lightgray"
-                       :border-radius    "4px"
-                       :padding          "8px"}
-               :children [[code-row 0 "[h-box"        ]
-                          [code-row 2 "  :size"      "\"1\"" ]
-                          [code-row 2 "  :gap"     "\"1px\"" ]
-                          [code-row 2 "  :children"  " ["]]]]])
+  (let [over-hbox  (fn [over?] )
+        over-box1  (fn [over?] )]
+    (fn []
+      [v-box
+       :children [[gap :size "20px"]
+
+                  [v-box
+                   :style {:font-family      "Consolas, \"Courier New\", monospace"
+                           :background-color "#f5f5f5"
+                           :border           "1px solid lightgray"
+                           :border-radius    "4px"
+                           :padding          "8px"}
+                   :children [[code-row :on-over over-hbox :indent1 "0px"   :text1 "[h-box"     :indent2 "80px"  :text2  ""  ]
+                              [code-row :on-over over-hbox :indent1 "15px"  :text1  ":size"     :indent2 "80px"  :text2  "\"1\"" ]
+                              [code-row :on-over over-hbox :indent1 "15px"  :text1  ":gap"      :indent2 "80px"  :text2  "\"1px\""  :editor [gap-editor]]
+                              [code-row :on-over over-hbox :indent1 "15px"  :text1  ":children" :indent2 "80px"  :text2  " ["]
+                              [code-row :on-over over-box1 :indent1 "25px"  :text1  "[box "     :indent2 "80px"  :text2  ""]
+                              [code-row :on-over over-box1 :indent1 "35px"  :text1  ":child "   :indent2 "80px"  :text2  "\"Box1\""]
+                              [code-row :on-over over-box1 :indent1 "35px"  :text1  ":size"     :indent2 "80px"  :text2  "\"auto\""]]]]])))
 
 
 
@@ -142,6 +163,7 @@
                                :gap      "10px"
                                :width    "500px"
                                :children [[title2 "Demo"]
+                                          [p "This is an intereactive demo.  Edit the \"code\" (in grey) and watch the boxes change."]
                                           [demo]
                                           [editable-code]]]
                               ]]
