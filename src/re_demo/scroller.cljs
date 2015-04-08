@@ -36,5 +36,5 @@
                                       [p "Notes:"
                                       [:ul
                                        [:li "In this example, if the height of [some-component] is greater than 300px, a vertical scroll bar will be added."]
-                                       [:li "Hiccup is typically supplied for " [:code ":child"] ". Notice that [some-component] is supplied, not some-component."]]]]]]]
+                                       ]]]]]]
               [gap :size "30px"]]])
