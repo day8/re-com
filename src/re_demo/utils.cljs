@@ -102,7 +102,7 @@
       []
       [v-box
        :children (concat
-                   [[title2 "Named Parameters"]
+                   [[title2 "Parameters"]
                     [gap :size "10px"]]
                    (map (partial arg-row name-width)  args (cycle [true false])))])))
 
