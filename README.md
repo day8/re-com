@@ -6,7 +6,7 @@ It is built on top of Dan Holmsand's terrific
 [Reagent](http://reagent-project.github.io)
 which, in turn, is a layer over Facebook's trailblazing [React](http://facebook.github.io/react).
 
-Just to be clear: this library is 100% ClojureScript. We're not wrapping jquery plugins here.
+Just to be clear: this library is 100% ClojureScript. We're not wrapping jQuery plugins here.
 
 Re-com has:
 
@@ -45,7 +45,7 @@ itself is very actively forcing their demise -
 [come Jan 12th 2016 corporates will have to be on IE11](http://blogs.msdn.com/b/ie/archive/2014/08/07/stay-up-to-date-with-internet-explorer.aspx)
 
 So, by Q1 2016, the market share of IE9 and IE10 will have diminished sufficiently
-that they could be ignored. Probably. Myabe.
+that they could be ignored. Probably. Maybe.
 If so, a modern flexbox implementation will be available on all the browsers you then care about.
 **So that's surprisingly soon, but not now!**
 
@@ -167,24 +167,19 @@ two sub-directories:
    ```
 
 
-## Using re-com In Your App
+## Installation
 
-First, add these dependencies in your project.clj:
+re-com is available from clojars. Add it to your project.clj dependencies:
 
-```Clojure
-:dependencies [
-  ...
-  [reagent "0.5.0"]
-  [re-com "0.4.0"]
-  [com.andrewmcveigh/cljs-time "0.3.2"]      ;; date picker
-]
+```clojure
+  [re-com "0.4.1"]
 ```
 
 
 As far as your `index.html` is concerned, take inspiration from here:
 https://github.com/Day8/re-com/tree/master/run/resources/public
 
-In particular, you'll need bootstrap (assumidly via a CDN):
+In particular, you'll need bootstrap (assumedly via a CDN):
 ```html
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
 ```
@@ -199,6 +194,26 @@ https://github.com/Day8/re-com/tree/master/run/resources/public/assets
 
 Reagent comes bundled with a matching version of ReactJS,
 so you don't need to include it explicitly.
+
+## Usage
+
+1. Require re-com in your view namespace:
+```clojure
+(ns your.ns.here
+     (:require [re-com.core :refer [h-box button]]))
+```
+
+2. Use components in hickup:
+```clojure
+(defn panel
+  ; basic layout with button
+  [h-box
+    :children [[button
+                :label     "Click me!"
+                :on-click  #(swap! click-count inc)
+                :style     {:background-color "blue"}]]
+  ])
+```
 
 ## MVC
 
@@ -229,7 +244,7 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
    our docs take the form of an app written in ClojureScrip using re-com, your actually
    be exercising your knowledge of re-com as you do this.
 3. See the list of missing components above. You'll have to produce the
-   component itself, including a params spec, plue the extra page in the demo app.
+   component itself, including a params spec, plus the extra page in the demo app.
 4. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
 
 When creating new components, we have found it useful to use the CSS from existing
