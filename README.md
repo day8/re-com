@@ -197,13 +197,13 @@ so you don't need to include it explicitly.
 
 ## Usage
 
-1. Require re-com in your view namespace:
+* Require re-com in your view namespace:
 ```clojure
 (ns your.ns.here
      (:require [re-com.core :refer [h-box button]]))
 ```
 
-2. Use components in hickup:
+* Use components in hickup:
 ```clojure
 (defn panel
   ; basic layout with button
