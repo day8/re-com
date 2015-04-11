@@ -30,7 +30,7 @@
                                      [:pre
                                       {:style {:width "40em"}}
 "[scroller
- :v-scroll \"auto\"
+ :v-scroll :auto
  :height   \"300px\"
  :child    [some-component]]"]
                                       [p "Notes:"
