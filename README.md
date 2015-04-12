@@ -6,7 +6,7 @@ It is built on top of Dan Holmsand's terrific
 [Reagent](http://reagent-project.github.io)
 which, in turn, is a layer over Facebook's trailblazing [React](http://facebook.github.io/react).
 
-Just to be clear: this library is 100% ClojureScript. We're not wrapping jquery plugins here.
+Just to be clear: this library is 100% ClojureScript. We're not wrapping jQuery plugins here.
 
 Re-com has:
 
@@ -167,16 +167,14 @@ two sub-directories:
    ```
 
 
-## Using re-com In Your App
+## Using re-com
 
-First, add these dependencies in your project.clj:
+re-com is available from clojars. Add it to your project.clj dependencies:
 
 ```Clojure
 :dependencies [
   ...
-  [reagent "0.5.0"]
-  [re-com "0.4.0"]
-  [com.andrewmcveigh/cljs-time "0.3.2"]      ;; date picker
+  [re-com "0.4.1"]
 ]
 ```
 
@@ -184,7 +182,7 @@ First, add these dependencies in your project.clj:
 As far as your `index.html` is concerned, take inspiration from here:
 https://github.com/Day8/re-com/tree/master/run/resources/public
 
-In particular, you'll need bootstrap (assumidly via a CDN):
+In particular, you'll need bootstrap (assumedly  via a CDN):
 ```html
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
 ```
@@ -199,6 +197,7 @@ https://github.com/Day8/re-com/tree/master/run/resources/public/assets
 
 Reagent comes bundled with a matching version of ReactJS,
 so you don't need to include it explicitly.
+
 
 ## MVC
 
@@ -233,7 +232,7 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
    our docs take the form of an app written in ClojureScrip using re-com, your actually
    be exercising your knowledge of re-com as you do this.
 1. See the list of missing components above. You'll have to produce the
-   component itself, including a params spec, plue the extra page in the demo app.
+   component itself, including a params spec, plus the extra page in the demo app.
 1. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
 
 When creating new components, we have found it useful to use the CSS from existing
