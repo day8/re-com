@@ -45,7 +45,7 @@ itself is very actively forcing their demise -
 [come Jan 12th 2016 corporates will have to be on IE11](http://blogs.msdn.com/b/ie/archive/2014/08/07/stay-up-to-date-with-internet-explorer.aspx)
 
 So, by Q1 2016, the market share of IE9 and IE10 will have diminished sufficiently
-that they could be ignored. Probably. Myabe.
+that they could be ignored. Probably. Maybe.
 If so, a modern flexbox implementation will be available on all the browsers you then care about.
 **So that's surprisingly soon, but not now!**
 
@@ -207,6 +207,11 @@ If you decide to use re-com, consider also using [re-frame](https://github.com/D
 
 Although both `re-frame` and `re-com` can be used independently of each other, they dovetail well.
 
+## Lein Template
+
+
+See @gadfly361's [reagent-seed](https://github.com/gadfly361/reagent-seed)
+
 
 ## The Missing Components
 
@@ -224,13 +229,12 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
 
 ## Helping
 
-1. A lein template would be nice.
-2. Where the docs are wrong or fall short, write up something better. Because
+1. Where the docs are wrong or fall short, write up something better. Because
    our docs take the form of an app written in ClojureScrip using re-com, your actually
    be exercising your knowledge of re-com as you do this.
-3. See the list of missing components above. You'll have to produce the
+1. See the list of missing components above. You'll have to produce the
    component itself, including a params spec, plue the extra page in the demo app.
-4. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
+1. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
 
 When creating new components, we have found it useful to use the CSS from existing
 javascript projects (assuming their licence is compatible with MIT) and then
