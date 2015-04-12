@@ -6,7 +6,7 @@ It is built on top of Dan Holmsand's terrific
 [Reagent](http://reagent-project.github.io)
 which, in turn, is a layer over Facebook's trailblazing [React](http://facebook.github.io/react).
 
-Just to be clear: this library is 100% ClojureScript. We're not wrapping jQuery plugins here.
+Just to be clear: this library is 100% ClojureScript. We're not wrapping jquery plugins here.
 
 Re-com has:
 
@@ -167,19 +167,24 @@ two sub-directories:
    ```
 
 
-## Installation
+## Using re-com In Your App
 
-re-com is available from clojars. Add it to your project.clj dependencies:
+First, add these dependencies in your project.clj:
 
-```clojure
-  [re-com "0.4.1"]
+```Clojure
+:dependencies [
+  ...
+  [reagent "0.5.0"]
+  [re-com "0.4.0"]
+  [com.andrewmcveigh/cljs-time "0.3.2"]      ;; date picker
+]
 ```
 
 
 As far as your `index.html` is concerned, take inspiration from here:
 https://github.com/Day8/re-com/tree/master/run/resources/public
 
-In particular, you'll need bootstrap (assumedly via a CDN):
+In particular, you'll need bootstrap (assumidly via a CDN):
 ```html
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
 ```
@@ -195,32 +200,17 @@ https://github.com/Day8/re-com/tree/master/run/resources/public/assets
 Reagent comes bundled with a matching version of ReactJS,
 so you don't need to include it explicitly.
 
-## Usage
-
-* Require re-com in your view namespace:
-```clojure
-(ns your.ns.here
-     (:require [re-com.core :refer [h-box button]]))
-```
-
-* Use components in hickup:
-```clojure
-(defn panel
-  ; basic layout with button
-  [h-box
-    :children [[button
-                :label     "Click me!"
-                :on-click  #(swap! click-count inc)
-                :style     {:background-color "blue"}]]
-  ])
-```
-
 ## MVC
 
 If you decide to use re-com, consider also using [re-frame](https://github.com/Day8/re-frame)
 (an MVC-ish framework).
 
 Although both `re-frame` and `re-com` can be used independently of each other, they dovetail well.
+
+## Lein Template
+
+
+See @gadfly361's [reagent-seed](https://github.com/gadfly361/reagent-seed)
 
 
 ## The Missing Components
@@ -239,13 +229,12 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
 
 ## Helping
 
-1. A lein template would be nice.
-2. Where the docs are wrong or fall short, write up something better. Because
+1. Where the docs are wrong or fall short, write up something better. Because
    our docs take the form of an app written in ClojureScrip using re-com, your actually
    be exercising your knowledge of re-com as you do this.
-3. See the list of missing components above. You'll have to produce the
-   component itself, including a params spec, plus the extra page in the demo app.
-4. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
+1. See the list of missing components above. You'll have to produce the
+   component itself, including a params spec, plue the extra page in the demo app.
+1. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
 
 When creating new components, we have found it useful to use the CSS from existing
 javascript projects (assuming their licence is compatible with MIT) and then
