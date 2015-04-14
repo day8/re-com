@@ -10,7 +10,7 @@
                            :border-radius    "4px"
                            :padding          "0px 20px 0px 20px"}))
 
-(defn spliter-panel-title
+(defn splitter-panel-title
   [text]
   [title
    :label text
@@ -22,7 +22,7 @@
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [spliter-panel-title [:code ":panel-1"]]]])
+           [splitter-panel-title [:code ":panel-1"]]]])
 
 
 (defn right-panel
@@ -30,7 +30,7 @@
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [spliter-panel-title [:code ":panel-2"]]]])
+           [splitter-panel-title [:code ":panel-2"]]]])
 
 
 (defn top-panel
@@ -38,7 +38,7 @@
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [spliter-panel-title [:code ":panel-1"]]]])
+           [splitter-panel-title [:code ":panel-1"]]]])
 
 
 (defn bottom-panel
@@ -46,7 +46,7 @@
   [box
    :size "auto"
    :child [:div {:style rounded-panel}
-           [spliter-panel-title [:code ":panel-2"]]]])
+           [splitter-panel-title [:code ":panel-2"]]]])
 
 
 (defn panel
@@ -54,7 +54,7 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title "Spliter Components"
+   :children [[panel-title "Splitter Components"
                             "src/re_com/splits.cljs"
                             "src/re_demo/splits.cljs"]
 

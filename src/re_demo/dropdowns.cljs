@@ -106,12 +106,11 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [
-                   [p "The dropdown below shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'EN COUNTRIES'."]
-                   [p "This feature is triggered if any choice has a :group attribute. Typically all choices will have a :group or none will. It's up to you to ensure that choices with the same :group are adjacent in the vector."]
-                   [p "Because :model is initially nil, the :placeholder text is initially displayed."]
-                   [p ":max-width is set here to make the dropdown taller."]
-                   [p ":label can be a string or arbitrary markup. Notice the boldness of the 'New Zealand'."]
+       :children [[p "The dropdown below shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'EN COUNTRIES'."]
+                  [p "This feature is triggered if any choice has a :group attribute. Typically all choices will have a :group or none will. It's up to you to ensure that choices with the same :group are adjacent in the vector."]
+                  [p "Because :model is initially nil, the :placeholder text is initially displayed."]
+                  [p ":max-width is set here to make the dropdown taller."]
+                  [p ":label can be a string or arbitrary markup. Notice the boldness of the 'New Zealand'."]
                   [h-box
                    :gap      "10px"
                    :align    :center
@@ -136,11 +135,10 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [
-                   [p "The dropdown below adds a filter text box to the dropdown section which is convenient for when there are many choices."]
-                   [p "The filter text is searched for in both the :group and the :label values. If the text matches the :group, then all
-                       choices under that group are considered to be 'matched'."]
-                   [p "The initial model value has been set to 'US'."]
+       :children [[p "The dropdown below adds a filter text box to the dropdown section which is convenient for when there are many choices."]
+                  [p "The filter text is searched for in both the :group and the :label values. If the text matches the :group, then all
+                      choices under that group are considered to be 'matched'."]
+                  [p "The initial model value has been set to 'US'."]
                   [h-box
                    :gap      "10px"
                    :align    :center
@@ -164,14 +162,13 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [
-                   [p "[single-dropdown ...] supports tab key navigation."]
-                   [p "The :tab-index parameter specifies position in the tab order,
+       :children [[p "[single-dropdown ...] supports tab key navigation."]
+                  [p "The :tab-index parameter specifies position in the tab order,
                        or it can be removed from the tab order using a value of -1."]
-                   [p "Up-arrow and Down-arrow do sensible things."]
-                   [p "Home and End keys move to the beginning and end of the list."]
-                   [p "Enter, Tab and Shift+Tab trigger selection of the currently highlighted choice."]
-                   [p "Esc closes the dropdown without making a selection."]
+                  [p "Up-arrow and Down-arrow do sensible things."]
+                  [p "Home and End keys move to the beginning and end of the list."]
+                  [p "Enter, Tab and Shift+Tab trigger selection of the currently highlighted choice."]
+                  [p "Esc closes the dropdown without making a selection."]
                   [h-box
                    :gap      "10px"
                    :align    :center
@@ -203,7 +200,7 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[:p "Experiment with the checkboxes below to understand the effect of other parameters."]
+       :children [[p "Experiment with the checkboxes below to understand the effect of other parameters."]
                   [h-box
                    :align    :center
                    :children [[checkbox
@@ -261,8 +258,7 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [
-                  [p "Two dropdowns can be tied together in a parent-child relationship. In this case, countries and their cities."]
+       :children [[p "Two dropdowns can be tied together in a parent-child relationship. In this case, countries and their cities."]
                   [h-box
                    :gap      "10px"
                    :align    :center

@@ -273,7 +273,7 @@
    {:name :arrow-length     :required false  :default 11           :type "integer | string" :validate-fn number-or-string? :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
    {:name :arrow-width      :required false  :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
    {:name :padding          :required false                        :type "string"           :validate-fn string?           :description "a CSS style which overrides the inner padding of the popover"}
-   {:name :style            :required false                        :type "map"              :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
+   {:name :style            :required false                        :type "CSS style map"    :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
 
 ;(def popover-content-wrapper-args (extract-arg-data popover-content-wrapper-args-desc))
 
@@ -341,7 +341,7 @@
    {:name :position :required true  :default :right-below :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :anchor   :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the component the popover is attached to"}
    {:name :popover  :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the popover body component"}
-   {:name :style    :required false                       :type "map"             :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
+   {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
 
 ;(def popover-anchor-wrapper-args (extract-arg-data popover-anchor-wrapper-args-desc))
 
@@ -382,7 +382,7 @@
    {:name :anchor    :required true                         :type "hiccup"                 :validate-fn string-or-hiccup?    :description "the component the tooltip is attached to"}
    {:name :position  :required false :default :below-center :type "keyword"                :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :width     :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}
-   {:name :style     :required false                        :type "map"                    :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency"}])
+   {:name :style     :required false                        :type "CSS style map"          :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency"}])
 
 ;(def popover-tooltip-args (extract-arg-data popover-tooltip-args-desc))
 

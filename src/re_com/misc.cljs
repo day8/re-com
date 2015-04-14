@@ -27,8 +27,8 @@
    {:name :validation-regex :required false                  :type "regex"            :validate-fn regex?             :description "user input is only accepted if it would result in a string that matches this regular expression"}
    {:name :disabled?        :required false :default false   :type "boolean | atom"                                   :description "if true, the user can't interact (input anything)"}
    {:name :class            :required false                  :type "string"           :validate-fn string?            :description "CSS class names, space separated"}
-   {:name :style            :required false                  :type "css style map"    :validate-fn css-style?         :description "CSS styles to add or override"}
-   {:name :attr             :required false                  :type "html attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+   {:name :style            :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override"}
+   {:name :attr             :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
    {:name :input-type       :required false                  :type "keyword"          :validate-fn keyword?           :description "ONLY applies to super function 'base-input-text': either :input or :textarea"}])
 
 ;(def input-text-args (extract-arg-data input-text-args-desc))
@@ -160,8 +160,8 @@
    {:name :on-change   :required true                 :type "(boolean) -> nil" :validate-fn fn?               :description "called when the checkbox is clicked. Passed the new value of the checkbox"}
    {:name :label       :required false                :type "string | hiccup"  :validate-fn string-or-hiccup? :description "the label shown to the right"}
    {:name :disabled?   :required false :default false :type "boolean | atom"                                  :description "if true, user interaction is disabled"}
-   {:name :style       :required false                :type "map"              :validate-fn css-style?        :description "the CSS style style map"}
-   {:name :label-style :required false                :type "map"              :validate-fn css-style?        :description "the CSS class applied overall to the component"}
+   {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?        :description "the CSS style style map"}
+   {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?        :description "the CSS class applied overall to the component"}
    {:name :label-class :required false                :type "string"           :validate-fn string?           :description "the CSS class applied to the label"}])
 
 ;(def checkbox-args (extract-arg-data checkbox-args-desc))
@@ -210,8 +210,8 @@
    {:name :on-change   :required true                 :type "(anything) -> nil" :validate-fn fn?               :description [:span "called when the radio button is clicked. Passed " [:code ":value"]]}
    {:name :label       :required false                :type "string | hiccup"   :validate-fn string-or-hiccup? :description "the label shown to the right"}
    {:name :disabled?   :required false :default false :type "boolean | atom"                                   :description "if true, the user can't click the radio button"}
-   {:name :style       :required false                :type "map"               :validate-fn css-style?        :description "radio button style map"}
-   {:name :label-style :required false                :type "map"               :validate-fn css-style?        :description "the CSS class applied overall to the component"}
+   {:name :style       :required false                :type "CSS style map"     :validate-fn css-style?        :description "radio button style map"}
+   {:name :label-style :required false                :type "CSS style map"     :validate-fn css-style?        :description "the CSS class applied overall to the component"}
    {:name :label-class :required false                :type "string"            :validate-fn string?           :description "the CSS class applied to the label"}])
 
 ;(def radio-button-args (extract-arg-data radio-button-args-desc))
@@ -263,8 +263,8 @@
    {:name :width     :required false :default "400px" :type "string"                 :validate-fn string?           :description "standard CSS width setting for the slider"}
    {:name :disabled? :required false :default false   :type "boolean | atom"                                        :description "if true, the user can't change the slider"}
    {:name :class     :required false                  :type "string"                 :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style     :required false                  :type "css style map"          :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr      :required false                  :type "html attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :style     :required false                  :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override"}
+   {:name :attr      :required false                  :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def slider-args (extract-arg-data slider-args-desc))
 
@@ -313,8 +313,8 @@
    {:name :width    :required false :type "string"                 :default "100%" :validate-fn string?           :description "a CSS width"}
    {:name :striped? :required false :type "boolean"                :default false                                 :description "when true, the progress section is a set of animated stripes"}
    {:name :class    :required false :type "string"                                 :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style    :required false :type "css style map"                          :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr     :required false :type "html attr map"                          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :style    :required false :type "CSS style map"                          :validate-fn css-style?        :description "CSS styles to add or override"}
+   {:name :attr     :required false :type "HTML attr map"                          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def progress-bar-args (extract-arg-data progress-bar-args-desc))
 
@@ -350,8 +350,8 @@
   [{:name :size     :required false :type "keyword"       :default :regular :validate-fn throbber-size? :description [:span "one of " throbber-sizes-list]}
    {:name :color    :required false :type "string"        :default "#999"   :validate-fn string?        :description "CSS color"}
    {:name :class    :required false :type "string"                          :validate-fn string?        :description "CSS class names, space separated"}
-   {:name :style    :required false :type "css style map"                   :validate-fn css-style?     :description "CSS styles to add or override"}
-   {:name :attr     :required false :type "html attr map"                   :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :style    :required false :type "CSS style map"                   :validate-fn css-style?     :description "CSS styles to add or override"}
+   {:name :attr     :required false :type "HTML attr map"                   :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def throbber-args (extract-arg-data throbber-args-desc))
 
