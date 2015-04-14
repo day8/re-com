@@ -171,12 +171,7 @@ two sub-directories:
 
 re-com is available from clojars. Add it to your project.clj dependencies:
 
-```Clojure
-:dependencies [
-  ...
-  [re-com "0.4.1"]
-]
-```
+[![Clojars Project](http://clojars.org/re-com/latest-version.svg)](http://clojars.org/re-com)
 
 
 As far as your `index.html` is concerned, take inspiration from here:

@@ -211,8 +211,8 @@
    {:name :maximum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
    {:name :hide-border? :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
    {:name :class        :required false                       :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style        :required false                       :type "css style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr         :required false                       :type "html attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :style        :required false                       :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
+   {:name :attr         :required false                       :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def datepicker-args (extract-arg-data datepicker-args-desc))
 

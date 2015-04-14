@@ -51,7 +51,7 @@
 (def input-time                 input-time/input-time)
 
 (def h-split                    splits/h-split)
-(def v-split                   splits/v-split)
+(def v-split                    splits/v-split)
 
 (def input-text                 misc/input-text)
 (def input-textarea             misc/input-textarea)
@@ -78,7 +78,7 @@
 
 (def label                      text/label)
 (def title                      text/title)
-(def p                      text/p)
+(def p                          text/p)
 
 (def make-tour                  tour/make-tour)
 (def start-tour                 tour/start-tour)

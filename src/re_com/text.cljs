@@ -14,8 +14,8 @@
      {:name :on-click :required false :type "() -> nil"     :validate-fn fn?        :description "called when the label is clicked"}
      {:name :width    :required false :type "string"        :validate-fn string?    :description "a CSS width"}
      {:name :class    :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
-     {:name :style    :required false :type "css style map" :validate-fn css-style? :description "additional CSS styles"}
-     {:name :attr     :required false :type "html attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+     {:name :style    :required false :type "CSS style map" :validate-fn css-style? :description "additional CSS styles"}
+     {:name :attr     :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def label-args (extract-arg-data label-args-desc))
 
@@ -50,8 +50,8 @@
    {:name :margin-top    :required false  :default "0.4em" :type "string"          :validate-fn string?           :description "CSS size for space above the title"}
    {:name :margin-bottom :required false  :default "0.1em" :type "string"          :validate-fn string?           :description "CSS size for space below the title"}
    {:name :class         :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style         :required false                   :type "css style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr          :required false                   :type "html attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :style         :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
+   {:name :attr          :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def title-args (extract-arg-data title-args-desc))
 
@@ -87,6 +87,6 @@
         [m children] (if (map? f)
                        [f   (rest children)]
                        [nil children])
-        m             (merge {:style {:width    "450px" :font-size "15px"}}
+        m             (merge {:style {:width "450px" :min-width "450px" :font-size "15px"}}
                              m)]
     [:span m (into [:p] children)]))    ;; having the wrapping span allow children to contain [:ul] etc

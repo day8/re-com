@@ -72,34 +72,33 @@
 
 
 (defn- choice-group-heading
-  "Render a group choice item"
-  [opt]
+  "Render a group heading"
+  [group]
   [:li.group-result
-   {:value (:value opt)}
-   (:group opt)])
+   group])
 
 
 (defn- choice-item
   "Render a choice item and set up appropriate mouse events"
-  [opt on-click internal-model]
+  [id label on-click internal-model]
   (let [mouse-over? (reagent/atom false)]
     (reagent/create-class
       {:component-did-mount
         (fn [event]
           (let [node     (reagent/dom-node event)
-                selected (= @internal-model (:id opt))]
+                selected (= @internal-model id)]
             (when selected (.scrollIntoView node false))))
 
        :component-did-update
         (fn [event]
           (let [node     (reagent/dom-node event)
-                selected (= @internal-model (:id opt))]
+                selected (= @internal-model id)]
             (when selected (.scrollIntoView node false))))
 
        :component-function
         (fn
-          [opt on-click internal-model]
-          (let [selected (= @internal-model (:id opt))
+          [id label on-click internal-model]
+          (let [selected (= @internal-model id)
                 class    (if selected
                            "highlighted"
                            (when @mouse-over? "mouseover"))]
@@ -107,8 +106,8 @@
              {:class         (str "active-result group-option " class)
               :on-mouse-over (handler-fn (reset! mouse-over? true))
               :on-mouse-out  (handler-fn (reset! mouse-over? false))
-              :on-mouse-down (handler-fn (on-click (:id opt)))}
-             (:label opt)]))})))
+              :on-mouse-down (handler-fn (on-click id))}
+             label]))})))
 
 
 (defn- filter-text-box-base
@@ -182,9 +181,12 @@
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
+   {:name :id-fn         :required false :default :id     :type "(map) -> anything"             :validate-fn fn?               :description [:span "given an element of " [:code ":choices"] ", returns the unique identifier for this dropdown entry"]}
+   {:name :label-fn      :required false :default :label  :type "(map) -> string | hiccup"      :validate-fn fn?               :description [:span "given an element of " [:code ":choices"] ", returns what should be displayed in this dropdown entry"]}
+   {:name :group-fn      :required false :default :group  :type "(map) -> anything"             :validate-fn fn?               :description [:span "given an element of " [:code ":choices"] ", returns the group identifier for this dropdown entry"]}
    {:name :class         :required false                  :type "string"                        :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style         :required false                  :type "css style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr          :required false                  :type "html attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :style         :required false                  :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
+   {:name :attr          :required false                  :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;(def single-dropdown-args (extract-arg-data single-dropdown-args-desc))
 
@@ -200,7 +202,9 @@
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
         filter-text    (reagent/atom "")]
-    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index class style attr] :as args}]
+    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index id-fn label-fn group-fn class style attr]
+            :or {id-fn :id label-fn :label group-fn :group}
+            :as args}]
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
       (let [choices          (deref-or-value choices)
             disabled?        (deref-or-value disabled?)
@@ -284,7 +288,10 @@
              (when max-height {:style {:max-height max-height}})
              (if (-> filtered-choices count pos?)
                (for [opt (choices-with-group-headings filtered-choices)]
-                 (if (:group-header? opt)
-                   ^{:key (str (:id opt))} [choice-group-heading opt]
-                   ^{:key (str (:id opt))} [choice-item opt callback internal-model]))
+                 (let [id    (id-fn opt)
+                       label (label-fn opt)
+                       group (group-fn opt)]
+                   (if (:group-header? opt)
+                     ^{:key (str id)} [choice-group-heading group]
+                     ^{:key (str id)} [choice-item id label callback internal-model])))
                [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))
