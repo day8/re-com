@@ -25,7 +25,7 @@
   {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
-        _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
+        _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
     [:ul
      {:class "rc-tabs nav nav-tabs noselect"
       :style (flex-child-style "none")}
@@ -50,7 +50,7 @@
   [& {:keys [model tabs on-change id-fn label-fn vertical?]}]
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
-        _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
+        _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
     [:div
      {:class (str "rc-tabs noselect btn-group" (if vertical? "-vertical"))
       :style (flex-child-style "none")}
