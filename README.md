@@ -62,7 +62,7 @@ that there's no attempt to handle media queries.  I said we had a desktop app fo
 Neither have we been worried too much about code size because other design goals have
 taken precedence.  Our main demo app which includes every component, plus all demo
 code and plenty of yadda yadda, comes to about 167K compressed when
-using `:optimzations :advanced` (700K pre-compress).
+using `:optimizations :advanced` (700K pre-compress).
 That number includes ReactJS plus the ClojureScript libs and runtime. So, everything.
 
 ## So, Without Ado Being Any Furthered ...
@@ -177,7 +177,7 @@ re-com is available from clojars. Add it to your project.clj dependencies:
 As far as your `index.html` is concerned, take inspiration from here:
 https://github.com/Day8/re-com/tree/master/run/resources/public
 
-In particular, you'll need bootstrap (assumedly  via a CDN):
+In particular, you'll need bootstrap (assumedly via a CDN):
 ```html
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
 ```
@@ -224,8 +224,8 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
 ## Helping
 
 1. Where the docs are wrong or fall short, write up something better. Because
-   our docs take the form of an app written in ClojureScrip using re-com, your actually
-   be exercising your knowledge of re-com as you do this.
+   our docs take the form of an app written in ClojureScrip using re-com, you're actually
+   exercising your knowledge of re-com as you do this.
 1. See the list of missing components above. You'll have to produce the
    component itself, including a params spec, plus the extra page in the demo app.
 1. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
