@@ -15,11 +15,11 @@
   [choices id offset]
   (let [current-index (position-for-id id choices)
         new-index     (cond
-                        (= offset :start) 0
-                        (= offset :end) (dec (count choices))
+                        (= offset :start)    0
+                        (= offset :end)      (dec (count choices))
                         (nil? current-index) 0
-                        :else (mod (+ current-index offset) (count choices)))]
-    (when current-index (:id (nth choices new-index)))))
+                        :else                (mod (+ current-index offset) (count choices)))]
+    (when new-index (:id (nth choices new-index)))))
 
 
 (defn- choices-with-group-headings
@@ -71,6 +71,20 @@
     (filter filter-fn choices)))
 
 
+(defn show-selected-item
+  [node]
+  (let [item-offset-top       (.-offsetTop node)
+        item-offset-bottom    (+ item-offset-top (.-clientHeight node))
+        parent                (.-parentNode node)
+        parent-height         (.-clientHeight parent)
+        parent-visible-top    (.-scrollTop parent)
+        parent-visible-bottom (+ parent-visible-top parent-height)
+        new-scroll-top        (cond
+                                (> item-offset-bottom parent-visible-bottom) (max (- item-offset-bottom parent-height) 0)
+                                (< item-offset-top parent-visible-top)       item-offset-top)]
+    (when new-scroll-top (set! (.-scrollTop parent) new-scroll-top))))
+
+
 (defn- choice-group-heading
   "Render a group heading"
   [group]
@@ -84,30 +98,30 @@
   (let [mouse-over? (reagent/atom false)]
     (reagent/create-class
       {:component-did-mount
-        (fn [event]
-          (let [node     (reagent/dom-node event)
-                selected (= @internal-model id)]
-            (when selected (.scrollIntoView node false))))
+       (fn [this]
+         (let [node (reagent/dom-node this)
+               selected (= @internal-model id)]
+           (when selected (show-selected-item node))))
 
        :component-did-update
-        (fn [event]
-          (let [node     (reagent/dom-node event)
-                selected (= @internal-model id)]
-            (when selected (.scrollIntoView node false))))
+       (fn [this]
+         (let [node (reagent/dom-node this)
+               selected (= @internal-model id)]
+           (when selected (show-selected-item node))))
 
        :component-function
-        (fn
-          [id label on-click internal-model]
-          (let [selected (= @internal-model id)
-                class    (if selected
-                           "highlighted"
-                           (when @mouse-over? "mouseover"))]
-            [:li
-             {:class         (str "active-result group-option " class)
-              :on-mouse-over (handler-fn (reset! mouse-over? true))
-              :on-mouse-out  (handler-fn (reset! mouse-over? false))
-              :on-mouse-down (handler-fn (on-click id))}
-             label]))})))
+       (fn
+         [id label on-click internal-model]
+         (let [selected (= @internal-model id)
+               class (if selected
+                       "highlighted"
+                       (when @mouse-over? "mouseover"))]
+           [:li
+            {:class         (str "active-result group-option " class)
+             :on-mouse-over (handler-fn (reset! mouse-over? true))
+             :on-mouse-out  (handler-fn (reset! mouse-over? false))
+             :on-mouse-down (handler-fn (on-click id))}
+            label]))})))
 
 
 (defn- filter-text-box-base
@@ -119,8 +133,9 @@
       {:type          "text"
        :auto-complete "off"
        :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
-                                            :left     "0px"
-                                            :top      "-7770px"})
+                                             :width    "0px"      ;; The rest of these styles make the textbox invisible
+                                             :padding  "0px"
+                                             :border   "none"})
        :value         @filter-text
        :on-change     (handler-fn (reset! filter-text (-> event .-target .-value)))
        :on-key-down   (handler-fn (when-not (key-handler event)

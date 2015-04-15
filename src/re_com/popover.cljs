@@ -288,9 +288,9 @@
         top-offset  (reagent/atom 0)]
     (reagent/create-class
       {:component-did-mount
-       (fn [event]
+       (fn [this]
          (when no-clip?
-           (let [node               (reagent/dom-node event)
+           (let [node               (reagent/dom-node this)
                  offsets            (sum-scroll-offsets node)
                  popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
                  point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
