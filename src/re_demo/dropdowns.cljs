@@ -56,17 +56,17 @@
                         {:id "US" :label "United States"            :group "EN Speakers"}
                         {:id "GB" :label "United Kingdom"           :group "EN Speakers"}
                         {:id "E1" :label "Iraq"                     :group "Updated Axis Of Evil"}
-                        {:id "E4" :label [:strong "New Zealand"]    :group "Updated Axis Of Evil"}
-                        {:id "E2" :label "Iran"                     :group "Updated Axis Of Evil"}
-                        {:id "E3" :label "North Korea"              :group "Updated Axis Of Evil"}
-                        {:id "AF" :label "Afghanistan"              :group "'A' COUNTRIES"}
-                        {:id "AB" :label "Albania"                  :group "'A' COUNTRIES"}
-                        {:id "AG" :label "Algeria"                  :group "'A' COUNTRIES"}
-                        {:id 06   :label "American Samoa"           :group "'A' COUNTRIES"}
-                        {:id 07   :label "Andorra"                  :group "'A' COUNTRIES"}
-                        {:id true :label "Angola"                   :group "'A' COUNTRIES"}
-                        {:id [4]  :label "Anguilla"                 :group "'A' COUNTRIES"}
-                        {:id "00" :label "Antarctica"               :group "'A' COUNTRIES"}
+                        {:id "E2" :label [:strong "New Zealand"]    :group "Updated Axis Of Evil"}
+                        {:id "E3" :label "Iran"                     :group "Updated Axis Of Evil"}
+                        {:id "E4" :label "North Korea"              :group "Updated Axis Of Evil"}
+                        {:id "03" :label "Afghanistan"              :group "'A' COUNTRIES"}
+                        {:id "04" :label "Albania"                  :group "'A' COUNTRIES"}
+                        {:id "05" :label "Algeria"                  :group "'A' COUNTRIES"}
+                        {:id "06" :label "American Samoa"           :group "'A' COUNTRIES"}
+                        {:id "07" :label "Andorra"                  :group "'A' COUNTRIES"}
+                        {:id "08" :label "Angola"                   :group "'A' COUNTRIES"}
+                        {:id "09" :label "Anguilla"                 :group "'A' COUNTRIES"}
+                        {:id "10" :label "Antarctica"               :group "'A' COUNTRIES"}
                         {:id "11" :label "Antigua and Barbuda"      :group "'A' COUNTRIES"}
                         {:id "12" :label "Argentina"                :group "'A' COUNTRIES"}
                         {:id "13" :label "Armenia"                  :group "'A' COUNTRIES"}
