@@ -33,8 +33,12 @@
                   (close-callback)
                   (reset! showing? false)))
     :class    "close"
-    :style    {:font-size "36px" :height "26px" :margin-top "-8px"}}
-   "×"])
+    :style    {:font-size   "34px"
+               :position    "absolute"
+               :top         "0px"
+               :right       "0px"}}
+   [:i {:class "md-close"}]
+   ])
 
 
 (defn- calc-popover-pos
@@ -357,7 +361,8 @@
                          style)}
      [:div                                ;; Wrapper around the anchor and the "point"
       {:class "rc-point-wrapper display-inline-flex"
-       :style (merge (flex-flow-style flex-flow)
+       :style (merge (flex-child-style "auto")
+                     (flex-flow-style flex-flow)
                      (align-style :align-items :center))}
       (when place-anchor-before? anchor)
       (when @showing?

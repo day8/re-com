@@ -58,7 +58,7 @@
        (let [id        (id-fn  t)
              label     (label-fn  t)
              selected? (= id current)]                    ;; must use current instead of @model to avoid reagent warnings
-         [:button.btn.btn-default
+         [:button
           {:type     "button"
            :key      (str id)
            :class    (str "btn btn-default "  (if selected? "active"))
@@ -101,7 +101,7 @@
   [& {:keys [model tabs on-change id-fn label-fn vertical?]}]
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
-        _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
+        _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
     [:ul
      {:class (str "rc-tabs noselect nav nav-pills" (when vertical? " nav-stacked"))
       :style (flex-child-style "none")

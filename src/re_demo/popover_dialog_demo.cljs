@@ -24,7 +24,7 @@
        :body             [(fn []  ;; NOTE: THIS IS NASTY BUT REQUIRED (OTHERWISE DIALOG WILL NOT BE UPDATED WHEN ATOMS CHANGES)
                             [v-box
                              :children [[label
-                                         :label "The body of a popover can act like a dialog box containg standard input controls."]
+                                         :label "The body of a popover can act like a dialog box containing standard input controls."]
                                         [gap :size "15px"]
                                         [h-box
                                          :children [[v-box

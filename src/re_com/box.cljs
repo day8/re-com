@@ -215,7 +215,7 @@
 
 (def h-box-args-desc
   [{:name :children   :required true                    :type "vector"        :validate-fn sequential?    :description "a vector (or list) of components"}
-   {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow/shrink/basis"]]}
+   {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
    {:name :width      :required false                   :type "string"        :validate-fn string?        :description "a CSS width style"}
    {:name :height     :required false                   :type "string"        :validate-fn string?        :description "a CSS height style"}
    {:name :min-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
@@ -271,7 +271,7 @@
 
 (def v-box-args-desc
   [{:name :children   :required true                    :type "vector"        :validate-fn sequential?    :description "a vector (or list) of components"}
-   {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow/shrink/basis"]]}
+   {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
    {:name :width      :required false                   :type "string"        :validate-fn string?        :description "a CSS width style"}
    {:name :height     :required false                   :type "string"        :validate-fn string?        :description "a CSS height style"}
    {:name :min-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
@@ -327,7 +327,7 @@
 
 (def box-args-desc
   [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
-   {:name :size       :required false :default "none"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow/shrink/basis"]]}
+   {:name :size       :required false :default "none"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
    {:name :width      :required false                   :type "string"          :validate-fn string?           :description "a CSS width style"}
    {:name :height     :required false                   :type "string"          :validate-fn string?           :description "a CSS height style"}
    {:name :min-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
@@ -373,7 +373,7 @@
 
 (def scroller-args-desc
   [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
-   {:name :size       :required false :default "auto"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow/shrink/basis"]]}
+   {:name :size       :required false :default "auto"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
    {:name :scroll     :required false :default "auto"   :type "keyword"         :validate-fn scroll-style?     :description [:span "Sets both h-scroll and v-scroll at once: " [:br]
                                                                                                                              [:code ":auto"] ": only show scroll bar(s) if the content is larger than the scroller" [:br]
                                                                                                                              [:code ":on"] ": always show scroll bars" [:br]
@@ -447,7 +447,7 @@
    {:name :t-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the top border. Overrides " [:code ":border"]]}
    {:name :b-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the bottom. Overrides " [:code ":border"]]}
    {:name :radius     :required false                                :type "string"          :validate-fn string?           :description "a CSS radius style eg.\"2px\""}
-   {:name :size       :required false :default "none"                :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow/shrink/basis"]]}
+   {:name :size       :required false :default "none"                :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
    {:name :width      :required false                                :type "string"          :validate-fn string?           :description "a CSS style describing the initial width"}
    {:name :height     :required false                                :type "string"          :validate-fn string?           :description "a CSS style describing the initial height"}
    {:name :min-width  :required false                                :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}

@@ -31,7 +31,8 @@
       :as   args}]
   {:pre [(validate-args-macro alert-box-args-desc args "alert-box")]}
   (let [close-button [button
-                      :label    "×"
+                      :label    [:i {:class "md-close"
+                                     :style {:font-size "20px"}}]    ;"×"
                       :on-click (handler-fn (on-close id))
                       :class    "close"]
         alert-type    (if (= alert-type :info)

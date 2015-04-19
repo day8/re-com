@@ -44,7 +44,7 @@
                                            [button
                                             :label "Add alert"
                                             :style {:width "100px"}
-                                            :on-click #(add-alert alerts (gensym) :info {:heading "New alert" :body "This alert was added by the \"Add alert\" button ."})]]
+                                            :on-click #(add-alert alerts (gensym) :info {:heading "New alert" :body "This alert was added by the \"Add alert\" button."})]]
                                            [p "Also, try clicking the \"x\" on alerts."]
                                            [p [:code ":max-height"] " is set to 300px. A scroll bar will appear as necessary."]
                                            [p "For demonstration purposes, a 'dotted' " [:code ":border-style"] " is set."]
