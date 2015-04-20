@@ -87,6 +87,9 @@
         [m children] (if (map? f)
                        [f   (rest children)]
                        [nil children])
-        m             (merge {:style {:width "450px" :min-width "450px" :font-size "15px"}}
+        m             (merge {:style {:flex      "none"
+                                      :width     "450px"
+                                      :min-width "450px"
+                                      :font-size "15px"}}
                              m)]
     [:span m (into [:p] children)]))    ;; having the wrapping span allow children to contain [:ul] etc

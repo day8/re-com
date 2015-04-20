@@ -68,8 +68,7 @@
                                     :warning "has-warning "
                                     :error "has-error "
                                     "")
-                                  (when (and status status-icon?) "has-feedback")
-                                  )
+                                  (when (and status status-icon?) "has-feedback"))
                       :style (flex-child-style "auto")}
                      [input-type
                       (merge
