@@ -3,7 +3,7 @@
   (:require [re-com.util     :refer [deref-or-value px]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-            [re-com.validate :refer [extract-arg-data input-status-type? input-status-types-list regex?
+            [re-com.validate :refer [input-status-type? input-status-types-list regex?
                                      string-or-hiccup? css-style? html-attr? number-or-string?
                                      string-or-atom? throbber-size? throbber-sizes-list] :refer-macros [validate-args-macro]]
             [reagent.core    :as    reagent]))
@@ -30,8 +30,6 @@
    {:name :style            :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override"}
    {:name :attr             :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
    {:name :input-type       :required false                  :type "keyword"          :validate-fn keyword?           :description "ONLY applies to super function 'base-input-text': either :input or :textarea"}])
-
-;(def input-text-args (extract-arg-data input-text-args-desc))
 
 ;; Sample regex's:
 ;;  - #"^(-{0,1})(\d*)$"                   ;; Signed integer
@@ -163,8 +161,6 @@
    {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?        :description "the CSS class applied overall to the component"}
    {:name :label-class :required false                :type "string"           :validate-fn string?           :description "the CSS class applied to the label"}])
 
-;(def checkbox-args (extract-arg-data checkbox-args-desc))
-
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
   "I return the markup for a checkbox, with an optional RHS label"
@@ -212,8 +208,6 @@
    {:name :style       :required false                :type "CSS style map"     :validate-fn css-style?        :description "radio button style map"}
    {:name :label-style :required false                :type "CSS style map"     :validate-fn css-style?        :description "the CSS class applied overall to the component"}
    {:name :label-class :required false                :type "string"            :validate-fn string?           :description "the CSS class applied to the label"}])
-
-;(def radio-button-args (extract-arg-data radio-button-args-desc))
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label"
@@ -265,8 +259,6 @@
    {:name :style     :required false                  :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr      :required false                  :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-;(def slider-args (extract-arg-data slider-args-desc))
-
 (defn slider
   "Returns markup for an HTML5 slider input"
   []
@@ -315,8 +307,6 @@
    {:name :style    :required false :type "CSS style map"                          :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr     :required false :type "HTML attr map"                          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-;(def progress-bar-args (extract-arg-data progress-bar-args-desc))
-
 (defn progress-bar
   "Render a bootstrap styled progress bar"
   [& {:keys [model width striped? class style attr]
@@ -351,8 +341,6 @@
    {:name :class    :required false :type "string"                          :validate-fn string?        :description "CSS class names, space separated"}
    {:name :style    :required false :type "CSS style map"                   :validate-fn css-style?     :description "CSS styles to add or override"}
    {:name :attr     :required false :type "HTML attr map"                   :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def throbber-args (extract-arg-data throbber-args-desc))
 
 (defn throbber
   "Render an animated throbber using CSS"

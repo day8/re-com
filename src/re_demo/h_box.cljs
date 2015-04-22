@@ -1,63 +1,151 @@
 (ns re-demo.h-box
   (:require [clojure.string  :as    string]
             [re-com.core     :refer [p h-box v-box box gap line scroller border label title button checkbox hyperlink-href slider horizontal-bar-tabs
-                                     input-text input-textarea popover-anchor-wrapper popover-content-wrapper px] :refer-macros [handler-fn]]
+                                     info-button input-text input-textarea popover-anchor-wrapper popover-content-wrapper px] :refer-macros [handler-fn]]
             [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc flex-child-style]]
             [re-com.util     :refer [px]]
             [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]
-            [re-com.validate :refer [extract-arg-data string-or-hiccup? alert-type? vector-of-maps?]]
+            [re-com.validate :refer [string-or-hiccup? alert-type? vector-of-maps?]]
             [reagent.core    :as    reagent]
             [reagent.ratom   :refer-macros [reaction]]))
 
 
-(def rounded-panel (merge (flex-child-style "1")
-                          {:background-color "#fff4f4"
-                           :border           "1px solid lightgray"
-                           :border-radius    "4px"
-                           :padding          "4px"}))
+(def h-box-style  {;:background-color "yellow"
+                   ;:padding          "4px"
+                   ;:overflow         "hidden"
+                   })
 
-(def editor-style  {:font-size   "12px"
-                    :line-height "20px"
-                    :padding     "6px 8px"})
+(def panel-style  (merge (flex-child-style "1")
+                         {:background-color "#fff4f4"
+                          :border           "1px solid lightgray"
+                          :border-radius    "4px"
+                          :padding          "4px"}))
 
-(def over-style    {:background-color "#fcc"})
+(def over-style   {:background-color "#fcc"})
 
-(def h-box-style {}) ;{ :overflow "hidden"})
+(def editor-style {:font-size   "12px"
+                   :line-height "20px"
+                   :padding     "6px 8px"})
 
-(def box-state (reagent/atom
-                 {:hbox {:over?      false
-                         :height     {:value "100px"     :omit? false :range [0 500]}
-                         :width      {:value "450px"     :omit? false :range [0 1000]}
-                         ;:size       {:value "none"      :omit? true  :type :none  :px "50px"  :ratio "3" :gsb "1 1 0"}
-                         :justify    {:value :start      :omit? true}
-                         :align      {:value :stretch    :omit? true}
-                         :gap        {:value "4px"       :omit? false :range [0 100]}}
-                  :box1 {:over?      false
-                         :text       {:value "Box1"      :omit? false}
-                         :size       {:value "none"      :omit? false :type :none  :px "50px"  :ratio "3" :gsb "1 1 0"}
-                         :align-self {:value :stretch    :omit? true}
-                         :height     {:value "50px"      :omit? true  :range [0 200]}
-                         :min-width  {:value "50px"      :omit? true  :range [0 200]}
-                         :max-width  {:value "50px"      :omit? true  :range [0 200]}}
-                  :box2 {:over?      false
-                         :text       {:value "Box2"      :omit? false}
-                         :size       {:value "100px"     :omit? false :type :px    :px "100px" :ratio "2" :gsb "1 1 0"}
-                         :align-self {:value :center     :omit? false}
-                         :height     {:value "50px"      :omit? true  :range [0 300]}
-                         :min-width  {:value "50px"      :omit? true  :range [0 200]}
-                         :max-width  {:value "50px"      :omit? true  :range [0 200]}}
-                  :box3 {:over?      false
-                         :text       {:value "Box3"      :omit? false}
-                         :size       {:value "1"         :omit? false :type :ratio :px "150px" :ratio "1" :gsb "1 1 0"}
-                         :align-self {:value :stretch    :omit? true}
-                         :height     {:value "50px"      :omit? true  :range [0 400]}
-                         :min-width  {:value "50px"      :omit? true  :range [0 200]}
-                         :max-width  {:value "50px"      :omit? true  :range [0 200]}}}))
+(def current-preset (reagent/atom 0))
+
+(def demo-presets [;; Preset 0
+                   {:hbox {:over?      false
+                           :height     {:value "100px"  :omit? false :range [0 500]}
+                           :width      {:value "450px"  :omit? false :range [0 1000]}
+                           :justify    {:value :start   :omit? true}
+                           :align      {:value :stretch :omit? true}
+                           :gap        {:value "4px"    :omit? false :range [0 100]}}
+                    :box1 {:over?      false
+                           :text       {:value "Box1"   :omit? false}
+                           :size       {:value "none"   :omit? false :type :none :px "50px" :ratio "3" :gsb "1 1 0"}
+                           :align-self {:value :stretch :omit? true}
+                           :height     {:value "50px"   :omit? true :range [0 200]}
+                           :min-width  {:value "50px"   :omit? true :range [0 200]}
+                           :max-width  {:value "50px"   :omit? true :range [0 200]}}
+                    :box2 {:over?      false
+                           :text       {:value "Box2"   :omit? false}
+                           :size       {:value "100px"  :omit? false :type :px :px "100px" :ratio "2" :gsb "1 1 0"}
+                           :align-self {:value :center  :omit? false}
+                           :height     {:value "50px"   :omit? true :range [0 300]}
+                           :min-width  {:value "50px"   :omit? true :range [0 200]}
+                           :max-width  {:value "50px"   :omit? true :range [0 200]}}
+                    :box3 {:over?      false
+                           :text       {:value "Box3"   :omit? false}
+                           :size       {:value "1"      :omit? false :type :ratio :px "150px" :ratio "1" :gsb "1 1 0"}
+                           :align-self {:value :stretch :omit? true}
+                           :height     {:value "50px"   :omit? true :range [0 400]}
+                           :min-width  {:value "50px"   :omit? true :range [0 200]}
+                           :max-width  {:value "50px"   :omit? true :range [0 200]}}
+                    :desc [v-box
+                           :children [[:p "This preset demonstrates some of the basics of h-box (and Flexbox)"]
+                                      [:p "The " [:strong "h-box"] " container has a specific width and height with a gap of 4px, meaning 4px space will be placed between each child. The " [:code ":justify"] " and " [:code ":align"] " parameters are left to their defaults, meaning the boxes will be stretch from top to bottom (unless individually overridden)."]
+                                      [:p [:strong "Box1"] " has a " [:code ":size"] " of \"none\" which means it will take up as much space as it's content, in this case, the text \"Box1\"."]
+                                      [:p [:strong "Box2"] " has a specific 100 pixel " [:code ":size"] " so that's exactly how much space (width in this case) it will take up. Notice how the default :align of :stretch is overridden so that this box is vertically centered."]
+                                      [:p [:strong "Box3"] " has a " [:code ":size"] " of \"1\" which defines how much empty space within the container to consume. It's greedy so it takes everything that's left. Because there are no other siblings with a 'ratio'  :size, it will always take up all available space so you could put any ratio value here and you'll get the same result."]
+                                      [:p [:strong "Things to try"]]
+                                      [:ul
+                                       [:li "Set the Box2 :size to \"2\" and notice how it will always take up double the width of Box3 as you adjust the h-box :width parameter. " ]
+                                       [:li "Another fascinating thing to try." ]
+                                       [:li "More to come. Will need to add a scroller to get more stuff in here!" ]
+                                       ]]]}
+
+                   ;; Preset 1
+                   {:hbox {:over?      false
+                           :height     {:value "200px"  :omit? false :range [0 500]}
+                           :width      {:value "300px"  :omit? false :range [0 1000]}
+                           :justify    {:value :center  :omit? false}
+                           :align      {:value :stretch :omit? true}
+                           :gap        {:value "4px"    :omit? false :range [0 100]}}
+                    :box1 {:over?      false
+                           :text       {:value "Box1"   :omit? false}
+                           :size       {:value "none"   :omit? false :type :none :px "50px" :ratio "3" :gsb "1 1 0"}
+                           :align-self {:value :stretch :omit? true}
+                           :height     {:value "50px"   :omit? true :range [0 200]}
+                           :min-width  {:value "50px"   :omit? true :range [0 200]}
+                           :max-width  {:value "50px"   :omit? true :range [0 200]}}
+                    :box2 {:over?      false
+                           :text       {:value "Box2"   :omit? false}
+                           :size       {:value "500px"  :omit? false :type :px :px "100px" :ratio "2" :gsb "1 1 0"}
+                           :align-self {:value :center  :omit? false}
+                           :height     {:value "50px"   :omit? true :range [0 300]}
+                           :min-width  {:value "50px"   :omit? true :range [0 200]}
+                           :max-width  {:value "50px"   :omit? true :range [0 200]}}
+                    :box3 {:over?      false
+                           :text       {:value "Box3"   :omit? false}
+                           :size       {:value "none"   :omit? false :type :none :px "150px" :ratio "1" :gsb "1 1 0"}
+                           :align-self {:value :stretch :omit? true}
+                           :height     {:value "50px"   :omit? true :range [0 400]}
+                           :min-width  {:value "50px"   :omit? true :range [0 200]}
+                           :max-width  {:value "50px"   :omit? true :range [0 200]}}
+                    :desc [v-box
+                           :children [[:p "This is box-state 2"]
+                                      [:p "More " [:strong "incredible"] " descriptions coming soon to a screen near you. Well, this one actually."]]]}
+
+                   ;; Preset 2
+                   {:hbox {:over?      false
+                           :height     {:value "150px"  :omit? false :range [0 500]}
+                           :width      {:value "1000px" :omit? false :range [0 1000]}
+                           :justify    {:value :start   :omit? true}
+                           :align      {:value :stretch :omit? true}
+                           :gap        {:value "4px"    :omit? false :range [0 100]}}
+                    :box1 {:over?      false
+                           :text       {:value "Box1 Box1 Box1 Box1 Box1 Box1 Box1 Box1 Box1 " :omit? false}
+                           :size       {:value "none"   :omit? false :type :none :px "50px" :ratio "3" :gsb "1 1 0"}
+                           :align-self {:value :stretch :omit? true}
+                           :height     {:value "50px"   :omit? true :range [0 200]}
+                           :min-width  {:value "50px"   :omit? true :range [0 200]}
+                           :max-width  {:value "50px"   :omit? true :range [0 200]}}
+                    :box2 {:over?      false
+                           :text       {:value "Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 " :omit? false}
+                           :size       {:value "100px"  :omit? false :type :px :px "100px" :ratio "2" :gsb "1 1 0"}
+                           :align-self {:value :center  :omit? false}
+                           :height     {:value "50px"   :omit? true :range [0 300]}
+                           :min-width  {:value "50px"   :omit? true :range [0 200]}
+                           :max-width  {:value "50px"   :omit? true :range [0 200]}}
+                    :box3 {:over?      false
+                           :text       {:value "Box3 Box3 Box3 Box3 Box3 Box3 " :omit? false}
+                           :size       {:value "1"      :omit? false :type :ratio :px "150px" :ratio "1" :gsb "1 1 0"}
+                           :align-self {:value :stretch :omit? true}
+                           :height     {:value "50px"   :omit? true :range [0 400]}
+                           :min-width  {:value "50px"   :omit? true :range [0 200]}
+                           :max-width  {:value "50px"   :omit? true :range [0 200]}}
+                    :desc [v-box
+                           :children [[:p "This is box-state 3"]
+                                      [:p "More " [:strong "incredible"] " descriptions coming soon to a screen near you. Well, this one actually."]]]}])
+
+(def box-state  (reaction (get demo-presets @current-preset)))
+
+(def show-desc? (reagent/atom true))
 
 (defn merge-named-params
-  "given a hiccup vector v, and a map m containing named parameters, add the named parameters to v...TODO
-      (merge-named-params [box :a 1] {:b 2 :c 3})
-      ;; =>  [box :a 1 :b 2 :c 3]
+  "given a hiccup vector v, and a map m containing named parameters, add the named parameters to v
+   the values in the map, are in turn maps
+   if, in the value map, :omit? is true, omit this parameter altogether
+   otherwise use :value for the value of the parameter
+   Example:
+      (merge-named-params [box :a 1] {:b {:value 2} :c {:value 3 :omit? true}})
+      ;; =>  [box :a 1 :b 2]
   "
   [v m]
   (let [m      (remove (comp :omit? second) m)
@@ -78,34 +166,21 @@
     (-> [box :style h-box-style]
         (merge-named-params (dissoc box-parameters :over? :text))
         (conj :child)
-        (conj [:div {:style (merge rounded-panel
-                                   (when over? over-style))} (get-in box-parameters [:text :value])])))
-  )
-
-(defn demo
-  "creates the hiccup for the real demo, with its child boxes and all"
-  []
-  (let [over? (:over? (:hbox @box-state))]
-    (-> [h-box
-         :padding "4px"
-         :style (merge {:border "dashed 1px red"}
-                       (when over? over-style))]
-        (merge-named-params (dissoc (:hbox @box-state) :over?))
-        (conj :children)
-        (conj [(make-box (:box1 @box-state))
-               (make-box (:box2 @box-state))
-               (make-box (:box3 @box-state))]))))
+        (conj [:div {:style (merge panel-style
+                                   (when over? over-style))} (get-in box-parameters [:text :value])]))))
 
 (defn close-button
+  "close button used for all the editors"
   [on-close]
   [button
    :label    [:i {:class "md-close"
                   :style {:font-size "20px"
                           :margin-left "8px"}}]
-   :on-click (handler-fn (on-close))
+   :on-click #(on-close)
    :class    "close"])
 
 (defn px-editor
+  "provides a single slider to edit pixel value in the state atom"
   [path]
   (let [model     (reaction (js/parseInt (get-in @box-state (conj path :value))))
         [min max] (get-in @box-state (conj path :range))]
@@ -121,12 +196,13 @@
                   [close-button on-close]]])))
 
 (defn justify-editor
+  "provides horizontal bar tabs to set the :justify value in the state atom"
   [path]
-  (let [opts  [{:id :start :label ":start"}
-               {:id :end :label ":end"}
-               {:id :center :label ":center"}
+  (let [opts  [{:id :start   :label ":start"}
+               {:id :end     :label ":end"}
+               {:id :center  :label ":center"}
                {:id :between :label ":between"}
-               {:id :around :label ":around"}]
+               {:id :around  :label ":around"}]
         model (reaction (get-in @box-state (conj path :value)))]
     (fn
       [path on-close]
@@ -140,6 +216,7 @@
                   [close-button on-close]]])))
 
 (defn align-editor
+  "provides horizontal bar tabs to set the :align OR :align-self values in the state atom"
   [path]
   (let [opts  [{:id :start    :label ":start"}
                {:id :end      :label ":end"}
@@ -159,6 +236,7 @@
                   [close-button on-close]]])))
 
 (defn text-editor
+  "provides an input-text to edit strings in the state atom"
   [path]
   (let [model (reaction (get-in @box-state (conj path :value)))]
     (fn
@@ -173,7 +251,7 @@
                   [close-button on-close]]])))
 
 (defn box-size
-  "Works out what to pass to :size from a map like {:value \"none\" :omit? false :type :none :px \"\100px\" :ratio \"1\" :gsb \"\"}"
+  "works out what to pass to :size from a map like {:value \"none\" :omit? false :type :none :px \"\100px\" :ratio \"1\" :gsb \"\"}"
   [size-spec]
   (cond (= (:type size-spec) :px)    (:px size-spec)
         (= (:type size-spec) :ratio) (:ratio size-spec)
@@ -181,6 +259,7 @@
         :else                        (name (:type size-spec))))
 
 (defn size-editor
+  "a more complex component to edit :size values in the state atom"
   [path]
   (let [opts         [{:id :inital :label "initial"}
                       {:id :auto   :label "auto"}
@@ -207,7 +286,7 @@
                    :on-change #(do (update-model path :type %)
                                    (reset! size-status nil))]
                   (when (contains? #{:px :ratio :gsb} @model)
-                    [gap :size "8px"])
+                    [gap :size "8px" :width "8px"])
                   (when (= @model :px)
                     [slider
                      :model     px-model
@@ -248,11 +327,11 @@
           :3  "35px"}))
 
 (defn code-row
-  "A code row consists of:
-    - up to three pieces of text (all optional), typically:
+  "Render a single code row consisting of:
+    - up to three pieces of text, typically:
       1. parameter name
-      2. parameter value
-      3. rarely, a closing ']'
+      2. parameter value, specified as a path into the state atom
+      3. end text, usually, a closing ']'
     - an editor to open"
   [active? indent text1 path text3 on-over editor]
 
@@ -308,16 +387,64 @@
           arg-hiccup)))))
 
 
+(defn choose-a-demo
+  "choose a preset demo"
+  []
+  (let [opts  [{:id 0 :label "Preset 1"}
+               {:id 1 :label "Preset 2"}
+               {:id 2 :label "Preset 3"}]]
+    (fn
+      []
+      [h-box
+       :gap      "8px"
+       :align    :center
+       :children [[:span "Choose a preset demo"]
+                  [horizontal-bar-tabs
+                   :model     current-preset
+                   :tabs      opts
+                   :style     editor-style
+                   :on-change #(do (reset! current-preset %)
+                                   (reset! show-desc? true))]]])))
+
+(defn demo
+  "creates the hiccup for the actual demo, with its child boxes and all"
+  []
+  (let [over? (:over? (:hbox @box-state))]
+    (-> [h-box
+         :padding "4px"
+         :style (merge {:border "dashed 1px red"}
+                       (when over? over-style))]
+        (merge-named-params (dissoc (:hbox @box-state) :over?))
+        (conj :children)
+        (conj [(make-box (:box1 @box-state))
+               (make-box (:box2 @box-state))
+               (make-box (:box3 @box-state))]))))
+
 (defn editable-code
-  "Shows the code in a way that values can be edited, allowing for an interactive demo."
+  "Shows the code in a way that values can be edited, allowing for an interactive demo"
   []
   (let [over-hbox  (fn [over?] (swap! box-state assoc-in [:hbox :over?] over?))
         over-box1  (fn [over?] (swap! box-state assoc-in [:box1 :over?] over?))
         over-box2  (fn [over?] (swap! box-state assoc-in [:box2 :over?] over?))
         over-box3  (fn [over?] (swap! box-state assoc-in [:box3 :over?] over?))]
     (fn []
-      [v-box
-       :children [[gap :size "20px"]
+      [h-box
+       :align :start
+       :children [[popover-anchor-wrapper
+                   :showing? show-desc?
+                   :position :left-below
+                   :anchor   [:div {:style {:height "60px"}}] ;; Position the popover down the page a little
+                   :popover  [popover-content-wrapper
+                              :showing?      show-desc?
+                              :position      :left-below
+                              :width         "536px"
+                              :title         "Preset Description"
+                              :close-button? true
+                              :body          (:desc @box-state)]]
+                  [info-button
+                   :position :left-below
+                   :width    "450px"
+                   :info     (:desc @box-state)]
 
                   [v-box
                    :width "300px"
@@ -327,41 +454,37 @@
                            :border           "1px solid lightgray"
                            :border-radius    "4px"
                            :padding          "8px"}
-                   :children [[code-row false :0 "[h-box"        ""                   ""   over-hbox]
-                              [code-row true  :1 "  :height"     [:hbox :height]      ""   over-hbox px-editor]
-                              [code-row true  :1 "  :width"      [:hbox :width]       ""   over-hbox px-editor]
-                              ;[code-row true  :1 "  :size"       [:hbox :size]        ""   over-hbox size-editor]
-                              [code-row true  :1 "  :justify"    [:hbox :justify]     ""   over-hbox justify-editor]
-                              [code-row true  :1 "  :align"      [:hbox :align]       ""   over-hbox align-editor]
-                              [code-row true  :1 "  :gap"        [:hbox :gap]         ""   over-hbox px-editor]
-                              [code-row false :1 "  :children"   " ["                 ""   over-hbox]
+                   :children [[code-row false :0 "[h-box"        ""                  ""   over-hbox]
+                              [code-row true  :1 "  :height"     [:hbox :height]     ""   over-hbox px-editor]
+                              [code-row true  :1 "  :width"      [:hbox :width]      ""   over-hbox px-editor]
+                              [code-row true  :1 "  :justify"    [:hbox :justify]    ""   over-hbox justify-editor]
+                              [code-row true  :1 "  :align"      [:hbox :align]      ""   over-hbox align-editor]
+                              [code-row true  :1 "  :gap"        [:hbox :gap]        ""   over-hbox px-editor]
+                              [code-row false :1 "  :children"   " ["                ""   over-hbox]
 
-                              [code-row false :2 "[box "          ""                  ""   over-box1]
+                              [code-row false :2 "[box "         ""                  ""   over-box1]
                               [code-row true  :3 "  :child"      [:box1 :text]       ""   over-box1 text-editor]
                               [code-row true  :3 "  :size"       [:box1 :size]       ""   over-box1 size-editor]
                               [code-row true  :3 "  :align-self" [:box1 :align-self] ""   over-box1 align-editor]
                               [code-row true  :3 "  :height"     [:box1 :height]     ""   over-box1 px-editor]
-                              ;[code-row true  :3 "  :min-height" [:box1 :min-height] ""   over-box1 px-editor]
-                              ;[code-row true  :3 "  :max-height" [:box1 :max-height] ""   over-box1 px-editor]
-                              ;[code-row true  :3 "  :width"      [:box1 :width]     ""    over-box1 px-editor]
-                              [code-row true  :3 "  :min-width"  [:box1 :min-width] ""   over-box1 px-editor]
-                              [code-row true  :3 "  :max-width"  [:box1 :max-width] "]"  over-box1 px-editor]
+                              [code-row true  :3 "  :min-width"  [:box1 :min-width]  ""   over-box1 px-editor]
+                              [code-row true  :3 "  :max-width"  [:box1 :max-width]  "]"  over-box1 px-editor]
 
-                              [code-row false :2 "[box "          ""                  ""   over-box2]
+                              [code-row false :2 "[box "         ""                  ""   over-box2]
                               [code-row true  :3 "  :child"      [:box2 :text]       ""   over-box2 text-editor]
                               [code-row true  :3 "  :size"       [:box2 :size]       ""   over-box2 size-editor]
                               [code-row true  :3 "  :align-self" [:box2 :align-self] ""   over-box2 align-editor]
                               [code-row true  :3 "  :height"     [:box2 :height]     ""   over-box2 px-editor]
-                              [code-row true  :3 "  :min-width"  [:box2 :min-width] ""   over-box2 px-editor]
-                              [code-row true  :3 "  :max-width"  [:box2 :max-width] "]"  over-box2 px-editor]
+                              [code-row true  :3 "  :min-width"  [:box2 :min-width]  ""   over-box2 px-editor]
+                              [code-row true  :3 "  :max-width"  [:box2 :max-width]  "]"  over-box2 px-editor]
 
-                              [code-row false :2 "[box "          ""                  ""   over-box3]
+                              [code-row false :2 "[box "         ""                  ""   over-box3]
                               [code-row true  :3 "  :child"      [:box3 :text]       ""   over-box3 text-editor]
                               [code-row true  :3 "  :size"       [:box3 :size]       ""   over-box3 size-editor]
                               [code-row true  :3 "  :align-self" [:box3 :align-self] ""   over-box3 align-editor]
                               [code-row true  :3 "  :height"     [:box3 :height]     ""   over-box3 px-editor]
-                              [code-row true  :3 "  :min-width"  [:box3 :min-width] ""   over-box3 px-editor]
-                              [code-row true  :3 "  :max-width"  [:box3 :max-width] "]]" over-box3 px-editor]]]]])))
+                              [code-row true  :3 "  :min-width"  [:box3 :min-width]  ""   over-box3 px-editor]
+                              [code-row true  :3 "  :max-width"  [:box3 :max-width]  "]]" over-box3 px-editor]]]]])))
 
 
 (defn panel
@@ -384,7 +507,7 @@
                                         [status-text "Stable"]
                                         [p "h-box is a container which lays out its  " [:code ":children"] " in a single horizontal row."]
                                         [p "The " [:span.bold "Layout"] " page (look LHS) describes the importance of " [:span.bold ":size"] ". The actual layout is a function of the " [:code ":size"] " of the container and the " [:code ":size"] " provided for each of the children."]
-                                        [p "Todo: Nestability with v-box"]
+                                        [p [:strong "Todo: Nestability with v-box"]]
                                         [args-table h-box-args-desc]]]
                             [v-box
                              :gap      "10px"
@@ -392,8 +515,10 @@
                              :height   "800px"
                              ;:style    {:border "dashed 1px #ddd"}
                              :children [[title2 "Demo"]
-                                        [p "This is an " [:span.bold "interactive"] " demo.  Edit the \"code\" (in grey) and watch the boxes change.
-                                            The red-dashed box is an h-box which contains up to three children."]
+                                        [p "This is an " [:span.bold "interactive"] " demo. Select a preset then edit the \"code\" (in grey) and watch the boxes change.
+                                            The red-dashed box is an h-box which contains three [box] children."]
+                                        [choose-a-demo]
+                                        [gap :size "0px"]
                                         [demo]
-                                        [editable-code]]]]]
-                [gap :size "30px"]]]))
+                                        [gap :size "0px"]
+                                        [editable-code]]]]]]]))

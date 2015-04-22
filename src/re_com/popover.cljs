@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
             [re-com.box      :refer [h-box flex-child-style flex-flow-style align-style]]
-            [re-com.validate :refer [extract-arg-data position? position-options-list popover-status-type? popover-status-types-list number-or-string?
+            [re-com.validate :refer [position? position-options-list popover-status-type? popover-status-types-list number-or-string?
                                      string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]
             [clojure.string  :as    string]
             [reagent.core    :as    reagent]))
@@ -109,8 +109,6 @@
   [{:name :opacity  :required false :default 0.0 :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
    {:name :on-click :required false              :type "( ) -> nil"      :validate-fn fn?               :description "function to call when the backdrop is clicked"}])
 
-;(def backdrop-args (extract-arg-data backdrop-args-desc))
-
 (defn- backdrop
   "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
   [& {:keys [opacity on-click] :as args}]
@@ -156,8 +154,6 @@
    {:name :margin-top     :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the vertical offset from anchor after position"}
    {:name :tooltip-style? :required false :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
    {:name :title          :required false                       :type "string | markup"                                 :description "describes a title"}])
-
-;(def popover-border-args (extract-arg-data popover-border-args-desc))
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
@@ -239,8 +235,6 @@
    {:name :close-button?  :required false  :default true :type "boolean"                                        :description "when true, displays the close button"}
    {:name :close-callback :required false                :type "function"        :validate-fn fn?               :description "callback taking no parameters, used when the close button is pressed. Not required if <code>:showing?</code> atom passed in OR <code>:close-button?</code> is set to false"}])
 
-;(def popover-title-args (extract-arg-data popover-title-args-desc))
-
 (defn- popover-title
   "Renders a title at the top of a popover with an optional close button on the far right"
   [& {:keys [title showing? close-button? close-callback]
@@ -278,8 +272,6 @@
    {:name :arrow-width      :required false  :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
    {:name :padding          :required false                        :type "string"           :validate-fn string?           :description "a CSS style which overrides the inner padding of the popover"}
    {:name :style            :required false                        :type "CSS style map"    :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
-
-;(def popover-content-wrapper-args (extract-arg-data popover-content-wrapper-args-desc))
 
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes"
@@ -347,8 +339,6 @@
    {:name :popover  :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the popover body component"}
    {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
 
-;(def popover-anchor-wrapper-args (extract-arg-data popover-anchor-wrapper-args-desc))
-
 (defn popover-anchor-wrapper
   "Renders an element or control along with a Bootstrap popover"
   [& {:keys [showing? position anchor popover style] :as args}]
@@ -388,8 +378,6 @@
    {:name :position  :required false :default :below-center :type "keyword"                :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :width     :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}
    {:name :style     :required false                        :type "CSS style map"          :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency"}])
-
-;(def popover-tooltip-args (extract-arg-data popover-tooltip-args-desc))
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style"

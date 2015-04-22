@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value]]
             [re-com.box      :refer [flex-child-style]]
-            [re-com.validate :refer [extract-arg-data css-style? vector-of-maps?] :refer-macros [validate-args-macro]]))
+            [re-com.validate :refer [css-style? vector-of-maps?] :refer-macros [validate-args-macro]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -16,8 +16,6 @@
    {:name :id-fn     :required false :default :id    :type "(map) -> anything"        :validate-fn fn?             :description [:span "given an element of " [:code ":tabs"] ", returns the unique identifier for this tab"]}
    {:name :label-fn  :required false :default :label :type "(map) -> string | hiccup" :validate-fn fn?             :description [:span "given an element of " [:code ":tabs"] ", returns what should be displayed in the tab"]}
    {:name :style     :required false                 :type "CSS style map"            :validate-fn css-style?      :description "CSS styles to add or override (for each individual tab rather than the container)"}])
-
-;(def tabs-args (extract-arg-data tabs-args-desc))
 
 (defn horizontal-tabs
   [& {:keys [model tabs on-change id-fn label-fn style]

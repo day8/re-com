@@ -37,18 +37,36 @@
                                        {:style {:width "40em"}}
 "[h-box
  :gap      \"10px\"                ; <-- in between each children
- :children [[component-1]
-            [component-2]
+ :children [[grey-box]
+            [grey-box]
             [gap :size \"5px\"]    ; <-- ad hoc
-            [component-3]]]"]
+            [grey-box]]]"]
 
+                                      [p "Result:"]
+                                      [h-box
+                                       :gap      "10px"
+                                       :style    {:border "dashed 1px red"}
+                                       :children [[box
+                                                   :style {:background-color "lightgrey"
+                                                           :padding          "20px"}
+                                                   :child "Box 1"]
+                                                  [box
+                                                   :style {:background-color "lightgrey"
+                                                           :padding          "20px"}
+                                                   :child "Box 2"]
+                                                  [gap :size "5px"]
+                                                  [box
+                                                   :style {:background-color "lightgrey"
+                                                           :padding          "20px"}
+                                                   :child "Box 3"]]]
+                                      [gap :size "10px"]
                                        [p "Notes:"
                                         [:ul
                                          [:li "h-box and v-box have a " [:code ":gap"] " parameter which inserts a
                                          given amount of white space between each child."]
                                          [:li "For more ad hoc gaps, use the " [:span.bold "[gap ...]"] " component itself."]
                                          [:li "In this example, the gap between components 2 and 3 will be 25px
-                                         because the [gap ] is a child of the h-box and will have 10px above and below."]]]
+                                         because the [gap] is a child of the h-box and will have 10px left and right of it."]]]
 
                                       [gap :size "10px"]
                                       [line]

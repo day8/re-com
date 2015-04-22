@@ -1,6 +1,6 @@
 (ns re-com.box
   (:require [clojure.string  :as    string]
-            [re-com.validate :refer [extract-arg-data justify-style? justify-options-list align-style? align-options-list
+            [re-com.validate :refer [justify-style? justify-options-list align-style? align-options-list
                                      scroll-style? scroll-options-list string-or-hiccup? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 (def debug false)
@@ -156,11 +156,11 @@
 
 (def gap-args-desc
   [{:name :size   :required true  :type "string"        :validate-fn string?    :description "the length of the whitespace.  Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
+   {:name :width  :required false :type "string"        :validate-fn string?    :description "a CSS width style"}
+   {:name :height :required false :type "string"        :validate-fn string?    :description "a CSS height style"}
    {:name :class  :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
    {:name :style  :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
    {:name :attr   :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def gap-args (extract-arg-data gap-args-desc))
 
 (defn gap
   "Returns a component which produces a gap between children in a v-box/h-box along the main axis"
@@ -189,8 +189,6 @@
    {:name :class :required false                      :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
    {:name :style :required false                      :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
    {:name :attr  :required false                      :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def line-args (extract-arg-data line-args-desc))
 
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
@@ -231,8 +229,6 @@
    {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
    {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
    {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def h-box-args (extract-arg-data h-box-args-desc))
 
 (defn h-box
   "Returns hiccup which produces a horizontal box.
@@ -292,8 +288,6 @@
    {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
    {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-;(def v-box-args (extract-arg-data v-box-args-desc))
-
 (defn v-box
   "Returns hiccup which produces a vertical box.
    It's primary role is to act as a container for components and lays it's children from top to bottom.
@@ -351,8 +345,6 @@
    {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-;(def box-args (extract-arg-data box-args-desc))
-
 (defn box
   "Returns hiccup which produces a box, which is generally used as a child of a v-box or an h-box.
    By default, it also acts as a container for further child compenents, or another h-box or v-box"
@@ -407,8 +399,6 @@
    {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def scroller-args (extract-arg-data scroller-args-desc))
 
 (defn scroller
   "Returns hiccup which produces a scoller component.
@@ -475,8 +465,6 @@
    {:name :class      :required false                                :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style      :required false                                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr       :required false                                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def border-args (extract-arg-data border-args-desc))
 
 (defn border
   "Returns hiccup which produces a border component.

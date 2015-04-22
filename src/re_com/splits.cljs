@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util        :refer [get-element-by-id sum-scroll-offsets]]
             [re-com.box         :refer [flex-child-style flex-flow-style]]
-            [re-com.validate    :refer [extract-arg-data string-or-hiccup? number-or-string? html-attr? css-style?] :refer-macros [validate-args-macro]]
+            [re-com.validate    :refer [string-or-hiccup? number-or-string? html-attr? css-style?] :refer-macros [validate-args-macro]]
             [reagent.core       :as    reagent]))
 
 
@@ -36,9 +36,9 @@
 ;;  Component: h-split
 ;; ------------------------------------------------------------------------------------
 
-(def h-split-args-desc
-  [{:name :panel-1         :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the left panel"}
-   {:name :panel-2         :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the right panel"}
+(def hv-split-args-desc
+  [{:name :panel-1         :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the left (or top) panel"}
+   {:name :panel-2         :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the right (or bottom) panel"}
    {:name :on-split-change :required false                :type "(double) -> nil" :validate-fn fn?               :description [:span "called when the user moves the splitter bar (on mouse up, not on each mouse move). Given the new " [:code ":panel-1"] " percentage split"]}
    {:name :initial-split   :required false :default 50    :type "double | string" :validate-fn number-or-string? :description [:span "initial split percentage for " [:code ":panel-1"] ". Can be double value or string (with/without percentage sign)"]}
    {:name :splitter-size   :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
@@ -47,14 +47,12 @@
    {:name :style           :required false                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override, applied to outer container"}
    {:name :attr            :required false                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed, applied to outer container"]}])
 
-;(def h-split-args (extract-arg-data h-split-args-desc))
-
 (defn h-split
   "Returns markup for a horizontal layout component"
   [& {:keys [panel-1 panel-2 initial-split splitter-size margin on-split-change class style attr]
       :or   {initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(validate-args-macro h-split-args-desc args "h-split")]}
+  {:pre [(validate-args-macro hv-split-args-desc args "h-split")]}
   (let [container-id         (gensym "h-split-")
         split-perc           (reagent/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
         dragging?            (reagent/atom false)                       ;; is the user dragging the splitter (mouse is down)?
@@ -130,7 +128,7 @@
 ;;  Component: v-split
 ;; ------------------------------------------------------------------------------------
 
-(def v-split-args-desc
+#_(def v-split-args-desc
   [{:name :panel-1         :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the top panel"}
    {:name :panel-2         :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the bottom panel"}
    {:name :on-split-change :required false                :type "(double) -> nil" :validate-fn fn?               :description [:span "called when the user moves the splitter bar (on mouse up, not on each mouse move). Given the new " [:code ":panel-1"] " percentage split"]}
@@ -141,14 +139,12 @@
    {:name :style           :required false                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override, applied to outer container"}
    {:name :attr            :required false                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed, applied to outer container"]}])
 
-;(def v-split-args (extract-arg-data v-split-args-desc))
-
 (defn v-split
   "Returns markup for a vertical layout component"
   [& {:keys [panel-1 panel-2 initial-split splitter-size margin on-split-change class style attr]
       :or   {initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(validate-args-macro v-split-args-desc args "v-split")]}
+  {:pre [(validate-args-macro hv-split-args-desc args "v-split")]}
   (let [container-id         (gensym "v-split-")
         split-perc           (reagent/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height
         dragging?            (reagent/atom false)                        ;; is the user dragging the splitter (mouse is down)?

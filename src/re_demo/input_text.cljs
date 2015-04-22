@@ -121,15 +121,16 @@
                                                                                             (reset! status :error)
                                                                                             (reset! status-tooltip "Error tooltip - this (optionally) appears when there are errors on input-text components."))
                                                                                :style     {:margin-left "20px"}]]]
-                                                                  [checkbox
-                                                                   :label     [h-box
-                                                                               :align :start
-                                                                               :gap      "5px"
-                                                                               :children [[:code ":status-icon?"]
-                                                                                          [:span " (notice the tooltips on the icons)"]]]
-                                                                   :model     status-icon?
-                                                                   :on-change (fn [val]
-                                                                                (reset! status-icon? val))]
+                                                                  [h-box
+                                                                   :align :start
+                                                                   :gap      "5px"
+                                                                   :children [[checkbox
+                                                                               :label     [:code ":status-icon?"]
+                                                                               :model     status-icon?
+                                                                               :on-change (fn [val]
+                                                                                            (reset! status-icon? val))]
+                                                                              [:span " (notice the tooltips on the icons)"]]]
+
                                                                   [v-box
                                                                    :children [[box :align :start :child [:code ":validation-regex"]]
                                                                               [radio-button

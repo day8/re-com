@@ -20,10 +20,10 @@
                            :width    "450px"
                            :children [[title2 "Notes"]
                                       [status-text "Stable"]
-                                      [p "TBA..."]
+                                      [p "Same as [h-box] except in the vertical direction."]
+                                      [p "See [h-box] for further details."]
                                       [args-table v-box-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [:span.all-small-caps "TBA..."]]]]]
-              [gap :size "30px"]]])
+                                      [p "Refer to the full interactive demo in the [h-box] section, then tilt your head 90 degrees."]]]]]]])
