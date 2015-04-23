@@ -37,8 +37,7 @@
                :position    "absolute"
                :top         "0px"
                :right       "0px"}}
-   [:i {:class "md-close"}]
-   ])
+   [:i {:class "md-close"}]])
 
 
 (defn- calc-popover-pos
@@ -230,7 +229,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-title-args-desc
-  [{:name :showing?       :required true                 :type "boolean | atom"                                 :description "when the value is true, the popover shows."}
+  [{:name :showing?       :required true                 :type "boolean atom"                                   :description "an atom. When the value is true, the popover shows."}
    {:name :title          :required false                :type "string | hiccup" :validate-fn string-or-hiccup? :description "describes the title of the popover. Default font size is 18px to make it stand out"}
    {:name :close-button?  :required false  :default true :type "boolean"                                        :description "when true, displays the close button"}
    {:name :close-callback :required false                :type "function"        :validate-fn fn?               :description "callback taking no parameters, used when the close button is pressed. Not required if <code>:showing?</code> atom passed in OR <code>:close-button?</code> is set to false"}])
@@ -256,7 +255,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-content-wrapper-args-desc
-  [{:name :showing?         :required true   :default false        :type "boolean | atom"                                  :description "an atom. when the value is true, the popover shows."}
+  [{:name :showing?         :required true   :default false        :type "boolean atom"                                    :description "an atom. When the value is true, the popover shows."}
    {:name :position         :required true   :default :right-below :type "keyword"          :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :no-clip?         :required false  :default false        :type "boolean"                                         :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. By passing true for this parameter, re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
    {:name :width            :required false                        :type "string"           :validate-fn string?           :description "a CSS style representing the popover width"}
@@ -333,7 +332,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-anchor-wrapper-args-desc
-  [{:name :showing? :required true  :default false        :type "boolean | atom"                                 :description "when the value is true, the popover shows"}
+  [{:name :showing? :required true  :default false        :type "boolean atom"                                   :description "an atom. When the value is true, the popover shows"}
    {:name :position :required true  :default :right-below :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :anchor   :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the component the popover is attached to"}
    {:name :popover  :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the popover body component"}
@@ -371,7 +370,7 @@
 
 (def popover-tooltip-args-desc
   [{:name :label     :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup?    :description "the text (or component) for the tooltip"}
-   {:name :showing?  :required true  :default false         :type "boolean"                                                  :description "when the value is true, the tooltip shows"}
+   {:name :showing?  :required true  :default false         :type "boolean atom"                                             :description "an atom. When the value is true, the tooltip shows"}
    {:name :on-cancel :required false                        :type "function"               :validate-fn fn?                  :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
    {:name :status    :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background color of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
    {:name :anchor    :required true                         :type "hiccup"                 :validate-fn string-or-hiccup?    :description "the component the tooltip is attached to"}
