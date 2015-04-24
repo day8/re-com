@@ -1,7 +1,7 @@
 (ns re-com.popover
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
-            [re-com.box      :refer [h-box flex-child-style flex-flow-style align-style]]
+            [re-com.box      :refer [h-box v-box flex-child-style flex-flow-style align-style]]
             [re-com.validate :refer [position? position-options-list popover-status-type? popover-status-types-list number-or-string?
                                      string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]
             [clojure.string  :as    string]
@@ -25,7 +25,7 @@
 
 (defn- close-button
   "A button with a big X in it, placed to the right of the popup"
-  [showing? close-callback]
+  [showing? close-callback style]
   ;; Can't use [button] because [button] already uses [popover] which would be a circular dependency.
   [:button
    {:on-click (handler-fn
@@ -33,10 +33,11 @@
                   (close-callback)
                   (reset! showing? false)))
     :class    "close"
-    :style    {:font-size   "34px"
-               :position    "absolute"
-               :top         "0px"
-               :right       "0px"}}
+    :style    (merge {:font-size "34px"
+                      :position  "absolute"
+                      :top       "0px"
+                      :right     "0px"}
+                     style)}
    [:i {:class "md-close"}]])
 
 
@@ -369,18 +370,19 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-tooltip-args-desc
-  [{:name :label     :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup?    :description "the text (or component) for the tooltip"}
-   {:name :showing?  :required true  :default false         :type "boolean atom"                                             :description "an atom. When the value is true, the tooltip shows"}
-   {:name :on-cancel :required false                        :type "function"               :validate-fn fn?                  :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
-   {:name :status    :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background color of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
-   {:name :anchor    :required true                         :type "hiccup"                 :validate-fn string-or-hiccup?    :description "the component the tooltip is attached to"}
-   {:name :position  :required false :default :below-center :type "keyword"                :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :width     :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}
-   {:name :style     :required false                        :type "CSS style map"          :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency"}])
+  [{:name :label         :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup?    :description "the text (or component) for the tooltip"}
+   {:name :showing?      :required true  :default false         :type "boolean atom"                                             :description "an atom. When the value is true, the tooltip shows"}
+   {:name :on-cancel     :required false                        :type "function"               :validate-fn fn?                  :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
+   {:name :close-button? :required false :default false         :type "boolean"                                                  :description "when true, displays the close button"}
+   {:name :status        :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background color of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
+   {:name :anchor        :required true                         :type "hiccup"                 :validate-fn string-or-hiccup?    :description "the component the tooltip is attached to"}
+   {:name :position      :required false :default :below-center :type "keyword"                :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :width         :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}
+   {:name :style         :required false                        :type "CSS style map"          :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency"}])
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style"
-  [& {:keys [label showing? on-cancel status anchor position width style] :as args}]
+  [& {:keys [label showing? on-cancel close-button? status anchor position width style] :as args}]
   {:pre [(validate-args-macro popover-tooltip-args-desc args "popover-tooltip")]}
   (let [label         (deref-or-value label)
         popover-color (case status
@@ -403,13 +405,15 @@
                :padding        "3px 8px"
                :arrow-length   6
                :arrow-width    12
-               :body           [:div
-                                {:style (if (= status :info)
-                                          {:color       "white"
-                                           :font-size   "14px"
-                                           :padding     "4px"}
-                                          {:color       "white"
-                                           :font-size   "12px"
-                                           :font-weight "bold"
-                                           :text-align  "center"})}
-                                label]]]))
+               :body           [v-box
+                                :style (if (= status :info)
+                                         {:color       "white"
+                                          :font-size   "14px"
+                                          :padding     "4px"}
+                                         {:color       "white"
+                                          :font-size   "12px"
+                                          :font-weight "bold"
+                                          :text-align  "center"})
+                                :children [label (when close-button?
+                                                   [close-button showing? on-cancel {:font-size "20px"
+                                                                                     :right     "1px"}])]]]]))

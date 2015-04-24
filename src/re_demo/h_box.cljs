@@ -1,7 +1,8 @@
 (ns re-demo.h-box
   (:require [clojure.string  :as    string]
-            [re-com.core     :refer [p h-box v-box box gap line scroller border label title button checkbox hyperlink-href slider horizontal-bar-tabs
-                                     info-button input-text input-textarea popover-anchor-wrapper popover-content-wrapper px] :refer-macros [handler-fn]]
+            [re-com.core     :refer [p h-box v-box box gap line scroller border label title button checkbox hyperlink-href
+                                     slider horizontal-bar-tabs info-button input-text input-textarea
+                                     popover-anchor-wrapper popover-content-wrapper popover-tooltip px] :refer-macros [handler-fn]]
             [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc flex-child-style]]
             [re-com.util     :refer [px]]
             [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]
@@ -21,7 +22,7 @@
                           :border-radius    "4px"
                           :padding          "4px"}))
 
-(def over-style   {:background-color "#eee"}) ;; "#fcc"
+(def over-style   {:background-color "#fcc"})
 
 (def editor-style {:font-size   "12px"
                    :line-height "20px"
@@ -30,6 +31,35 @@
 (def current-demo (reagent/atom 0))
 
 (def demos [;; Demo 0
+            {:hbox {:over?      false
+                    :height     {:value "100px"  :omit? true  :editing? (atom false) :range [0 200]}
+                    :width      {:value "300px"  :omit? false :editing? (atom false) :range [0 1000]}
+                    :justify    {:value :start   :omit? true  :editing? (atom false) }
+                    :align      {:value :stretch :omit? true  :editing? (atom false) }
+                    :gap        {:value "4px"    :omit? true  :editing? (atom false) :range [0 100]}}
+             :box1 {:over?      false
+                    :text       {:value "Box1"   :omit? false :editing? (atom false) }
+                    :size       {:value "auto"   :omit? false :editing? (atom false) :type :auto :px "50px" :ratio "3" :gsb "1 1 0"}
+                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
+                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
+                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+             :box2 {:over?      false
+                    :text       {:value "Box2"   :omit? false :editing? (atom false) }
+                    :size       {:value "auto"   :omit? false :editing? (atom false)  :type :auto :px "100px" :ratio "2" :gsb "1 1 0"}
+                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
+                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 300]}
+                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+             :box3 {:over?      false
+                    :text       {:value "Box3"   :omit? false :editing? (atom false) }
+                    :size       {:value "auto"   :omit? false :editing? (atom false) :type :auto :px "150px" :ratio "1" :gsb "1 1 0"}
+                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
+                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 400]}
+                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}}
+
+            ;; Demo 1
             {:hbox {:over?      false
                     :height     {:value "100px"  :omit? false :editing? (atom false) :range [0 200]}
                     :width      {:value "450px"  :omit? false :editing? (atom true ) :range [0 1000]}
@@ -58,19 +88,20 @@
                     :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
                     :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
              :desc [v-box
-                    :children [[:p "Demonstrates some of the basics of h-box (and Flexbox)"]
+                    :children [[:p.info-subheading "Simple Demo"]
+                               [:p "Demonstrates some of the basics of h-box (and Flexbox)"]
                                [:p "The " [:strong "h-box"] " container has a specific width and height with a gap of 4px, meaning 4px space will be placed between each child. The " [:code ":justify"] " and " [:code ":align"] " parameters are left to their defaults, meaning the boxes will be stretch from top to bottom (unless individually overridden)."]
                                [:p [:strong "Box1"] " has a " [:code ":size"] " of \"none\" which means it will take up as much space as it's content, in this case, the text \"Box1\"."]
                                [:p [:strong "Box2"] " has a specific 100 pixel " [:code ":size"] " so that's exactly how much space (width in this case) it will take up. Notice how the default :align of :stretch is overridden so that this box is vertically centered."]
                                [:p [:strong "Box3"] " has a " [:code ":size"] " of \"1\" which defines how much empty space within the container to consume. It's greedy so it takes everything that's left. Because there are no other siblings with a 'ratio'  :size, it will always take up all available space so you could put any ratio value here and you'll get the same result."]
-                               [:p [:strong "Things to try"]]
+                               [:p.info-subheading "Things to try"]
                                [:ul
                                 [:li "Set the Box2 :size to \"2\" and notice how it will always take up double the width of Box3 as you adjust the h-box :width parameter. " ]
                                 [:li "Another fascinating thing to try." ]
                                 [:li "More to come. Will need to add a scroller to get more stuff in here!" ]
                                 ]]]}
 
-            ;; Demo 1
+            ;; Demo 2
             {:hbox {:over?      false
                     :height     {:value "200px"  :omit? false :editing? (atom false) :range [0 200]}
                     :width      {:value "300px"  :omit? false :editing? (atom false) :range [0 1000]}
@@ -102,7 +133,7 @@
                     :children [[:p "This is box-state 2"]
                                [:p "More " [:strong "incredible"] " descriptions coming soon to a screen near you. Well, this one actually."]]]}
 
-            ;; Demo 2
+            ;; Demo 3
             {:hbox {:over?      false
                     :height     {:value "150px"  :omit? false :editing? (atom false) :range [0 200]}
                     :width      {:value "1000px" :omit? false :editing? (atom false) :range [0 1000]}
@@ -322,9 +353,9 @@
 (defn indent-px
   [ident]
   (ident {:0  "0px"
-          :1  "15px"
-          :2  "25px"
-          :3  "35px"}))
+          :1  "14px"
+          :2  "28px"
+          :3  "42px"}))
 
 (defn code-row
   "Render a single code row consisting of:
@@ -334,8 +365,9 @@
       3. end text, usually, a closing ']'
     - an editor to open"
   [active? indent text1 path text3 on-over editor]
-
-  (let  [mouse-over-row?  (reagent/atom false)
+  (let  [editing?-path    (when editor (conj path :editing?))
+         toggle-editor    (handler-fn (swap! box-state update-in editing?-path (fn [v] (atom (not @v)))))
+         mouse-over-row?  (reagent/atom false)
          mouse-over-fn    (fn [val]
                             (reset! mouse-over-row? val)
                             (if on-over (on-over val))
@@ -344,54 +376,55 @@
                                          (map? (get-in @box-state path))
                                          (get-in @box-state (conj path :omit?))))]
     (fn [active? indent text1 path text2 on-over editor]
-      (let [arg-val       (if (vector? path)
-                            (let [val (get-in @box-state (conj path :value))]
-                              (cond
-                                (nil? val)     "-"
-                                (keyword? val) (str val)
-                                :else          (str "\"" val "\"")))
-                            (str path))
-            row-active?    (and @mouse-over-row? active?)
-            show-checkbox? (and row-active? (not (contains? (set path) :text)))
-            allow-edit?    (and row-active? (not @omit?))
-            arg-hiccup     [h-box
-                            :width     "282px"
-                            :style    (merge {:overflow "hidden"}
-                                             (when row-active? {:background-color "#f0f0f0"
-                                                                :cursor           "pointer"})
-                                             (when @omit?      {:color            "#d0d0d0"}))
-                            :attr     {:on-mouse-over #(mouse-over-fn true)
-                                       :on-mouse-out  #(mouse-over-fn false)}
-                            :children [[box
-                                        :size "20px"
-                                        :child (if show-checkbox?
-                                                 [checkbox
-                                                  :model     (not @omit?)
-                                                  :on-change #(do (swap! box-state assoc-in (conj path :omit?) (not %))
-                                                                  (swap! box-state assoc-in (conj path :editing?) (atom %)))]
-                                                 [:span])]
-                                       [gap :size (indent-px indent)]
-                                       [box
-                                        :size "100px"
-                                        :style (when @omit? {:text-decoration "line-through"})
-                                        :child text1]
-                                       [box
-                                        :attr  (when allow-edit? {:on-click (handler-fn (swap! box-state update-in (conj path :editing?) (fn [v] (atom (not @v)))))})
-                                        :style (when @omit? {:text-decoration "line-through"})
-                                        :child [:span
-                                                [:span {:style (when allow-edit? {:color "blue"})} arg-val]
-                                                text2]]]]]
-
+      (let [arg-val           (when editor
+                                (let [val (get-in @box-state (conj path :value))]
+                                  (cond
+                                    (nil? val)     "-"
+                                    (keyword? val) (str val)
+                                    :else          (str "\"" val "\""))))
+            row-active?       (and @mouse-over-row? active?)
+            mouse-over-group? (= (nth path 0) (:over-group @box-state))
+            show-checkbox?    (and row-active? (not (contains? (set path) :text)))
+            allow-edit?       (and row-active? (not @omit?))
+            arg-hiccup        [h-box
+                               :width     "242px"
+                               :style    (merge {:overflow "hidden"}
+                                                (when mouse-over-group? {:background-color "#e8e8e8"})
+                                                (when row-active?       {:background-color "#d8d8d8"
+                                                                         :cursor           "pointer"})
+                                                (when @omit?            {:color            "#c0c0c0"}))
+                               :attr     {:on-mouse-over #(do (println "|" path "|") (mouse-over-fn true))
+                                          :on-mouse-out  #(mouse-over-fn false)}
+                               :children [[box
+                                           :size "20px"
+                                           :child (if show-checkbox?
+                                                    [checkbox
+                                                     :model     (not @omit?)
+                                                     :on-change #(do (swap! box-state assoc-in (conj path :omit?) (not %))
+                                                                     (swap! box-state assoc-in editing?-path (atom %)))]
+                                                    [:span])] ;; when no checkbox, use a filler
+                                          [gap :size (indent-px indent)]
+                                          [box
+                                           :size "100px"
+                                           :attr  (when allow-edit? {:on-click toggle-editor})
+                                           :style (when @omit? {:text-decoration "line-through"})
+                                           :child text1]
+                                          [box
+                                           :attr  (when allow-edit? {:on-click toggle-editor})
+                                           :style (when @omit? {:text-decoration "line-through"})
+                                           :child [:span
+                                                   [:span {:style (when allow-edit? {:color "blue"})} arg-val]
+                                                   text2]]]]]
         (if editor
-          (let []
+          (let [editing? (get-in @box-state editing?-path)]
             [popover-anchor-wrapper
-             :showing? (get-in @box-state (conj path :editing?))
+             :showing? editing?
              :position :right-center
-             :anchor arg-hiccup
-             :popover [popover-content-wrapper
-                       :showing? (get-in @box-state (conj path :editing?))
-                       :position :right-center
-                       :body     [editor path #(swap! box-state assoc-in (conj path :editing?) (atom false))]]])
+             :anchor   arg-hiccup
+             :popover  [popover-content-wrapper
+                        :showing? editing?
+                        :position :right-center
+                        :body     [editor path #(swap! box-state assoc-in editing?-path (atom false))]]])
           arg-hiccup)))))
 
 
@@ -400,7 +433,8 @@
   []
   (let [opts  [{:id 0 :label "1"}
                {:id 1 :label "2"}
-               {:id 2 :label "3"}]]
+               {:id 2 :label "3"}
+               {:id 3 :label "4"}]]
     (fn
       []
       [h-box
@@ -430,63 +464,79 @@
 (defn editable-code
   "Shows the code in a way that values can be edited, allowing for an interactive demo"
   []
-  (let [over-hbox  (fn [over?] (swap! box-state assoc-in [:hbox :over?] over?))
-        over-box1  (fn [over?] (swap! box-state assoc-in [:box1 :over?] over?))
-        over-box2  (fn [over?] (swap! box-state assoc-in [:box2 :over?] over?))
-        over-box3  (fn [over?] (swap! box-state assoc-in [:box3 :over?] over?))]
+  (let [over-hbox  (fn [over?] (println "hbox" over?) (swap! box-state assoc-in [:hbox :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :hbox)))
+        over-box1  (fn [over?] (println "box1" over?) (swap! box-state assoc-in [:box1 :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :box1)))
+        over-box2  (fn [over?] (println "box2" over?) (swap! box-state assoc-in [:box2 :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :box2)))
+        over-box3  (fn [over?] (println "box3" over?) (swap! box-state assoc-in [:box3 :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :box3)))]
     (fn []
       [h-box
        :align :start
-       :children [[popover-anchor-wrapper
-                   :showing? show-desc?
-                   :position :left-below
-                   :anchor   [:div {:style {:height "60px"}}] ;; Position the popover down the page a little
-                   :popover  [popover-content-wrapper
-                              :showing?      show-desc?
-                              :position      :left-below
-                              :width         "460px"
-                              :title         "Demo Description"
-                              :close-button? true
-                              :body          (:desc @box-state)]]
+       :children [(when (:desc @box-state)
+                    #_[popover-anchor-wrapper  ;; TODO: REMOVE
+                     :showing? show-desc?
+                     :position :right-below
+                     :anchor   [:div {:style {:height "60px"}}] ;; Position the popover down the page a little
+                     :popover  [popover-content-wrapper
+                                :showing?       show-desc?
+                                :position       :right-below
+                                :width          "460px"
+
+                                ;:tooltip-style? true
+                                ;:popover-color "#333333"
+                                ;:padding        "3px 8px"
+                                ;:arrow-length   6
+                                ;:arrow-width    12
+
+                                :title          "Demo Description"
+                                :close-button?  true
+                                :body           (:desc @box-state)]]
+                    [popover-tooltip
+                     :showing?      show-desc?
+                     :position      :left-below
+                     :width         "460px"
+                     :status        :info
+                     :close-button? true
+                     :anchor        [:div {:style {:height "42px"}}] ;; Position the popover down the page a little
+                     :label         (:desc @box-state)])
                   [v-box
-                   :width "300px"
+                   :width "260px"
                    :style {:font-family      "Consolas, \"Courier New\", monospace"
                            :font-size        "12px"
                            :background-color "#f5f5f5"
                            :border           "1px solid lightgray"
                            :border-radius    "4px"
                            :padding          "8px"}
-                   :children [[code-row false :0 "[h-box"        ""                  ""   over-hbox]
-                              [code-row true  :1 "  :height"     [:hbox :height]     ""   over-hbox px-editor]
-                              [code-row true  :1 "  :width"      [:hbox :width]      ""   over-hbox px-editor]
-                              [code-row true  :1 "  :justify"    [:hbox :justify]    ""   over-hbox justify-editor]
-                              [code-row true  :1 "  :align"      [:hbox :align]      ""   over-hbox align-editor]
-                              [code-row true  :1 "  :gap"        [:hbox :gap]        ""   over-hbox px-editor]
-                              [code-row false :1 "  :children"   " ["                ""   over-hbox]
+                   :children [[code-row false :0 "[h-box"      [:hbox]                  ""   over-hbox]
+                              [code-row true  :1 ":height"     [:hbox :height]     ""   over-hbox px-editor]
+                              [code-row true  :1 ":width"      [:hbox :width]      ""   over-hbox px-editor]
+                              [code-row true  :1 ":justify"    [:hbox :justify]    ""   over-hbox justify-editor]
+                              [code-row true  :1 ":align"      [:hbox :align]      ""   over-hbox align-editor]
+                              [code-row true  :1 ":gap"        [:hbox :gap]        ""   over-hbox px-editor]
+                              [code-row false :1 ":children [" [:hbox]                  ""   over-hbox]
 
-                              [code-row false :2 "[box "         ""                  ""   over-box1]
-                              [code-row true  :3 "  :child"      [:box1 :text]       ""   over-box1 text-editor]
-                              [code-row true  :3 "  :size"       [:box1 :size]       ""   over-box1 size-editor]
-                              [code-row true  :3 "  :align-self" [:box1 :align-self] ""   over-box1 align-editor]
-                              [code-row true  :3 "  :height"     [:box1 :height]     ""   over-box1 px-editor]
-                              [code-row true  :3 "  :min-width"  [:box1 :min-width]  ""   over-box1 px-editor]
-                              [code-row true  :3 "  :max-width"  [:box1 :max-width]  "]"  over-box1 px-editor]
+                              [code-row false :2 "[box "       [:box1]                  ""   over-box1]
+                              [code-row true  :3 ":child"      [:box1 :text]       ""   over-box1 text-editor]
+                              [code-row true  :3 ":size"       [:box1 :size]       ""   over-box1 size-editor]
+                              [code-row true  :3 ":align-self" [:box1 :align-self] ""   over-box1 align-editor]
+                              [code-row true  :3 ":height"     [:box1 :height]     ""   over-box1 px-editor]
+                              [code-row true  :3 ":min-width"  [:box1 :min-width]  ""   over-box1 px-editor]
+                              [code-row true  :3 ":max-width"  [:box1 :max-width]  "]"  over-box1 px-editor]
 
-                              [code-row false :2 "[box "         ""                  ""   over-box2]
-                              [code-row true  :3 "  :child"      [:box2 :text]       ""   over-box2 text-editor]
-                              [code-row true  :3 "  :size"       [:box2 :size]       ""   over-box2 size-editor]
-                              [code-row true  :3 "  :align-self" [:box2 :align-self] ""   over-box2 align-editor]
-                              [code-row true  :3 "  :height"     [:box2 :height]     ""   over-box2 px-editor]
-                              [code-row true  :3 "  :min-width"  [:box2 :min-width]  ""   over-box2 px-editor]
-                              [code-row true  :3 "  :max-width"  [:box2 :max-width]  "]"  over-box2 px-editor]
+                              [code-row false :2 "[box "       [:box2]                  ""   over-box2]
+                              [code-row true  :3 ":child"      [:box2 :text]       ""   over-box2 text-editor]
+                              [code-row true  :3 ":size"       [:box2 :size]       ""   over-box2 size-editor]
+                              [code-row true  :3 ":align-self" [:box2 :align-self] ""   over-box2 align-editor]
+                              [code-row true  :3 ":height"     [:box2 :height]     ""   over-box2 px-editor]
+                              [code-row true  :3 ":min-width"  [:box2 :min-width]  ""   over-box2 px-editor]
+                              [code-row true  :3 ":max-width"  [:box2 :max-width]  "]"  over-box2 px-editor]
 
-                              [code-row false :2 "[box "         ""                  ""   over-box3]
-                              [code-row true  :3 "  :child"      [:box3 :text]       ""   over-box3 text-editor]
-                              [code-row true  :3 "  :size"       [:box3 :size]       ""   over-box3 size-editor]
-                              [code-row true  :3 "  :align-self" [:box3 :align-self] ""   over-box3 align-editor]
-                              [code-row true  :3 "  :height"     [:box3 :height]     ""   over-box3 px-editor]
-                              [code-row true  :3 "  :min-width"  [:box3 :min-width]  ""   over-box3 px-editor]
-                              [code-row true  :3 "  :max-width"  [:box3 :max-width]  "]]" over-box3 px-editor]]]]])))
+                              [code-row false :2 "[box "       [:box3]                  ""   over-box3]
+                              [code-row true  :3 ":child"      [:box3 :text]       ""   over-box3 text-editor]
+                              [code-row true  :3 ":size"       [:box3 :size]       ""   over-box3 size-editor]
+                              [code-row true  :3 ":align-self" [:box3 :align-self] ""   over-box3 align-editor]
+                              [code-row true  :3 ":height"     [:box3 :height]     ""   over-box3 px-editor]
+                              [code-row true  :3 ":min-width"  [:box3 :min-width]  ""   over-box3 px-editor]
+                              [code-row true  :3 ":max-width"  [:box3 :max-width]  "]]" over-box3 px-editor]]]]])))
 
 
 (defn panel

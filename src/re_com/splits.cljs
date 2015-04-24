@@ -37,20 +37,23 @@
 ;; ------------------------------------------------------------------------------------
 
 (def hv-split-args-desc
-  [{:name :panel-1         :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the left (or top) panel"}
-   {:name :panel-2         :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the right (or bottom) panel"}
-   {:name :on-split-change :required false                :type "(double) -> nil" :validate-fn fn?               :description [:span "called when the user moves the splitter bar (on mouse up, not on each mouse move). Given the new " [:code ":panel-1"] " percentage split"]}
-   {:name :initial-split   :required false :default 50    :type "double | string" :validate-fn number-or-string? :description [:span "initial split percentage for " [:code ":panel-1"] ". Can be double value or string (with/without percentage sign)"]}
-   {:name :splitter-size   :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
-   {:name :margin          :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}
-   {:name :class           :required false                :type "string"          :validate-fn string?           :description "CSS class names, space separated, applied to outer container"}
-   {:name :style           :required false                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override, applied to outer container"}
-   {:name :attr            :required false                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed, applied to outer container"]}])
+  [{:name :panel-1         :required true                  :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the left (or top) panel"}
+   {:name :panel-2         :required true                  :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the right (or bottom) panel"}
+   {:name :size            :required false :default "auto" :type "string"          :validate-fn string?           :description [:span "applied to the outer container of the two panels. Equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+   {:name :width           :required false                 :type "string"          :validate-fn string?           :description "width of the outer container of the two panels. A CSS width style"}
+   {:name :height          :required false                 :type "string"          :validate-fn string?           :description "height of the outer container of the two panels. A CSS height style"}
+   {:name :on-split-change :required false                 :type "(double) -> nil" :validate-fn fn?               :description [:span "called when the user moves the splitter bar (on mouse up, not on each mouse move). Given the new " [:code ":panel-1"] " percentage split"]}
+   {:name :initial-split   :required false :default 50     :type "double | string" :validate-fn number-or-string? :description [:span "initial split percentage for " [:code ":panel-1"] ". Can be double value or string (with/without percentage sign)"]}
+   {:name :splitter-size   :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the splitter"}
+   {:name :margin          :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}
+   {:name :class           :required false                 :type "string"          :validate-fn string?           :description "CSS class names, space separated, applied to outer container"}
+   {:name :style           :required false                 :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override, applied to outer container"}
+   {:name :attr            :required false                 :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed, applied to outer container"]}])
 
 (defn h-split
   "Returns markup for a horizontal layout component"
-  [& {:keys [panel-1 panel-2 initial-split splitter-size margin on-split-change class style attr]
-      :or   {initial-split 50 splitter-size "8px" margin "8px"}
+  [& {:keys [panel-1 panel-2 size width height on-split-change initial-split splitter-size margin class style attr]
+      :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   {:pre [(validate-args-macro hv-split-args-desc args "h-split")]}
   (let [container-id         (gensym "h-split-")
@@ -89,9 +92,11 @@
         make-container-attrs (fn [class style attr in-drag?]
                                (merge {:class (str "rc-h-split display-flex " class)
                                        :id    container-id
-                                       :style (merge (flex-child-style "auto")
+                                       :style (merge (flex-child-style size)
                                                      (flex-flow-style "row nowrap")
-                                                     {:margin margin}
+                                                     {:margin margin
+                                                      :width  width
+                                                      :height height}
                                                      style)}
                                       (when in-drag?                             ;; only listen when we are dragging
                                         {:on-mouse-up   (handler-fn (stop-drag))
@@ -128,21 +133,10 @@
 ;;  Component: v-split
 ;; ------------------------------------------------------------------------------------
 
-#_(def v-split-args-desc
-  [{:name :panel-1         :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the top panel"}
-   {:name :panel-2         :required true                 :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the bottom panel"}
-   {:name :on-split-change :required false                :type "(double) -> nil" :validate-fn fn?               :description [:span "called when the user moves the splitter bar (on mouse up, not on each mouse move). Given the new " [:code ":panel-1"] " percentage split"]}
-   {:name :initial-split   :required false :default 50    :type "double | string" :validate-fn number-or-string? :description [:span "initial split percentage for " [:code ":panel-1"] ". Can be double value or string (with/without percentage sign)"]}
-   {:name :splitter-size   :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the splitter"}
-   {:name :margin          :required false :default "8px" :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}
-   {:name :class           :required false                :type "string"          :validate-fn string?           :description "CSS class names, space separated, applied to outer container"}
-   {:name :style           :required false                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override, applied to outer container"}
-   {:name :attr            :required false                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed, applied to outer container"]}])
-
 (defn v-split
   "Returns markup for a vertical layout component"
-  [& {:keys [panel-1 panel-2 initial-split splitter-size margin on-split-change class style attr]
-      :or   {initial-split 50 splitter-size "8px" margin "8px"}
+  [& {:keys [panel-1 panel-2 size width height on-split-change initial-split splitter-size margin class style attr]
+      :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   {:pre [(validate-args-macro hv-split-args-desc args "v-split")]}
   (let [container-id         (gensym "v-split-")
@@ -181,9 +175,11 @@
         make-container-attrs (fn [class style attr in-drag?]
                                (merge {:class (str "rc-v-split display-flex " class)
                                        :id    container-id
-                                       :style (merge (flex-child-style "auto")
+                                       :style (merge (flex-child-style size)
                                                      (flex-flow-style "column nowrap")
-                                                     {:margin margin}
+                                                     {:margin margin
+                                                      :width  width
+                                                      :height height}
                                                      style)}
                                       (when in-drag?                             ;; only listen when we are dragging
                                         {:on-mouse-up   (handler-fn (stop-drag))
