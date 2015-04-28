@@ -415,5 +415,7 @@
                                           :font-weight "bold"
                                           :text-align  "center"})
                                 :children [label (when close-button?
-                                                   [close-button showing? on-cancel {:font-size "20px"
-                                                                                     :right     "1px"}])]]]]))
+                                                   [close-button showing? on-cancel {:font-size   "20px"
+                                                                                     :color       "white"
+                                                                                     :text-shadow "none"
+                                                                                     :right       "1px"}])]]]]))

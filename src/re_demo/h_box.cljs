@@ -20,7 +20,8 @@
                          {:background-color "#fff4f4"
                           :border           "1px solid lightgray"
                           :border-radius    "4px"
-                          :padding          "4px"}))
+                          :padding          "4px"
+                          :overflow         "hidden"}))
 
 (def over-style   {:background-color "#fcc"})
 
@@ -30,142 +31,338 @@
 
 (def current-demo (reagent/atom 0))
 
-(def demos [;; Demo 0
-            {:hbox {:over?      false
-                    :height     {:value "100px"  :omit? true  :editing? (atom false) :range [0 200]}
-                    :width      {:value "300px"  :omit? false :editing? (atom false) :range [0 1000]}
-                    :justify    {:value :start   :omit? true  :editing? (atom false) }
-                    :align      {:value :stretch :omit? true  :editing? (atom false) }
-                    :gap        {:value "4px"    :omit? true  :editing? (atom false) :range [0 100]}}
-             :box1 {:over?      false
-                    :text       {:value "Box1"   :omit? false :editing? (atom false) }
-                    :size       {:value "auto"   :omit? false :editing? (atom false) :type :auto :px "50px" :ratio "3" :gsb "1 1 0"}
-                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
-             :box2 {:over?      false
-                    :text       {:value "Box2"   :omit? false :editing? (atom false) }
-                    :size       {:value "auto"   :omit? false :editing? (atom false)  :type :auto :px "100px" :ratio "2" :gsb "1 1 0"}
-                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 300]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
-             :box3 {:over?      false
-                    :text       {:value "Box3"   :omit? false :editing? (atom false) }
-                    :size       {:value "auto"   :omit? false :editing? (atom false) :type :auto :px "150px" :ratio "1" :gsb "1 1 0"}
-                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 400]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}}
+;(def paragraph-filler "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
+;(def paragraph-filler "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+(def paragraph-filler [v-box
+                       :children [[:p.bold "Lorem Ipsum"]
+                                  [:p "dolor sit amet, consectetur adipiscing elit."]
+                                  [:p "Sed do " [:strong "eiusmod"] " tempor incididunt ut labore et dolore magna aliqua."]
+                                  [:p [:strong "Ut enim "] " ad minim veniam " [:code "quis nostrud"] " exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."]
+                                  [:p.bold "Duis aute irure:"]
+                                  [:ul
+                                   [:li "Dolor in reprehenderit in voluptate velit esse."]
+                                   [:li "Cillum dolore eu fugiat nulla pariatur."]
+                                   [:li "Excepteur sint occaecat cupidatat non proident."]
+                                   ;[:li "Sunt in culpa qui officia deserunt mollit anim id est laborum."]
+                                   ]]])
 
-            ;; Demo 1
-            {:hbox {:over?      false
-                    :height     {:value "100px"  :omit? false :editing? (atom false) :range [0 200]}
-                    :width      {:value "450px"  :omit? false :editing? (atom true ) :range [0 1000]}
-                    :justify    {:value :start   :omit? true  :editing? (atom false) }
-                    :align      {:value :stretch :omit? true  :editing? (atom false) }
-                    :gap        {:value "4px"    :omit? false :editing? (atom false) :range [0 100]}}
+(def buttons-filler [h-box
+                     :children [[button
+                                 :label    "Blue"
+                                 :class    "btn-primary"
+                                 :on-click #()]
+                                [gap :size "12px" :width "12px"]
+                                [button
+                                 :label    "White"
+                                 :on-click #()]]])
+
+(def demos [;; Basic
+            {:hbox {:over?   false
+                    :height  {:value "100px" :omit? false :editing? (atom false) :range [0 200]}
+                    :width   {:value "300px" :omit? true :editing? (atom false) :range [0 1000]}
+                    :justify {:value :start :omit? true :editing? (atom false)}
+                    :align   {:value :stretch :omit? true :editing? (atom false)}
+                    :gap     {:value "4px" :omit? true :editing? (atom false) :range [0 100]}}
              :box1 {:over?      false
-                    :text       {:value "Box1"   :omit? false :editing? (atom false) }
-                    :size       {:value "none"   :omit? false :editing? (atom false) :type :none :px "50px" :ratio "3" :gsb "1 1 0"}
-                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+                    :text       {:value "Box1" :omit? false :editing? (atom false) :type :text :text "Box1"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "50px" :ratio "3" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
              :box2 {:over?      false
-                    :text       {:value "Box2"   :omit? false :editing? (atom false) }
-                    :size       {:value "100px"  :omit? false :editing? (atom true )  :type :px :px "100px" :ratio "2" :gsb "1 1 0"}
-                    :align-self {:value :center  :omit? false :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 300]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+                    :text       {:value "Box2" :omit? false :editing? (atom false) :type :text :text "Box2"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "100px" :ratio "2" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 300]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
              :box3 {:over?      false
-                    :text       {:value "Box3"   :omit? false :editing? (atom false) }
-                    :size       {:value "1"      :omit? false :editing? (atom false) :type :ratio :px "150px" :ratio "1" :gsb "1 1 0"}
-                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 400]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+                    :text       {:value "Box3" :omit? false :editing? (atom false) :type :text :text "Box3"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "150px" :ratio "1" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 400]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}}
+
+            ;; Justify
+            {:hbox {:over?   false
+                    :height  {:value "100px" :omit? false :editing? (atom false) :range [0 200]}
+                    :width   {:value "450px" :omit? false :editing? (atom false) :range [0 1000]}
+                    :justify {:value :start :omit? false :editing? (atom true)}
+                    :align   {:value :stretch :omit? true :editing? (atom false)}
+                    :gap     {:value "4px" :omit? true :editing? (atom false) :range [0 100]}}
+             :box1 {:over?      false
+                    :text       {:value "Box1" :omit? false :editing? (atom false) :type :text :text "Box1"}
+                    :size       {:value "100px" :omit? false :editing? (atom false) :type :px :px "100px" :ratio "3" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :box2 {:over?      false
+                    :text       {:value "Box2" :omit? false :editing? (atom false) :type :text :text "Box2"}
+                    :size       {:value "100px" :omit? false :editing? (atom false) :type :px :px "100px" :ratio "2" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 300]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :box3 {:over?      false
+                    :text       {:value "Box3" :omit? false :editing? (atom false) :type :text :text "Box3"}
+                    :size       {:value "100px" :omit? false :editing? (atom false) :type :px :px "100px" :ratio "1" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 400]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
              :desc [v-box
-                    :children [[:p.info-subheading "Simple Demo"]
-                               [:p "Demonstrates some of the basics of h-box (and Flexbox)"]
-                               [:p "The " [:strong "h-box"] " container has a specific width and height with a gap of 4px, meaning 4px space will be placed between each child. The " [:code ":justify"] " and " [:code ":align"] " parameters are left to their defaults, meaning the boxes will be stretch from top to bottom (unless individually overridden)."]
+                    :children [[:p.info-subheading "The " [:code ":justify"] " parameter"]
+                               [:p "Specifies how children are arranged horizontally (along the \"main axis\" in flexbox terms)."]
+                               [:p [:strong "Note: "] "There is a bug in Chrome. When switching from :between to :around (or visa versa), the change is not shown. To get around this, select a different option beforehand."]
+                               [:p.info-subheading "Things to try"]
+                               [:ul
+                                [:li "Select the different " [:code ":justify"] " options to see their effect on the layout."]
+                                [:li "When in :around mode, turn the " [:code ":gap"] " parameter on using it's checkbox. Notice that although the gaps are invisible, being children themselves, space is also added around them."]
+                                ]]]}
+
+            ;; Align
+            {:hbox {:over?   false
+                    :height  {:value "100px" :omit? false :editing? (atom true) :range [0 200]}
+                    :width   {:value "450px" :omit? false :editing? (atom false) :range [0 1000]}
+                    :justify {:value :start :omit? true :editing? (atom false)}
+                    :align   {:value :stretch :omit? false :editing? (atom true)}
+                    :gap     {:value "4px" :omit? false :editing? (atom false) :range [0 100]}}
+             :box1 {:over?      false
+                    :text       {:value "Box1" :omit? false :editing? (atom false) :type :text :text "Box1"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "50px" :ratio "3" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :box2 {:over?      false
+                    :text       {:value "Box2" :omit? false :editing? (atom false) :type :text :text "Box2"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "100px" :ratio "2" :gsb "1 1 0px"}
+                    :align-self {:value :center :omit? false :editing? (atom true)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 300]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :box3 {:over?      false
+                    :text       {:value "Box3" :omit? false :editing? (atom false) :type :text :text "Box3"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "150px" :ratio "1" :gsb "1 1 0px"}
+                    :align-self {:value :end :omit? false :editing? (atom true)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 400]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :desc [v-box
+                    :children [[:p.info-subheading "The " [:code ":align"] " & " [:code ":align-self"] " parameters"]
+                               [:p [:code ":align"] " specifies how children are arranged vertically (along the \"cross axis\" in flexbox terms)."]
+                               [:p [:code ":align-self"] " is used by individual children to override the :align value specified by their parent."]
+                               [:p.info-subheading "Things to try"]
+                               [:ul
+                                [:li "Select different " [:code ":align"] " values for the h-box and notice how this only affects Box1, since the other boxes are both overriding this setting."]
+                                [:li "Change the " [:code ":align-self"] " values for Box2 and Box3 to see them adjust their vertical layout."]
+                                [:li "Adjust the h-box " [:code ":height"] " parameter to see the boxes sticking to the specified alignment."]
+                                ]]]}
+
+            ;; Size
+            {:hbox {:over?   false
+                    :height  {:value "100px" :omit? false :editing? (atom false) :range [0 200]}
+                    :width   {:value "450px" :omit? false :editing? (atom true) :range [0 1000]}
+                    :justify {:value :start :omit? true :editing? (atom false)}
+                    :align   {:value :stretch :omit? true :editing? (atom false)}
+                    :gap     {:value "4px" :omit? false :editing? (atom false) :range [0 100]}}
+             :box1 {:over?      false
+                    :text       {:value "Box1" :omit? false :editing? (atom false) :type :text :text "Box1"}
+                    :size       {:value "none" :omit? false :editing? (atom true) :type :none :px "50px" :ratio "3" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :box2 {:over?      false
+                    :text       {:value "Box2" :omit? false :editing? (atom false) :type :text :text "Box2"}
+                    :size       {:value "100px" :omit? false :editing? (atom true) :type :px :px "100px" :ratio "2" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 300]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :box3 {:over?      false
+                    :text       {:value "Box3" :omit? false :editing? (atom false) :type :text :text "Box3"}
+                    :size       {:value "1" :omit? false :editing? (atom true) :type :ratio :px "150px" :ratio "1" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 400]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :desc [v-box
+                    :children [[:p.info-subheading "The " [:code ":size"] " parameter"]
+                               [:p "The " [:strong "h-box"] " container has a specific width and height with a gap of 4px, meaning 4px space will be placed between each child. The " [:code ":justify"] " and " [:code ":align"] " parameters are left to their defaults, meaning the boxes will be stretched from top to bottom (unless individually overridden)."]
                                [:p [:strong "Box1"] " has a " [:code ":size"] " of \"none\" which means it will take up as much space as it's content, in this case, the text \"Box1\"."]
-                               [:p [:strong "Box2"] " has a specific 100 pixel " [:code ":size"] " so that's exactly how much space (width in this case) it will take up. Notice how the default :align of :stretch is overridden so that this box is vertically centered."]
+                               [:p [:strong "Box2"] " has a specific 100 pixel " [:code ":size"] " so that's exactly how much space (width in the case on an h-box) it will take up."]
                                [:p [:strong "Box3"] " has a " [:code ":size"] " of \"1\" which defines how much empty space within the container to consume. It's greedy so it takes everything that's left. Because there are no other siblings with a 'ratio'  :size, it will always take up all available space so you could put any ratio value here and you'll get the same result."]
                                [:p.info-subheading "Things to try"]
                                [:ul
-                                [:li "Set the Box2 :size to \"2\" and notice how it will always take up double the width of Box3 as you adjust the h-box :width parameter. " ]
-                                [:li "Another fascinating thing to try." ]
-                                [:li "More to come. Will need to add a scroller to get more stuff in here!" ]
+                                [:li "Adjust the h-box " [:code ":width"] " parameter and notice that only Box3 resizes as the other two boxes have specific sizes that will not change. Box3 takes up all extra available space and squeezes down to nothing as the h-box width is reduced further."]
+                                [:li "Set the Box2 " [:code ":size"] " to a :ratio value of \"2\" and notice how it will always take up double the width of Box3 as you adjust the h-box " [:code ":width"] " parameter."]
+                                [:li "Set the Box2 " [:code ":size"] " to a :gsb value of \"0 0 80%\". As you adjust the h-box " [:code ":width"] " parameter, you will see that Box2 maintains 80% of the width of the h-box. Because we are not allowing growing or shrinking, Box3 will eventually be squeezed down to nothing and Box2 will ultimately extend outsize the bounds of the h-box, but will always be sized to 80% of the h-box. Does that make any sense?"]
                                 ]]]}
 
-            ;; Demo 2
-            {:hbox {:over?      false
-                    :height     {:value "200px"  :omit? false :editing? (atom false) :range [0 200]}
-                    :width      {:value "300px"  :omit? false :editing? (atom false) :range [0 1000]}
-                    :justify    {:value :center  :omit? false :editing? (atom false) }
-                    :align      {:value :stretch :omit? true  :editing? (atom false) }
-                    :gap        {:value "4px"    :omit? false :editing? (atom false) :range [0 100]}}
+            ;; Size2
+            {:hbox {:over?   false
+                    :height  {:value "100px" :omit? false :editing? (atom false) :range [0 200]}
+                    :width   {:value "500px" :omit? false :editing? (atom true) :range [0 1000]}
+                    :justify {:value :start :omit? true :editing? (atom false)}
+                    :align   {:value :stretch :omit? true :editing? (atom false)}
+                    :gap     {:value "4px" :omit? false :editing? (atom false) :range [0 100]}}
              :box1 {:over?      false
-                    :text       {:value "Box1"   :omit? false :editing? (atom false) }
-                    :size       {:value "none"   :omit? false :editing? (atom false) :type :none :px "50px" :ratio "3" :gsb "1 1 0"}
-                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+                    :text       {:value "Box1" :omit? false :editing? (atom false) :type :text :text "Box1"}
+                    :size       {:value "100px" :omit? false :editing? (atom false) :type :px :px "100px" :ratio "3" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
              :box2 {:over?      false
-                    :text       {:value "Box2"   :omit? false :editing? (atom false) }
-                    :size       {:value "500px"  :omit? false :editing? (atom false) :type :px :px "100px" :ratio "2" :gsb "1 1 0"}
-                    :align-self {:value :center  :omit? false :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 300]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+                    :text       {:value "Box2" :omit? false :editing? (atom false) :type :text :text "Box2"}
+                    :size       {:value "5 1 200px" :omit? false :editing? (atom true) :type :gsb :px "100px" :ratio "2" :gsb "5 1 200px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 300]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
              :box3 {:over?      false
-                    :text       {:value "Box3"   :omit? false :editing? (atom false) }
-                    :size       {:value "none"   :omit? false :editing? (atom false) :type :none :px "150px" :ratio "1" :gsb "1 1 0"}
-                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 400]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+                    :text       {:value "Box3" :omit? false :editing? (atom false) :type :text :text "Box3"}
+                    :size       {:value "1 3 200px" :omit? false :editing? (atom true) :type :gsb :px "150px" :ratio "1" :gsb "1 3 200px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 400]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
              :desc [v-box
-                    :children [[:p "This is box-state 2"]
-                               [:p "More " [:strong "incredible"] " descriptions coming soon to a screen near you. Well, this one actually."]]]}
+                    :children [[:p.info-subheading "The " [:code ":size"] " parameter - Advanced GSB"]
+                               [:p "This demonstrates a complex example of gsb."]
+                               [:p [:strong "Box1"] " has a " [:code ":size"] " fixed to \"100px\"."]
+                               [:p [:strong "Box2"] " has a gsb of \"5 1 200px\" so it's natural width is 200px and when it grows, it will do so with a ratio of 5, compared with other growable siblings. When it shrinks, it will do so at a ratio of 1, compared with other shrinkable siblings."]
+                               [:p [:strong "Box3"] " has a gsb of \"1 3 200px\" so it's natural width is also 200px and when it grows, it will do so with a ratio of 1. When it shrinks, it will do so at a ratio of 3."]
+                               [:p "Notice that the width of the h-box is initially set to 500px. Box1 (100px) + Box2 (200px basis) + Box3 (200px basis) = 500px so this width is the point of equilibrium. There is no shrinking or growing required so we see that Box2 and Box3 have exactly the same width of 200px."]
+                               [:p.info-subheading "Things to try"]
+                               [:ul
+                                [:li "Grow the " [:code ":width"] " from the initial 500px. The extra space (excluding the initial 200px for Box2 and Box3) will be distributed between Box2 and Box3 in a ratio of 5 to 1, so Box2 will grow faster than Box3."]
+                                [:li "Shrink the " [:code ":width"] " from the initial 500px. The space to be removed from Box2 and Box3 will be removed in a ratio of 1 to 3, so Box3 will shrink faster than Box2 until it reaches 0px. Box2 will then continue to reduce until it too gets to 0px. Phew! TODO: Visibly, the ratio of Box3 to Box2 isn't maintained at 3 to 1, so some more pondering required."]
+                                ]]]}
 
-            ;; Demo 3
-            {:hbox {:over?      false
-                    :height     {:value "150px"  :omit? false :editing? (atom false) :range [0 200]}
-                    :width      {:value "1000px" :omit? false :editing? (atom false) :range [0 1000]}
-                    :justify    {:value :start   :omit? true  :editing? (atom false) }
-                    :align      {:value :stretch :omit? true  :editing? (atom false) }
-                    :gap        {:value "4px"    :omit? false :editing? (atom false) :range [0 100]}}
+            ;; Width
+            {:hbox {:over?   false
+                    :height  {:value "100px" :omit? false :editing? (atom false) :range [0 200]}
+                    :width   {:value "450px" :omit? false :editing? (atom true ) :range [0 1000]}
+                    :justify {:value :start :omit? true :editing? (atom false)}
+                    :align   {:value :stretch :omit? true :editing? (atom false)}
+                    :gap     {:value "4px" :omit? false :editing? (atom false) :range [0 100]}}
              :box1 {:over?      false
-                    :text       {:value "Box1 Box1 Box1 Box1 Box1 Box1 Box1 Box1 Box1 " :omit? false :editing? (atom false) }
-                    :size       {:value "none"   :omit? false :editing? (atom false) :type :none :px "50px" :ratio "3" :gsb "1 1 0"}
-                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+                    :text       {:value "Box1" :omit? false :editing? (atom false) :type :text :text "Box1"}
+                    :size       {:value "auto" :omit? false :editing? (atom true) :type :auto :px "50px" :ratio "3" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :min-width  {:value "100px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "200px" :omit? true :editing? (atom false) :range [0 200]}}
              :box2 {:over?      false
-                    :text       {:value "Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 Box2 " :omit? false :editing? (atom false) }
-                    :size       {:value "100px"  :omit? false :editing? (atom false) :type :px :px "100px" :ratio "2" :gsb "1 1 0"}
-                    :align-self {:value :center  :omit? false :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 300]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+                    :text       {:value "Box2" :omit? false :editing? (atom false) :type :text :text "Box2"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "100px" :ratio "2" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 300]}
+                    :min-width  {:value "100px" :omit? false :editing? (atom true) :range [0 200]}
+                    :max-width  {:value "200px" :omit? true :editing? (atom false) :range [0 200]}}
              :box3 {:over?      false
-                    :text       {:value "Box3 Box3 Box3 Box3 Box3 Box3 " :omit? false :editing? (atom false) }
-                    :size       {:value "1"      :omit? false :editing? (atom false) :type :ratio :px "150px" :ratio "1" :gsb "1 1 0"}
-                    :align-self {:value :stretch :omit? true  :editing? (atom false) }
-                    :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 400]}
-                    :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
+                    :text       {:value "Box3" :omit? false :editing? (atom false) :type :text :text "Box3"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "150px" :ratio "1" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 400]}
+                    :min-width  {:value "100px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "200px" :omit? false :editing? (atom true) :range [0 200]}}
              :desc [v-box
-                    :children [[:p "This is box-state 3"]
-                               [:p "More " [:strong "incredible"] " descriptions coming soon to a screen near you. Well, this one actually."]]]}])
+                    :children [[:p.info-subheading "The " [:code ":width"] " & " [:code ":min/max-width"] " parameters"]
+                               [:p "Although not specifically a part of the Flexbox spec, it's useful to see how the various width parameters interact with it."]
+                               [:p "All three boxes have size set to auto so they can grow and shrink as required."]
+                               [:p "Box1 has no width restrictions, Box2 has a :min-width and Box3 has a :max-width."]
+                               [:p.info-subheading "Things to try"]
+                               [:ul
+                                [:li "Decrease the h-box " [:code ":width"] " and notice how Box2 shrinks only until it reaches the minimum of 100px (or whatever you may have changed it to)."]
+                                [:li "Increase the h-box " [:code ":width"] " and notice how Box3 grows only until it reaches the maximum of 200px (or whatever you may have changed it to)."]
+                                [:li "Turn on " [:code ":min-width"] " for Box3 and while adjusting the h-box " [:code ":width"] ", notice how Box3 grows & shrinks only between the min and max values."]
+                                ]]]}
 
-(def box-state  (reaction (get demos @current-demo)))
+            ;; Height
+            {:hbox {:over?   false
+                    :height  {:value "100px" :omit? false :editing? (atom true) :range [0 200]}
+                    :width   {:value "450px" :omit? false :editing? (atom false) :range [0 1000]}
+                    :justify {:value :start :omit? true :editing? (atom false)}
+                    :align   {:value :stretch :omit? false :editing? (atom false)}
+                    :gap     {:value "4px" :omit? false :editing? (atom false) :range [0 100]}}
+             :box1 {:over?      false
+                    :text       {:value "Box1" :omit? false :editing? (atom false) :type :text :text "Box1"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "50px" :ratio "3" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "40px" :omit? false :editing? (atom true) :range [0 200]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :box2 {:over?      false
+                    :text       {:value "Box2" :omit? false :editing? (atom false) :type :text :text "Box2"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "100px" :ratio "2" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "80px" :omit? false :editing? (atom true) :range [0 300]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :box3 {:over?      false
+                    :text       {:value "Box3" :omit? false :editing? (atom false) :type :text :text "Box3"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "150px" :ratio "1" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "120px" :omit? true :editing? (atom false) :range [0 400]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :desc [v-box
+                    :children [[:p.info-subheading "The " [:code ":height"] " parameter"]
+                               [:p "Although not specifically a part of the Flexbox spec, it's useful to see how height interacts with it."]
+                               [:p "A specific :height has been set for Box1 and Box2, while Box3 has none, so it's height is being set by the h-box :align :stretch setting."]
+                               [:p.info-subheading "Things to try"]
+                               [:ul
+                                [:li "Turn the Box3 " [:code ":height"] " parameter on and see how it can spill outside the h-box when it has a :height set."]
+                                [:li "Turn the h-box " [:code ":height"] " parameter off then adjust the :height of one or more boxes. Notice how h-box :height is now determined by the height on the maximum box heights."]
+                                ]]]}
+
+            ;; Children
+            {:hbox {:over?   false
+                    :height  {:value "100px" :omit? false :editing? (atom false) :range [0 200]}
+                    :width   {:value "600px" :omit? false :editing? (atom true) :range [0 1000]}
+                    :justify {:value :start :omit? true :editing? (atom false)}
+                    :align   {:value :stretch :omit? true :editing? (atom false)}
+                    :gap     {:value "4px" :omit? false :editing? (atom false) :range [0 100]}}
+             :box1 {:over?      false
+                    :text       {:value "Box1" :omit? false :editing? (atom true) :type :text :text "Box1"}
+                    :size       {:value "100px" :omit? false :editing? (atom false) :type :px :px "100px" :ratio "3" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :box2 {:over?      false
+                    :text       {:value paragraph-filler :omit? false :editing? (atom true) :type :paras :text "Box2"}
+                    :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "100px" :ratio "2" :gsb "1 1 0px"}
+                    :align-self {:value :stretch :omit? true :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 300]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :box3 {:over?      false
+                    :text       {:value buttons-filler :omit? false :editing? (atom true) :type :buttons :text "Box3"}
+                    :size       {:value "none" :omit? false :editing? (atom false) :type :none :px "100px" :ratio "1" :gsb "1 1 0px"}
+                    :align-self {:value :end :omit? false :editing? (atom false)}
+                    :height     {:value "50px" :omit? true :editing? (atom false) :range [0 400]}
+                    :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
+             :desc [v-box
+                    :children [[:p.info-subheading "The " [:code ":children"] " & " [:code ":child"] " parameters"]
+                               [:p "The content of an h-box is specified by the " [:code ":children"] " parameter. It's a vector of n components."]
+                               [:p "The content of a box is specified by the " [:code ":child"] " parameter. It is a single component."]
+                               [:p.info-subheading "Things to try"]
+                               [:ul
+                                [:li "Adjust the h-box " [:code ":width"] " parameter to see how Box2 is the only one that shrinks and grows."]
+                                [:li "Turn the h-box " [:code ":height"] " parameter off to see how it automatically expands to show the rest of the content in Box2."]
+                                [:li "Edit the box " [:code ":child"] " parameters to change the content to see how the current layout handles more or less content."]
+                                ]]]}
+            ])
+
+(def box-state (reaction (get demos @current-demo)))
 
 (def show-desc? (reagent/atom true))
 
@@ -266,19 +463,36 @@
                    :on-change #(swap! box-state assoc-in (conj path :value) %)]
                   [close-button on-close]]])))
 
-(defn text-editor
-  "provides an input-text to edit strings in the state atom"
+(defn child-editor
+  "provides several options for the :child parameters, including typing your own text"
   [path]
-  (let [model (reaction (get-in @box-state (conj path :value)))]
+  (let [opts         [{:id :text    :label "Text"}
+                      {:id :paras   :label "Paragraphs"}
+                      {:id :buttons :label "Buttons"}]
+        model        (reaction (get-in @box-state (conj path :type)))
+        text-model   (reaction (get-in @box-state (conj path :text)))
+        update-model (fn [path item new-model]
+                       (swap! box-state assoc-in (conj path item) new-model)
+                       (swap! box-state assoc-in (conj path :value) (case (get-in @box-state (conj path :type))
+                                                                      :text    @text-model
+                                                                      :paras   paragraph-filler
+                                                                      :buttons buttons-filler)))]
     (fn
       [path on-close]
       [h-box
        :align    :center
-       :children [[input-text
-                   :model           model
-                   :change-on-blur? false
-                   :style           editor-style
-                   :on-change       #(swap! box-state assoc-in (conj path :value) %)]
+       :children [[horizontal-bar-tabs
+                   :model     model
+                   :tabs      opts
+                   :style     editor-style
+                   :on-change #(update-model path :type %)]
+                  (when (= @model :text) [gap :size "8px" :width "8px"])
+                  (when (= @model :text)
+                    [input-text
+                     :model           text-model
+                     :change-on-blur? false
+                     :style           editor-style
+                     :on-change       #(update-model path :text %)])
                   [close-button on-close]]])))
 
 (defn box-size
@@ -308,47 +522,64 @@
         size-status  (reagent/atom nil)]
     (fn
       [path on-close]
-      [h-box
-       :align    :center
-       :children [[horizontal-bar-tabs
-                   :model     model
-                   :tabs      opts
-                   :style     editor-style
-                   :on-change #(do (update-model path :type %)
-                                   (reset! size-status nil))]
-                  (when (contains? #{:px :ratio :gsb} @model)
-                    [gap :size "8px" :width "8px"])
-                  (when (= @model :px)
-                    [slider
-                     :model     px-model
-                     :min       0
-                     :max       800
-                     :width     "200px"
-                     :style     editor-style
-                     :on-change #(update-model path :px (px %))])
-                  (when (= @model :ratio)
-                    [slider
-                     :model     ratio-model
-                     :min       0
-                     :max       10
-                     :width     "200px"
-                     :style     editor-style
-                     :on-change #(update-model path :ratio (str %))])
-                  (when (= @model :gsb)
-                    [input-text
-                     :model           gsb-model
-                     :change-on-blur? false
-                     :status          @size-status
-                     :status-icon?    true
-                     :status-tooltip  "Ignored - please enter 1 or 3 values"
-                     :width           "200px"
-                     :style           editor-style
-                     :on-change       #(let [valid? (contains? #{1 3} (count (string/split (string/trim %) #"\s+")))]
-                                        (if valid?
-                                          (do (reset! size-status nil)
-                                              (update-model path :gsb %))
-                                          (reset! size-status :warning)))])
-                  [close-button on-close]]])))
+      [v-box
+       :gap      "4px"
+       :children [[h-box
+                   :align    :center
+                   :children [[horizontal-bar-tabs
+                               :model     model
+                               :tabs      opts
+                               :style     editor-style
+                               :on-change #(do (update-model path :type %)
+                                               (reset! size-status nil))]
+                              (when (contains? #{:px :ratio :gsb} @model)
+                                [gap :size "8px" :width "8px"])
+                              (when (= @model :px)
+                                [slider
+                                 :model     px-model
+                                 :min       0
+                                 :max       800
+                                 :width     "200px"
+                                 :style     editor-style
+                                 :on-change #(update-model path :px (px %))])
+                              (when (= @model :ratio)
+                                [slider
+                                 :model     ratio-model
+                                 :min       0
+                                 :max       10
+                                 :width     "200px"
+                                 :style     editor-style
+                                 :on-change #(update-model path :ratio (str %))])
+                              (when (= @model :gsb)
+                                [input-text
+                                 :model           gsb-model
+                                 :change-on-blur? false
+                                 :status          @size-status
+                                 :status-icon?    true
+                                 :status-tooltip  "Ignored - please enter 1 or 3 values"
+                                 :width           "200px"
+                                 :style           editor-style
+                                 :on-change       #(let [valid? (contains? #{1 3} (count (string/split (string/trim %) #"\s+")))]
+                                                    (if valid?
+                                                      (do (reset! size-status nil)
+                                                          (update-model path :gsb %))
+                                                      (reset! size-status :warning)))])
+                              [close-button on-close]]]
+                  [:span
+                   {:style {:font-family "Segoe UI, Roboto, sans-serif"
+                            :font-size   "10px"
+                            :color       "#aaa"}}
+                   "GSB: " (case @model
+                             :inital "0 1 auto"
+                             :auto   "1 1 auto"
+                             :none   "0 0 auto"
+                             :px     (str "0 0 " @px-model "px")
+                             :ratio  (str @ratio-model " 1 0px")
+                             :gsb    @gsb-model)]]])))
+
+
+
+
 
 (defn indent-px
   [ident]
@@ -381,25 +612,29 @@
                                   (cond
                                     (nil? val)     "-"
                                     (keyword? val) (str val)
+                                    (vector? val)  "[hiccup]"
                                     :else          (str "\"" val "\""))))
             row-active?       (and @mouse-over-row? active?)
             mouse-over-group? (= (nth path 0) (:over-group @box-state))
             show-checkbox?    (and row-active? (not (contains? (set path) :text)))
             allow-edit?       (and row-active? (not @omit?))
+            editing?          (if editor (get-in @box-state editing?-path) (reagent/atom false))
             arg-hiccup        [h-box
                                :width     "242px"
                                :style    (merge {:overflow "hidden"}
+                                                (when @editing?         {:background-color "#e8e8e8"})
                                                 (when mouse-over-group? {:background-color "#e8e8e8"})
                                                 (when row-active?       {:background-color "#d8d8d8"
                                                                          :cursor           "pointer"})
                                                 (when @omit?            {:color            "#c0c0c0"}))
-                               :attr     {:on-mouse-over #(do (println "|" path "|") (mouse-over-fn true))
+                               :attr     {:on-mouse-over #(mouse-over-fn true)
                                           :on-mouse-out  #(mouse-over-fn false)}
                                :children [[box
                                            :size "20px"
-                                           :child (if show-checkbox?
+                                           :child (if (and editor (not (contains? (set path) :text))) ;show-checkbox? ;; TODO: Cleanup here if we like always showing checkboxes
                                                     [checkbox
                                                      :model     (not @omit?)
+                                                     :style     {:opacity "0.6"}
                                                      :on-change #(do (swap! box-state assoc-in (conj path :omit?) (not %))
                                                                      (swap! box-state assoc-in editing?-path (atom %)))]
                                                     [:span])] ;; when no checkbox, use a filler
@@ -416,31 +651,35 @@
                                                    [:span {:style (when allow-edit? {:color "blue"})} arg-val]
                                                    text2]]]]]
         (if editor
-          (let [editing? (get-in @box-state editing?-path)]
-            [popover-anchor-wrapper
-             :showing? editing?
-             :position :right-center
-             :anchor   arg-hiccup
-             :popover  [popover-content-wrapper
-                        :showing? editing?
-                        :position :right-center
-                        :body     [editor path #(swap! box-state assoc-in editing?-path (atom false))]]])
+          [popover-anchor-wrapper
+           :showing? editing?
+           :position :right-center
+           :anchor   arg-hiccup
+           :popover  [popover-content-wrapper
+                      :showing? editing?
+                      :position :right-center
+                      :body     [editor path #(swap! box-state assoc-in editing?-path (atom false))]]]
           arg-hiccup)))))
 
 
 (defn choose-a-demo
   "choose a demo to show"
   []
-  (let [opts  [{:id 0 :label "1"}
-               {:id 1 :label "2"}
-               {:id 2 :label "3"}
-               {:id 3 :label "4"}]]
+  (let [opts  [{:id 0 :label "Basic"}
+               {:id 1 :label ":justify"}
+               {:id 2 :label ":align"}
+               {:id 3 :label ":size"}
+               {:id 4 :label ":size2"}
+               {:id 5 :label ":width"}
+               {:id 6 :label ":height"}
+               {:id 7 :label ":children"}
+               ]]
     (fn
       []
       [h-box
        :gap      "8px"
        :align    :center
-       :children [[:span "Demos:"]
+       :children [[:span.bold "Try out a scenario:"]
                   [horizontal-bar-tabs
                    :model     current-demo
                    :tabs      opts
@@ -464,10 +703,10 @@
 (defn editable-code
   "Shows the code in a way that values can be edited, allowing for an interactive demo"
   []
-  (let [over-hbox  (fn [over?] (println "hbox" over?) (swap! box-state assoc-in [:hbox :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :hbox)))
-        over-box1  (fn [over?] (println "box1" over?) (swap! box-state assoc-in [:box1 :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :box1)))
-        over-box2  (fn [over?] (println "box2" over?) (swap! box-state assoc-in [:box2 :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :box2)))
-        over-box3  (fn [over?] (println "box3" over?) (swap! box-state assoc-in [:box3 :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :box3)))]
+  (let [over-hbox  (fn [over?] (swap! box-state assoc-in [:hbox :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :hbox)))
+        over-box1  (fn [over?] (swap! box-state assoc-in [:box1 :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :box1)))
+        over-box2  (fn [over?] (swap! box-state assoc-in [:box2 :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :box2)))
+        over-box3  (fn [over?] (swap! box-state assoc-in [:box3 :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :box3)))]
     (fn []
       [h-box
        :align :start
@@ -506,32 +745,32 @@
                            :border           "1px solid lightgray"
                            :border-radius    "4px"
                            :padding          "8px"}
-                   :children [[code-row false :0 "[h-box"      [:hbox]                  ""   over-hbox]
+                   :children [[code-row false :0 "[h-box"      [:hbox]             ""   over-hbox]
                               [code-row true  :1 ":height"     [:hbox :height]     ""   over-hbox px-editor]
                               [code-row true  :1 ":width"      [:hbox :width]      ""   over-hbox px-editor]
                               [code-row true  :1 ":justify"    [:hbox :justify]    ""   over-hbox justify-editor]
                               [code-row true  :1 ":align"      [:hbox :align]      ""   over-hbox align-editor]
                               [code-row true  :1 ":gap"        [:hbox :gap]        ""   over-hbox px-editor]
-                              [code-row false :1 ":children [" [:hbox]                  ""   over-hbox]
+                              [code-row false :1 ":children [" [:hbox]             ""   over-hbox]
 
-                              [code-row false :2 "[box "       [:box1]                  ""   over-box1]
-                              [code-row true  :3 ":child"      [:box1 :text]       ""   over-box1 text-editor]
+                              [code-row false :2 "[box "       [:box1]             ""   over-box1]
+                              [code-row true  :3 ":child"      [:box1 :text]       ""   over-box1 child-editor]
                               [code-row true  :3 ":size"       [:box1 :size]       ""   over-box1 size-editor]
                               [code-row true  :3 ":align-self" [:box1 :align-self] ""   over-box1 align-editor]
                               [code-row true  :3 ":height"     [:box1 :height]     ""   over-box1 px-editor]
                               [code-row true  :3 ":min-width"  [:box1 :min-width]  ""   over-box1 px-editor]
                               [code-row true  :3 ":max-width"  [:box1 :max-width]  "]"  over-box1 px-editor]
 
-                              [code-row false :2 "[box "       [:box2]                  ""   over-box2]
-                              [code-row true  :3 ":child"      [:box2 :text]       ""   over-box2 text-editor]
+                              [code-row false :2 "[box "       [:box2]             ""   over-box2]
+                              [code-row true  :3 ":child"      [:box2 :text]       ""   over-box2 child-editor]
                               [code-row true  :3 ":size"       [:box2 :size]       ""   over-box2 size-editor]
                               [code-row true  :3 ":align-self" [:box2 :align-self] ""   over-box2 align-editor]
                               [code-row true  :3 ":height"     [:box2 :height]     ""   over-box2 px-editor]
                               [code-row true  :3 ":min-width"  [:box2 :min-width]  ""   over-box2 px-editor]
                               [code-row true  :3 ":max-width"  [:box2 :max-width]  "]"  over-box2 px-editor]
 
-                              [code-row false :2 "[box "       [:box3]                  ""   over-box3]
-                              [code-row true  :3 ":child"      [:box3 :text]       ""   over-box3 text-editor]
+                              [code-row false :2 "[box "       [:box3]             ""   over-box3]
+                              [code-row true  :3 ":child"      [:box3 :text]       ""   over-box3 child-editor]
                               [code-row true  :3 ":size"       [:box3 :size]       ""   over-box3 size-editor]
                               [code-row true  :3 ":align-self" [:box3 :align-self] ""   over-box3 align-editor]
                               [code-row true  :3 ":height"     [:box3 :height]     ""   over-box3 px-editor]
@@ -558,16 +797,21 @@
                              :children [[title2 "Notes"]
                                         [status-text "Stable"]
                                         [p "h-box is a container which lays out its  " [:code ":children"] " in a single horizontal row."]
-                                        [p "The " [:span.bold "Layout"] " page (look LHS) describes the importance of " [:span.bold ":size"] ". The actual layout is a function of the " [:code ":size"] " of the container and the " [:code ":size"] " provided for each of the children."]
+                                        [p "The "
+                                         [hyperlink-href
+                                          :label     [:span.bold "Layout"]
+                                          :href      "#/layout"]
+                                         " page describes the importance of " [:span.bold ":size"] ". The actual layout is a function of the " [:code ":size"] " of the container and the " [:code ":size"] " provided for each of the children."]
                                         [p [:strong "Todo: Nestability with v-box"]]
                                         [args-table h-box-args-desc]]]
                             [v-box
                              :gap      "10px"
-                             :width    "500px"
+                             :width    "650px"
                              :height   "800px"
                              ;:style    {:border "dashed 1px #ddd"}
                              :children [[title2 "Demo"]
-                                        [p "In this interactive demo, you can edit the hiccup in the grey box to see the effects on the h-box and three children in the red border."]
+                                        [p "In this interactive demo, start by selecting a scenario. Then you can edit the hiccup in the grey box to see the
+                                        effects on the [h-box] (dashed red border) and it's three [box] children (pink filled)."]
                                         [choose-a-demo]
                                         [gap :size "0px"]
                                         [demo]
