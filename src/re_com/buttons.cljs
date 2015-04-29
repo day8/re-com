@@ -1,7 +1,7 @@
 (ns re-com.buttons
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value px]]
-            [re-com.validate :refer [extract-arg-data position? position-options-list button-size? button-sizes-list
+            [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
                                      string-or-hiccup? css-style? html-attr? string-or-atom?] :refer-macros [validate-args-macro]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
@@ -20,8 +20,6 @@
    {:name :disabled?        :required false :default false         :type "boolean | atom"                                 :description "if true, the user can't click the button"}
    {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles"}
    {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def button-args (extract-arg-data button-args-desc))
 
 (defn button
   "Returns the markup for a basic button"
@@ -75,10 +73,6 @@
    {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def md-circle-icon-button-args (extract-arg-data md-circle-icon-button-args-desc))
-
-; XXX It should be possible for disabled? to be an atom?
 
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
@@ -136,10 +130,6 @@
    {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-;(def md-icon-button-args (extract-arg-data md-icon-button-args-desc))
-
-; XXX It should be possible for disabled? to be an atom?
-
 (defn md-icon-button
   "a square button containing a material design icon"
   []
@@ -193,8 +183,6 @@
    {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-;(def info-button-args (extract-arg-data info-button-args-desc))
-
 (defn info-button
   "A tiny light grey button, with an 'i' in it. Meant to be unobrusive.
   When pressed, displays a popup assumidly containing helpful information.
@@ -238,8 +226,6 @@
    {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def row-button-args (extract-arg-data row-button-args-desc))
 
 (defn row-button
   "a circular button containing a material design icon"
@@ -288,8 +274,6 @@
    {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def hyperlink-args (extract-arg-data hyperlink-args-desc))
 
 (defn hyperlink
   "Renders an underlined text hyperlink component.
@@ -342,8 +326,6 @@
    {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def hyperlink-href-args (extract-arg-data hyperlink-href-args-desc))
 
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.

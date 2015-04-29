@@ -73,8 +73,7 @@
                   [v-box
                    :class    "rc-div-table"
                    :style    {:font-size (when @large-font "24px")}
-                   :children [^{:key "0"}
-                              [h-box
+                   :children [[h-box
                                :class    "rc-div-table-header"
                                :children [[label :label "Sort"    :width (:sort    col-widths)]
                                           [label :label "Name"    :width (:name    col-widths)]

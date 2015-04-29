@@ -3,7 +3,7 @@
   (:require [re-com.util     :refer [deref-or-value]]
             [re-com.buttons  :refer [button]]
             [re-com.box      :refer [h-box v-box box scroller border flex-child-style]]
-            [re-com.validate :refer [extract-arg-data string-or-hiccup? alert-type? alert-types-list
+            [re-com.validate :refer [string-or-hiccup? alert-type? alert-types-list
                                      vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 ;;--------------------------------------------------------------------------------------------------
@@ -22,8 +22,6 @@
    {:name :style      :required false                 :type "CSS style map"   :validate-fn css-style?        :description "CSS styles. Applied to outer container"}
    {:name :attr       :required false                 :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])
 
-;(def alert-box-args (extract-arg-data alert-box-args-desc))
-
 (defn alert-box
   "Displays one alert box. A close button allows the message to be removed"
   [& {:keys [id alert-type heading body padding closeable? on-close class style attr]
@@ -31,7 +29,8 @@
       :as   args}]
   {:pre [(validate-args-macro alert-box-args-desc args "alert-box")]}
   (let [close-button [button
-                      :label    "×"
+                      :label    [:i {:class "md-close"
+                                     :style {:font-size "20px"}}]    ;"×"
                       :on-click (handler-fn (on-close id))
                       :class    "close"]
         alert-type    (if (= alert-type :info)
@@ -74,8 +73,6 @@
    {:name :class        :required false                                :type "string"                :validate-fn string?         :description "CSS class names, space separated. Applied to outer container"}
    {:name :style        :required false                                :type "CSS style map"         :validate-fn css-style?      :description "CSS styles. Applied to outer container"}
    {:name :attr         :required false                                :type "HTML attr map"         :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])
-
-;(def alert-list-args (extract-arg-data alert-list-args-desc))
 
 (defn alert-list
   "Displays a list of alert-box components in a v-box. Sample alerts object:

@@ -3,7 +3,7 @@
   (:require
     [reagent.core         :as    reagent]
     [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
-    [re-com.validate      :refer [extract-arg-data goog-date? css-style? html-attr?] :refer-macros [validate-args-macro]]
+    [re-com.validate      :refer [goog-date? css-style? html-attr?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box flex-child-style]]
@@ -214,8 +214,6 @@
    {:name :style        :required false                       :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
    {:name :attr         :required false                       :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-;(def datepicker-args (extract-arg-data datepicker-args-desc))
-
 (defn datepicker
   [& {:keys [model] :as args}]
   {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
@@ -259,8 +257,6 @@
 (def datepicker-dropdown-args-desc
   (conj datepicker-args-desc
     {:name :format  :required false  :default "yyyy MMM dd"  :type "string"   :description "a represenatation of a date format. See cljs_time.format"}))
-
-;(def datepicker-dropdown-args (extract-arg-data datepicker-dropdown-args-desc))
 
 (defn datepicker-dropdown
   [& {:as args}]

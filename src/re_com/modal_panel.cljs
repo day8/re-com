@@ -1,5 +1,5 @@
 (ns re-com.modal-panel
-  (:require [re-com.validate :refer [extract-arg-data string-or-hiccup? number-or-string? css-style? html-attr?] :refer-macros [validate-args-macro]]))
+  (:require [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  modal-panel
@@ -13,8 +13,6 @@
    {:name :class            :required false                  :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style            :required false                  :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                  :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def modal-panel-args (extract-arg-data modal-panel-args-desc))
 
 (defn modal-panel
   "Renders a modal window centered on screen. A dark transparent backdrop sits between this and the underlying

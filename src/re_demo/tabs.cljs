@@ -43,8 +43,8 @@
                                "[horizontal-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
                               [horizontal-tabs
-                               :model selected-tab-id
-                               :tabs  tabs-definition
+                               :model     selected-tab-id
+                               :tabs      tabs-definition
                                :on-change change-tab]]]
                   [h-box
                    :align    :center
@@ -52,8 +52,8 @@
                                "[horizontal-bar-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
                               [horizontal-bar-tabs
-                               :model selected-tab-id
-                               :tabs  tabs-definition
+                               :model     selected-tab-id
+                               :tabs      tabs-definition
                                :on-change change-tab]]]
                   [h-box
                    :align    :center
@@ -61,8 +61,8 @@
                                "[vertical-bar-tabs ... ]"
                                {:width fn-name-width :font-size "20px"}]
                               [vertical-bar-tabs
-                               :model selected-tab-id
-                               :tabs  tabs-definition
+                               :model     selected-tab-id
+                               :tabs      tabs-definition
                                :on-change change-tab]]]
                   [h-box
                    :align    :center

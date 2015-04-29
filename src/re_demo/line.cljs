@@ -26,18 +26,18 @@
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [p "For an example, look at the top of this page, there's a title " [:span.bold "[Line ...]"]
+                                      [p "For an example, look at the top of this page. There's a title " [:span.bold "[line ...]"]
                                        ", and notice the line under it."]
                                       [p "Here is some sample code..."]
                                       [:pre
                                        {:style {:width "40em"}}
 "[h-box
  :gap      \"10px\"
- :children [[grey-box-1]
+ :children [[grey-box]
             [line
              :size  \"3px\"
              :color \"red\"]
-            [grey-box-2]]]"]
+            [grey-box]]]"]
                                       [p "Here is the result..."]
                                       [h-box
                                        :gap      "10px"

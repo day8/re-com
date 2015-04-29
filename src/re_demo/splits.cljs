@@ -1,6 +1,6 @@
 (ns re-demo.splits
   (:require [re-com.core   :refer [h-box v-box box gap line scroller border h-split v-split title flex-child-style p]]
-            [re-com.splits :refer [h-split-args-desc v-split-args-desc]]
+            [re-com.splits :refer [hv-split-args-desc]]
             [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
@@ -63,34 +63,25 @@
                :children [[v-box
                            :gap      "10px"
                            :width    "450px"
-                           :children [[title2 "[h-split ...]"]
+                           :children [[title2 "[h-split ... ] & [v-split ... ]"]
                                       [status-text "Stable"]
-                                       [p "Arranges two components horizontally and provides a splitter bar between them."]
-                                       [p "By dragging the splitter bar, a user can change the width allocated to each."]
+                                       [p "Arranges two components horizontally (or vertically) and provides a splitter bar between them."]
+                                       [p "By dragging the splitter bar, a user can change the width (or height) allocated to each."]
                                        [p "Can contain further nested layout components."]
-                                      [args-table h-split-args-desc]]]
+                                      [args-table hv-split-args-desc]]]
                           [v-box
                            :size     "auto"
                            :gap      "10px"
+                           :height   "800px"
                            :children [[title2 "Demo"]
+                                      [title :level :level3 :label "[h-split]"]
                                       [h-split
                                        :panel-1 [left-panel]
-                                       :panel-2 [right-panel]]]]]]
-              [line :style {:margin-top "20px"}]
-              [h-box
-               :gap      "100px"
-               :children [[v-box
-                           :gap      "10px"
-                           :width    "450px"
-                           :children [[title2 "[v-split ...]"]
-                                      [p "Same as above, but vertical."]
-                                      [args-table v-split-args-desc]]]
-                          [v-box
-                           :size     "auto"
-                           :gap      "10px"
-                           :children [[title2 "Demo"]
+                                       :panel-2 [right-panel]
+                                       :size    "300px"]
+                                      [title :level :level3 :label "[v-split]"]
                                       [v-split
                                        :panel-1       [top-panel]
                                        :panel-2       [bottom-panel]
-                                       :initial-split "25%"]]]]]
-              [gap :size "30px"]]])
+                                       :size          "300px"
+                                       :initial-split "25%"]]]]]]])

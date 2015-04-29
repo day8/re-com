@@ -3,7 +3,7 @@
   (:require [re-com.text     :refer [label]]
             [re-com.misc     :refer [checkbox radio-button]]
             [re-com.box      :refer [box border h-box v-box]]
-            [re-com.validate :refer [extract-arg-data vector-of-maps? string-or-atom? set-or-atom?] :refer-macros [validate-args-macro]]
+            [re-com.validate :refer [vector-of-maps? string-or-atom? set-or-atom?] :refer-macros [validate-args-macro]]
             [re-com.util     :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
@@ -95,8 +95,6 @@
    {:name :hide-border?   :required false :default false :type "boolean | atom"                                                  :description "when true, the list will be displayed without a border"}
    {:name :item-renderer  :required false                :type "function | atom"                    :validate-fn fn?             :description "called for each element during setup, the returned component renders the element, responds to clicks etc."}
    {:name :label-fn       :required false :default 'str  :type "function | atom"                    :validate-fn ifn?            :description "called for each element to get label string"}])
-
-;(def selection-list-args (extract-arg-data selection-list-args-desc))
 
 ;;TODO hide hover highlights for links when disabled
 (defn- list-container

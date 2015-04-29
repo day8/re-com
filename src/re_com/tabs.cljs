@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value]]
             [re-com.box      :refer [flex-child-style]]
-            [re-com.validate :refer [extract-arg-data vector-of-maps?] :refer-macros [validate-args-macro]]))
+            [re-com.validate :refer [css-style? vector-of-maps?] :refer-macros [validate-args-macro]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -14,12 +14,11 @@
    {:name :model     :required true                  :type "unique-id | atom"                                      :description "the unique identifier of the currently selected tab"}
    {:name :on-change :required true                  :type "(unique-id) -> nil"       :validate-fn fn?             :description "called when user alters the selection. Passed the unique identifier of the selection"}
    {:name :id-fn     :required false :default :id    :type "(map) -> anything"        :validate-fn fn?             :description [:span "given an element of " [:code ":tabs"] ", returns the unique identifier for this tab"]}
-   {:name :label-fn  :required false :default :label :type "(map) -> string | hiccup" :validate-fn fn?             :description [:span "given an element of " [:code ":tabs"] ", returns what should be displayed in the tab"]}])
-
-;(def tabs-args (extract-arg-data tabs-args-desc))
+   {:name :label-fn  :required false :default :label :type "(map) -> string | hiccup" :validate-fn fn?             :description [:span "given an element of " [:code ":tabs"] ", returns what should be displayed in the tab"]}
+   {:name :style     :required false                 :type "CSS style map"            :validate-fn css-style?      :description "CSS styles to add or override (for each individual tab rather than the container)"}])
 
 (defn horizontal-tabs
-  [& {:keys [model tabs on-change id-fn label-fn]
+  [& {:keys [model tabs on-change id-fn label-fn style]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
@@ -37,8 +36,9 @@
           {:class (if selected? "active")
            :key   (str id)}
           [:a
-           {:style     {:cursor "pointer"}
-            :on-click  (when on-change (handler-fn (on-change id)))}
+           {:style    (merge {:cursor "pointer"}
+                             style)
+            :on-click (when on-change (handler-fn (on-change id)))}
            label]]))]))
 
 
@@ -47,7 +47,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (defn- bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn vertical?]}]
+  [& {:keys [model tabs on-change id-fn label-fn style vertical?]}]
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
@@ -58,16 +58,17 @@
        (let [id        (id-fn  t)
              label     (label-fn  t)
              selected? (= id current)]                    ;; must use current instead of @model to avoid reagent warnings
-         [:button.btn.btn-default
+         [:button
           {:type     "button"
            :key      (str id)
            :class    (str "btn btn-default "  (if selected? "active"))
-           :on-click  (when on-change (handler-fn (on-change id)))}
+           :style    style
+           :on-click (when on-change (handler-fn (on-change id)))}
           label]))]))
 
 
 (defn horizontal-bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn]
+  [& {:keys [model tabs on-change id-fn label-fn style]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
@@ -75,12 +76,13 @@
     :model     model
     :tabs      tabs
     :on-change on-change
+    :style     style
     :id-fn     id-fn
     :label-fn  label-fn
     :vertical? false))
 
 (defn vertical-bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn]
+  [& {:keys [model tabs on-change id-fn label-fn style]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
@@ -88,6 +90,7 @@
     :model     model
     :tabs      tabs
     :on-change on-change
+    :style     style
     :id-fn     id-fn
     :label-fn  label-fn
     :vertical? true))
@@ -98,10 +101,10 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (defn- pill-tabs    ;; tabs-like in action
-  [& {:keys [model tabs on-change id-fn label-fn vertical?]}]
+  [& {:keys [model tabs on-change id-fn label-fn style vertical?]}]
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
-        _        (assert (not-empty (filter #(= current (:id %)) tabs)) "model not found in tabs vector")]
+        _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
     [:ul
      {:class (str "rc-tabs noselect nav nav-pills" (when vertical? " nav-stacked"))
       :style (flex-child-style "none")
@@ -114,15 +117,14 @@
           {:class    (if selected? "active" "")
            :key      (str id)}
           [:a
-           {:style     {:cursor "pointer"}
-            ;:on-click  #(on-change id)
-            :on-click  (when on-change (handler-fn (on-change id)))
-            }
+           {:style     (merge {:cursor "pointer"}
+                              style)
+            :on-click  (when on-change (handler-fn (on-change id)))}
            label]]))]))
 
 
 (defn horizontal-pill-tabs
-  [& {:keys [model tabs on-change id-fn label-fn]
+  [& {:keys [model tabs on-change id-fn style label-fn]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
@@ -130,13 +132,14 @@
     :model     model
     :tabs      tabs
     :on-change on-change
+    :style     style
     :id-fn     id-fn
     :label-fn  label-fn
     :vertical? false))
 
 
 (defn vertical-pill-tabs
-  [& {:keys [model tabs on-change id-fn label-fn]
+  [& {:keys [model tabs on-change id-fn style label-fn]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
@@ -144,6 +147,7 @@
     :model     model
     :tabs      tabs
     :on-change on-change
+    :style     style
     :id-fn     id-fn
     :label-fn  label-fn
     :vertical? true))

@@ -1,7 +1,7 @@
 (ns re-com.input-time
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [reagent.core    :as    reagent]
-            [re-com.validate :refer [extract-arg-data css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
+            [re-com.validate :refer [css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
             [re-com.text     :refer [label]]
             [re-com.box      :refer [h-box gap]]
             [re-com.util     :refer [pad-zero-number deref-or-value]]))
@@ -137,8 +137,6 @@
    {:name :class        :required false                  :type "string"                  :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style        :required false                  :type "CSS style map"           :validate-fn css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"}" }
    {:name :attr         :required false                  :type "HTML attr map"           :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def input-time-args (extract-arg-data input-time-args-desc))
 
 (defn input-time
   "I return the markup for an input box which will accept and validate times.

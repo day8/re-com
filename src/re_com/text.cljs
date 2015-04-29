@@ -1,7 +1,7 @@
 (ns re-com.text
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.box      :refer [v-box box line flex-child-style]]
-            [re-com.validate :refer [extract-arg-data title-levels-list title-level-type? css-style?
+            [re-com.validate :refer [title-levels-list title-level-type? css-style?
                                      html-attr? string-or-hiccup?] :refer-macros [validate-args-macro]]))
 
 
@@ -16,8 +16,6 @@
      {:name :class    :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
      {:name :style    :required false :type "CSS style map" :validate-fn css-style? :description "additional CSS styles"}
      {:name :attr     :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def label-args (extract-arg-data label-args-desc))
 
 (defn label
   "Returns markup for a basic label"
@@ -36,7 +34,7 @@
              (when on-click
                {:on-click (handler-fn (on-click))})
              attr)
-           (str label)]])
+           label]])
 
 
 ;; ------------------------------------------------------------------------------------
@@ -52,8 +50,6 @@
    {:name :class         :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style         :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr          :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-;(def title-args (extract-arg-data title-args-desc))
 
 (defn title
   "A title with four preset levels"
@@ -87,6 +83,9 @@
         [m children] (if (map? f)
                        [f   (rest children)]
                        [nil children])
-        m             (merge {:style {:width "450px" :min-width "450px" :font-size "15px"}}
+        m             (merge {:style {:flex      "none"
+                                      :width     "450px"
+                                      :min-width "450px"
+                                      :font-size "15px"}}
                              m)]
     [:span m (into [:p] children)]))    ;; having the wrapping span allow children to contain [:ul] etc
