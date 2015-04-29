@@ -20,7 +20,7 @@
                          {:background-color "#fff4f4"
                           :border           "1px solid lightgray"
                           :border-radius    "4px"
-                          :padding          "4px"
+                          :padding          "0px"
                           :overflow         "hidden"}))
 
 (def over-style   {:background-color "#fcc"})
@@ -115,13 +115,16 @@
                     :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
              :desc [v-box
                     :children [[:p.info-subheading "The " [:code ":justify"] " parameter"]
-                               [:p "Specifies how children are arranged horizontally (along the \"main axis\" in flexbox terms)."]
-                               [:p [:strong "Note: "] "There is a bug in Chrome. When switching from :between to :around (or visa versa), the change is not shown. To get around this, select a different option beforehand."]
+                               [:p "Specifies how children (the three boxes) are arranged horizontally."]
                                [:p.info-subheading "Things to try"]
                                [:ul
-                                [:li "Select the different " [:code ":justify"] " options to see their effect on the layout."]
-                                [:li "When in :around mode, turn the " [:code ":gap"] " parameter on using it's checkbox. Notice that although the gaps are invisible, being children themselves, space is also added around them."]
-                                ]]]}
+                                [:li "Select different " [:code ":justify"] " values and notice how the children are repositioned."]
+                                [:li "Untick " [:code ":justify"] ". When not specified, the default value is :start."]]
+                               [:p [:code ":justify"] " is the analog of " [hyperlink-href
+                                                                            :label "Flexbox justify-content style"
+                                                                            :href "https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content"
+                                                                            :target "_blank"] "."]
+                               [:p [:strong "Note: "] "There is a bug in Chrome. When switching from :between to :around (or visa versa), the change is not shown. To get around this, select a different value beforehand."]]]}
 
             ;; Align
             {:hbox {:over?   false
@@ -153,14 +156,17 @@
                     :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
              :desc [v-box
                     :children [[:p.info-subheading "The " [:code ":align"] " & " [:code ":align-self"] " parameters"]
-                               [:p [:code ":align"] " specifies how children are arranged vertically (along the \"cross axis\" in flexbox terms)."]
-                               [:p [:code ":align-self"] " is used by individual children to override the :align value specified by their parent."]
+                               [:p [:code ":align"] " specifies how children are arranged vertically."]
+                               [:p [:code ":align-self"] " is used on individual children to override the :align value specified by their parent."]
                                [:p.info-subheading "Things to try"]
                                [:ul
-                                [:li "Select different " [:code ":align"] " values for the h-box and notice how this only affects Box1, since the other boxes are both overriding this setting."]
-                                [:li "Change the " [:code ":align-self"] " values for Box2 and Box3 to see them adjust their vertical layout."]
-                                [:li "Adjust the h-box " [:code ":height"] " parameter to see the boxes sticking to the specified alignment."]
-                                ]]]}
+                                [:li "Select different " [:code ":align"] " values for the h-box and notice how this only affects Box1 because both other boxes have an overriding :align-self setting."]
+                                [:li "Change the " [:code ":align-self"] " values for Box2 and Box3 to see them adjust their vertical position."]
+                                [:li "Adjust the h-box " [:code ":height"] " and notice boxes 2 and 3 sticking to their specified alignment."]]
+                               [:p [:code ":align"] " is the analog of " [hyperlink-href
+                                                                          :label "Flexbox align-items style"
+                                                                          :href "https://developer.mozilla.org/en-US/docs/Web/CSS/align-items"
+                                                                          :target "_blank"] "."]]]}
 
             ;; Size
             {:hbox {:over?   false
@@ -192,16 +198,25 @@
                     :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
              :desc [v-box
                     :children [[:p.info-subheading "The " [:code ":size"] " parameter"]
-                               [:p "The " [:strong "h-box"] " container has a specific width and height with a gap of 4px, meaning 4px space will be placed between each child. The " [:code ":justify"] " and " [:code ":align"] " parameters are left to their defaults, meaning the boxes will be stretched from top to bottom (unless individually overridden)."]
-                               [:p [:strong "Box1"] " has a " [:code ":size"] " of \"none\" which means it will take up as much space as it's content, in this case, the text \"Box1\"."]
-                               [:p [:strong "Box2"] " has a specific 100 pixel " [:code ":size"] " so that's exactly how much space (width in the case on an h-box) it will take up."]
-                               [:p [:strong "Box3"] " has a " [:code ":size"] " of \"1\" which defines how much empty space within the container to consume. It's greedy so it takes everything that's left. Because there are no other siblings with a 'ratio'  :size, it will always take up all available space so you could put any ratio value here and you'll get the same result."]
+                               [p "The "
+                                [hyperlink-href
+                                 :label     [:span "Layout page"]
+                                 :href      "#/layout"
+                                 :target    "_blank"]
+                                " describes the importance of " [:code ":size"] "."]
+                               [:p [:strong "Box1"] " has a " [:code ":size"] " of \"none\" which means it will take up as much width as its content, in this case, the text \"Box1\"."]
+                               [:p [:strong "Box2"] " has a fixed 100 pixel " [:code ":size"] ". Width in the case on an h-box."]
+                               [:p [:strong "Box3"] " has a " [:code ":size"] " of \"1\" which means it will greedily take as much width as it can."]
                                [:p.info-subheading "Things to try"]
                                [:ul
-                                [:li "Adjust the h-box " [:code ":width"] " parameter and notice that only Box3 resizes as the other two boxes have specific sizes that will not change. Box3 takes up all extra available space and squeezes down to nothing as the h-box width is reduced further."]
-                                [:li "Set the Box2 " [:code ":size"] " to a :ratio value of \"2\" and notice how it will always take up double the width of Box3 as you adjust the h-box " [:code ":width"] " parameter."]
-                                [:li "Set the Box2 " [:code ":size"] " to a :gsb value of \"0 0 80%\". As you adjust the h-box " [:code ":width"] " parameter, you will see that Box2 maintains 80% of the width of the h-box. Because we are not allowing growing or shrinking, Box3 will eventually be squeezed down to nothing and Box2 will ultimately extend outsize the bounds of the h-box, but will always be sized to 80% of the h-box. Does that make any sense?"]
-                                ]]]}
+                                [:li "Adjust the h-box " [:code ":width"] " and notice how Box1 and Box2 don't change in width, and Box3 greedily takes any excess space and squeezes down to nothing as the h-box width is reduced further."]
+                                [:li "Set the Box2 " [:code ":size"] " to a ratio value of \"2\" and notice how it will always take up double the width of Box3 (ratio \"1\") as you adjust the h-box " [:code ":width"] "."]
+                                [:li "Set the Box2 " [:code ":size"] " to a gsb value of \"0 0 80%\". Its width is fixed to 80% of its parent h-box, with no growing or shrinking. Box1 and Box2 now have fixed widths. Box3 can grow and shrink. See this in action as you adjust the h-box " [:code ":width"] "."]
+                                ]
+                               [:p [:code ":size"] " is the analog of " [hyperlink-href
+                                                                          :label "Flexbox flex style"
+                                                                          :href "https://developer.mozilla.org/en-US/docs/Web/CSS/flex"
+                                                                          :target "_blank"] "."]]]}
 
             ;; Size2
             {:hbox {:over?   false
@@ -235,13 +250,13 @@
                     :children [[:p.info-subheading "The " [:code ":size"] " parameter - Advanced GSB"]
                                [:p "This demonstrates a complex example of gsb."]
                                [:p [:strong "Box1"] " has a " [:code ":size"] " fixed to \"100px\"."]
-                               [:p [:strong "Box2"] " has a gsb of \"5 1 200px\" so it's natural width is 200px and when it grows, it will do so with a ratio of 5, compared with other growable siblings. When it shrinks, it will do so at a ratio of 1, compared with other shrinkable siblings."]
-                               [:p [:strong "Box3"] " has a gsb of \"1 3 200px\" so it's natural width is also 200px and when it grows, it will do so with a ratio of 1. When it shrinks, it will do so at a ratio of 3."]
+                               [:p [:strong "Box2"] " has a gsb of \"5 1 200px\" so its natural width is 200px and when it grows, it will do so with a ratio of 5, compared with other growable siblings. When it shrinks, it will do so at a ratio of 1, compared with other shrinkable siblings."]
+                               [:p [:strong "Box3"] " has a gsb of \"1 3 200px\" so its natural width is also 200px and when it grows, it will do so with a ratio of 1. When it shrinks, it will do so at a ratio of 3."]
                                [:p "Notice that the width of the h-box is initially set to 500px. Box1 (100px) + Box2 (200px basis) + Box3 (200px basis) = 500px so this width is the point of equilibrium. There is no shrinking or growing required so we see that Box2 and Box3 have exactly the same width of 200px."]
                                [:p.info-subheading "Things to try"]
                                [:ul
-                                [:li "Grow the " [:code ":width"] " from the initial 500px. The extra space (excluding the initial 200px for Box2 and Box3) will be distributed between Box2 and Box3 in a ratio of 5 to 1, so Box2 will grow faster than Box3."]
-                                [:li "Shrink the " [:code ":width"] " from the initial 500px. The space to be removed from Box2 and Box3 will be removed in a ratio of 1 to 3, so Box3 will shrink faster than Box2 until it reaches 0px. Box2 will then continue to reduce until it too gets to 0px. Phew! TODO: Visibly, the ratio of Box3 to Box2 isn't maintained at 3 to 1, so some more pondering required."]
+                                [:li "Increase the h-box " [:code ":width"] " from the initial 500px. The extra space (excluding the initial 200px for Box2 and Box3) will be distributed between Box2 and Box3 in a ratio of 5 to 1, so Box2 will grow faster than Box3."]
+                                [:li "Decrease the h-box " [:code ":width"] " from the initial 500px. The space to be removed from Box2 and Box3 will be removed in a ratio of 1 to 3, so Box3 will shrink faster than Box2 until it reaches 0px. Box2 will then continue to reduce until it too gets to 0px."]
                                 ]]]}
 
             ;; Width
@@ -270,17 +285,17 @@
                     :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "150px" :ratio "1" :gsb "1 1 0px"}
                     :align-self {:value :stretch :omit? true :editing? (atom false)}
                     :height     {:value "50px" :omit? true :editing? (atom false) :range [0 400]}
-                    :min-width  {:value "100px" :omit? true :editing? (atom false) :range [0 200]}
-                    :max-width  {:value "200px" :omit? false :editing? (atom true) :range [0 200]}}
+                    :min-width  {:value "25px" :omit? true :editing? (atom false) :range [0 200]}
+                    :max-width  {:value "75px" :omit? false :editing? (atom true) :range [0 200]}}
              :desc [v-box
                     :children [[:p.info-subheading "The " [:code ":width"] " & " [:code ":min/max-width"] " parameters"]
-                               [:p "Although not specifically a part of the Flexbox spec, it's useful to see how the various width parameters interact with it."]
-                               [:p "All three boxes have size set to auto so they can grow and shrink as required."]
+                               [:p "It's interesting to see how child :min-width and :max-width parameters affect layout."]
+                               [:p "All three boxes have " [:code ":size"] " set to :auto so they can grow and shrink as required."]
                                [:p "Box1 has no width restrictions, Box2 has a :min-width and Box3 has a :max-width."]
                                [:p.info-subheading "Things to try"]
                                [:ul
-                                [:li "Decrease the h-box " [:code ":width"] " and notice how Box2 shrinks only until it reaches the minimum of 100px (or whatever you may have changed it to)."]
-                                [:li "Increase the h-box " [:code ":width"] " and notice how Box3 grows only until it reaches the maximum of 200px (or whatever you may have changed it to)."]
+                                [:li "Decrease the h-box " [:code ":width"] " and notice how Box2 shrinks only until it reaches the minimum of 100px."]
+                                [:li "Increase the h-box " [:code ":width"] " and notice how Box3 grows only until it reaches the maximum of 75px."]
                                 [:li "Turn on " [:code ":min-width"] " for Box3 and while adjusting the h-box " [:code ":width"] ", notice how Box3 grows & shrinks only between the min and max values."]
                                 ]]]}
 
@@ -309,17 +324,17 @@
                     :text       {:value "Box3" :omit? false :editing? (atom false) :type :text :text "Box3"}
                     :size       {:value "auto" :omit? false :editing? (atom false) :type :auto :px "150px" :ratio "1" :gsb "1 1 0px"}
                     :align-self {:value :stretch :omit? true :editing? (atom false)}
-                    :height     {:value "120px" :omit? true :editing? (atom false) :range [0 400]}
+                    :height     {:value "110px" :omit? true :editing? (atom false) :range [0 400]}
                     :min-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}
                     :max-width  {:value "50px" :omit? true :editing? (atom false) :range [0 200]}}
              :desc [v-box
                     :children [[:p.info-subheading "The " [:code ":height"] " parameter"]
-                               [:p "Although not specifically a part of the Flexbox spec, it's useful to see how height interacts with it."]
-                               [:p "A specific :height has been set for Box1 and Box2, while Box3 has none, so it's height is being set by the h-box :align :stretch setting."]
+                               [:p "It's interesting to see how the child :height parameter affects layout."]
+                               [:p "A specific :height has been set for Box1 and Box2, while Box3 has none, so its height is being set by the h-box :align :stretch setting."]
                                [:p.info-subheading "Things to try"]
                                [:ul
-                                [:li "Turn the Box3 " [:code ":height"] " parameter on and see how it can spill outside the h-box when it has a :height set."]
-                                [:li "Turn the h-box " [:code ":height"] " parameter off then adjust the :height of one or more boxes. Notice how h-box :height is now determined by the height on the maximum box heights."]
+                                [:li "Turn on the Box3 " [:code ":height"] " parameter and see how it can spill outside the h-box when it has a :height set."]
+                                [:li "Turn off the h-box " [:code ":height"] " parameter then adjust the :height of one or more boxes. Notice how h-box :height is now determined by the height on the maximum box heights."]
                                 ]]]}
 
             ;; Children
@@ -357,7 +372,7 @@
                                [:p.info-subheading "Things to try"]
                                [:ul
                                 [:li "Adjust the h-box " [:code ":width"] " parameter to see how Box2 is the only one that shrinks and grows."]
-                                [:li "Turn the h-box " [:code ":height"] " parameter off to see how it automatically expands to show the rest of the content in Box2."]
+                                [:li "Turn off the h-box " [:code ":height"] " parameter to see how it automatically expands to show the rest of the content in Box2."]
                                 [:li "Edit the box " [:code ":child"] " parameters to change the content to see how the current layout handles more or less content."]
                                 ]]]}
             ])
@@ -679,7 +694,7 @@
       [h-box
        :gap      "8px"
        :align    :center
-       :children [[:span.bold "Try out a scenario:"]
+       :children [[:span.bold "Show me:"]
                   [horizontal-bar-tabs
                    :model     current-demo
                    :tabs      opts
@@ -711,24 +726,6 @@
       [h-box
        :align :start
        :children [(when (:desc @box-state)
-                    #_[popover-anchor-wrapper  ;; TODO: REMOVE
-                     :showing? show-desc?
-                     :position :right-below
-                     :anchor   [:div {:style {:height "60px"}}] ;; Position the popover down the page a little
-                     :popover  [popover-content-wrapper
-                                :showing?       show-desc?
-                                :position       :right-below
-                                :width          "460px"
-
-                                ;:tooltip-style? true
-                                ;:popover-color "#333333"
-                                ;:padding        "3px 8px"
-                                ;:arrow-length   6
-                                ;:arrow-width    12
-
-                                :title          "Demo Description"
-                                :close-button?  true
-                                :body           (:desc @box-state)]]
                     [popover-tooltip
                      :showing?      show-desc?
                      :position      :left-below
@@ -775,7 +772,11 @@
                               [code-row true  :3 ":align-self" [:box3 :align-self] ""   over-box3 align-editor]
                               [code-row true  :3 ":height"     [:box3 :height]     ""   over-box3 px-editor]
                               [code-row true  :3 ":min-width"  [:box3 :min-width]  ""   over-box3 px-editor]
-                              [code-row true  :3 ":max-width"  [:box3 :max-width]  "]]" over-box3 px-editor]]]]])))
+                              [code-row true  :3 ":max-width"  [:box3 :max-width]  "]]" over-box3 px-editor]]]
+                  (when (= @current-demo 0)
+                    [:img {:src   "demo/h-box-demo-words.png"
+                           :style {:flex        "none"
+                                   :margin-left "20px"}}])]])))
 
 
 (defn panel
@@ -799,10 +800,9 @@
                                         [p "h-box is a container which lays out its  " [:code ":children"] " in a single horizontal row."]
                                         [p "The "
                                          [hyperlink-href
-                                          :label     [:span.bold "Layout"]
+                                          :label     [:span.bold "Layout page"]
                                           :href      "#/layout"]
-                                         " page describes the importance of " [:span.bold ":size"] ". The actual layout is a function of the " [:code ":size"] " of the container and the " [:code ":size"] " provided for each of the children."]
-                                        [p [:strong "Todo: Nestability with v-box"]]
+                                         " describes the importance of " [:span.bold ":size"] "."]
                                         [args-table h-box-args-desc]]]
                             [v-box
                              :gap      "10px"
@@ -810,10 +810,9 @@
                              :height   "800px"
                              ;:style    {:border "dashed 1px #ddd"}
                              :children [[title2 "Demo"]
-                                        [p "In this interactive demo, start by selecting a scenario. Then you can edit the hiccup in the grey box to see the
-                                        effects on the [h-box] (dashed red border) and it's three [box] children (pink filled)."]
-                                        [choose-a-demo]
+                                        [editable-code]
                                         [gap :size "0px"]
                                         [demo]
                                         [gap :size "0px"]
-                                        [editable-code]]]]]]]))
+                                        [choose-a-demo]
+                                        ]]]]]]))

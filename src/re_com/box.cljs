@@ -254,7 +254,9 @@
                    (when padding    {:padding    padding})
                    (when debug      {:background-color "gold"})
                    style)
-        gap-form (when gap [re-com.box/gap :size gap])
+        gap-form (when gap [re-com.box/gap
+                            :size  gap
+                            :width gap]) ;; required to get around a Chrome bug
         children (if gap
                    (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
                    children)]
@@ -312,7 +314,9 @@
                    (when padding     {:padding    padding})
                    (when debug       {:background-color "antiquewhite"})
                    style)
-        gap-form (when gap [re-com.box/gap :size gap])
+        gap-form (when gap [re-com.box/gap
+                            :size   gap
+                            :height gap]) ;; required to get around a Chrome bug
         children (if gap
                    (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
                    children)]
