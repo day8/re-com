@@ -11,7 +11,7 @@
     (fn
       []
       (let [base-url  (str "https://github.com/Day8/re-com/tree/" (if ^boolean js/goog.DEBUG "develop" "master") "/")
-            para-text (fn [] [p "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quod si ita est, sequitur id ipsum, quod te velle video, omnes semper beatos esse sapientes. Tamen a proposito, inquam, aberramus. "])]
+            para-text [p "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quod si ita est, sequitur id ipsum, quod te velle video, omnes semper beatos esse sapientes. Tamen a proposito, inquam, aberramus. "]]
         [v-box
          :size "auto"
          :gap "10px"
@@ -34,15 +34,20 @@
                                               :target "_blank"]
                                              " will apply."]
                                             [p
-                                             "Re-com uses the "
+                                             "Re-com uses "
                                              [hyperlink-href
-                                              :label "Roboto"
-                                              :href "http://www.google.com/fonts/specimen/Roboto"
+                                              :label  "Segoe UI"
+                                              :href   "https://www.microsoft.com/typography/fonts/family.aspx?FID=331"
                                               :target "_blank"]
-                                             " as its default font. See "
+                                             " as its default font (available on Windows) with a fallback to the public domain "
                                              [hyperlink-href
-                                              :label "re-com.css"
-                                              :href (str base-url "run/resources/public/assets/css/re-com.css")
+                                              :label  "Roboto"
+                                              :href   "http://www.google.com/fonts/specimen/Roboto"
+                                              :target "_blank"]
+                                             " font. See "
+                                             [hyperlink-href
+                                              :label  "re-com.css"
+                                              :href   (str base-url "run/resources/public/assets/css/re-com.css")
                                               :target "_blank"]
                                              "."]
                                             [args-table title-args-desc]]]
@@ -55,15 +60,15 @@
                                                          :model underline?
                                                          :on-change #(reset! underline? %)]
                                                         [gap :size "40px"]
-                                                        (para-text)
+                                                        para-text
                                                         [title :level :level1 :underline? @underline? :label ":level1 - Light 42px"]
-                                                        (para-text)
+                                                        para-text
                                                         [title :level :level2 :underline? @underline? :label ":level2 - Light 26px"]
-                                                        (para-text)
+                                                        para-text
                                                         [title :level :level3 :underline? @underline? :label ":level3 - Semibold 15px"]
-                                                        (para-text)
+                                                        para-text
                                                         [title :level :level4 :underline? @underline? :label ":level4 - Semibold 15px"]
-                                                        (para-text)]]]]]]]]))))
+                                                        para-text]]]]]]]]))))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

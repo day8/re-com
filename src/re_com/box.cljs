@@ -256,7 +256,7 @@
                    style)
         gap-form (when gap [re-com.box/gap
                             :size  gap
-                            :width gap]) ;; required to get around a Chrome bug
+                            :width gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
         children (if gap
                    (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
                    children)]
@@ -316,7 +316,7 @@
                    style)
         gap-form (when gap [re-com.box/gap
                             :size   gap
-                            :height gap]) ;; required to get around a Chrome bug
+                            :height gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
         children (if gap
                    (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
                    children)]
