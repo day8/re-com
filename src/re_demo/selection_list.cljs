@@ -65,7 +65,7 @@
                   :multi-select?  multi-select?
                   :disabled?      disabled?
                   :required?      required?
-                  :on-change      #(do (println "selections: '" % "'") (reset! selections %))]]]
+                  :on-change      #(reset! selections %)]]]
      multi-select?
      disabled?
      required?

@@ -26,8 +26,10 @@ More info on deploying libraries using lein: https://github.com/technomancy/lein
 
 ### Build library and test the demo
 
+Note that all these commands are entered at the repo root folder.
+
 - [ ] Close all auto-compiles (command line and/or IntelliJ).
-- [ ] Build each of these aliases: 
+- [ ] Build each of these aliases (will require separate terminals for each):
        - `lein debug`
        - `lein debug-prod`
        - `lein debug-test`
@@ -37,16 +39,21 @@ More info on deploying libraries using lein: https://github.com/technomancy/lein
 
 ### Make a Github release
 
+- [ ] TODO: IntelliJ should be able to do all of these steps as it has integrated gitflow. Investigate!
+- [ ] Make sure your master branch is up-to-date with Github (in 99% of cases it will be):
+       - `git checkout master` (TODO: might have to shelve develop or feature branch outstanding changes...confirm)
+       - `git pull`
+       - `git checkout {the branch you are working in}`
 - [ ] Start a new release:
+       - `git checkout develop` (TODO: may just need to be in the branch you are working in...confirm)
        - `git flow release start x.x.x`
-       - Do this from repo root with develop branch checked out and everything already pushed (and master up to date)
-       - This step creates a branch called 'release/x.x.x'.
+       - A branch called 'release/x.x.x' is created.
 - [ ] Bump version in project.clj to `x.x.x`.
 - [ ] Update README.md file if required.
 - [ ] Commit to develop or finish feature:
-       - `git commit -a -m "..."` (or IntelliJ) 
+       - `git commit -a -m "..."` 
 - [ ] Push develop to GitHub:
-       - `git push` (or IntelliJ)
+       - `git push`
 - [ ] Finish the release:
        - `git flow release finish 'x.x.x'`
        - Merges develop into master.
@@ -75,7 +82,7 @@ More info on deploying libraries using lein: https://github.com/technomancy/lein
 
 - [ ] Push this release to Clojars:
        - `lein deploy clojars`
-       - Will prompt for your Clojars usnername and password.
+       - Will prompt for your Clojars username and password.
        - Will also prompt for your GPG passphrase.
 - [ ] "Promote" the Clojars release:
        - Go to the re-com Clojars page for this version: https://clojars.org/re-com
@@ -87,7 +94,7 @@ More info on deploying libraries using lein: https://github.com/technomancy/lein
 
 - [ ] Deploy demo to AWS:
        - `lein s3-static-deploy`
-       - Could have used `lein deploy-aws` but this also builds the `prod` version which we have already just just built.
+       - Could have used `lein deploy-aws` but this also builds the `prod` version which we have already just built.
        - Manually change `index.html` to `index_prod.html` in S3 Browser. TODO: Find a way to automate this.
        - Test it: http://re-demo.s3-website-ap-southeast-2.amazonaws.com.
 

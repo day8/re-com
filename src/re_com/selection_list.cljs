@@ -111,7 +111,8 @@
         bounds   (select-keys args [:width :height :max-height])
         spacing  (if hide-border? spacing-unbordered spacing-bordered)]
     ;; In single select mode force selections to one. This causes a second render
-    (when-not (= selected model) (on-change selected))
+    ;; TODO: GR commented this out to fix the bug where #{nil} was being returned for an empty list. Remove when we're sure there are no ill effects.
+    #_(when-not (= selected model) (on-change selected))
     [border
      :radius "4px"
      :border (when hide-border? "none")
