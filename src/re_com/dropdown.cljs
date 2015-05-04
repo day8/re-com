@@ -156,7 +156,7 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
+      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
       (let [_ (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})]
         [:a.chosen-single.chosen-default
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
@@ -176,7 +176,7 @@
           }
          [:span
           (if @internal-model
-            (:label (item-for-id @internal-model choices))
+            (label-fn (item-for-id @internal-model choices :id-fn id-fn))
             placeholder)]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
@@ -196,9 +196,9 @@
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
-   {:name :id-fn         :required false :default :id     :type "(map) -> anything"             :validate-fn fn?               :description [:span "given an element of " [:code ":choices"] ", returns the unique identifier for this dropdown entry"]}
-   {:name :label-fn      :required false :default :label  :type "(map) -> string | hiccup"      :validate-fn fn?               :description [:span "given an element of " [:code ":choices"] ", returns what should be displayed in this dropdown entry"]}
-   {:name :group-fn      :required false :default :group  :type "(map) -> anything"             :validate-fn fn?               :description [:span "given an element of " [:code ":choices"] ", returns the group identifier for this dropdown entry"]}
+   {:name :id-fn         :required false :default :id     :type "(map) -> anything"             :validate-fn ifn?               :description [:span "given an element of " [:code ":choices"] ", returns the unique identifier for this dropdown entry"]}
+   {:name :label-fn      :required false :default :label  :type "(map) -> string | hiccup"      :validate-fn ifn?               :description [:span "given an element of " [:code ":choices"] ", returns what should be displayed in this dropdown entry"]}
+   {:name :group-fn      :required false :default :group  :type "(map) -> anything"             :validate-fn ifn?               :description [:span "given an element of " [:code ":choices"] ", returns the group identifier for this dropdown entry"]}
    {:name :class         :required false                  :type "string"                        :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style         :required false                  :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr          :required false                  :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
@@ -293,7 +293,7 @@
                           {:width (when width width)}
                           style)}
            attr)          ;; Prevent user text selection
-         [dropdown-top internal-model choices tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
+         [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
          (when (and @drop-showing? (not disabled?))
            [:div.chosen-drop
             [filter-text-box filter-box? filter-text key-handler drop-showing?]
