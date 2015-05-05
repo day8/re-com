@@ -12,14 +12,14 @@
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
    from id (usually +1 or -1 to go to next/previous). Also accepts :start and :end"
-  [choices id offset]
+  [choices id-fn id offset]
   (let [current-index (position-for-id id choices)
         new-index     (cond
                         (= offset :start)    0
                         (= offset :end)      (dec (count choices))
                         (nil? current-index) 0
                         :else                (mod (+ current-index offset) (count choices)))]
-    (when new-index (:id (nth choices new-index)))))
+    (when new-index (id-fn (nth choices new-index)))))
 
 
 (defn- choices-with-group-headings
@@ -39,11 +39,11 @@
 (defn- filter-choices
   "Filter a list of choices based on a filter string using plain string searches (case insensitive). Less powerful
    than regex's but no confusion with reserved characters"
-  [choices filter-text]
+  [choices group-fn label-fn filter-text]
   (let [lower-filter-text (string/lower-case filter-text)
         filter-fn         (fn [opt]
-                            (let [group (if (nil? (:group opt)) "" (:group opt))
-                                  label (str (:label opt))] ;; Need str for non-string labels like hiccup
+                            (let [group (if (nil? (group-fn opt)) "" (group-fn opt))
+                                  label (str (label-fn opt))] ;; Need str for non-string labels like hiccup
                               (or
                                 (>= (.indexOf (string/lower-case group) lower-filter-text) 0)
                                 (>= (.indexOf (string/lower-case label) lower-filter-text) 0))))]
@@ -53,13 +53,13 @@
 (defn- filter-choices-regex
   "Filter a list of choices based on a filter string using regex's (case insensitive). More powerful but can cause
    confusion for users entering reserved characters such as [ ] * + . ( ) etc."
-  [choices filter-text]
+  [choices group-fn label-fn filter-text]
   (let [re        (try
                     (js/RegExp. filter-text "i")
                     (catch js/Object e nil))
         filter-fn (partial (fn [re opt]
                              (when-not (nil? re)
-                               (or (.test re (:group opt)) (.test re (:label opt)))))
+                               (or (.test re (group-fn opt)) (.test re (label-fn opt)))))
                            re)]
     (filter filter-fn choices)))
 
@@ -239,8 +239,8 @@
             dropdown-click   #(when-not disabled?
                                (swap! drop-showing? not))
             filtered-choices (if regex-filter?
-                               (filter-choices-regex choices @filter-text)
-                               (filter-choices choices @filter-text))
+                               (filter-choices-regex choices group-fn label-fn @filter-text)
+                               (filter-choices choices group-fn label-fn @filter-text))
             press-enter      (fn []
                                (if disabled?
                                  (cancel)
@@ -260,19 +260,19 @@
                                 true)
             press-up          (fn []
                                 (if @drop-showing?  ;; Up arrow
-                                  (reset! internal-model (move-to-new-choice filtered-choices @internal-model -1))
+                                  (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model -1))
                                   (reset! drop-showing? true))
                                 true)
             press-down        (fn []
                                 (if @drop-showing?  ;; Down arrow
-                                  (reset! internal-model (move-to-new-choice filtered-choices @internal-model 1))
+                                  (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model 1))
                                   (reset! drop-showing? true))
                                 true)
             press-home        (fn []
-                                (reset! internal-model (move-to-new-choice filtered-choices @internal-model :start))
+                                (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model :start))
                                 true)
             press-end         (fn []
-                                (reset! internal-model (move-to-new-choice filtered-choices @internal-model :end))
+                                (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model :end))
                                 true)
             key-handler      #(if disabled?
                                false
