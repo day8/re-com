@@ -12,14 +12,14 @@
 (defn- move-to-new-choice
   "In a vector of maps (where each map has an :id), return the id of the choice offset posititions away
    from id (usually +1 or -1 to go to next/previous). Also accepts :start and :end"
-  [choices id offset]
+  [choices id-fn id offset]
   (let [current-index (position-for-id id choices)
         new-index     (cond
                         (= offset :start)    0
                         (= offset :end)      (dec (count choices))
                         (nil? current-index) 0
                         :else                (mod (+ current-index offset) (count choices)))]
-    (when new-index (:id (nth choices new-index)))))
+    (when new-index (id-fn (nth choices new-index)))))
 
 
 (defn- choices-with-group-headings
@@ -39,11 +39,11 @@
 (defn- filter-choices
   "Filter a list of choices based on a filter string using plain string searches (case insensitive). Less powerful
    than regex's but no confusion with reserved characters"
-  [choices filter-text]
+  [choices group-fn label-fn filter-text]
   (let [lower-filter-text (string/lower-case filter-text)
         filter-fn         (fn [opt]
-                            (let [group (if (nil? (:group opt)) "" (:group opt))
-                                  label (str (:label opt))] ;; Need str for non-string labels like hiccup
+                            (let [group (if (nil? (group-fn opt)) "" (group-fn opt))
+                                  label (str (label-fn opt))] ;; Need str for non-string labels like hiccup
                               (or
                                 (>= (.indexOf (string/lower-case group) lower-filter-text) 0)
                                 (>= (.indexOf (string/lower-case label) lower-filter-text) 0))))]
@@ -53,13 +53,13 @@
 (defn- filter-choices-regex
   "Filter a list of choices based on a filter string using regex's (case insensitive). More powerful but can cause
    confusion for users entering reserved characters such as [ ] * + . ( ) etc."
-  [choices filter-text]
+  [choices group-fn label-fn filter-text]
   (let [re        (try
                     (js/RegExp. filter-text "i")
                     (catch js/Object e nil))
         filter-fn (partial (fn [re opt]
                              (when-not (nil? re)
-                               (or (.test re (:group opt)) (.test re (:label opt)))))
+                               (or (.test re (group-fn opt)) (.test re (label-fn opt)))))
                            re)]
     (filter filter-fn choices)))
 
@@ -156,7 +156,7 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
+      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
       (let [_ (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})]
         [:a.chosen-single.chosen-default
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
@@ -176,7 +176,7 @@
           }
          [:span
           (if @internal-model
-            (:label (item-for-id @internal-model choices))
+            (label-fn (item-for-id @internal-model choices :id-fn id-fn))
             placeholder)]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
@@ -196,9 +196,9 @@
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
-   {:name :id-fn         :required false :default :id     :type "(map) -> anything"             :validate-fn fn?               :description [:span "given an element of " [:code ":choices"] ", returns the unique identifier for this dropdown entry"]}
-   {:name :label-fn      :required false :default :label  :type "(map) -> string | hiccup"      :validate-fn fn?               :description [:span "given an element of " [:code ":choices"] ", returns what should be displayed in this dropdown entry"]}
-   {:name :group-fn      :required false :default :group  :type "(map) -> anything"             :validate-fn fn?               :description [:span "given an element of " [:code ":choices"] ", returns the group identifier for this dropdown entry"]}
+   {:name :id-fn         :required false :default :id     :type "(map) -> anything"             :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the unique identifier for this dropdown entry"]}
+   {:name :label-fn      :required false :default :label  :type "(map) -> string | hiccup"      :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns what should be displayed in this dropdown entry"]}
+   {:name :group-fn      :required false :default :group  :type "(map) -> anything"             :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the group identifier for this dropdown entry"]}
    {:name :class         :required false                  :type "string"                        :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style         :required false                  :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr          :required false                  :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
@@ -239,8 +239,8 @@
             dropdown-click   #(when-not disabled?
                                (swap! drop-showing? not))
             filtered-choices (if regex-filter?
-                               (filter-choices-regex choices @filter-text)
-                               (filter-choices choices @filter-text))
+                               (filter-choices-regex choices group-fn label-fn @filter-text)
+                               (filter-choices choices group-fn label-fn @filter-text))
             press-enter      (fn []
                                (if disabled?
                                  (cancel)
@@ -260,19 +260,19 @@
                                 true)
             press-up          (fn []
                                 (if @drop-showing?  ;; Up arrow
-                                  (reset! internal-model (move-to-new-choice filtered-choices @internal-model -1))
+                                  (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model -1))
                                   (reset! drop-showing? true))
                                 true)
             press-down        (fn []
                                 (if @drop-showing?  ;; Down arrow
-                                  (reset! internal-model (move-to-new-choice filtered-choices @internal-model 1))
+                                  (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model 1))
                                   (reset! drop-showing? true))
                                 true)
             press-home        (fn []
-                                (reset! internal-model (move-to-new-choice filtered-choices @internal-model :start))
+                                (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model :start))
                                 true)
             press-end         (fn []
-                                (reset! internal-model (move-to-new-choice filtered-choices @internal-model :end))
+                                (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model :end))
                                 true)
             key-handler      #(if disabled?
                                false
@@ -293,7 +293,7 @@
                           {:width (when width width)}
                           style)}
            attr)          ;; Prevent user text selection
-         [dropdown-top internal-model choices tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
+         [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
          (when (and @drop-showing? (not disabled?))
            [:div.chosen-drop
             [filter-text-box filter-box? filter-text key-handler drop-showing?]
