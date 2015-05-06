@@ -9,9 +9,10 @@
 (def demos [{:id 1 :label "Simple dropdown"}
             {:id 2 :label "Dropdown with grouping"}
             {:id 3 :label "Dropdown with filtering"}
-            {:id 4 :label "Keyboard support"}
-            {:id 5 :label "Other parameters"}
-            {:id 6 :label "Two dependent dropdowns"}])
+            {:id 4 :label "Use of :id-fn etc."}
+            {:id 5 :label "Keyboard support"}
+            {:id 6 :label "Other parameters"}
+            {:id 7 :label "Two dependent dropdowns"}])
 
 
 (def countries [{:id "au" :label "Australia"}
@@ -158,6 +159,36 @@
 
 (defn demo4
   []
+  (let [selected-country-id (reagent/atom "US$")]
+    (fn []
+      [v-box
+       :gap      "10px"
+       :children [[p "This example is the same as the previous one except the following parameters have been added to transform the original values:"]
+                  [p [:code ":id-fn"] " is set to " [:code "#(str (:id %) \"$\")"]]
+                  [p [:code ":label-fn"] " is set to " [:code "#(str (:label %) \"!\")"]]
+                  [p [:code ":group-fn"] " is set to " [:code "#(str \"[\" (:group %) \"]\")"]]
+                  [h-box
+                   :gap      "10px"
+                   :align    :center
+                   :children [[single-dropdown
+                               :choices     grouped-countries
+                               :model       selected-country-id
+                               :width       "300px"
+                               :max-height  "400px"
+                               :filter-box? true
+                               :id-fn       #(str (:id %) "$")
+                               :label-fn    #(str (:label %) "!")
+                               :group-fn    #(str "[" (:group %) "]")
+                               :on-change   #(reset! selected-country-id %)]
+                              [:div
+                               [:strong "Selected country: "]
+                               (if (nil? @selected-country-id)
+                                 "None"
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+
+
+(defn demo5
+  []
   (let [selected-country-id (reagent/atom "US")]
     (fn []
       [v-box
@@ -190,7 +221,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo5
+(defn demo6
   []
   (let [selected-country-id (reagent/atom "US")
         disabled?           (reagent/atom false)
@@ -250,7 +281,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo6
+(defn demo7
   []
   (let [selected-country-id (reagent/atom nil)
         filtered-cities     (reagent/atom [])
@@ -343,7 +374,8 @@
                                              3 [demo3]
                                              4 [demo4]
                                              5 [demo5]
-                                             6 [demo6])]]]]]])))
+                                             6 [demo6]
+                                             7 [demo7])]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

@@ -71,7 +71,7 @@
                      [input-type
                       (merge
                         {:class       (str "form-control noselect " class)
-                         :type        (when (= input-type :text) "text")
+                         :type        (when (= input-type :input) "text")
                          :rows        (when (= input-type :textarea) (if rows rows 3))
                          :style       (merge
                                         (flex-child-style "none")
