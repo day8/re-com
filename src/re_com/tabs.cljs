@@ -12,9 +12,9 @@
 (def tabs-args-desc
   [{:name :tabs      :required true                  :type "vector | atom"            :validate-fn vector-of-maps? :description "one element in the vector for each tab. Typically, each element is a map with :id and :label keys"}
    {:name :model     :required true                  :type "unique-id | atom"                                      :description "the unique identifier of the currently selected tab"}
-   {:name :on-change :required true                  :type "(unique-id) -> nil"       :validate-fn fn?             :description "called when user alters the selection. Passed the unique identifier of the selection"}
-   {:name :id-fn     :required false :default :id    :type "(map) -> anything"        :validate-fn fn?             :description [:span "given an element of " [:code ":tabs"] ", returns the unique identifier for this tab"]}
-   {:name :label-fn  :required false :default :label :type "(map) -> string | hiccup" :validate-fn fn?             :description [:span "given an element of " [:code ":tabs"] ", returns what should be displayed in the tab"]}
+   {:name :on-change :required true                  :type "unique-id -> nil"         :validate-fn fn?             :description "called when user alters the selection. Passed the unique identifier of the selection"}
+   {:name :id-fn     :required false :default :id    :type "map -> anything"          :validate-fn fn?             :description [:span "given an element of " [:code ":tabs"] ", returns the unique identifier for this tab"]}
+   {:name :label-fn  :required false :default :label :type "map -> string | hiccup"   :validate-fn fn?             :description [:span "given an element of " [:code ":tabs"] ", returns what should be displayed in the tab"]}
    {:name :style     :required false                 :type "CSS style map"            :validate-fn css-style?      :description "CSS styles to add or override (for each individual tab rather than the container)"}])
 
 (defn horizontal-tabs

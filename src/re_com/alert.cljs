@@ -17,7 +17,7 @@
    {:name :body       :required false                 :type "string | hiccup" :validate-fn string-or-hiccup? :description "displayed within the body of the alert"}
    {:name :padding    :required false :default "15px" :type "string"          :validate-fn string?           :description "padding surounding the alert"}
    {:name :closeable? :required false :default false  :type "boolean"                                        :description [:span "if true, render a close button. " [:code ":on-close"] " should be supplied"]}
-   {:name :on-close   :required false                 :type "(:id) -> nil"    :validate-fn fn?               :description [:span "called when the user clicks the close 'X' button. Passed the " [:code ":id"] " of the alert to close"]}
+   {:name :on-close   :required false                 :type ":id -> nil"      :validate-fn fn?               :description [:span "called when the user clicks the close 'X' button. Passed the " [:code ":id"] " of the alert to close"]}
    {:name :class      :required false                 :type "string"          :validate-fn string?           :description "CSS classes (whitespace separated). Applied to outer container"}
    {:name :style      :required false                 :type "CSS style map"   :validate-fn css-style?        :description "CSS styles. Applied to outer container"}
    {:name :attr       :required false                 :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])
@@ -66,7 +66,7 @@
 
 (def alert-list-args-desc
   [{:name :alerts       :required true                                 :type "vector of maps | atom" :validate-fn vector-of-maps? :description "alerts to render (in the order supplied). Can also be a list of maps"}
-   {:name :on-close     :required true                                 :type "(:id) -> nil"          :validate-fn fn?             :description [:span "called when the user clicks the close 'X' button. Passed the alert's " [:code ":id"]]}
+   {:name :on-close     :required true                                 :type ":id -> nil"            :validate-fn fn?             :description [:span "called when the user clicks the close 'X' button. Passed the alert's " [:code ":id"]]}
    {:name :max-height   :required false                                :type "string"                :validate-fn string?         :description "CSS style for maximum list height. By default, it grows forever"}
    {:name :padding      :required false :default "4px"                 :type "string"                :validate-fn string?         :description "CSS padding within the alert"}
    {:name :border-style :required false :default "1px solid lightgrey" :type "string"                :validate-fn string?         :description "CSS border style surrounding the list"}

@@ -60,26 +60,26 @@
 ;; ----------------------------------------------------------------------------
 
 (defn position-for-id
-  "Takes a vector of maps 'v'. Returns the postion of the first item in 'v' whose :id matches 'id'.
+  "Takes a vector of maps 'v'. Returns the position of the first item in 'v' whose id-fn (default :id) matches 'id'.
    Returns nil if id not found"
-  [id v]
-  (let [index-fn (fn [index item] (when (= (:id item) id) index))]
+  [id v & {:keys [id-fn] :or {id-fn :id}}]
+  (let [index-fn (fn [index item] (when (= (id-fn item) id) index))]
     (first (keep-indexed index-fn v))))
 
 
 
 (defn item-for-id
-  "Takes a vector of maps 'v'. Returns the first item in 'v' whose :id matches 'id'.
+  "Takes a vector of maps 'v'. Returns the first item in 'v' whose id-fn (default :id) matches 'id'.
    Returns nil if id not found"
-  [id v]
-  (first (filter #(= (:id %) id) v)))
+  [id v & {:keys [id-fn] :or {id-fn :id}}]
+  (first (filter #(= (id-fn %) id) v)))
 
 
 (defn remove-id-item
-  "Takes a vector of maps 'v', each of which has an :id key.
+  "Takes a vector of maps 'v', each of which has an id-fn (default :id) key.
   Return v where item matching 'id' is excluded"
-  [id v]
-  (filterv #(not= (:id %) id) v))
+  [id v & {:keys [id-fn] :or {id-fn :id}}]
+  (filterv #(not= (id-fn %) id) v))
 
 
 ;; ----------------------------------------------------------------------------

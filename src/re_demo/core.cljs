@@ -197,7 +197,7 @@
                   [scroller
                    :child [v-box
                            :size  "auto"
-                           :children [(when-not (>= (.indexOf (.-userAgent (.-navigator js/window)) "Chrome") 0) [browser-alert])
+                           :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
                                       [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
 (defn ^:export mount-demo

@@ -11,7 +11,7 @@
 
   (def label-args-desc
     [{:name :label    :required true  :type "anything"                              :description "text or hiccup or whatever to display"}
-     {:name :on-click :required false :type "() -> nil"     :validate-fn fn?        :description "called when the label is clicked"}
+     {:name :on-click :required false :type "-> nil"        :validate-fn fn?        :description "a function which takes no params and returns nothing. Called when the label is clicked"}
      {:name :width    :required false :type "string"        :validate-fn string?    :description "a CSS width"}
      {:name :class    :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
      {:name :style    :required false :type "CSS style map" :validate-fn css-style? :description "additional CSS styles"}

@@ -173,6 +173,8 @@ re-com is available from clojars. Add it to your project.clj dependencies:
 
 [![Clojars Project](http://clojars.org/re-com/latest-version.svg)](http://clojars.org/re-com)
 
+You'll then need to include these asset folders in your app:
+https://github.com/Day8/re-com/tree/master/run/resources/public/assets
 
 As far as your `index.html` is concerned, take inspiration from here:
 https://github.com/Day8/re-com/tree/master/run/resources/public
@@ -182,12 +184,18 @@ In particular, you'll need bootstrap (assumedly via a CDN):
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
 ```
 
-You'll then need these assets, including the re-com.css:
-https://github.com/Day8/re-com/tree/master/run/resources/public/assets
+And a reference to these two CSS files:
 
 ```html
 <link rel="stylesheet" href="assets/css/material-design-iconic-font.min.css">
 <link rel="stylesheet" href="assets/css/re-com.css">
+```
+
+And a reference to the Roboto fonts (but this can be overridden relatively easily):
+
+```html
+<link href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,300' rel='stylesheet' type='text/css'>
 ```
 
 Reagent comes bundled with a matching version of ReactJS,

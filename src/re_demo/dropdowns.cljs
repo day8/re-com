@@ -9,9 +9,10 @@
 (def demos [{:id 1 :label "Simple dropdown"}
             {:id 2 :label "Dropdown with grouping"}
             {:id 3 :label "Dropdown with filtering"}
-            {:id 4 :label "Keyboard support"}
-            {:id 5 :label "Other parameters"}
-            {:id 6 :label "Two dependent dropdowns"}])
+            ;{:id 4 :label "Use of :id-fn etc."} ;; for testing
+            {:id 5 :label "Keyboard support"}
+            {:id 6 :label "Other parameters"}
+            {:id 7 :label "Two dependent dropdowns"}])
 
 
 (def countries [{:id "au" :label "Australia"}
@@ -94,6 +95,15 @@
                         {:id "37" :label "Burundi"                  :group "'B' COUNTRIES"}])
 
 
+(def grouped-countries-2 [{:code "AU" :country "Australia"     :region "EN Speakers"}
+                          {:code "US" :country "United States" :region "EN Speakers"}
+                          {:code "E1" :country "Iraq"          :region "Updated Axis Of Evil"}
+                          {:code "E2" :country "New Zealand"   :region "Updated Axis Of Evil"}
+                          {:code "03" :country "Afghanistan"   :region "'A' COUNTRIES"}
+                          {:code "04" :country "Albania"       :region "'A' COUNTRIES"}
+                          {:code "18" :country "Bahamas"       :region "'B' COUNTRIES"}
+                          {:code "19" :country "Bahrain"       :region "'B' COUNTRIES"}])
+
 (defn demo1
   []
   [p "The dropdown above is the simple case."]
@@ -126,7 +136,7 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id grouped-countries @selected-country-id)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
 (defn demo3
@@ -157,6 +167,39 @@
 
 
 (defn demo4
+  []
+  (let [id-fn               #(str (:code %) "$")
+        label-fn            #(str (:country %) "!")
+        group-fn            #(str "[" (:region %) "]")
+        selected-country-id (reagent/atom (id-fn {:code "US"}))]
+    (fn []
+      [v-box
+       :gap      "10px"
+       :children [[p "This example is the same as the previous one except the list is shorter and the following parameters have been added to use different keywords for the data and transform the values provided:"]
+                  [p [:code ":id-fn"] " is set to " [:code "#(str (:code %) \"$\")"]]
+                  [p [:code ":label-fn"] " is set to " [:code "#(str (:country %) \"!\")"]]
+                  [p [:code ":group-fn"] " is set to " [:code "#(str \"[\" (:region %) \"]\")"]]
+                  [h-box
+                   :gap      "10px"
+                   :align    :center
+                   :children [[single-dropdown
+                               :choices     grouped-countries-2
+                               :model       selected-country-id
+                               :width       "300px"
+                               :max-height  "400px"
+                               :filter-box? true
+                               :id-fn       id-fn
+                               :label-fn    label-fn
+                               :group-fn    group-fn
+                               :on-change   #(reset! selected-country-id %)]
+                              [:div
+                               [:strong "Selected country: "]
+                               (if (nil? @selected-country-id)
+                                 "None"
+                                 (str (label-fn (item-for-id @selected-country-id grouped-countries-2 :id-fn id-fn)) " [" @selected-country-id "]"))]]]]])))
+
+
+(defn demo5
   []
   (let [selected-country-id (reagent/atom "US")]
     (fn []
@@ -190,7 +233,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo5
+(defn demo6
   []
   (let [selected-country-id (reagent/atom "US")
         disabled?           (reagent/atom false)
@@ -250,7 +293,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo6
+(defn demo7
   []
   (let [selected-country-id (reagent/atom nil)
         filtered-cities     (reagent/atom [])
@@ -274,7 +317,7 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-country-id countries )) " [" @selected-country-id "]"))]]]
+                                 (str (:label (item-for-id @selected-country-id countries)) " [" @selected-country-id "]"))]]]
                   [gap :size "10px"]
                   [h-box
                    :gap      "10px"
@@ -288,7 +331,7 @@
                                [:strong "Selected city: "]
                                (if (nil? @selected-city-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-city-id cities )) " [" @selected-city-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-city-id cities)) " [" @selected-city-id "]"))]]]]])))
 
 
 (defn panel2
@@ -341,9 +384,10 @@
                                              1 [demo1]
                                              2 [demo2]
                                              3 [demo3]
-                                             4 [demo4]
+                                             4 [demo4] ;; for testing - uncomment equivalent line in demos vector above
                                              5 [demo5]
-                                             6 [demo6])]]]]]])))
+                                             6 [demo6]
+                                             7 [demo7])]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

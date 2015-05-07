@@ -126,7 +126,7 @@
 
 (def input-time-args-desc
   [{:name :model        :required true                   :type "integer | string | atom" :validate-fn number-or-string? :description "a time in integer form. e.g. '09:30am' is 930"}
-   {:name :on-change    :required true                   :type "(integer) -> nil"        :validate-fn fn?               :description "called when user entry completes and value is new. Passed new value as integer"}
+   {:name :on-change    :required true                   :type "integer -> nil"          :validate-fn fn?               :description "called when user entry completes and value is new. Passed new value as integer"}
    {:name :minimum      :required false :default 0       :type "integer | string"        :validate-fn number-or-string? :description "user can't enter a time less than this value"}
    {:name :maximum      :required false :default 2359    :type "integer | string"        :validate-fn number-or-string? :description "user can't enter a time more than this value"}
    {:name :disabled?    :required false :default false   :type "boolean | atom"                                         :description "when true, user input is disabled"}
