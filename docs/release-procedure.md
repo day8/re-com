@@ -39,13 +39,13 @@ Note that all these commands are entered at the repo root folder.
 
 ### Make a Github release
 
-- [ ] TODO: IntelliJ should be able to do all of these steps as it has integrated gitflow. Investigate!
+- [ ] TODO: IntelliJ should be able to do all of these steps as it has integrated gitflow - investigate.
 - [ ] Make sure your master branch is up-to-date with Github (in 99% of cases it will be):
-       - `git checkout master` (TODO: might have to shelve develop or feature branch outstanding changes...confirm)
+       - `git checkout master` (TODO: might have to shelve develop or feature branch outstanding changes - confirm).
        - `git pull`
        - `git checkout {the branch you are working in}`
 - [ ] Start a new release:
-       - `git checkout develop` (TODO: may just need to be in the branch you are working in...confirm)
+       - `git checkout develop` (TODO: may just need to be in the branch you are working in - confirm).
        - `git flow release start x.x.x`
        - A branch called 'release/x.x.x' is created.
 - [ ] Bump version in project.clj to `x.x.x`.
@@ -75,7 +75,7 @@ Note that all these commands are entered at the repo root folder.
        - Select this new `x.x.x` version in the Tag version dropdown.
        - Make sure this is based on a Target of master.
        - For the title, enter the version number: `x.x.x`.
-       - Enter a description that includes a list of "Changes" and "Fixes".
+       - Enter a description that includes a list of "Changes" and "Fixes" (since the last release).
        - Click the `Publish release` button.
 
 ### Push library to Clojars
