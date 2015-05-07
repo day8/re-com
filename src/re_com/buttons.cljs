@@ -14,7 +14,7 @@
 (def button-args-desc
   [{:name :label            :required true                         :type "string | hiccup" :validate-fn string-or-hiccup? :description "label for the button"}
    {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :on-click         :required false                        :type "( ) -> nil"      :validate-fn fn?               :description "called when the button is clicked"}
+   {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :disabled?        :required false :default false         :type "boolean | atom"                                 :description "if true, the user can't click the button"}
@@ -64,7 +64,7 @@
 
 (def md-circle-icon-button-args-desc
   [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"md-add\""] " or " [:code "\"md-undo\""]] }
-   {:name :on-click         :required false                        :type "( ) -> nil"      :validate-fn fn?               :description "called when the button is clicked"}
+   {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
    {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
@@ -120,7 +120,7 @@
 
 (def md-icon-button-args-desc
   [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"md-add\""] " or " [:code "\"md-undo\""]]}
-   {:name :on-click         :required false                        :type "( ) -> nil"      :validate-fn fn?               :description "called when the button is clicked"}
+   {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
    {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
@@ -218,7 +218,7 @@
 
 (def row-button-args-desc
   [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"md-add\""] " or " [:code "\"md-undo\""]]}
-   {:name :on-click         :required false                        :type "( ) -> nil"      :validate-fn fn?               :description "called when the button is clicked"}
+   {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
    {:name :mouse-over-row?  :required false :default false         :type "boolean"                                        :description "true if the mouse is hovering over the row"}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
@@ -267,7 +267,7 @@
 
 (def hyperlink-args-desc
   [{:name :label            :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup? :description "label/hiccup for the button"}
-   {:name :on-click         :required false                        :type "( ) -> nil"             :validate-fn fn?               :description "called when the button is clicked"}
+   {:name :on-click         :required false                        :type "-> nil"                 :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
    {:name :tooltip          :required false                        :type "string | hiccup"        :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}

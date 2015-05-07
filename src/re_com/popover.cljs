@@ -107,7 +107,7 @@
 
 (def backdrop-args-desc
   [{:name :opacity  :required false :default 0.0 :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
-   {:name :on-click :required false              :type "( ) -> nil"      :validate-fn fn?               :description "function to call when the backdrop is clicked"}])
+   {:name :on-click :required false              :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}])
 
 (defn- backdrop
   "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
@@ -233,7 +233,7 @@
   [{:name :showing?       :required true                 :type "boolean atom"                                   :description "an atom. When the value is true, the popover shows."}
    {:name :title          :required false                :type "string | hiccup" :validate-fn string-or-hiccup? :description "describes the title of the popover. Default font size is 18px to make it stand out"}
    {:name :close-button?  :required false  :default true :type "boolean"                                        :description "when true, displays the close button"}
-   {:name :close-callback :required false                :type "function"        :validate-fn fn?               :description "callback taking no parameters, used when the close button is pressed. Not required if <code>:showing?</code> atom passed in OR <code>:close-button?</code> is set to false"}])
+   {:name :close-callback :required false                :type "-> nil"          :validate-fn fn?               :description [:span "a function which takes no params and returns nothing. Called when the close button is pressed. Not required if " [:code ":showing?"] " atom passed in OR " [:code ":close-button?"] " is set to false"]}])
 
 (defn- popover-title
   "Renders a title at the top of a popover with an optional close button on the far right"
@@ -262,7 +262,7 @@
    {:name :width            :required false                        :type "string"           :validate-fn string?           :description "a CSS style representing the popover width"}
    {:name :height           :required false                        :type "string"           :validate-fn string?           :description "a CSS style representing the popover height"}
    {:name :backdrop-opacity :required false  :default 0.0          :type "double | string"  :validate-fn number-or-string? :description "indicates the opacity of the backdrop where 0.0=transparent, 1.0=opaque"}
-   {:name :on-cancel        :required false                        :type "function"         :validate-fn fn?               :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
+   {:name :on-cancel        :required false                        :type "-> nil"           :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the popover is cancelled (e.g. user clicks away)"}
    {:name :title            :required false                        :type "string | hiccup"  :validate-fn string-or-hiccup? :description "describes the title of the popover. The default font size is 18px to make it stand out"}
    {:name :close-button?    :required false  :default true         :type "boolean"                                         :description "when true, displays the close button"}
    {:name :body             :required false                        :type "string | hiccup"  :validate-fn string-or-hiccup? :description "describes the popover body. Must be a single component"}
@@ -372,7 +372,7 @@
 (def popover-tooltip-args-desc
   [{:name :label         :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup?    :description "the text (or component) for the tooltip"}
    {:name :showing?      :required true  :default false         :type "boolean atom"                                             :description "an atom. When the value is true, the tooltip shows"}
-   {:name :on-cancel     :required false                        :type "function"               :validate-fn fn?                  :description "a callback taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)"}
+   {:name :on-cancel     :required false                        :type "-> nil"                 :validate-fn fn?                  :description "a function which takes no params and returns nothing. Called when the popover is cancelled (e.g. user clicks away)"}
    {:name :close-button? :required false :default false         :type "boolean"                                                  :description "when true, displays the close button"}
    {:name :status        :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background color of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
    {:name :anchor        :required true                         :type "hiccup"                 :validate-fn string-or-hiccup?    :description "the component the tooltip is attached to"}

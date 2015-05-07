@@ -24,16 +24,13 @@
 
 (defn- choices-with-group-headings
   "If necessary, inserts group headings entries into the choices"
-  [opts]
-  (let [groups         (partition-by :group opts)
+  [opts group-fn]
+  (let [groups         (partition-by group-fn opts)
         group-headers  (->> groups
                             (map first)
-                            (map :group)
-                            (map #(hash-map :id % :group % :group-header? true)))]
-    ;(if (= 1 (count groups))
-    ;  opts
-    ;  (flatten (interleave group-headers groups)))
-    (flatten (interleave group-headers groups))))
+                            (map group-fn)
+                            (map #(hash-map :id (gensym) :group %)))]
+    [group-headers groups]))
 
 
 (defn- filter-choices
@@ -85,11 +82,11 @@
     (when new-scroll-top (set! (.-scrollTop parent) new-scroll-top))))
 
 
-(defn- choice-group-heading
+(defn- make-group-heading
   "Render a group heading"
-  [group]
-  [:li.group-result
-   group])
+  [m]
+  ^{:key (:id m)} [:li.group-result
+                   (:group m)])
 
 
 (defn- choice-item
@@ -122,6 +119,13 @@
              :on-mouse-out  (handler-fn (reset! mouse-over? false))
              :on-mouse-down (handler-fn (on-click id))}
             label]))})))
+
+
+(defn make-choice-item
+  [id-fn label-fn callback internal-model opt]
+  (let [id (id-fn opt)
+        label (label-fn opt)]
+    ^{:key (str id)} [choice-item id label callback internal-model]))
 
 
 (defn- filter-text-box-base
@@ -188,7 +192,7 @@
 (def single-dropdown-args-desc
   [{:name :choices       :required true                   :type "vector of maps | atom"         :validate-fn vector-of-maps?   :description "each has an :id, a :label and, optionally, a :group (list of maps also allowed)"}
    {:name :model         :required true                   :type "an :id within :choices | atom"                                :description "the :id of the selected choice. If nil, :placeholder text is shown"}
-   {:name :on-change     :required true                   :type "(:id) -> nil"                  :validate-fn fn?               :description [:span "called when a new selection is made. Passed the " [:code ":id"] " of new selection"] }
+   {:name :on-change     :required true                   :type ":id -> nil"                    :validate-fn fn?               :description [:span "called when a new selection is made. Passed the " [:code ":id"] " of new selection"] }
    {:name :disabled?     :required false :default false   :type "boolean | atom"                                               :description "if true, no user selection is allowed"}
    {:name :filter-box?   :required false :default false   :type "boolean"                                                      :description "if true, a filter text field is placed at the top of the dropdown"}
    {:name :regex-filter? :required false :default false   :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
@@ -196,9 +200,9 @@
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
-   {:name :id-fn         :required false :default :id     :type "(map) -> anything"             :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the unique identifier for this dropdown entry"]}
-   {:name :label-fn      :required false :default :label  :type "(map) -> string | hiccup"      :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns what should be displayed in this dropdown entry"]}
-   {:name :group-fn      :required false :default :group  :type "(map) -> anything"             :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the group identifier for this dropdown entry"]}
+   {:name :id-fn         :required false :default :id     :type "map -> anything"               :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the unique identifier for this dropdown entry"]}
+   {:name :label-fn      :required false :default :label  :type "map -> string | hiccup"        :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns what should be displayed in this dropdown entry"]}
+   {:name :group-fn      :required false :default :group  :type "map -> anything"               :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the group identifier for this dropdown entry"]}
    {:name :class         :required false                  :type "string"                        :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style         :required false                  :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr          :required false                  :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
@@ -300,11 +304,14 @@
             [:ul.chosen-results
              (when max-height {:style {:max-height max-height}})
              (if (-> filtered-choices count pos?)
-               (for [opt (choices-with-group-headings filtered-choices)]
-                 (let [id    (id-fn opt)
-                       label (label-fn opt)
-                       group (group-fn opt)]
-                   (if (:group-header? opt)
-                     ^{:key (str id)} [choice-group-heading group]
-                     ^{:key (str id)} [choice-item id label callback internal-model])))
+               (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
+                     make-a-choice                 (partial make-choice-item id-fn label-fn callback internal-model)
+                     make-choices                  #(map make-a-choice %1)
+                     make-h-then-choices           (fn [h opts]
+                                                     (cons (make-group-heading h)
+                                                           (make-choices opts)))
+                     has-no-group-names?           (nil? (:group (first group-names)))]
+                 (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
+                   (make-choices (first group-opt-lists)) ;; one group means no headings
+                   (apply concat (map make-h-then-choices group-names group-opt-lists))))
                [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))

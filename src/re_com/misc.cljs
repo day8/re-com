@@ -15,7 +15,7 @@
 
 (def input-text-args-desc
   [{:name :model            :required true                   :type "string | atom"    :validate-fn string-or-atom?    :description "text of the input (can be atom or value)"}
-   {:name :on-change        :required true                   :type "(string) -> nil"  :validate-fn fn?                :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string"] }
+   {:name :on-change        :required true                   :type "string -> nil"    :validate-fn fn?                :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string"] }
    {:name :status           :required false                  :type "keyword"          :validate-fn input-status-type? :description [:span "validation status. " [:code "nil/omitted"] " for normal status or one of: " input-status-types-list]}
    {:name :status-icon?     :required false :default false   :type "boolean"                                          :description [:span "when true, display an icon to match " [:code ":status"] " (no icon for nil)"]}
    {:name :status-tooltip   :required false                  :type "string"           :validate-fn string?            :description "displayed in status icon's tooltip"}
@@ -140,12 +140,12 @@
 
 (defn input-text
   [& args]
-    (apply input-text-base :input-type :input args))
+  (apply input-text-base :input-type :input args))
 
 
 (defn input-textarea
-    [& args]
-    (apply input-text-base :input-type :textarea args))
+  [& args]
+  (apply input-text-base :input-type :textarea args))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -154,7 +154,7 @@
 
 (def checkbox-args-desc
   [{:name :model       :required true                 :type "boolean | atom"                                  :description "holds state of the checkbox when it is called"}
-   {:name :on-change   :required true                 :type "(boolean) -> nil" :validate-fn fn?               :description "called when the checkbox is clicked. Passed the new value of the checkbox"}
+   {:name :on-change   :required true                 :type "boolean -> nil"   :validate-fn fn?               :description "called when the checkbox is clicked. Passed the new value of the checkbox"}
    {:name :label       :required false                :type "string | hiccup"  :validate-fn string-or-hiccup? :description "the label shown to the right"}
    {:name :disabled?   :required false :default false :type "boolean | atom"                                  :description "if true, user interaction is disabled"}
    {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?        :description "the CSS style style map"}
@@ -202,7 +202,7 @@
 (def radio-button-args-desc
   [{:name :model       :required true                 :type "anything | atom"                                  :description [:span "selected value of the radio button group. See also " [:code ":value"]] }
    {:name :value       :required false                :type "anything"                                         :description [:span "if " [:code ":model"]  " equals " [:code ":value"] " then this radio button is selected"] }
-   {:name :on-change   :required true                 :type "(anything) -> nil" :validate-fn fn?               :description [:span "called when the radio button is clicked. Passed " [:code ":value"]]}
+   {:name :on-change   :required true                 :type "anything -> nil"   :validate-fn fn?               :description [:span "called when the radio button is clicked. Passed " [:code ":value"]]}
    {:name :label       :required false                :type "string | hiccup"   :validate-fn string-or-hiccup? :description "the label shown to the right"}
    {:name :disabled?   :required false :default false :type "boolean | atom"                                   :description "if true, the user can't click the radio button"}
    {:name :style       :required false                :type "CSS style map"     :validate-fn css-style?        :description "radio button style map"}
@@ -249,7 +249,7 @@
 
 (def slider-args-desc
   [{:name :model     :required true                   :type "double | string | atom" :validate-fn number-or-string? :description "current value of the slider"}
-   {:name :on-change :required true                   :type "(double) -> nil"        :validate-fn fn?               :description "called when the slider is moved. Passed the new value of the slider"}
+   {:name :on-change :required true                   :type "double -> nil"          :validate-fn fn?               :description "called when the slider is moved. Passed the new value of the slider"}
    {:name :min       :required false :default 0       :type "double | string | atom" :validate-fn number-or-string? :description "the minimum value of the slider"}
    {:name :max       :required false :default 100     :type "double | string | atom" :validate-fn number-or-string? :description "the maximum value of the slider"}
    {:name :step      :required false :default 1       :type "double | string | atom" :validate-fn number-or-string? :description "step value between min and max"}
