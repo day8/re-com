@@ -283,10 +283,10 @@
                   :message result}))))))
 
 (defn goog-date?
-  "Returns true if the passed argument is a valid goog.date.UtcDateTime, otherwise false/error"
+  "Returns true if the passed argument is a valid goog.date.DateTime, otherwise false/error"
   [arg]
   (let [arg (deref-or-value arg)]
-    (instance? goog.date.UtcDateTime arg)))
+    (instance? goog.date.Date arg)))
 
 (defn regex?
   "Returns true if the passed argument is a valid regular expression, otherwise false/error"
