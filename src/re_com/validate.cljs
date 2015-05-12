@@ -1,8 +1,10 @@
 (ns re-com.validate
-  (:require  [clojure.set           :refer [superset?]]
-             [re-com.util           :refer [deref-or-value]]
-             [reagent.impl.template :refer [valid-tag?]]
-             [goog.string           :as    gstring]))
+  (:require
+    [clojure.set           :refer [superset?]]
+    [re-com.util           :refer [deref-or-value]]
+    [reagent.impl.template :refer [valid-tag?]]
+    [goog.string           :as    gstring]
+    [goog.date.UtcDateTime]))
 
 
 ;; -- Helpers -----------------------------------------------------------------
@@ -286,7 +288,7 @@
   "Returns true if the passed argument is a valid goog.date.UtcDateTime, otherwise false/error"
   [arg]
   (let [arg (deref-or-value arg)]
-    (instance? goog.date.UtcDateTime arg)))
+    (instance? js/goog.date.UtcDateTime arg)))
 
 (defn regex?
   "Returns true if the passed argument is a valid regular expression, otherwise false/error"

@@ -1,5 +1,8 @@
 (ns re-com.util
-  (:require  [clojure.set :refer [superset?]]))
+  (:require
+    [clojure.set :refer [superset?]]
+    [goog.date.DateTime]
+    [goog.date.UtcDateTime]))
 
 (defn fmap
   "Takes a function 'f' amd a map 'm'.  Applies 'f' to each value in 'm' and returns.
@@ -106,3 +109,16 @@
              (+ sum-scroll-top  (.-scrollTop  current-node)))
       {:left sum-scroll-left
        :top  sum-scroll-top})))
+
+;; ----------------------------------------------------------------------------
+;; date functions
+;; ----------------------------------------------------------------------------
+(defn now->utc
+  "Answer a goog.date.UtcDateTime based on local date/time."
+  []
+  (let [local-date (js/goog.date.DateTime.)]
+    (js/goog.date.UtcDateTime.
+      (.getYear local-date)
+      (.getMonth local-date)
+      (.getDate local-date)
+      0 0 0 0)))

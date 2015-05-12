@@ -2,18 +2,17 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
     [reagent.core         :as    reagent]
-    [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
+    [cljs-time.core       :refer [minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
     [re-com.validate      :refer [goog-date? css-style? html-attr?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box flex-child-style]]
-    [re-com.util          :refer [deref-or-value]]
-    [re-com.popover       :refer [popover-content-wrapper popover-anchor-wrapper backdrop popover-border]]))
+    [re-com.util          :refer [deref-or-value now->utc]]
+    [re-com.popover       :refer [popover-anchor-wrapper backdrop popover-border]]))
 
 ;; Loosely based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
 
 ;; --- cljs-time facades ------------------------------------------------------
-;; TODO: from day8date should be a common lib
 
 (def ^:const month-format (formatter "MMMM yyyy"))
 
@@ -41,7 +40,7 @@
   ;; Note:  If period and pred do not represent same granularity, some steps may be skipped
   ;         e.g Pass a Wed date, specify sunday? as pred and a period (days 2) will skip one Sunday.
   ([pred]
-   (previous pred (now)))
+   (previous pred (now->utc)))
   ([pred date]
    (previous pred date (days 1)))
   ([pred date period]
@@ -50,7 +49,6 @@
    (recur pred (minus date period) period))))
 
 (defn- =date [date1 date2]
-  ;; TODO: investigate why cljs-time/= and goog.date .equals etc don't work
   (and
     (= (year date1)  (year date2))
     (= (month date1) (month date2))
@@ -198,7 +196,7 @@
                           (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}))
                           set)]
     (merge attributes {:enabled-days enabled-days
-                       :today (now)})))
+                       :today (now->utc)})))
 
 (def datepicker-args-desc
   [{:name :model        :required true                        :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. Should match :enabled-days"}
