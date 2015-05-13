@@ -40,33 +40,39 @@ Note that all these commands are entered at the repo root folder.
 ### Make a Github release
 
 - [ ] TODO: IntelliJ should be able to do all of these steps as it has integrated gitflow - investigate.
+- [ ] Finish any feature branch you're working on. You should now be in the develop branch.
+- [ ] If you haven't commited/pushed develop, do so now.
 - [ ] Make sure your master branch is up-to-date with Github (in 99% of cases it will be):
-       - `git checkout master` (TODO: might have to shelve develop or feature branch outstanding changes - confirm).
+       - `git checkout master`
        - `git pull`
-       - `git checkout {the branch you are working in}`
+       - `git checkout develop`
 - [ ] Start a new release:
-       - `git checkout develop` (TODO: may just need to be in the branch you are working in - confirm).
        - `git flow release start x.x.x`
        - A branch called 'release/x.x.x' is created.
+       - This branch is checked out.
 - [ ] Bump version in project.clj to `x.x.x`.
 - [ ] Update README.md file if required.
-- [ ] Commit to develop or finish feature:
-       - `git commit -a -m "..."` 
-- [ ] Push develop to GitHub:
-       - `git push`
+
+---------------------------------------------------------------------------
+*** TODO: LINES TAGGED FOR REMOVAL - NOT REQUIRED - TO BE TESTED ***
+- [ ] Commit this branch:
+       - `git commit -a -m "Bumped version to x.x.x  etc."` 
+- [ ] Push this branch GitHub:
+       - `git push` ==> `git push --set-upstream origin release/0.5.4`
+---------------------------------------------------------------------------
+
 - [ ] Finish the release:
        - `git flow release finish 'x.x.x'`
-       - Merges develop into master.
-       - Creates a tag with that version number.
        - Pops up an editor to describe the release. I just put "Version x.x.x".
+       - Merges release/x.x.x into master, then back merges into develop.
+       - Creates a tag with that version number.
        - Deletes the release branch.
+       - Now you're back on the develop branch.
 - [ ] Push develop to GitHub:
        - `git push`
-- [ ] Go to master branch:
+- [ ] Go to master and push that (and the tags):
        - `git checkout master`
-- [ ] Push master to GitHub:
        - `git push`
-- [ ] Push the tags to GitHub:
        - `git push --tags`
 - [ ] Create a GitHub Release:
        - Go to: https://github.com/Day8/re-com/releases

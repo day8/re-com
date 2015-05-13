@@ -38,9 +38,9 @@
   :license          {:name "MIT"}
 
   :dependencies     [[org.clojure/clojure         "1.6.0"]
-                     [org.clojure/clojurescript   "0.0-3169"]
+                     [org.clojure/clojurescript   "0.0-3211"]
                      [reagent                     "0.5.0"]
-                     [com.andrewmcveigh/cljs-time "0.3.2"]
+                     [com.andrewmcveigh/cljs-time "0.3.4"]
                      [secretary                   "1.2.3"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
@@ -58,10 +58,10 @@
 
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
                                                [alandipert/storage-atom         "1.2.4" ]
-                                               [figwheel                        "0.2.3-SNAPSHOT"]
+                                               [figwheel                        "0.2.6"]
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]]
-                                :plugins      [[lein-cljsbuild                  "1.0.4"]
-                                               [lein-figwheel                   "0.2.3-SNAPSHOT"]
+                                :plugins      [[lein-cljsbuild                  "1.0.5"]
+                                               [lein-figwheel                   "0.2.6"]
                                                [lein-shell                      "0.4.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
