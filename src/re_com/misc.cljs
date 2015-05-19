@@ -25,6 +25,7 @@
    {:name :rows             :required false :default 3       :type "integer | string" :validate-fn number-or-string?  :description "ONLY applies to 'input-textarea': the number of rows of text to show"}
    {:name :change-on-blur?  :required false :default true    :type "boolean | atom"                                   :description [:span "when true, invoke " [:code ":on-change"] " function on blur, otherwise on every change (character by character)"] }
    {:name :validation-regex :required false                  :type "regex"            :validate-fn regex?             :description "user input is only accepted if it would result in a string that matches this regular expression"}
+   {:name :validation-fn    :required false                  :type "regex"            :validate-fn fn?                :description "user input is only accepted if this function returns true"}
    {:name :disabled?        :required false :default false   :type "boolean | atom"                                   :description "if true, the user can't interact (input anything)"}
    {:name :class            :required false                  :type "string"           :validate-fn string?            :description "CSS class names, space separated"}
    {:name :style            :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override"}
@@ -45,7 +46,7 @@
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)
     (fn
-      [& {:keys [model status status-icon? status-tooltip placeholder width height rows on-change change-on-blur? validation-regex disabled? class style attr]
+      [& {:keys [model status status-icon? status-tooltip placeholder width height rows on-change change-on-blur? validation-regex validation-fn disabled? class style attr]
           :or   {change-on-blur? true}
           :as   args}]
       {:pre [(validate-args-macro input-text-args-desc args "input-text")]}
@@ -86,7 +87,8 @@
                                           (when (and
                                                   on-change
                                                   (not disabled?)
-                                                  (if validation-regex (re-find validation-regex new-val) true))
+                                                  (if validation-regex (re-find validation-regex new-val) true)
+                                                  (if validation-fn (validation-fn new-val) true))
                                             (reset! internal-model new-val)
                                             (when-not change-on-blur?
                                               (on-change @internal-model)))))
