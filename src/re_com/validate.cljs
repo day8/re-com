@@ -263,6 +263,23 @@
                  {:status  :warning
                   :message (str "Unknown CSS style(s): " (remove css-styles arg-keys))}))))))
 
+(defn extension-attribute?
+  "Returns true if the attribute name is an extension attribute, that is data-* or aria-*, otherwise false."
+  ([attr prefix]
+   (let [attr (name attr)]
+     (and (= (.indexOf attr prefix) 0)
+          (> (count attr) (count prefix)))))
+  ([attr]
+   (or (extension-attribute? attr "data-")
+       (extension-attribute? attr "aria-"))))
+
+(defn invalid-html-attrs
+  "Returns the subset of HTML attributes contained in the passed argument that are not valid HTML attributes."
+  [attrs]
+  (remove #(or (html-attrs %)
+               (extension-attribute? %))
+          attrs))
+
 (defn html-attr?
   "Returns true if the passed argument is a valid HTML, SVG or event attribute.
    Otherwise returns a warning map.
@@ -277,9 +294,10 @@
                  contains-class? (contains? arg-keys :class)
                  contains-style? (contains? arg-keys :style)
                  result   (cond
-                            contains-class?                       ":class not allowed in :attr argument"
-                            contains-style?                       ":style not allowed in :attr argument"
-                            (not (superset? html-attrs arg-keys)) (str "Unknown HTML attribute(s): " (remove html-attrs arg-keys)))]
+                            contains-class? ":class not allowed in :attr argument"
+                            contains-style? ":style not allowed in :attr argument"
+                            :else           (when-let [invalid (not-empty (invalid-html-attrs arg-keys))]
+                                              (str "Unknown HTML attribute(s): " invalid)))]
              (or (nil? result)
                  {:status  (if (or contains-class? contains-style?) :error :warning)
                   :message result}))))))
