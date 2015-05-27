@@ -190,9 +190,12 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def single-dropdown-args-desc
-  [{:name :choices       :required true                   :type "vector of maps | atom"         :validate-fn vector-of-maps?   :description "each has an :id, a :label and, optionally, a :group (list of maps also allowed)"}
-   {:name :model         :required true                   :type "an :id within :choices | atom"                                :description "the :id of the selected choice. If nil, :placeholder text is shown"}
-   {:name :on-change     :required true                   :type ":id -> nil"                    :validate-fn fn?               :description [:span "called when a new selection is made. Passed the " [:code ":id"] " of new selection"] }
+  [{:name :choices       :required true                   :type "vector of choices | atom"      :validate-fn vector?           :description [:span "Each is expected to have an id, label and, optionally, a group, privided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]]}
+   {:name :id-fn         :required false :default :id     :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
+   {:name :label-fn      :required false :default :label  :type "choice -> string | hiccup"     :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its displayable label"]}
+   {:name :group-fn      :required false :default :group  :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its group identifier"]}
+   {:name :model         :required true                   :type "the id of a choice | atom"                                    :description [:span "the id of the selected choice. If nil, " [:code ":placeholder"] " text is shown"]}
+   {:name :on-change     :required true                   :type "id -> nil"                     :validate-fn fn?               :description [:span "called when a new choice is selected. Passed the id of new choice"] }
    {:name :disabled?     :required false :default false   :type "boolean | atom"                                               :description "if true, no user selection is allowed"}
    {:name :filter-box?   :required false :default false   :type "boolean"                                                      :description "if true, a filter text field is placed at the top of the dropdown"}
    {:name :regex-filter? :required false :default false   :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
@@ -200,9 +203,6 @@
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
-   {:name :id-fn         :required false :default :id     :type "map -> anything"               :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the unique identifier for this dropdown entry"]}
-   {:name :label-fn      :required false :default :label  :type "map -> string | hiccup"        :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns what should be displayed in this dropdown entry"]}
-   {:name :group-fn      :required false :default :group  :type "map -> anything"               :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the group identifier for this dropdown entry"]}
    {:name :class         :required false                  :type "string"                        :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style         :required false                  :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr          :required false                  :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
