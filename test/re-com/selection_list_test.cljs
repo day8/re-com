@@ -7,8 +7,8 @@
 
 
 ;; TODO remove this EXPERIMENTAL requires Canary
-;;(devtools/install!)
-;;(.log js/console (range 200))
+(devtools/install!)
+(.log js/console (range 200))
 
 
 (defn div-app []
