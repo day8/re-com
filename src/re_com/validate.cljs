@@ -192,6 +192,10 @@
                   :on-mouse-leave :on-mouse-move :on-mouse-out :on-mouse-over :on-mouse-up :on-paste :on-scroll :on-submit :on-touch-cancel
                   :on-touch-end :on-touch-move :on-touch-start :on-wheel})
 
+;; Reference: http://facebook.github.io/react/docs/tags-and-attributes.html#supported-attributes
+
+(def extension-attrs #{:data :aria})
+
 ;; Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference
 
 (def css-styles #{; ----- Standard CSS styles
@@ -264,14 +268,12 @@
                   :message (str "Unknown CSS style(s): " (remove css-styles arg-keys))}))))))
 
 (defn extension-attribute?
-  "Returns true if the attribute name is an extension attribute, that is data-* or aria-*, otherwise false."
-  ([attr prefix]
-   (let [attr (name attr)]
-     (and (= (.indexOf attr prefix) 0)
-          (> (count attr) (count prefix)))))
+  "Returns truthy if the attribute name is an extension attribute, that is data-* or aria-*, otherwise falsey."
   ([attr]
-   (or (extension-attribute? attr "data-")
-       (extension-attribute? attr "aria-"))))
+   (let [attr (name attr)
+         ext? #(and (= (.indexOf attr %) 0)
+                       (> (count attr) (count %)))]
+     (some (comp ext? #(str % "-") name) extension-attrs))))
 
 (defn invalid-html-attrs
   "Returns the subset of HTML attributes contained in the passed argument that are not valid HTML attributes."
