@@ -65,8 +65,7 @@
         var outputDiv = document.getElementById("output-goes-here")
 
         function testPrintLn(line) {
-            line = line.replace(/\n/g, "");
-            if (line == "")
+            if (line == "\n")
                 return;
             line = line.replace(/</g, "&lt;");
             line = line.replace(/>/g, "&gt;");

@@ -41,6 +41,9 @@
                      [org.clojure/clojurescript   "0.0-3211"]
                      [reagent                     "0.5.0"]
                      [com.andrewmcveigh/cljs-time "0.3.4"]
+                     ;; TODO remove this
+                     [binaryage/devtools "0.2.2"]
+
                      [secretary                   "1.2.3"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
