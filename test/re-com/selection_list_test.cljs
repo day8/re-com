@@ -1,14 +1,9 @@
 (ns re-com-test.selection-list-test
   (:require-macros [cemerick.cljs.test :refer (is are deftest with-test run-tests testing test-var)])
   (:require [cemerick.cljs.test]
-            [devtools.core            :as    devtools]  ;; TODO remove this
             [reagent.core :as reagent]
             [re-com.selection-list :as s-list]))
 
-
-;; TODO remove this EXPERIMENTAL requires Canary
-(devtools/install!)
-(.log js/console (range 200))
 
 
 (defn div-app []
