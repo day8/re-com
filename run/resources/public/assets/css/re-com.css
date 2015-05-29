@@ -12,6 +12,11 @@
   height of the browser window and setting some global defaults like font...
 ----------------------------------------------------------------------------------------*/
 
+* {
+	min-height:     0px;
+   	min-width:      0px;
+}
+
 html, body {
     font-family:    Segoe UI, Roboto, sans-serif;
     font-size:      14px;
