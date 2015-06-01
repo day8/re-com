@@ -1,62 +1,73 @@
 (ns re-com.selection-list
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.text     :refer [label]]
-            [re-com.misc     :refer [checkbox radio-button]]
-            [re-com.box      :refer [box border h-box v-box]]
-            [re-com.validate :refer [vector-of-maps? string-or-atom? set-or-atom?] :refer-macros [validate-args-macro]]
-            [re-com.util     :refer [fmap deref-or-value]]))
+  (:require
+    [re-com.text     :refer [label]]
+    [re-com.misc     :refer [checkbox radio-button]]
+    [re-com.box      :refer [box border h-box v-box]]
+    [re-com.validate :refer [vector-of-maps? string-or-atom? set-or-atom?] :refer-macros [validate-args-macro]]
+    [re-com.util     :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
-(defn label-style [selected? as-exclusions?]
-  ;;TODO: margin-top required because currently checkbox & radio-button don't center label
-  (let [base-style {:margin-top "1px"}]
-    (if (and selected? as-exclusions?)
-      (merge base-style {:text-decoration "line-through"})
-      base-style)))
+(defn label-style
+  ([selected? as-exclusions?]
+    (label-style selected? as-exclusions? nil))
+
+  ([selected? as-exclusions? selected-color]
+    ;;TODO: margin-top required because currently checkbox & radio-button don't center label
+    (let [base-style {:margin-top "1px"}
+          base-style (if (and selected? as-exclusions?)
+                       (merge base-style {:text-decoration "line-through"})
+                       base-style)
+          base-style (if (and selected? selected-color)
+                       (merge base-style {:color selected-color})
+                       base-style)]
+          base-style)))
 
 
 (defn- check-clicked
-  [selections item ticked? required?]
+  [selections item-id ticked? required?]
   (let [num-selected (count selections)
         only-item    (when (= 1 num-selected) (first selections))]
-    (if (and required? (= only-item item))
+    (if (and required? (= only-item item-id))
       selections  ;; prevent unselect of last item
-      (if ticked? (conj selections item) (disj selections item)))))
+      (if ticked? (conj selections item-id) (disj selections item-id)))))
 
 (defn- as-checked
-  [item selections on-change disabled? label-fn required? as-exclusions?]
+  [item id-fn selections on-change disabled? label-fn required? as-exclusions?]
   ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
-  [box
-   :class "list-group-item compact"
-   :attr  {:on-click    (handler-fn (when-not disabled?
-                                      (on-change (check-clicked selections item (not (selections item)) required?))))}
-   :child [checkbox
-           :model       (selections item)
-           :on-change   #() ;; handled by enclosing box
-           :disabled?   disabled?
-           :label-style (label-style (selections item) as-exclusions?)
-           :label       (label-fn item)]])
+  (let [item-id (id-fn item)]
+    [box
+     :class "list-group-item compact"
+     :attr {:on-click (handler-fn (when-not disabled?
+                                    (on-change (check-clicked selections item-id (not (selections item-id)) required?))))}
+     :child [checkbox
+             :model (selections item-id)
+             :on-change #()                                 ;; handled by enclosing box
+             :disabled? disabled?
+             :label-style (label-style (selections item-id) as-exclusions?)
+             :label (label-fn item)]]))
 
 
 (defn- radio-clicked
-  [selections item required?]
-  (if (and required? (selections item))
+  [selections item-id required?]
+  (if (and required? (selections item-id))
     selections  ;; prevent unselect of radio
-    (if (selections item) #{} #{item})))
+    (if (selections item-id) #{} #{item-id})))
 
 (defn- as-radio
-  [item selections on-change disabled? label-fn required? as-exclusions?]
-  [box
-   :class "list-group-item compact"
-   :attr  {:on-click    (handler-fn (when-not disabled?
-                                      (on-change (radio-clicked selections item required?))))}
-   :child [radio-button
-           :model       (first selections)
-           :value       item
-           :on-change   #() ;; handled by enclosing box
-           :disabled?   disabled?
-           :label-style (label-style (selections item) as-exclusions?)
-           :label       (label-fn item)]])
+  [item id-fn selections on-change disabled? label-fn required? as-exclusions?]
+  (let [item-id (id-fn item)]
+    [box
+     :class "list-group-item compact"
+     :attr {:on-click (handler-fn (when-not disabled?
+                                    (on-change (radio-clicked selections item-id required?))))}
+     :child [radio-button
+             :model (first selections)
+             :value item-id
+             :on-change #()                                 ;; handled by enclosing box
+             :disabled? disabled?
+             :label-style (label-style (selections item-id) as-exclusions?)
+             :label (label-fn item)]]))
 
 
 (def ^:const list-style
@@ -84,7 +95,8 @@
 (def selection-list-args-desc
   [{:name :choices        :required true                 :type "vector of maps | atom"              :validate-fn vector-of-maps? :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below (list of maps also allowed)"]}
    {:name :model          :required true                 :type "set of :ids within :choices | atom" :validate-fn set-or-atom?    :description "the currently selected items. Note: items are considered distinct"}
-   {:name :on-change      :required true                 :type "set of :ids -> nil | atom"          :validate-fn fn?             :description "a callback which will be passed set of selected items"}
+   {:name :on-change      :required true                 :type "set of :ids -> nil | atom"          :validate-fn fn?             :description "a callback which will be passed set of the ids of the selected items"}
+   {:name :id-fn          :required false :default :id   :type "choice -> anything"                 :validate-fn ifn?            :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
    {:name :multi-select?  :required false :default true  :type "boolean | atom"                                                  :description "when true, use check boxes, otherwise radio buttons"}
    {:name :as-exclusions? :required false :default false :type "boolean | atom"                                                  :description "when true, selected items are shown with struck-out labels"}
    {:name :required?      :required false :default false :type "boolean | atom"                                                  :description "when true, at least one item must be selected. Note: being able to un-select a radio button is not a common use case, so this should probably be set to true when in single select mode"}
@@ -98,15 +110,15 @@
 
 ;;TODO hide hover highlights for links when disabled
 (defn- list-container
-  [{:keys [choices model on-change multi-select? disabled? hide-border? label-fn required? as-exclusions? item-renderer]
+  [{:keys [choices model on-change id-fn multi-select? disabled? hide-border? label-fn required? as-exclusions? item-renderer]
     :as   args}]
   {:pre [(validate-args-macro selection-list-args-desc args "selection-list")]}
   (let [selected (if multi-select? model (-> model first vector set))
         items    (map (if item-renderer
-                        #(item-renderer % selected on-change disabled? label-fn required? as-exclusions?)
+                        #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
                         (if multi-select?
-                          #(as-checked % selected on-change disabled? label-fn required? as-exclusions?)
-                          #(as-radio % selected on-change disabled? label-fn required? as-exclusions?)))
+                          #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions?)
+                          #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions?)))
                       choices)
         bounds   (select-keys args [:width :height :max-height])
         spacing  (if hide-border? spacing-unbordered spacing-bordered)]
@@ -127,6 +139,7 @@
           :required?      false
           :disabled?      false
           :hide-border?   false
+          :id-fn          :id
           :label-fn       str}
          (fmap deref-or-value attributes)))
 
