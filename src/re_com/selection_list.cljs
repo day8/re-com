@@ -1,18 +1,27 @@
 (ns re-com.selection-list
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.text     :refer [label]]
-            [re-com.misc     :refer [checkbox radio-button]]
-            [re-com.box      :refer [box border h-box v-box]]
-            [re-com.validate :refer [vector-of-maps? string-or-atom? set-or-atom?] :refer-macros [validate-args-macro]]
-            [re-com.util     :refer [fmap deref-or-value]]))
+  (:require
+    [re-com.text     :refer [label]]
+    [re-com.misc     :refer [checkbox radio-button]]
+    [re-com.box      :refer [box border h-box v-box]]
+    [re-com.validate :refer [vector-of-maps? string-or-atom? set-or-atom?] :refer-macros [validate-args-macro]]
+    [re-com.util     :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
-(defn label-style [selected? as-exclusions?]
-  ;;TODO: margin-top required because currently checkbox & radio-button don't center label
-  (let [base-style {:margin-top "1px"}]
-    (if (and selected? as-exclusions?)
-      (merge base-style {:text-decoration "line-through"})
-      base-style)))
+(defn label-style
+  ([selected? as-exclusions?]
+    (label-style selected? as-exclusions? nil))
+
+  ([selected? as-exclusions? selected-color]
+    ;;TODO: margin-top required because currently checkbox & radio-button don't center label
+    (let [base-style {:margin-top "1px"}
+          base-style (if (and selected? as-exclusions?)
+                       (merge base-style {:text-decoration "line-through"})
+                       base-style)
+          base-style (if (and selected? selected-color)
+                       (merge base-style {:color selected-color})
+                       base-style)]
+          base-style)))
 
 
 (defn- check-clicked
@@ -106,7 +115,7 @@
   {:pre [(validate-args-macro selection-list-args-desc args "selection-list")]}
   (let [selected (if multi-select? model (-> model first vector set))
         items    (map (if item-renderer
-                        #(item-renderer % selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
+                        #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
                         (if multi-select?
                           #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions?)
                           #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions?)))
