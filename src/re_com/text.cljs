@@ -1,6 +1,7 @@
 (ns re-com.text
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.box      :refer [v-box box line flex-child-style]]
+            [re-com.util     :refer [deep-merge]]
             [re-com.validate :refer [title-levels-list title-level-type? css-style?
                                      html-attr? string-or-hiccup?] :refer-macros [validate-args-macro]]))
 
@@ -75,17 +76,28 @@
 
 (defn p
   "acts like [:p ]
-   Designed for paragraphs of body text.
-   First child can be a map of styles / attributes
-   Sets appropriate font-size and line length."
+
+   Creates a paragraph of body text, expected to have a font-szie of 14px or 15px,
+   which should have limited width.
+
+   Why limited text width?  See http://baymard.com/blog/line-length-readability
+
+   The actualy font-size is inherited.
+
+   At 14px, 450px will yield between 69 and 73 chars.
+   At 15px, 450px will yield about 66 to 70 chars.
+   So we're at the upper end of the prefered 50 to 75 char range.
+
+   If the first child is a map, it is interpreted as a map of styles / attributes."
   [& children]
-  (let [f            (first children)    ;; it might be a map
-        [m children] (if (map? f)
-                       [f   (rest children)]
-                       [nil children])
-        m             (merge {:style {:flex      "none"
-                                      :width     "450px"
-                                      :min-width "450px"
-                                      :font-size "15px"}}
-                             m)]
-    [:span m (into [:p] children)]))    ;; having the wrapping span allow children to contain [:ul] etc
+  (let [child1       (first children)    ;; it might be a map of attributes, including styles
+        [m children] (if (map? child1)
+                       [child1  (rest children)]
+                       [{}      children])
+        m             (deep-merge {:style {:flex      "none"
+                                           :width     "450px"
+                                           :min-width "450px"}}
+                                  m)]
+    [:span m (into [:p] children)]))    ;; the wrapping span allows children to contain [:ul] etc
+
+
