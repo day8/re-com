@@ -40,7 +40,7 @@
   :dependencies     [[org.clojure/clojure         "1.6.0"]
                      [org.clojure/clojurescript   "0.0-3169"]
                      [reagent                     "0.5.0"]
-                     [com.andrewmcveigh/cljs-time "0.3.2"]
+                     [com.andrewmcveigh/cljs-time "0.3.10"]
                      [secretary                   "1.2.3"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
