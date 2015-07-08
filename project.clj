@@ -1,34 +1,26 @@
 (require 'leiningen.core.eval)
 
-(def fig-port   3449)
-(def os         (leiningen.core.eval/get-os))
-(def server-url (str "http://localhost:" fig-port "/index_dev.html"))
-(def file-url   "run/resources/public/index_dev.html")
-(def prod-url   "run/resources/public/index_prod.html")
-(def test-url   "run/test/test.html")
+(def fig-port 3449)
 
-(def command-lookups
-  "Per os native commands"
-  {"launch-server-url" {:windows ["shell" "cmd" "/c" "start" server-url]
-                        :macosx  ["shell" "open"             server-url]
-                        :linux   ["shell" "xdg-open"         server-url]}
+(defn build-command-map
+      "Return a map containing a different build command for each supported os"
+      [base-cmd]
+      (let [cmd {:windows ["shell" "cmd" "/c" "start"]
+                 :macosx  ["shell" "open"]
+                 :linux   ["shell" "xdg-open"]}]
+           {:windows (conj (:windows cmd) base-cmd)
+            :macosx  (conj (:macosx  cmd) base-cmd)
+            :linux   (conj (:linux   cmd) base-cmd)}))
 
-   "launch-file-url"   {:windows ["shell" "cmd" "/c" "start" file-url]
-                        :macosx  ["shell" "open"             file-url]
-                        :linux   ["shell" "xdg-open"         file-url]}
-
-   "launch-prod-url"   {:windows ["shell" "cmd" "/c" "start" prod-url]
-                        :macosx  ["shell" "open"             prod-url]
-                        :linux   ["shell" "xdg-open"         prod-url]}
-
-   "launch-test-url"   {:windows ["shell" "cmd" "/c" "start" test-url]
-                        :linux   ["shell" "xdg-open"         test-url]
-                        :macosx  ["shell" "open"             test-url]}})
+(def command-lookups {:launch-server-url (build-command-map (str "http://localhost:" fig-port "/index_dev.html"))
+                      :launch-file-url   (build-command-map "run/resources/public/index_dev.html")
+                      :launch-prod-url   (build-command-map "run/resources/public/index_prod.html")
+                      :launch-test-url   (build-command-map "run/test/test.html")})
 
 (defn get-command-for-os
       "Return the os-dependent command"
       [cmd]
-      (get-in command-lookups [cmd os]))
+      (get-in command-lookups [cmd (leiningen.core.eval/get-os)]))
 
 ;; ---------------------------------------------------------------------------------------
 
@@ -37,10 +29,10 @@
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
 
-  :dependencies     [[org.clojure/clojure         "1.6.0"]
+  :dependencies     [[org.clojure/clojure         "1.7.0-beta2"]
                      [org.clojure/clojurescript   "0.0-3211"]
                      [reagent                     "0.5.0"]
-                     [com.andrewmcveigh/cljs-time "0.3.4"]
+                     [com.andrewmcveigh/cljs-time "0.3.5"]
                      [secretary                   "1.2.3"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
@@ -60,7 +52,7 @@
                                                [alandipert/storage-atom         "1.2.4" ]
                                                [figwheel                        "0.2.6"]
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]]
-                                :plugins      [[lein-cljsbuild                  "1.0.5"]
+                                :plugins      [[lein-cljsbuild                  "1.0.6"]
                                                [lein-figwheel                   "0.2.6"]
                                                [lein-shell                      "0.4.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
@@ -123,11 +115,11 @@
                      "run"        ["with-profile" "+dev-run" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "demo"]
-                                   ~(get-command-for-os "launch-file-url")]
+                                   ~(get-command-for-os :launch-file-url)]
 
                      "debug"      ["with-profile" "+dev-run" "do"
                                    ["clean"]
-                                   ~(get-command-for-os "launch-server-url")   ;; NOTE: run will initially fail, refresh browser once build complete
+                                   ~(get-command-for-os :launch-server-url)   ;; NOTE: run will initially fail, refresh browser once build complete
                                    ["figwheel" "demo"]]
 
                      ;; *** PROD ***
@@ -135,7 +127,7 @@
                      "run-prod"   ["with-profile" "+prod-run" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "prod"]
-                                   ~(get-command-for-os "launch-prod-url")]
+                                   ~(get-command-for-os :launch-prod-url)]
 
                      "debug-prod" ["with-profile" "+prod-run" "do"
                                    ["run-prod"]
@@ -151,7 +143,7 @@
                      "run-test"   ["with-profile" "+dev-test" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "test"]
-                                   ~(get-command-for-os "launch-test-url")]
+                                   ~(get-command-for-os :launch-test-url)]
 
                      "debug-test" ["with-profile" "+dev-test" "do"
                                    ["run-test"]

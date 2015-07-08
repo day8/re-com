@@ -241,7 +241,7 @@
                                                                      :align :center
                                                                      :children [[h-box
                                                                                  :align    :start
-                                                                                 :children [[:code ":no-clip?"]
+                                                                                 :children [[:code ":position"]
                                                                                             "*"]]
                                                                                 [single-dropdown
                                                                                  :choices    positions

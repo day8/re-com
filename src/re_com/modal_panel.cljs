@@ -40,7 +40,7 @@
                   :background-color backdrop-color
                   :opacity          backdrop-opacity
                   :z-index          1020
-                  :pointer-events   "none"}           ;; TODO: trying to prevent change of focus under the bwhen clicking on backdrop (also with the on-click below). Remove!
+                  :pointer-events   "none"}           ;; TODO: trying to prevent change of focus under the when clicking on backdrop (also with the on-click below). Remove!
        :on-click #(do (println "stopping propagation") (.preventDefault %) (.stopPropagation %))
        }]
      [:div
