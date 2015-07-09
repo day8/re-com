@@ -212,7 +212,8 @@
    {:name :hide-border? :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
    {:name :class        :required false                       :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
    {:name :style        :required false                       :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr         :required false                       :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :attr         :required false                       :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+   {:name :empty-default? :required false                       :type "boolean"                                                :description "Empty default value on input"}])
 
 (defn datepicker
   [& {:keys [model] :as args}]
@@ -239,15 +240,18 @@
 
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
-  [shown? model format]
+  [shown? model format empty-default?]
   [:div {:class    "input-group display-flex noselect"
          :style    (flex-child-style "none")
          :on-click (handler-fn (swap! shown? not))}
    [h-box
     :align :center
     :class "noselect"
-    :children [[:label {:class "form-control dropdown-button"}
-                (unparse (if (seq format) (formatter format) date-format) @model)]
+    :children [[:label {:class "form-control dropdown-button" :style {:min-width "95px"}}
+                (if (true? @empty-default?)
+                 (str "")
+                 (unparse (if (seq format) (formatter format) date-format) @model)
+                )]
                #_[:span  {:class "dropdown-button activator input-group-addon"} ;; TODO: Remove
                 [:i {:class "glyphicon glyphicon-th"}]]
                [:span.dropdown-button.activator.input-group-addon
@@ -263,11 +267,13 @@
   {:pre [(validate-args-macro datepicker-dropdown-args-desc args "datepicker-dropdown")]}
   (let [shown?         (reagent/atom false)
         cancel-popover #(reset! shown? false)
-        position       :below-center]
+        position       :below-center
+        empty-default? (reagent/atom (:empty-default? args))]
     (fn
       [& {:keys [model show-weeks? on-change format] :as passthrough-args}]
       (let [collapse-on-select (fn [new-model]
                                  (reset! shown? false)
+                                 (reset! empty-default? false)
                                  (when on-change (on-change new-model))) ;; wrap callback to collapse popover
             passthrough-args   (dissoc passthrough-args :format)         ;; :format is only valid at this API level
             passthrough-args   (->> (assoc passthrough-args :on-change collapse-on-select)
@@ -277,7 +283,7 @@
         [popover-anchor-wrapper
          :showing? shown?
          :position position
-         :anchor   [anchor-button shown? model format]
+         :anchor   [anchor-button shown? model format empty-default?]
          :popover  [:div {:style (flex-child-style "inherit")}
                     (when shown? [backdrop :on-click cancel-popover])
                     [popover-border
