@@ -1,6 +1,7 @@
 (ns re-demo.datepicker
   (:require [reagent.core      :as    reagent]
-            [cljs-time.core    :refer [now days minus]]
+            [reagent.ratom     :refer-macros [reaction]]
+            [cljs-time.core    :refer [now days minus day-of-week]]
             [cljs-time.format  :refer [formatter unparse]]
             [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p]]
             [re-com.datepicker :refer [iso8601->date datepicker-args-desc]]
@@ -60,12 +61,8 @@
                               [day-check :Fr]
                               [day-check :Sa]
                               [gap :size "5px"]
-                              [box :align :start :child [:code ":enabled-days"]]
-                              [gap :size "15px"]
-                              [:label
-                               {:class "day-enabled" :style {:color "orange"}}
-                               "(warning: excluding selected day causes assertion error)"]]]
-                  [gap :size "20px"]
+                              [box :align :start :child [:code ":selectable-fn"]]]]
+                  [:span [:code "e.g. (fn [date] (#{1 2 3 4 5 6 7} (day-of-week date)))"]]
                   content]])))
 
 
@@ -73,15 +70,19 @@
   [date]
   (unparse (formatter "dd MMM, yyyy") date))
 
+
+
 (defn- show-variant
   [variation]
-  (let [model1       (reagent/atom (minus (now) (days 3)))
-        model2       (reagent/atom (iso8601->date "20140914"))
-        disabled?    (reagent/atom false)
-        show-today?  (reagent/atom true)
-        show-weeks?  (reagent/atom false)
-        enabled-days (reagent/atom (-> days-map keys set))
-        label-style  {:font-style "italic" :font-size "smaller" :color "#777"}]
+  (let [model1          (reagent/atom (minus (now) (days 3)))
+        model2          (reagent/atom (iso8601->date "20140914"))
+        disabled?       (reagent/atom false)
+        show-today?     (reagent/atom true)
+        show-weeks?     (reagent/atom false)
+        enabled-days    (reagent/atom (-> days-map keys set))
+        as-days         (reaction (-> (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}) @enabled-days) set))
+        selectable-pred (fn [date] (@as-days (day-of-week date))) ; Simply allow selection based on day of week.
+        label-style     {:font-style "italic" :font-size "smaller" :color "#777"}]
     (case variation
       :inline [(fn
                  []
@@ -94,12 +95,12 @@
                                   :gap      "5px"
                                   :children [[label :style label-style :label ":minimum or :maximum not specified"]
                                              [datepicker
-                                              :model        model1
-                                              :disabled?    disabled?
-                                              :show-today?  @show-today?
-                                              :show-weeks?  @show-weeks?
-                                              :enabled-days @enabled-days
-                                              :on-change    #(reset! model1 %)]
+                                              :model         model1
+                                              :disabled?     disabled?
+                                              :show-today?   @show-today?
+                                              :show-weeks?   @show-weeks?
+                                              :selectable-fn selectable-pred
+                                              :on-change     #(reset! model1 %)]
                                              [label :style label-style :label (str "selected: " (date->string @model1))]]])]
                               ;; restricted to both minimum & maximum date
                               [(fn []
@@ -107,14 +108,14 @@
                                   :gap      "5px"
                                   :children [[label :style label-style :label ":minimum \"20140831\" :maximum \"20141019\""]
                                              [datepicker
-                                              :model        model2
-                                              :minimum      (iso8601->date "20140831")
-                                              :maximum      (iso8601->date "20141019")
-                                              :show-today?  @show-today?
-                                              :show-weeks?  @show-weeks?
-                                              :enabled-days @enabled-days
+                                              :model         model2
+                                              :minimum       (iso8601->date "20140831")
+                                              :maximum       (iso8601->date "20141019")
+                                              :show-today?   @show-today?
+                                              :show-weeks?   @show-weeks?
+                                              :selectable-fn selectable-pred
                                               :disabled?     disabled?
-                                              :on-change    #(reset! model2 %)]
+                                              :on-change     #(reset! model2 %)]
                                              [label :style label-style :label (str "selected: " (date->string @model2))]]])]]]
                   enabled-days
                   disabled?
@@ -129,13 +130,13 @@
                      :children [[gap :size "120px"]
                                 [(fn []
                                    [datepicker-dropdown
-                                    :model        model1
-                                    :show-today?  @show-today?
-                                    :show-weeks?  @show-weeks?
-                                    :enabled-days @enabled-days
-                                    :format       "dd MMM, yyyy"
-                                    :disabled?    disabled?
-                                    :on-change    #(reset! model1 %)])]]]
+                                    :model         model1
+                                    :show-today?   @show-today?
+                                    :show-weeks?   @show-weeks?
+                                    :selectable-fn selectable-pred
+                                    :format        "dd MMM, yyyy"
+                                    :disabled?     disabled?
+                                    :on-change     #(reset! model1 %)])]]]
                     enabled-days
                     disabled?
                     show-today?

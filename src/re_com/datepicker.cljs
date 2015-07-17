@@ -85,45 +85,33 @@
 
 (defn- table-thead
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
-  [current {show-weeks? :show-weeks? enabled-days :enabled-days minimum :minimum maximum :maximum}]
-  ;;TODO: We might choose later to style by removing arrows altogether instead of greying when disabled navigation
-  (let [style         (fn [week-day] {:class (if (enabled-days week-day) "day-enabled" "day-disabled")})
-        prev-date     (dec-month @current)
+  [current {show-weeks? :show-weeks? minimum :minimum maximum :maximum}]
+  (let [prev-date     (dec-month @current)
         prev-enabled? (if minimum (after? prev-date minimum) true)
         next-date     (inc-month @current)
         next-enabled? (if maximum (before? next-date maximum) true)
         template-row  (if show-weeks? [:tr [:th]] [:tr])]
     [:thead
      (conj template-row
-           #_[:th {:class    (str "prev " (if prev-enabled? "available selectable" "disabled"))} ;; TODO: Remove
-            [:i {:class    "glyphicon glyphicon-chevron-left"
-                 :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}]]
            [:th {:class (str "prev " (if prev-enabled? "available selectable" "disabled"))
                  :style {:padding "0px"}}
             [:i.md-chevron-left
              {:style    {:font-size "24px"}
               :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}]]
-
            [:th {:class "month" :col-span "5"} (month-label @current)]
-
-           #_[:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))} ;; TODO: Remove
-            [:i {:class    "glyphicon glyphicon-chevron-right"
-                 :on-click (handler-fn (when next-enabled? (reset! current next-date)))}]]
            [:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))
                  :style {:padding "0px"}}
             [:i.md-chevron-right
              {:style    {:font-size "24px"}
               :on-click (handler-fn (when next-enabled? (reset! current next-date)))}]])
-     ;; could be done via more clever mapping but avoiding abscurity here.
-     ;; style each day label based on if it is in enabled-days
      (conj template-row
-           [:th (style 7) "SUN"]
-           [:th (style 1) "MON"]
-           [:th (style 2) "TUE"]
-           [:th (style 3) "WED"]
-           [:th (style 4) "THU"]
-           [:th (style 5) "FRI"]
-           [:th (style 6) "SAT"])]))
+           [:th {:class "day-enabled"} "SUN"]
+           [:th {:class "day-enabled"} "MON"]
+           [:th {:class "day-enabled"} "TUE"]
+           [:th {:class "day-enabled"} "WED"]
+           [:th {:class "day-enabled"} "THU"]
+           [:th {:class "day-enabled"} "FRI"]
+           [:th {:class "day-enabled"} "SAT"])]))
 
 
 (defn- selection-changed
@@ -138,7 +126,7 @@
         enabled-max   (if maximum (<=date date maximum) true)
         enabled-day   (and enabled-min enabled-max)
         disabled-day? (if enabled-day
-                        (nil? ((:enabled-days attributes) (day-of-week date)))
+                        (not ((:selectable-fn attributes) date))
                         true)
         styles       (cond disabled?
                            "off"
@@ -180,7 +168,6 @@
 (defn- table-tbody
   "Return matrix of 6 rows x 7 cols table cells representing 41 days from start-date inclusive"
   [current selected attributes disabled? on-change]
-  {:pre [(and (seq (:enabled-days attributes)) ((:enabled-days attributes) (day-of-week selected)))]}
   (let [current-start   (previous sunday? current)
         focus-month     (month current)
         row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
@@ -190,27 +177,24 @@
 (defn- configure
   "Augment passed attributes with extra info/defaults"
   [attributes]
-  (let [enabled-days (->> (if (seq (:enabled-days attributes))
-                            (:enabled-days attributes)
-                            #{:Su :Mo :Tu :We :Th :Fr :Sa})
-                          (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}))
-                          set)]
-    (merge attributes {:enabled-days enabled-days
-                       :today (now->utc)})))
+  (let [selectable-fn (if (-> attributes :selectable-fn fn?)
+                        (:selectable-fn attributes)
+                        (fn [date] true))]
+    (merge attributes {:selectable-fn selectable-fn :today (now->utc)})))
 
 (def datepicker-args-desc
-  [{:name :model        :required true                        :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. Should match :enabled-days"}
-   {:name :on-change    :required true                        :type "goog.date.UtcDateTime -> nil"   :validate-fn fn?        :description "called when a new selection is made"}
-   {:name :disabled?    :required false :default false        :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
-   {:name :enabled-days :required false                       :type "set"                            :validate-fn set?       :description "a subset of #{:Su :Mo :Tu :We :Th :Fr :Sa}. Only dates falling on these days will be user-selectable. Default is all 7 days"}
-   {:name :show-weeks?  :required false :default false        :type "boolean"                                                :description "when true, week numbers are shown to the left"}
-   {:name :show-today?  :required false :default false        :type "boolean"                                                :description "when true, today's date is highlighted"}
-   {:name :minimum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation before this date"}
-   {:name :maximum      :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
-   {:name :hide-border? :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
-   {:name :class        :required false                       :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style        :required false                       :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr         :required false                       :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  [{:name :model         :required true                        :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. Should pass pred :selectable-fn"}
+   {:name :on-change     :required true                        :type "goog.date.UtcDateTime -> nil"   :validate-fn fn?        :description "called when a new selection is made"}
+   {:name :disabled?     :required false :default false        :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
+   {:name :selectable-fn :required false :default "(fn [date] true)" :type "pred"                     :validate-fn fn?        :description "Predicate passed a date. If it answers false, day will be shown disabled and can't be selected."}
+   {:name :show-weeks?   :required false :default false        :type "boolean"                                                :description "when true, week numbers are shown to the left"}
+   {:name :show-today?   :required false :default false        :type "boolean"                                                :description "when true, today's date is highlighted"}
+   {:name :minimum       :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation before this date"}
+   {:name :maximum       :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
+   {:name :hide-border?  :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
+   {:name :class         :required false                       :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
+   {:name :style         :required false                       :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
+   {:name :attr          :required false                       :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (defn datepicker
   [& {:keys [model] :as args}]
