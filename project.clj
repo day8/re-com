@@ -32,8 +32,7 @@
   :dependencies     [[org.clojure/clojure         "1.7.0-beta2"]
                      [org.clojure/clojurescript   "0.0-3211"]
                      [reagent                     "0.5.0"]
-                     [com.andrewmcveigh/cljs-time "0.3.5"]
-                     [secretary                   "1.2.3"]]
+                     [com.andrewmcveigh/cljs-time "0.3.5"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
@@ -51,7 +50,8 @@
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
                                                [alandipert/storage-atom         "1.2.4" ]
                                                [figwheel                        "0.2.6"]
-                                               [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]]
+                                               [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]
+                                               [secretary                       "1.2.3"]]
                                 :plugins      [[lein-cljsbuild                  "1.0.6"]
                                                [lein-figwheel                   "0.2.6"]
                                                [lein-shell                      "0.4.0"]
