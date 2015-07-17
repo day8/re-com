@@ -32,7 +32,7 @@
   :dependencies     [[org.clojure/clojure         "1.7.0-beta2"]
                      [org.clojure/clojurescript   "0.0-3211"]
                      [reagent                     "0.5.0"]
-                     [com.andrewmcveigh/cljs-time "0.3.5"]]
+                     [com.andrewmcveigh/cljs-time "0.3.10"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
