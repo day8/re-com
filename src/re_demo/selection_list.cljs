@@ -86,7 +86,7 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Notes"]
-                                      [status-text "Alpha (API will change)" {:color "#EA6B00"}]
+                                      [status-text "Stable"]
                                       [p "Allows the user to select items from a list (single or multi)."]
                                       [p "Uses radio buttons when single selecting, and checkboxes when multi-selecting."]
                                       [p "Via strike-through, it supports the notion of selections representing exclusions, rather than inclusions."]
