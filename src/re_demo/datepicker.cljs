@@ -1,11 +1,13 @@
 (ns re-demo.datepicker
-  (:require [reagent.core      :as    reagent]
-            [reagent.ratom     :refer-macros [reaction]]
-            [cljs-time.core    :refer [now days minus day-of-week]]
-            [cljs-time.format  :refer [formatter unparse]]
-            [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p]]
-            [re-com.datepicker :refer [iso8601->date datepicker-args-desc]]
-            [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]))
+  (:require
+    [goog.date.Date]
+    [reagent.core      :as    reagent]
+    [reagent.ratom     :refer-macros [reaction]]
+    [cljs-time.core    :refer [now days minus day-of-week]]
+    [cljs-time.format  :refer [formatter unparse]]
+    [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p]]
+    [re-com.datepicker :refer [iso8601->date datepicker-args-desc]]
+    [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
 (defn- toggle-inclusion!
@@ -68,7 +70,9 @@
 
 (defn- date->string
   [date]
-  (unparse (formatter "dd MMM, yyyy") date))
+  (if (instance? js/goog.date.Date date)
+    (unparse (formatter "dd MMM, yyyy") date)
+    ""))
 
 
 

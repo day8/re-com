@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
     [reagent.core         :as    reagent]
-    [cljs-time.core       :refer [minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
+    [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
     [re-com.validate      :refer [goog-date? css-style? html-attr?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
@@ -139,7 +139,7 @@
 
                            :else
                            "available off")
-        styles       (cond (=date selected date)
+        styles       (cond (and selected (=date selected date))
                            (str styles " active start-date end-date")
 
                            (and today (=date date today))
@@ -183,10 +183,10 @@
     (merge attributes {:selectable-fn selectable-fn :today (now->utc)})))
 
 (def datepicker-args-desc
-  [{:name :model         :required true                        :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. Should pass pred :selectable-fn"}
+  [{:name :model         :required false                       :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. If provided, should pass pred :selectable-fn"}
    {:name :on-change     :required true                        :type "goog.date.UtcDateTime -> nil"   :validate-fn fn?        :description "called when a new selection is made"}
    {:name :disabled?     :required false :default false        :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
-   {:name :selectable-fn :required false :default "(fn [date] true)" :type "pred"                     :validate-fn fn?        :description "Predicate passed a date. If it answers false, day will be shown disabled and can't be selected."}
+   {:name :selectable-fn :required false :default "(fn [date] true)" :type "pred"                     :validate-fn fn?        :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
    {:name :show-weeks?   :required false :default false        :type "boolean"                                                :description "when true, week numbers are shown to the left"}
    {:name :show-today?   :required false :default false        :type "boolean"                                                :description "when true, today's date is highlighted"}
    {:name :minimum       :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation before this date"}
@@ -199,8 +199,9 @@
 (defn datepicker
   [& {:keys [model] :as args}]
   {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
-  (let [current (-> (deref-or-value model) first-day-of-the-month reagent/atom)]
-    (fn
+  (let [current (as-> (or (deref-or-value model) (now)) current
+                      (->  current first-day-of-the-month reagent/atom))]
+    (fn datepicker-component
       [& {:keys [model disabled? hide-border? on-change class style attr] :as properties}]
       {:pre [(validate-args-macro datepicker-args-desc properties "datepicker")]}
       (let [configuration (configure properties)]
