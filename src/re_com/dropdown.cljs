@@ -201,7 +201,7 @@
    {:name :filter-box?   :required false :default false   :type "boolean"                                                      :description "if true, a filter text field is placed at the top of the dropdown"}
    {:name :regex-filter? :required false :default false   :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
    {:name :placeholder   :required false                  :type "string"                        :validate-fn string?           :description "background text when no selection"}
-   {:name :title?        :required false :default false   :type "boolean"                                                      :description "if true, it displays the title for the selected dropdown"}
+   {:name :title?        :required false :default false   :type "boolean"                                                      :description "if true, it allows the title for the selected dropdown to be displayed via a mouse over."}
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
