@@ -29,8 +29,8 @@
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
 
-  :dependencies     [[org.clojure/clojure         "1.7.0-beta2"]
-                     [org.clojure/clojurescript   "0.0-3211"]
+  :dependencies     [[org.clojure/clojure         "1.7.0"]
+                     [org.clojure/clojurescript   "0.0-3308"]
                      [reagent                     "0.5.0"]
                      [com.andrewmcveigh/cljs-time "0.3.10"]]
 
