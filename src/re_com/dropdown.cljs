@@ -161,8 +161,11 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
-      (let [_ (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})]
+      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?]
+      (let [_    (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})
+            text (if @internal-model
+                   (label-fn (item-for-id @internal-model choices :id-fn id-fn))
+                   placeholder)]
         [:a.chosen-single.chosen-default
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
           :tab-index     (when tab-index tab-index)
@@ -177,12 +180,10 @@
                            (key-handler event)
                            (when (= (.-which event) 13)  ;; Pressing enter on an anchor also triggers click event, which we don't want
                              (reset! ignore-click true)))  ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
-
           }
-         [:span
-          (if @internal-model
-            (label-fn (item-for-id @internal-model choices :id-fn id-fn))
-            placeholder)]
+         [:span (when title?
+                  {:title text})
+          text]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
 
@@ -202,6 +203,7 @@
    {:name :filter-box?   :required false :default false   :type "boolean"                                                      :description "if true, a filter text field is placed at the top of the dropdown"}
    {:name :regex-filter? :required false :default false   :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
    {:name :placeholder   :required false                  :type "string"                        :validate-fn string?           :description "background text when no selection"}
+   {:name :title?        :required false :default false   :type "boolean"                                                      :description "if true, it displays the title for the selected dropdown"}
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
@@ -221,7 +223,7 @@
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
         filter-text    (reagent/atom "")]
-    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index id-fn label-fn group-fn render-fn class style attr]
+    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index id-fn label-fn group-fn render-fn class style attr title?]
             :or {id-fn :id label-fn :label group-fn :group render-fn label-fn}
             :as args}]
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
@@ -300,7 +302,7 @@
                           {:width (when width width)}
                           style)}
            attr)          ;; Prevent user text selection
-         [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
+         [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?]
          (when (and @drop-showing? (not disabled?))
            [:div.chosen-drop
             [filter-text-box filter-box? filter-text key-handler drop-showing?]
