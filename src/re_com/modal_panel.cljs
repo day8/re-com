@@ -23,30 +23,29 @@
       :or   {wrap-nicely? true backdrop-color "black" backdrop-opacity 0.6}
       :as   args}]
   {:pre [(validate-args-macro modal-panel-args-desc args "modal-panel")]}
-  (fn []
-    [:div
-     (merge {:class  (str "rc-modal-panel display-flex " class)    ;; Containing div
-             :style (merge {:position "fixed"
-                            :left     "0px"
-                            :top      "0px"
-                            :width    "100%"
-                            :height   "100%"}
-                           style)}
-            attr)
-     [:div
-      {:style    {:position         "fixed"           ;; Backdrop
-                  :width            "100%"
-                  :height           "100%"
-                  :background-color backdrop-color
-                  :opacity          backdrop-opacity
-                  :z-index          1020
-                  :pointer-events   "none"}           ;; TODO: trying to prevent change of focus under the when clicking on backdrop (also with the on-click below). Remove!
-       :on-click #(do (println "stopping propagation") (.preventDefault %) (.stopPropagation %))
-       }]
-     [:div
-      {:style (merge {:margin  "auto"                 ;; Child
-                      :z-index 1020}
-                     (when wrap-nicely? {:background-color "white"
-                                         :padding          "16px"
-                                         :border-radius    "6px"}))}
-      child]]))
+  [:div
+   (merge {:class  (str "rc-modal-panel display-flex " class)    ;; Containing div
+           :style (merge {:position "fixed"
+                          :left     "0px"
+                          :top      "0px"
+                          :width    "100%"
+                          :height   "100%"}
+                         style)}
+          attr)
+   [:div
+    {:style    {:position         "fixed"           ;; Backdrop
+                :width            "100%"
+                :height           "100%"
+                :background-color backdrop-color
+                :opacity          backdrop-opacity
+                :z-index          1020
+                :pointer-events   "none"}           ;; TODO: trying to prevent change of focus under the when clicking on backdrop (also with the on-click below). Remove!
+     :on-click #(do (println "stopping propagation") (.preventDefault %) (.stopPropagation %))
+     }]
+   [:div
+    {:style (merge {:margin  "auto"                 ;; Child
+                    :z-index 1020}
+                   (when wrap-nicely? {:background-color "white"
+                                       :padding          "16px"
+                                       :border-radius    "6px"}))}
+    child]])
