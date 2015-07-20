@@ -10,6 +10,10 @@
     [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
+(def ^:private days-map
+     {:Su "S" :Mo "M" :Tu "T" :We "W" :Th "T" :Fr "F" :Sa "S"})
+
+
 (defn- toggle-inclusion!
   "convenience function to include/exclude member from"
   [set-atom member]
@@ -18,54 +22,55 @@
             (disj @set-atom member)
             (conj @set-atom member))))
 
-(def ^:private days-map
-  {:Su "S" :Mo "M" :Tu "T" :We "W" :Th "T" :Fr "F" :Sa "S"})
+
+(defn- checkbox-for-day
+  [day enabled-days]
+  [v-box
+   :align    :center
+   :children [[label
+               :style {:font-size "smaller"}
+               :label (day days-map)]
+              [checkbox
+               :model     (@enabled-days day)
+               :on-change #(toggle-inclusion! enabled-days day)]]])
 
 (defn- parameters-with
+  "Toggle controls for some parameters."
   [content enabled-days disabled? show-today? show-weeks?]
-  (let [day-check (fn [day] [v-box
-                       :align    :center
-                       :children [[:label {:class "day-enabled"} (day days-map)]
-                                  [checkbox
-                                   :model     (@enabled-days day)
-                                   :on-change #(toggle-inclusion! enabled-days day)
-                                   :style     {:margin-top "-2px"}]]])]
-    (fn []
-      [v-box
-       :width    "600px"
-       :gap      "20px"
-       :align    :start
-       :children [[gap :size "20px"]
-                  [title :level :level3 :label "Parameters"]
-                  [h-box
-                   :gap      "20px"
-                   :align    :start
-                   :children [[checkbox
-                               :label     [box :align :start :child [:code ":disabled?"]]
-                               :model     disabled?
-                               :on-change #(reset! disabled? %)]
-                              [checkbox
-                               :label     [box :align :start :child [:code ":show-today?"]]
-                               :model     show-today?
-                               :on-change #(reset! show-today? %)]
-                              [checkbox
-                               :label     [box :align :start :child [:code ":show-weeks?"]]
-                               :model     show-weeks?
-                               :on-change #(reset! show-weeks? %)]]]
-                  [h-box
-                   :gap      "2px"
-                   :align    :center
-                   :children [[day-check :Su]
-                              [day-check :Mo]
-                              [day-check :Tu]
-                              [day-check :We]
-                              [day-check :Th]
-                              [day-check :Fr]
-                              [day-check :Sa]
-                              [gap :size "5px"]
-                              [box :align :start :child [:code ":selectable-fn"]]]]
-                  [:span [:code "e.g. (fn [date] (#{1 2 3 4 5 6 7} (day-of-week date)))"]]
-                  content]])))
+  [v-box
+   :gap      "15px"
+   :align    :start
+   :children [[gap :size "20px"]
+              [title :level :level3 :label "Parameters"]
+              [h-box
+               :gap      "20px"
+               :align    :start
+               :children [[checkbox
+                           :label     [box :align :start :child [:code ":disabled?"]]
+                           :model     disabled?
+                           :on-change #(reset! disabled? %)]
+                          [checkbox
+                           :label     [box :align :start :child [:code ":show-today?"]]
+                           :model     show-today?
+                           :on-change #(reset! show-today? %)]
+                          [checkbox
+                           :label     [box :align :start :child [:code ":show-weeks?"]]
+                           :model     show-weeks?
+                           :on-change #(reset! show-weeks? %)]]]
+              [h-box
+               :gap      "2px"
+               :align    :center
+               :children [[checkbox-for-day :Su enabled-days]
+                          [checkbox-for-day :Mo enabled-days]
+                          [checkbox-for-day :Tu enabled-days]
+                          [checkbox-for-day :We enabled-days]
+                          [checkbox-for-day :Th enabled-days]
+                          [checkbox-for-day :Fr enabled-days]
+                          [checkbox-for-day :Sa enabled-days]
+                          [gap :size "5px"]
+                          [box :align :start :child [:code ":selectable-fn"]]]]
+              [:span [:code "e.g. (fn [date] (#{1 2 3 4 5 6 7} (day-of-week date)))"]]
+              content]])
 
 
 (defn- date->string
@@ -88,7 +93,7 @@
         selectable-pred (fn [date] (@as-days (day-of-week date))) ; Simply allow selection based on day of week.
         label-style     {:font-style "italic" :font-size "smaller" :color "#777"}]
     (case variation
-      :inline [(fn
+      :inline [(fn inline-fn
                  []
                  [parameters-with
                   [h-box
@@ -125,7 +130,7 @@
                   disabled?
                   show-today?
                   show-weeks?])]
-      :dropdown [(fn
+      :dropdown [(fn dropdown-fn
                    []
                    [parameters-with
                     [h-box
@@ -152,10 +157,10 @@
    {:id :dropdown :label "Dropdown"}])
 
 
-(defn panel2
+(defn datepicker-examples
   []
   (let [selected-variation (reagent/atom :inline)]
-    (fn []
+    (fn examples-fn []
       [v-box
        :size     "auto"
        :gap      "10px"
@@ -190,4 +195,4 @@
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
   []
-  [panel2])
+  [datepicker-examples])
