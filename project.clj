@@ -24,7 +24,7 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "0.6.0"
+(defproject         re-com "0.6.0-SNAPSHOT"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
@@ -74,13 +74,13 @@
 
   :cljsbuild {:builds [{:id           "demo"
                         :source-paths ["src" "dev"]
-                        :compiler     {:output-to       "run/resources/public/compiled_dev/demo.js"
-                                       :output-dir      "run/resources/public/compiled_dev/demo"
-                                       :main            "figwheel-start.core"
-                                       :asset-path      "compiled_dev/demo"
-                                       :source-map      true
-                                       :optimizations   :none
-                                       :pretty-print    true}}
+                        :compiler     {:output-to     "run/resources/public/compiled_dev/demo.js"
+                                       :output-dir    "run/resources/public/compiled_dev/demo"
+                                       :main          "figwheel-start.core"
+                                       :asset-path    "compiled_dev/demo"
+                                       :source-map    true
+                                       :optimizations :none
+                                       :pretty-print  true}}
                        {:id           "prod"
                         :source-paths ["src"]
                         :compiler     {:output-to       "run/resources/public/compiled_prod/demo.js"
@@ -92,7 +92,8 @@
                                        ;:asset-path      "compiled_prod/demo"
                                        ;:elide-asserts   true
                                        :optimizations   :advanced
-                                       :pretty-print    false}}
+                                       :pretty-print    false
+                                       :pseudo-names    false}}
                        {:id           "test"
                         :source-paths ["src/re_com" "test"]
                         :compiler     {:output-to     "run/test/compiled/test.js"
