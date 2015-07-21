@@ -52,15 +52,9 @@ Note that all these commands are entered at the repo root folder.
        - This branch is checked out.
 - [ ] Bump version in project.clj to `x.x.x`.
 - [ ] Update README.md file if required.
-
----------------------------------------------------------------------------
-*** TODO: LINES TAGGED FOR REMOVAL - NOT REQUIRED - TO BE TESTED ***
-- [ ] Commit this branch:
+- [ ] If you have made changes, commit and push this branch:
        - `git commit -a -m "Bumped version to x.x.x  etc."` 
-- [ ] Push this branch GitHub:
-       - `git push` ==> `git push --set-upstream origin release/0.5.4`
----------------------------------------------------------------------------
-
+       - `git push` ==> `git push --set-upstream origin release/x.x.x`
 - [ ] Finish the release:
        - `git flow release finish 'x.x.x'`
        - Pops up an editor to describe the release. I just put "Version x.x.x".
