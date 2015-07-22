@@ -229,7 +229,7 @@
                   :transition-timing-function :turn :unicode-bidi :unicode-range :unset :vertical-align :vh :visibility :vmax :vmin :vw :white-space :widows
                   :width :will-change :word-break :word-spacing :word-wrap :writing-mode :z-index
                   ; ----- Browser specific styles
-                  ::-webkit-user-select :-moz-user-select :-ms-user-select :user-select
+                  :-webkit-user-select :-moz-user-select :-ms-user-select :user-select
                   :-webkit-flex-flow :-webkit-flex-direction :-webkit-flex-wrap :-webkit-justify-content :-webkit-align-items :-webkit-align-content
                   :-webkit-flex :-webkit-flex-grow :-webkit-flex-shrink :-webkit-flex-basis :-webkit-order :-webkit-align-self})
 
