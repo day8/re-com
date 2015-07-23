@@ -93,7 +93,7 @@
   ;;TODO: We might choose later to style by removing arrows altogether instead of greying when disabled navigation
   (let [style         (fn [week-day] {:class (if (enabled-days week-day) "day-enabled" "day-disabled")})
         prev-date     (dec-month @current)
-        prev-enabled? (if minimum (after? prev-date minimum) true)
+        prev-enabled? (if minimum (after? prev-date (dec-month minimum)) true)
         next-date     (inc-month @current)
         next-enabled? (if maximum (before? next-date maximum) true)
         template-row  (if show-weeks? [:tr [:th]] [:tr])]
