@@ -87,6 +87,7 @@
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
   [current {show-weeks? :show-weeks? minimum :minimum maximum :maximum}]
   (let [prev-date     (dec-month @current)
+        ;prev-enabled? (if minimum (after? prev-date (dec-month minimum)) true)
         prev-enabled? (if minimum (after? prev-date minimum) true)
         next-date     (inc-month @current)
         next-enabled? (if maximum (before? next-date maximum) true)
@@ -227,15 +228,16 @@
          :style    (flex-child-style "none")
          :on-click (handler-fn (swap! shown? not))}
    [h-box
-    :align :center
-    :class "noselect"
-    :children [[:label {:class "form-control dropdown-button"}
-                (unparse (if (seq format) (formatter format) date-format) @model)]
-               #_[:span  {:class "dropdown-button activator input-group-addon"} ;; TODO: Remove
-                [:i {:class "glyphicon glyphicon-th"}]]
-               [:span.dropdown-button.activator.input-group-addon
-                {:style {:padding "3px 0 0 0"}}
-                [:i.md-apps {:style {:font-size "24px"}}]]]]])
+    :align     :center
+    :class     "noselect"
+    :min-width "10em"
+    :children  [[:label {:class "form-control dropdown-button"}
+                 (if (instance? js/goog.date.Date @model)
+                   (unparse (if (seq format) (formatter format) date-format) @model)
+                   "")]
+                [:span.dropdown-button.activator.input-group-addon
+                 {:style {:padding "3px 0 0 0"}}
+                 [:i.md-apps {:style {:font-size "24px"}}]]]]])
 
 (def datepicker-dropdown-args-desc
   (conj datepicker-args-desc
@@ -265,10 +267,9 @@
                     (when shown? [backdrop :on-click cancel-popover])
                     [popover-border
                      :position     position
-                     :width        "auto"                       ;; TODO: Sort this mess out!
                      :arrow-length 0
                      :arrow-width  0
-                     :margin-left  (if show-weeks? "-26px" "-13px")
+                     :margin-left  (if show-weeks? "-50px" "-36px") ; Align right edge to activation button.
                      :margin-top   "3px"
                      :padding      "0px"
                      :children     [(into [datepicker] passthrough-args)]]]]))))
