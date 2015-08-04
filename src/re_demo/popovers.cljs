@@ -123,7 +123,7 @@
                                               [:li [:code ":position"] " - A keyword specifying the popover's position relative to the anchor. See the demo to the right for the values."]
                                               [:li [:code ":anchor"] " - The anchor component to wrap."]
                                               [:li [:code ":popover"] " - The popover body component (what gets shown in the popover)."]]]
-                                            [p "You should use the " [:code "popover-body-wrapper"] " component to wrap the body content. The main arguments are:"
+                                            [p "You should use the " [:code "popover-content-wrapper"] " component to wrap the body content. The main arguments are:"
                                              [:ul
                                               [:li [:code ":title"] " - Title of the popover. Can be ommitted."]
                                               [:li [:code ":close-button?"] " - Add close button in the top right. Default is true."]
