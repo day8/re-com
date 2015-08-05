@@ -104,7 +104,7 @@
 
                      "debug"      ["with-profile" "+dev-run" "do"
                                    ["clean"]
-                                   ["shell" "open" (str "http://localhost:" fig-port "/index_dev.html")]   ;; NOTE: run will initially fail, refresh browser once build complete
+                                   ~["shell" "open" (str "http://localhost:" fig-port "/index_dev.html")]   ;; NOTE: run will initially fail, refresh browser once build complete
                                    ["figwheel" "demo"]]
 
                      ;; *** PROD ***
