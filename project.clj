@@ -2,26 +2,6 @@
 
 (def fig-port 3449)
 
-(defn build-command-map
-      "Return a map containing a different build command for each supported os"
-      [base-cmd]
-      (let [cmd {:windows ["shell" "cmd" "/c" "start"]
-                 :macosx  ["shell" "open"]
-                 :linux   ["shell" "xdg-open"]}]
-           {:windows (conj (:windows cmd) base-cmd)
-            :macosx  (conj (:macosx  cmd) base-cmd)
-            :linux   (conj (:linux   cmd) base-cmd)}))
-
-(def command-lookups {:launch-server-url (build-command-map (str "http://localhost:" fig-port "/index_dev.html"))
-                      :launch-file-url   (build-command-map "run/resources/public/index_dev.html")
-                      :launch-prod-url   (build-command-map "run/resources/public/index_prod.html")
-                      :launch-test-url   (build-command-map "run/test/test.html")})
-
-(defn get-command-for-os
-      "Return the os-dependent command"
-      [cmd]
-      (get-in command-lookups [cmd (leiningen.core.eval/get-os)]))
-
 ;; ---------------------------------------------------------------------------------------
 
 (defproject         re-com "0.6.0-SNAPSHOT"
@@ -54,7 +34,7 @@
                                                [secretary                       "1.2.3"]]
                                 :plugins      [[lein-cljsbuild                  "1.0.6"]
                                                [lein-figwheel                   "0.2.6"]
-                                               [lein-shell                      "0.4.0"]
+                                               [lein-shell                      "0.4.1"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
                                                [lein-ancient                    "0.6.2"]]}
@@ -111,16 +91,20 @@
         :s3-static-deploy {:bucket     "re-demo"
                            :local-root "run/resources/public"}}
 
+  :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
+                             :macosx "open"
+                             :linux "xdg-open"}}}
+
   :aliases          {;; *** DEMO ***
 
                      "run"        ["with-profile" "+dev-run" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "demo"]
-                                   ~(get-command-for-os :launch-file-url)]
+                                   ["shell" "open" "run/resources/public/index_dev.html"]]
 
                      "debug"      ["with-profile" "+dev-run" "do"
                                    ["clean"]
-                                   ~(get-command-for-os :launch-server-url)   ;; NOTE: run will initially fail, refresh browser once build complete
+                                   ["shell" "open" (str "http://localhost:" fig-port "/index_dev.html")]   ;; NOTE: run will initially fail, refresh browser once build complete
                                    ["figwheel" "demo"]]
 
                      ;; *** PROD ***
@@ -128,7 +112,7 @@
                      "run-prod"   ["with-profile" "+prod-run" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "prod"]
-                                   ~(get-command-for-os :launch-prod-url)]
+                                   ["shell" "open" "run/resources/public/index_prod.html"]]
 
                      "debug-prod" ["with-profile" "+prod-run" "do"
                                    ["run-prod"]
@@ -144,7 +128,7 @@
                      "run-test"   ["with-profile" "+dev-test" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "test"]
-                                   ~(get-command-for-os :launch-test-url)]
+                                   ["shell" "open" "run/test/test.html"]]
 
                      "debug-test" ["with-profile" "+dev-test" "do"
                                    ["run-test"]
