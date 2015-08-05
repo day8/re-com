@@ -29,7 +29,8 @@
                           :left     "0px"
                           :top      "0px"
                           :width    "100%"
-                          :height   "100%"}
+                          :height   "100%"
+                          :z-index  1020}
                          style)}
           attr)
    [:div
@@ -38,13 +39,13 @@
                 :height           "100%"
                 :background-color backdrop-color
                 :opacity          backdrop-opacity
-                :z-index          1020
+                :z-index          1
                 :pointer-events   "none"}           ;; TODO: trying to prevent change of focus under the when clicking on backdrop (also with the on-click below). Remove!
      :on-click #(do (println "stopping propagation") (.preventDefault %) (.stopPropagation %))
      }]
    [:div
     {:style (merge {:margin  "auto"                 ;; Child
-                    :z-index 1020}
+                    :z-index 2}
                    (when wrap-nicely? {:background-color "white"
                                        :padding          "16px"
                                        :border-radius    "6px"}))}
