@@ -50,8 +50,9 @@ If so, a modern flexbox implementation will be available on all the browsers you
 But, even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
 testing once a month, re-com appears to work reasonably on IE11 and Safari. 
 On the other hand, Firefox (pre version 38) has all the speed of a snail on performance reducing drugs. Version 38 and beyond 
-have a [fix](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) for the performance problems caused by nested flexboxes, however
-it is still not as fast as Chrome, especially when the number of components on a page increases.
+have a [fix](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) for the performance problems caused by nested flexboxes,
+however we are informed by [@frozenlock](https://github.com/frozenlock) that it is still not as fast as Chrome if you are using **deeply** nested flexbox layouts 
+(much more nested than our demo app).
 
 We can also confirm that none of the components have been designed with mobile in mind, and
 that there's no attempt to handle media queries.  We said we had a desktop app focus, right?

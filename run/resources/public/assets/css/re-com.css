@@ -12,6 +12,7 @@
   height of the browser window and setting some global defaults like font...
 ----------------------------------------------------------------------------------------*/
 
+/* The following style addresses: http://stackoverflow.com/questions/28636832/firefox-overflow-y-not-working-with-nested-flexbox */
 * {
 	min-height:     0px;
    	min-width:      0px;
