@@ -120,8 +120,7 @@
                                [:p [:code ":justify"] " is the analog of " [hyperlink-href
                                                                             :label "Flexbox justify-content style"
                                                                             :href "https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content"
-                                                                            :target "_blank"] "."]
-                               [:p [:strong "Note: "] "There is a bug in Chrome. When switching from :between to :around (or visa versa), the change is not shown. To get around this, select a different value beforehand."]]]}
+                                                                            :target "_blank"] "."]]]}
 
             ;; Align
             {:hbox {:over?      false
