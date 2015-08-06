@@ -33,11 +33,15 @@
                                      :style {:font-size "20px"}}]    ;"×"
                       :on-click (handler-fn (on-close id))
                       :class    "close"]
-        alert-type    (if (= alert-type :info)
-                        "success"
-                        (name alert-type))]
+        alert-class  (alert-type {:none           ""
+                                  :info           "alert-success"
+                                  :warning        "alert-warning"
+                                  :danger         "alert-danger"
+                                  :info-modern    "alert-success alert-success-modern"
+                                  :warning-modern "alert-warning alert-warning-modern"
+                                  :danger-modern  "alert-danger  alert-danger-modern"})]
     [:div
-     (merge {:class (str "rc-alert alert fade in alert-" alert-type " " class)
+     (merge {:class (str "rc-alert alert fade in " alert-class " " class)
              :style (merge (flex-child-style "none")
                            {:padding (when padding padding)}
                            style)}
@@ -100,16 +104,16 @@
              :attr attr
              :child [scroller
                      :v-scroll :auto
-                     :style {:max-height max-height}
-                     :child [v-box
-                             :size "auto"
-                             :children [(for [alert alerts]
-                                          (let [{:keys [id alert-type heading body padding closeable?]} alert]
-                                            ^{:key id} [alert-box
-                                                        :id id
-                                                        :alert-type alert-type
-                                                        :heading heading
-                                                        :body body
-                                                        :padding padding
-                                                        :closeable? closeable?
-                                                        :on-close on-close]))]]]]]))
+                     :style    {:max-height max-height}
+                     :child    [v-box
+                                :size     "auto"
+                                :children [(for [alert alerts]
+                                             (let [{:keys [id alert-type heading body padding closeable?]} alert]
+                                               ^{:key id} [alert-box
+                                                           :id id
+                                                           :alert-type alert-type
+                                                           :heading    heading
+                                                           :body       body
+                                                           :padding    padding
+                                                           :closeable? closeable?
+                                                           :on-close   on-close]))]]]]]))

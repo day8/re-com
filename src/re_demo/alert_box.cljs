@@ -1,5 +1,5 @@
 (ns re-demo.alert-box
-  (:require [re-com.core   :refer [h-box v-box box line gap label alert-box alert-list p]]
+  (:require [re-com.core   :refer [h-box v-box box line gap title label alert-box alert-list p]]
             [re-com.alert  :refer [alert-box-args-desc alert-list-args-desc]]
             [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.debug :refer-macros [dbg prn println log dev? warn warn-unless]]
@@ -40,8 +40,11 @@
                                              :closeable? true
                                              :on-close   #(reset! show-alert false)]
                                             [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
-                                          [gap :size "50px"]
-                                          [:p "Further Variations ..."]
+
+                                          [gap :size "30px"]
+                                          [title
+                                           :level :level3
+                                           :label "Further Variations"]
                                           (when @show-alert1
                                             [:div
                                              [alert-box
@@ -61,7 +64,64 @@
                                            :alert-type :danger
                                            :heading    ":alert-type is :danger"
                                            :body       [:span "This is the :body of an danger-styled alert with :closeable? omitted (defaults to false). "
-                                                        [:a {:href "http://google.com" :target "_blank"} "Link to Google"] "."]]]]]]]])))
+                                                        [:a {:href "http://google.com" :target "_blank"} "Link to Google"] "."]]
+
+                                          [gap :size "30px"]
+                                          [title
+                                           :level :level3
+                                           :label [:span "\"modern\" " [:code ":alert-type"] " Variations"]]
+                                          (when @show-alert1
+                                            [:div
+                                             [alert-box
+                                              :alert-type :info-modern
+                                              :heading    "Alert with :heading but no :body"
+                                              :closeable? true
+                                              :on-close   #(reset! show-alert1 false)]])
+                                          (when @show-alert2
+                                            [:div
+                                             [alert-box
+                                              :alert-type :warning-modern
+                                              :body       "Alert with :body but no :heading (:padding set to 6px)."
+                                              :padding    "6px"
+                                              :closeable? true
+                                              :on-close   #(reset! show-alert2 false)]])
+                                          [alert-box
+                                           :alert-type :danger-modern
+                                           :heading    ":alert-type is :danger"
+                                           :body       [:span "This is the :body of an danger-styled alert with :closeable? omitted (defaults to false). "
+                                                        [:a {:href "http://google.com" :target "_blank"} "Link to Google"] "."]]
+
+                                          [gap :size "30px"]
+                                          [title
+                                           :level :level3
+                                           :label [:span [:code ":alert-type"] " set to " [:code ":none"]]]
+                                          (if @show-alert
+                                            [alert-box
+                                             :id         1
+                                             :alert-type :none
+                                             :heading    "This Is An Unstyled Alert"
+                                             :body       [:p "This is an alert body. This alert has an :alert-type of :none, and it includes a :heading, a :body and a close button. Click the x to close it."]
+                                             :closeable? true
+                                             :on-close   #(reset! show-alert false)]
+                                            [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
+
+                                          [title
+                                           :level :level3
+                                           :label [:span [:code ":alert-type"] " set to " [:code ":none"] " with custom " [:code ":style"] " and " [:code ":body"]]]
+                                          [alert-box
+                                           :id         1
+                                           :alert-type :none
+                                           :body       [h-box
+                                                        :gap      "10px"
+                                                        :children [[box :child [:span "Last scan: 6/8/2015, 1:46:10 PM" [:br] "Scanned in 5.21s"]]
+                                                                   [line :size "2px" :color "green"]
+                                                                   [box :child [:span "Vendor:" [:br] "Model:"]]]]
+                                           :style      {:background-color "rgba(223, 240, 200, 0.4)"
+                                                        :border           "2px solid green"
+                                                        :border-radius    "0px"
+                                                        :box-shadow       "2px 2px 6px #ccc"}
+                                           :on-close   #(reset! show-alert false)]
+                                          [gap :size "60px"]]]]]]])))
 
 
 
