@@ -907,7 +907,7 @@ html, body {
   color: #f57c00;
 }
 
-.rc-input-text .md-warning {
+.rc-input-text .zmdi-alert-triangle {
   color: #f57c00;
 }
 
@@ -925,7 +925,7 @@ html, body {
   color: #d50000;
 }
 
-.rc-input-text .md-error {
+.rc-input-text .zmdi-alert-circle {
   color: #d50000;
 }
 
@@ -1306,4 +1306,10 @@ code {
 .display-inline-flex {
     display: -webkit-inline-flex;
     display: inline-flex;
+}
+
+.zmdi-hc-fw-rc {
+  width: 0.5em;
+  /*width: 1.19em;*/
+  text-align: center;
 }

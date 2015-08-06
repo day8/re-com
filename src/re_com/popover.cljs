@@ -38,7 +38,7 @@
                       :top       "0px"
                       :right     "0px"}
                      style)}
-   [:i {:class "md-close"}]])
+   [:i {:class "zmdi zmdi-close"}]])
 
 
 (defn- calc-popover-pos

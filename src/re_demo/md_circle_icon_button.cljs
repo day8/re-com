@@ -6,12 +6,12 @@
 
 
 (def icons
-  [{:id "md-add"    :label [:i {:class "md-add"}]}
-   {:id "md-delete" :label [:i {:class "md-delete"}]}
-   {:id "md-undo"   :label [:i {:class "md-undo"}]}
-   {:id "md-home"   :label [:i {:class "md-home"}]}
-   {:id "md-person" :label [:i {:class "md-person"}]}
-   {:id "md-info"   :label [:i {:class "md-info"}]}])
+  [{:id "zmdi zmdi-plus"    :label [:i {:class "zmdi zmdi-plus"}]}
+   {:id "zmdi zmdi-delete"  :label [:i {:class "zmdi zmdi-delete"}]}
+   {:id "zmdi zmdi-undo"    :label [:i {:class "zmdi zmdi-undo"}]}
+   {:id "zmdi zmdi-home"    :label [:i {:class "zmdi zmdi-home"}]}
+   {:id "zmdi zmdi-account" :label [:i {:class "zmdi zmdi-account"}]}
+   {:id "zmdi zmdi-info"    :label [:i {:class "zmdi zmdi-info"}]}])
 
 
 (defn example-icons

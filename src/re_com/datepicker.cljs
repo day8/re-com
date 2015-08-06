@@ -96,13 +96,13 @@
      (conj template-row
            [:th {:class (str "prev " (if prev-enabled? "available selectable" "disabled"))
                  :style {:padding "0px"}}
-            [:i.md-chevron-left
+            [:i.zmdi.zmdi-chevron-left
              {:style    {:font-size "24px"}
               :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}]]
            [:th {:class "month" :col-span "5"} (month-label @current)]
            [:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))
                  :style {:padding "0px"}}
-            [:i.md-chevron-right
+            [:i.zmdi.zmdi-chevron-right
              {:style    {:font-size "24px"}
               :on-click (handler-fn (when next-enabled? (reset! current next-date)))}]])
      (conj template-row
@@ -237,7 +237,7 @@
                    "")]
                 [:span.dropdown-button.activator.input-group-addon
                  {:style {:padding "3px 0 0 0"}}
-                 [:i.md-apps {:style {:font-size "24px"}}]]]]])
+                 [:i.zmdi.zmdi-apps {:style {:font-size "24px"}}]]]]])
 
 (def datepicker-dropdown-args-desc
   (conj datepicker-args-desc
