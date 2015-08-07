@@ -951,25 +951,29 @@ code {
 ----------------------------------------------------------------------------------------*/
 
 .alert-success-modern {
-    color:            rgba(68, 68, 68, 1.0);
-    background-color: rgba(223, 240, 200, 0.40);
+    color:            #444;
+    /*background-color: rgba(223, 240, 200, 0.40);*/
+    background-color: rgba(0, 128, 0, 0.1);
     border:           none;
-    border-left:      4px solid green;
+    border-left:      4px solid rgba(0, 128, 0, 0.6);
     border-radius:    0px;
 }
 
 .alert-warning-modern {
-    color:         rgba(68, 68, 68, 1.0);
-    border:        none;
-    border-left:   4px solid orange;
-    border-radius: 0px;
+    color:            #444;
+    /*background-color: rgba(223, 240, 200, 0.40);*/
+    background-color: rgba(255, 165, 0, 0.1);
+    border:           none;
+    border-left:      4px solid rgba(255, 165, 0, 0.6);
+    border-radius:    0px;
 }
 
 .alert-danger-modern {
-    color:            rgba(68, 68, 68, 1.0);
-    background-color: rgba(255, 32, 32, 0.05);
+    color:            #444;
+    /*background-color: rgba(255, 32, 32, 0.05);*/
+    background-color: rgba(255, 0, 0, 0.1);
     border:           none;
-    border-left:      4px solid rgba(255, 0, 0, 0.60);
+    border-left:      4px solid rgba(255, 0, 0, 0.6);
     border-radius:    0px;
 }
 

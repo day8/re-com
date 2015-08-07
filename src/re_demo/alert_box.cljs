@@ -68,48 +68,47 @@
                                            :heading    ":alert-type is :danger"
                                            :body       [:span "This is the :body of an danger-styled alert with :closeable? omitted (defaults to false). "
                                                         [:a {:href "http://google.com" :target "_blank"} "Link to Google"] "."]]
-
-                                          [gap :size "30px"]
-                                          [title
-                                           :level :level3
-                                           :label [:span "\"modern\" " [:code ":alert-type"] " Variations"]]
-                                          (when @show-alert4
-                                            [:div
-                                             [alert-box
-                                              :alert-type :info-modern
-                                              :heading    "Alert with :heading but no :body"
-                                              :closeable? true
-                                              :on-close   #(reset! show-alert4 false)]])
-                                          (when @show-alert5
-                                            [:div
-                                             [alert-box
-                                              :alert-type :warning-modern
-                                              :body       "Alert with :body but no :heading (:padding set to 6px)."
-                                              :padding    "6px"
-                                              :closeable? true
-                                              :on-close   #(reset! show-alert5 false)]])
-                                          [alert-box
-                                           :alert-type :danger-modern
-                                           :heading    ":alert-type is :danger"
-                                           :body       [:span "This is the :body of an danger-styled alert with :closeable? omitted (defaults to false). "
-                                                        [:a {:href "http://google.com" :target "_blank"} "Link to Google"] "."]]
-
                                           [gap :size "30px"]
                                           [title
                                            :level :level3
                                            :label [:span [:code ":alert-type"] " set to " [:code ":none"]]]
-                                          (when @show-alert6
+                                          (when @show-alert4
                                             [alert-box
                                              :id         1
                                              :alert-type :none
                                              :heading    "This Is An Unstyled Alert"
                                              :body       [:p "This is an alert body. This alert has an :alert-type of :none, and it includes a :heading, a :body and a close button. Click the x to close it."]
                                              :closeable? true
-                                             :on-close   #(reset! show-alert6 false)])
+                                             :on-close   #(reset! show-alert4 false)])
 
                                           [title
                                            :level :level3
                                            :label [:span [:code ":alert-type"] " set to " [:code ":none"] " with custom " [:code ":style"] " and " [:code ":body"]]]
+
+                                          (when @show-alert5
+                                            [:div
+                                             [alert-box
+                                              :alert-type :none
+                                              :class      "alert-success-modern"
+                                              :heading    "Alert with :heading but no :body"
+                                              :closeable? true
+                                              :on-close   #(reset! show-alert5 false)]])
+                                          (when @show-alert6
+                                            [:div
+                                             [alert-box
+                                              :alert-type :none
+                                              :class      "alert-warning-modern"
+                                              :body       "Alert with :body but no :heading (:padding set to 6px)."
+                                              :padding    "6px"
+                                              :closeable? true
+                                              :on-close   #(reset! show-alert5 false)]])
+                                          [alert-box
+                                           :alert-type :none
+                                           :class      "alert-danger-modern"
+                                           :heading    ":alert-type is :danger"
+                                           :body       [:span "This is the :body of an danger-styled alert with :closeable? omitted (defaults to false). "
+                                                        [:a {:href "http://google.com" :target "_blank"} "Link to Google"] "."]]
+
                                           [alert-box
                                            :id         1
                                            :alert-type :none

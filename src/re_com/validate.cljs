@@ -117,7 +117,7 @@
 (def justify-options      [:start :end :center :between :around])
 (def align-options        [:start :end :center :baseline :stretch])
 (def scroll-options       [:auto :off :on :spill])
-(def alert-types          [:none :info :warning :danger :info-modern :warning-modern :danger-modern])
+(def alert-types          [:none :info :warning :danger])
 (def button-sizes         [:regular :smaller :larger])
 (def throbber-sizes       [:regular :small :large])
 (def input-status-types   [:warning :error])

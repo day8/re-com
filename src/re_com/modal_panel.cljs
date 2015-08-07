@@ -1,4 +1,5 @@
 (ns re-com.modal-panel
+  (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 ;; ------------------------------------------------------------------------------------
@@ -42,9 +43,9 @@
                   :background-color backdrop-color
                   :opacity          backdrop-opacity
                   :z-index          1}
-       :on-click #(do (when backdrop-on-click (backdrop-on-click))
-                      (.preventDefault %)
-                      (.stopPropagation %))}]
+       :on-click (handler-fn (when backdrop-on-click (backdrop-on-click))
+                             (.preventDefault event)
+                             (.stopPropagation event))}]
      [:div    ;; Child container
       {:style (merge {:margin  "auto"
                       :z-index 2}

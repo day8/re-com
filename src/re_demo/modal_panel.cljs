@@ -20,7 +20,7 @@
                   (when @show?
                     [modal-panel
                      :backdrop-on-click #(reset! show? false)
-                     :child [:span "Please wait (for 3 seconds)..."]])]])))
+                     :child             [:span "Please wait for 3 seconds" [:br] "(or click on backdrop)"]])]])))
 
 
 (defn progress-bar-with-cancel-button
@@ -43,13 +43,13 @@
                                         [progress-bar
                                          :model 33]
                                         [gap :size "10px"]
-                                        [:span
-                                         [button
-                                          :label "Cancel"
-                                          :class "btn-danger"
-                                          :style {:margin-right "15px"}
-                                          :on-click #(reset! show? false)]
-                                         [:span "pretend only, click Cancel"]]]]])]])))
+                                        [h-box
+                                         :children [[button
+                                                     :label    "Cancel"
+                                                     :class    "btn-danger"
+                                                     :style    {:margin-right "15px"}
+                                                     :on-click #(reset! show? false)]
+                                                    [:span "pretend only, click Cancel" [:br] "(or click on backdrop)"]]]]]])]])))
 
 
 (defn dialog-markup

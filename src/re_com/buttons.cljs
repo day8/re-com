@@ -63,16 +63,16 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-circle-icon-button-args-desc
-  [{:name :md-icon-name     :required true  :default "zmdi zmdi-plus" :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi zmdi-add\""] " or " [:code "\"zmdi zmdi-undo\""]] }
-   {:name :on-click         :required false                           :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-   {:name :size             :required false :default :regular         :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
-   {:name :tooltip          :required false                           :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-   {:name :tooltip-position :required false :default :below-center    :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :emphasise?       :required false :default false            :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out"}
-   {:name :disabled?        :required false :default false            :type "boolean"                                        :description "if true, the user can't click the button"}
-   {:name :class            :required false                           :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style            :required false                           :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr             :required false                           :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]] }
+   {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+   {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
+   {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+   {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :emphasise?       :required false :default false         :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out"}
+   {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
+   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+   {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
+   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
@@ -80,7 +80,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
-          :or   {md-icon-name "zmdi zmdi-add"}
+          :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro md-circle-icon-button-args-desc args "md-circle-icon-button")]}
       (let [the-button [:div
@@ -104,7 +104,7 @@
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
-                        [:i {:class md-icon-name}]]]
+                        [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
         (if tooltip
           [popover-tooltip
            :label    tooltip
@@ -119,16 +119,16 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-icon-button-args-desc
-  [{:name :md-icon-name     :required true  :default "zmdi zmdi-add" :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi zmdi-add\""] " or " [:code "\"zmdi zmdi-undo\""]]}
-   {:name :on-click         :required false                          :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-   {:name :size             :required false :default :regular        :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
-   {:name :tooltip          :required false                          :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-   {:name :tooltip-position :required false :default :below-center   :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :emphasise?       :required false :default false           :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out"}
-   {:name :disabled?        :required false :default false           :type "boolean"                                        :description "if true, the user can't click the button"}
-   {:name :class            :required false                          :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style            :required false                          :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr             :required false                          :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
+   {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+   {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
+   {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+   {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :emphasise?       :required false :default false         :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out"}
+   {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
+   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+   {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
+   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (defn md-icon-button
   "a square button containing a material design icon"
@@ -136,7 +136,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
-          :or   {md-icon-name "zmdi zmdi-add"}
+          :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro md-icon-button-args-desc args "md-icon-button")]}
       (let [the-button [:div
@@ -155,13 +155,12 @@
                                        style)
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))
-                           }
+                                         (on-click)))}
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
-                        [:i {:class (str md-icon-name " zmdi-hc-fw-rc")}]]]
+                        [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
         (if tooltip
           [popover-tooltip
            :label    tooltip

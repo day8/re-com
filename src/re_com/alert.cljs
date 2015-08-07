@@ -36,10 +36,7 @@
         alert-class  (alert-type {:none           ""
                                   :info           "alert-success"
                                   :warning        "alert-warning"
-                                  :danger         "alert-danger"
-                                  :info-modern    "alert-success alert-success-modern"
-                                  :warning-modern "alert-warning alert-warning-modern"
-                                  :danger-modern  "alert-danger  alert-danger-modern"})]
+                                  :danger         "alert-danger"})]
     [:div
      (merge {:class (str "rc-alert alert fade in " alert-class " " class)
              :style (merge (flex-child-style "none")

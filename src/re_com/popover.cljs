@@ -33,10 +33,11 @@
                   (close-callback)
                   (reset! showing? false)))
     :class    "close"
-    :style    (merge {:font-size "26px"
+    :style    (merge {:width     "34px"
+                      :font-size "26px"
                       :position  "absolute"
                       :top       "4px"
-                      :right     "4px"}
+                      :right     "2px"}
                      style)}
    [:i {:class "zmdi zmdi-hc-fw-rc zmdi-close"}]])
 
