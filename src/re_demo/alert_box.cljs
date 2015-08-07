@@ -7,9 +7,12 @@
 
 (defn alert-box-demo
   []
-  (let [show-alert  (reagent/atom true)
-        show-alert1 (reagent/atom true)
-        show-alert2 (reagent/atom true)]
+  (let [show-alert1 (reagent/atom true)
+        show-alert2 (reagent/atom true)
+        show-alert3 (reagent/atom true)
+        show-alert4 (reagent/atom true)
+        show-alert5 (reagent/atom true)
+        show-alert6 (reagent/atom true)]
     (fn []
       [v-box
        :size     "auto"
@@ -31,35 +34,35 @@
                                :width    "600px"
                                :gap      "10px"
                                :children [[title2 "Demo"]
-                                          (if @show-alert
+                                          (if @show-alert1
                                             [alert-box      ;(alert-box-meta alert-box)
                                              :id         1
                                              :alert-type :info
                                              :heading    "This Is An Alert Heading"
                                              :body       [:p "This is an alert body. This alert has an :alert-type of :info which makes it green, and it includes a :heading, a :body and a close button. Click the x to close it."]
                                              :closeable? true
-                                             :on-close   #(reset! show-alert false)]
+                                             :on-close   #(reset! show-alert1 false)]
                                             [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
 
                                           [gap :size "30px"]
                                           [title
                                            :level :level3
                                            :label "Further Variations"]
-                                          (when @show-alert1
+                                          (when @show-alert2
                                             [:div
                                              [alert-box
                                               :alert-type :info
                                               :heading    "Alert with :heading but no :body"
                                               :closeable? true
-                                              :on-close   #(reset! show-alert1 false)]])
-                                          (when @show-alert2
+                                              :on-close   #(reset! show-alert2 false)]])
+                                          (when @show-alert3
                                             [:div
                                              [alert-box
                                               :alert-type :warning
                                               :body       "Alert with :body but no :heading (:padding set to 6px)."
                                               :padding    "6px"
                                               :closeable? true
-                                              :on-close   #(reset! show-alert2 false)]])
+                                              :on-close   #(reset! show-alert3 false)]])
                                           [alert-box
                                            :alert-type :danger
                                            :heading    ":alert-type is :danger"
@@ -70,21 +73,21 @@
                                           [title
                                            :level :level3
                                            :label [:span "\"modern\" " [:code ":alert-type"] " Variations"]]
-                                          (when @show-alert1
+                                          (when @show-alert4
                                             [:div
                                              [alert-box
                                               :alert-type :info-modern
                                               :heading    "Alert with :heading but no :body"
                                               :closeable? true
-                                              :on-close   #(reset! show-alert1 false)]])
-                                          (when @show-alert2
+                                              :on-close   #(reset! show-alert4 false)]])
+                                          (when @show-alert5
                                             [:div
                                              [alert-box
                                               :alert-type :warning-modern
                                               :body       "Alert with :body but no :heading (:padding set to 6px)."
                                               :padding    "6px"
                                               :closeable? true
-                                              :on-close   #(reset! show-alert2 false)]])
+                                              :on-close   #(reset! show-alert5 false)]])
                                           [alert-box
                                            :alert-type :danger-modern
                                            :heading    ":alert-type is :danger"
@@ -95,15 +98,14 @@
                                           [title
                                            :level :level3
                                            :label [:span [:code ":alert-type"] " set to " [:code ":none"]]]
-                                          (if @show-alert
+                                          (when @show-alert6
                                             [alert-box
                                              :id         1
                                              :alert-type :none
                                              :heading    "This Is An Unstyled Alert"
                                              :body       [:p "This is an alert body. This alert has an :alert-type of :none, and it includes a :heading, a :body and a close button. Click the x to close it."]
                                              :closeable? true
-                                             :on-close   #(reset! show-alert false)]
-                                            [:p {:style {:text-align "center" :margin "30px"}} "[You closed me]"])
+                                             :on-close   #(reset! show-alert6 false)])
 
                                           [title
                                            :level :level3
@@ -119,8 +121,7 @@
                                            :style      {:background-color "rgba(223, 240, 200, 0.4)"
                                                         :border           "2px solid green"
                                                         :border-radius    "0px"
-                                                        :box-shadow       "2px 2px 6px #ccc"}
-                                           :on-close   #(reset! show-alert false)]
+                                                        :box-shadow       "2px 2px 6px #ccc"}]
                                           [gap :size "60px"]]]]]]])))
 
 
@@ -129,5 +130,3 @@
 (defn panel
   []
   [alert-box-demo])
-
-

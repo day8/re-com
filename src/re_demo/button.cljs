@@ -78,7 +78,7 @@
                                            [p "The two buttons above are styled using Bootstrap. For the " [:code ":class"] " parameter, we passed in the name of a standard Bootstrap class, like \"btn-default\"."]
                                            [p "But the button below was created by supplying inline styles via the " [:code ":style"] " and " [:code ":attr"] " parameters. To see the code, click the \"Page Source\" hyperlink at the top."]
                                            [button
-                                            :label    [:span "Microsoft Modern Button " [:i.zmdi.zmdi-download]]
+                                            :label    [:span "Microsoft Modern Button " [:i.zmdi.zmdi-hc-fw-rc.zmdi-download]]
                                             :on-click #()
                                             :style    {:color            "white"
                                                        :background-color (if @hover? "#0072bb" "#4d90fe")

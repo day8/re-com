@@ -406,7 +406,7 @@
   "close button used for all the editors"
   [on-close]
   [button
-   :label    [:i {:class "zmdi zmdi-close"
+   :label    [:i {:class "zmdi zmdi-hc-fw-rc zmdi-close"
                   :style {:font-size "20px"
                           :margin-left "8px"}}]
    :on-click #(on-close)

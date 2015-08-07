@@ -1309,7 +1309,6 @@ code {
 }
 
 .zmdi-hc-fw-rc {
-  width: 0.5em;
-  /*width: 1.19em;*/
+  width: 1em;
   text-align: center;
 }

@@ -29,7 +29,7 @@
       :as   args}]
   {:pre [(validate-args-macro alert-box-args-desc args "alert-box")]}
   (let [close-button [button
-                      :label    [:i {:class "zmdi zmdi-close"
+                      :label    [:i {:class "zmdi created zmdi-hc-fw-rc zmdi-close"
                                      :style {:font-size "20px"}}]    ;"×"
                       :on-click (handler-fn (on-close id))
                       :class    "close"]

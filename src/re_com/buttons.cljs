@@ -161,7 +161,7 @@
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
-                        [:i {:class md-icon-name}]]]
+                        [:i {:class (str md-icon-name " zmdi-hc-fw-rc")}]]]
         (if tooltip
           [popover-tooltip
            :label    tooltip
@@ -251,7 +251,7 @@
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
                           attr)
-                        [:i {:class md-icon-name}]]]
+                        [:i {:class (str md-icon-name " zmdi-hc-fw-rc")}]]]
         (if tooltip
           [popover-tooltip
            :label    tooltip

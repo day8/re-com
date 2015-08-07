@@ -33,12 +33,12 @@
                   (close-callback)
                   (reset! showing? false)))
     :class    "close"
-    :style    (merge {:font-size "34px"
+    :style    (merge {:font-size "26px"
                       :position  "absolute"
-                      :top       "0px"
-                      :right     "0px"}
+                      :top       "4px"
+                      :right     "4px"}
                      style)}
-   [:i {:class "zmdi zmdi-close"}]])
+   [:i {:class "zmdi zmdi-hc-fw-rc zmdi-close"}]])
 
 
 (defn- calc-popover-pos
