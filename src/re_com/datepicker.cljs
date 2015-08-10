@@ -87,7 +87,7 @@
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
   [current {show-weeks? :show-weeks? minimum :minimum maximum :maximum}]
   (let [prev-date     (dec-month @current)
-        prev-enabled? (if minimum (after? prev-date minimum) true)
+        prev-enabled? (if minimum (after? prev-date (dec-month minimum)) true)
         next-date     (inc-month @current)
         next-enabled? (if maximum (before? next-date maximum) true)
         template-row  (if show-weeks? [:tr [:th]] [:tr])]
