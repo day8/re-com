@@ -30,6 +30,23 @@ html, body {
 }
 
 /*----------------------------------------------------------------------------------------
+  Bootstrap overrides after upgrading to 3.3.5
+----------------------------------------------------------------------------------------*/
+
+.popover, .tooltip {
+    font-family: Segoe UI, Roboto, sans-serif;
+}
+
+.popover-title {
+    font-weight: normal;
+}
+
+.form-control-feedback {
+    pointer-events: initial;
+}
+
+
+/*----------------------------------------------------------------------------------------
   The section immediately below is required for the drop-down components and comes from
   the bootstrap-chosen library:
 
