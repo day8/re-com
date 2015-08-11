@@ -29,11 +29,11 @@
 
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
                                                [alandipert/storage-atom         "1.2.4" ]
-                                               [figwheel                        "0.2.6"]
+                                               [figwheel                        "0.3.7"]
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]
                                                [secretary                       "1.2.3"]]
                                 :plugins      [[lein-cljsbuild                  "1.0.6"]
-                                               [lein-figwheel                   "0.2.6"]
+                                               [lein-figwheel                   "0.3.7"]
                                                [lein-shell                      "0.4.1"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
@@ -44,7 +44,6 @@
 
   ;:jvm-opts         ^:replace ["-Xms2g" "-Xmx2g" "-server"]
 
-  :source-paths    ["src" "dev"]
   :test-paths      ["test"]
   :resource-paths  ["run/resources"]
   ; :clean-targets   [:target-path]
@@ -53,10 +52,11 @@
   :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)compiled.*\/"]
 
   :cljsbuild {:builds [{:id           "demo"
-                        :source-paths ["src" "dev"]
+                        :source-paths ["src"]
+                        :figwheel     {:on-jsload     "re-demo.core/mount-demo"}
                         :compiler     {:output-to     "run/resources/public/compiled_dev/demo.js"
                                        :output-dir    "run/resources/public/compiled_dev/demo"
-                                       :main          "figwheel-start.core"
+                                       :main          "re-demo.core"
                                        :asset-path    "compiled_dev/demo"
                                        :source-map    true
                                        :optimizations :none
