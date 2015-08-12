@@ -4,7 +4,7 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "0.6.0-SNAPSHOT"
+(defproject         re-com "0.6.0"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
@@ -42,14 +42,11 @@
                      :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
                      :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}
 
-  ;:jvm-opts         ^:replace ["-Xms2g" "-Xmx2g" "-server"]
-
   :test-paths      ["test"]
   :resource-paths  ["run/resources"]
-  ; :clean-targets   [:target-path]
 
   ;; Exclude the demo and compiled files from the output of either 'lein jar' or 'lein install'
-  :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)compiled.*\/"]
+  :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
 
   :cljsbuild {:builds [{:id           "demo"
                         :source-paths ["src"]
@@ -64,13 +61,8 @@
                        {:id           "prod"
                         :source-paths ["src"]
                         :compiler     {:output-to       "run/resources/public/compiled_prod/demo.js"
-                                       ;:source-map      "run/resources/public/compiled_prod/demo.js.map"
                                        :output-dir      "run/resources/public/compiled_prod/demo"
                                        :closure-defines {:goog.DEBUG false}
-                                       ;:source-map-path "js/out"                  ;; https://github.com/clojure/clojurescript/wiki/Source-maps#web-server-integration
-                                       ;:main            "re-demo.core"            ;; Works but not required in this case becasue index_prod.html knows which function to call
-                                       ;:asset-path      "compiled_prod/demo"
-                                       ;:elide-asserts   true
                                        :optimizations   :advanced
                                        :pretty-print    false
                                        :pseudo-names    false}}
@@ -92,8 +84,8 @@
                            :local-root "run/resources/public"}}
 
   :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
-                             :macosx "open"
-                             :linux "xdg-open"}}}
+                             :macosx  "open"
+                             :linux   "xdg-open"}}}
 
   :aliases          {;; *** DEMO ***
 
