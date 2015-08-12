@@ -37,7 +37,7 @@
                            :size "100px"
                            :align-self  :center
                            :justify :center
-                           :child  [:div {:class "md-forward rc-icon-larger"
+                           :child  [:div {:class "zmdi zmdi-forward rc-icon-larger"
                                           :style {:color "lightgrey"}}]]
                           [v-box
                            :children [[p "... results in this kind of structure:"]

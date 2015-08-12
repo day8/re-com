@@ -2,29 +2,9 @@
 
 (def fig-port 3449)
 
-(defn build-command-map
-      "Return a map containing a different build command for each supported os"
-      [base-cmd]
-      (let [cmd {:windows ["shell" "cmd" "/c" "start"]
-                 :macosx  ["shell" "open"]
-                 :linux   ["shell" "xdg-open"]}]
-           {:windows (conj (:windows cmd) base-cmd)
-            :macosx  (conj (:macosx  cmd) base-cmd)
-            :linux   (conj (:linux   cmd) base-cmd)}))
-
-(def command-lookups {:launch-server-url (build-command-map (str "http://localhost:" fig-port "/index_dev.html"))
-                      :launch-file-url   (build-command-map "run/resources/public/index_dev.html")
-                      :launch-prod-url   (build-command-map "run/resources/public/index_prod.html")
-                      :launch-test-url   (build-command-map "run/test/test.html")})
-
-(defn get-command-for-os
-      "Return the os-dependent command"
-      [cmd]
-      (get-in command-lookups [cmd (leiningen.core.eval/get-os)]))
-
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "0.6.0-SNAPSHOT"
+(defproject         re-com "0.6.0"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
@@ -49,12 +29,12 @@
 
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
                                                [alandipert/storage-atom         "1.2.4" ]
-                                               [figwheel                        "0.2.6"]
+                                               [figwheel                        "0.3.7"]
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]
                                                [secretary                       "1.2.3"]]
                                 :plugins      [[lein-cljsbuild                  "1.0.6"]
-                                               [lein-figwheel                   "0.2.6"]
-                                               [lein-shell                      "0.4.0"]
+                                               [lein-figwheel                   "0.3.7"]
+                                               [lein-shell                      "0.4.1"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
                                                [lein-ancient                    "0.6.2"]]}
@@ -62,21 +42,18 @@
                      :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
                      :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}
 
-  ;:jvm-opts         ^:replace ["-Xms2g" "-Xmx2g" "-server"]
-
-  :source-paths    ["src" "dev"]
   :test-paths      ["test"]
   :resource-paths  ["run/resources"]
-  ; :clean-targets   [:target-path]
 
   ;; Exclude the demo and compiled files from the output of either 'lein jar' or 'lein install'
-  :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)compiled.*\/"]
+  :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
 
   :cljsbuild {:builds [{:id           "demo"
-                        :source-paths ["src" "dev"]
+                        :source-paths ["src"]
+                        :figwheel     {:on-jsload     "re-demo.core/mount-demo"}
                         :compiler     {:output-to     "run/resources/public/compiled_dev/demo.js"
                                        :output-dir    "run/resources/public/compiled_dev/demo"
-                                       :main          "figwheel-start.core"
+                                       :main          "re-demo.core"
                                        :asset-path    "compiled_dev/demo"
                                        :source-map    true
                                        :optimizations :none
@@ -84,13 +61,8 @@
                        {:id           "prod"
                         :source-paths ["src"]
                         :compiler     {:output-to       "run/resources/public/compiled_prod/demo.js"
-                                       ;:source-map      "run/resources/public/compiled_prod/demo.js.map"
                                        :output-dir      "run/resources/public/compiled_prod/demo"
                                        :closure-defines {:goog.DEBUG false}
-                                       ;:source-map-path "js/out"                  ;; https://github.com/clojure/clojurescript/wiki/Source-maps#web-server-integration
-                                       ;:main            "re-demo.core"            ;; Works but not required in this case becasue index_prod.html knows which function to call
-                                       ;:asset-path      "compiled_prod/demo"
-                                       ;:elide-asserts   true
                                        :optimizations   :advanced
                                        :pretty-print    false
                                        :pseudo-names    false}}
@@ -111,16 +83,20 @@
         :s3-static-deploy {:bucket     "re-demo"
                            :local-root "run/resources/public"}}
 
+  :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
+                             :macosx  "open"
+                             :linux   "xdg-open"}}}
+
   :aliases          {;; *** DEMO ***
 
                      "run"        ["with-profile" "+dev-run" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "demo"]
-                                   ~(get-command-for-os :launch-file-url)]
+                                   ["shell" "open" "run/resources/public/index_dev.html"]]
 
                      "debug"      ["with-profile" "+dev-run" "do"
                                    ["clean"]
-                                   ~(get-command-for-os :launch-server-url)   ;; NOTE: run will initially fail, refresh browser once build complete
+                                   ~["shell" "open" (str "http://localhost:" fig-port "/index_dev.html")]   ;; NOTE: run will initially fail, refresh browser once build complete
                                    ["figwheel" "demo"]]
 
                      ;; *** PROD ***
@@ -128,7 +104,7 @@
                      "run-prod"   ["with-profile" "+prod-run" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "prod"]
-                                   ~(get-command-for-os :launch-prod-url)]
+                                   ["shell" "open" "run/resources/public/index_prod.html"]]
 
                      "debug-prod" ["with-profile" "+prod-run" "do"
                                    ["run-prod"]
@@ -144,7 +120,7 @@
                      "run-test"   ["with-profile" "+dev-test" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "test"]
-                                   ~(get-command-for-os :launch-test-url)]
+                                   ["shell" "open" "run/test/test.html"]]
 
                      "debug-test" ["with-profile" "+dev-test" "do"
                                    ["run-test"]

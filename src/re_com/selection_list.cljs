@@ -95,7 +95,7 @@
 (def selection-list-args-desc
   [{:name :choices        :required true                 :type "vector of maps | atom"              :validate-fn vector-of-maps? :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below (list of maps also allowed)"]}
    {:name :model          :required true                 :type "set of :ids within :choices | atom" :validate-fn set-or-atom?    :description "the currently selected items. Note: items are considered distinct"}
-   {:name :on-change      :required true                 :type "set of :ids -> nil | atom"          :validate-fn fn?             :description "a callback which will be passed set of the ids of the selected items"}
+   {:name :on-change      :required true                 :type "set of :ids -> nil | atom"          :validate-fn fn?             :description [:span "a callback which will be passed set of the ids (as defined by " [:code ":id-fn"] ") of the selected items"]}
    {:name :id-fn          :required false :default :id   :type "choice -> anything"                 :validate-fn ifn?            :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
    {:name :multi-select?  :required false :default true  :type "boolean | atom"                                                  :description "when true, use check boxes, otherwise radio buttons"}
    {:name :as-exclusions? :required false :default false :type "boolean | atom"                                                  :description "when true, selected items are shown with struck-out labels"}

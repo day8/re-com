@@ -31,17 +31,15 @@ If you are similar, or if you work on Intranet apps where you can mandate a mode
 re-com could be ideal for you, right now.
 
 On the other hand, if you target the retail web, you might have to wait till early 2016
-(10 months away, at the time of writing).
+(5 months away, at the time of writing).
 
 Why?  **Well, here's the thing:**  the entire layout side of this library plus a few of the widgets
 rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
 which only works on [modern browsers](http://caniuse.com/#feat=flexbox), and specifically not IE 9 and 10.
 
-
 Now, the grinding pain and longevity of IE6 has conditioned many to
 expect 8, 9 and 10 to hang around forever too.  But, this time around, there's
-quite a different dynamic. Microsoft
-itself is very actively forcing their demise -
+quite a different dynamic. Microsoft itself is very actively forcing their demise -
 [come Jan 12th 2016 corporates will have to be on IE11](http://blogs.msdn.com/b/ie/archive/2014/08/07/stay-up-to-date-with-internet-explorer.aspx)
 
 So, by Q1 2016, the market share of IE9 and IE10 will have diminished sufficiently
@@ -50,14 +48,14 @@ If so, a modern flexbox implementation will be available on all the browsers you
 **So that's surprisingly soon, but not now!**
 
 But, even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
-testing once a month, re-com appears to work reasonably on IE11 and Safari. On the other hand,
-Firefox has all the speed of a snail
-on performance reducing drugs.
-So, yeah, "teething issues".  (Update: Firefox 38, due May 2015,
-[fixes](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) the performance problems caused by nested flexboxes.)
+testing once a month, re-com appears to work reasonably on IE11 and Safari. 
+On the other hand, Firefox (pre version 38) has all the speed of a snail on performance reducing drugs. Version 38 and beyond 
+have a [fix](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) for the performance problems caused by nested flexboxes,
+however we are informed by [@frozenlock](https://github.com/frozenlock) that it is still not as fast as Chrome if you are using **deeply** nested flexbox layouts 
+(much more nested than our demo app).
 
-I can also confirm that none of the components have been designed with mobile in mind, and
-that there's no attempt to handle media queries.  I said we had a desktop app focus, right?
+We can also confirm that none of the components have been designed with mobile in mind, and
+that there's no attempt to handle media queries.  We said we had a desktop app focus, right?
 
 Neither have we been worried too much about code size because other design goals have
 taken precedence.  Our main demo app which includes every component, plus all demo

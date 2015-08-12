@@ -63,7 +63,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-circle-icon-button-args-desc
-  [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"md-add\""] " or " [:code "\"md-undo\""]] }
+  [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]] }
    {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
    {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
@@ -80,7 +80,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
-          :or   {md-icon-name "md-add"}
+          :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro md-circle-icon-button-args-desc args "md-circle-icon-button")]}
       (let [the-button [:div
@@ -104,7 +104,7 @@
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
-                        [:i {:class md-icon-name}]]]
+                        [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
         (if tooltip
           [popover-tooltip
            :label    tooltip
@@ -119,7 +119,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-icon-button-args-desc
-  [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"md-add\""] " or " [:code "\"md-undo\""]]}
+  [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
    {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
    {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
@@ -136,7 +136,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
-          :or   {md-icon-name "md-add"}
+          :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro md-icon-button-args-desc args "md-icon-button")]}
       (let [the-button [:div
@@ -155,13 +155,12 @@
                                        style)
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))
-                           }
+                                         (on-click)))}
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
-                        [:i {:class md-icon-name}]]]
+                        [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
         (if tooltip
           [popover-tooltip
            :label    tooltip
@@ -217,7 +216,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def row-button-args-desc
-  [{:name :md-icon-name     :required true  :default "md-add"      :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"md-add\""] " or " [:code "\"md-undo\""]]}
+  [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
    {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
    {:name :mouse-over-row?  :required false :default false         :type "boolean"                                        :description "true if the mouse is hovering over the row"}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
@@ -233,7 +232,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [md-icon-name on-click mouse-over-row? tooltip tooltip-position disabled? class style attr]
-          :or   {md-icon-name "md-add"}
+          :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro row-button-args-desc args "row-button")]}
       (let [the-button [:div
@@ -251,7 +250,7 @@
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
                           attr)
-                        [:i {:class md-icon-name}]]]
+                        [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
         (if tooltip
           [popover-tooltip
            :label    tooltip

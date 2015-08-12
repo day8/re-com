@@ -185,5 +185,5 @@
                        [:span.glyphicon.glyphicon-time
                         {:style {:position "static" :margin "auto"}}]]
                       [:div.time-icon
-                       [:i.md-access-time
+                       [:i.zmdi.zmdi-hc-fw-rc.zmdi-time
                         {:style {:position "static" :margin "auto"}}]])]]))))

@@ -1,12 +1,10 @@
 (ns re-demo.row-button
-  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox
-                                                   horizontal-bar-tabs vertical-bar-tabs title p]
+  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox horizontal-bar-tabs vertical-bar-tabs title p]
                                            :refer-macros [handler-fn]]
             [re-com.buttons                :refer [row-button-args-desc]]
             [re-com.util                   :refer [enumerate]]
             [re-demo.md-circle-icon-button :refer [icons example-icons]]
-            [re-demo.utils                 :refer [panel-title title2 args-table material-design-hyperlink
-                                                   github-hyperlink status-text]]
+            [re-demo.utils                 :refer [panel-title title2 args-table material-design-hyperlink github-hyperlink status-text]]
             [reagent.core                  :as    reagent]))
 
 
@@ -22,13 +20,13 @@
                  :gap "2px"
                  :align :center
                  :children [[row-button
-                             :md-icon-name    "md-arrow-back md-rotate-90" ;; "md-arrow-back md-rotate-90", "md-play-arrow md-rotate-270", "md-expand-less"
+                             :md-icon-name    "zmdi zmdi-arrow-back zmdi-hc-rotate-90"
                              :mouse-over-row? mouse-over-row?
                              :tooltip         "Move this line up"
                              :disabled?       (and first? mouse-over-row?)
                              :on-click        #(reset! click-msg (str "move row " (:id row) " up"))]
                             [row-button
-                             :md-icon-name    "md-arrow-forward md-rotate-90" ;; "md-arrow-forward md-rotate-90", "md-play-arrow md-rotate-90", "md-expand-more"
+                             :md-icon-name    "zmdi zmdi-arrow-forward zmdi-hc-rotate-90"
                              :mouse-over-row? mouse-over-row?
                              :tooltip         "Move this line down"
                              :disabled?       (and last? mouse-over-row?)
@@ -41,17 +39,17 @@
                  :width    (:actions col-widths)
                  :align    :center
                  :children [[row-button
-                             :md-icon-name    "md-content-copy"
+                             :md-icon-name    "zmdi zmdi-copy"
                              :mouse-over-row? mouse-over-row?
                              :tooltip         "Copy this line"
                              :on-click        #(reset! click-msg (str "copy row " (:id row)))]
                             [row-button
-                             :md-icon-name    "md-mode-edit"
+                             :md-icon-name    "zmdi zmdi-edit"
                              :mouse-over-row? mouse-over-row?
                              :tooltip         "Edit this line"
                              :on-click        #(reset! click-msg (str "edit row " (:id row)))]
                             [row-button
-                             :md-icon-name    "md-delete"
+                             :md-icon-name    "zmdi zmdi-delete"
                              :mouse-over-row? mouse-over-row?
                              :tooltip         "Delete this line"
                              :on-click        #(reset! click-msg (str "delete row " (:id row)))]]]]]))

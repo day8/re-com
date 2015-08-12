@@ -19,7 +19,8 @@
                                (js/setTimeout #(reset! show? false) 3000))]
                   (when @show?
                     [modal-panel
-                     :child [:span "Please wait (for 3 seconds)..."]])]])))
+                     :backdrop-on-click #(reset! show? false)
+                     :child             [:span "Please wait for 3 seconds" [:br] "(or click on backdrop)"]])]])))
 
 
 (defn progress-bar-with-cancel-button
@@ -34,6 +35,7 @@
                    :on-click #(reset! show? true)]
                   (when @show?
                     [modal-panel
+                     :backdrop-on-click #(reset! show? false)
                      :child [v-box
                              :width    "300px"
                              :children [[title :level :level2 :label "Recalculating..."]
@@ -41,13 +43,13 @@
                                         [progress-bar
                                          :model 33]
                                         [gap :size "10px"]
-                                        [:span
-                                         [button
-                                          :label "Cancel"
-                                          :class "btn-danger"
-                                          :style {:margin-right "15px"}
-                                          :on-click #(reset! show? false)]
-                                         [:span "pretend only, click Cancel"]]]]])]])))
+                                        [h-box
+                                         :children [[button
+                                                     :label    "Cancel"
+                                                     :class    "btn-danger"
+                                                     :style    {:margin-right "15px"}
+                                                     :on-click #(reset! show? false)]
+                                                    [:span "pretend only, click Cancel" [:br] "(or click on backdrop)"]]]]]])]])))
 
 
 (defn dialog-markup
@@ -95,19 +97,19 @@
 (defn modal-dialog
   "Create a button to test the modal component for modal dialogs"
   []
-  (let [showing?       (reagent/atom false)
+  (let [show?       (reagent/atom false)
         form-data      (reagent/atom {:email       "james.bond.007@sis.gov.uk"
                                       :password    "abc123"
                                       :remember-me true})
         save-form-data (reagent/atom nil)
         process-ok     (fn [event]
-                         (reset! showing? false)
+                         (reset! show? false)
                          (println "Submitted form data: " @form-data)
                          ;; ***** PROCESS THE RETURNED DATA HERE
                          false) ;; Prevent default "GET" form submission (if used)
         process-cancel (fn [event]
                          (reset! form-data @save-form-data)
-                         (reset! showing? false)
+                         (reset! show? false)
                          (println "Cancelled form data: " @form-data)
                          false)]
     (fn []
@@ -117,8 +119,8 @@
                    :class    "btn-info"
                    :on-click #(do
                                (reset! save-form-data @form-data)
-                               (reset! showing? true))]
-                  (when @showing? [modal-panel
+                               (reset! show? true))]
+                  (when @show? [modal-panel
                                    :backdrop-color   "grey"
                                    :backdrop-opacity 0.4
                                    :style            {:font-family "Consolas"}

@@ -49,14 +49,14 @@
                                         [h-box
                                          :gap      "10px"
                                          :children [[button
-                                                     :label    [:span [:i {:class "md-check" }] " Apply"]
+                                                     :label    [:span [:i {:class "zmdi zmdi-check" }] " Apply"]
                                                      :on-click #(submit-dialog @dialog-data)
                                                      :class    "btn-primary"]
                                                     [popover-anchor-wrapper
                                                      :showing? show-tooltip?
                                                      :position :right-below
                                                      :anchor   [button
-                                                                :label    [:span [:i {:class "md-close" }] " Cancel"]
+                                                                :label    [:span [:i {:class "zmdi zmdi-close" }] " Cancel"]
                                                                 :on-click cancel-dialog]
                                                      :popover  [popover-content-wrapper ;; NOTE: didn't specify on-cancel here (handled properly)
                                                                 :showing?      show-tooltip?

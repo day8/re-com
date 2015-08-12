@@ -54,7 +54,7 @@ Note that all these commands are entered at the repo root folder.
 - [ ] Update README.md file if required.
 - [ ] If you have made changes, commit and push this branch:
        - `git commit -a -m "Bumped version to x.x.x  etc."` 
-       - `git push` ==> `git push --set-upstream origin release/x.x.x`
+       - DIDN'T USE THIS LINE...REMOVE? `git push` ==> `git push --set-upstream origin release/x.x.x`
 - [ ] Finish the release:
        - `git flow release finish 'x.x.x'`
        - Pops up an editor to describe the release. I just put "Version x.x.x".

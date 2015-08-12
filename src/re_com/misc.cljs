@@ -114,19 +114,18 @@
                          :status status
                          ;:width    "200px"
                          :showing? showing?
-                         :anchor [:i {:class         (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                         :anchor [:i {:class         (str "zmdi " (if (= status :warning) "zmdi-alert-triangle" "zmdi-alert-circle") " form-control-feedback")
                                       :style         {:position "static"
                                                       :width    "auto"
                                                       :height   "auto"
-                                                      :opacity  (if (and status-icon? status) "1" "0")
-                                                      }
+                                                      :opacity  (if (and status-icon? status) "1" "0")}
                                       :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
                                       :on-mouse-out  (handler-fn (reset! showing? false))}]
                          :style (merge (flex-child-style "none")
                                        (align-style :align-self :center)
                                        {:font-size   "130%"
                                         :margin-left "4px"})]
-                        [:i {:class (str (if (= status :warning) "md-warning" "md-error") " form-control-feedback")
+                        [:i {:class (str "zmdi " (if (= status :warning) "zmdi-alert-triangle" "zmdi-alert-circle") " form-control-feedback")
                              :style (merge (flex-child-style "none")
                                            (align-style :align-self :center)
                                            {:position    "static"
