@@ -311,7 +311,7 @@
                                :width     "300px"
                                :on-change #(do
                                             (reset! selected-country-id %)
-                                            (reset! filtered-cities (filter-choices-by-keyword cities :country-id @selected-country-id))
+                                            (reset! filtered-cities (vec (filter-choices-by-keyword cities :country-id @selected-country-id)))
                                             (reset! selected-city-id nil))]
                               [:div
                                [:strong "Selected country: "]
