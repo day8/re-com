@@ -25,31 +25,30 @@
       :or   {wrap-nicely? true backdrop-color "black" backdrop-opacity 0.6}
       :as   args}]
   {:pre [(validate-args-macro modal-panel-args-desc args "modal-panel")]}
-  (fn []
-    [:div    ;; Containing div
-     (merge {:class  (str "rc-modal-panel display-flex " class)
-             :style (merge {:position "fixed"
-                            :left     "0px"
-                            :top      "0px"
-                            :width    "100%"
-                            :height   "100%"
-                            :z-index  1020}
-                           style)}
-            attr)
-     [:div    ;; Backdrop
-      {:style    {:position         "fixed"
-                  :width            "100%"
-                  :height           "100%"
-                  :background-color backdrop-color
-                  :opacity          backdrop-opacity
-                  :z-index          1}
-       :on-click (handler-fn (when backdrop-on-click (backdrop-on-click))
-                             (.preventDefault event)
-                             (.stopPropagation event))}]
-     [:div    ;; Child container
-      {:style (merge {:margin  "auto"
-                      :z-index 2}
-                     (when wrap-nicely? {:background-color "white"
-                                         :padding          "16px"
-                                         :border-radius    "6px"}))}
-      child]]))
+  [:div    ;; Containing div
+   (merge {:class  (str "rc-modal-panel display-flex " class)
+           :style (merge {:position "fixed"
+                          :left     "0px"
+                          :top      "0px"
+                          :width    "100%"
+                          :height   "100%"
+                          :z-index  1020}
+                         style)}
+          attr)
+   [:div    ;; Backdrop
+    {:style    {:position         "fixed"
+                :width            "100%"
+                :height           "100%"
+                :background-color backdrop-color
+                :opacity          backdrop-opacity
+                :z-index          1}
+     :on-click (handler-fn (when backdrop-on-click (backdrop-on-click))
+                           (.preventDefault event)
+                           (.stopPropagation event))}]
+   [:div    ;; Child container
+    {:style (merge {:margin  "auto"
+                    :z-index 2}
+                   (when wrap-nicely? {:background-color "white"
+                                       :padding          "16px"
+                                       :border-radius    "6px"}))}
+    child]])
