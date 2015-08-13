@@ -47,11 +47,11 @@ that they could be ignored. Probably. Maybe.
 If so, a modern flexbox implementation will be available on all the browsers you then care about.
 **So that's surprisingly soon, but not now!**
 
-But, even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
+Even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
 testing once a month, re-com appears to work reasonably on IE11 and Safari. 
 On the other hand, Firefox (pre version 38) has all the speed of a snail on performance reducing drugs. Version 38 and beyond 
 have a [fix](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) for the performance problems caused by nested flexboxes,
-however we are informed by [@frozenlock](https://github.com/frozenlock) that it is still not as fast as Chrome if you are using **deeply** nested flexbox layouts 
+however as per issue #49 it is still not as fast as Chrome if you are using **deeply** nested flexbox layouts 
 (much more nested than our demo app).
 
 We can also confirm that none of the components have been designed with mobile in mind, and
@@ -179,10 +179,10 @@ https://github.com/Day8/re-com/tree/master/run/resources/public
 
 In particular, you'll need bootstrap (assumedly via a CDN):
 ```html
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.css">
 ```
 
-And a reference to these two CSS files:
+And a reference to these two CSS files (make sure `re-com.css` appears after `bootstrap.css`):
 
 ```html
 <link rel="stylesheet" href="assets/css/material-design-iconic-font.min.css">
@@ -210,7 +210,7 @@ Although both `re-frame` and `re-com` can be used independently of each other, t
 ## Lein Template
 
 
-See @gadfly361's [reagent-seed](https://github.com/gadfly361/reagent-seed)
+See [re-frame-template](https://github.com/Day8/re-frame-template).
 
 
 ## The Missing Components
@@ -232,13 +232,16 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
 1. Where the docs are wrong or fall short, write up something better. Because
    our docs take the form of an app written in ClojureScrip using re-com, you're actually
    exercising your knowledge of re-com as you do this.
-1. See the list of missing components above. You'll have to produce the
+2. See the list of missing components above. You'll have to produce the
    component itself, including a params spec, plus the extra page in the demo app.
-1. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
+3. Test re-com on new browsers and iron out any quirks.  Our focus is strictly Chrome.
 
 When creating new components, we have found it useful to use the CSS from existing
-javascript projects (assuming their licence is compatible with MIT) and then
-replace the javascript with ClojureScript. Reagent really is is very nice.
+JavaScript projects (assuming their licence is compatible with MIT) and then
+replace the JavaScript with ClojureScript. Reagent really is is very nice.
+
+Also, please refer to [CONTRIBUTING.md](https://github.com/Day8/re-com/blob/master/CONTRIBUTING.md) for further 
+details on creating issues and pull requests.
 
 
 ### License

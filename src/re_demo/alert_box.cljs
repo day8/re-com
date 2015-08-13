@@ -101,7 +101,7 @@
                                               :body       "Alert with :body but no :heading (:padding set to 6px)."
                                               :padding    "6px"
                                               :closeable? true
-                                              :on-close   #(reset! show-alert5 false)]])
+                                              :on-close   #(reset! show-alert6 false)]])
                                           [alert-box
                                            :alert-type :none
                                            :class      "alert-danger-modern"
