@@ -40,7 +40,7 @@
                            :disabled disabled?
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))}
+                                         (on-click event)))}
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
@@ -99,7 +99,7 @@
                                        style)
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))}
+                                         (on-click event)))}
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
@@ -155,7 +155,7 @@
                                        style)
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))
+                                         (on-click event)))
                            }
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
@@ -246,7 +246,7 @@
                            :style    style
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))}
+                                         (on-click event)))}
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
@@ -298,7 +298,7 @@
                                                style)
                                    :on-click (handler-fn
                                                (when (and on-click (not disabled?))
-                                                 (on-click)))}
+                                                 (on-click event)))}
                                   (when tooltip
                                     {:on-mouse-over (handler-fn (reset! showing? true))
                                      :on-mouse-out  (handler-fn (reset! showing? false))})
@@ -391,7 +391,7 @@
           :on-mouse-over #(do (reset! mouse-over? true) nil)
           :on-mouse-out  #(do (reset! mouse-over? false) nil)
           :on-click      #(when (and on-click (not disabled?))
-                           (on-click)
+                           (on-click %1)
                            nil)}
          attr)
        [:i {:class md-icon-name}]])))
