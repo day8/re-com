@@ -2,7 +2,9 @@
   (:require
     [clojure.set :refer [superset?]]
     [goog.date.DateTime]
-    [goog.date.UtcDateTime]))
+    [goog.date.UtcDateTime]
+    [reagent.core :as reagent]                              ;; TODO: Remove these two lines when `component-path` is removed below
+    [reagent.interop :refer-macros [.' .!]]))
 
 (defn fmap
   "Takes a function 'f' amd a map 'm'.  Applies 'f' to each value in 'm' and returns.
@@ -120,6 +122,7 @@
 ;; ----------------------------------------------------------------------------
 ;; date functions
 ;; ----------------------------------------------------------------------------
+
 (defn now->utc
   "Answer a goog.date.UtcDateTime based on local date/time."
   []
@@ -129,3 +132,20 @@
       (.getMonth local-date)
       (.getDate local-date)
       0 0 0 0)))
+
+;; ----------------------------------------------------------------------------
+;; From: https://github.com/reagent-project/reagent/issues/105#issuecomment-134316934
+;; TODO: Replace with the Reagent version when it becomes available
+;; ----------------------------------------------------------------------------
+
+(defn component-path [c]
+  (when-some [elem (some-> (or (some-> c
+                                       (.' :_reactInternalInstance))
+                               c)
+                           (.' :_currentElement))]
+             (let [name      (some-> (.' elem :type)
+                                     (.' :displayName))
+                   disp-name (clojure.string/replace name #"\$" ".")]
+               (if-some [pname (component-path (.' elem :_owner))]
+                        (str pname " > " disp-name)
+                        disp-name))))

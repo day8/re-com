@@ -227,7 +227,7 @@
    {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (defn row-button
-  "a circular button containing a material design icon"
+  "a small button containing a material design icon"
   []
   (let [showing? (reagent/atom false)]
     (fn

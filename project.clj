@@ -11,7 +11,7 @@
 
   :dependencies     [[org.clojure/clojure         "1.7.0"]
                      [org.clojure/clojurescript   "0.0-3308"]
-                     [reagent                     "0.5.0"]
+                     [reagent                     "0.5.1-rc"]
                      [com.andrewmcveigh/cljs-time "0.3.10"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
