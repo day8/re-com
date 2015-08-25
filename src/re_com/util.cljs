@@ -139,13 +139,16 @@
 ;; ----------------------------------------------------------------------------
 
 (defn component-path [c]
-  (when-some [elem (some-> (or (some-> c
-                                       (.' :_reactInternalInstance))
-                               c)
-                           (.' :_currentElement))]
-             (let [name      (some-> (.' elem :type)
-                                     (.' :displayName))
-                   disp-name (clojure.string/replace name #"\$" ".")]
-               (if-some [pname (component-path (.' elem :_owner))]
-                        (str pname " > " disp-name)
-                        disp-name))))
+  (let [elem  (some-> (or (some-> c
+                                  (.' :_reactInternalInstance))
+                          c)
+                      (.' :_currentElement))
+        name  (some-> elem
+                      (.' :type)
+                      (.' :displayName)
+                      (clojure.string/replace #"\$" "."))
+        owner (some-> elem
+                      (.' :_owner)
+                      component-path
+                      (str " > "))]
+    (str owner name)))
