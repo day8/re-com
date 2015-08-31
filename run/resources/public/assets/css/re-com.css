@@ -970,9 +970,9 @@ code {
 .alert-success-modern {
     color:            #444;
     /*background-color: rgba(223, 240, 200, 0.40);*/
-    background-color: rgba(0, 128, 0, 0.1);
+    background-color: #eff9e3;
     border:           none;
-    border-left:      4px solid rgba(0, 128, 0, 0.6);
+    border-left:      4px solid green;
     border-radius:    0px;
 }
 
@@ -981,7 +981,7 @@ code {
     /*background-color: rgba(223, 240, 200, 0.40);*/
     background-color: rgba(255, 165, 0, 0.1);
     border:           none;
-    border-left:      4px solid rgba(255, 165, 0, 0.6);
+    border-left:      4px solid rgba(255, 165, 0, 0.8);
     border-radius:    0px;
 }
 
@@ -990,7 +990,7 @@ code {
     /*background-color: rgba(255, 32, 32, 0.05);*/
     background-color: rgba(255, 0, 0, 0.1);
     border:           none;
-    border-left:      4px solid rgba(255, 0, 0, 0.6);
+    border-left:      4px solid rgba(255, 0, 0, 0.8);
     border-radius:    0px;
 }
 

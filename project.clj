@@ -10,7 +10,7 @@
   :license          {:name "MIT"}
 
   :dependencies     [[org.clojure/clojure         "1.7.0"]
-                     [org.clojure/clojurescript   "0.0-3308"]
+                     [org.clojure/clojurescript   "1.7.48"]
                      [reagent                     "0.5.1-rc"]
                      [com.andrewmcveigh/cljs-time "0.3.10"]]
 
