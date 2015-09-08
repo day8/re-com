@@ -952,7 +952,6 @@ html, body {
     border-color:     #faebcc;
 }
 
-
 code {
     margin-right:   0.2em;
     border-radius:  4px;
@@ -964,42 +963,8 @@ code {
 
 
 /*----------------------------------------------------------------------------------------
-  Modern alerts
-----------------------------------------------------------------------------------------*/
-
-.alert-success-modern {
-    color:            #444;
-    /*background-color: rgba(223, 240, 200, 0.40);*/
-    background-color: rgba(0, 128, 0, 0.1);
-    border:           none;
-    border-left:      4px solid rgba(0, 128, 0, 0.6);
-    border-radius:    0px;
-}
-
-.alert-warning-modern {
-    color:            #444;
-    /*background-color: rgba(223, 240, 200, 0.40);*/
-    background-color: rgba(255, 165, 0, 0.1);
-    border:           none;
-    border-left:      4px solid rgba(255, 165, 0, 0.6);
-    border-radius:    0px;
-}
-
-.alert-danger-modern {
-    color:            #444;
-    /*background-color: rgba(255, 32, 32, 0.05);*/
-    background-color: rgba(255, 0, 0, 0.1);
-    border:           none;
-    border-left:      4px solid rgba(255, 0, 0, 0.6);
-    border-radius:    0px;
-}
-
-
-
-/*----------------------------------------------------------------------------------------
   Time component
 ----------------------------------------------------------------------------------------*/
-
 
 .time-entry {
   flex:          none;

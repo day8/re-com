@@ -89,22 +89,34 @@
                                             [:div
                                              [alert-box
                                               :alert-type :none
-                                              :class      "alert-success-modern"
-                                              :heading    "Alert with :heading but no :body"
+                                              :style {:color             "#222"
+                                                      :background-color  "#eff9e3"
+                                                      :border            "none"
+                                                      :border-left       "4px solid green"
+                                                      :border-radius     "0px"}
+                                              :heading "Alert with :heading but no :body"
                                               :closeable? true
-                                              :on-close   #(reset! show-alert5 false)]])
+                                              :on-close #(reset! show-alert5 false)]])
                                           (when @show-alert6
                                             [:div
                                              [alert-box
                                               :alert-type :none
-                                              :class      "alert-warning-modern"
+                                              :style {:color             "#222"
+                                                      :background-color  "rgba(255, 165, 0, 0.1)"
+                                                      :border            "none"
+                                                      :border-left       "4px solid rgba(255, 165, 0, 0.8)"
+                                                      :border-radius     "0px"}
                                               :body       "Alert with :body but no :heading (:padding set to 6px)."
                                               :padding    "6px"
                                               :closeable? true
                                               :on-close   #(reset! show-alert6 false)]])
                                           [alert-box
                                            :alert-type :none
-                                           :class      "alert-danger-modern"
+                                           :style {:color             "#333"
+                                                   :background-color  "rgba(255, 0, 0, 0.1)"
+                                                   :border            "none"
+                                                   :border-left       "4px solid rgba(255, 0, 0, 0.8)"
+                                                   :border-radius     "0px"}
                                            :heading    ":alert-type is :danger"
                                            :body       [:span "This is the :body of an danger-styled alert with :closeable? omitted (defaults to false). "
                                                         [:a {:href "http://google.com" :target "_blank"} "Link to Google"] "."]]

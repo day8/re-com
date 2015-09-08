@@ -2,6 +2,7 @@
   (:require
     [clojure.set           :refer [superset?]]
     [re-com.util           :refer [deref-or-value]]
+    [reagent.core          :as    reagent]
     [reagent.impl.template :refer [valid-tag?]]
     [goog.string           :as    gstring]
     [goog.date.UtcDateTime]))
@@ -54,14 +55,14 @@
   [defined-args passed-args]
   (or (superset? defined-args passed-args)
       (let [missing-args (remove defined-args passed-args)]
-        (log-error "Invalid argument(s): " missing-args))))
+        (log-error "Invalid argument(s): " missing-args)))) ;; Regent will show the component-path
 
 (defn required-args-passed?
   "returns true if all the required args are supplied. Otherwise log the error and return false"
   [required-args passed-args]
   (or (superset? passed-args required-args)
       (let [missing-args (remove passed-args required-args)]
-        (log-error "Missing required argument(s): " missing-args))))
+        (log-error "Missing required argument(s): " missing-args)))) ;; Regent will show the component-path
 
 
 (defn validate-fns-pass?
@@ -81,15 +82,20 @@
                              arg-val         (deref-or-value (arg-name passed-args)) ;; Automatically extract value if it's in an atom
                              required?       (:required v-arg-def)
                              validate-result ((:validate-fn v-arg-def) arg-val)
-                             log-msg-base    #(str "Validation failed for argument '" arg-name "' in component '" component-name "': ")]
+                             log-msg-base    (str "Validation failed for argument '" arg-name "' in component '" component-name "': ")
+                             comp-path       (str " at " (reagent/component-path (reagent/current-component)))
+                             warning?        (= (:status validate-result) :warning)]
                          ;(println (str "[" component-name "] " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 200)) "' => " validate-result))
                          (cond
                            (or (true? validate-result)
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
                                     (not required?))) true
-                           (false? validate-result)  (log-error (log-msg-base) "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 60)) "'")
-                           (map?   validate-result)  ((if (= (:status validate-result) :warning) log-warning log-error) (log-msg-base) (:message validate-result))
-                           :else                      (log-error "Invalid return from validate-fn: " validate-result))))]
+                           (false? validate-result)  (log-error log-msg-base "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 60)) "'" comp-path)
+                           (map?   validate-result)  ((if warning? log-warning log-error)
+                                                       log-msg-base
+                                                       (:message validate-result)
+                                                       (when warning? comp-path))
+                           :else                      (log-error "Invalid return from validate-fn: " validate-result comp-path))))]
     (->> (select-keys args-with-validators (vec (keys passed-args)))
          (map validate-arg)
          (every? true?))))
