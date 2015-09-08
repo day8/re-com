@@ -16,14 +16,19 @@
   (-seq [array] (array-seq array 0)))
 
 ;; --- Tests ---
-(deftest test-selection-list
+;; NOTE: Commented out becasue internal representation of props changes with new versions of React/Reagent.
+;;       Find a more robust way to get props before reinstating
+
+#_(deftest test-selection-list
   (let [new-comp (reagent/render-component
                    [s-list/selection-list
                     :choices [{:id "1" :name "item 1"} {:id "2" :name "item 2"} {:id "3" :name "item 3"}]
                     :model #{"2"}
                     :on-change #(println %)]
                    (div-app))
-        props (last (-> new-comp .-_renderedComponent .-props .-argv .-tail))]
+        ;props (last (-> new-comp .-_renderedComponent .-props .-argv .-tail))                                      ;; Old internal representation
+        props (last (-> new-comp .-_reactInternalInstance .-_renderedComponent .-_instance .-props .-argv .-tail))  ;; New internal representation (very fragile!)
+        ]
       (is (true?  (:multi-select? props))  "Expected :multi-select? to default to true.")
       (is (false? (:as-exclusions? props)) "Expected :as-exclusions? to default to false.")
       (is (false? (:required? props))      "Expected :required? to default to false.")
@@ -37,7 +42,9 @@
                     :multi-select? false
                     :on-change #()]
                    (div-app))
-        props (last (-> new-comp .-_renderedComponent .-props .-argv .-tail))]
+          ;props (last (-> new-comp .-_renderedComponent .-props .-argv .-tail))
+          props (last (-> new-comp .-_reactInternalInstance .-_renderedComponent .-_instance .-props .-argv .-tail))
+          ]
       (is (false? (:multi-select? props))  "Expected :multi-select? to default to true.")))
 
 
