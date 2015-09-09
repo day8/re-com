@@ -190,7 +190,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def single-dropdown-args-desc
-  [{:name :choices       :required true                   :type "vector of choices | atom"      :validate-fn vector?           :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]]}
+  [{:name :choices       :required true                   :type "vector of choices | atom"      :validate-fn vector-of-maps?   :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]]}
    {:name :id-fn         :required false :default :id     :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
    {:name :label-fn      :required false :default :label  :type "choice -> string | hiccup"     :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its displayable label"]}
    {:name :group-fn      :required false :default :group  :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its group identifier"]}
