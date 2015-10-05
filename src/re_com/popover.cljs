@@ -146,7 +146,7 @@
    {:name :position       :required false :default :right-below :type "keyword"          :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :width          :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the popover width"}
    {:name :height         :required false :default "auto"       :type "string"           :validate-fn string?           :description "a CSS style describing the popover height"}
-   {:name :popover-color  :required false :default "white"      :type "string"           :validate-fn string?           :description "fill color of the popover"}
+   {:name :style          :required false                       :type "CSS style map"    :validate-fn css-style?        :description "override popover style(s) with a style map"}
    {:name :arrow-length   :required false :default 11           :type "integer | string" :validate-fn number-or-string? :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
    {:name :arrow-width    :required false :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
    {:name :padding        :required false                       :type "string"           :validate-fn string?           :description "a CSS style which overrides the inner padding of the popover"}
@@ -157,7 +157,7 @@
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
-  [& {:keys [children position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title]
+  [& {:keys [children position width height style arrow-length arrow-width padding margin-left margin-top tooltip-style? title]
       :or {arrow-length 11 arrow-width 22}
       :as args}]
   {:pre [(validate-args-macro popover-border-args-desc args "popover-border")]}
@@ -182,7 +182,7 @@
 
        :component-function
        (fn
-         [& {:keys [children position width height popover-color arrow-length arrow-width padding margin-left margin-top tooltip-style? title]
+         [& {:keys [children position width height style arrow-length arrow-width padding margin-left margin-top tooltip-style? title]
              :or {arrow-length 11 arrow-width 22}
              :as args}]
          {:pre [(validate-args-macro popover-border-args-desc args "popover-border")]}
@@ -198,7 +198,6 @@
                              {:top "-10000px" :left "-10000px"})
                            (if width  {:width  width})
                            (if height {:height height})
-                           (if popover-color {:background-color popover-color})
                            (when tooltip-style?
                              {:border-radius "4px"
                               :box-shadow    "none"
@@ -219,8 +218,11 @@
                            ;; make it visible and turn off Bootstrap max-width and remove Bootstrap padding which adds an internal white border
                            {:display   "block"
                             :max-width "none"
-                            :padding   (px 0)})}
-            [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color]
+                            :background "black"
+                            :padding   (px 0)}
+                           style)}
+            [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow? tooltip-style?
+              (or (:background style) "black")]
             (when title title)
             (into [:div.popover-content {:style {:padding padding}}] children)]))})))
 
@@ -267,7 +269,7 @@
    {:name :close-button?    :required false  :default true         :type "boolean"                                         :description "when true, displays the close button"}
    {:name :body             :required false                        :type "string | hiccup"  :validate-fn string-or-hiccup? :description "describes the popover body. Must be a single component"}
    {:name :tooltip-style?   :required false  :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
-   {:name :popover-color    :required false  :default "white"      :type "string"           :validate-fn string?           :description "fill color of the popover"}
+   {:name :popover-style    :required false                        :type "CSS style map"    :validate-fn css-style?        :description "override popover style(s) with a style map"}
    {:name :arrow-length     :required false  :default 11           :type "integer | string" :validate-fn number-or-string? :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
    {:name :arrow-width      :required false  :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
    {:name :padding          :required false                        :type "string"           :validate-fn string?           :description "a CSS style which overrides the inner padding of the popover"}
@@ -275,7 +277,7 @@
 
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes"
-  [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width padding style]
+  [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-style arrow-length arrow-width padding style]
       :or {arrow-length 11 arrow-width 22}
       :as args}]
   {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
@@ -296,7 +298,7 @@
 
        :component-function
        (fn
-         [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width padding style]
+         [& {:keys [showing? position no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-style arrow-length arrow-width padding style]
              :or {arrow-length 11 arrow-width 22}
              :as args}]
          {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
@@ -316,7 +318,7 @@
            :width          width
            :height         height
            :tooltip-style? tooltip-style?
-           :popover-color  popover-color
+           :style          popover-style
            :arrow-length   arrow-length
            :arrow-width    arrow-width
            :padding        padding
@@ -378,12 +380,12 @@
    {:name :position      :required false :default :below-center :type "keyword"                :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :width         :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}
    {:name :style         :required false                        :type "CSS style map"          :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency"}
-   {:name :popover-color :required false                        :type "string"                 :validate-fn string?              :description "specifies background color of tooltip"}
+   {:name :popover-style :required false                        :type "CSS style map"          :validate-fn css-style?           :description "override popover style(s) with a style map"}
    {:name :tooltip-style :required false                        :type "CSS style map"          :validate-fn css-style?           :description "ovverride tooltip style(s) with a style map"}])
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style"
-  [& {:keys [label showing? on-cancel close-button? anchor position width style popover-color tooltip-style] :as args}]
+  [& {:keys [label showing? on-cancel close-button? anchor position width style popover-style tooltip-style] :as args}]
   {:pre [(validate-args-macro popover-tooltip-args-desc args "popover-tooltip")]}
   (let [label         (deref-or-value label)]
     [popover-anchor-wrapper
@@ -397,7 +399,7 @@
                :on-cancel      on-cancel
                :width          width
                :tooltip-style? true
-               :popover-color  (if popover-color popover-color "black")
+               :popover-style  popover-style 
                :padding        "3px 8px"
                :arrow-length   6
                :arrow-width    12
