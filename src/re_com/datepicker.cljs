@@ -8,7 +8,7 @@
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box flex-child-style]]
     [re-com.util          :refer [deref-or-value now->utc]]
-    [re-com.popover       :refer [popover-anchor-wrapper backdrop popover-border]]))
+    [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]))
 
 ;; Loosely based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
 
@@ -248,7 +248,7 @@
   {:pre [(validate-args-macro datepicker-dropdown-args-desc args "datepicker-dropdown")]}
   (let [shown?         (reagent/atom false)
         cancel-popover #(reset! shown? false)
-        position       :below-center]
+        position       :below-left]
     (fn
       [& {:keys [model show-weeks? on-change format] :as passthrough-args}]
       (let [collapse-on-select (fn [new-model]
@@ -263,13 +263,13 @@
          :showing? shown?
          :position position
          :anchor   [anchor-button shown? model format]
-         :popover  [:div {:style (flex-child-style "inherit")}
-                    (when shown? [backdrop :on-click cancel-popover])
-                    [popover-border
-                     :position     position
-                     :arrow-length 0
-                     :arrow-width  0
-                     :margin-left  (if show-weeks? "-50px" "-36px") ; Align right edge to activation button.
-                     :margin-top   "3px"
-                     :padding      "0px"
-                     :children     [(into [datepicker] passthrough-args)]]]]))))
+         :popover  [popover-content-wrapper
+                    :showing?        shown?
+                    :position        position
+                    :position-offset (if show-weeks? 43 44)
+                    :arrow-length    0
+                    :arrow-width     0
+                    :arrow-gap       3
+                    :padding         "0px"
+                    :on-cancel       cancel-popover
+                    :body            (into [datepicker] passthrough-args)]]))))
