@@ -45,7 +45,7 @@
 (defn px
   "takes a number (and optional :negative keyword to indicate a negative value) and returns that number as a string with 'px' at the end"
   [val & negative]
-  (str (if negative (- 0 val) val) "px"))
+  (str (if negative (- val) val) "px"))
 
 
 ;; ----------------------------------------------------------------------------

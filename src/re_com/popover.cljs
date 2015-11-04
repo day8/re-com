@@ -291,13 +291,12 @@
       {:component-did-mount
        (fn [this]
          (when no-clip?
-           (let [node               (reagent/dom-node this)
-                 offsets            (sum-scroll-offsets node)
-                 popover-point-node (.-parentNode node)                  ;; Get reference to rc-popover-point node
-                 point-left         (.-offsetLeft popover-point-node)    ;; offsetTop/Left is the viewport pixel offset of the point we want to point to (ignoring scrolls)
-                 point-top          (.-offsetTop  popover-point-node)]
-             (reset! left-offset (- point-left (:left offsets)))
-             (reset! top-offset  (- point-top  (:top  offsets))))))
+           (let [node                (reagent/dom-node this)
+                 total-scroll-offset (sum-scroll-offsets node)
+                 popover-point-node  (.-parentNode node)                           ;; Get reference to rc-popover-point node
+                 bounding-rect       (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop
+             (reset! left-offset (- (.-left bounding-rect) (:left total-scroll-offset)))
+             (reset! top-offset  (- (.-top  bounding-rect) (:top  total-scroll-offset))))))
 
        :component-function
        (fn
