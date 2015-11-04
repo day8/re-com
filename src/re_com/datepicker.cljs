@@ -232,8 +232,8 @@
     :class     "noselect"
     :min-width "10em"
     :children  [[:label {:class "form-control dropdown-button"}
-                 (if (instance? js/goog.date.Date @model)
-                   (unparse (if (seq format) (formatter format) date-format) @model)
+                 (if (instance? js/goog.date.Date (deref-or-value model))
+                   (unparse (if (seq format) (formatter format) date-format) (deref-or-value model))
                    "")]
                 [:span.dropdown-button.activator.input-group-addon
                  {:style {:padding "3px 0 0 0"}}
