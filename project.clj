@@ -4,15 +4,15 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "0.7.0-alpha1"
+(defproject         re-com "0.7.0-alpha2"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
 
   :dependencies     [[org.clojure/clojure         "1.7.0"]
-                     [org.clojure/clojurescript   "1.7.48"]
-                     [reagent                     "0.5.1-rc3"]
-                     [com.andrewmcveigh/cljs-time "0.3.10"]]
+                     [org.clojure/clojurescript   "1.7.145"]
+                     [reagent                     "0.5.1"]
+                     [com.andrewmcveigh/cljs-time "0.3.14"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
@@ -29,11 +29,11 @@
 
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
                                                [alandipert/storage-atom         "1.2.4" ]
-                                               [figwheel                        "0.3.7"]
+                                               [figwheel                        "0.4.1"]
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]
                                                [secretary                       "1.2.3"]]
-                                :plugins      [[lein-cljsbuild                  "1.0.6"]
-                                               [lein-figwheel                   "0.3.7"]
+                                :plugins      [[lein-cljsbuild                  "1.1.1-SNAPSHOT"]
+                                               [lein-figwheel                   "0.4.1"]
                                                [lein-shell                      "0.4.1"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]

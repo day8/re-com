@@ -181,6 +181,7 @@
   (let [on-select-tab #(.setToken history (demo-page {:tab (name %1)}))] ;; or can use (str "/" (name %1))
     (fn
       []
+      ;(set! re-com.box/debug true)
       [h-box
        ;; Outer-most box height must be 100% to fill the entrie client height.
        ;; This assumes that height of <body> is itself also set to 100%.

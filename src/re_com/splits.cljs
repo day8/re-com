@@ -52,7 +52,7 @@
 
 (defn h-split
   "Returns markup for a horizontal layout component"
-  [& {:keys [panel-1 panel-2 size width height on-split-change initial-split splitter-size margin class style attr]
+  [& {:keys [size width height on-split-change initial-split splitter-size margin]
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   {:pre [(validate-args-macro hv-split-args-desc args "h-split")]}
@@ -119,7 +119,8 @@
                                                       {:cursor "col-resize"}
                                                       (when @over? {:background-color "#f8f8f8"}))})]
 
-    (fn []
+    (fn
+      [& {:keys [panel-1 panel-2 class style attr]}]
       [:div (make-container-attrs class style attr @dragging?)
        [:div (make-panel-attrs "rc-h-split-top" @dragging? @split-perc)
         panel-1]
@@ -135,7 +136,7 @@
 
 (defn v-split
   "Returns markup for a vertical layout component"
-  [& {:keys [panel-1 panel-2 size width height on-split-change initial-split splitter-size margin class style attr]
+  [& {:keys [size width height on-split-change initial-split splitter-size margin]
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   {:pre [(validate-args-macro hv-split-args-desc args "v-split")]}
@@ -202,7 +203,8 @@
                                                       {:cursor  "row-resize"}
                                                       (when @over? {:background-color "#f8f8f8"}))})]
 
-    (fn []
+    (fn
+      [& {:keys [panel-1 panel-2 class style attr]}]
       [:div (make-container-attrs class style attr @dragging?)
        [:div (make-panel-attrs "re-v-split-top" @dragging? @split-perc)
         panel-1]

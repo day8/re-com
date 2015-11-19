@@ -91,7 +91,9 @@
                                               :alert-type :none
                                               :style {:color             "#222"
                                                       :background-color  "#eff9e3"
-                                                      :border            "none"
+                                                      :border-top        "none"
+                                                      :border-right      "none"
+                                                      :border-bottom     "none"
                                                       :border-left       "4px solid green"
                                                       :border-radius     "0px"}
                                               :heading "Alert with :heading but no :body"
@@ -103,7 +105,9 @@
                                               :alert-type :none
                                               :style {:color             "#222"
                                                       :background-color  "rgba(255, 165, 0, 0.1)"
-                                                      :border            "none"
+                                                      :border-top        "none"
+                                                      :border-right      "none"
+                                                      :border-bottom     "none"
                                                       :border-left       "4px solid rgba(255, 165, 0, 0.8)"
                                                       :border-radius     "0px"}
                                               :body       "Alert with :body but no :heading (:padding set to 6px)."
@@ -114,7 +118,9 @@
                                            :alert-type :none
                                            :style {:color             "#333"
                                                    :background-color  "rgba(255, 0, 0, 0.1)"
-                                                   :border            "none"
+                                                   :border-top        "none"
+                                                   :border-right      "none"
+                                                   :border-bottom     "none"
                                                    :border-left       "4px solid rgba(255, 0, 0, 0.8)"
                                                    :border-radius     "0px"}
                                            :heading    ":alert-type is :danger"
