@@ -95,16 +95,16 @@
     [:thead
      (conj template-row
            [:th {:class (str "prev " (if prev-enabled? "available selectable" "disabled"))
-                 :style {:padding "0px"}}
+                 :style {:padding "0px"}
+                 :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}
             [:i.zmdi.zmdi-chevron-left
-             {:style    {:font-size "24px"}
-              :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}]]
+             {:style    {:font-size "24px"}}]]
            [:th {:class "month" :col-span "5"} (month-label @current)]
            [:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))
-                 :style {:padding "0px"}}
+                 :style {:padding "0px"}
+                 :on-click (handler-fn (when next-enabled? (reset! current next-date)))}
             [:i.zmdi.zmdi-chevron-right
-             {:style    {:font-size "24px"}
-              :on-click (handler-fn (when next-enabled? (reset! current next-date)))}]])
+             {:style    {:font-size "24px"}}]])
      (conj template-row
            [:th {:class "day-enabled"} "SUN"]
            [:th {:class "day-enabled"} "MON"]
