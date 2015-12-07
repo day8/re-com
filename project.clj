@@ -81,8 +81,8 @@
              :server-port ~fig-port
              :repl        true}
 
-  :aws {:access-key       ~(System/getenv "AWS_ACCESS_KEY_ID")
-        :secret-key       ~(System/getenv "AWS_SECRET_ACCESS_KEY")
+  :aws {:access-key       ~(System/getenv "DAY8_AWS_ACCESS_KEY_ID")
+        :secret-key       ~(System/getenv "DAY8_AWS_SECRET_ACCESS_KEY")
         :s3-static-deploy {:bucket     "re-demo"
                            :local-root "run/resources/public"}}
 
