@@ -45,6 +45,9 @@
   :test-paths      ["test"]
   :resource-paths  ["run/resources"]
 
+  :deploy-repositories [["releases" :clojars]
+                        ["snapshots" :clojars]]
+
   ;; Exclude the demo and compiled files from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
 
@@ -82,6 +85,24 @@
         :secret-key       ~(System/getenv "AWS_SECRET_ACCESS_KEY")
         :s3-static-deploy {:bucket     "re-demo"
                            :local-root "run/resources/public"}}
+
+  :release-tasks [["shell" "git" "checkout" "master"]
+                  ["shell" "git" "pull" "--ff-only"]
+                  ["shell" "git" "checkout" "develop"]
+                  ["shell" "git" "flow" "release" "start" "lein-release${:version}"]
+                  ["vcs" "assert-committed"]
+                  ["change" "version"
+                   "leiningen.release/bump-version" "release"]
+                  ["vcs" "commit"]
+                  ["vcs" "tag" "--no-sign"]
+                  ["deploy"]
+                  ["shell" "git" "flow" "release" "finish" "--notag" "--nopush"]
+                  ["change" "version" "leiningen.release/bump-version"]
+                  ["vcs" "commit"]
+                  ["vcs" "push"]
+                  ["shell" "git" "checkout" "master"]
+                  ["shell" "git" "push"]
+                  ["shell" "git" "checkout" "develop"]]
 
   :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
                              :macosx  "open"
