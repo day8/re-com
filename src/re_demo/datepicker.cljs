@@ -6,7 +6,7 @@
     [cljs-time.core    :refer [now days minus day-of-week]]
     [cljs-time.format  :refer [formatter unparse]]
     [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p]]
-    [re-com.datepicker :refer [iso8601->date datepicker-args-desc]]
+    [re-com.datepicker :refer [iso8601->date datepicker-dropdown-args-desc]]
     [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
@@ -175,7 +175,7 @@
                                :children [[title2 "[datepicker ... ] & [datepicker-dropdown ... ]" {:font-size "24px"}]
                                           [status-text "Stable"]
                                           [p "An inline or popover date picker component."]
-                                          [args-table datepicker-args-desc]]]
+                                          [args-table datepicker-dropdown-args-desc]]]
                               [v-box
                                :gap       "10px"
                                :size      "auto"
