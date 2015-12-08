@@ -30,6 +30,7 @@
           :or   {class "btn-default"}
           :as   args}]
       {:pre [(validate-args-macro button-args-desc args "button")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [disabled? (deref-or-value disabled?)
             the-button [:button
                         (merge
@@ -83,6 +84,7 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro md-circle-icon-button-args-desc args "md-circle-icon-button")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [the-button [:div
                         (merge
                           {:class    (str
@@ -139,6 +141,7 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro md-icon-button-args-desc args "md-icon-button")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [the-button [:div
                         (merge
                           {:class    (str
@@ -235,6 +238,7 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro row-button-args-desc args "row-button")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [the-button [:div
                         (merge
                           {:class    (str
@@ -283,6 +287,7 @@
     (fn
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr] :as args}]
       {:pre [(validate-args-macro hyperlink-args-desc args "hyperlink")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [label      (deref-or-value label)
             disabled?  (deref-or-value disabled?)
             the-button [box
@@ -335,6 +340,7 @@
     (fn
       [& {:keys [label href target tooltip tooltip-position class style attr] :as args}]
       {:pre [(validate-args-macro hyperlink-href-args-desc args "hyperlink-href")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [label      (deref-or-value label)
             href       (deref-or-value href)
             target     (deref-or-value target)
