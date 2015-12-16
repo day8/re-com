@@ -30,6 +30,7 @@
           :or   {class "btn-default"}
           :as   args}]
       {:pre [(validate-args-macro button-args-desc args "button")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [disabled? (deref-or-value disabled?)
             the-button [:button
                         (merge
@@ -40,12 +41,14 @@
                            :disabled disabled?
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))}
+                                         (on-click event)))}
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
                         label]]
+        (when disabled?
+          (reset! showing? false))
         [box
          :class "display-inline-flex"
          :align :start
@@ -83,6 +86,7 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro md-circle-icon-button-args-desc args "md-circle-icon-button")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [the-button [:div
                         (merge
                           {:class    (str
@@ -99,7 +103,7 @@
                                        style)
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))}
+                                         (on-click event)))}
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
@@ -139,6 +143,7 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro md-icon-button-args-desc args "md-icon-button")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [the-button [:div
                         (merge
                           {:class    (str
@@ -155,7 +160,7 @@
                                        style)
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))}
+                                         (on-click event)))}
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
@@ -235,6 +240,7 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro row-button-args-desc args "row-button")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [the-button [:div
                         (merge
                           {:class    (str
@@ -245,7 +251,7 @@
                            :style    style
                            :on-click (handler-fn
                                        (when (and on-click (not disabled?))
-                                         (on-click)))}
+                                         (on-click event)))}
                           (when tooltip
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
@@ -283,6 +289,7 @@
     (fn
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr] :as args}]
       {:pre [(validate-args-macro hyperlink-args-desc args "hyperlink")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [label      (deref-or-value label)
             disabled?  (deref-or-value disabled?)
             the-button [box
@@ -297,7 +304,7 @@
                                                style)
                                    :on-click (handler-fn
                                                (when (and on-click (not disabled?))
-                                                 (on-click)))}
+                                                 (on-click event)))}
                                   (when tooltip
                                     {:on-mouse-over (handler-fn (reset! showing? true))
                                      :on-mouse-out  (handler-fn (reset! showing? false))})
@@ -335,6 +342,7 @@
     (fn
       [& {:keys [label href target tooltip tooltip-position class style attr] :as args}]
       {:pre [(validate-args-macro hyperlink-href-args-desc args "hyperlink-href")]}
+      (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [label      (deref-or-value label)
             href       (deref-or-value href)
             target     (deref-or-value target)
@@ -390,7 +398,7 @@
           :on-mouse-over #(do (reset! mouse-over? true) nil)
           :on-mouse-out  #(do (reset! mouse-over? false) nil)
           :on-click      #(when (and on-click (not disabled?))
-                           (on-click)
+                           (on-click %)
                            nil)}
          attr)
        [:i {:class md-icon-name}]])))

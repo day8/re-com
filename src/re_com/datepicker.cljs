@@ -95,16 +95,16 @@
     [:thead
      (conj template-row
            [:th {:class (str "prev " (if prev-enabled? "available selectable" "disabled"))
-                 :style {:padding "0px"}}
+                 :style {:padding "0px"}
+                 :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}
             [:i.zmdi.zmdi-chevron-left
-             {:style    {:font-size "24px"}
-              :on-click (handler-fn (when prev-enabled? (reset! current prev-date)))}]]
+             {:style {:font-size "24px"}}]]
            [:th {:class "month" :col-span "5"} (month-label @current)]
            [:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))
-                 :style {:padding "0px"}}
+                 :style {:padding "0px"}
+                 :on-click (handler-fn (when next-enabled? (reset! current next-date)))}
             [:i.zmdi.zmdi-chevron-right
-             {:style    {:font-size "24px"}
-              :on-click (handler-fn (when next-enabled? (reset! current next-date)))}]])
+             {:style {:font-size "24px"}}]])
      (conj template-row
            [:th {:class "day-enabled"} "SUN"]
            [:th {:class "day-enabled"} "MON"]
@@ -241,7 +241,8 @@
 
 (def datepicker-dropdown-args-desc
   (conj datepicker-args-desc
-    {:name :format  :required false  :default "yyyy MMM dd"  :type "string"   :description "a represenatation of a date format. See cljs_time.format"}))
+        {:name :format    :required false  :default "yyyy MMM dd"  :type "string"   :description "[datepicker-dropdown only] a represenatation of a date format. See cljs_time.format"}
+        {:name :no-clip?  :required false  :default true           :type "boolean"  :description "[datepicker-dropdown only] when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}))
 
 (defn datepicker-dropdown
   [& {:as args}]
@@ -250,7 +251,9 @@
         cancel-popover #(reset! shown? false)
         position       :below-left]
     (fn
-      [& {:keys [model show-weeks? on-change format] :as passthrough-args}]
+      [& {:keys [model show-weeks? on-change format no-clip?]
+          :or {no-clip? true}
+          :as passthrough-args}]
       (let [collapse-on-select (fn [new-model]
                                  (reset! shown? false)
                                  (when on-change (on-change new-model))) ;; wrap callback to collapse popover
@@ -267,6 +270,7 @@
                     :showing?        shown?
                     :position        position
                     :position-offset (if show-weeks? 43 44)
+                    :no-clip?       no-clip?
                     :arrow-length    0
                     :arrow-width     0
                     :arrow-gap       3

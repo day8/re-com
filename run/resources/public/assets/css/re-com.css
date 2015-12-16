@@ -1236,7 +1236,7 @@ code {
 }
 
 .level1 {
-    font-family:    Segoe UI Semilight, Roboto, sans-serif;
+    font-family:    Roboto, sans-serif;
     font-weight:    200;
     font-size:      40px;
     color:          rgba(68, 68, 68, 1.0);
@@ -1244,28 +1244,28 @@ code {
     /*-ms-font-feature-settings:    'ss20' 1;*/
 }
 .level2 {
-    font-family:    Segoe UI Semilight, Roboto, sans-serif;
+    font-family:    Roboto, sans-serif;
     font-weight:    200;
     font-size:      26px;
     color:          rgba(0, 0, 0, 1.0);
     letter-spacing: 0.001em;
 }
 .level3 {
-    font-family:    Segoe UI Semilight, Roboto, sans-serif;
+    font-family:    Roboto, sans-serif;
     font-weight:    500;
     font-size:      15px;
     color:          rgba(68, 68, 68, 1.0);
     letter-spacing: 0.002em;
 }
 .level4 {
-    font-family:    Segoe UI Semilight, Roboto, sans-serif;
+    font-family:    Roboto, sans-serif;
     font-weight:    500;
     font-size:      15px;
     color:          rgba(68, 68, 68, 0.6);
     letter-spacing: 0.002em;
 }
 .field-label {
-    font-family:    Segoe UI Semilight, Roboto, sans-serif;
+    font-family:    Roboto, sans-serif;
     font-weight:    400;
     font-size:      14px;
     color:          rgba(68, 68, 68, 0.6);

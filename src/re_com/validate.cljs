@@ -196,7 +196,13 @@
                   :on-blur :on-change :on-click :on-copy :on-cut :on-double-click :on-drag :on-drag-end :on-drag-enter :on-drag-exit :on-drag-leave
                   :on-drag-over :on-drag-start :on-drop :on-focus :on-input :on-key-down :on-key-press :on-key-up :on-mouse-down :on-mouse-enter
                   :on-mouse-leave :on-mouse-move :on-mouse-out :on-mouse-over :on-mouse-up :on-paste :on-scroll :on-submit :on-touch-cancel
-                  :on-touch-end :on-touch-move :on-touch-start :on-wheel})
+                  :on-touch-end :on-touch-move :on-touch-start :on-wheel
+                  :on-blur-capture :on-change-capture :on-click-capture :on-copy-capture :on-cut-capture :on-double-click-capture :on-drag-capture
+                  :on-drag-end-capture :on-drag-enter-capture :on-drag-exit-capture :on-drag-leave-capture :on-drag-over-capture :on-drag-start-capture
+                  :on-drop-capture :on-focus-capture :on-input-capture :on-key-down-capture :on-key-press-capture :on-key-up-capture :on-mouse-down-capture
+                  :on-mouse-enter-capture :on-mouse-leave-capture :on-mouse-move-capture :on-mouse-out-capture :on-mouse-over-capture :on-mouse-up-capture
+                  :on-paste-capture :on-scroll-capture :on-submit-capture :on-touch-cancel-capture :on-touch-end-capture :on-touch-move-capture
+                  :on-touch-start-capture :on-wheel-capture})
 
 ;; Reference: http://facebook.github.io/react/docs/tags-and-attributes.html#supported-attributes
 

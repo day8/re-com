@@ -291,12 +291,11 @@
       {:component-did-mount
        (fn [this]
          (when no-clip?
-           (let [node                (reagent/dom-node this)
-                 total-scroll-offset (sum-scroll-offsets node)
-                 popover-point-node  (.-parentNode node)                           ;; Get reference to rc-popover-point node
-                 bounding-rect       (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop
-             (reset! left-offset (- (.-left bounding-rect) (:left total-scroll-offset)))
-             (reset! top-offset  (- (.-top  bounding-rect) (:top  total-scroll-offset))))))
+           (let [node               (reagent/dom-node this)
+                 popover-point-node (.-parentNode node)                           ;; Get reference to rc-popover-point node
+                 bounding-rect      (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop
+             (reset! left-offset (.-left bounding-rect))
+             (reset! top-offset  (.-top  bounding-rect)))))
 
        :component-function
        (fn
@@ -383,12 +382,15 @@
    {:name :status        :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background color of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
    {:name :anchor        :required true                         :type "hiccup"                 :validate-fn string-or-hiccup?    :description "the component the tooltip is attached to"}
    {:name :position      :required false :default :below-center :type "keyword"                :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :no-clip?      :required false :default true          :type "boolean"                                                  :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
    {:name :width         :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}
    {:name :style         :required false                        :type "CSS style map"          :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency"}])
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style"
-  [& {:keys [label showing? on-cancel close-button? status anchor position width style] :as args}]
+  [& {:keys [label showing? on-cancel close-button? status anchor position no-clip? width style]
+      :or {no-clip? true}
+      :as args}]
   {:pre [(validate-args-macro popover-tooltip-args-desc args "popover-tooltip")]}
   (let [label         (deref-or-value label)
         popover-color (case status
@@ -404,6 +406,7 @@
      :popover [popover-content-wrapper
                :showing?       showing?
                :position       (if position position :below-center)
+               :no-clip?       no-clip?
                :on-cancel      on-cancel
                :width          width
                :tooltip-style? true

@@ -27,16 +27,6 @@
 ;;                       (reset! over-atom false)     ;; notice: no need for a 'do'
 ;;                       (now do something else)
 ;;                       (.preventDefault event))     ;; notice access to the 'event'
-;;
-;; Testing
-;;
-;;     On first glance, this code might look like it should return true:
-;;
-;;         (nil? (handler-fn (reset! atm false)))
-;;
-;;     But it doesn't because the test code is returning a fn, so you need to call it with an 'event' arg (doesn't matter what arg is)
-;;
-;;         (nil? ((handler-fn (reset! over-atom false)) {})
 
 (defmacro handler-fn
   ([& body]
