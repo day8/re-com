@@ -47,6 +47,8 @@
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
                         label]]
+        (when disabled?
+          (reset! showing? false))
         [box
          :class "display-inline-flex"
          :align :start
