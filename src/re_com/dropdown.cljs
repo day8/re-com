@@ -233,7 +233,8 @@
             changeable?      (and on-change (not disabled?))
             callback         #(do
                                (reset! internal-model %)
-                               (when changeable? (on-change @internal-model))
+                               (when (and changeable? (not= @internal-model @latest-ext-model))
+                                 (on-change @internal-model))
                                (swap! drop-showing? not) ;; toggle to allow opening dropdown on Enter key
                                (reset! filter-text ""))
             cancel           #(do
