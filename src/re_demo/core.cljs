@@ -167,7 +167,7 @@
 
 (def id-store        (local-storage (atom nil) ::id-store))
 (def selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (item-for-id @id-store tabs-definition)))
-                                     :date ;(:id date(first tabs-definition))
+                                     (:id date(first tabs-definition))
                                      @id-store)))  ;; id of the selected tab from local storage
 
 (defroute demo-page "/:tab" [tab] (let [id (keyword tab)]
