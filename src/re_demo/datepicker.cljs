@@ -104,6 +104,7 @@
                                   :gap      "5px"
                                   :children [[label :style label-style :label ":minimum or :maximum not specified"]
                                              [datepicker
+                                              :start-of-week 0
                                               :model         model1
                                               :disabled?     disabled?
                                               :show-today?   @show-today?
@@ -117,6 +118,7 @@
                                   :gap      "5px"
                                   :children [[label :style label-style :label ":minimum \"20140831\" :maximum \"20141019\""]
                                              [datepicker
+                                              :start-of-week 3
                                               :model         model2
                                               :minimum       (iso8601->date "20140831")
                                               :maximum       (iso8601->date "20141019")
