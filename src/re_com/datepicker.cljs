@@ -60,24 +60,6 @@
 (defn- >=date [date1 date2]
   (or (=date date1 date2) (after? date1 date2)))
 
-
-(def ^:private days-vector
-  [{:key :Mo :short-name "M" :name "MON"}
-   {:key :Tu :short-name "T" :name "TUE"}
-   {:key :We :short-name "W" :name "WED"}
-   {:key :Th :short-name "T" :name "THU"}
-   {:key :Fr :short-name "F" :name "FRI"}
-   {:key :Sa :short-name "S" :name "SAT"}
-   {:key :Su :short-name "S" :name "SUN"}])
-
-(defn- rotate
-  [n coll]
-  (let [c (count coll)]
-    (take c (drop (mod n c) (cycle coll)))))
-
-(defn- is-day-pred [d]
-  #(= (day-of-week %) (inc d)))
-
 ;; ----------------------------------------------------------------------------
 
 
@@ -103,7 +85,7 @@
 
 (defn- table-thead
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
-  [current {show-weeks? :show-weeks? minimum :minimum maximum :maximum start-of-week :start-of-week}]
+  [current {show-weeks? :show-weeks? minimum :minimum maximum :maximum}]
   (let [prev-date     (dec-month @current)
         ;prev-enabled? (if minimum (after? prev-date (dec-month minimum)) true)
         prev-enabled? (if minimum (after? prev-date minimum) true)
@@ -124,8 +106,13 @@
             [:i.zmdi.zmdi-chevron-right
              {:style {:font-size "24px"}}]])
      (conj template-row
-           (for [day (rotate start-of-week days-vector)]
-             [:th {:class "day-enabled"} (str (:name day))]))]))
+           [:th {:class "day-enabled"} "SUN"]
+           [:th {:class "day-enabled"} "MON"]
+           [:th {:class "day-enabled"} "TUE"]
+           [:th {:class "day-enabled"} "WED"]
+           [:th {:class "day-enabled"} "THU"]
+           [:th {:class "day-enabled"} "FRI"]
+           [:th {:class "day-enabled"} "SAT"])]))
 
 
 (defn- selection-changed
@@ -172,7 +159,7 @@
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive"
   [date focus-month selected attributes disabled? on-change]
-;  {:pre [(sunday? date)]}
+  {:pre [(sunday? date)]}
   (let [table-row (if (:show-weeks? attributes) [:tr (week-td date)] [:tr])
         row-dates (map #(inc-date date %) (range 7))
         today     (if (:show-today? attributes) (:today attributes) nil)]
@@ -182,8 +169,7 @@
 (defn- table-tbody
   "Return matrix of 6 rows x 7 cols table cells representing 41 days from start-date inclusive"
   [current selected attributes disabled? on-change]
-  (let [start-of-week   (:start-of-week attributes)
-        current-start   (previous (is-day-pred start-of-week) current)
+  (let [current-start   (previous sunday? current)
         focus-month     (month current)
         row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
     (into [:tbody] (map #(table-tr % focus-month selected attributes disabled? on-change) row-start-dates))))
@@ -206,7 +192,6 @@
    {:name :show-today?   :required false :default false        :type "boolean"                                                :description "when true, today's date is highlighted"}
    {:name :minimum       :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation before this date"}
    {:name :maximum       :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
-   {:name :start-of-week :required false :default 0            :type "int"                  :description "weekday thats the first day of week monday = 0, tuesday = 1, etc"}
    {:name :hide-border?  :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
    {:name :class         :required false                       :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
    {:name :style         :required false                       :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
