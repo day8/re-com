@@ -182,7 +182,7 @@
           (if @internal-model
             (if (and allow-other? (= @internal-model :other))
               @other-value
-              (label-fn (item-for-id @internal-model choices :id-fn id-fn)))
+              (or (label-fn (item-for-id @internal-model choices :id-fn id-fn)) @internal-model))
             placeholder)]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
