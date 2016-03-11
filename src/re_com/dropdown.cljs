@@ -250,10 +250,10 @@
                                (reset! internal-model @external-model))
             dropdown-click   #(when-not disabled?
                                (swap! drop-showing? not))
-            filtered-choices (cond-> (if regex-filter?
-                                       (filter-choices-regex choices group-fn label-fn @filter-text)
-                                       (filter-choices choices group-fn label-fn @filter-text))
-                                     allow-other? (conj {:id :other :label (str "Select \"" @filter-text "\"") :group "Other"}))
+            filtered-choices (cond-> choices
+                               regex-filter?       (filter-choices-regex group-fn label-fn @filter-text)
+                               (not regex-filter?) (filter-choices group-fn label-fn @filter-text)
+                               allow-other?        (conj {:id :other :label (str "Select \"" @filter-text "\"") :group "Other"}))
             press-enter      (fn []
                                (if disabled?
                                  (cancel)
