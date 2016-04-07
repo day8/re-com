@@ -4,7 +4,7 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "0.8.0"
+(defproject         re-com "0.9.0-SNAPSHOT"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
@@ -12,7 +12,7 @@
   :dependencies     [[org.clojure/clojure         "1.7.0"]
                      [org.clojure/clojurescript   "1.7.145"]
                      [reagent                     "0.5.1"]
-                     [com.andrewmcveigh/cljs-time "0.3.14"]]
+                     [com.andrewmcveigh/cljs-time "0.4.0"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
@@ -29,15 +29,15 @@
 
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
                                                [alandipert/storage-atom         "1.2.4" ]
-                                               [figwheel                        "0.4.1"]
+                                               [figwheel                        "0.5.0-6"]
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]
                                                [secretary                       "1.2.3"]]
-                                :plugins      [[lein-cljsbuild                  "1.1.1-SNAPSHOT"]
-                                               [lein-figwheel                   "0.4.1"]
+                                :plugins      [[lein-cljsbuild                  "1.1.2"]
+                                               [lein-figwheel                   "0.5.0-6"]
                                                [lein-shell                      "0.5.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
-                                               [lein-ancient                    "0.6.2"]]}
+                                               [lein-ancient                    "0.6.7"]]}
                      :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
                      :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
                      :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}
@@ -65,7 +65,7 @@
                         :source-paths ["src"]
                         :compiler     {:output-to       "run/resources/public/compiled_prod/demo.js"
                                        :output-dir      "run/resources/public/compiled_prod/demo"
-                                       :closure-defines {:goog.DEBUG false}
+                                       :closure-defines {"goog.DEBUG" false}
                                        :optimizations   :advanced
                                        :pretty-print    false
                                        :pseudo-names    false}}
