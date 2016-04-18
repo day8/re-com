@@ -19,7 +19,8 @@
                         (= offset :end)      (dec (count choices))
                         (nil? current-index) 0
                         :else                (mod (+ current-index offset) (count choices)))]
-    (when new-index (id-fn (nth choices new-index)))))
+    (when (and new-index (pos? (count choices)))
+      (id-fn (nth choices new-index)))))
 
 
 (defn- choices-with-group-headings

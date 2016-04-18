@@ -29,11 +29,11 @@
 
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
                                                [alandipert/storage-atom         "1.2.4" ]
-                                               [figwheel                        "0.5.0-6"]
+                                               [figwheel                        "0.5.2"]
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]
                                                [secretary                       "1.2.3"]]
                                 :plugins      [[lein-cljsbuild                  "1.1.2"]
-                                               [lein-figwheel                   "0.5.0-6"]
+                                               [lein-figwheel                   "0.5.2"]
                                                [lein-shell                      "0.5.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
@@ -75,7 +75,8 @@
                                        :output-dir    "run/test/compiled/test"
                                        :source-map    true
                                        :optimizations :none
-                                       :pretty-print  true}}]}
+                                       :pretty-print  true}}]
+              :test-commands   {}} ;; figwheel 0.5.2 required this for some reason
 
   :figwheel {:css-dirs    ["run/resources/public/assets/css"]
              :server-port ~fig-port
