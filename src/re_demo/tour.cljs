@@ -99,13 +99,13 @@
                            :children [[title2 "Notes"]
                                       [status-text "Alpha" {:color "#EA6B00"}]
 
-                                      [p "To create a tour:"
-                                       [:ul
-                                        [:li.spacer "Make a tour object, something like: " [:br]
-                                         [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
-                                        [:li.spacer "Then, wrap each anchor components in your tour with a popover component."]
-                                        [:li.spacer "Each each such popover the " [:code ":showing?"] " parameter should look like this: "
-                                         [:br] [:code ":showing? (:step1 demo-tour)"] "."]]]
+                                      [p "To create a tour:"]
+                                      [:ul
+                                       [:li.spacer "Make a tour object, something like: " [:br]
+                                        [:code "(let [demo-tour (make-tour [:step1 :step2 :step3])])"] "."]
+                                       [:li.spacer "Then, wrap each anchor components in your tour with a popover component."]
+                                       [:li.spacer "Each each such popover the " [:code ":showing?"] " parameter should look like this: "
+                                        [:br] [:code ":showing? (:step1 demo-tour)"] "."]]
                                       [p "To add navigation buttons to a popover, add the following component to
                                        the end of your popover's "
                                        [:code ":body"] " markup: " [:br] [:code "[make-tour-nav demo-tour]"] "."]

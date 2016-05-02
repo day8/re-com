@@ -60,14 +60,13 @@
                                                            :padding          "20px"}
                                                    :child "Box 3"]]]
                                       [gap :size "10px"]
-                                       [p "Notes:"
-                                        [:ul
-                                         [:li "h-box and v-box have a " [:code ":gap"] " parameter which inserts a
+                                      [p "Notes:"]
+                                      [:ul
+                                       [:li "h-box and v-box have a " [:code ":gap"] " parameter which inserts a
                                          given amount of white space between each child."]
-                                         [:li "For more ad hoc gaps, use the " [:span.bold "[gap ...]"] " component itself."]
-                                         [:li "In this example, the gap between components 2 and 3 will be 25px
-                                         because the [gap] is a child of the h-box and will have 10px left and right of it."]]]
-
+                                       [:li "For more ad hoc gaps, use the " [:span.bold "[gap ...]"] " component itself."]
+                                       [:li "In this example, the gap between components 2 and 3 will be 25px
+                                         because the [gap] is a child of the h-box and will have 10px left and right of it."]]
                                       [gap :size "10px"]
                                       [line]
                                       [title2 "Demo #2"]
@@ -101,10 +100,9 @@
                                                            :padding          "20px"}
                                                    :child "Box 3"]]]
                                       [gap :size "10px"]
-                                      [p "Notes:"
-                                       [:ul
-                                        [:li "This example has a gap with a " [:span.bold "proportional size"] " of \"1\", not an absolute size. Synonymous to 100%."]
-                                        [:li "Because it \"grows\" to fill all available space, it \"pushes\" box2 and box3 as far apart as possible."]
-                                        [:li "Imagine the boxes as buttons, to see how this might be useful."]]]
-                                      ]]]]
+                                      [p "Notes:"]
+                                      [:ul
+                                       [:li "This example has a gap with a " [:span.bold "proportional size"] " of \"1\", not an absolute size. Synonymous to 100%."]
+                                       [:li "Because it \"grows\" to fill all available space, it \"pushes\" box2 and box3 as far apart as possible."]
+                                       [:li "Imagine the boxes as buttons, to see how this might be useful."]]]]]]
               [gap :size "30px"]]])

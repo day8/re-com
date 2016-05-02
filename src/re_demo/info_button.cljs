@@ -39,13 +39,13 @@
                                :width    "450px"
                                :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                           [p "A tiny information button, which is light grey and unobrusive. When clicked, displays a popup containing helpful information. "]
-                                           [p "Designed to be used with input fields, to explain the purpose of the field."]
-                                           [p "The popup has a dark theme, and uses white text. CSS classes for the text are available as follows:to format the text in the popover"
-                                           [:ul
-                                            [:li [:span.semibold "info-heading"] " - heading/title style"]
-                                            [:li [:span.semibold"info-subheading"] " - subheading style"]
-                                            [:li [:span.semibold "info-bold"] " - bold style"]]]
+                                          [p "A tiny information button, which is light grey and unobrusive. When clicked, displays a popup containing helpful information. "]
+                                          [p "Designed to be used with input fields, to explain the purpose of the field."]
+                                          [p "The popup has a dark theme, and uses white text. CSS classes for the text are available as follows:to format the text in the popover"]
+                                          [:ul
+                                           [:li [:span.semibold "info-heading"] " - heading/title style"]
+                                           [:li [:span.semibold"info-subheading"] " - subheading style"]
+                                           [:li [:span.semibold "info-bold"] " - bold style"]]
                                           [args-table info-button-args-desc]]]
                               [v-box
                                :gap      "10px"

@@ -40,12 +40,15 @@
                                :width    "600px"
                                :gap      "10px"
                                :children [[title2 "Demo"]
-                                          [p "To insert alerts at the top of the list, click "
-                                           [button
-                                            :label "Add alert"
-                                            :style {:width "100px"}
-                                            :on-click #(add-alert alerts (gensym) :info {:heading "New alert" :body "This alert was added by the \"Add alert\" button."})]]
-                                           [p "Also, try clicking the \"x\" on alerts."]
+                                          [h-box
+                                           :gap      "10px"
+                                           :align    :center
+                                           :children [[label :label "To insert alerts at the top of the list, click "]
+                                                      [button
+                                                       :label "Add alert"
+                                                       :style {:width "100px"}
+                                                       :on-click #(add-alert alerts (gensym) :info {:heading "New alert" :body "This alert was added by the \"Add alert\" button."})]]]
+                                          [p "Also, try clicking the \"x\" on alerts."]
                                            [p [:code ":max-height"] " is set to 300px. A scroll bar will appear as necessary."]
                                            [p "For demonstration purposes, a 'dotted' " [:code ":border-style"] " is set."]
                                           [alert-list
