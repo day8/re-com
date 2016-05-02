@@ -4,14 +4,14 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "0.8.2"
+(defproject         re-com "0.8.3"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
 
   :dependencies     [[org.clojure/clojure         "1.7.0"]
                      [org.clojure/clojurescript   "1.7.145"]
-                     [reagent                     "0.6.0-SNAPSHOT"]
+                     [reagent                     "0.6.0-alpha"]
                      [com.andrewmcveigh/cljs-time "0.4.0"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
