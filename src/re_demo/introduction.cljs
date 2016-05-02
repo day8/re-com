@@ -5,7 +5,7 @@
 
 ; narrow, light grey column of text, on the RHS
 (def RHS-column-style
-  {:style {:width "250px"
+  {:style {:width "450px"
            :font-size "13px"
            :color "#aaa"}})
 
@@ -44,12 +44,12 @@
               [h-box
                :gap center-gap-px
                :children [[v-box
-                           :children [[p "The demo app is an SPA, built using re-com. It serves as:"
-                                       [:ul
-                                        [:li "a visual showcase of the components"]
-                                        [:li "documentation for the components (parameters etc.)"]
-                                        [:li "shows, via its own code, how to use the components"]
-                                        [:li "a test harness"]]]]]
+                           :children [[p "The demo app is an SPA, built using re-com. It serves as:"]
+                                      [:ul
+                                       [:li "a visual showcase of the components"]
+                                       [:li "documentation for the components (parameters etc.)"]
+                                       [:li "shows, via its own code, how to use the components"]
+                                       [:li "a test harness"]]]]
                           [v-box
                            :children [[p RHS-column-style [:br] [:br] [:br]
                                        "Most pages of this app have hyperlinks which take you
@@ -65,8 +65,6 @@
 
               [p "Now, our sausage fingers sometimes type onmouseover instead of on-mouse-over,
                                      or centre rather than center, and sometimes we pass in a string where  there should be keyword."]
-
-
               [h-box
                :gap center-gap-px
                :children [[v-box
@@ -77,10 +75,7 @@
                                        {:style {:width "450px"}}
                                        ":closure-defines {:goog.DEBUG false}"]]]
                           [v-box
-                           :children [[p RHS-column-style "Parameter validation errors are written to the console."
-                                       ]
-                                      ]]
-                          ]]]])
+                           :children [[p RHS-column-style "Parameter validation errors are written to the console."]]]]]]])
 
 (defn named-params
   []
@@ -108,18 +103,16 @@
   :style     {:background-color \"blue\"}]"]
                                      [p "Each parameter involves a leading keyword name, followed by a value.  Always pairs. "]]]
                           [v-box
-                           :children [[p RHS-column-style "We use named parameters because:"
-                                        [:ol
-                                         [:li "the code seems more easily read and understood (although longer)"]
-                                         [:li "optionality - not all parameters need be supplied and defaults can be introduced"]
-                                         [:li "API flexibility - easy to add new parameters"]]]
-                                       [p RHS-column-style "Read further analysis "
+                           :children [[p RHS-column-style "We use named parameters because:"]
+                                      [:ol RHS-column-style
+                                       [:li "the code seems more easily read and understood (although longer)"]
+                                       [:li "optionality - not all parameters need be supplied and defaults can be introduced"]
+                                       [:li "API flexibility - easy to add new parameters"]]
+                                      [p RHS-column-style "Read further analysis "
                                         [hyperlink-href
                                          :label "here"
                                          :href "https://clojurefun.wordpress.com/2012/08/13/keyword-arguments-in-clojure/"
-                                         :target "_blank"] "."]]]
-                          ]]
-              ]])
+                                         :target "_blank"] "."]]]]]]])
 
 
 (defn layouts-section
@@ -154,19 +147,15 @@
                                         [hyperlink-href
                                          :label "flexbox"
                                          :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
-                                         :target "_blank"]]
-                                       ]]]]]])
+                                         :target "_blank"]]]]]]]])
 
 
 (defn example-layout
   []
   [v-box
-   :children [
-              [h-box
-               :children [
-                          [v-box
-                           :children [
-                                      [p "And this example code, showing an " [:span.bold "h-box"] " as a child of a " [:span.bold "v-box"] " ..."]
+   :children [[h-box
+               :children [[v-box
+                           :children [[p "And this example code, showing an " [:span.bold "h-box"] " as a child of a " [:span.bold "v-box"] " ..."]
                                       [:pre
                                        {:style {:width "460px"}}
                                        "[v-box

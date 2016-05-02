@@ -64,18 +64,18 @@
                                       [p "Re-com's layout model is a thin layer over " [:span.bold "CSS Flexbox"] "."]
                                       [p "To fully understand Re-com's layout components and use them
                                           powerfully, you " [:span.bold "will"] " need to have a strong understanding of
-                                          Flexbox. You should do these tutorials very soon:"
-                                       [:ul
-                                        [:li
-                                         [hyperlink-href
-                                          :label "CSS-Tricks guide to flexbox"
-                                          :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
-                                          :target "_blank"]]
-                                        [:li
-                                         [hyperlink-href
-                                          :label "The Ultimate Flexbox Cheat Sheet"
-                                          :href "http://www.sketchingwithcss.com/samplechapter/cheatsheet.html"
-                                          :target "_blank"]]]]]]
+                                          Flexbox. You should do these tutorials very soon:"]
+                                      [:ul
+                                       [:li
+                                        [hyperlink-href
+                                         :label "CSS-Tricks guide to flexbox"
+                                         :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
+                                         :target "_blank"]]
+                                       [:li
+                                        [hyperlink-href
+                                         :label "The Ultimate Flexbox Cheat Sheet"
+                                         :href "http://www.sketchingwithcss.com/samplechapter/cheatsheet.html"
+                                         :target "_blank"]]]]]
 
                           [v-box
                            :style {:font-size "13px" :color "#aaa"}
@@ -107,6 +107,7 @@
 (defn key-style-section
   []
   [v-box
+   :width "450px"
    :children [[title :level :level2 :label "The Key Style"]
               [p "Flexbox is about styles on " [:span.bold "containers"] " and their child " [:span.bold "items"] "."]
               [p "While tutorials will walk you through the menagerie of flexbox related styles,
@@ -115,22 +116,22 @@
                " [:span.bold "flex"] " styles on the items within that layout."]
               [title :level :level2 :label "flex=GSB"]
               [p "Tutorials will tell you that the " [:span.bold "flex"] " style can be single value like " [:span.bold "none"] "  or " [:span.bold "auto"]
-                 ". But those are shortcuts. Every flex style resolves to a triple of sub-values:"
-               [:ul
-                [:li [:span [:span.bold "grow"]   " - Integer which determines how an item grows in size (in proportion to its siblings) if there is
+                 ". But those are shortcuts. Every flex style resolves to a triple of sub-values:"]
+              [:ul
+               [:li [:span [:span.bold "grow"]   " - Integer which determines how an item grows in size (in proportion to its siblings) if there is
                                                    extra container space to distribute. 0 for no growing."]]
-                [:li [:span [:span.bold "shrink"] " - Integer which determines how an item shrinks in size (in proportion to its siblings) if container
+               [:li [:span [:span.bold "shrink"] " - Integer which determines how an item shrinks in size (in proportion to its siblings) if container
                                                    space is reduced. 0 for no shrinking."]]
-                [:li [:span [:span.bold "basis"]  " - The default size of an item before any necessary growing or shrinking. Can be:"
-                      [:ul
-                       [:li "absolute length values like \"100px\" or \"40em\""]
-                       [:li [:span.bold "auto"] " which means use the natural size of the item"]
-                       [:li "proporational values like \"60\""]]]]]]
+               [:li [:span [:span.bold "basis"]  " - The default size of an item before any necessary growing or shrinking. Can be:"
+                     [:ul
+                      [:li "absolute length values like \"100px\" or \"40em\""]
+                      [:li [:span.bold "auto"] " which means use the natural size of the item"]
+                      [:li "proporational values like \"60\""]]]]]
 
-              [p "Shortcut values are always transformed into a triple. For example:"
-               [:ul
-                [:li  [:span.bold "flex=\"none\""] " is eqivalent to  " [:span.bold "flex=\"0 0 auto\""]]
-                [:li  [:span.bold "flex=\"auto\""] " is eqivalent to  " [:span.bold "flex=\"1 1 auto\""]]]]
+              [p "Shortcut values are always transformed into a triple. For example:"]
+              [:ul
+               [:li  [:span.bold "flex=\"none\""] " is eqivalent to  " [:span.bold "flex=\"0 0 auto\""]]
+               [:li  [:span.bold "flex=\"auto\""] " is eqivalent to  " [:span.bold "flex=\"1 1 auto\""]]]
               [p "Sure, use the shortcuts. But it is only by understanding triples that you become a power user of flexbox (or re-com layouts)."]
               [gap :size "10px"]]])
 

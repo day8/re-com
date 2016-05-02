@@ -117,21 +117,21 @@
                                             [p "Popovers appear above other components, and point to an anchor."]
                                             [p "In the simplest case, we're talking tooltips. In more complex cases, detailed dialog boxes."]
                                             [p "Even when the absolute position of the anchor changes, the popover stays pointing at it."]
-                                            [p "To create a popover, wrap the anchor with " [:code "popover-anchor-wrapper"] ". The arguments are:"
-                                             [:ul
-                                              [:li [:code ":showing?"] " - An atom. When true, the popover shows."]
-                                              [:li [:code ":position"] " - A keyword specifying the popover's position relative to the anchor. See the demo to the right for the values."]
-                                              [:li [:code ":anchor"] " - The anchor component to wrap."]
-                                              [:li [:code ":popover"] " - The popover body component (what gets shown in the popover)."]]]
-                                            [p "You should use the " [:code "popover-content-wrapper"] " component to wrap the body content. The main arguments are:"
-                                             [:ul
-                                              [:li [:code ":title"] " - Title of the popover. Can be ommitted."]
-                                              [:li [:code ":close-button?"] " - Add close button in the top right. Default is true."]
-                                              [:li [:code ":body"] " - Body component of the popover."]
-                                              [:li [:code ":on-cancel"] " - A function taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."]
-                                              [:li [:code ":no-clip?"] " - When an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped.
+                                            [p "To create a popover, wrap the anchor with " [:code "popover-anchor-wrapper"] ". The arguments are:"]
+                                            [:ul
+                                             [:li [:code ":showing?"] " - An atom. When true, the popover shows."]
+                                             [:li [:code ":position"] " - A keyword specifying the popover's position relative to the anchor. See the demo to the right for the values."]
+                                             [:li [:code ":anchor"] " - The anchor component to wrap."]
+                                             [:li [:code ":popover"] " - The popover body component (what gets shown in the popover)."]]
+                                            [p "You should use the " [:code "popover-content-wrapper"] " component to wrap the body content. The main arguments are:"]
+                                            [:ul
+                                             [:li [:code ":title"] " - Title of the popover. Can be ommitted."]
+                                             [:li [:code ":close-button?"] " - Add close button in the top right. Default is true."]
+                                             [:li [:code ":body"] " - Body component of the popover."]
+                                             [:li [:code ":on-cancel"] " - A function taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."]
+                                             [:li [:code ":no-clip?"] " - When an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped.
                                                                          By passing true for this parameter, re-com will use a different CSS method to show the popover.
-                                                                         This method is slightly inferior because the popover can't track the anchor if it is repositioned."]]]]]
+                                                                         This method is slightly inferior because the popover can't track the anchor if it is repositioned."]]]]
                                 [v-box
                                  :gap      "30px"
                                  :margin   "20px 0px 0px 0px"

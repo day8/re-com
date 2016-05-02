@@ -33,8 +33,7 @@
  :v-scroll :auto
  :height   \"300px\"
  :child    [some-component]]"]
-                                      [p "Notes:"
-                                      [:ul
-                                       [:li "In this example, if the height of [some-component] is greater than 300px, a vertical scroll bar will be added."]
-                                       ]]]]]]
+                                     [p "Notes:"]
+                                     [:ul
+                                      [:li [:span "In this example, if the height of [some-component] is greater than 300px, a vertical scroll bar will be added."]]]]]]]
               [gap :size "30px"]]])
