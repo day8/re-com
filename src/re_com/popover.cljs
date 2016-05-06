@@ -222,7 +222,7 @@
                            ;; make it visible and turn off Bootstrap max-width and remove Bootstrap padding which adds an internal white border
                            {:display   "block"
                             :max-width "none"
-                            :padding   (px 0)})}
+                            :padding   "0px"})}
             [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color]
             (when title title)
             (into [:div.popover-content {:style {:padding padding}}] children)]))})))
@@ -365,7 +365,7 @@
          {:class "rc-popover-point display-inline-flex"
           :style (merge (flex-child-style "auto")
                         {:position "relative"
-                         :z-index  "4"})}
+                         :z-index  4})}
          popover])
       (when-not place-anchor-before? anchor)]]))
 
