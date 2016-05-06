@@ -9,9 +9,9 @@
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
 
-  :dependencies     [[org.clojure/clojure         "1.7.0"]
-                     [org.clojure/clojurescript   "1.7.145"]
-                     [reagent                     "0.6.0-alpha"]
+  :dependencies     [[org.clojure/clojure         "1.8.0"]
+                     [org.clojure/clojurescript   "1.8.40"]
+                     [reagent                     "0.6.0-alpha2"]
                      [com.andrewmcveigh/cljs-time "0.4.0"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
@@ -32,7 +32,7 @@
                                                [figwheel                        "0.5.2"]
                                                [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]
                                                [secretary                       "1.2.3"]]
-                                :plugins      [[lein-cljsbuild                  "1.1.2"]
+                                :plugins      [[lein-cljsbuild                  "1.1.3"]
                                                [lein-figwheel                   "0.5.2"]
                                                [lein-shell                      "0.5.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
