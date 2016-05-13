@@ -161,7 +161,7 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
+      [internal-model other-value choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? allow-other?]
       (let [_ (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})]
         [:a.chosen-single.chosen-default
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
@@ -181,7 +181,9 @@
           }
          [:span
           (if @internal-model
-            (label-fn (item-for-id @internal-model choices :id-fn id-fn))
+            (if (and allow-other? (= @internal-model :other))
+              @other-value
+              (or (label-fn (item-for-id @internal-model choices :id-fn id-fn)) @internal-model))
             placeholder)]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
@@ -200,6 +202,7 @@
    {:name :disabled?     :required false :default false   :type "boolean | atom"                                               :description "if true, no user selection is allowed"}
    {:name :filter-box?   :required false :default false   :type "boolean"                                                      :description "if true, a filter text field is placed at the top of the dropdown"}
    {:name :regex-filter? :required false :default false   :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
+   {:name :allow-other?  :required false :default false   :type "boolean | atom"                                               :description [:span "if true, the dropdown will support an entry that is not present on " [:code ":choices"] ". " [:code ":on-change"] " will be called with 2 parameters when that happens: the first will be " [:code ":other"] " and the second will be the selected text"]}
    {:name :placeholder   :required false                  :type "string"                        :validate-fn string?           :description "background text when no selection"}
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
@@ -219,14 +222,16 @@
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
-        filter-text    (reagent/atom "")]
-    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index id-fn label-fn group-fn class style attr]
+        filter-text    (reagent/atom "")
+        other-value    (reagent/atom "")]
+    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? allow-other? placeholder width max-height tab-index id-fn label-fn group-fn class style attr]
             :or {id-fn :id label-fn :label group-fn :group}
             :as args}]
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
       (let [choices          (deref-or-value choices)
             disabled?        (deref-or-value disabled?)
             regex-filter?    (deref-or-value regex-filter?)
+            allow-other?     (deref-or-value allow-other?)
             latest-ext-model (reagent/atom (deref-or-value model))
             _                (when (not= @external-model @latest-ext-model) ;; Has model changed externally?
                                (reset! external-model @latest-ext-model)
@@ -234,19 +239,22 @@
             changeable?      (and on-change (not disabled?))
             callback         #(do
                                (reset! internal-model %)
+                               (reset! other-value @filter-text)
                                (when (and changeable? (not= @internal-model @latest-ext-model))
-                                 (on-change @internal-model))
+                                 (on-change @internal-model @other-value))
                                (swap! drop-showing? not) ;; toggle to allow opening dropdown on Enter key
                                (reset! filter-text ""))
             cancel           #(do
                                (reset! drop-showing? false)
                                (reset! filter-text "")
+                               (reset! other-value "")
                                (reset! internal-model @external-model))
             dropdown-click   #(when-not disabled?
                                (swap! drop-showing? not))
-            filtered-choices (if regex-filter?
-                               (filter-choices-regex choices group-fn label-fn @filter-text)
-                               (filter-choices choices group-fn label-fn @filter-text))
+            filtered-choices (cond-> choices
+                               regex-filter?       (filter-choices-regex group-fn label-fn @filter-text)
+                               (not regex-filter?) (filter-choices group-fn label-fn @filter-text)
+                               allow-other?        (conj {:id :other :label (str "Select \"" @filter-text "\"") :group "Other"}))
             press-enter      (fn []
                                (if disabled?
                                  (cancel)
@@ -299,7 +307,7 @@
                           {:width (when width width)}
                           style)}
            attr)          ;; Prevent user text selection
-         [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
+         [dropdown-top internal-model other-value choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? allow-other?]
          (when (and @drop-showing? (not disabled?))
            [:div.chosen-drop
             [filter-text-box filter-box? filter-text key-handler drop-showing?]
@@ -316,4 +324,5 @@
                  (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
                    (make-choices (first group-opt-lists)) ;; one group means no headings
                    (apply concat (map make-h-then-choices group-names group-opt-lists))))
-               [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))
+               (when-not allow-other?
+                 [:li.no-results (str "No results match \"" @filter-text "\"")]))]])]))))
