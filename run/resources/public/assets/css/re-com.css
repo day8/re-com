@@ -1305,7 +1305,7 @@ code {
 
 .rc-typeahead-suggestions-item {
     background-color: #eee;
-    margin: 0.4em;
+    padding: 0.4em;
 }
 
 .rc-typeahead-suggestions-item.active {
