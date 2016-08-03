@@ -19,30 +19,26 @@
 (def typeahead-args-desc
   [{:name :model            :required true                   :type "string | atom"    :validate-fn string-or-atom?    :description "text of the input (can be atom or value)"}
    {:name :on-change        :required true                   :type "string -> nil"    :validate-fn fn?                :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string"] }
-   {:name :data-source      :required true                   :type "string -> nil"    :validate-fn fn?                :description [:span [:code ":data-source"] " populates the suggestions. Should be a unary function accepting a callback. The callback should take a string and return a vector of results."] }
+   {:name :data-source      :required true                   :type "async fn"         :validate-fn fn?                :description [:span [:code ":data-source"] " populates the suggestions. Should be a 2 argument function taking a search query and a callback, and should call the callback with the search query and a vector of suggestions."]}
    {:name :status           :required false                  :type "keyword"          :validate-fn input-status-type? :description [:span "validation status. " [:code "nil/omitted"] " for normal status or one of: " input-status-types-list]}
    {:name :status-icon?     :required false :default false   :type "boolean"                                          :description [:span "when true, display an icon to match " [:code ":status"] " (no icon for nil)"]}
    {:name :status-tooltip   :required false                  :type "string"           :validate-fn string?            :description "displayed in status icon's tooltip"}
    {:name :placeholder      :required false                  :type "string"           :validate-fn string?            :description "background text shown when empty"}
    {:name :width            :required false :default "250px" :type "string"           :validate-fn string?            :description "standard CSS width setting for this input"}
    {:name :height           :required false                  :type "string"           :validate-fn string?            :description "standard CSS height setting for this input"}
-   {:name :rows             :required false :default 3       :type "integer | string" :validate-fn number-or-string?  :description "ONLY applies to 'input-textarea': the number of rows of text to show"}
    {:name :change-on-blur?  :required false :default true    :type "boolean | atom"                                   :description [:span "when true, invoke " [:code ":on-change"] " function on blur, otherwise on every change (character by character)"] }
-   {:name :validation-regex :required false                  :type "regex"            :validate-fn regex?             :description "user input is only accepted if it would result in a string that matches this regular expression"}
    {:name :disabled?        :required false :default false   :type "boolean | atom"                                   :description "if true, the user can't interact (input anything)"}
    {:name :class            :required false                  :type "string"           :validate-fn string?            :description "CSS class names, space separated"}
    {:name :style            :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override"}
-   {:name :attr             :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-   {:name :input-type       :required false                  :type "keyword"          :validate-fn keyword?           :description "ONLY applies to super function 'base-typeahead': either :input or :textarea"}])
+   {:name :attr             :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
-;; Sample regex's:
-;;  - #"^(-{0,1})(\d*)$"                   ;; Signed integer
-;;  - #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$"  ;; Specific numeric value ##.#
-;;  - #"^.{0,8}$"                          ;; 8 chars max
-;;  - #"^[0-9a-fA-F]*$"                    ;; Hex number
-;;  - #"^(\d{0,2})()()$|^(\d{0,1})(:{0,1})(\d{0,2})$|^(\d{0,2})(:{0,1})(\d{0,2})$" ;; Time input
+;; TODO
+;; fix docs/demo
+;; respect change-on-blur?, on-change
+;; allow custom component as suggestion-item
+;; add an option to allow arbitrary text (vs only a suggestion)
+;; set the model properly
 
-;; move this elsewhere
 (defn debounce [in ms]
   (let [out (chan)]
     (go-loop [last-val nil]
@@ -162,13 +158,23 @@
     (handle-search-results state-atom c-sugg)
     (handle-search state-atom c-sugg data-source c-search)
     (fn
-      [& {:keys [model]
+      [& {:keys [model placeholder width height status-icon? status status-tooltip disabled? class style]
           :as   args}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
       (let [{:keys [suggestions waiting? model suggestion-selected-index]} @state-atom]
-        [v-box :children
-         [[:pre suggestion-selected-index]
-          [input-text
+        [v-box
+         :width width
+         :children
+         [[input-text
+           :class          class
+           :style          style
+           :disabled?      disabled?
+           :status-icon?   status-icon?
+           :status         status
+           :status-tooltip status-tooltip
+           :width          width
+           :height         height
+           :placeholder    placeholder
            :on-change #(do (swap! state-atom assoc :model %)
                            (put! c-input %))
            :change-on-blur? false
@@ -192,4 +198,4 @@
 
 (defn typeahead
   [& args]
-  (apply typeahead-base :input-type :input args))
+  (apply typeahead-base args))
