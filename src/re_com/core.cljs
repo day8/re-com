@@ -4,6 +4,7 @@
             [re-com.buttons        :as buttons]
             [re-com.datepicker     :as datepicker]
             [re-com.dropdown       :as dropdown]
+            [re-com.typeahead      :as typeahead]
             [re-com.input-time     :as input-time]
             [re-com.splits         :as splits]
             [re-com.misc           :as misc]
@@ -47,6 +48,8 @@
 (def datepicker-dropdown        datepicker/datepicker-dropdown)
 
 (def single-dropdown            dropdown/single-dropdown)
+
+(def typeahead                  typeahead/typeahead)
 
 (def input-time                 input-time/input-time)
 
