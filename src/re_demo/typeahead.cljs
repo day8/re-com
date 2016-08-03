@@ -45,7 +45,6 @@
                                :children [[title2 "Notes"]
                                           [status-text "Stable"]
                                           [p "Text entry components."]
-                                          [p "You can control the input format via " [:code ":validation-regex"] "."]
                                           [p "The " [:code ":on-change"] " function will be called either after each character is entered or on blur."]
                                           [p "Input warnings and errors can be indicated visually by border colors and icons."]
                                           [args-table typeahead-args-desc]]]
@@ -64,9 +63,8 @@
                                                                    :status-icon?     @status-icon?
                                                                    :status-tooltip   @status-tooltip
                                                                    :width            "300px"
-                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
+                                                                   :placeholder      "Choose state"
                                                                    :on-change        #(reset! text-val %)
-                                                                   :validation-regex @regex
                                                                    :change-on-blur?  change-on-blur?
                                                                    :disabled?        disabled?]]]
                                                       [v-box
@@ -129,40 +127,12 @@
                                                                                             (reset! status-icon? val))]
                                                                               [:span " (notice the tooltips on the icons)"]]]
 
-                                                                  [v-box
-                                                                   :children [[box :align :start :child [:code ":validation-regex"]]
-                                                                              [radio-button
-                                                                               :label     "nil/omitted - no character validation"
-                                                                               :value     nil
-                                                                               :model     @regex
-                                                                               :on-change #(do (reset! regex nil)
-                                                                                               (reset! text-val ""))
-                                                                               :style     {:margin-left "20px"}]
-                                                                              [radio-button
-                                                                               :label     "only accept input matching '99.9'"
-                                                                               :value     regex999
-                                                                               :model     @regex
-                                                                               :on-change #(do (reset! regex regex999)
-                                                                                               (reset! text-val ""))
-                                                                               :style     {:margin-left "20px"}]]]
                                                                   [checkbox
                                                                    :label     [box :align :start :child [:code ":disabled?"]]
                                                                    :model     disabled?
                                                                    :on-change (fn [val]
                                                                                 (reset! disabled? val))]
-                                                                  [h-box
-                                                                   :gap "10px"
-                                                                   :children [[h-box
-                                                                               :align    :start
-                                                                               :children [[:code ":rows"]
-                                                                                          "(textarea)"]]
-                                                                              [slider
-                                                                               :model     slider-val
-                                                                               :min       1
-                                                                               :max       10
-                                                                               :width     "200px"
-                                                                               :on-change #(reset! slider-val %)]
-                                                                              [label :label @slider-val]]]]]]]]]]]]])))
+                                                                  ]]]]]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

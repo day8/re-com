@@ -1309,6 +1309,6 @@ code {
 }
 
 .rc-typeahead-suggestions-item.active {
-    background-color: pink;
+    background-color: #ddd;
 }
 
