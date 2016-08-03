@@ -9,7 +9,8 @@
             [re-com.validate :refer [input-status-type? input-status-types-list regex?
                                      string-or-hiccup? css-style? html-attr? number-or-string?
                                      string-or-atom? throbber-size? throbber-sizes-list] :refer-macros [validate-args-macro]]
-            [reagent.core    :as    reagent]))
+            [reagent.core    :as    reagent]
+            #_[goog.events.KeyCodes :as KeyCodes]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: typeahead
@@ -58,9 +59,36 @@
    :waiting? false
    :suggestions []})
 
+(defn- wrap [index count]
+  (mod (+ count index) count))
+
+(defn- suggestion-select-prev
+  [{:as state :keys [suggestions]}]
+  (update state :suggestion-selected-index #(-> % (or 0) dec (wrap (count suggestions)))))
+
+(defn- suggestion-select-next
+  [{:as state :keys [suggestions]}]
+  (update state :suggestion-selected-index #(-> % (or -1) inc (wrap (count suggestions)))))
+
+(defn- suggestion-select-set
+  [state i]
+  (assoc state :suggestion-selected-index i))
+
+(defn- suggestion-select-choose
+  [{:as state :keys [suggestions suggestion-selected-index]}]
+  (-> state
+      (assoc :model (nth suggestions suggestion-selected-index))
+      (dissoc :suggestions)))
+
+(defn- suggestion-select-reset
+  [state]
+  (dissoc state :suggestion-selected-index))
+
 (defn- reset-typeahead
   [state]
-  (assoc state :waiting? false :suggestions []))
+  (-> state
+      (assoc :waiting? false :suggestions [])
+      suggestion-select-reset))
 
 (defn- search-data-source
   "Call the user-supplied `data-source` fn and put the result on `c-sugg`.
@@ -83,46 +111,84 @@
   (go-loop []
     (let [[search suggestions] (<! c-sugg)]
       (when (= search (:model @state-atom))
-        (swap! state-atom assoc :suggestions suggestions :waiting? false))) 
+        (swap! state-atom #(-> %
+                               (assoc :suggestions suggestions :waiting? false)
+                               suggestion-select-reset))))
     (recur)))
 
 (defn- make-typeahead-state
   []
   (let [c-input (chan)]
     (assoc typeahead-state-initial
+           :c-keypress (chan)
            :c-input c-input
            :c-search (debounce c-input 250) ;; FIXME hard-coded
            :c-sugg (chan))))
+
+(def ^:private keys-by-code
+  {40 :down
+   38 :up
+   9 :tab
+   13 :enter})
+
+;; ^ FIXME
+;; goog.events.KeyCodes
+
+
+(defn- on-key-up
+  [state-atom event]
+  (when-let [key (keys-by-code (.-which event))]
+    (.preventDefault event)
+    (case key
+      :up    (swap! state-atom suggestion-select-prev)
+      :down  (swap! state-atom suggestion-select-next)
+      :enter (swap! state-atom suggestion-select-choose)
+      true)))
+
+(defn- on-key-down
+  [state-atom event]
+  (when-let [key (keys-by-code (.-which event))]
+    (.preventDefault event)
+    (case key
+      :tab   (swap! state-atom suggestion-select-next)
+      true)))
 
 (defn- typeahead-base
   "Returns markup for a typeahead text input"
   [& {:keys [model data-source] :as args}]
   {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-  (let [{:as state :keys [ c-search c-sugg c-input ]} (make-typeahead-state)
+  (let [{:as state :keys [ c-search c-sugg c-input c-keypress ]} (make-typeahead-state)
         state-atom (reagent/atom state)]
     (handle-search-results state-atom c-sugg)
     (handle-search state-atom c-sugg data-source c-search)
     (fn
-      ;; this seems weird... why r we taking the component args here? in the "render" fn?
-      [& {:keys [model data-source]
+      [& {:keys [model]
           :as   args}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-      (let [{:keys [suggestions waiting? model]} @state-atom]
+      (let [{:keys [suggestions waiting? model suggestion-selected-index]} @state-atom]
         [v-box :children
-         [[input-text
+         [[:pre suggestion-selected-index]
+          [input-text
            :on-change #(do (swap! state-atom assoc :model %)
                            (put! c-input %))
            :change-on-blur? false
-           :model (or model "")]
+           :model (or model "")
+           :attr {:on-key-up   #(on-key-up state-atom %)
+                  :on-key-down #(on-key-down state-atom %)}]
           (if (or (not-empty suggestions) waiting?)
             [v-box
              :class "rc-typeahead-suggestions"
              :children [(when waiting?
                           [throbber :size :small :class "rc-typeahead-throbber"])
-                        (for [s suggestions]
+                        (for [[ i s ] (map vector (range) suggestions)
+                              :let [selected? (= suggestion-selected-index i)]]
                           [box
                            :child s
-                           :class "rc-typeahead-suggestions-item"])]])]]))))
+                           :class (str "rc-typeahead-suggestions-item"
+                                       (when selected? " active"))
+                           :attr {:on-mouse-over #(swap! state-atom suggestion-select-set i)
+                                  :on-mouse-down #(do (.preventDefault %) (swap! state-atom suggestion-select-choose))
+                                  }])]])]]))))
 
 (defn typeahead
   [& args]
