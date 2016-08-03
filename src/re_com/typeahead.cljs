@@ -149,7 +149,7 @@
       :tab   (swap! state-atom suggestion-select-next)
       true)))
 
-(defn- typeahead-base
+(defn- typeahead
   "Returns markup for a typeahead text input"
   [& {:keys [model data-source] :as args}]
   {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
@@ -161,7 +161,8 @@
       [& {:keys [model placeholder width height status-icon? status status-tooltip disabled? class style]
           :as   args}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-      (let [{:keys [suggestions waiting? model suggestion-selected-index]} @state-atom]
+      (let [{:keys [suggestions waiting? model suggestion-selected-index]} @state-atom
+            width (or width "250px")]
         [v-box
          :width width
          :children
@@ -185,7 +186,7 @@
             [v-box
              :class "rc-typeahead-suggestions"
              :children [(when waiting?
-                          [throbber :size :small :class "rc-typeahead-throbber"])
+                          [box :align :center :child [throbber :size :small :class "rc-typeahead-throbber"]])
                         (for [[ i s ] (map vector (range) suggestions)
                               :let [selected? (= suggestion-selected-index i)]]
                           [box
@@ -195,7 +196,3 @@
                            :attr {:on-mouse-over #(swap! state-atom suggestion-select-set i)
                                   :on-mouse-down #(do (.preventDefault %) (swap! state-atom suggestion-select-choose))
                                   }])]])]]))))
-
-(defn typeahead
-  [& args]
-  (apply typeahead-base args))
