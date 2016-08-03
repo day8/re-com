@@ -230,7 +230,7 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
 ## Helping
 
 1. Where the docs are wrong or fall short, write up something better. Because
-   our docs take the form of an app written in ClojureScrip using re-com, you're actually
+   our docs take the form of an app written in ClojureScript using re-com, you're actually
    exercising your knowledge of re-com as you do this.
 2. See the list of missing components above. You'll have to produce the
    component itself, including a params spec, plus the extra page in the demo app.
@@ -238,7 +238,7 @@ Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-ta
 
 When creating new components, we have found it useful to use the CSS from existing
 JavaScript projects (assuming their licence is compatible with MIT) and then
-replace the JavaScript with ClojureScript. Reagent really is is very nice.
+replace the JavaScript with ClojureScript. Reagent really is very nice.
 
 Also, please refer to [CONTRIBUTING.md](https://github.com/Day8/re-com/blob/master/CONTRIBUTING.md) for further 
 details on creating issues and pull requests.
