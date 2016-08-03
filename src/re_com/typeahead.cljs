@@ -53,71 +53,76 @@
           (recur v))))
     out))
 
+(def ^:private typeahead-state-initial
+  {:text ""
+   :waiting? false
+   :suggestions []})
+
+(defn- reset-typeahead
+  [state]
+  (assoc state :waiting? false :suggestions []))
+
+(defn- search-data-source
+  "Call the user-supplied `data-source` fn and put the result on `c-sugg`.
+  Set `waiting?` state."
+  [data-source state-atom c-sugg text]
+  (data-source text #(put! c-sugg [ %1 %2 ]))
+  (swap! state-atom assoc :waiting? true))
+
+(defn- handle-search
+  [state-atom c-sugg data-source c-search]
+  (go-loop []
+    (let [new-text (<! c-search)]
+      (if (= "" new-text)
+        (swap! state-atom reset-typeahead)
+        (search-data-source data-source state-atom c-sugg new-text))
+      (recur))))
+
+(defn- handle-search-results
+  [state-atom c-sugg]
+  (go-loop []
+    (let [[search suggestions] (<! c-sugg)]
+      (when (= search (:model @state-atom))
+        (swap! state-atom assoc :suggestions suggestions :waiting? false))) 
+    (recur)))
+
+(defn- make-typeahead-state
+  []
+  (let [c-input (chan)]
+    (assoc typeahead-state-initial
+           :c-input c-input
+           :c-search (debounce c-input 250) ;; FIXME hard-coded
+           :c-sugg (chan))))
+
 (defn- typeahead-base
   "Returns markup for a typeahead text input"
   [& {:keys [model data-source] :as args}]
   {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-  (let [input-text-model      (reagent/atom "")
-        awaiting-suggestions? (reagent/atom false)
-        suggestions           (reagent/atom [])
-        suggestions-chan (chan)
-        input-text-chan (chan)
-        input-text-chan-debounced (debounce input-text-chan 250) ;; FIXME hard-coded
-        reset-typeahead (fn []
-                          (reset! awaiting-suggestions? false)
-                          (reset! suggestions []))
-
-        ;; FIXME ignore next suggestions if val is changed
-        ;; or, very shwoopty, would be continue filtering the ones we did get while waiting for the others
-        ;; that's messy though because it makes an assumption about data-source
-        ;; perhaps disallow typing while waiting for the results?
-        ;; let's try that... nope, input-text doesn't expose a focused? atom and the thing is unfocused after dis/re-enable
-
-        ;; FIXME cleanup on unmount
-        _ (go-loop []
-            (let [[search suggs] (<! suggestions-chan)]
-              (println "got " search suggs)
-              (if (= search @input-text-model)
-                (do (reset! suggestions suggs)
-                    (reset! awaiting-suggestions? false))
-                (do (println "search " search " not= " @input-text-model " so we skipped")))
-              (recur)))
-        ;; FIXME need a way to let this thing die when component is gone
-        _ (go-loop []
-            (let [v (<! input-text-chan-debounced)]
-              (if (= "" v)
-                (reset-typeahead)
-                (do (reset! awaiting-suggestions? true)
-                    (data-source v #(put! suggestions-chan [ %1 %2 ])) ) )
-              (recur)))
-        
-        select-suggestion-next (fn []
-                                 (println "Next suggestion"))
-        ]
+  (let [{:as state :keys [ c-search c-sugg c-input ]} (make-typeahead-state)
+        state-atom (reagent/atom state)]
+    (handle-search-results state-atom c-sugg)
+    (handle-search state-atom c-sugg data-source c-search)
     (fn
+      ;; this seems weird... why r we taking the component args here? in the "render" fn?
       [& {:keys [model data-source]
           :as   args}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-      [v-box
-       :children [[input-text
-                   :model input-text-model
-                   :on-change (fn [v]
-                                (reset! input-text-model v)
-                                (put! input-text-chan v))
-                   :change-on-blur? false]
-                  #_[:pre @input-text-model]
-                  
-                  (let [suggs (not-empty @suggestions)
-                        waiting? @awaiting-suggestions?]
-                    (if (or suggs waiting?)
-                      [v-box
-                       :class "rc-typeahead-suggestions"
-                       :children [(when waiting?
-                                    [throbber :size :small :class "rc-typeahead-throbber"])
-                                  (for [s suggs]
-                                    [box
-                                     :child s
-                                     :class "rc-typeahead-suggestions-item"])]]))]])))
+      (let [{:keys [suggestions waiting? model]} @state-atom]
+        [v-box :children
+         [[input-text
+           :on-change #(do (swap! state-atom assoc :model %)
+                           (put! c-input %))
+           :change-on-blur? false
+           :model (or model "")]
+          (if (or (not-empty suggestions) waiting?)
+            [v-box
+             :class "rc-typeahead-suggestions"
+             :children [(when waiting?
+                          [throbber :size :small :class "rc-typeahead-throbber"])
+                        (for [s suggestions]
+                          [box
+                           :child s
+                           :class "rc-typeahead-suggestions-item"])]])]]))))
 
 (defn typeahead
   [& args]
