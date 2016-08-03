@@ -33,9 +33,9 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title  "[typeahead ... ] & [input-textarea ... ]"
-                   "src/re_com/misc.cljs"
-                   "src/re_demo/input_text.cljs"]
+       :children [[panel-title  "[typeahead ... ]"
+                   "src/re_com/typeahead.cljs"
+                   "src/re_demo/typeahead.cljs"]
 
                   [h-box
                    :gap      "100px"
