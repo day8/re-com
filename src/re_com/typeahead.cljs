@@ -51,40 +51,43 @@
     out))
 
 (def ^:private typeahead-state-initial
-  {:text ""
+  {:input-text ""
    :waiting? false
    :suggestions []})
 
 (defn- wrap [index count]
   (mod (+ count index) count))
 
-(defn- suggestion-select-prev
+(defn- select-prev
   [{:as state :keys [suggestions]}]
-  (update state :suggestion-selected-index #(-> % (or 0) dec (wrap (count suggestions)))))
+  (update state :selected-index #(-> % (or 0) dec (wrap (count suggestions)))))
 
-(defn- suggestion-select-next
+(defn- select-next
   [{:as state :keys [suggestions]}]
-  (update state :suggestion-selected-index #(-> % (or -1) inc (wrap (count suggestions)))))
+  (update state :selected-index #(-> % (or -1) inc (wrap (count suggestions)))))
 
-(defn- suggestion-select-set
+(defn- select-set
   [state i]
-  (assoc state :suggestion-selected-index i))
+  (assoc state :selected-index i))
 
-(defn- suggestion-select-choose
-  [{:as state :keys [suggestions suggestion-selected-index]}]
-  (-> state
-      (assoc :model (nth suggestions suggestion-selected-index))
-      (dissoc :suggestions)))
+(defn- select-choose
+  [{:as state :keys [suggestions selected-index on-change]}]
+  (let [[search suggestion :as selected] (nth suggestions selected-index)]
+    (when on-change
+      (on-change suggestion))
+    (-> state
+        (assoc :model suggestion :input-text "")
+        (dissoc :suggestions))))
 
-(defn- suggestion-select-reset
+(defn- select-reset
   [state]
-  (dissoc state :suggestion-selected-index))
+  (dissoc state :selected-index))
 
 (defn- reset-typeahead
   [state]
   (-> state
-      (assoc :waiting? false :suggestions [])
-      suggestion-select-reset))
+      (assoc :waiting? false :suggestions [] :input-text "")
+      select-reset))
 
 (defn- search-data-source
   "Call the user-supplied `data-source` fn and put the result on `c-sugg`.
@@ -106,16 +109,17 @@
   [state-atom c-sugg]
   (go-loop []
     (let [[search suggestions] (<! c-sugg)]
-      (when (= search (:model @state-atom))
+      (when (= search (:input-text @state-atom))
         (swap! state-atom #(-> %
                                (assoc :suggestions suggestions :waiting? false)
-                               suggestion-select-reset))))
+                               select-reset))))
     (recur)))
 
 (defn- make-typeahead-state
-  []
+  [on-change]
   (let [c-input (chan)]
     (assoc typeahead-state-initial
+           :on-change on-change
            :c-keypress (chan)
            :c-input c-input
            :c-search (debounce c-input 250) ;; FIXME hard-coded
@@ -136,9 +140,9 @@
   (when-let [key (keys-by-code (.-which event))]
     (.preventDefault event)
     (case key
-      :up    (swap! state-atom suggestion-select-prev)
-      :down  (swap! state-atom suggestion-select-next)
-      :enter (swap! state-atom suggestion-select-choose)
+      :up    (swap! state-atom select-prev)
+      :down  (swap! state-atom select-next)
+      :enter (swap! state-atom select-choose)
       true)))
 
 (defn- on-key-down
@@ -146,27 +150,32 @@
   (when-let [key (keys-by-code (.-which event))]
     (.preventDefault event)
     (case key
-      :tab   (swap! state-atom suggestion-select-next)
+      :tab   (swap! state-atom select-next)
       true)))
 
 (defn- typeahead
   "Returns markup for a typeahead text input"
-  [& {:keys [model data-source] :as args}]
+  [& {:keys [data-source on-change] :as args}]
   {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-  (let [{:as state :keys [ c-search c-sugg c-input c-keypress ]} (make-typeahead-state)
-        state-atom (reagent/atom state)]
+  (let [{:as state :keys [ c-search c-sugg c-input c-keypress ]} (make-typeahead-state on-change)
+        state-atom (reagent/atom state)
+        input-text-model (reagent/cursor state-atom [:input-text])]
     (handle-search-results state-atom c-sugg)
     (handle-search state-atom c-sugg data-source c-search)
     (fn
-      [& {:keys [model placeholder width height status-icon? status status-tooltip disabled? class style]
+      [& {:keys [render-suggestion on-change model
+                 placeholder width height status-icon?
+                 status status-tooltip disabled? rigid?
+                 class style]
           :as   args}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-      (let [{:keys [suggestions waiting? model suggestion-selected-index]} @state-atom
+      (let [{:keys [suggestions waiting? model selected-index]} @state-atom
             width (or width "250px")]
         [v-box
          :width width
          :children
          [[input-text
+           :model          input-text-model
            :class          class
            :style          style
            :disabled?      disabled?
@@ -176,10 +185,9 @@
            :width          width
            :height         height
            :placeholder    placeholder
-           :on-change #(do (swap! state-atom assoc :model %)
+           :on-change #(do (swap! state-atom assoc :input-text %)
                            (put! c-input %))
            :change-on-blur? false
-           :model (or model "")
            :attr {:on-key-up   #(on-key-up state-atom %)
                   :on-key-down #(on-key-down state-atom %)}]
           (if (or (not-empty suggestions) waiting?)
@@ -188,11 +196,13 @@
              :children [(when waiting?
                           [box :align :center :child [throbber :size :small :class "rc-typeahead-throbber"]])
                         (for [[ i s ] (map vector (range) suggestions)
-                              :let [selected? (= suggestion-selected-index i)]]
+                              :let [selected? (= selected-index i)]]
+                          ^{:key i}
                           [box
-                           :child s
+                           :child (if render-suggestion
+                                    (render-suggestion s)
+                                    s)
                            :class (str "rc-typeahead-suggestions-item"
                                        (when selected? " active"))
-                           :attr {:on-mouse-over #(swap! state-atom suggestion-select-set i)
-                                  :on-mouse-down #(do (.preventDefault %) (swap! state-atom suggestion-select-choose))
-                                  }])]])]]))))
+                           :attr {:on-mouse-over #(swap! state-atom select-set i)
+                                  :on-mouse-down #(do (.preventDefault %) (swap! state-atom select-choose))}])]])]]))))
