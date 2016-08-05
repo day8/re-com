@@ -20,6 +20,8 @@
   [{:name :model            :required true                   :type "string | atom"    :validate-fn string-or-atom?    :description "text of the input (can be atom or value)"}
    {:name :on-change        :required true                   :type "string -> nil"    :validate-fn fn?                :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string"] }
    {:name :data-source      :required true                   :type "async fn"         :validate-fn fn?                :description [:span [:code ":data-source"] " populates the suggestions. Should be a 2 argument function taking a search query and a callback, and should call the callback with the search query and a vector of suggestions."]}
+   {:name :render-suggestion :required false                 :type "component"        :validate-fn fn?                :description "override the rendering of the suggestion items by passing a component fn."}
+   {:name :rigid?           :required false :default true    :type "boolean | atom"                                   :description "Set to `false` will allow the user to choose arbitrary text input rather than a suggestion from `data-source`."}
    {:name :status           :required false                  :type "keyword"          :validate-fn input-status-type? :description [:span "validation status. " [:code "nil/omitted"] " for normal status or one of: " input-status-types-list]}
    {:name :status-icon?     :required false :default false   :type "boolean"                                          :description [:span "when true, display an icon to match " [:code ":status"] " (no icon for nil)"]}
    {:name :status-tooltip   :required false                  :type "string"           :validate-fn string?            :description "displayed in status icon's tooltip"}
@@ -60,24 +62,39 @@
 
 (defn- select-prev
   [{:as state :keys [suggestions]}]
-  (update state :selected-index #(-> % (or 0) dec (wrap (count suggestions)))))
+  (cond-> state
+    (not-empty suggestions)
+    (update :selected-index #(-> % (or -1) inc (wrap (count suggestions))))))
 
 (defn- select-next
   [{:as state :keys [suggestions]}]
-  (update state :selected-index #(-> % (or -1) inc (wrap (count suggestions)))))
+  (cond-> state
+    (not-empty suggestions)
+    (update :selected-index #(-> % (or -1) inc (wrap (count suggestions))))))
 
 (defn- select-set
   [state i]
   (assoc state :selected-index i))
 
+(defn- choice-made
+  [{:as state :keys [on-change]} choice]
+  (when on-change (on-change choice))
+  (-> state
+      (assoc :model choice :input-text "")
+      (dissoc :suggestions)))
+
 (defn- select-choose
-  [{:as state :keys [suggestions selected-index on-change]}]
-  (let [[search suggestion :as selected] (nth suggestions selected-index)]
-    (when on-change
-      (on-change suggestion))
-    (-> state
-        (assoc :model suggestion :input-text "")
-        (dissoc :suggestions))))
+  [{:as state :keys [suggestions selected-index on-change rigid? input-text]}]
+  (cond
+
+    (and (not rigid?) (not selected-index))
+    (choice-made state input-text)
+
+    selected-index
+    (let [[search suggestion :as selected] (nth suggestions selected-index)]
+      (choice-made state suggestion))
+
+    true state))
 
 (defn- select-reset
   [state]
@@ -108,22 +125,24 @@
 (defn- handle-search-results
   [state-atom c-sugg]
   (go-loop []
-    (let [[search suggestions] (<! c-sugg)]
-      (when (= search (:input-text @state-atom))
+    (let [[search suggestions] (<! c-sugg)
+          {:keys [input-text]} @state-atom]
+      (when (= search input-text)
         (swap! state-atom #(-> %
                                (assoc :suggestions suggestions :waiting? false)
                                select-reset))))
     (recur)))
 
 (defn- make-typeahead-state
-  [on-change]
+  [{:as args :keys [on-change rigid?]}]
   (let [c-input (chan)]
     (assoc typeahead-state-initial
-           :on-change on-change
+           :on-change  on-change
+           :rigid?     rigid?
+           :c-input    c-input
+           :c-search   (debounce c-input 250) ;; FIXME hard-coded
            :c-keypress (chan)
-           :c-input c-input
-           :c-search (debounce c-input 250) ;; FIXME hard-coded
-           :c-sugg (chan))))
+           :c-sugg     (chan))))
 
 (def ^:private keys-by-code
   {40 :down
@@ -155,9 +174,9 @@
 
 (defn- typeahead
   "Returns markup for a typeahead text input"
-  [& {:keys [data-source on-change] :as args}]
+  [& {:keys [data-source on-change rigid?] :as args}]
   {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-  (let [{:as state :keys [ c-search c-sugg c-input c-keypress ]} (make-typeahead-state on-change)
+  (let [{:as state :keys [ c-search c-sugg c-input c-keypress ]} (make-typeahead-state args)
         state-atom (reagent/atom state)
         input-text-model (reagent/cursor state-atom [:input-text])]
     (handle-search-results state-atom c-sugg)
@@ -192,7 +211,7 @@
                   :on-key-down #(on-key-down state-atom %)}]
           (if (or (not-empty suggestions) waiting?)
             [v-box
-             :class "rc-typeahead-suggestions"
+             :class "rc-typeahead-suggestions-container"
              :children [(when waiting?
                           [box :align :center :child [throbber :size :small :class "rc-typeahead-throbber"]])
                         (for [[ i s ] (map vector (range) suggestions)
@@ -202,7 +221,7 @@
                            :child (if render-suggestion
                                     (render-suggestion s)
                                     s)
-                           :class (str "rc-typeahead-suggestions-item"
+                           :class (str "rc-typeahead-suggestion"
                                        (when selected? " active"))
                            :attr {:on-mouse-over #(swap! state-atom select-set i)
                                   :on-mouse-down #(do (.preventDefault %) (swap! state-atom select-choose))}])]])]]))))
