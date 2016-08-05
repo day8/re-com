@@ -17,7 +17,7 @@
 ;; ------------------------------------------------------------------------------------
 
 (def typeahead-args-desc
-  [{:name :model            :required true                   :type "string | atom"    :validate-fn string-or-atom?    :description "text of the input (can be atom or value)"}
+  [{:name :model            :required false :default nil     :type "string | atom"    :validate-fn string-or-atom?    :description "text of the input (can be atom or value)"}
    {:name :on-change        :required true                   :type "string -> nil"    :validate-fn fn?                :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string"] }
    {:name :data-source      :required true                   :type "async fn"         :validate-fn fn?                :description [:span [:code ":data-source"] " populates the suggestions. Should be a 2 argument function taking a search query and a callback, and should call the callback with the search query and a vector of suggestions."]}
    {:name :render-suggestion :required false                 :type "component"        :validate-fn fn?                :description "override the rendering of the suggestion items by passing a component fn."}
@@ -36,10 +36,11 @@
 
 ;; TODO
 ;; fix docs/demo
-;; respect change-on-blur?, on-change
-;; allow custom component as suggestion-item
-;; add an option to allow arbitrary text (vs only a suggestion)
-;; set the model properly
+;; respect change-on-blur? (if false, typeahead model should change as user moves through suggestions with kbd/mouse)
+;;   if rigid? is also false, then model should change as the user types as well
+;; escape key should reset
+;; deleting the text should reset
+;; ability to focus the input-text would be nice...
 
 (defn debounce [in ms]
   (let [out (chan)]
@@ -64,7 +65,7 @@
   [{:as state :keys [suggestions]}]
   (cond-> state
     (not-empty suggestions)
-    (update :selected-index #(-> % (or -1) inc (wrap (count suggestions))))))
+    (update :selected-index #(-> % (or 0) dec (wrap (count suggestions))))))
 
 (defn- select-next
   [{:as state :keys [suggestions]}]
@@ -85,16 +86,13 @@
 
 (defn- select-choose
   [{:as state :keys [suggestions selected-index on-change rigid? input-text]}]
-  (cond
+  (cond-> state
 
     (and (not rigid?) (not selected-index))
-    (choice-made state input-text)
+    (choice-made input-text)
 
     selected-index
-    (let [[search suggestion :as selected] (nth suggestions selected-index)]
-      (choice-made state suggestion))
-
-    true state))
+    (choice-made (let [[_ suggestion] (nth suggestions selected-index)] suggestion))))
 
 (defn- select-reset
   [state]
@@ -110,7 +108,8 @@
   "Call the user-supplied `data-source` fn and put the result on `c-sugg`.
   Set `waiting?` state."
   [data-source state-atom c-sugg text]
-  (data-source text #(put! c-sugg [ %1 %2 ]))
+  (when-let [return-value (data-source text #(put! c-sugg [ %1 %2 ]))]
+    (put! c-sugg return-value))
   (swap! state-atom assoc :waiting? true))
 
 (defn- handle-search
@@ -127,10 +126,9 @@
   (go-loop []
     (let [[search suggestions] (<! c-sugg)
           {:keys [input-text]} @state-atom]
-      (when (= search input-text)
-        (swap! state-atom #(-> %
-                               (assoc :suggestions suggestions :waiting? false)
-                               select-reset))))
+      (swap! state-atom #(-> %
+                             (assoc :suggestions suggestions :waiting? false)
+                             select-reset)))
     (recur)))
 
 (defn- make-typeahead-state
@@ -152,24 +150,20 @@
 
 ;; ^ FIXME
 ;; goog.events.KeyCodes
-
-
-(defn- on-key-up
-  [state-atom event]
-  (when-let [key (keys-by-code (.-which event))]
-    (.preventDefault event)
-    (case key
-      :up    (swap! state-atom select-prev)
-      :down  (swap! state-atom select-next)
-      :enter (swap! state-atom select-choose)
-      true)))
+;; requiring it didn't work for me... skipping for now
 
 (defn- on-key-down
   [state-atom event]
   (when-let [key (keys-by-code (.-which event))]
-    (.preventDefault event)
     (case key
-      :tab   (swap! state-atom select-next)
+      :up    (swap! state-atom select-prev)
+      :down  (swap! state-atom select-next)
+      :enter (swap! state-atom select-choose)
+      ;; tab requires special treatment
+      ;; if there are no suggestions, then let the event propagate so it defocuses as normal
+      :tab (when (not-empty (:suggestions @state-atom))
+             (swap! state-atom select-next)
+             (.preventDefault event))
       true)))
 
 (defn- typeahead
@@ -205,10 +199,10 @@
            :height         height
            :placeholder    placeholder
            :on-change #(do (swap! state-atom assoc :input-text %)
-                           (put! c-input %))
+                           (when-not (clojure.string/blank? %)
+                             (put! c-input %)))
            :change-on-blur? false
-           :attr {:on-key-up   #(on-key-up state-atom %)
-                  :on-key-down #(on-key-down state-atom %)}]
+           :attr {:on-key-down #(on-key-down state-atom %)}]
           (if (or (not-empty suggestions) waiting?)
             [v-box
              :class "rc-typeahead-suggestions-container"
