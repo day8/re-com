@@ -18,26 +18,32 @@
         status-tooltip            (reagent/atom "")
         disabled?                 (reagent/atom false)
         change-on-blur?           (reagent/atom true)
+        rigid?                    (reagent/atom false)
         data-source-choice        (reagent/atom :immediate)
-        md-icon-result #(-> {:name % :more :stuff})
+        md-icon-result            #(-> {:name % :more :stuff})
+
+        ;; simulate a search feature by scanning the baked-in constant collection md-icon-names
+        suggestions-for-search
+        (fn [s]
+          (into []
+                (take 16
+                      (for [n md-icon-names
+                            :when (re-find (re-pattern (str "(?i)" s)) n)]
+                        [n (md-icon-result n)]))))
+
+        ;; if the suggestions are available immediately, just return them:
+        data-source-immediate
+        (fn [s]
+          [s (suggestions-for-search s)])
+
+        ;; simulate an asynchronous source of suggestion objects:
         data-source-async
         (fn [s callback]
           (go
-            ;; simulate an asynchronous data-source
             (<! (timeout 500))
-            (callback
-             s
-             (take 16 (for [n md-icon-names
-                            :when (re-find (re-pattern (str "(?i)" s)) n)]
-                        [n (md-icon-result n)]))))
-          ;; must return falsey for an async data-source
-          nil)
-        data-source-immediate
-        (fn [s]
-          [s
-           (take 16 (for [n md-icon-names
-                          :when (re-find (re-pattern (str "(?i)" s)) n)]
-                      [n (md-icon-result n)]))])]
+            (callback s (suggestions-for-search s)))
+          ;; important! return value must be falsey for an async :data-source
+          nil)]
     (fn
       []
       [v-box
@@ -79,6 +85,7 @@
                                                                    :placeholder      "Material Design Icons"
                                                                    :on-change        #(reset! typeahead-on-change-value %)
                                                                    :change-on-blur?  change-on-blur?
+                                                                   :rigid?           rigid?
                                                                    :disabled?        disabled?]]]
                                                       [v-box
                                                        :gap      "15px"
@@ -88,7 +95,7 @@
                                                                    :gap      "5px"
                                                                    :children [[v-box
                                                                                :children [[:p [:code ":on-change"] " last called with this value: " ]
-                                                                                          [:p [:pre (str @typeahead-on-change-value)]]]]]]
+                                                                                          [:pre (str @typeahead-on-change-value)]]]]]
                                                                   [title :level :level3 :label "Parameters"]
                                                                   [v-box
                                                                    :children [[box :align :start :child [:code ":data-source"]]
@@ -117,6 +124,20 @@
                                                                                :value     true
                                                                                :model     @change-on-blur?
                                                                                :on-change #(reset! change-on-blur? true)
+                                                                               :style     {:margin-left "20px"}]]]
+                                                                  [v-box
+                                                                   :children [[box :align :start :child [:code ":rigid?"]]
+                                                                              [radio-button
+                                                                               :label     "false - Arbitrary text can be chosen as well as suggestion objects"
+                                                                               :value     false
+                                                                               :model     @rigid?
+                                                                               :on-change #(reset! rigid? false)
+                                                                               :style     {:margin-left "20px"}]
+                                                                              [radio-button
+                                                                               :label     "true - Only a suggestion object can be chosen"
+                                                                               :value     true
+                                                                               :model     @rigid?
+                                                                               :on-change #(reset! rigid? true)
                                                                                :style     {:margin-left "20px"}]]]
                                                                   [v-box
                                                                    :children [[box :align :start :child [:code ":status"]]

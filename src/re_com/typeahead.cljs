@@ -17,22 +17,22 @@
 ;; ------------------------------------------------------------------------------------
 
 (def typeahead-args-desc
-  [{:name :model            :required false :default nil     :type "string | atom"    :validate-fn string-or-atom?    :description "text of the input (can be atom or value)"}
-   {:name :on-change        :required true                   :type "string -> nil"    :validate-fn fn?                :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string"] }
-   {:name :data-source      :required true                   :type "async fn"         :validate-fn fn?                :description [:span [:code ":data-source"] " populates the suggestions. Should be a 2 argument function taking a search query and a callback, and should call the callback with the search query and a vector of suggestions."]}
-   {:name :render-suggestion :required false                 :type "component"        :validate-fn fn?                :description "override the rendering of the suggestion items by passing a component fn."}
-   {:name :rigid?           :required false :default true    :type "boolean | atom"                                   :description "Set to `false` will allow the user to choose arbitrary text input rather than a suggestion from `data-source`."}
-   {:name :status           :required false                  :type "keyword"          :validate-fn input-status-type? :description [:span "validation status. " [:code "nil/omitted"] " for normal status or one of: " input-status-types-list]}
-   {:name :status-icon?     :required false :default false   :type "boolean"                                          :description [:span "when true, display an icon to match " [:code ":status"] " (no icon for nil)"]}
-   {:name :status-tooltip   :required false                  :type "string"           :validate-fn string?            :description "displayed in status icon's tooltip"}
-   {:name :placeholder      :required false                  :type "string"           :validate-fn string?            :description "background text shown when empty"}
-   {:name :width            :required false :default "250px" :type "string"           :validate-fn string?            :description "standard CSS width setting for this input"}
-   {:name :height           :required false                  :type "string"           :validate-fn string?            :description "standard CSS height setting for this input"}
-   {:name :change-on-blur?  :required false :default true    :type "boolean | atom"                                   :description [:span "when true, invoke " [:code ":on-change"] " function on blur, otherwise on every change (character by character)"] }
-   {:name :disabled?        :required false :default false   :type "boolean | atom"                                   :description "if true, the user can't interact (input anything)"}
-   {:name :class            :required false                  :type "string"           :validate-fn string?            :description "CSS class names, space separated"}
-   {:name :style            :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override"}
-   {:name :attr             :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  [{:name :model             :required false :default nil     :type "atom"             :validate-fn string-or-atom?    :description "The suggestion object currently selected."}
+   {:name :on-change         :required true                   :type "string -> nil"    :validate-fn fn?                :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed a suggestion object (which come from ." [:code ":data-source"] ")"] }
+   {:name :data-source       :required true                   :type "fn"               :validate-fn fn?                :description [:span [:code ":data-source"] " supplies suggestion objects. This can either accept a single string argument (the search term), or a string and a callback. For the first case, the fn should return a 2-element vector containing the search term and a collection of suggestion objects (which can be anything). For the second case, the fn should return nil, and eventually result in a call to the callback passing two arguments: the search query and a vector of suggestion objects."]}
+   {:name :render-suggestion :required false                  :type "render fn"        :validate-fn fn?                :description "override the rendering of the suggestion items by passing a fn that returns hiccup forms. The fn will receive two arguments: the search term, and the suggestion object."}
+   {:name :rigid?            :required false :default true    :type "boolean | atom"                                   :description [:span "If "[:code "false"]" the user will be allowed to choose arbitrary text input rather than a suggestion from " [:code ":data-source"]". In this case, a String will be supplied in lieu of a suggestion object." ]}
+   {:name :status            :required false                  :type "keyword"          :validate-fn input-status-type? :description [:span "validation status. " [:code "nil/omitted"] " for normal status or one of: " input-status-types-list]}
+   {:name :status-icon?      :required false :default false   :type "boolean"                                          :description [:span "when true, display an icon to match " [:code ":status"] " (no icon for nil)"]}
+   {:name :status-tooltip    :required false                  :type "string"           :validate-fn string?            :description "displayed in status icon's tooltip"}
+   {:name :placeholder       :required false                  :type "string"           :validate-fn string?            :description "background text shown when empty"}
+   {:name :width             :required false :default "250px" :type "string"           :validate-fn string?            :description "standard CSS width setting for this input"}
+   {:name :height            :required false                  :type "string"           :validate-fn string?            :description "standard CSS height setting for this input"}
+   {:name :change-on-blur?   :required false :default true    :type "boolean | atom"                                   :description [:span "when true, invoke " [:code ":on-change"] " function on blur, otherwise on every change (character by character)"] }
+   {:name :disabled?         :required false :default false   :type "boolean | atom"                                   :description "if true, the user can't interact (input anything)"}
+   {:name :class             :required false                  :type "string"           :validate-fn string?            :description "CSS class names, space separated"}
+   {:name :style             :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override"}
+   {:name :attr              :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;; TODO
 ;; fix docs/demo
@@ -41,6 +41,15 @@
 ;; escape key should reset
 ;; deleting the text should reset
 ;; ability to focus the input-text would be nice...
+
+;; rigid? is good-to-go but not change-on-blur?
+
+;; :data-source (case @something :v1 one-fn  :v2 two-fn)
+;; doesn't work, and it'd be nice to support that...
+;; so on render, test if data-source is identical? to last time
+;; if not, reset-typeahead and use new data-source
+
+
 
 (defn debounce [in ms]
   (let [out (chan)]
@@ -88,7 +97,7 @@
   [{:as state :keys [suggestions selected-index on-change rigid? input-text]}]
   (cond-> state
 
-    (and (not rigid?) (not selected-index))
+    (and (not (deref-or-value rigid?)) (not selected-index))
     (choice-made input-text)
 
     selected-index
@@ -132,9 +141,10 @@
     (recur)))
 
 (defn- make-typeahead-state
-  [{:as args :keys [on-change rigid?]}]
+  [{:as args :keys [on-change rigid? data-source]}]
   (let [c-input (chan)]
     (assoc typeahead-state-initial
+           :data-source data-source     ;; FIXME does not work yet ... need to make it test in render if this value has changed since last render
            :on-change  on-change
            :rigid?     rigid?
            :c-input    c-input
@@ -146,11 +156,18 @@
   {40 :down
    38 :up
    9 :tab
-   13 :enter})
+   13 :enter
+   27 :escape})
 
 ;; ^ FIXME
 ;; goog.events.KeyCodes
 ;; requiring it didn't work for me... skipping for now
+
+(defn- typeahead-blur
+  [{:keys [rigid? input-text] :as state}]
+  (cond-> state
+    (not (deref-or-value rigid?))
+    (choice-made input-text)))
 
 (defn- on-key-down
   [state-atom event]
@@ -159,11 +176,14 @@
       :up    (swap! state-atom select-prev)
       :down  (swap! state-atom select-next)
       :enter (swap! state-atom select-choose)
+      :escape (swap! state-atom reset-typeahead)
       ;; tab requires special treatment
       ;; if there are no suggestions, then let the event propagate so it defocuses as normal
-      :tab (when (not-empty (:suggestions @state-atom))
-             (swap! state-atom select-next)
-             (.preventDefault event))
+      :tab (do (println "THATS TAB" (boolean (not-empty (:suggestions @state-atom))))
+               (if (not-empty (:suggestions @state-atom))
+                 (do (swap! state-atom select-next)
+                     (.preventDefault event))
+                 (swap! state-atom typeahead-blur)))
       true)))
 
 (defn- typeahead
