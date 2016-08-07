@@ -13,6 +13,7 @@
 (defn typeahead-demo
   []
   (let [typeahead-on-change-value (reagent/atom nil)
+        typeahead-model           (reagent/atom {})
         status                    (reagent/atom nil)
         status-icon?              (reagent/atom false)
         status-tooltip            (reagent/atom "")
@@ -73,7 +74,7 @@
                                                        :children [[label :label "[typeahead ... ]"]
                                                                   [gap :size "5px"]
                                                                   [typeahead
-                                                                   ;;:model typeahead-model ;; FIXME broken
+                                                                   :model typeahead-model
                                                                    :data-source      (case @data-source-choice :async data-source-async :immediate data-source-immediate)
                                                                    :suggestion-to-string #(:name %)
                                                                    :render-suggestion (fn [{:keys [name]}]

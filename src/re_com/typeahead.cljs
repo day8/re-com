@@ -20,7 +20,7 @@
   [{:name :data-source       :required true                   :type "fn"               :validate-fn fn?                :description [:span [:code ":data-source"] " supplies suggestion objects. This can either accept a single string argument (the search term), or a string and a callback. For the first case, the fn should return a collection of suggestion objects (which can be anything). For the second case, the fn should return "[:code "nil" ]", and eventually result in a call to the callback with a collection of suggestion objects."]}
    {:name :on-change         :required false :default nil     :type "string -> nil"    :validate-fn fn?                :description [:span [:code ":change-on-blur?"] " controls when it is called. It is passed a suggestion object."] }
    {:name :change-on-blur?   :required false :default true    :type "boolean | atom"                                   :description [:span "when true, invoke " [:code ":on-change"] " when the use chooses a suggestion, otherwise invoke it on every change (navigating through suggestions with the mouse or keyboard, or if "[:code "rigid?"]" is also "[:code "false" ]", invoke it on every character typed.)"] }
-   {:name :model             :required false :default nil     :type "atom"             :validate-fn string-or-atom?    :description "The initial value of the typeahead (should match the suggestion objects returned by " [:code ":data-source"] ")."}
+   {:name :model             :required false :default nil     :type "object | atom"                                             :description "The initial value of the typeahead (should match the suggestion objects returned by " [:code ":data-source"] ")."}
    {:name :debounce-delay    :required false :default 250     :type "integer"          :validate-fn integer?           :description [:span "After receiving input, the typeahead will wait this many milliseconds without receiving new input before calling " [:code ":data-source"] "."]}
    {:name :render-suggestion :required false                  :type "render fn"        :validate-fn fn?                :description "override the rendering of the suggestion items by passing a fn that returns hiccup forms. The fn will receive two arguments: the search term, and the suggestion object."}
    {:name :suggestion-to-string :required false               :type "suggestion -> string" :validate-fn fn?            :description "When a suggestion is chosen, the input-text value will be set to the result of calling this fn with the suggestion object."}
@@ -43,27 +43,30 @@
 ;; the typeahead should blur the input-text after a selection is chosen
 ;; fix passing an initial model value
 
-(declare debounce)
+(declare debounce display-suggestion)
 (defn- make-typeahead-state
   "Return an initial value for the typeahead state, given `args`."
-  [{:as args :keys [on-change rigid? change-on-blur? data-source suggestion-to-string debounce-delay]}]
-  (let [c-input (chan)]
-    {:input-text ""
-     :waiting? false
-     :suggestions []
-     :displaying-suggestion? false
-     :suggestion-to-string (or suggestion-to-string str)
-     :data-source data-source
-     :change-on-blur? change-on-blur?
-     :on-change  on-change
-     :rigid?     rigid?
-     :c-input    c-input
-     :c-search   (debounce c-input debounce-delay)}))
+  [{:as args :keys [on-change rigid? change-on-blur? data-source suggestion-to-string debounce-delay model]}]
+  (let [external-model-value (deref-or-value model)]
+    (cond-> (let [c-input (chan)]
+              {:input-text ""
+               :external-model (deref-or-value model)
+               :model          (deref-or-value model)
+               :waiting? false
+               :suggestions []
+               :displaying-suggestion? false
+               :suggestion-to-string (or suggestion-to-string str)
+               :data-source data-source
+               :change-on-blur? change-on-blur?
+               :on-change  on-change
+               :rigid?     rigid?
+               :c-input    c-input
+               :c-search   (debounce c-input debounce-delay)})
+      external-model-value
+      (display-suggestion external-model-value))))
 
 ;; ------------------------------------------------------------------------------------
-;; State-event predicates:  state -> event -> boolean
-;;   since the typeahead's behavior depends on settings which can be changed
-;;   dynamically, these predicates make the rest of the code easier to comprehend
+;; State predicates:  state -> value? -> boolean
 ;; ------------------------------------------------------------------------------------
 
 (defn- event-updates-model?
@@ -72,7 +75,6 @@
   (let [change-on-blur? (deref-or-value change-on-blur?)
         rigid?          (deref-or-value rigid?)]
     (case event
-      :suggestion-chosen    true
       :input-text-blurred   (and change-on-blur? (not rigid?))
       :suggestion-activated (not change-on-blur?)
       :input-text-changed   (not (or change-on-blur? rigid?)))))
@@ -82,7 +84,6 @@
   [{:as state :keys [change-on-blur?]} event]
   (let [change-on-blur? (deref-or-value change-on-blur?)]
     (case event
-      :suggestion-chosen true
       :suggestion-activated (not change-on-blur?)
       false)))
 
@@ -123,11 +124,11 @@
   "Choose the suggestion at `index`"
   [{:as state :keys [suggestions]} index]
   (let [suggestion (nth suggestions index)]
-    (cond-> state
-      :always (activate-suggestion-by-index index)
-      (event-updates-model?       state :suggestion-chosen) (update-model suggestion)
-      (event-displays-suggestion? state :suggestion-chosen) (display-suggestion suggestion)
-      :always clear-suggestions)))
+    (-> state
+        (activate-suggestion-by-index index)
+        (update-model suggestion)
+        (display-suggestion suggestion)
+        clear-suggestions)))
 
 (defn- choose-suggestion-active
   [{:as state :keys [suggestion-active-index]}]
@@ -178,6 +179,14 @@
   (-> state
       reset-typeahead
       (assoc :data-source data-source)))
+
+(defn- external-model-changed
+  "Update state when the external model value has changed."
+  [state new-value]
+  (-> state
+      (update-model new-value)
+      (display-suggestion new-value)
+      clear-suggestions))
 
 ;; ------------------------------------------------------------------------------------
 ;; Functions with side-effects
@@ -244,14 +253,17 @@
     (search-data-source-loop! state-atom c-search)
     (fn
       [& {:as   args
-          :keys [data-source rigid? render-suggestion suggestion-to-string
+          :keys [data-source rigid? render-suggestion suggestion-to-string model
                  ;; forwarded to wrapped `input-text`:
                  placeholder width height status-icon? status status-tooltip disabled? class style]}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-      (let [{:as state :keys [suggestions waiting? model suggestion-active-index]} @state-atom
-            last-data-source (:data-source state)]
+      (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
+            last-data-source (:data-source state)
+            latest-external-model (deref-or-value model)]
         (when (not= last-data-source data-source)
           (swap! state-atom change-data-source data-source))
+        (when (not= latest-external-model external-model)
+          (swap! state-atom external-model-changed latest-external-model))
         [v-box
          :width width
          :children
