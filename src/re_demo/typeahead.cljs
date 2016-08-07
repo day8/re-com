@@ -29,19 +29,19 @@
                 (take 16
                       (for [n md-icon-names
                             :when (re-find (re-pattern (str "(?i)" s)) n)]
-                        [n (md-icon-result n)]))))
+                        (md-icon-result n)))))
 
         ;; if the suggestions are available immediately, just return them:
         data-source-immediate
         (fn [s]
-          [s (suggestions-for-search s)])
+          (suggestions-for-search s))
 
         ;; simulate an asynchronous source of suggestion objects:
         data-source-async
         (fn [s callback]
           (go
             (<! (timeout 500))
-            (callback s (suggestions-for-search s)))
+            (callback (suggestions-for-search s)))
           ;; important! return value must be falsey for an async :data-source
           nil)]
     (fn
@@ -73,8 +73,10 @@
                                                        :children [[label :label "[typeahead ... ]"]
                                                                   [gap :size "5px"]
                                                                   [typeahead
+                                                                   ;;:model typeahead-model ;; FIXME broken
                                                                    :data-source      (case @data-source-choice :async data-source-async :immediate data-source-immediate)
-                                                                   :render-suggestion (fn [[_ {:keys [name]}]]
+                                                                   :suggestion-to-string #(:name %)
+                                                                   :render-suggestion (fn [{:keys [name]}]
                                                                                         [:span
                                                                                          [:i {:style {:width "40px"} :class (md-classes-for-icon name)}]
                                                                                          name])
