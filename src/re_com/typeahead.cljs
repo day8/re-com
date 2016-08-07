@@ -258,7 +258,8 @@
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
       (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
             last-data-source (:data-source state)
-            latest-external-model (deref-or-value model)]
+            latest-external-model (deref-or-value model)
+            width (or width "250px")]
         (when (not= last-data-source data-source)
           (swap! state-atom change-data-source data-source))
         (when (not= latest-external-model external-model)
