@@ -80,7 +80,7 @@
         on-last-button  (= @(:current-step tour) (dec (count (:steps tour))))]
     [:div
      [:hr {:style (merge (flex-child-style "none")
-                         {:margin "10px 0 10px"})}]
+                         {:margin "10px 0px 10px"})}]
       (when-not on-first-button
         [button
          :label    "Previous"

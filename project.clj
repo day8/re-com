@@ -9,10 +9,10 @@
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
 
-  :dependencies     [[org.clojure/clojure         "1.7.0"]
-                     [org.clojure/clojurescript   "1.7.145"]
-                     [reagent                     "0.6.0-alpha"]
-                     [com.andrewmcveigh/cljs-time "0.4.0"]]
+  :dependencies     [[org.clojure/clojure         "1.8.0"]
+                     [org.clojure/clojurescript   "1.9.14"] ;; TODO: Later versions give compiler warnings about uuid? and boolean? being replaced
+                     [reagent                     "0.6.0-rc"]
+                     [com.andrewmcveigh/cljs-time "0.5.0-alpha1"]] ;; TODO: Bump this to 0.5.0 as soon as it's available (https://github.com/Day8/re-com/pull/98/files)
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
@@ -28,16 +28,15 @@
   ;                    :extract-path "run/resources-frame"}]
 
   :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
-                                               [alandipert/storage-atom         "1.2.4" ]
-                                               [figwheel                        "0.5.2"]
-                                               [spellhouse/clairvoyant          "0.0-48-gf5e59d3"]
+                                               [alandipert/storage-atom         "2.0.1" ]
+                                               [figwheel                        "0.5.4-7"]
                                                [secretary                       "1.2.3"]]
-                                :plugins      [[lein-cljsbuild                  "1.1.2"]
-                                               [lein-figwheel                   "0.5.2"]
+                                :plugins      [[lein-cljsbuild                  "1.1.3"]
+                                               [lein-figwheel                   "0.5.4-7"]
                                                [lein-shell                      "0.5.0"]
                                                [com.cemerick/clojurescript.test "0.3.3"]
                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
-                                               [lein-ancient                    "0.6.7"]]}
+                                               [lein-ancient                    "0.6.10"]]}
                      :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
                      :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
                      :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}
@@ -80,7 +79,7 @@
 
   :figwheel {:css-dirs    ["run/resources/public/assets/css"]
              :server-port ~fig-port
-             :repl        true}
+             :repl        false}
 
   :aws {:access-key       ~(System/getenv "DAY8_AWS_ACCESS_KEY_ID")
         :secret-key       ~(System/getenv "DAY8_AWS_SECRET_ACCESS_KEY")
