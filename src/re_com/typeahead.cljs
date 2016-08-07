@@ -41,7 +41,6 @@
 ;; TODO
 ;; ability to focus & blur the input-text would be nice... this is also missing from input-text
 ;; the typeahead should blur the input-text after a selection is chosen
-;; fix passing an initial model value
 
 (declare debounce display-suggestion)
 (defn- make-typeahead-state
