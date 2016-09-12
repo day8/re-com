@@ -5,7 +5,7 @@
             [reagent.core                  :as    reagent]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
-            [re-com.core                   :refer [h-box v-box box gap line scroller border label title alert-box] :refer-macros [handler-fn]]
+            [re-com.core                   :refer [h-box v-box box gap line scroller border label title alert-box h-split] :refer-macros [handler-fn]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title]]
             [re-demo.introduction          :as    introduction]
@@ -110,7 +110,8 @@
             is-major?  (= (:level tab) :major)
             has-panel? (some? (:panel tab))]
       [:div
-       {:style {:width            "150px"
+       {:style {;:width            "150px"
+                :white-space "nowrap"
                 :line-height      "1.3em"
                 :padding-left     (if is-major? "24px" "32px")
                 :padding-top      (when is-major? "6px")
@@ -135,7 +136,7 @@
     [v-box
      :class    "noselect"
      :style    {:background-color "#fcfcfc"}
-     :size    "1 0 auto"
+     ;:size    "1"
      :children (for [tab tabs-definition]
                  [nav-item tab selected-tab-id on-select-tab])])
 
@@ -153,6 +154,12 @@
                :style {:font-size   "32px"
                        :color       "#fefefe"}
                ]]])
+
+
+(defn right-side-nav [selected-tab-id]
+  [box
+   ;:height "100%"
+   :child ((:panel (item-for-id @selected-tab-id tabs-definition)))])
 
 (defn browser-alert
   []
@@ -184,24 +191,27 @@
     (fn
       []
       ;(set! re-com.box/debug true)
-      [h-box
+      [h-split
        ;; Outer-most box height must be 100% to fill the entrie client height.
        ;; This assumes that height of <body> is itself also set to 100%.
        ;; width does not need to be set.
        :height   "100%"
-       :gap      "60px"
-       :children [[scroller
-                   :size  "none"
-                   :v-scroll :auto
-                   :h-scroll :off
-                   :child [v-box
-                           :children [[re-com-title-box]
-                                      [left-side-nav-bar selected-tab-id on-select-tab]]]]
-                  [scroller
-                   :child [v-box
-                           :size  "auto"
-                           :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
-                                      [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
+       ;:gap      "60px"
+       :initial-split 15
+       :margin "0px"
+       :panel-1 [scroller
+                 ;:size  "none"
+                 :v-scroll :auto
+                 :h-scroll :off
+                 :child [v-box
+                         :size "1"
+                         :children [[re-com-title-box]
+                                    [left-side-nav-bar selected-tab-id on-select-tab]]]]
+       :panel-2 [scroller
+                 :child [v-box
+                         :size  "1"
+                         :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
+                                    [right-side-nav selected-tab-id]]]]])))    ;; the tab panel to show, for the selected tab
 
 (defn ^:export mount-demo
   []
