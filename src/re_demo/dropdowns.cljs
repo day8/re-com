@@ -12,7 +12,8 @@
             ;{:id 4 :label "Use of :id-fn etc."} ;; for testing
             {:id 5 :label "Keyboard support"}
             {:id 6 :label "Other parameters"}
-            {:id 7 :label "Two dependent dropdowns"}])
+            {:id 7 :label "Two dependent dropdowns"}
+            {:id 8 :label "Custom markup"}])
 
 
 (def countries [{:id "au" :label "Australia"}
@@ -57,7 +58,7 @@
                         {:id "US" :label "United States"            :group "EN Speakers"}
                         {:id "GB" :label "United Kingdom"           :group "EN Speakers"}
                         {:id "E1" :label "Iraq"                     :group "Updated Axis Of Evil"}
-                        {:id "E2" :label [:strong "New Zealand"]    :group "Updated Axis Of Evil"}
+                        {:id "E2" :label "New Zealand"              :group "Updated Axis Of Evil"}
                         {:id "E3" :label "Iran"                     :group "Updated Axis Of Evil"}
                         {:id "E4" :label "North Korea"              :group "Updated Axis Of Evil"}
                         {:id "03" :label "Afghanistan"              :group "'A' COUNTRIES"}
@@ -120,7 +121,6 @@
                   [p "This feature is triggered if any choice has a :group attribute. Typically all choices will have a :group or none will. It's up to you to ensure that choices with the same :group are adjacent in the vector."]
                   [p "Because :model is initially nil, the :placeholder text is initially displayed."]
                   [p ":max-width is set here to make the dropdown taller."]
-                  [p ":label can be a string or arbitrary markup. Notice the boldness of the 'New Zealand'."]
                   [h-box
                    :gap      "10px"
                    :align    :center
@@ -333,6 +333,31 @@
                                  "None"
                                  (str (:label (item-for-id @selected-city-id cities)) " [" @selected-city-id "]"))]]]]])))
 
+(defn demo8
+  []
+  (let [selected-country-id (reagent/atom nil)]
+    (fn []
+      [v-box
+       :gap      "10px"
+       :children [[p "Dropdowns choices can be built with arbitrary markup using the :render-fn attribute. When filtering, only the text from the label will be considered."]
+                  [h-box
+                   :gap      "10px"
+                   :align    :center
+                   :children [[single-dropdown
+                               :choices     countries
+                               :render-fn   (fn [choice] [:div [:span (:label choice)]
+                                                               [:span {:style {:float "right"}} "\u2691"]])
+                               :model       selected-country-id
+                               :placeholder "Choose a country"
+                               :width       "300px"
+                               :max-height  "400px"
+                               :filter-box? false
+                               :on-change   #(reset! selected-country-id %)]
+                              [:div
+                               [:strong "Selected country: "]
+                               (if (nil? @selected-country-id)
+                                 "None"
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 (defn panel2
   []
@@ -387,7 +412,8 @@
                                              4 [demo4] ;; for testing - uncomment equivalent line in demos vector above
                                              5 [demo5]
                                              6 [demo6]
-                                             7 [demo7])]]]]]])))
+                                             7 [demo7]
+                                             8 [demo8])]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
