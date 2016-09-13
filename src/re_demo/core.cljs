@@ -141,13 +141,6 @@
                  [nav-item tab selected-tab-id on-select-tab])])
 
 
-(defn right-side-nav [selected-tab-id]
-  [box
-   ;:height "100%"
-   :padding "0px 0px 0px 50px"
-   :child ((:panel (item-for-id @selected-tab-id tabs-definition)))])
-
-
 (defn re-com-title-box
   []
   [h-box
@@ -212,7 +205,9 @@
                  :child [v-box
                          :size  "1"
                          :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
-                                    [right-side-nav selected-tab-id]]]]])))    ;; the tab panel to show, for the selected tab
+                                    [box
+                                     :padding "0px 0px 0px 50px"
+                                     :child [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
 (defn ^:export mount-demo
   []
