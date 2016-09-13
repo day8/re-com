@@ -127,6 +127,7 @@
                    :children [[single-dropdown
                                :choices     grouped-countries
                                :model       selected-country-id
+                               :title?      true
                                :placeholder "Choose a country"
                                :width       "300px"
                                :max-height  "400px"
