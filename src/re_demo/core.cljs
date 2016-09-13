@@ -141,6 +141,13 @@
                  [nav-item tab selected-tab-id on-select-tab])])
 
 
+(defn right-side-nav [selected-tab-id]
+  [box
+   ;:height "100%"
+   :padding "0px 0px 0px 50px"
+   :child ((:panel (item-for-id @selected-tab-id tabs-definition)))])
+
+
 (defn re-com-title-box
   []
   [h-box
@@ -152,14 +159,8 @@
                :label "Re-com"
                :level :level1
                :style {:font-size   "32px"
-                       :color       "#fefefe"}
-               ]]])
+                       :color       "#fefefe"}]]])
 
-
-(defn right-side-nav [selected-tab-id]
-  [box
-   ;:height "100%"
-   :child ((:panel (item-for-id @selected-tab-id tabs-definition)))])
 
 (defn browser-alert
   []
@@ -197,7 +198,7 @@
        ;; width does not need to be set.
        :height   "100%"
        ;:gap      "60px"
-       :initial-split 15
+       :initial-split 8
        :margin "0px"
        :panel-1 [scroller
                  ;:size  "none"
