@@ -12,7 +12,7 @@
   :dependencies     [[org.clojure/clojure         "1.8.0"]
                      [org.clojure/clojurescript   "1.9.14"] ;; TODO: Later versions give compiler warnings about uuid? and boolean? being replaced
                      [reagent                     "0.6.0-rc"]
-                     [com.andrewmcveigh/cljs-time "0.5.0-alpha1"]] ;; TODO: Bump this to 0.5.0 as soon as it's available (https://github.com/Day8/re-com/pull/98/files)
+                     [com.andrewmcveigh/cljs-time "0.4.0"]] ;; TODO: Bump this to 0.5.0 as soon as it's available (https://github.com/Day8/re-com/pull/98/files)
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
