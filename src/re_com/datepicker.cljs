@@ -198,19 +198,19 @@
     (merge attributes {:selectable-fn selectable-fn :today (now->utc)})))
 
 (def datepicker-args-desc
-  [{:name :model         :required false                       :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. If provided, should pass pred :selectable-fn"}
-   {:name :on-change     :required true                        :type "goog.date.UtcDateTime -> nil"   :validate-fn fn?        :description "called when a new selection is made"}
-   {:name :disabled?     :required false :default false        :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
-   {:name :selectable-fn :required false :default "(fn [date] true)" :type "pred"                     :validate-fn fn?        :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
-   {:name :show-weeks?   :required false :default false        :type "boolean"                                                :description "when true, week numbers are shown to the left"}
-   {:name :show-today?   :required false :default false        :type "boolean"                                                :description "when true, today's date is highlighted"}
-   {:name :minimum       :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation before this date"}
-   {:name :maximum       :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
-   {:name :start-of-week :required false :default 0            :type "int"                  :description "weekday thats the first day of week monday = 0, tuesday = 1, etc"}
-   {:name :hide-border?  :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
-   {:name :class         :required false                       :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style         :required false                       :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr          :required false                       :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  [{:name :model         :required false                             :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. If provided, should pass pred :selectable-fn"}
+   {:name :on-change     :required true                              :type "goog.date.UtcDateTime -> nil"   :validate-fn fn?        :description "called when a new selection is made"}
+   {:name :disabled?     :required false :default false              :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
+   {:name :selectable-fn :required false :default "(fn [date] true)" :type "pred"                           :validate-fn fn?        :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
+   {:name :show-weeks?   :required false :default false              :type "boolean"                                                :description "when true, week numbers are shown to the left"}
+   {:name :show-today?   :required false :default false              :type "boolean"                                                :description "when true, today's date is highlighted"}
+   {:name :minimum       :required false                             :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation before this date"}
+   {:name :maximum       :required false                             :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
+   {:name :start-of-week :required false :default 6                  :type "int"                                                    :description "first day of week (Monday = 0 ... Sunday = 6)"}
+   {:name :hide-border?  :required false :default false              :type "boolean"                                                :description "when true, the border is not displayed"}
+   {:name :class         :required false                             :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
+   {:name :style         :required false                             :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
+   {:name :attr          :required false                             :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (defn datepicker
   [& {:keys [model] :as args}]
@@ -218,9 +218,12 @@
   (let [current (as-> (or (deref-or-value model) (now)) current
                       (->  current first-day-of-the-month reagent/atom))]
     (fn datepicker-component
-      [& {:keys [model disabled? hide-border? on-change class style attr] :as properties}]
+      [& {:keys [model disabled? hide-border? on-change start-of-week class style attr]
+          :or   {start-of-week 6} ;; Default to Sunday
+          :as   properties}]
       {:pre [(validate-args-macro datepicker-args-desc properties "datepicker")]}
-      (let [configuration (configure properties)]
+      (let [props-with-defaults (merge properties {:start-of-week start-of-week})
+            configuration (configure props-with-defaults)]
         [main-div-with
          [:table {:class "table-condensed"}
           [table-thead current configuration]
