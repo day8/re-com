@@ -115,8 +115,9 @@
                               [(fn []
                                  [v-box
                                   :gap      "5px"
-                                  :children [[label :style label-style :label ":minimum \"20140831\" :maximum \"20141019\""]
+                                  :children [[label :style label-style :label ":minimum \"20140831\" :maximum \"20141019\", :start-of-week Monday"]
                                              [datepicker
+                                              :start-of-week 0
                                               :model         model2
                                               :minimum       (iso8601->date "20140831")
                                               :maximum       (iso8601->date "20141019")

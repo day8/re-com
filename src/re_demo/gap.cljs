@@ -61,7 +61,7 @@
                                                    :child "Box 3"]]]
                                       [gap :size "10px"]
                                       [p "Notes:"]
-                                      [:ul
+                                      [:ul {:style {:width "450px"}}
                                        [:li "h-box and v-box have a " [:code ":gap"] " parameter which inserts a
                                          given amount of white space between each child."]
                                        [:li "For more ad hoc gaps, use the " [:span.bold "[gap ...]"] " component itself."]
@@ -101,7 +101,7 @@
                                                    :child "Box 3"]]]
                                       [gap :size "10px"]
                                       [p "Notes:"]
-                                      [:ul
+                                      [:ul {:style {:width "450px"}}
                                        [:li "This example has a gap with a " [:span.bold "proportional size"] " of \"1\", not an absolute size. Synonymous to 100%."]
                                        [:li "Because it \"grows\" to fill all available space, it \"pushes\" box2 and box3 as far apart as possible."]
                                        [:li "Imagine the boxes as buttons, to see how this might be useful."]]]]]]

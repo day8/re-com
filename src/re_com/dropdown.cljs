@@ -41,7 +41,7 @@
   (let [lower-filter-text (string/lower-case filter-text)
         filter-fn         (fn [opt]
                             (let [group (if (nil? (group-fn opt)) "" (group-fn opt))
-                                  label (str (label-fn opt))] ;; Need str for non-string labels like hiccup
+                                  label (str (label-fn opt))]
                               (or
                                 (>= (.indexOf (string/lower-case group) lower-filter-text) 0)
                                 (>= (.indexOf (string/lower-case label) lower-filter-text) 0))))]
@@ -123,10 +123,10 @@
 
 
 (defn make-choice-item
-  [id-fn label-fn callback internal-model opt]
+  [id-fn render-fn callback internal-model opt]
   (let [id (id-fn opt)
-        label (label-fn opt)]
-    ^{:key (str id)} [choice-item id label callback internal-model]))
+        markup (render-fn opt)]
+    ^{:key (str id)} [choice-item id markup callback internal-model]))
 
 
 (defn- filter-text-box-base
@@ -161,8 +161,11 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
-      (let [_ (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})]
+      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?]
+      (let [_    (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})
+            text (if @internal-model
+                   (label-fn (item-for-id @internal-model choices :id-fn id-fn))
+                   placeholder)]
         [:a.chosen-single.chosen-default
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
           :tab-index     (when tab-index tab-index)
@@ -177,12 +180,10 @@
                            (key-handler event)
                            (when (= (.-which event) 13)  ;; Pressing enter on an anchor also triggers click event, which we don't want
                              (reset! ignore-click true)))  ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
-
           }
-         [:span
-          (if @internal-model
-            (label-fn (item-for-id @internal-model choices :id-fn id-fn))
-            placeholder)]
+         [:span (when title?
+                  {:title text})
+          text]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
 
@@ -195,12 +196,14 @@
    {:name :model         :required true                   :type "the id of a choice | atom"                                    :description [:span "the id of the selected choice. If nil, " [:code ":placeholder"] " text is shown"]}
    {:name :on-change     :required true                   :type "id -> nil"                     :validate-fn fn?               :description [:span "called when a new choice is selected. Passed the id of new choice"] }
    {:name :id-fn         :required false :default :id     :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
-   {:name :label-fn      :required false :default :label  :type "choice -> string | hiccup"     :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its displayable label"]}
+   {:name :label-fn      :required false :default :label  :type "choice -> string"              :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its displayable label."]}
    {:name :group-fn      :required false :default :group  :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its group identifier"]}
+   {:name :render-fn     :required false                  :type "choice -> string | hiccup"     :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the markup that will be rendered for that choice. Defaults to the label if no custom markup is required."]}
    {:name :disabled?     :required false :default false   :type "boolean | atom"                                               :description "if true, no user selection is allowed"}
    {:name :filter-box?   :required false :default false   :type "boolean"                                                      :description "if true, a filter text field is placed at the top of the dropdown"}
    {:name :regex-filter? :required false :default false   :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
    {:name :placeholder   :required false                  :type "string"                        :validate-fn string?           :description "background text when no selection"}
+   {:name :title?        :required false :default false   :type "boolean"                                                      :description "if true, allows the title for the selected dropdown to be displayed via a mouse over. Handy when dropdown width is small and text is truncated"}
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
@@ -220,8 +223,8 @@
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
         filter-text    (reagent/atom "")]
-    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index id-fn label-fn group-fn class style attr]
-            :or {id-fn :id label-fn :label group-fn :group}
+    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index id-fn label-fn group-fn render-fn class style attr title?]
+            :or {id-fn :id label-fn :label group-fn :group render-fn label-fn}
             :as args}]
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
       (let [choices          (deref-or-value choices)
@@ -299,7 +302,7 @@
                           {:width (when width width)}
                           style)}
            attr)          ;; Prevent user text selection
-         [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing?]
+         [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?]
          (when (and @drop-showing? (not disabled?))
            [:div.chosen-drop
             [filter-text-box filter-box? filter-text key-handler drop-showing?]
@@ -307,7 +310,7 @@
              (when max-height {:style {:max-height max-height}})
              (if (-> filtered-choices count pos?)
                (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
-                     make-a-choice                 (partial make-choice-item id-fn label-fn callback internal-model)
+                     make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
                      make-choices                  #(map make-a-choice %1)
                      make-h-then-choices           (fn [h opts]
                                                      (cons (make-group-heading h)

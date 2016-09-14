@@ -1298,3 +1298,17 @@ code {
   width: 1em;
   text-align: center;
 }
+
+.rc-typeahead-suggestions-container {
+    background-color: #eee;
+}
+
+.rc-typeahead-suggestion {
+    background-color: #eee;
+    padding: 0.4em;
+}
+
+.rc-typeahead-suggestion.active {
+    background-color: #ddd;
+}
+

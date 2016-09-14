@@ -60,6 +60,24 @@
 (defn- >=date [date1 date2]
   (or (=date date1 date2) (after? date1 date2)))
 
+
+(def ^:private days-vector
+  [{:key :Mo :short-name "M" :name "MON"}
+   {:key :Tu :short-name "T" :name "TUE"}
+   {:key :We :short-name "W" :name "WED"}
+   {:key :Th :short-name "T" :name "THU"}
+   {:key :Fr :short-name "F" :name "FRI"}
+   {:key :Sa :short-name "S" :name "SAT"}
+   {:key :Su :short-name "S" :name "SUN"}])
+
+(defn- rotate
+  [n coll]
+  (let [c (count coll)]
+    (take c (drop (mod n c) (cycle coll)))))
+
+(defn- is-day-pred [d]
+  #(= (day-of-week %) (inc d)))
+
 ;; ----------------------------------------------------------------------------
 
 
@@ -85,7 +103,7 @@
 
 (defn- table-thead
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
-  [current {show-weeks? :show-weeks? minimum :minimum maximum :maximum}]
+  [current {show-weeks? :show-weeks? minimum :minimum maximum :maximum start-of-week :start-of-week}]
   (let [prev-date     (dec-month @current)
         ;prev-enabled? (if minimum (after? prev-date (dec-month minimum)) true)
         prev-enabled? (if minimum (after? prev-date minimum) true)
@@ -106,13 +124,8 @@
             [:i.zmdi.zmdi-chevron-right
              {:style {:font-size "24px"}}]])
      (conj template-row
-           [:th {:class "day-enabled"} "SUN"]
-           [:th {:class "day-enabled"} "MON"]
-           [:th {:class "day-enabled"} "TUE"]
-           [:th {:class "day-enabled"} "WED"]
-           [:th {:class "day-enabled"} "THU"]
-           [:th {:class "day-enabled"} "FRI"]
-           [:th {:class "day-enabled"} "SAT"])]))
+           (for [day (rotate start-of-week days-vector)]
+             ^{:key (:key day)} [:th {:class "day-enabled"} (str (:name day))]))]))
 
 
 (defn- selection-changed
@@ -159,7 +172,7 @@
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive"
   [date focus-month selected attributes disabled? on-change]
-  {:pre [(sunday? date)]}
+;  {:pre [(sunday? date)]}
   (let [table-row (if (:show-weeks? attributes) [:tr (week-td date)] [:tr])
         row-dates (map #(inc-date date %) (range 7))
         today     (if (:show-today? attributes) (:today attributes) nil)]
@@ -169,7 +182,8 @@
 (defn- table-tbody
   "Return matrix of 6 rows x 7 cols table cells representing 41 days from start-date inclusive"
   [current selected attributes disabled? on-change]
-  (let [current-start   (previous sunday? current)
+  (let [start-of-week   (:start-of-week attributes)
+        current-start   (previous (is-day-pred start-of-week) current)
         focus-month     (month current)
         row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
     (into [:tbody] (map #(table-tr % focus-month selected attributes disabled? on-change) row-start-dates))))
@@ -184,18 +198,19 @@
     (merge attributes {:selectable-fn selectable-fn :today (now->utc)})))
 
 (def datepicker-args-desc
-  [{:name :model         :required false                       :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. If provided, should pass pred :selectable-fn"}
-   {:name :on-change     :required true                        :type "goog.date.UtcDateTime -> nil"   :validate-fn fn?        :description "called when a new selection is made"}
-   {:name :disabled?     :required false :default false        :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
-   {:name :selectable-fn :required false :default "(fn [date] true)" :type "pred"                     :validate-fn fn?        :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
-   {:name :show-weeks?   :required false :default false        :type "boolean"                                                :description "when true, week numbers are shown to the left"}
-   {:name :show-today?   :required false :default false        :type "boolean"                                                :description "when true, today's date is highlighted"}
-   {:name :minimum       :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation before this date"}
-   {:name :maximum       :required false                       :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
-   {:name :hide-border?  :required false :default false        :type "boolean"                                                :description "when true, the border is not displayed"}
-   {:name :class         :required false                       :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style         :required false                       :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr          :required false                       :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  [{:name :model         :required false                             :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. If provided, should pass pred :selectable-fn"}
+   {:name :on-change     :required true                              :type "goog.date.UtcDateTime -> nil"   :validate-fn fn?        :description "called when a new selection is made"}
+   {:name :disabled?     :required false :default false              :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
+   {:name :selectable-fn :required false :default "(fn [date] true)" :type "pred"                           :validate-fn fn?        :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
+   {:name :show-weeks?   :required false :default false              :type "boolean"                                                :description "when true, week numbers are shown to the left"}
+   {:name :show-today?   :required false :default false              :type "boolean"                                                :description "when true, today's date is highlighted"}
+   {:name :minimum       :required false                             :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation before this date"}
+   {:name :maximum       :required false                             :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
+   {:name :start-of-week :required false :default 6                  :type "int"                                                    :description "first day of week (Monday = 0 ... Sunday = 6)"}
+   {:name :hide-border?  :required false :default false              :type "boolean"                                                :description "when true, the border is not displayed"}
+   {:name :class         :required false                             :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
+   {:name :style         :required false                             :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
+   {:name :attr          :required false                             :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (defn datepicker
   [& {:keys [model] :as args}]
@@ -203,9 +218,12 @@
   (let [current (as-> (or (deref-or-value model) (now)) current
                       (->  current first-day-of-the-month reagent/atom))]
     (fn datepicker-component
-      [& {:keys [model disabled? hide-border? on-change class style attr] :as properties}]
+      [& {:keys [model disabled? hide-border? on-change start-of-week class style attr]
+          :or   {start-of-week 6} ;; Default to Sunday
+          :as   properties}]
       {:pre [(validate-args-macro datepicker-args-desc properties "datepicker")]}
-      (let [configuration (configure properties)]
+      (let [props-with-defaults (merge properties {:start-of-week start-of-week})
+            configuration (configure props-with-defaults)]
         [main-div-with
          [:table {:class "table-condensed"}
           [table-thead current configuration]
@@ -236,7 +254,7 @@
                    (unparse (if (seq format) (formatter format) date-format) (deref-or-value model))
                    "")]
                 [:span.dropdown-button.activator.input-group-addon
-                 {:style {:padding "3px 0 0 0"}}
+                 {:style {:padding "3px 0px 0px 0px"}}
                  [:i.zmdi.zmdi-apps {:style {:font-size "24px"}}]]]]])
 
 (def datepicker-dropdown-args-desc

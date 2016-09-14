@@ -5,7 +5,7 @@
             [reagent.core                  :as    reagent]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
-            [re-com.core                   :refer [h-box v-box box gap line scroller border label title alert-box] :refer-macros [handler-fn]]
+            [re-com.core                   :refer [h-box v-box box gap line scroller border label title alert-box h-split] :refer-macros [handler-fn]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title]]
             [re-demo.introduction          :as    introduction]
@@ -43,6 +43,7 @@
             [re-demo.line                  :as    line]
             [re-demo.scroller              :as    scroller]
             [re-demo.border                :as    border]
+            [re-demo.typeahead             :as    typeahead]
             [goog.history.EventType        :as    EventType])
   (:import [goog History]))
 
@@ -75,6 +76,7 @@
    {:id :dropdown               :level :minor :label "Dropdowns"          :panel dropdowns/panel}
    {:id :lists                  :level :minor :label "Selection List"     :panel selection-list/panel}
    {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
+   {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
 
    {:id :layers                 :level :major :label "Layers"}
    {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}
@@ -108,7 +110,8 @@
             is-major?  (= (:level tab) :major)
             has-panel? (some? (:panel tab))]
       [:div
-       {:style {:width            "150px"
+       {:style {;:width            "150px"
+                :white-space "nowrap"
                 :line-height      "1.3em"
                 :padding-left     (if is-major? "24px" "32px")
                 :padding-top      (when is-major? "6px")
@@ -133,7 +136,7 @@
     [v-box
      :class    "noselect"
      :style    {:background-color "#fcfcfc"}
-     :size    "1 0 auto"
+     ;:size    "1"
      :children (for [tab tabs-definition]
                  [nav-item tab selected-tab-id on-select-tab])])
 
@@ -149,8 +152,8 @@
                :label "Re-com"
                :level :level1
                :style {:font-size   "32px"
-                       :color       "#fefefe"}
-               ]]])
+                       :color       "#fefefe"}]]])
+
 
 (defn browser-alert
   []
@@ -182,24 +185,29 @@
     (fn
       []
       ;(set! re-com.box/debug true)
-      [h-box
+      [h-split
        ;; Outer-most box height must be 100% to fill the entrie client height.
        ;; This assumes that height of <body> is itself also set to 100%.
        ;; width does not need to be set.
        :height   "100%"
-       :gap      "60px"
-       :children [[scroller
-                   :size  "none"
-                   :v-scroll :auto
-                   :h-scroll :off
-                   :child [v-box
-                           :children [[re-com-title-box]
-                                      [left-side-nav-bar selected-tab-id on-select-tab]]]]
-                  [scroller
-                   :child [v-box
-                           :size  "auto"
-                           :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
-                                      [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
+       ;:gap      "60px"
+       :initial-split 8
+       :margin "0px"
+       :panel-1 [scroller
+                 ;:size  "none"
+                 :v-scroll :auto
+                 :h-scroll :off
+                 :child [v-box
+                         :size "1"
+                         :children [[re-com-title-box]
+                                    [left-side-nav-bar selected-tab-id on-select-tab]]]]
+       :panel-2 [scroller
+                 :child [v-box
+                         :size  "1"
+                         :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
+                                    [box
+                                     :padding "0px 0px 0px 50px"
+                                     :child [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
 (defn ^:export mount-demo
   []
