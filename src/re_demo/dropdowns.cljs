@@ -118,9 +118,9 @@
       [v-box
        :gap      "10px"
        :children [[p "The dropdown below shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'EN COUNTRIES'."]
-                  [p "This feature is triggered if any choice has a :group attribute. Typically all choices will have a :group or none will. It's up to you to ensure that choices with the same :group are adjacent in the vector."]
-                  [p "Because :model is initially nil, the :placeholder text is initially displayed."]
-                  [p ":max-width is set here to make the dropdown taller."]
+                  [p "This feature is triggered if any choice has a " [:code ":group"] " attribute. Typically all choices will have a " [:code ":group"] " or none will. It's up to you to ensure that choices with the same " [:code ":group"] " are adjacent in the vector."]
+                  [p "Because :model is initially nil, the " [:code ":placeholder"] " text is initially displayed."]
+                  [p [:code ":max-width"] " is set here to make the dropdown taller."]
                   [h-box
                    :gap      "10px"
                    :align    :center
@@ -147,7 +147,7 @@
       [v-box
        :gap      "10px"
        :children [[p "The dropdown below adds a filter text box to the dropdown section which is convenient for when there are many choices."]
-                  [p "The filter text is searched for in both the :group and the :label values. If the text matches the :group, then all
+                  [p "The filter text is searched for in both the :group and the :label values. If the text matches the " [:code ":group"] ", then all
                       choices under that group are considered to be 'matched'."]
                   [p "The initial model value has been set to 'US'."]
                   [h-box
@@ -207,7 +207,7 @@
       [v-box
        :gap      "10px"
        :children [[p "[single-dropdown ...] supports tab key navigation."]
-                  [p "The :tab-index parameter specifies position in the tab order,
+                  [p "The " [:code ":tab-index"] " parameter specifies position in the tab order,
                        or it can be removed from the tab order using a value of -1."]
                   [p "Up-arrow and Down-arrow do sensible things."]
                   [p "Home and End keys move to the beginning and end of the list."]
@@ -340,7 +340,7 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[p "Dropdowns choices can be built with arbitrary markup using the :render-fn attribute. When filtering, only the text from the label will be considered."]
+       :children [[p "Dropdowns choices can be built with arbitrary markup using the " [:code ":render-fn"] " attribute. When filtering, only the text from the label will be considered."]
                   [h-box
                    :gap      "10px"
                    :align    :center
