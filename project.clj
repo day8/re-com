@@ -37,6 +37,11 @@
                                                [com.cemerick/clojurescript.test "0.3.3"]
                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
                                                [lein-ancient                    "0.6.10"]]}
+                     :dev-cider {:figwheel {:nrepl-port  7777
+                                            :nrepl-middleware ["cider.nrepl/cider-middleware"
+                                                               "cemerick.piggieback/wrap-cljs-repl"]}
+                                 :dependencies [[com.cemerick/piggieback "0.2.1"]
+                                                [figwheel-sidecar "0.5.4-6"]]}
                      :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
                      :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
                      :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}
