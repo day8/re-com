@@ -125,7 +125,7 @@
              {:style {:font-size "24px"}}]])
      (conj template-row
            (for [day (rotate start-of-week days-vector)]
-             [:th {:class "day-enabled"} (str (:name day))]))]))
+             ^{:key (:key day)} [:th {:class "day-enabled"} (str (:name day))]))]))
 
 
 (defn- selection-changed
