@@ -351,7 +351,7 @@
                                :placeholder "Choose a country"
                                :width       "300px"
                                :max-height  "400px"
-                               :filter-box? false
+                               :filter-box? true
                                :on-change   #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
@@ -376,7 +376,6 @@
                                :width    "450px"
                                :children [[title2 "Notes"]
                                           [status-text "Stable"]
-
                                            [p
                                             "A dropdown selection component, similar to "
                                             [hyperlink-href

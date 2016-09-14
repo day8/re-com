@@ -41,7 +41,7 @@
   (let [lower-filter-text (string/lower-case filter-text)
         filter-fn         (fn [opt]
                             (let [group (if (nil? (group-fn opt)) "" (group-fn opt))
-                                  label (str (label-fn opt))] ;; TODO: remove str? we should be able to assume label-fn returns a string.
+                                  label (str (label-fn opt))]
                               (or
                                 (>= (.indexOf (string/lower-case group) lower-filter-text) 0)
                                 (>= (.indexOf (string/lower-case label) lower-filter-text) 0))))]
