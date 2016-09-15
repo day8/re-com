@@ -123,15 +123,13 @@ two sub-directories:
   - clean
   - start the [figwheel](https://github.com/bhauman/lein-figwheel) server & compiler  (a terminal window will be started)
   - load the right `index.html` (specialised for figwheel use)
-  - start a ClojureScript repl in the terminal window (actually, figwheel does this for you)
 
   Your part to play in the process:
 
   - the initial load of `index.html` will fail because the figwheel compile hasn't yet finished. 
   - be patient - the initial compile might take anything from 10 seconds to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
-  - keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message, at which point, figwheel will immediately move on and try to start the repl.  
-  - In response, you should refresh the HTML page. This refresh is needed for figwheel to complete the repl kick-off.
-  - to quit figwheel and stop the server/compiler, type ` :cljs/quit` into the repl started by figwheel.
+  - keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message.  
+  - you can now refresh the HTML page to see the running demo.
 
 
 4. Run The (erm, modest) Tests

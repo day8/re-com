@@ -134,7 +134,7 @@
                                    ["shell" "open" "run/resources/public/index_prod.html"]]
 
                      "prod-auto"  ["with-profile" "+prod-run" "do"
-                                   ["run-prod"]
+                                   ["prod-once"]
                                    ["cljsbuild" "auto" "prod"]]
 
                      "deploy-aws" ["with-profile" "+prod-run" "do"
