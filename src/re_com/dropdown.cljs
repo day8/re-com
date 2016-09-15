@@ -107,7 +107,7 @@
                selected (= @internal-model id)]
            (when selected (show-selected-item node))))
 
-       :component-function
+       :reagent-render
        (fn
          [id label on-click internal-model]
          (let [selected (= @internal-model id)

@@ -184,7 +184,7 @@
            (reset! p-height   (if popover-elem (next-even-integer (.-clientHeight popover-elem)) 0))
            (reset! pop-offset (calc-pop-offset arrow-pos position-offset @p-width @p-height))))
 
-       :component-function
+       :reagent-render
        (fn
          [& {:keys [children position position-offset width height popover-color arrow-length arrow-width arrow-gap padding margin-left margin-top tooltip-style? title]
              :or {arrow-length 11 arrow-width 22 arrow-gap -1}
@@ -297,7 +297,7 @@
              (reset! left-offset (.-left bounding-rect))
              (reset! top-offset  (.-top  bounding-rect)))))
 
-       :component-function
+       :reagent-render
        (fn
          [& {:keys [showing? position position-offset no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width arrow-gap padding style]
              :or {arrow-length 11 arrow-width 22 arrow-gap -1}
