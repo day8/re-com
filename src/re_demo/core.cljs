@@ -109,26 +109,25 @@
       (let [selected?   (= @selected-tab-id (:id tab))
             is-major?  (= (:level tab) :major)
             has-panel? (some? (:panel tab))]
-      [:div
-       {:style {;:width            "150px"
-                :white-space "nowrap"
-                :line-height      "1.3em"
-                :padding-left     (if is-major? "24px" "32px")
-                :padding-top      (when is-major? "6px")
-                :font-size        (when is-major? "15px")
-                :font-weight      (when is-major? "bold")
-                :color            (when selected? "#111")
-                :border-right     (when selected? "4px #d0d0d0 solid")
-                :background-color (if (or
-                                        (= @selected-tab-id (:id tab))
-                                        @mouse-over?) "#eaeaea")}
+        [:div
+         {:style         {;:width            "150px"
+                          :white-space      "nowrap"
+                          :line-height      "1.3em"
+                          :padding-left     (if is-major? "24px" "32px")
+                          :padding-top      (when is-major? "6px")
+                          :font-size        (when is-major? "15px")
+                          :font-weight      (when is-major? "bold")
+                          :border-right     (when selected? "4px #d0d0d0 solid")
+                          :cursor           (if has-panel? "pointer" "default")
+                          :color            (if has-panel? (when selected? "#111") "#888")
+                          :background-color (if (or
+                                                  (= @selected-tab-id (:id tab))
+                                                  @mouse-over?) "#eaeaea")}
 
-        :on-mouse-over (handler-fn (when has-panel? (reset! mouse-over? true)))
-        :on-mouse-out  (handler-fn (reset! mouse-over? false))
-        :on-click      (handler-fn (when has-panel? (on-select-tab (:id tab))))}
-       [:span
-        {:style {:cursor "default"}}    ;; removes the I-beam over the label
-        (:label tab)]]))))
+          :on-mouse-over (handler-fn (when has-panel? (reset! mouse-over? true)))
+          :on-mouse-out  (handler-fn (reset! mouse-over? false))
+          :on-click      (handler-fn (when has-panel? (on-select-tab (:id tab))))}
+         [:span (:label tab)]]))))
 
 
 (defn left-side-nav-bar
