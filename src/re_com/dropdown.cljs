@@ -107,6 +107,8 @@
                selected (= @internal-model id)]
            (when selected (show-selected-item node))))
 
+       :display-name "choice-item"
+
        :reagent-render
        (fn
          [id label on-click internal-model]

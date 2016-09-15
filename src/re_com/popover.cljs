@@ -184,6 +184,8 @@
            (reset! p-height   (if popover-elem (next-even-integer (.-clientHeight popover-elem)) 0))
            (reset! pop-offset (calc-pop-offset arrow-pos position-offset @p-width @p-height))))
 
+       :display-name "popover-border"
+
        :reagent-render
        (fn
          [& {:keys [children position position-offset width height popover-color arrow-length arrow-width arrow-gap padding margin-left margin-top tooltip-style? title]
@@ -296,6 +298,8 @@
                  bounding-rect      (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop
              (reset! left-offset (.-left bounding-rect))
              (reset! top-offset  (.-top  bounding-rect)))))
+
+       :display-name "popover-content-wrapper"
 
        :reagent-render
        (fn
