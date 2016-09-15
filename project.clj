@@ -10,8 +10,8 @@
   :license          {:name "MIT"}
 
   :dependencies     [[org.clojure/clojure         "1.8.0"]
-                     [org.clojure/clojurescript   "1.9.14"] ;; TODO: Later versions give compiler warnings about uuid? and boolean? being replaced
-                     [reagent                     "0.6.0-rc"]
+                     [org.clojure/clojurescript   "1.9.89"]
+                     [reagent                     "0.6.0"]
                      [com.andrewmcveigh/cljs-time "0.4.0"]] ;; TODO: Bump this to 0.5.0 as soon as it's available (https://github.com/Day8/re-com/pull/98/files)
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
@@ -27,24 +27,25 @@
   ;                    :extract-from "resources"
   ;                    :extract-path "run/resources-frame"}]
 
-  :profiles         {:dev      {:dependencies [[clj-stacktrace                  "0.2.8"]
-                                               [alandipert/storage-atom         "2.0.1" ]
-                                               [figwheel                        "0.5.4-7"]
-                                               [secretary                       "1.2.3"]]
-                                :plugins      [[lein-cljsbuild                  "1.1.3"]
-                                               [lein-figwheel                   "0.5.4-7"]
-                                               [lein-shell                      "0.5.0"]
-                                               [com.cemerick/clojurescript.test "0.3.3"]
-                                               [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
-                                               [lein-ancient                    "0.6.10"]]}
-                     :dev-cider {:figwheel {:nrepl-port  7777
+  :profiles         {:dev       {:dependencies [[clj-stacktrace                  "0.2.8"]
+                                                [alandipert/storage-atom         "2.0.1" ]
+                                                [com.cognitect/transit-cljs      "0.8.239"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
+                                                [figwheel                        "0.5.7"]
+                                                [secretary                       "1.2.3"]]
+                                 :plugins      [[lein-cljsbuild                  "1.1.4"]
+                                                [lein-figwheel                   "0.5.7"]
+                                                [lein-shell                      "0.5.0"]
+                                                [com.cemerick/clojurescript.test "0.3.3"]
+                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
+                                                [lein-ancient                    "0.6.10"]]}
+                     :dev-cider {:figwheel {:nrepl-port       7777
                                             :nrepl-middleware ["cider.nrepl/cider-middleware"
                                                                "cemerick.piggieback/wrap-cljs-repl"]}
                                  :dependencies [[com.cemerick/piggieback "0.2.1"]
                                                 [figwheel-sidecar "0.5.4-6"]]}
-                     :dev-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
-                     :prod-run {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
-                     :dev-test {:clean-targets ^{:protect false} ["run/test/compiled"]}}
+                     :dev-run   {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
+                     :prod-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
+                     :dev-test  {:clean-targets ^{:protect false} ["run/test/compiled"]}}
 
   :test-paths      ["test"]
   :resource-paths  ["run/resources"]
