@@ -100,7 +100,7 @@ two sub-directories:
 
 
    ```shell
-   lein run
+   lein dev-once
    ```
 
   This will run the demo, by doing: 
@@ -115,7 +115,7 @@ two sub-directories:
 
    To begin a debug session, do this:
    ```shell
-   lein debug
+   lein dev-auto
    ```
 
   This will:
@@ -137,7 +137,7 @@ two sub-directories:
 4. Run The (erm, modest) Tests
  
    ```shell
-   lein run-test
+   lein test-once
    ```
 
   This will:
@@ -150,7 +150,7 @@ two sub-directories:
 5. Debug the tests:
 
    ```shell
-   lein debug-test
+   lein test-auto
    ```
 
   Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto` for

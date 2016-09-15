@@ -114,42 +114,42 @@
                              :macosx  "open"
                              :linux   "xdg-open"}}}
 
-  :aliases          {;; *** DEMO ***
+  :aliases          {;; *** DEV ***
 
-                     "run"        ["with-profile" "+dev-run" "do"
+                     "dev-once"   ["with-profile" "+dev-run" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "demo"]
                                    ["shell" "open" "run/resources/public/index_dev.html"]]
 
-                     "debug"      ["with-profile" "+dev-run" "do"
+                     "dev-auto"   ["with-profile" "+dev-run" "do"
                                    ["clean"]
                                    ~["shell" "open" (str "http://localhost:" fig-port "/index_dev.html")]   ;; NOTE: run will initially fail, refresh browser once build complete
                                    ["figwheel" "demo"]]
 
                      ;; *** PROD ***
 
-                     "run-prod"   ["with-profile" "+prod-run" "do"
+                     "prod-once"  ["with-profile" "+prod-run" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "prod"]
                                    ["shell" "open" "run/resources/public/index_prod.html"]]
 
-                     "debug-prod" ["with-profile" "+prod-run" "do"
+                     "prod-auto"  ["with-profile" "+prod-run" "do"
                                    ["run-prod"]
                                    ["cljsbuild" "auto" "prod"]]
 
-                     "deploy-aws"  ["with-profile" "+prod-run" "do"
-                                    ["clean"]
-                                    ["cljsbuild" "once" "prod"]
-                                    ["s3-static-deploy"]]
+                     "deploy-aws" ["with-profile" "+prod-run" "do"
+                                   ["clean"]
+                                   ["cljsbuild" "once" "prod"]
+                                   ["s3-static-deploy"]]
 
                      ;; *** TEST ***
 
-                     "run-test"   ["with-profile" "+dev-test" "do"
+                     "test-once"  ["with-profile" "+dev-test" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "test"]
                                    ["shell" "open" "run/test/test.html"]]
 
-                     "debug-test" ["with-profile" "+dev-test" "do"
-                                   ["run-test"]
+                     "test-auto"  ["with-profile" "+dev-test" "do"
+                                   ["test-once"]
                                    ["cljsbuild" "auto" "test"]]}
   )
