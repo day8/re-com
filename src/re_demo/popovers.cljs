@@ -1,11 +1,13 @@
 (ns re-demo.popovers
-  (:require [re-com.core                 :refer [h-box v-box box gap line scroller border label title input-text checkbox radio-button button hyperlink
-                                                 p single-dropdown popover-content-wrapper popover-anchor-wrapper popover-border popover-tooltip flex-child-style]
-                                         :refer-macros [handler-fn]]
+  (:require [re-com.core                 :refer [h-box v-box box gap line scroller border label title input-text checkbox radio-button button
+                                                 hyperlink hyperlink-href p single-dropdown popover-content-wrapper popover-anchor-wrapper
+                                                 popover-border popover-tooltip flex-child-style]
+             :refer-macros [handler-fn]]
             [re-com.popover              :refer [popover-content-wrapper-args-desc popover-anchor-wrapper-args-desc popover-border-args-desc
                                                  popover-tooltip-args-desc]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
-            [re-demo.utils               :refer [panel-title title2 args-table github-hyperlink status-text]]
+            [re-com.util                 :refer [get-element-by-id]]
+            [re-demo.utils               :refer [panel-title title2 args-table github-hyperlink status-text scroll-to-top]]
             [reagent.core                :as    reagent]))
 
 
@@ -24,6 +26,21 @@
                     {:id :right-below  :label ":right-below "}])
 
 
+(defn see-demo-page
+  []
+  [:span
+   "See "
+   [box
+    :class "inline-hyperlink" ;; Convert hyperlink box wrapper to be inline rather than block
+    :style {:display "inline"}
+    :child [hyperlink
+            :label "Popover Demos"
+            :on-click #(do
+                        (.open js/window "#/popovers" "_self")
+                        (scroll-to-top (get-element-by-id "right-panel")))]]
+   " page."])
+
+
 (defn arg-lists
   []
   [v-box
@@ -39,13 +56,13 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "[popover-anchor-wrapper ...]"]
-                                      [status-text "Alpha" {:color "#EA6B00"}]
-                                      [p "TBA..."]
+                                      [status-text "Stable"]
+                                      [p "Description pending."]
                                       [args-table popover-anchor-wrapper-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [:span.all-small-caps "TBA..."]]]]]
+                                      [see-demo-page]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
                :gap      "100px"
@@ -53,12 +70,12 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "[popover-content-wrapper ...]"]
-                                      [p "TBA..."]
+                                      [p "Description pending."]
                                       [args-table popover-content-wrapper-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [:span.all-small-caps "TBA..."]]]]]
+                                      [see-demo-page]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
                :gap      "100px"
@@ -66,12 +83,12 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "[popover-border ...]"]
-                                      [p "TBA..."]
+                                      [p "Description pending."]
                                       [args-table popover-border-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [:span.all-small-caps "TBA..."]]]]]
+                                      [see-demo-page]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
                :gap      "100px"
@@ -79,12 +96,12 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "[popover-tooltip ...]"]
-                                      [p "TBA..."]
+                                      [p "Description pending."]
                                       [args-table popover-tooltip-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [:span.all-small-caps "TBA..."]]]]]
+                                      [see-demo-page]]]]]
               [gap :size "30px"]]])
 
 (defn simple-popover-demo
@@ -107,7 +124,7 @@
         [v-box
          :gap      "10px"
          :children [[title2 "[popover ... ] with [button ... ] anchor"]
-                    [status-text "Alpha" {:color "#EA6B00"}]
+                    [status-text "Stable"]
                     [h-box
                      :gap      "100px"
                      :children [[v-box

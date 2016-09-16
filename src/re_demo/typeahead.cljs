@@ -60,7 +60,7 @@
                                :gap      "10px"
                                :width    "450px"
                                :children [[title2 "Notes"]
-                                          [status-text "Experimental"]
+                                          [status-text "Stable"]
                                           [p "Text input that shows suggestions as the user types, and allows the user to choose one of the suggestions using the keyboard or mouse."]
                                           [p "The " [:code ":data-source"] " function provides suggestions (which can be arbitrary objects). This can be done synchronously or asynchronously."]
                                           [p "The " [:code ":on-change"] " function will be called when the user chooses a selection (the default), or as the user navigates through the available suggestions."]

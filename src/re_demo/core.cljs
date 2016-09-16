@@ -52,7 +52,6 @@
 (def tabs-definition
   [{:id :introduction           :level :major :label "Introduction"       :panel introduction/panel}
 
-
    {:id :buttons                :level :major :label "Buttons"}
    {:id :button                 :level :minor :label "Basic Button"       :panel button/panel}
    {:id :row-button             :level :minor :label "Row Button"         :panel row-button/panel}
@@ -98,8 +97,7 @@
    {:id :line                   :level :minor :label "Line"               :panel line/panel}
    {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
    {:id :border                 :level :minor :label "Border"             :panel border/panel}
-   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}
-   ])
+   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}])
 
 
 (defn nav-item
