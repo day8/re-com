@@ -18,7 +18,7 @@ Use your best judgement on what is needed here.
 
 ## Pull requests
 
-**Create pull requests to the develop branch**, work will merged onto master when it is ready to be released.
+**Create pull requests to the master branch**.
 
 ## Pull requests for bugs
 
