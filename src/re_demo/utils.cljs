@@ -107,3 +107,6 @@
                    (map (partial arg-row name-width)  args (cycle [true false])))])))
 
 
+(defn scroll-to-top
+  [element]
+  (set! (.-scrollTop element) 0))

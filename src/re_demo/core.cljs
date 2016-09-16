@@ -7,7 +7,7 @@
             [secretary.core                :as    secretary]
             [re-com.core                   :refer [h-box v-box box gap line scroller border label title alert-box h-split] :refer-macros [handler-fn]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
-            [re-demo.utils                 :refer [panel-title]]
+            [re-demo.utils                 :refer [panel-title scroll-to-top]]
             [re-demo.introduction          :as    introduction]
             [re-demo.radio-button          :as    radio-button]
             [re-demo.checkbox              :as    checkbox]
@@ -126,7 +126,9 @@
 
           :on-mouse-over (handler-fn (when has-panel? (reset! mouse-over? true)))
           :on-mouse-out  (handler-fn (reset! mouse-over? false))
-          :on-click      (handler-fn (when has-panel? (on-select-tab (:id tab))))}
+          :on-click      (handler-fn (when has-panel?
+                                       (on-select-tab (:id tab))
+                                       (scroll-to-top (get-element-by-id "right-panel"))))}
          [:span (:label tab)]]))))
 
 
@@ -201,6 +203,7 @@
                          :children [[re-com-title-box]
                                     [left-side-nav-bar selected-tab-id on-select-tab]]]]
        :panel-2 [scroller
+                 :attr  {:id "right-panel"}
                  :child [v-box
                          :size  "1"
                          :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
