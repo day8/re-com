@@ -12,6 +12,7 @@
   :dependencies     [[org.clojure/clojure         "1.8.0"]
                      [org.clojure/clojurescript   "1.9.89"]
                      [reagent                     "0.6.0"]
+                     [org.clojure/core.async "0.2.391"]
                      [com.andrewmcveigh/cljs-time "0.4.0"]] ;; TODO: Bump this to 0.5.0 as soon as it's available (https://github.com/Day8/re-com/pull/98/files)
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
@@ -28,7 +29,7 @@
   ;                    :extract-path "run/resources-frame"}]
 
   :profiles         {:dev       {:dependencies [[clj-stacktrace                  "0.2.8"]
-                                                [alandipert/storage-atom         "2.0.1" ]
+                                                [alandipert/storage-atom         "2.0.1"]
                                                 [com.cognitect/transit-cljs      "0.8.239"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
                                                 [figwheel                        "0.5.7"]
                                                 [secretary                       "1.2.3"]]
@@ -151,5 +152,5 @@
 
                      "test-auto"  ["with-profile" "+dev-test" "do"
                                    ["test-once"]
-                                   ["cljsbuild" "auto" "test"]]}
-  )
+                                   ["cljsbuild" "auto" "test"]]})
+
