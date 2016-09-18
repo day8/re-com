@@ -29,16 +29,16 @@
   ;                    :extract-path "run/resources-frame"}]
 
   :profiles         {:dev       {:dependencies [[clj-stacktrace                  "0.2.8"]
-                                                [alandipert/storage-atom         "2.0.1"]
-                                                [com.cognitect/transit-cljs      "0.8.239"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
-                                                [figwheel                        "0.5.7"]
-                                                [secretary                       "1.2.3"]]
+                                                [figwheel                        "0.5.7"]]
                                  :plugins      [[lein-cljsbuild                  "1.1.4"]
                                                 [lein-figwheel                   "0.5.7"]
                                                 [lein-shell                      "0.5.0"]
                                                 [com.cemerick/clojurescript.test "0.3.3"]
                                                 [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
                                                 [lein-ancient                    "0.6.10"]]}
+                     :demo {:dependencies [[alandipert/storage-atom "2.0.1"]
+                                           [com.cognitect/transit-cljs "0.8.239"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
+                                           [secretary "1.2.3"]]}
                      :dev-cider {:figwheel {:nrepl-port       7777
                                             :nrepl-middleware ["cider.nrepl/cider-middleware"
                                                                "cemerick.piggieback/wrap-cljs-repl"]}
@@ -117,28 +117,28 @@
 
   :aliases          {;; *** DEV ***
 
-                     "dev-once"   ["with-profile" "+dev-run" "do"
+                     "dev-once"   ["with-profile" "+dev-run,+demo" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "demo"]
                                    ["shell" "open" "run/resources/public/index_dev.html"]]
 
-                     "dev-auto"   ["with-profile" "+dev-run" "do"
+                     "dev-auto"   ["with-profile" "+dev-run,+demo" "do"
                                    ["clean"]
                                    ~["shell" "open" (str "http://localhost:" fig-port "/index_dev.html")]   ;; NOTE: run will initially fail, refresh browser once build complete
                                    ["figwheel" "demo"]]
 
                      ;; *** PROD ***
 
-                     "prod-once"  ["with-profile" "+prod-run,-dev" "do"
+                     "prod-once"  ["with-profile" "+prod-run,+demo,-dev" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "prod"]
                                    ["shell" "open" "run/resources/public/index_prod.html"]]
 
-                     "prod-auto"  ["with-profile" "+prod-run,-dev" "do"
+                     "prod-auto"  ["with-profile" "+prod-run,+demo,-dev" "do"
                                    ["prod-once"]
                                    ["cljsbuild" "auto" "prod"]]
 
-                     "deploy-aws" ["with-profile" "+prod-run,-dev" "do"
+                     "deploy-aws" ["with-profile" "+prod-run,+demo,-dev" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "prod"]
                                    ["s3-static-deploy"]]
@@ -149,7 +149,7 @@
                              ["with-profile" "+dev-test" "do"
                               ["clean"]
                               ["cljsbuild" "once" "test"]]
-                             ["with-profile" "+prod-run,-dev" "do"
+                             ["with-profile" "+prod-run,+demo,-dev" "do"
                               ["clean"]
                               ["cljsbuild" "once" "prod"]]]
                      "test-once"  ["with-profile" "+dev-test" "do"
