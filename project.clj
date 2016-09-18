@@ -128,22 +128,29 @@
 
                      ;; *** PROD ***
 
-                     "prod-once"  ["with-profile" "+prod-run" "do"
+                     "prod-once"  ["with-profile" "+prod-run,-dev" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "prod"]
                                    ["shell" "open" "run/resources/public/index_prod.html"]]
 
-                     "prod-auto"  ["with-profile" "+prod-run" "do"
+                     "prod-auto"  ["with-profile" "+prod-run,-dev" "do"
                                    ["prod-once"]
                                    ["cljsbuild" "auto" "prod"]]
 
-                     "deploy-aws" ["with-profile" "+prod-run" "do"
+                     "deploy-aws" ["with-profile" "+prod-run,-dev" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "prod"]
                                    ["s3-static-deploy"]]
 
                      ;; *** TEST ***
 
+                     "test" ["do"
+                             ["with-profile" "+dev-test" "do"
+                              ["clean"]
+                              ["cljsbuild" "once" "test"]]
+                             ["with-profile" "+prod-run,-dev" "do"
+                              ["clean"]
+                              ["cljsbuild" "once" "prod"]]]
                      "test-once"  ["with-profile" "+dev-test" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "test"]
