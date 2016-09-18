@@ -144,7 +144,13 @@
 
                      ;; *** TEST ***
 
-                     "test" ["do" ["test-once"] ["prod-once"]]
+                     "test" ["do"
+                             ["with-profile" "+dev-test" "do"
+                              ["clean"]
+                              ["cljsbuild" "once" "test"]]
+                             ["with-profile" "+prod-run,-dev" "do"
+                              ["clean"]
+                              ["cljsbuild" "once" "prod"]]]
                      "test-once"  ["with-profile" "+dev-test" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "test"]
