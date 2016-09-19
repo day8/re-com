@@ -175,6 +175,8 @@ re-com is available from clojars. Add it to your project.clj dependencies:
 
 [![Clojars Project](http://clojars.org/re-com/latest-version.svg)](http://clojars.org/re-com)
 
+You should now be able to require the `re-com.core` namespace, which exposes all of the API functions documented in the `re-demo` example app.
+
 You'll then need to include these asset folders in your app:
 https://github.com/Day8/re-com/tree/master/run/resources/public/assets
 
