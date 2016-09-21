@@ -32,7 +32,7 @@
                                            :gap "15px"
                                            :children [[example-icons selected-icon]
                                                       [gap :size "10px"]
-                                                      [p "Here's what the chosen icon looks like in a Circle Icon Button."]
+                                                      [p "Here's what the chosen icon looks like in an Icon Button."]
                                                       [h-box
                                                        :gap      "20px"
                                                        :align    :center
