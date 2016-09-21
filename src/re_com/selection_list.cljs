@@ -41,7 +41,7 @@
      :attr {:on-click (handler-fn (when-not disabled?
                                     (on-change (check-clicked selections item-id (not (selections item-id)) required?))))}
      :child [checkbox
-             :model (selections item-id)
+             :model (some? (selections item-id))
              :on-change #()                                 ;; handled by enclosing box
              :disabled? disabled?
              :label-style (label-style (selections item-id) as-exclusions?)
