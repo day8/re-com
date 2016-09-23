@@ -29,7 +29,13 @@
   ;                    :extract-path "run/resources-frame"}]
 
   :profiles         {:dev       {:dependencies [[clj-stacktrace                  "0.2.8"]
-                                                [figwheel                        "0.5.7"]]
+                                                [figwheel                        "0.5.7"]
+                                                [binaryage/devtools              "0.8.2"]
+                                                [binaryage/dirac                 "RELEASE"]]
+                                 :repl-options {:port 8230
+                                                :nrepl-middleware [dirac.nrepl/middleware]
+                                                :init (do (require 'dirac.agent)
+                                                          (dirac.agent/boot!))}
                                  :plugins      [[lein-cljsbuild                  "1.1.4"]
                                                 [lein-figwheel                   "0.5.7"]
                                                 [lein-shell                      "0.5.0"]
@@ -58,15 +64,17 @@
   :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
 
   :cljsbuild {:builds [{:id           "demo"
-                        :source-paths ["src"]
+                        :source-paths ["dev-src" "src"]
                         :figwheel     {:on-jsload     "re-demo.core/mount-demo"}
-                        :compiler     {:output-to     "run/resources/public/compiled_dev/demo.js"
-                                       :output-dir    "run/resources/public/compiled_dev/demo"
-                                       :main          "re-demo.core"
-                                       :asset-path    "compiled_dev/demo"
-                                       :source-map    true
-                                       :optimizations :none
-                                       :pretty-print  true}}
+                        :compiler     {:preloads        [devtools.preload day8.app.dev-preload]
+                                       :external-config {:devtools/config {:features-to-install :all}}
+                                       :output-to       "run/resources/public/compiled_dev/demo.js"
+                                       :output-dir      "run/resources/public/compiled_dev/demo"
+                                       :main            "re-demo.core"
+                                       :asset-path      "compiled_dev/demo"
+                                       :source-map      true
+                                       :optimizations   :none
+                                       :pretty-print    true}}
                        {:id           "prod"
                         :source-paths ["src"]
                         :compiler     {:output-to       "run/resources/public/compiled_prod/demo.js"
@@ -76,12 +84,14 @@
                                        :pretty-print    false
                                        :pseudo-names    false}}
                        {:id           "test"
-                        :source-paths ["src/re_com" "test"]
-                        :compiler     {:output-to     "run/test/compiled/test.js"
-                                       :output-dir    "run/test/compiled/test"
-                                       :source-map    true
-                                       :optimizations :none
-                                       :pretty-print  true}}]
+                        :source-paths ["dev-src" "src/re_com" "test"]
+                        :compiler     {:preloads        [devtools.preload day8.app.dev-preload]
+                                       :external-config {:devtools/config {:features-to-install :all}}
+                                       :output-to       "run/test/compiled/test.js"
+                                       :output-dir      "run/test/compiled/test"
+                                       :source-map      true
+                                       :optimizations   :none
+                                       :pretty-print    true}}]
               :test-commands   {}} ;; figwheel 0.5.2 required this for some reason
 
   :figwheel {:css-dirs    ["run/resources/public/assets/css"]
