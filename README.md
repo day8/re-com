@@ -136,6 +136,12 @@ two sub-directories:
   - be patient - the initial compile might take anything from 10 seconds to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
   - keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message.  
   - you can now refresh the HTML page to see the running demo.
+  
+  **Devtools/Dirac**
+  
+  The app is pre-configured with the binaryage/devtools & binaryage/dirac dependencies and initalisations. See initial setup here [DEVTOOLS.md](/docs/DEVTOOLS.md)
+
+  With your app running *(see Developing)* in your browser *Canary/Unstable* click on the Dirac extension icon *(you can also use standard devtools (F12) if you don't want a Dirac cljs repl)*
 
 
 4. Run The (erm, modest) Tests
