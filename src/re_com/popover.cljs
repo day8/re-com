@@ -397,6 +397,7 @@
                         :warning "#f57c00"
                         :error   "#d50000"
                         :info    "#333333"
+                        :success "green"
                         "black")]
     [popover-anchor-wrapper
      :showing? showing?

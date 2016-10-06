@@ -126,8 +126,8 @@
 (def alert-types          [:none :info :warning :danger])
 (def button-sizes         [:regular :smaller :larger])
 (def throbber-sizes       [:regular :small :large])
-(def input-status-types   [:warning :error])
-(def popover-status-types [:warning :error :info])
+(def input-status-types   [:success :warning :error :validating])
+(def popover-status-types [:success :warning :error :info :validating])
 (def title-levels         [:level1 :level2 :level3 :level4])
 (def position-options     [:above-left  :above-center :above-right
                            :below-left  :below-center :below-right

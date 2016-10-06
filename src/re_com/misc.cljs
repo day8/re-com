@@ -63,6 +63,7 @@
          :children [[:div
                      {:class (str "rc-input-text-inner "          ;; form-group
                                   (case status
+                                    :success "has-success "
                                     :warning "has-warning "
                                     :error "has-error "
                                     "")
@@ -107,34 +108,35 @@
                          }
                         attr)]]
                     (when (and status-icon? status)
-                      (if status-tooltip
-                        [popover-tooltip
-                         :label status-tooltip
-                         :position :right-center
-                         :status status
-                         ;:width    "200px"
-                         :showing? showing?
-                         :anchor [:i {:class         (str "zmdi " (if (= status :warning) "zmdi-alert-triangle" "zmdi-alert-circle") " form-control-feedback")
-                                      :style         {:position "static"
-                                                      :width    "auto"
-                                                      :height   "auto"
-                                                      :opacity  (if (and status-icon? status) "1" "0")}
-                                      :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
-                                      :on-mouse-out  (handler-fn (reset! showing? false))}]
-                         :style (merge (flex-child-style "none")
-                                       (align-style :align-self :center)
-                                       {:font-size   "130%"
-                                        :margin-left "4px"})]
-                        [:i {:class (str "zmdi " (if (= status :warning) "zmdi-alert-triangle" "zmdi-alert-circle") " form-control-feedback")
-                             :style (merge (flex-child-style "none")
-                                           (align-style :align-self :center)
-                                           {:position    "static"
-                                            :font-size   "130%"
-                                            :margin-left "4px"
-                                            :opacity     (if (and status-icon? status) "1" "0")
-                                            :width       "auto"
-                                            :height      "auto"})
-                             :title status-tooltip}]))]]))))
+                      (let [icon-class (case status :success "zmdi-check-circle" :warning "zmdi-alert-triangle" :error "zmdi-alert-circle zmdi-spinner" :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner")]
+                        (if status-tooltip
+                         [popover-tooltip
+                          :label status-tooltip
+                          :position :right-center
+                          :status status
+                          ;:width    "200px"
+                          :showing? showing?
+                          :anchor [:i {:class         (str "zmdi " icon-class " form-control-feedback")
+                                       :style         {:position "static"
+                                                       :width    "auto"
+                                                       :height   "auto"
+                                                       :opacity  (if (and status-icon? status) "1" "0")}
+                                       :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                       :on-mouse-out  (handler-fn (reset! showing? false))}]
+                          :style (merge (flex-child-style "none")
+                                        (align-style :align-self :center)
+                                        {:font-size   "130%"
+                                         :margin-left "4px"})]
+                         [:i {:class (str "zmdi " icon-class " form-control-feedback")
+                              :style (merge (flex-child-style "none")
+                                            (align-style :align-self :center)
+                                            {:position    "static"
+                                             :font-size   "130%"
+                                             :margin-left "4px"
+                                             :opacity     (if (and status-icon? status) "1" "0")
+                                             :width       "auto"
+                                             :height      "auto"})
+                              :title status-tooltip}])))]]))))
 
 
 (defn input-text

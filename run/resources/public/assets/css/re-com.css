@@ -946,6 +946,10 @@ html, body {
   color: #d50000;
 }
 
+.rc-input-text .zmdi-check-circle {
+  color: green;
+}
+
 .alert-warning {
     color:            #ea6b00;
     background-color: #ffecdc;
