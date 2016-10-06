@@ -79,7 +79,7 @@
 
    {:id :layers                 :level :major :label "Layers"}
    {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}
-   {:id :popover-args           :level :minor :label "Popover Args"       :panel popovers/arg-lists}
+   {:id :popover-args           :level :minor :label "Popover Reference"  :panel popovers/arg-lists}
    {:id :popovers               :level :minor :label "Popover Demos"      :panel popovers/panel}
    {:id :tour                   :level :minor :label "Tour"               :panel tour/panel}
 
@@ -190,7 +190,7 @@
        ;; width does not need to be set.
        :height   "100%"
        ;:gap      "60px"
-       :initial-split 8
+       :initial-split 9
        :margin "0px"
        :panel-1 [scroller
                  ;:size  "none"
