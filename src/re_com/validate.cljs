@@ -132,7 +132,8 @@
 (def position-options     [:above-left  :above-center :above-right
                            :below-left  :below-center :below-right
                            :left-above  :left-center  :left-below
-                           :right-above :right-center :right-below])
+                           :right-above :right-center :right-below
+                           :auto])
 
 (defn validate-arg-against-set
   "Validates the passed argument against the expected set"

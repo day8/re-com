@@ -14,17 +14,15 @@
 
 
 (defn- split-keyword
-  "I return the vector of the two keywords formed by splitting
-   another keyword 'kw' on an internal delimiter (usually '-').
-   (split-keyword  :above-left  \"-\")
-   =>  [:above :left]"
-  [kw delimiter] ;; TODO: Move to util?
+  "Return the vector of the two keywords formed by splitting another keyword 'kw' on an internal delimiter (usually '-')
+   (split-keyword  :above-left  \"-\") => [:above :left]"
+  [kw delimiter]
   (let [keywords (string/split (str kw) (re-pattern (str "[" delimiter ":]")))]
     [(keyword (keywords 1)) (keyword (keywords 2))]))
 
 
 (defn- close-button
-  "A button with a big X in it, placed to the right of the popup"
+  "A button with a big X in it, placed to the right of the popover title"
   [showing? close-callback style]
   ;; Can't use [button] because [button] already uses [popover] which would be a circular dependency.
   [:button
@@ -43,6 +41,14 @@
 
 
 (defn- calc-popover-pos
+  "Determine values for :left :right :top :bottom CSS styles.
+   - pop-orient    What side of the anchor the popover will be attached to. One of :above :below :left :right
+   - p-width       The px width of the popover after it has been rendered
+   - p-height      The px height of the popover after it has been rendered
+   - pop-offset    The number of pixels the popover is offset from it's natural position in relation to the popover-arrow (ugh, hard to explain)
+   - arrow-length  The px length of the arrow (from the point to middle of arrow base)
+   - arrow-gap     The px distance between the anchor and the arrow tip. Positive numbers push the popover away from the anchor
+  "
   [pop-orient p-width p-height pop-offset arrow-length arrow-gap]
   (let [total-offset   (+ arrow-length arrow-gap)
         popover-left   (case pop-orient
@@ -67,6 +73,7 @@
 
 
 (defn- popover-arrow
+  "Render the triangle which connects the popover to the anchor (using SVG)"
   [orientation pop-offset arrow-length arrow-width grey-arrow? no-border? popover-color]
   (let [half-arrow-width (/ arrow-width 2)
         arrow-shape {:left  (str (point 0 0)            (point arrow-length half-arrow-width) (point 0 arrow-width))
