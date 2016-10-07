@@ -148,7 +148,9 @@
                           ;:width    "200px"
                           :showing? showing?
                           :anchor (if (= :validating status)
-                                    [throbber :size :regular :class "smaller"]
+                                    [throbber :size :regular :class "smaller"
+                                     :attr {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                            :on-mouse-out  (handler-fn (reset! showing? false))}]
                                     [:i {:class         (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
                                          :style         {:position "static"
                                                          :height   "auto"
@@ -168,7 +170,6 @@
                                                :font-size   "130%"
                                                :margin-left "4px"
                                                :opacity     (if (and status-icon? status) "1" "0")
-                                               :width       "auto"
                                                :height      "auto"})
                                 :title status-tooltip}]))))]]))))
 
