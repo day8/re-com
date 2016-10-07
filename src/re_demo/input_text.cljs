@@ -70,62 +70,7 @@
                                                                    :on-change        #(reset! text-val %)
                                                                    :validation-regex @regex
                                                                    :change-on-blur?  change-on-blur?
-                                                                   :disabled?        disabled?]
-
-                                                                  ;;;
-
-                                                                  [input-text
-                                                                   :model text-val
-                                                                   :status :validating
-                                                                   :status-icon? @status-icon?
-                                                                   :status-tooltip @status-tooltip
-                                                                   :width "300px"
-                                                                   :placeholder (if @regex "enter number (99.9)" "placeholder message")
-                                                                   :on-change #(reset! text-val %)
-                                                                   :validation-regex @regex
-                                                                   :change-on-blur? change-on-blur?
-                                                                   :disabled? disabled?]
-
-                                                                  [input-text
-                                                                   :model text-val
-                                                                   :status :success
-                                                                   :status-icon? @status-icon?
-                                                                   :status-tooltip @status-tooltip
-                                                                   :width "300px"
-                                                                   :placeholder (if @regex "enter number (99.9)" "placeholder message")
-                                                                   :on-change #(reset! text-val %)
-                                                                   :validation-regex @regex
-                                                                   :change-on-blur? change-on-blur?
-                                                                   :disabled? disabled?]
-
-                                                                  [input-text
-                                                                   :model text-val
-                                                                   :status :warning
-                                                                   :status-icon? @status-icon?
-                                                                   :status-tooltip @status-tooltip
-                                                                   :width "300px"
-                                                                   :placeholder (if @regex "enter number (99.9)" "placeholder message")
-                                                                   :on-change #(reset! text-val %)
-                                                                   :validation-regex @regex
-                                                                   :change-on-blur? change-on-blur?
-                                                                   :disabled? disabled?]
-                                                                  [input-text
-                                                                   :model text-val
-                                                                   :status :error
-                                                                   :status-icon? @status-icon?
-                                                                   :status-tooltip @status-tooltip
-                                                                   :width "300px"
-                                                                   :placeholder (if @regex "enter number (99.9)" "placeholder message")
-                                                                   :on-change #(reset! text-val %)
-                                                                   :validation-regex @regex
-                                                                   :change-on-blur? change-on-blur?
-                                                                   :disabled? disabled?]
-                                                                  ]
-
-
-
-
-                                                       ]
+                                                                   :disabled?        disabled?]]]
                                                       [v-box
                                                        :gap      "15px"
                                                        :children [[title :level :level3 :label "Callbacks"]
