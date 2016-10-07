@@ -954,6 +954,12 @@ html, body {
   color: #d50000;
 }
 
+/* Override bootstrap green validation */
+
+.has-success .form-control {
+  border-color: #13C200;
+}
+
 .rc-input-text .zmdi-alert-circle {
   color: #d50000;
 }
