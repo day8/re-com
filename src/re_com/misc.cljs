@@ -29,6 +29,7 @@
      :child [:ul
              (merge {:class (str "rc-throbber loader "
                                  (case size :regular ""
+                                            :smaller "smaller "
                                             :small "small "
                                             :large "large "
                                             "")
@@ -147,10 +148,9 @@
                           ;:width    "200px"
                           :showing? showing?
                           :anchor (if (= :validating status)
-                                    [throbber :size :small]
-                                    [:i {:class         (str "zmdi " icon-class " form-control-feedback")
+                                    [throbber :size :regular :class "smaller"]
+                                    [:i {:class         (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
                                          :style         {:position "static"
-                                                         :width    "auto"
                                                          :height   "auto"
                                                          :opacity  (if (and status-icon? status) "1" "0")}
                                          :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
@@ -160,8 +160,8 @@
                                         {:font-size   "130%"
                                          :margin-left "4px"})]
                          (if (= :validating status)
-                           [throbber :size :small]
-                           [:i {:class (str "zmdi " icon-class " form-control-feedback")
+                           [throbber :size :regular :class "smaller"]
+                           [:i {:class (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
                                 :style (merge (flex-child-style "none")
                                               (align-style :align-self :center)
                                               {:position    "static"

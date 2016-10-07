@@ -815,18 +815,30 @@ html, body {
     left: 15%;
 }
 
-
-.loader.small {
-    width: 12px;
-    height: 12px;
-    margin: 10px;
+.loader.smaller {
+    width: 10px;
+    height: 10px;
+    margin: 6px;
 }
 
-.loader.small li {
+.loader.smaller li {
     width: 4px;
     height: 4px;
     margin-top: -2px;
     margin-left: -2px;
+}
+
+.loader.small {
+  width: 12px;
+  height: 12px;
+  margin: 10px;
+}
+
+.loader.small li {
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  margin-left: -2px;
 }
 
 .loader.large {
