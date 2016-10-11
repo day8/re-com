@@ -6,7 +6,7 @@
 
 
 (defn popover-body
-  [showing? position dialog-data on-change]
+  [dialog-data on-change & {:keys [showing? position]}]  ;; v0.10.0 breaking change fix (was [showing? position dialog-data on-change])
   (let [dialog-data   (reagent/atom (deref-or-value dialog-data))
         submit-dialog (fn [new-dialog-data]
                         (reset! showing? false)
@@ -72,15 +72,13 @@
   (let [showing?    (reagent/atom false)
         dialog-data (reagent/atom {:tooltip-state "2"})
         on-change   (fn [new-dialog-data]
-                      (reset! dialog-data new-dialog-data))
-        ;; position    :left-above ;; TODO:
-        ]
+                      (reset! dialog-data new-dialog-data))]
     (fn []
       [popover-anchor-wrapper
        :showing? showing?
-       :position @position                                  ;; TODO:
+       :position @position
        :anchor   [button
                   :label    "Dialog box"
                   :on-click #(reset! showing? true)
                   :class    "btn btn-danger"]
-       :popover  [popover-body showing? @position dialog-data on-change]]))) ;; TODO:
+       :popover  [popover-body dialog-data on-change]])))  ;; v0.10.0 breaking change fix (was [popover-body showing? @position dialog-data on-change]]

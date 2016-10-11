@@ -133,8 +133,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "Popover Components"
-                            "src/re_com/popover.cljs"
-                            "src/re_demo/popovers.cljs"]
+                           "src/re_com/popover.cljs"
+                           "src/re_demo/popovers.cljs"]
 
               [popover-component-hierarchy]
               [h-box
@@ -170,12 +170,13 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "[popover-border ...]"]
-                                      [p "Description pending."]
+                                      [p "This component is not normally used as it is rendered by [popover-content-wrapper]."]
+                                      [p "Only use this if you want to create a custom [popover-content-wrapper]."]
                                       [args-table popover-border-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [see-demo-page]]]]]
+                                      [p "There is no specific demo for this component."]]]]]
               [line :style {:margin-top "20px"}]
               [h-box
                :gap      "100px"
@@ -204,8 +205,7 @@
         long-paragraph?   (reagent/atom false)
         standard-text     "This is the popover body. Can be a simple string or in-line hiccup or a function returning hiccup. Click the button again to cause a pop-down. "
         no-clip-text      "In this mode, the popover will not be clipped within the scroller but it will also not move when scrolling occurs while it's popped up. However, the next time it is popped up, the correct position will be recalculated. "
-        extra-text        (clojure.string/join (repeat 4 "And here's a little more text just to pad everything out a bit. "))
-        ]
+        extra-text        (clojure.string/join (repeat 4 "And here's a little more text just to pad everything out a bit. "))]
     (fn []
       (let [cancel-popover  #(reset! showing? false)]
         [v-box
@@ -217,8 +217,7 @@
                      :children [[v-box
                                  :gap      "10px"
                                  :width    "450px"
-                                 :children [
-                                            [p "Popovers appear above other components, and point to an anchor."]
+                                 :children [[p "Popovers appear above other components, and point to an anchor."]
                                             [p "In the simplest case, we're talking tooltips. In more complex cases, detailed dialog boxes."]
                                             [p "Even when the absolute position of the anchor changes, the popover stays pointing at it."]
                                             [p "To create a popover, wrap the anchor with " [:code "popover-anchor-wrapper"] ". The arguments are:"]
@@ -259,8 +258,6 @@
                                                                                 :on-click #(swap! showing? not)
                                                                                 :class "btn-success"]
                                                                      :popover  [popover-content-wrapper
-                                                                                :showing?         showing?
-                                                                                :position         @curr-position
                                                                                 :width            "250px"
                                                                                 :no-clip?         @no-clip?
                                                                                 :backdrop-opacity (when @backdrop-opacity? 0.3)
@@ -343,18 +340,13 @@
                                                                     [h-box
                                                                      :gap "20px"
                                                                      :align :center
-                                                                     :children [[h-box
-                                                                                 :align    :start
-                                                                                 :children [[:code ":position"]
-                                                                                            "*"]]
+                                                                     :children [[:code ":position"]
                                                                                 [single-dropdown
                                                                                  :choices    positions
-                                                                                 :model      curr-position
+                                                                                 :model      @curr-position
                                                                                  :width      "140px"
                                                                                  :max-height "600px"
-                                                                                 :on-change  (fn [val]
-                                                                                               (reset! curr-position val)
-                                                                                               (cancel-popover))]
+                                                                                 :on-change  (fn [val] (reset! curr-position val))]
                                                                                 [label :label "(applies to all popovers on this page)"]]]
                                                                     [label :label "* Changing starred items above closes the popover."]]]]]]]]]]]))))
 
@@ -378,13 +370,11 @@
                                :margin   "20px 0px 0px 0px"
                                :children [[popover-anchor-wrapper
                                            :showing? showing?
-                                           :position @curr-position ;; TODO: pos
+                                           :position @curr-position
                                            :anchor   [hyperlink
                                                       :label     "click me for popover"
                                                       :on-click  #(swap! showing? not)]
                                            :popover  [popover-content-wrapper
-                                                      :showing? showing?
-                                                      :position @curr-position ;; TODO: pos
                                                       :width    "250px"
                                                       :title    "Popover Title"
                                                       :body     "popover body"]]]]]]]])))
@@ -392,8 +382,7 @@
 
 (defn proximity-popover-demo
   []
-  (let [showing? (reagent/atom false)
-        pos      :above-center]
+  (let [showing? (reagent/atom false)]
     (fn []
       [v-box
        :children [[title2 "Proximity Popover (tooltip)"]
@@ -410,7 +399,7 @@
                                :margin   "20px 0px 0px 0px"
                                :children [[popover-anchor-wrapper
                                            :showing? showing?
-                                           :position @curr-position ;; TODO: pos
+                                           :position @curr-position
                                            :anchor   [:div
                                                       {:style         {:background-color "lightblue"
                                                                        :border           "2px solid blue"
@@ -420,8 +409,6 @@
                                                        :on-mouse-out  (handler-fn (reset! showing? false))}
                                                       "hover here for tooltip"]
                                            :popover [popover-content-wrapper
-                                                     :showing? showing?
-                                                     :position @curr-position ;; TODO: pos
                                                      :body     "popover body (without a title specified) makes a basic tooltip component"]]]]]]]])))
 
 
@@ -432,8 +419,7 @@
         text     (reagent/atom "This is a tooltip")
         width?   (reagent/atom false)
         tt-width "200px"]
-    (fn
-      []
+    (fn []
       [v-box
        :children [[title2 "[popover-tooltip ... ]"]
                   [h-box
@@ -476,33 +462,25 @@
                                            :label     "nil/omitted - normal input state"
                                            :value     nil
                                            :model     @status
-                                           :on-change #(do
-                                                        (reset! status nil)
-                                                        (reset! showing? false))
+                                           :on-change #(reset! status nil)
                                            :style {:margin-left "20px"}]
                                           [radio-button
                                            :label     ":warning - Warning status"
                                            :value     :warning
                                            :model     @status
-                                           :on-change #(do
-                                                        (reset! status :warning)
-                                                        (reset! showing? false))
+                                           :on-change #(reset! status :warning)
                                            :style     {:margin-left "20px"}]
                                           [radio-button
                                            :label     ":error - Error status"
                                            :value     :error
                                            :model     @status
-                                           :on-change #(do
-                                                        (reset! status :error)
-                                                        (reset! showing? false))
+                                           :on-change #(reset! status :error)
                                            :style     {:margin-left "20px"}]
                                           [radio-button
                                            :label     ":info - Use for more detailed info tooltips, e.g. for info-button"
                                            :value     :info
                                            :model     @status
-                                           :on-change #(do
-                                                        (reset! status :info)
-                                                        (reset! showing? false))
+                                           :on-change #(reset! status :info)
                                            :style     {:margin-left "20px"}]
                                           [gap :size "15px"]
                                           [h-box
@@ -527,8 +505,8 @@
                            :gap      "10px"
                            :width    "450px"
                            :margin   "20px 0px 0px 0px"
-                           :children [ [p "Popovers can be arbitrarilary complex."]
-                                       [p [:code "popover-content-wrapper"] " is friendly to dialog coding patterns."]]]
+                           :children [[p "Popovers can be arbitrarilary complex."]
+                                      [p [:code "popover-content-wrapper"] " is friendly to dialog coding patterns."]]]
                           [v-box
                            :gap      "30px"
                            :margin   "20px 0px 0px 0px"
@@ -541,14 +519,14 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "Popover Components"
-                            "src/re_com/popover.cljs"
-                            "src/re_demo/popovers.cljs"]
+                           "src/re_com/popover.cljs"
+                           "src/re_demo/popovers.cljs"]
               [simple-popover-demo]
               [hyperlink-popover-demo]
               [proximity-popover-demo]
               [popover-tooltip-demo]
               [complex-popover-demo]
-              [gap :size "280px"]]]) ;;TODO: 180px
+              [gap :size "280px"]]])
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

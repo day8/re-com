@@ -5,7 +5,8 @@
             [re-com.validate :refer [position? position-options-list popover-status-type? popover-status-types-list number-or-string?
                                      string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]
             [clojure.string  :as    string]
-            [reagent.core    :as    reagent]))
+            [reagent.core    :as    reagent]
+            [reagent.ratom   :refer-macros [reaction]]))
 
 
 (defn point
@@ -72,6 +73,30 @@
     {:left popover-left :top popover-top :right popover-right :bottom popover-bottom}))
 
 
+(defn calculate-optimal-position
+  "Calculate the optimal :position value that results in the least amount of clipping by the screen edges"
+  [[x y]]
+  (let [w (.-innerWidth   js/window) ;; Width/height of the browser window viewport including, if rendered, the vertical scrollbar
+        h (.-innerHeight  js/window)
+        h-threshold-left  (quot w 3)
+        h-threshold-cent  (* 2 h-threshold-left)
+        h-position        (cond
+                            (< x h-threshold-left) "right"
+                            (< x h-threshold-cent) "center"
+                            :else "left")
+        v-threshold       (quot h 2)
+        v-position        (if (< y v-threshold) "below" "above")]
+    (keyword (str v-position \- h-position))))
+
+
+(defn calc-element-midpoint
+  "Given a node reference, calculate the absolute x and y coordinates of the node's midpoint"
+  [node]
+  (let [bounding-rect (.getBoundingClientRect node)]
+    [(/ (+ (.-right  bounding-rect) (.-left bounding-rect)) 2)    ;; x
+     (/ (+ (.-bottom bounding-rect) (.-top  bounding-rect)) 2)])) ;; y
+
+
 (defn- popover-arrow
   "Render the triangle which connects the popover to the anchor (using SVG)"
   [orientation pop-offset arrow-length arrow-width grey-arrow? no-border? popover-color]
@@ -90,7 +115,7 @@
 
                    (case orientation ;; Position the arrow at the top/left, center or bottom/right of the popover
                      (:left  :right) :top
-                     (:above :below) :left) (if (nil? @pop-offset) "50%" (px @pop-offset))
+                     (:above :below) :left) (if (nil? pop-offset) "50%" (px pop-offset))
 
                    (case orientation ;; Adjust the arrow position so it's center is attached to the desired position set above
                      (:left  :right) :margin-top
@@ -134,6 +159,32 @@
 
 
 ;;--------------------------------------------------------------------------------------------------
+;; Component: popover-title
+;;--------------------------------------------------------------------------------------------------
+
+(def popover-title-args-desc
+  [{:name :showing?       :required true                 :type "boolean atom"                                   :description "an atom. When the value is true, the popover shows."}
+   {:name :title          :required false                :type "string | hiccup" :validate-fn string-or-hiccup? :description "describes the title of the popover. Default font size is 18px to make it stand out"}
+   {:name :close-button?  :required false  :default true :type "boolean"                                        :description "when true, displays the close button"}
+   {:name :close-callback :required false                :type "-> nil"          :validate-fn fn?               :description [:span "a function which takes no params and returns nothing. Called when the close button is pressed. Not required if " [:code ":showing?"] " atom passed in OR " [:code ":close-button?"] " is set to false"]}])
+
+(defn- popover-title
+  "Renders a title at the top of a popover with an optional close button on the far right"
+  [& {:keys [title showing? close-button? close-callback]
+      :as args}]
+  {:pre [(validate-args-macro popover-title-args-desc args "popover-title")]}
+  (assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback")
+  (let [close-button? (if (nil? close-button?) true close-button?)]
+    [:h3.popover-title {:style (merge (flex-child-style "inherit")
+                                      {:font-size "18px"})}
+     [h-box
+      :justify  :between
+      :align    :center
+      :children [title
+                 (when close-button? [close-button showing? close-callback])]]]))
+
+
+;;--------------------------------------------------------------------------------------------------
 ;; Component: popover-border
 ;;--------------------------------------------------------------------------------------------------
 
@@ -172,26 +223,51 @@
       :or {arrow-length 11 arrow-width 22 arrow-gap -1}
       :as args}]
   {:pre [(validate-args-macro popover-border-args-desc args "popover-border")]}
-  (let [rendered-once           (reagent/atom false)
-        pop-id                  (gensym "popover-")
-        [orientation arrow-pos] (split-keyword (if position position :right-below) "-")
-        grey-arrow?             (and title (or (= orientation :below) (= arrow-pos :below)))
+  (let [pop-id                  (gensym "popover-")
+        rendered-once           (reagent/atom false)
         p-width                 (reagent/atom 0)
         p-height                (reagent/atom 0)
-        pop-offset              (reagent/atom 0)]
+        pop-offset              (reagent/atom 0)
+        found-optimal           (reagent/atom false)
+        calc-metrics            (fn [position]
+                                  (let [popover-elem            (get-element-by-id pop-id)
+                                        [orientation arrow-pos] (split-keyword position "-")
+                                        grey-arrow?             (and title (or (= orientation :below) (= arrow-pos :below)))]
+                                    (reset! p-width    (if popover-elem (next-even-integer (.-clientWidth  popover-elem)) 0)) ;; next-even-integer required to avoid wiggling popovers (width/height appears to prefer being even and toggles without this call)
+                                    (reset! p-height   (if popover-elem (next-even-integer (.-clientHeight popover-elem)) 0))
+                                    (reset! pop-offset (calc-pop-offset arrow-pos position-offset @p-width @p-height))
+                                    [orientation grey-arrow?]))
+        popover-clipping        (fn [node]
+                                  (let [viewport-width  (.-innerWidth   js/window)    ;; Width  (in pixels) of the browser window viewport including, if rendered, the vertical   scrollbar.
+                                        viewport-height (.-innerHeight  js/window)    ;; Height (in pixels) of the browser window viewport including, if rendered, the horizontal scrollbar.
+                                        bounding-rect   (.getBoundingClientRect node)
+                                        left            (.-left   bounding-rect)
+                                        right           (.-right  bounding-rect)
+                                        top             (.-top    bounding-rect)
+                                        bottom          (.-bottom bounding-rect)
+                                        clip-left       (when (< left 0) (- left))
+                                        clip-right      (when (> right viewport-width) (- right viewport-width))
+                                        clip-top        (when (< top 0) (- top))
+                                        clip-bottom     (when (> bottom viewport-height) (- bottom viewport-height))]
+                                    #_(when (or (some? clip-left) (some? clip-right) (some? clip-top) (some? clip-bottom)) ;; Return full clipping details (or nil if not clipped)
+                                      {:left clip-left :right clip-right :top clip-top :bottom clip-bottom})
+                                    (or (some? clip-left) (some? clip-right) (some? clip-top) (some? clip-bottom))))] ;; Return boolean
     (reagent/create-class
-      {:component-did-mount
+      {:display-name "popover-border"
+
+       :component-did-mount
        (fn []
          (reset! rendered-once true))
 
        :component-did-update
-       (fn []
-         (let [popover-elem   (get-element-by-id pop-id)]
-           (reset! p-width    (if popover-elem (next-even-integer (.-clientWidth  popover-elem)) 0)) ;; next-even-integer required to avoid wiggling popovers (width/height appears to prefer being even and toggles without this call)
-           (reset! p-height   (if popover-elem (next-even-integer (.-clientHeight popover-elem)) 0))
-           (reset! pop-offset (calc-pop-offset arrow-pos position-offset @p-width @p-height))))
-
-       :display-name "popover-border"
+       (fn [this]
+         (let [pop-border-node (reagent/dom-node this)
+               clipped?        (popover-clipping pop-border-node)
+               anchor-node     (.-parentNode (.-parentNode (.-parentNode pop-border-node)))] ;; Get reference to rc-point-wrapper node
+           (when (and clipped? (not @found-optimal))
+             (reset! position (calculate-optimal-position (calc-element-midpoint anchor-node)))
+             (reset! found-optimal true))
+           (calc-metrics @position)))
 
        :reagent-render
        (fn
@@ -199,10 +275,7 @@
              :or {arrow-length 11 arrow-width 22 arrow-gap -1}
              :as args}]
          {:pre [(validate-args-macro popover-border-args-desc args "popover-border")]}
-         (let [popover-elem   (get-element-by-id pop-id)]
-           (reset! p-width    (if popover-elem (next-even-integer (.-clientWidth  popover-elem)) 0)) ;; TODO: Duplicate from above but needs to be calculated here to prevent an annoying flicker (so make it a fn)
-           (reset! p-height   (if popover-elem (next-even-integer (.-clientHeight popover-elem)) 0))
-           (reset! pop-offset (calc-pop-offset arrow-pos position-offset @p-width @p-height))
+         (let [[orientation grey-arrow?] (calc-metrics @position)]
            [:div.popover.fade.in
             {:id pop-id
              :style (merge (if @rendered-once
@@ -232,35 +305,9 @@
                            {:display   "block"
                             :max-width "none"
                             :padding   "0px"})}
-            [popover-arrow orientation pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color]
+            [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color]
             (when title title)
             (into [:div.popover-content {:style {:padding padding}}] children)]))})))
-
-
-;;--------------------------------------------------------------------------------------------------
-;; Component: popover-title
-;;--------------------------------------------------------------------------------------------------
-
-(def popover-title-args-desc
-  [{:name :showing?       :required true                 :type "boolean atom"                                   :description "an atom. When the value is true, the popover shows."}
-   {:name :title          :required false                :type "string | hiccup" :validate-fn string-or-hiccup? :description "describes the title of the popover. Default font size is 18px to make it stand out"}
-   {:name :close-button?  :required false  :default true :type "boolean"                                        :description "when true, displays the close button"}
-   {:name :close-callback :required false                :type "-> nil"          :validate-fn fn?               :description [:span "a function which takes no params and returns nothing. Called when the close button is pressed. Not required if " [:code ":showing?"] " atom passed in OR " [:code ":close-button?"] " is set to false"]}])
-
-(defn- popover-title
-  "Renders a title at the top of a popover with an optional close button on the far right"
-  [& {:keys [title showing? close-button? close-callback]
-      :as args}]
-  {:pre [(validate-args-macro popover-title-args-desc args "popover-title")]}
-  (assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback")
-  (let [close-button? (if (nil? close-button?) true close-button?)]
-    [:h3.popover-title {:style (merge (flex-child-style "inherit")
-                                      {:font-size "18px"})}
-     [h-box
-      :justify  :between
-      :align    :center
-      :children [title
-                 (when close-button? [close-button showing? close-callback])]]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -297,16 +344,16 @@
   (let [left-offset (reagent/atom 0)
         top-offset  (reagent/atom 0)]
     (reagent/create-class
-      {:component-did-mount
+      {:display-name "popover-content-wrapper"
+
+       :component-did-mount
        (fn [this]
          (when no-clip?
            (let [node               (reagent/dom-node this)
                  popover-point-node (.-parentNode node)                           ;; Get reference to rc-popover-point node
-                 bounding-rect      (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop
+                 bounding-rect      (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop. Returns this: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMClientRect
              (reset! left-offset (.-left bounding-rect))
              (reset! top-offset  (.-top  bounding-rect)))))
-
-       :display-name "popover-content-wrapper"
 
        :reagent-render
        (fn
@@ -359,26 +406,40 @@
   "Renders an element or control along with a Bootstrap popover"
   [& {:keys [showing? position anchor popover style] :as args}]
   {:pre [(validate-args-macro popover-anchor-wrapper-args-desc args "popover-anchor-wrapper")]}
-  (let [[orientation arrow-pos] (split-keyword position "-") ;; only need orientation here
-        place-anchor-before?    (case orientation (:left :above) false true)
-        flex-flow               (case orientation (:left :right) "row" "column")]
-    [:div {:class  "rc-popover-anchor-wrapper display-inline-flex"
-           :style (merge (flex-child-style "inherit")
-                         style)}
-     [:div                                ;; Wrapper around the anchor and the "point"
-      {:class "rc-point-wrapper display-inline-flex"
-       :style (merge (flex-child-style "auto")
-                     (flex-flow-style flex-flow)
-                     (align-style :align-items :center))}
-      (when place-anchor-before? anchor)
-      (when @showing?
-        [:div                             ;; The "point" that connects the anchor to the popover
-         {:class "rc-popover-point display-inline-flex"
-          :style (merge (flex-child-style "auto")
-                        {:position "relative"
-                         :z-index  4})}
-         popover])
-      (when-not place-anchor-before? anchor)]]))
+  (let [external-position (reagent/atom position)
+        internal-position (reagent/atom @external-position)
+        reset-on-hide     (reaction (when-not @showing? (reset! internal-position @external-position)))]
+    (reagent/create-class
+      {:display-name "popover-anchor-wrapper"
+
+       :reagent-render
+       (fn
+         [& {:keys [showing? position anchor popover style] :as args}]
+         {:pre [(validate-args-macro popover-anchor-wrapper-args-desc args "popover-anchor-wrapper")]}
+         @reset-on-hide ;; TODO: Need to dereference this reaction, otherwise it will never update (probably a better way to do this)
+         (when (not= @external-position position) ;; Has position changed externally?
+           (reset! external-position position)
+           (reset! internal-position @external-position))
+         (let [[orientation arrow-pos] (split-keyword @internal-position "-") ;; only need orientation here
+               place-anchor-before?    (case orientation (:left :above) false true)
+               flex-flow               (case orientation (:left :right) "row" "column")]
+           [:div {:class  "rc-popover-anchor-wrapper display-inline-flex"
+                  :style (merge (flex-child-style "inherit")
+                                style)}
+            [:div                                ;; Wrapper around the anchor and the "point"
+             {:class "rc-point-wrapper display-inline-flex"
+              :style (merge (flex-child-style "auto")
+                            (flex-flow-style flex-flow)
+                            (align-style :align-items :center))}
+             (when place-anchor-before? anchor)
+             (when @showing?
+               [:div                             ;; The "point" that connects the anchor to the popover
+                {:class "rc-popover-point display-inline-flex"
+                 :style (merge (flex-child-style "auto")
+                               {:position "relative"
+                                :z-index  4})}
+                (into popover [:showing? showing? :position internal-position])]) ;; NOTE: Pass showing? and position to the popover (this will override user versions if passed)
+             (when-not place-anchor-before? anchor)]]))})))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -411,12 +472,10 @@
                         "black")]
     [popover-anchor-wrapper
      :showing? showing?
-     :position position
+     :position (if position position :below-center)
      :anchor   anchor
      :style    style
      :popover [popover-content-wrapper
-               :showing?       showing?
-               :position       (if position position :below-center)
                :no-clip?       no-clip?
                :on-cancel      on-cancel
                :width          width
