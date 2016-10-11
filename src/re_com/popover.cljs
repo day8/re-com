@@ -203,7 +203,7 @@
 
 (def popover-border-args-desc
   [{:name :children        :required true                        :type "vector"           :validate-fn sequential?       :description "a vector of component markups"}
-   {:name :position        :required false :default :right-below :type "keyword"          :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :position        :required true                        :type "keyword atom"     :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :position-offset :required false                       :type "integer"          :validate-fn number?           :description [:span "px offset of the arrow from its default " [:code ":position"] " along the popover border. Is ignored when " [:code ":position"] " is one of the " [:code ":xxx-center"] " variants. Positive numbers slide the popover toward its center"]}
    {:name :width           :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the popover width"}
    {:name :height          :required false :default "auto"       :type "string"           :validate-fn string?           :description "a CSS style describing the popover height"}
@@ -315,8 +315,8 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-content-wrapper-args-desc
-  [{:name :showing?         :required true   :default false        :type "boolean atom"                                    :description "an atom. When the value is true, the popover shows"}
-   {:name :position         :required true   :default :right-below :type "keyword"          :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+  [{:name :showing?         :required true                         :type "boolean atom"                                    :description "an atom. When the value is true, the popover shows"}
+   {:name :position         :required true                         :type "keyword atom"     :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :position-offset  :required false                        :type "integer"          :validate-fn number?           :description [:span "px offset of the arrow from its default " [:code ":position"] " along the popover border. Is ignored when " [:code ":position"] " is one of the " [:code ":xxx-center"] " variants. Positive numbers slide the popover toward its center"]}
    {:name :no-clip?         :required false  :default false        :type "boolean"                                         :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. By passing true for this parameter, re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
    {:name :width            :required false                        :type "string"           :validate-fn string?           :description "a CSS style representing the popover width"}
@@ -373,7 +373,7 @@
              :opacity  backdrop-opacity
              :on-click on-cancel])
           [popover-border
-           :position        (if position position :right-below)
+           :position        position
            :position-offset position-offset
            :width           width
            :height          height
@@ -396,8 +396,8 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-anchor-wrapper-args-desc
-  [{:name :showing? :required true  :default false        :type "boolean atom"                                   :description "an atom. When the value is true, the popover shows"}
-   {:name :position :required true  :default :right-below :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+  [{:name :showing? :required true                        :type "boolean atom"                                   :description "an atom. When the value is true, the popover shows"}
+   {:name :position :required true                        :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :anchor   :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the component the popover is attached to"}
    {:name :popover  :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the popover body component"}
    {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
@@ -448,7 +448,7 @@
 
 (def popover-tooltip-args-desc
   [{:name :label         :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup?    :description "the text (or component) for the tooltip"}
-   {:name :showing?      :required true  :default false         :type "boolean atom"                                             :description "an atom. When the value is true, the tooltip shows"}
+   {:name :showing?      :required true                         :type "boolean atom"                                             :description "an atom. When the value is true, the tooltip shows"}
    {:name :on-cancel     :required false                        :type "-> nil"                 :validate-fn fn?                  :description "a function which takes no params and returns nothing. Called when the popover is cancelled (e.g. user clicks away)"}
    {:name :close-button? :required false :default false         :type "boolean"                                                  :description "when true, displays the close button"}
    {:name :status        :required false                        :type "keyword"                :validate-fn popover-status-type? :description [:span "controls background color of the tooltip. " [:code "nil/omitted"] " for black or one of " popover-status-types-list]}
@@ -472,7 +472,7 @@
                         "black")]
     [popover-anchor-wrapper
      :showing? showing?
-     :position (if position position :below-center)
+     :position (or position :below-center)
      :anchor   anchor
      :style    style
      :popover [popover-content-wrapper
