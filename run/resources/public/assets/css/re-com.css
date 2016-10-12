@@ -816,9 +816,9 @@ html, body {
 }
 
 .loader.smaller {
-    width: 10px;
+    width: 9px;
     height: 10px;
-    margin: 6px;
+    margin: 7px;
 }
 
 .loader.smaller li {
@@ -829,16 +829,16 @@ html, body {
 }
 
 .loader.small {
-  width: 12px;
-  height: 12px;
-  margin: 10px;
+    width: 12px;
+    height: 12px;
+    margin: 10px;
 }
 
 .loader.small li {
-  width: 4px;
-  height: 4px;
-  margin-top: -2px;
-  margin-left: -2px;
+    width: 4px;
+    height: 4px;
+    margin-top: -2px;
+    margin-left: -2px;
 }
 
 .loader.large {

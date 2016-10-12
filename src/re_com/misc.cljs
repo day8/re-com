@@ -148,9 +148,11 @@
                           ;:width    "200px"
                           :showing? showing?
                           :anchor (if (= :validating status)
-                                    [throbber :size :regular :class "smaller"
-                                     :attr {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
-                                            :on-mouse-out  (handler-fn (reset! showing? false))}]
+                                    [throbber
+                                     :size  :regular
+                                     :class "smaller"
+                                     :attr  {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                             :on-mouse-out  (handler-fn (reset! showing? false))}]
                                     [:i {:class         (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
                                          :style         {:position "static"
                                                          :height   "auto"
