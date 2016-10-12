@@ -34,6 +34,12 @@
                                        :gap "50px"
                                        :children [[v-box
                                                    :align :center
+                                                   :children [[box :align :start :child [:code ":smaller"]]
+                                                              [throbber
+                                                               :size :smaller
+                                                               :color "green"]]]
+                                                  [v-box
+                                                   :align :center
                                                    :children [[box :align :start :child [:code ":small"]]
                                                               [throbber
                                                                :size  :small

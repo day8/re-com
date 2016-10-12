@@ -106,6 +106,22 @@
                                                                                             (reset! status-tooltip ""))
                                                                                :style {:margin-left "20px"}]
                                                                               [radio-button
+                                                                               :label ":validating - set while validating an input value"
+                                                                               :value :validating
+                                                                               :model @status
+                                                                               :on-change #(do
+                                                                                            (reset! status :validating)
+                                                                                            (reset! status-tooltip "Validating tooltip - this (optionally) appears when an input-text is validating."))
+                                                                               :style {:margin-left "20px"}]
+                                                                              [radio-button
+                                                                               :label ":success - border color becomes green"
+                                                                               :value :success
+                                                                               :model @status
+                                                                               :on-change #(do
+                                                                                            (reset! status :success)
+                                                                                            (reset! status-tooltip "Success tooltip - this (optionally) appears when an input-text components has validated successfully."))
+                                                                               :style {:margin-left "20px"}]
+                                                                              [radio-button
                                                                                :label     ":warning - border color becomes orange"
                                                                                :value     :warning
                                                                                :model     @status

@@ -8,6 +8,37 @@
                                      string-or-atom? throbber-size? throbber-sizes-list] :refer-macros [validate-args-macro]]
             [reagent.core    :as    reagent]))
 
+;; ------------------------------------------------------------------------------------
+;;  Component: throbber
+;; ------------------------------------------------------------------------------------
+
+(def throbber-args-desc
+  [{:name :size :required false :type "keyword" :default :regular :validate-fn throbber-size? :description [:span "one of " throbber-sizes-list]}
+   {:name :color :required false :type "string" :default "#999" :validate-fn string? :description "CSS color"}
+   {:name :class :required false :type "string" :validate-fn string? :description "CSS class names, space separated"}
+   {:name :style :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
+   {:name :attr :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+
+(defn throbber
+  "Render an animated throbber using CSS"
+  [& {:keys [size color class style attr] :as args}]
+  {:pre [(validate-args-macro throbber-args-desc args "throbber")]}
+  (let [seg (fn [] [:li (when color {:style {:background-color color}})])]
+    [box
+     :align :start
+     :child [:ul
+             (merge {:class (str "rc-throbber loader "
+                                 (case size :regular ""
+                                            :smaller "smaller "
+                                            :small "small "
+                                            :large "large "
+                                            "")
+                                 class)
+                     :style style}
+                    attr)
+             [seg] [seg] [seg] [seg]
+             [seg] [seg] [seg] [seg]]])) ;; Each :li element in [seg] represents one of the eight circles in the throbber
+
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: input-text
@@ -63,6 +94,7 @@
          :children [[:div
                      {:class (str "rc-input-text-inner "          ;; form-group
                                   (case status
+                                    :success "has-success "
                                     :warning "has-warning "
                                     :error "has-error "
                                     "")
@@ -107,34 +139,39 @@
                          }
                         attr)]]
                     (when (and status-icon? status)
-                      (if status-tooltip
-                        [popover-tooltip
-                         :label status-tooltip
-                         :position :right-center
-                         :status status
-                         ;:width    "200px"
-                         :showing? showing?
-                         :anchor [:i {:class         (str "zmdi " (if (= status :warning) "zmdi-alert-triangle" "zmdi-alert-circle") " form-control-feedback")
-                                      :style         {:position "static"
-                                                      :width    "auto"
-                                                      :height   "auto"
-                                                      :opacity  (if (and status-icon? status) "1" "0")}
-                                      :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
-                                      :on-mouse-out  (handler-fn (reset! showing? false))}]
-                         :style (merge (flex-child-style "none")
-                                       (align-style :align-self :center)
-                                       {:font-size   "130%"
-                                        :margin-left "4px"})]
-                        [:i {:class (str "zmdi " (if (= status :warning) "zmdi-alert-triangle" "zmdi-alert-circle") " form-control-feedback")
-                             :style (merge (flex-child-style "none")
-                                           (align-style :align-self :center)
-                                           {:position    "static"
-                                            :font-size   "130%"
-                                            :margin-left "4px"
-                                            :opacity     (if (and status-icon? status) "1" "0")
-                                            :width       "auto"
-                                            :height      "auto"})
-                             :title status-tooltip}]))]]))))
+                      (let [icon-class (case status :success "zmdi-check-circle" :warning "zmdi-alert-triangle" :error "zmdi-alert-circle zmdi-spinner" :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner")]
+                        (if status-tooltip
+                         [popover-tooltip
+                          :label status-tooltip
+                          :position :right-center
+                          :status status
+                          ;:width    "200px"
+                          :showing? showing?
+                          :anchor (if (= :validating status)
+                                    [throbber :size :regular :class "smaller"
+                                     :attr {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                            :on-mouse-out  (handler-fn (reset! showing? false))}]
+                                    [:i {:class         (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
+                                         :style         {:position "static"
+                                                         :height   "auto"
+                                                         :opacity  (if (and status-icon? status) "1" "0")}
+                                         :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                         :on-mouse-out  (handler-fn (reset! showing? false))}])
+                          :style (merge (flex-child-style "none")
+                                        (align-style :align-self :center)
+                                        {:font-size   "130%"
+                                         :margin-left "4px"})]
+                         (if (= :validating status)
+                           [throbber :size :regular :class "smaller"]
+                           [:i {:class (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
+                                :style (merge (flex-child-style "none")
+                                              (align-style :align-self :center)
+                                              {:position    "static"
+                                               :font-size   "130%"
+                                               :margin-left "4px"
+                                               :opacity     (if (and status-icon? status) "1" "0")
+                                               :height      "auto"})
+                                :title status-tooltip}]))))]]))))
 
 
 (defn input-text
@@ -328,34 +365,3 @@
                :style {:width      (str model "%")
                        :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind
               (str model "%")]]]))
-
-
-;; ------------------------------------------------------------------------------------
-;;  Component: throbber
-;; ------------------------------------------------------------------------------------
-
-(def throbber-args-desc
-  [{:name :size     :required false :type "keyword"       :default :regular :validate-fn throbber-size? :description [:span "one of " throbber-sizes-list]}
-   {:name :color    :required false :type "string"        :default "#999"   :validate-fn string?        :description "CSS color"}
-   {:name :class    :required false :type "string"                          :validate-fn string?        :description "CSS class names, space separated"}
-   {:name :style    :required false :type "CSS style map"                   :validate-fn css-style?     :description "CSS styles to add or override"}
-   {:name :attr     :required false :type "HTML attr map"                   :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
-
-(defn throbber
-  "Render an animated throbber using CSS"
-  [& {:keys [size color class style attr] :as args}]
-  {:pre [(validate-args-macro throbber-args-desc args "throbber")]}
-  (let [seg (fn [] [:li (when color {:style {:background-color color}})])]
-    [box
-     :align :start
-     :child [:ul
-             (merge {:class (str "rc-throbber loader "
-                                 (case size :regular ""
-                                            :small "small "
-                                            :large "large "
-                                            "")
-                                 class)
-                     :style style}
-                    attr)
-             [seg] [seg] [seg] [seg]
-             [seg] [seg] [seg] [seg]]])) ;; Each :li element in [seg] represents one of the eight circles in the throbber
