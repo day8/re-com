@@ -465,6 +465,12 @@
                                            :on-change #(reset! status nil)
                                            :style {:margin-left "20px"}]
                                           [radio-button
+                                           :label     ":success - success status"
+                                           :value     :success
+                                           :model     @status
+                                           :on-change #(reset! status :success)
+                                           :style     {:margin-left "20px"}]
+                                          [radio-button
                                            :label     ":warning - Warning status"
                                            :value     :warning
                                            :model     @status
