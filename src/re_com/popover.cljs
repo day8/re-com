@@ -74,7 +74,9 @@
 
 
 (defn calculate-optimal-position
-  "Calculate the optimal :position value that results in the least amount of clipping by the screen edges"
+  "Calculate the optimal :position value that results in the least amount of clipping by the screen edges
+  Taken from: https://github.com/Lambda-X/cljs-repl-web/blob/0.3.1/src/cljs/cljs_repl_web/views/utils.cljs#L52
+  Thanks to @richiardiandrea and @tomek for this code"
   [[x y]]
   (let [w (.-innerWidth   js/window) ;; Width/height of the browser window viewport including, if rendered, the vertical scrollbar
         h (.-innerHeight  js/window)
