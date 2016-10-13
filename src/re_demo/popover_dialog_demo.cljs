@@ -21,48 +21,47 @@
        :width            "400px"
        :backdrop-opacity 0.3
        :title            "This is the title"
-       :body             [(fn []  ;; NOTE: THIS IS NASTY BUT REQUIRED (OTHERWISE DIALOG WILL NOT BE UPDATED WHEN ATOMS CHANGES)
-                            [v-box
-                             :children [[label
-                                         :label "The body of a popover can act like a dialog box containing standard input controls."]
-                                        [gap :size "15px"]
-                                        [h-box
-                                         :children [[v-box
-                                                     :size "auto"
-                                                     :children [[radio-button
-                                                                 :label     "Don't show extra popover"
-                                                                 :value     "1"
-                                                                 :model     (:tooltip-state @dialog-data)
-                                                                 :on-change (fn []
-                                                                              (swap! dialog-data assoc :tooltip-state "1")
-                                                                              (reset! show-tooltip? false))]
-                                                                [radio-button
-                                                                 :label     "Show extra popover"
-                                                                 :value     "2"
-                                                                 :model     (:tooltip-state @dialog-data)
-                                                                 :on-change (fn []
-                                                                              (swap! dialog-data assoc :tooltip-state "2")
-                                                                              (reset! show-tooltip? true))]]]]]
-                                        [gap :size "20px"]
-                                        [line]
-                                        [gap :size "10px"]
-                                        [h-box
-                                         :gap      "10px"
-                                         :children [[button
-                                                     :label    [:span [:i {:class "zmdi zmdi-check" }] " Apply"]
-                                                     :on-click #(submit-dialog @dialog-data)
-                                                     :class    "btn-primary"]
-                                                    [popover-anchor-wrapper
-                                                     :showing? show-tooltip?
-                                                     :position :right-below
-                                                     :anchor   [button
-                                                                :label    [:span [:i {:class "zmdi zmdi-close" }] " Cancel"]
-                                                                :on-click cancel-dialog]
-                                                     :popover  [popover-content-wrapper ;; NOTE: didn't specify on-cancel here (handled properly)
-                                                                :width         "250px"
-                                                                :title         "This is the cancel button"
-                                                                :close-button? false
-                                                                :body          "You can even have a popover over a popover!"]]]]]])]])))
+       :body             [v-box
+                          :children [[label
+                                      :label "The body of a popover can act like a dialog box containing standard input controls."]
+                                     [gap :size "15px"]
+                                     [h-box
+                                      :children [[v-box
+                                                  :size "auto"
+                                                  :children [[radio-button
+                                                              :label     "Don't show extra popover"
+                                                              :value     "1"
+                                                              :model     (:tooltip-state @dialog-data)
+                                                              :on-change (fn []
+                                                                           (swap! dialog-data assoc :tooltip-state "1")
+                                                                           (reset! show-tooltip? false))]
+                                                             [radio-button
+                                                              :label     "Show extra popover"
+                                                              :value     "2"
+                                                              :model     (:tooltip-state @dialog-data)
+                                                              :on-change (fn []
+                                                                           (swap! dialog-data assoc :tooltip-state "2")
+                                                                           (reset! show-tooltip? true))]]]]]
+                                     [gap :size "20px"]
+                                     [line]
+                                     [gap :size "10px"]
+                                     [h-box
+                                      :gap      "10px"
+                                      :children [[button
+                                                  :label    [:span [:i {:class "zmdi zmdi-check" }] " Apply"]
+                                                  :on-click #(submit-dialog @dialog-data)
+                                                  :class    "btn-primary"]
+                                                 [popover-anchor-wrapper
+                                                  :showing? show-tooltip?
+                                                  :position :right-below
+                                                  :anchor   [button
+                                                             :label    [:span [:i {:class "zmdi zmdi-close" }] " Cancel"]
+                                                             :on-click cancel-dialog]
+                                                  :popover  [popover-content-wrapper ;; NOTE: didn't specify on-cancel here (handled properly)
+                                                             :width         "250px"
+                                                             :title         "This is the cancel button"
+                                                             :close-button? false
+                                                             :body          "You can even have a popover over a popover!"]]]]]]])))
 
 
 (defn popover-dialog-demo
