@@ -204,6 +204,23 @@
     :left   (if p-width (- (- p-width 25) position-offset) p-width)
     :above  (if p-height (- (- p-height 25) position-offset) p-height)))
 
+(defn popover-clipping
+  [node]
+  (let [viewport-width  (.-innerWidth   js/window)    ;; Width  (in pixels) of the browser window viewport including, if rendered, the vertical   scrollbar.
+        viewport-height (.-innerHeight  js/window)    ;; Height (in pixels) of the browser window viewport including, if rendered, the horizontal scrollbar.
+        bounding-rect   (.getBoundingClientRect node)
+        left            (.-left   bounding-rect)
+        right           (.-right  bounding-rect)
+        top             (.-top    bounding-rect)
+        bottom          (.-bottom bounding-rect)
+        clip-left       (when (< left 0) (- left))
+        clip-right      (when (> right viewport-width) (- right viewport-width))
+        clip-top        (when (< top 0) (- top))
+        clip-bottom     (when (> bottom viewport-height) (- bottom viewport-height))]
+    #_(when (or (some? clip-left) (some? clip-right) (some? clip-top) (some? clip-bottom))  ;; Return full clipping details (or nil if not clipped)
+        {:left clip-left :right clip-right :top clip-top :bottom clip-bottom})
+    (or (some? clip-left) (some? clip-right) (some? clip-top) (some? clip-bottom))))        ;; Return boolean
+
 (def popover-border-args-desc
   [{:name :children        :required true                        :type "vector"           :validate-fn sequential?       :description "a vector of component markups"}
    {:name :position        :required true                        :type "keyword atom"     :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
@@ -227,7 +244,8 @@
       :as args}]
   {:pre [(validate-args-macro popover-border-args-desc args "popover-border")]}
   (let [pop-id                  (gensym "popover-")
-        rendered-once           (reagent/atom false)
+        rendered-once           (reagent/atom false)        ;; The initial render is off screen because rendering it in place does not render at final width, and we need to measure it to be able to place it properly
+        ready-to-show?          (reagent/atom false)        ;; This is used by the optimal position code to avoid briefly seeing it in its intended position before quickly moving to the optimal position
         p-width                 (reagent/atom 0)
         p-height                (reagent/atom 0)
         pop-offset              (reagent/atom 0)
@@ -239,22 +257,7 @@
                                     (reset! p-width    (if popover-elem (next-even-integer (.-clientWidth  popover-elem)) 0)) ;; next-even-integer required to avoid wiggling popovers (width/height appears to prefer being even and toggles without this call)
                                     (reset! p-height   (if popover-elem (next-even-integer (.-clientHeight popover-elem)) 0))
                                     (reset! pop-offset (calc-pop-offset arrow-pos position-offset @p-width @p-height))
-                                    [orientation grey-arrow?]))
-        popover-clipping        (fn [node]
-                                  (let [viewport-width  (.-innerWidth   js/window)    ;; Width  (in pixels) of the browser window viewport including, if rendered, the vertical   scrollbar.
-                                        viewport-height (.-innerHeight  js/window)    ;; Height (in pixels) of the browser window viewport including, if rendered, the horizontal scrollbar.
-                                        bounding-rect   (.getBoundingClientRect node)
-                                        left            (.-left   bounding-rect)
-                                        right           (.-right  bounding-rect)
-                                        top             (.-top    bounding-rect)
-                                        bottom          (.-bottom bounding-rect)
-                                        clip-left       (when (< left 0) (- left))
-                                        clip-right      (when (> right viewport-width) (- right viewport-width))
-                                        clip-top        (when (< top 0) (- top))
-                                        clip-bottom     (when (> bottom viewport-height) (- bottom viewport-height))]
-                                    #_(when (or (some? clip-left) (some? clip-right) (some? clip-top) (some? clip-bottom)) ;; Return full clipping details (or nil if not clipped)
-                                      {:left clip-left :right clip-right :top clip-top :bottom clip-bottom})
-                                    (or (some? clip-left) (some? clip-right) (some? clip-top) (some? clip-bottom))))] ;; Return boolean
+                                    [orientation grey-arrow?]))]
     (reagent/create-class
       {:display-name "popover-border"
 
@@ -266,11 +269,12 @@
        (fn [this]
          (let [pop-border-node (reagent/dom-node this)
                clipped?        (popover-clipping pop-border-node)
-               anchor-node     (.-parentNode (.-parentNode (.-parentNode pop-border-node)))] ;; Get reference to rc-point-wrapper node
+               anchor-node     (-> pop-border-node .-parentNode .-parentNode .-parentNode)] ;; Get reference to rc-point-wrapper node
            (when (and clipped? (not @found-optimal))
              (reset! position (calculate-optimal-position (calc-element-midpoint anchor-node)))
              (reset! found-optimal true))
-           (calc-metrics @position)))
+           (calc-metrics @position)
+           (reset! ready-to-show? true)))
 
        :reagent-render
        (fn
@@ -284,6 +288,7 @@
              :style (merge (if @rendered-once
                              (when pop-id (calc-popover-pos orientation @p-width @p-height @pop-offset arrow-length arrow-gap))
                              {:top "-10000px" :left "-10000px"})
+
                            (if width  {:width  width})
                            (if height {:height height})
                            (if popover-color {:background-color popover-color})
@@ -293,7 +298,7 @@
                               :border        "none"})
 
                            ;; The popover point is zero width, therefore its absolute children will consider this width when deciding their
-                           ;; natural size and in particular, how they natually wrap text. The right hand size of the popover is used as a
+                           ;; natural size and in particular, how they natually wrap text. The right hand side of the popover is used as a
                            ;; text wrapping point so it will wrap, depending on where the child is positioned. The margin is also taken into
                            ;; consideration for this point so below, we set the margins to negative a lot to prevent
                            ;; this annoying wrapping phenomenon.
@@ -306,6 +311,7 @@
 
                            ;; make it visible and turn off Bootstrap max-width and remove Bootstrap padding which adds an internal white border
                            {:display   "block"
+                            :opacity   (if @ready-to-show? "1" "0")
                             :max-width "none"
                             :padding   "0px"})}
             [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color]
