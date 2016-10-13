@@ -6,18 +6,18 @@
 
 
 (defn popover-body
-  [dialog-data on-change & {:keys [showing? position]}]  ;; v0.10.0 breaking change fix (was [showing? position dialog-data on-change])
+  [dialog-data on-change & {:keys [showing-injected? position-injected]}]  ;; v0.10.0 breaking change fix (was [showing? position dialog-data on-change])
   (let [dialog-data   (reagent/atom (deref-or-value dialog-data))
         submit-dialog (fn [new-dialog-data]
-                        (reset! showing? false)
+                        (reset! showing-injected? false)
                         (on-change new-dialog-data))
-        cancel-dialog #(reset! showing? false)
+        cancel-dialog #(reset! showing-injected? false)
         show-tooltip? (reagent/atom (= (:tooltip-state @dialog-data) "2"))]
     (fn []
       [popover-content-wrapper
-       :showing?         showing?
-       :on-cancel        cancel-dialog
-       :position         position
+       :showing-injected? showing-injected?
+       :position-injected position-injected
+       :on-cancel         cancel-dialog
        :width            "400px"
        :backdrop-opacity 0.3
        :title            "This is the title"
@@ -59,8 +59,6 @@
                                                                 :label    [:span [:i {:class "zmdi zmdi-close" }] " Cancel"]
                                                                 :on-click cancel-dialog]
                                                      :popover  [popover-content-wrapper ;; NOTE: didn't specify on-cancel here (handled properly)
-                                                                :showing?      show-tooltip?
-                                                                :position      :right-below
                                                                 :width         "250px"
                                                                 :title         "This is the cancel button"
                                                                 :close-button? false
@@ -81,4 +79,7 @@
                   :label    "Dialog box"
                   :on-click #(reset! showing? true)
                   :class    "btn btn-danger"]
-       :popover  [popover-body dialog-data on-change]])))  ;; v0.10.0 breaking change fix (was [popover-body showing? @position dialog-data on-change]]
+       :popover  [popover-body dialog-data on-change]])))  ;; v0.10.0 breaking change fix (was [popover-body showing? @position dialog-data on-change])
+
+
+
