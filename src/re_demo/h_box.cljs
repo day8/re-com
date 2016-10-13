@@ -662,9 +662,7 @@
            :position :right-center
            :anchor   arg-hiccup
            :popover  [popover-content-wrapper
-                      :showing? editing?
-                      :position :right-center
-                      :body     [editor path #(swap! box-state assoc-in editing?-path (atom false))]]]
+                      :body [editor path #(swap! box-state assoc-in editing?-path (atom false))]]]
           arg-hiccup)))))
 
 

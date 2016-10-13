@@ -285,8 +285,6 @@
          :position position
          :anchor   [anchor-button shown? model format]
          :popover  [popover-content-wrapper
-                    :showing?        shown?
-                    :position        position
                     :position-offset (if show-weeks? 43 44)
                     :no-clip?       no-clip?
                     :arrow-length    0
