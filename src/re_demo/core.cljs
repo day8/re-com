@@ -79,8 +79,8 @@
 
    {:id :layers                 :level :major :label "Layers"}
    {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}
-   {:id :popover-args           :level :minor :label "Popover Reference"  :panel popovers/arg-lists}
-   {:id :popovers               :level :minor :label "Popover Demos"      :panel popovers/panel}
+   {:id :popovers               :level :minor :label "Popover"            :panel popovers/panel}
+   {:id :popover-reference      :level :minor :label "Popover Reference"  :panel popovers/arg-lists}
    {:id :tour                   :level :minor :label "Tour"               :panel tour/panel}
 
    {:id :typography             :level :major :label "Typography"}

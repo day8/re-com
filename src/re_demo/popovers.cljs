@@ -40,6 +40,29 @@
                         (scroll-to-top (get-element-by-id "right-panel")))]]
    " page."])
 
+(defn simple-code-and-demo []
+  (let [showing?        (reagent/atom false)]
+    [h-box
+     :gap      "40px"
+     :children [[:pre "[popover-anchor-wrapper
+  :showing? showing?
+  :position :right-below
+  :anchor   [button
+             :label    \"Anchor\"
+             :on-click #(swap! showing? not)]
+  :popover  [popover-content-wrapper
+             :title    \"Title\"
+             :body     \"Popover body text\"]]]"]
+                [popover-anchor-wrapper
+                 :showing? showing?
+                 :position :right-below
+                 :anchor   [button
+                            :label    "Anchor"
+                            :on-click #(swap! showing? not)]
+                 :popover  [popover-content-wrapper
+                            :title    "Title"
+                            :body     "Popover body text"]]]]))
+
 
 (defn popover-component-hierarchy
   []
@@ -56,8 +79,10 @@
         code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
     [v-box
      :gap      "10px"
-     :children [[title2 "Component hierarchy of a Popover"]
-                [p "A single popover is made up of several sub-components (some being optional based on the arguments provided).
+     :children [[title2 "Advanced: Component hierarchy of a Popover"]
+                [p "Here is that simple example from above again. It should come in handy as you refer to the table below:"]
+                [simple-code-and-demo]
+                [p "A popover is made up of a number of sub-components.
                 The following table shows how these components are arranged (in the form of a component tree).
                 Those highlighted in blue are the public API components."]
                 [:table table-style
@@ -79,20 +104,20 @@
                    [:td border-style (code-text ":display \"inline-flex\"") (code-text ":flex \"auto\"") (code-text ":flex-flow \"row/col\"") (code-text ":align-items \"center\"")]
                    [:td border-style "Wraps the anchor component and the popover-point (which the actual popover points to)."]]
                   [:tr
-                   [:td border-style-nw (indent-text 2 (highlight-text "[:anchor arg component]"))]
+                   [:td border-style-nw (indent-text 2 (highlight-text ":anchor arg [component]"))]
                    [:td border-style-nw "n/a"]
                    [:td border-style "n/a"]
-                   [:td border-style "The " (code-text ":anchor") " arg of [popover-anchor-wrapper] is placed here. Could be before or after popover-point based on " (code-text ":position") " arg."]]
+                   [:td border-style "The " (code-text ":anchor") " argument of " (code-text "[popover-anchor-wrapper]") " is placed here. Could be before or after popover-point based on " (code-text ":position") " arg."]]
                   [:tr
                    [:td border-style-nw (indent-text 2 "[:div]")]
                    [:td border-style-nw "rc-popover-point"]
                    [:td border-style (code-text ":display \"inline-flex\"") (code-text ":flex \"auto\"") (code-text ":position \"relative\"") (code-text ":z-index 4")]
                    [:td border-style "The point (width/height 0) which is placed at the center of the relevant side of the anchor, based on " (code-text ":position") " arg."]]
                   [:tr
-                   [:td border-style-nw (indent-text 3 (highlight-text "[:popover arg component]"))]
+                   [:td border-style-nw (indent-text 3 (highlight-text ":popover arg [component]"))]
                    [:td border-style-nw "popover-content-wrapper"]
-                   [:td border-style (code-text ":display \"block\"") (code-text ":flex \"inherit\"") (code-text ":position \"fixed\" (when no-clip?)")]
-                   [:td border-style [:span "The " (code-text ":popover") " arg of [popover-anchor-wrapper] is placed here. It should be a [popover-content-wrapper] which wraps the actual content of the popover (specified as " (code-text ":body") " arg below) and the backdrop if required."]]]
+                   [:td border-style (code-text ":display \"block\"") (code-text ":flex \"inherit\"")]
+                   [:td border-style [:span "The " (code-text ":popover") " argument of " (code-text "[popover-anchor-wrapper]") " is placed here. It should be a " (code-text "[popover-content-wrapper]") " which wraps the actual content of the popover (specified as " (code-text ":body") " arg below) and the backdrop if required, but it could also be your own component which returns a " (code-text "[popover-content-wrapper]") "."]]]
                   [:tr
                    [:td border-style-nw (indent-text 4 "[backdrop]")]
                    [:td border-style-nw "rc-backdrop"]
@@ -102,7 +127,7 @@
                    [:td border-style-nw (indent-text 4 "[popover-border]")]
                    [:td border-style-nw "popover"]
                    [:td border-style (code-text ":display \"block\"") (code-text ":position \"absolute\"") (code-text ":left/right/top/bottom \"##px\"")]
-                   [:td border-style "Wraps the content of the popover (and title and arrow). Includes the rounded white border and background. Assigned an " (code-text ":id") " of \"popover-###\". "]]
+                   [:td border-style "Wraps the content of the popover (and title and arrow). Includes the rounded white border and background."]]
                   [:tr
                    [:td border-style-nw (indent-text 5 "[popover-arrow]")]
                    [:td border-style-nw "popover-arrow"]
@@ -119,12 +144,10 @@
                    [:td border-style ""]
                    [:td border-style "Exists to override the default popover padding."]]
                   [:tr
-                   [:td border-style-nw (indent-text 6 (highlight-text "[:body arg component]"))]
+                   [:td border-style-nw (indent-text 6 (highlight-text ":body arg [component]"))]
                    [:td border-style-nw "n/a"]
                    [:td border-style "n/a"]
-                   [:td border-style "The " (code-text ":body") " arg of [popover-content-wrapper] is placed here."]]]]
-                [gap :size "0px"]
-                [p "Following are several tables detailing the popover public API..."]]]))
+                   [:td border-style "The " (code-text ":body") " argument of " (code-text "[popover-content-wrapper]") " is placed here."]]]]]]))
 
 
 (defn arg-lists
@@ -132,11 +155,16 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title "Popover Components"
+   :children [[panel-title "Popover Reference"
                            "src/re_com/popover.cljs"
                            "src/re_demo/popovers.cljs"]
 
-              [popover-component-hierarchy]
+              [title2 "The Basics"]
+              [p "Here is the actual code for a very simple popover along with the popover it produces:"]
+              [simple-code-and-demo]
+              [p "See the Popover page, which provides a general overview of how it works."]
+              [p "Or refer to the sections below, which provide a reference for each of the popover components, along with an advanced component hierarchy table at the end."]
+              [line :style {:margin-top "20px"}]
               [h-box
                :gap      "100px"
                :children [[v-box
@@ -190,6 +218,8 @@
                            :gap      "10px"
                            :children [[title2 "Demo"]
                                       [see-demo-page]]]]]
+              [line :style {:margin-top "20px"}]
+              [popover-component-hierarchy]
               [gap :size "30px"]]])
 
 (defn simple-popover-demo
@@ -229,8 +259,8 @@
                                             [p "You should use the " [:code "popover-content-wrapper"] " component to wrap the body content. The main arguments are:"]
                                             [:ul
                                              [:li [:code ":title"] " - Title of the popover. Can be ommitted."]
-                                             [:li [:code ":close-button?"] " - Add close button in the top right. Default is true."]
                                              [:li [:code ":body"] " - Body component of the popover."]
+                                             [:li [:code ":close-button?"] " - Add close button in the top right. Default is true."]
                                              [:li [:code ":on-cancel"] " - A function taking no parameters, invoked when the popover is cancelled (e.g. user clicks away)."]
                                              [:li [:code ":no-clip?"] " - When an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped.
                                                                          By passing true for this parameter, re-com will use a different CSS method to show the popover.
