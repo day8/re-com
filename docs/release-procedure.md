@@ -33,9 +33,9 @@ Note that all these commands are entered at the repo root folder.
 
 - [ ] Close all auto-compiles (command line and/or IntelliJ).
 - [ ] Build each of these aliases (will require separate terminals for each):
-       - `lein debug`
-       - `lein debug-prod`
-       - `lein debug-test`
+       - `lein dev-auto`
+       - `lein prod-auto`
+       - `lein test-auto`
 - [ ] For `dev` and `prod`, run through each demo page and make sure no errors or debug output appears in the console. 
 - [ ] For `test`, make sure all tests pass. Modify code/tests until all tests pass. 
 - [ ] Close all auto-compiles again.
