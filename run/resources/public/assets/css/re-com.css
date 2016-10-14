@@ -960,6 +960,11 @@ html, body {
   border-color: #13C200;
 }
 
+.has-success .form-control:focus {
+  border-color: #13C200;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px rgba(19, 194, 0, 0.6);
+}
+
 .rc-input-text .zmdi-alert-circle {
   color: #d50000;
 }
