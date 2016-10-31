@@ -67,7 +67,7 @@
                         :source-paths ["dev-src" "src"]
                         :figwheel     {:on-jsload     "re-demo.core/mount-demo"}
                         :compiler     {:preloads        [devtools.preload day8.app.dev-preload]
-                                       :external-config {:devtools/config {:features-to-install :all}}
+                                       :external-config {:devtools/config {:features-to-install [:formatters :hints]}}
                                        :output-to       "run/resources/public/compiled_dev/demo.js"
                                        :output-dir      "run/resources/public/compiled_dev/demo"
                                        :main            "re-demo.core"
@@ -86,7 +86,7 @@
                        {:id           "test"
                         :source-paths ["dev-src" "src/re_com" "test"]
                         :compiler     {:preloads        [devtools.preload day8.app.dev-preload]
-                                       :external-config {:devtools/config {:features-to-install :all}}
+                                       :external-config {:devtools/config {:features-to-install [:formatters :hints]}}
                                        :output-to       "run/test/compiled/test.js"
                                        :output-dir      "run/test/compiled/test"
                                        :source-map      true
