@@ -202,7 +202,7 @@
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
   "I return the markup for a checkbox, with an optional RHS label"
-  [& {:keys [model on-change label disabled? style label-class label-style]
+  [& {:keys [model on-change label disabled? style label-class label-style attr]
       :as   args}]
   {:pre [(validate-args-macro checkbox-args-desc args "checkbox")]}
   (let [cursor      "default"
@@ -214,14 +214,16 @@
      :align    :start
      :class    "noselect"
      :children [[:input
-                 {:class     "rc-checkbox"
-                  :type      "checkbox"
-                  :style     (merge (flex-child-style "none")
-                                    {:cursor cursor}
-                                    style)
-                  :disabled  disabled?
-                  :checked   model
-                  :on-change (handler-fn (callback-fn))}]
+                 (merge
+                   {:class     "rc-checkbox"
+                    :type      "checkbox"
+                    :style     (merge (flex-child-style "none")
+                                      {:cursor cursor}
+                                      style)
+                    :disabled  disabled?
+                    :checked   model
+                    :on-change (handler-fn (callback-fn))}
+                   attr)]
                 (when label
                   [:span
                    {:on-click (handler-fn (callback-fn))
