@@ -197,7 +197,8 @@
    {:name :disabled?   :required false :default false :type "boolean | atom"                                  :description "if true, user interaction is disabled"}
    {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?        :description "the CSS style style map"}
    {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?        :description "the CSS class applied overall to the component"}
-   {:name :label-class :required false                :type "string"           :validate-fn string?           :description "the CSS class applied to the label"}])
+   {:name :label-class :required false                :type "string"           :validate-fn string?           :description "the CSS class applied to the label"}
+   {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
