@@ -345,7 +345,7 @@
    {:name :width     :required false :type "string"                 :default "100%" :validate-fn string?           :description "a CSS width"}
    {:name :striped?  :required false :type "boolean"                :default false                                 :description "when true, the progress section is a set of animated stripes"}
    {:name :class     :required false :type "string"                                 :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :bar-class :required false :type "string"                                 :validate-fn string?           :description "CSS class names, space separated"}
+   {:name :bar-class :required false :type "string"                                 :validate-fn string?           :description "CSS class name(s) for the actual progress bar itself, space separated"}
    {:name :style     :required false :type "CSS style map"                          :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr      :required false :type "HTML attr map"                          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
@@ -366,7 +366,7 @@
                               style)}
                attr)
              [:div
-              {:class (str "progress-bar " bar-class (when striped? "progress-bar-striped active"))
+              {:class (str "progress-bar " (when striped? "progress-bar-striped active ") bar-class)
                :role  "progressbar"
                :style {:width      (str model "%")
                        :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind
