@@ -13,11 +13,11 @@
 
 (def button-args-desc
   [{:name :label            :required true                         :type "string | hiccup" :validate-fn string-or-hiccup? :description "label for the button"}
-   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :disabled?        :required false :default false         :type "boolean | atom"                                 :description "if true, the user can't click the button"}
+   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles"}
    {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 

@@ -248,11 +248,12 @@
    {:name :disabled?   :required false :default false :type "boolean | atom"                                   :description "if true, the user can't click the radio button"}
    {:name :style       :required false                :type "CSS style map"     :validate-fn css-style?        :description "radio button style map"}
    {:name :label-style :required false                :type "CSS style map"     :validate-fn css-style?        :description "the CSS class applied overall to the component"}
-   {:name :label-class :required false                :type "string"            :validate-fn string?           :description "the CSS class applied to the label"}])
+   {:name :label-class :required false                :type "string"            :validate-fn string?           :description "the CSS class applied to the label"}
+   {:name :attr        :required false                :type "HTML attr map"     :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label"
-  [& {:keys [model on-change value label disabled? style label-class label-style]
+  [& {:keys [model on-change value label disabled? style label-class label-style attr]
       :as   args}]
   {:pre [(validate-args-macro radio-button-args-desc args "radio-button")]}
   (let [cursor      "default"
@@ -264,15 +265,17 @@
      :align    :start
      :class    "noselect"
      :children [[:input
-                 {:class     "rc-radio-button"
-                  :type      "radio"
-                  :style     (merge
-                               (flex-child-style "none")
-                               {:cursor cursor}
-                               style)
-                  :disabled  disabled?
-                  :checked   (= model value)
-                  :on-change (handler-fn (callback-fn))}]
+                 (merge
+                   {:class     "rc-radio-button"
+                    :type      "radio"
+                    :style     (merge
+                                 (flex-child-style "none")
+                                 {:cursor cursor}
+                                 style)
+                    :disabled  disabled?
+                    :checked   (= model value)
+                    :on-change (handler-fn (callback-fn))}
+                   attr)]
                 (when label
                   [:span
                    {:on-click (handler-fn (callback-fn))
