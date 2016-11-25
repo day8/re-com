@@ -3,9 +3,9 @@
     [goog.date.Date]
     [reagent.core      :as    reagent]
     [reagent.ratom     :refer-macros [reaction]]
-    [cljs-time.core    :refer [now days minus day-of-week]]
+    [cljs-time.core    :refer [now days minus plus day-of-week]]
     [cljs-time.format  :refer [formatter unparse]]
-    [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p]]
+    [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p md-icon-button]]
     [re-com.datepicker :refer [iso8601->date datepicker-dropdown-args-desc]]
     [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
@@ -110,7 +110,19 @@
                                               :show-weeks?   @show-weeks?
                                               :selectable-fn selectable-pred
                                               :on-change     #(reset! model1 %)]
-                                             [label :style label-style :label (str "selected: " (date->string @model1))]]])]
+                                             [label :style label-style :label (str "selected: " (date->string @model1))]
+                                             [h-box
+                                              :gap      "6px"
+                                              :margin   "10px 0px 0px 0px"
+                                              :children [[label :style label-style :label "Change model:"]
+                                                         [md-icon-button
+                                                          :md-icon-name "zmdi-arrow-left"
+                                                          :size         :smaller
+                                                          :on-click     #(reset! model1 (minus @model1 (days 1)))]
+                                                         [md-icon-button
+                                                          :md-icon-name "zmdi-arrow-right"
+                                                          :size         :smaller
+                                                          :on-click     #(reset! model1 (plus @model1 (days 1)))]]]]])]
                               ;; restricted to both minimum & maximum date
                               [(fn []
                                  [v-box
