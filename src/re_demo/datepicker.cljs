@@ -99,46 +99,44 @@
                   [h-box
                    :gap      "20px"
                    :align    :start
-                   :children [[(fn []
-                                 [v-box
-                                  :gap      "5px"
-                                  :children [[label :style label-style :label ":minimum or :maximum not specified"]
-                                             [datepicker
-                                              :model         model1
-                                              :disabled?     disabled?
-                                              :show-today?   @show-today?
-                                              :show-weeks?   @show-weeks?
-                                              :selectable-fn selectable-pred
-                                              :on-change     #(reset! model1 %)]
-                                             [label :style label-style :label (str "selected: " (date->string @model1))]
-                                             [h-box
-                                              :gap      "6px"
-                                              :margin   "10px 0px 0px 0px"
-                                              :children [[label :style label-style :label "Change model:"]
-                                                         [md-icon-button
-                                                          :md-icon-name "zmdi-arrow-left"
-                                                          :size         :smaller
-                                                          :on-click     #(reset! model1 (minus @model1 (days 1)))]
-                                                         [md-icon-button
-                                                          :md-icon-name "zmdi-arrow-right"
-                                                          :size         :smaller
-                                                          :on-click     #(reset! model1 (plus @model1 (days 1)))]]]]])]
+                   :children [[v-box
+                               :gap      "5px"
+                               :children [[label :style label-style :label ":minimum or :maximum not specified"]
+                                          [datepicker
+                                           :model         model1
+                                           :disabled?     disabled?
+                                           :show-today?   @show-today?
+                                           :show-weeks?   @show-weeks?
+                                           :selectable-fn selectable-pred
+                                           :on-change     #(reset! model1 %)]
+                                          [label :style label-style :label (str "selected: " (date->string @model1))]
+                                          [h-box
+                                           :gap      "6px"
+                                           :margin   "10px 0px 0px 0px"
+                                           :children [[label :style label-style :label "Change model:"]
+                                                      [md-icon-button
+                                                       :md-icon-name "zmdi-arrow-left"
+                                                       :size         :smaller
+                                                       :on-click     #(reset! model1 (minus @model1 (days 1)))]
+                                                      [md-icon-button
+                                                       :md-icon-name "zmdi-arrow-right"
+                                                       :size         :smaller
+                                                       :on-click     #(reset! model1 (plus @model1 (days 1)))]]]]]
                               ;; restricted to both minimum & maximum date
-                              [(fn []
-                                 [v-box
-                                  :gap      "5px"
-                                  :children [[label :style label-style :label ":minimum \"20140831\" :maximum \"20141019\", :start-of-week Monday"]
-                                             [datepicker
-                                              :start-of-week 0
-                                              :model         model2
-                                              :minimum       (iso8601->date "20140831")
-                                              :maximum       (iso8601->date "20141019")
-                                              :show-today?   @show-today?
-                                              :show-weeks?   @show-weeks?
-                                              :selectable-fn selectable-pred
-                                              :disabled?     disabled?
-                                              :on-change     #(reset! model2 %)]
-                                             [label :style label-style :label (str "selected: " (date->string @model2))]]])]]]
+                              [v-box
+                               :gap      "5px"
+                               :children [[label :style label-style :label ":minimum \"20140831\" :maximum \"20141019\", :start-of-week Monday"]
+                                          [datepicker
+                                           :start-of-week 0
+                                           :model         model2
+                                           :minimum       (iso8601->date "20140831")
+                                           :maximum       (iso8601->date "20141019")
+                                           :show-today?   @show-today?
+                                           :show-weeks?   @show-weeks?
+                                           :selectable-fn selectable-pred
+                                           :disabled?     disabled?
+                                           :on-change     #(reset! model2 %)]
+                                          [label :style label-style :label (str "selected: " (date->string @model2))]]]]]
                   enabled-days
                   disabled?
                   show-today?
@@ -150,15 +148,14 @@
                      :size     "auto"
                      :align    :start
                      :children [[gap :size "120px"]
-                                [(fn []
-                                   [datepicker-dropdown
-                                    :model         model1
-                                    :show-today?   @show-today?
-                                    :show-weeks?   @show-weeks?
-                                    :selectable-fn selectable-pred
-                                    :format        "dd MMM, yyyy"
-                                    :disabled?     disabled?
-                                    :on-change     #(reset! model1 %)])]]]
+                                [datepicker-dropdown
+                                 :model         model1
+                                 :show-today?   @show-today?
+                                 :show-weeks?   @show-weeks?
+                                 :selectable-fn selectable-pred
+                                 :format        "dd MMM, yyyy"
+                                 :disabled?     disabled?
+                                 :on-change     #(reset! model1 %)]]]
                     enabled-days
                     disabled?
                     show-today?
