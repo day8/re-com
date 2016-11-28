@@ -350,19 +350,26 @@
       :as args}]
   {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
   ;(assert ((complement nil?) showing-injected?) "Must specify a showing-injected? atom")
-  (let [left-offset (reagent/atom 0)
-        top-offset  (reagent/atom 0)]
+  (let [left-offset              (reagent/atom 0)
+        top-offset               (reagent/atom 0)
+        position-no-clip-popover (fn position-no-clip-popover
+                                   [this]
+                                   (when no-clip?
+                                     (let [node               (reagent/dom-node this)
+                                           popover-point-node (.-parentNode node)                           ;; Get reference to rc-popover-point node
+                                           bounding-rect      (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop. Returns this: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMClientRect
+                                       (reset! left-offset (.-left bounding-rect))
+                                       (reset! top-offset  (.-top  bounding-rect)))))]
     (reagent/create-class
       {:display-name "popover-content-wrapper"
 
        :component-did-mount
        (fn [this]
-         (when no-clip?
-           (let [node               (reagent/dom-node this)
-                 popover-point-node (.-parentNode node)                           ;; Get reference to rc-popover-point node
-                 bounding-rect      (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop. Returns this: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMClientRect
-             (reset! left-offset (.-left bounding-rect))
-             (reset! top-offset  (.-top  bounding-rect)))))
+         (position-no-clip-popover this))
+
+       :component-did-update
+       (fn [this]
+         (position-no-clip-popover this))
 
        :reagent-render
        (fn
