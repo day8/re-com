@@ -19,8 +19,25 @@
 
 
 (defn deref-or-value
+  "Takes a value or an atom
+  If it's a value, returns it
+  If it's an atom, returns the value inside it by derefing
+  "
   [val-or-atom]
   (if (satisfies? IDeref val-or-atom) @val-or-atom val-or-atom))
+
+
+(defn deref-or-value-peek
+  "Takes a value or an atom
+  If it's a value, returns it
+  If it's an atom, returns the value inside it, but WITHOUT derefing
+  The arg validation code uses this as calling deref-or-value can cause different behaviour between dev (where we validate)
+  and prod (where we don't).
+  This was experienced in popover-content-wrapper with the position-injected atom which is not derefed there, however
+  the dev-only validation caused it to be derefed, modifying its render behaviour
+  "
+  [val-or-atom]
+  (if (satisfies? IDeref val-or-atom) val-or-atom.state val-or-atom))
 
 
 (defn get-element-by-id

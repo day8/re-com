@@ -1,7 +1,7 @@
 (ns re-com.validate
   (:require
     [clojure.set           :refer [superset?]]
-    [re-com.util           :refer [deref-or-value]]
+    [re-com.util           :refer [deref-or-value-peek]]
     [reagent.core          :as    reagent]
     [reagent.impl.template :refer [valid-tag?]]
     [goog.string           :as    gstring]
@@ -79,7 +79,7 @@
   [args-with-validators passed-args component-name]
   (let [validate-arg (fn [[_ v-arg-def]]
                        (let [arg-name        (:name v-arg-def)
-                             arg-val         (deref-or-value (arg-name passed-args)) ;; Automatically extract value if it's in an atom
+                             arg-val         (deref-or-value-peek (arg-name passed-args)) ;; Automatically extract value if it's in an atom
                              required?       (:required v-arg-def)
                              validate-result ((:validate-fn v-arg-def) arg-val)
                              log-msg-base    (str "Validation failed for argument '" arg-name "' in component '" component-name "': ")
@@ -137,7 +137,7 @@
 (defn validate-arg-against-set
   "Validates the passed argument against the expected set"
   [arg arg-name valid-set]
-  (let [arg (deref-or-value arg)]
+  (let [arg (deref-or-value-peek arg)]
     (or (not= (some (hash-set arg) valid-set) nil)
         (str "Invalid " arg-name ". Expected one of " valid-set ". Got '" (left-string arg 40) "'"))))
 
@@ -252,7 +252,7 @@
 (defn string-or-hiccup?
   "Returns true if the passed argument is either valid hiccup or a string, otherwise false/error"
   [arg]
-  (valid-tag? (deref-or-value arg)))
+  (valid-tag? (deref-or-value-peek arg)))
 
 (defn vector-of-maps?
   "Returns true if the passed argument is a vector of maps (either directly or contained in an atom), otherwise false/error
@@ -261,7 +261,7 @@
     - vector/list can be empty
     - only checks the first element in the vector/list"
   [arg]
-  (let [arg (deref-or-value arg)]
+  (let [arg (deref-or-value-peek arg)]
     (and (sequential? arg) ;; Allows lists as well
          (or (empty? arg)
              (map? (first arg))))))
@@ -272,7 +272,7 @@
   [arg]
   (if-not ^boolean js/goog.DEBUG
     true
-    (let [arg (deref-or-value arg)]
+    (let [arg (deref-or-value-peek arg)]
       (and (map? arg)
            (let [arg-keys (keys arg)]
              (or (superset? css-styles arg-keys)
@@ -302,7 +302,7 @@
   [arg]
   (if-not ^boolean js/goog.DEBUG
     true
-    (let [arg (deref-or-value arg)]
+    (let [arg (deref-or-value-peek arg)]
       (and (map? arg)
            (let [arg-keys        (set (keys arg))
                  contains-class? (contains? arg-keys :class)
@@ -319,27 +319,27 @@
 (defn goog-date?
   "Returns true if the passed argument is a valid goog.date.UtcDateTime, otherwise false/error"
   [arg]
-  (let [arg (deref-or-value arg)]
+  (let [arg (deref-or-value-peek arg)]
     (instance? js/goog.date.UtcDateTime arg)))
 
 (defn regex?
   "Returns true if the passed argument is a valid regular expression, otherwise false/error"
   [arg]
-  (let [arg (deref-or-value arg)]
+  (let [arg (deref-or-value-peek arg)]
     (instance? js/RegExp arg)))
 
 (defn number-or-string?
   "Returns true if the passed argument is a number or a string, otherwise false/error"
   [arg]
-  (let [arg (deref-or-value arg)]
+  (let [arg (deref-or-value-peek arg)]
     (or (number? arg) (string? arg))))
 
 (defn string-or-atom?
   "Returns true if the passed argument is a string (or a string within an atom), otherwise false/error"
   [arg]
-  (string? (deref-or-value arg)))
+  (string? (deref-or-value-peek arg)))
 
 (defn set-or-atom?
   "Returns true if the passed argument is a set (or a set within an atom), otherwise false/error"
   [arg]
-  (set? (deref-or-value arg)))
+  (set? (deref-or-value-peek arg)))
