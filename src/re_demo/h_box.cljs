@@ -772,6 +772,7 @@
   []
   (fn
     []
+    @reset-box-state ;; For reset-box-state to fire, we must dereference it in a component
     [v-box
      :size     "auto"
      :gap      "10px"
@@ -803,5 +804,4 @@
                                         [gap :size "0px"]
                                         [demo]
                                         [gap :size "0px"]
-                                        [choose-a-demo]
-                                        (when (nil? @reset-box-state) "")]]]]]])) ;; For reset-box-state to fire, we must dereference it in a component
+                                        [choose-a-demo]]]]]]]))
