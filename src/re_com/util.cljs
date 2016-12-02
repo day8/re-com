@@ -1,6 +1,7 @@
 (ns re-com.util
   (:require
     [clojure.set :refer [superset?]]
+    [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
     [goog.date.DateTime]
     [goog.date.UtcDateTime]))
 
@@ -21,23 +22,38 @@
 (defn deref-or-value
   "Takes a value or an atom
   If it's a value, returns it
-  If it's an atom, returns the value inside it by derefing
+  If it's a Reagent object that supports IDeref, returns the value inside it by derefing
   "
   [val-or-atom]
-  (if (satisfies? IDeref val-or-atom) @val-or-atom val-or-atom))
+  (if (satisfies? IDeref val-or-atom)
+    @val-or-atom
+    val-or-atom))
 
 
 (defn deref-or-value-peek
   "Takes a value or an atom
   If it's a value, returns it
-  If it's an atom, returns the value inside it, but WITHOUT derefing
-  The arg validation code uses this as calling deref-or-value can cause different behaviour between dev (where we validate)
-  and prod (where we don't).
-  This was experienced in popover-content-wrapper with the position-injected atom which is not derefed there, however
-  the dev-only validation caused it to be derefed, modifying its render behaviour
+  If it's a Reagent object that supports IDeref, returns the value inside it, but WITHOUT derefing
+
+  The arg validation code uses this, since calling deref-or-value adds this arg to the watched ratom list for the component
+  in question, which in turn can cause different rendering behaviour between dev (where we validate) and prod (where we don't).
+
+  This was experienced in popover-content-wrapper with the position-injected atom which was not derefed there, however
+  the dev-only validation caused it to be derefed, modifying its render behaviour and causing mayhem and madness for the developer.
+
+  See below that different Reagent types have different ways of retrieving the value without causing capture, although in the case of
+  Track, we just deref it as there is no peek or state, so hopefully this won't cause issues (surely this is used very rarely).
   "
   [val-or-atom]
-  (if (satisfies? IDeref val-or-atom) val-or-atom.state val-or-atom))
+  (if (satisfies? IDeref val-or-atom)
+    (cond
+      (instance? RAtom    val-or-atom) val-or-atom.state
+      (instance? Reaction val-or-atom) (._peek-at val-or-atom)
+      (instance? RCursor  val-or-atom) (._peek val-or-atom)
+      (instance? Track    val-or-atom) @val-or-atom
+      (instance? Wrapper  val-or-atom) val-or-atom.state
+      :else                            (throw (js/Error. "Unknown reactive data type")))
+    val-or-atom))
 
 
 (defn get-element-by-id
