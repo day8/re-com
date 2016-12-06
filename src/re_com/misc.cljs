@@ -60,7 +60,7 @@
    {:name :class            :required false                  :type "string"           :validate-fn string?            :description "CSS class names, space separated"}
    {:name :style            :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override"}
    {:name :attr             :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-   {:name :input-type       :required false                  :type "keyword"          :validate-fn keyword?           :description "ONLY applies to super function 'base-input-text': either :input or :textarea"}])
+   {:name :input-type       :required false                  :type "keyword"          :validate-fn keyword?           :description [:span "ONLY applies to super function 'base-input-text': either " [:code ":input"] ", " [:code ":password"] " or " [:code ":textarea"]]}])
 
 ;; Sample regex's:
 ;;  - #"^(-{0,1})(\d*)$"                   ;; Signed integer
@@ -100,10 +100,13 @@
                                     "")
                                   (when (and status status-icon?) "has-feedback"))
                       :style (flex-child-style "auto")}
-                     [input-type
+                     [(if (= input-type :password) :input input-type)
                       (merge
                         {:class       (str "form-control " class)
-                         :type        (when (= input-type :input) "text")
+                         :type        (case input-type
+                                        :input "text"
+                                        :password "password"
+                                        nil)
                          :rows        (when (= input-type :textarea) (if rows rows 3))
                          :style       (merge
                                         (flex-child-style "none")
@@ -179,6 +182,11 @@
 (defn input-text
   [& args]
   (apply input-text-base :input-type :input args))
+
+
+(defn input-password
+  [& args]
+  (apply input-text-base :input-type :password args))
 
 
 (defn input-textarea

@@ -57,6 +57,7 @@
 (def v-split                    splits/v-split)
 
 (def input-text                 misc/input-text)
+(def input-password             misc/input-password)
 (def input-textarea             misc/input-textarea)
 (def checkbox                   misc/checkbox)
 (def radio-button               misc/radio-button)
