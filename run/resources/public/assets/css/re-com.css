@@ -1340,6 +1340,38 @@ code {
 }
 
 
+/* multi-complete styles */
+
+.multi-complete {
+  display:inline-block;
+  border: 0.3px solid grey;
+  padding:4px 4px 0 0;
+  cursor:text;
+}
+
+.multi-complete-input {
+  display:inline-block;
+  width:10em;
+  margin:0 0 4px;
+  padding:4px 6px;
+  background:none;
+  border: 0;
+  outline:0;
+  font:inherit;
+  color:inherit;
+  text-align:left;
+  text-shadow:none;
+}
+
+.multi-complete-output {
+  display:inline-block;
+  margin-left:4px;
+}
+
+.multi-complete-highlight {
+    background-color: #ccc;
+}
+
 /*----------------------------------------------------------------------------------------
   Only required for re-demo
 ----------------------------------------------------------------------------------------*/

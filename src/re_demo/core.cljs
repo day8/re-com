@@ -43,7 +43,9 @@
             [re-demo.line                  :as    line]
             [re-demo.scroller              :as    scroller]
             [re-demo.border                :as    border]
+            [re-demo.multi-complete                :as    multi-complete]
             [re-demo.typeahead             :as    typeahead]
+            
             [goog.history.EventType        :as    EventType])
   (:import [goog History]))
 
@@ -73,6 +75,7 @@
 
    {:id :selection              :level :major :label "Selection"}
    {:id :dropdown               :level :minor :label "Dropdowns"          :panel dropdowns/panel}
+   {:id :multi-complete                 :level :minor :label "Multi-Complete"     :panel multi-complete/panel}
    {:id :lists                  :level :minor :label "Selection List"     :panel selection-list/panel}
    {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
