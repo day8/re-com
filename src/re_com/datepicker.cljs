@@ -205,7 +205,7 @@
   [& {:keys [model] :as args}]
   {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
-        internal-model (reagent/atom (if (nil? @external-model) "" @external-model)) ;; Create a new atom from the model to be used internally (avoid nil)
+        internal-model (reagent/atom @external-model) ;; Create a new atom from the model to be used internally 
         display-month  (reagent/atom (first-day-of-the-month (or @internal-model (now))))]
     (fn datepicker-component
       [& {:keys [model disabled? hide-border? on-change start-of-week class style attr]
