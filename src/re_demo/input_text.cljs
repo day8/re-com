@@ -21,7 +21,7 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title  "[input-text ... ] & [input-textarea ... ]"
+       :children [[panel-title  "Input Text Components"
                                 "src/re_com/misc.cljs"
                                 "src/re_demo/input_text.cljs"]
 
