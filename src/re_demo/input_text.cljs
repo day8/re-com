@@ -1,5 +1,5 @@
 (ns re-demo.input-text
-  (:require [re-com.core   :refer [h-box v-box box gap line input-text input-textarea label checkbox radio-button slider title p]]
+  (:require [re-com.core   :refer [h-box v-box box gap line input-text input-password input-textarea label checkbox radio-button slider title p]]
             [re-com.misc   :refer [input-text-args-desc]]
             [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core  :as    reagent]))
@@ -46,6 +46,20 @@
                                                        :children [[label :label "[input-text ... ]"]
                                                                   [gap :size "5px"]
                                                                   [input-text
+                                                                   :model            text-val
+                                                                   :status           @status
+                                                                   :status-icon?     @status-icon?
+                                                                   :status-tooltip   @status-tooltip
+                                                                   :width            "300px"
+                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
+                                                                   :on-change        #(reset! text-val %)
+                                                                   :validation-regex @regex
+                                                                   :change-on-blur?  change-on-blur?
+                                                                   :disabled?        disabled?]
+                                                                  [gap :size "20px"]
+                                                                  [label :label "[input-password ... ]"]
+                                                                  [gap :size "5px"]
+                                                                  [input-password
                                                                    :model            text-val
                                                                    :status           @status
                                                                    :status-icon?     @status-icon?
