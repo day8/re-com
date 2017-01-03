@@ -107,8 +107,10 @@
 
 (defn demo1
   []
-  [p "The dropdown above is the simple case."]
-  [p "It presents a list of choices and allows one to be selected, via mouse or keyboard."])
+  [v-box
+   :gap "10px"
+   :children [[p "The dropdown above is the simple case."]
+              [p "It presents a list of choices and allows one to be selected, via mouse or keyboard."]]])
 
 
 (defn demo2
