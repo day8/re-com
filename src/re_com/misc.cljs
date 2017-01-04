@@ -230,7 +230,7 @@
                                       {:cursor cursor}
                                       style)
                     :disabled  disabled?
-                    :checked   model
+                    :checked   (boolean model)
                     :on-change (handler-fn (callback-fn))}
                    attr)]
                 (when label
