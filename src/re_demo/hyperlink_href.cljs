@@ -51,13 +51,13 @@
                                                                                  :label "_self - load link into same tab"
                                                                                  :value "_self"
                                                                                  :model @target
-                                                                                 :on-change #(reset! target "_self")
+                                                                                 :on-change #(reset! target %)
                                                                                  :style {:margin-left "20px"}]
                                                                                 [radio-button
                                                                                  :label "_blank - load link into new tab"
                                                                                  :value "_blank"
                                                                                  :model @target
-                                                                                 :on-change #(reset! target "_blank")
+                                                                                 :on-change #(reset! target %)
                                                                                  :style {:margin-left "20px"}]]])]]]]]]]]]])))
 
 

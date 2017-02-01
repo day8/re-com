@@ -32,15 +32,15 @@
                                                               :label     "Don't show extra popover"
                                                               :value     "1"
                                                               :model     (:tooltip-state @dialog-data)
-                                                              :on-change (fn []
-                                                                           (swap! dialog-data assoc :tooltip-state "1")
+                                                              :on-change (fn [val]
+                                                                           (swap! dialog-data assoc :tooltip-state val)
                                                                            (reset! show-tooltip? false))]
                                                              [radio-button
                                                               :label     "Show extra popover"
                                                               :value     "2"
                                                               :model     (:tooltip-state @dialog-data)
-                                                              :on-change (fn []
-                                                                           (swap! dialog-data assoc :tooltip-state "2")
+                                                              :on-change (fn [val]
+                                                                           (swap! dialog-data assoc :tooltip-state val)
                                                                            (reset! show-tooltip? true))]]]]]
                                      [gap :size "20px"]
                                      [line]

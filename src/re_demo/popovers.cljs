@@ -359,13 +359,13 @@
                                                                                  :label     "small"
                                                                                  :value     false
                                                                                  :model     @long-paragraph?
-                                                                                 :on-change #(reset! long-paragraph? false)
+                                                                                 :on-change #(reset! long-paragraph? %)
                                                                                  :style     {:margin-left "10px"}]
                                                                                 [radio-button
                                                                                  :label     "large"
                                                                                  :value     true
                                                                                  :model     @long-paragraph?
-                                                                                 :on-change #(reset! long-paragraph? true)
+                                                                                 :on-change #(reset! long-paragraph? %)
                                                                                  :style     {:margin-left "10px"}]]]
                                                                     [h-box
                                                                      :gap "20px"
@@ -492,31 +492,31 @@
                                            :label     "nil/omitted - normal input state"
                                            :value     nil
                                            :model     @status
-                                           :on-change #(reset! status nil)
+                                           :on-change #(reset! status %)
                                            :style {:margin-left "20px"}]
                                           [radio-button
                                            :label     ":success - success status"
                                            :value     :success
                                            :model     @status
-                                           :on-change #(reset! status :success)
+                                           :on-change #(reset! status %)
                                            :style     {:margin-left "20px"}]
                                           [radio-button
                                            :label     ":warning - Warning status"
                                            :value     :warning
                                            :model     @status
-                                           :on-change #(reset! status :warning)
+                                           :on-change #(reset! status %)
                                            :style     {:margin-left "20px"}]
                                           [radio-button
                                            :label     ":error - Error status"
                                            :value     :error
                                            :model     @status
-                                           :on-change #(reset! status :error)
+                                           :on-change #(reset! status %)
                                            :style     {:margin-left "20px"}]
                                           [radio-button
                                            :label     ":info - Use for more detailed info tooltips, e.g. for info-button"
                                            :value     :info
                                            :model     @status
-                                           :on-change #(reset! status :info)
+                                           :on-change #(reset! status %)
                                            :style     {:margin-left "20px"}]
                                           [gap :size "15px"]
                                           [h-box

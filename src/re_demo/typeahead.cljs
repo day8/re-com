@@ -110,13 +110,13 @@
                                                                                :label     [:p "Synchronous " [:code "string -> results"]]
                                                                                :value     :immediate
                                                                                :model     @data-source-choice
-                                                                               :on-change #(reset! data-source-choice :immediate)
+                                                                               :on-change #(reset! data-source-choice %)
                                                                                :style     {:margin-left "20px"}]
                                                                               [radio-button
                                                                                :label     [:p "Asynchronous " [:code "string, callback -> nil"]]
                                                                                :value     :async
                                                                                :model     @data-source-choice
-                                                                               :on-change #(reset! data-source-choice :async)
+                                                                               :on-change #(reset! data-source-choice %)
                                                                                :style     {:margin-left "20px"}]]]
                                                                   [v-box
                                                                    :children [[box :align :start :child [:code ":change-on-blur?"]]
@@ -124,13 +124,13 @@
                                                                                :label     "false - Call on-change on every keystroke"
                                                                                :value     false
                                                                                :model     @change-on-blur?
-                                                                               :on-change #(reset! change-on-blur? false)
+                                                                               :on-change #(reset! change-on-blur? %)
                                                                                :style     {:margin-left "20px"}]
                                                                               [radio-button
                                                                                :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
                                                                                :value     true
                                                                                :model     @change-on-blur?
-                                                                               :on-change #(reset! change-on-blur? true)
+                                                                               :on-change #(reset! change-on-blur? %)
                                                                                :style     {:margin-left "20px"}]]]
                                                                   [v-box
                                                                    :children [[box :align :start :child [:code ":rigid?"]]
@@ -138,13 +138,13 @@
                                                                                :label     "false - Arbitrary text can be chosen as well as suggestion objects"
                                                                                :value     false
                                                                                :model     @rigid?
-                                                                               :on-change #(reset! rigid? false)
+                                                                               :on-change #(reset! rigid? %)
                                                                                :style     {:margin-left "20px"}]
                                                                               [radio-button
                                                                                :label     "true - Only a suggestion object can be chosen"
                                                                                :value     true
                                                                                :model     @rigid?
-                                                                               :on-change #(reset! rigid? true)
+                                                                               :on-change #(reset! rigid? %)
                                                                                :style     {:margin-left "20px"}]]]
                                                                   [v-box
                                                                    :children [[box :align :start :child [:code ":status"]]
@@ -153,7 +153,7 @@
                                                                                :value     nil
                                                                                :model     @status
                                                                                :on-change #(do
-                                                                                             (reset! status nil)
+                                                                                             (reset! status %)
                                                                                              (reset! status-tooltip ""))
                                                                                :style {:margin-left "20px"}]
                                                                               [radio-button
@@ -161,7 +161,7 @@
                                                                                :value     :warning
                                                                                :model     @status
                                                                                :on-change #(do
-                                                                                             (reset! status :warning)
+                                                                                             (reset! status %)
                                                                                              (reset! status-tooltip "Warning tooltip - this (optionally) appears when there are warnings on typeahead components."))
                                                                                :style     {:margin-left "20px"}]
                                                                               [radio-button
@@ -169,7 +169,7 @@
                                                                                :value     :error
                                                                                :model     @status
                                                                                :on-change #(do
-                                                                                             (reset! status :error)
+                                                                                             (reset! status %)
                                                                                              (reset! status-tooltip "Error tooltip - this (optionally) appears when there are errors on typeahead components."))
                                                                                :style     {:margin-left "20px"}]]]
                                                                   [h-box
@@ -181,13 +181,11 @@
                                                                                :on-change (fn [val]
                                                                                             (reset! status-icon? val))]
                                                                               [:span " (notice the tooltips on the icons)"]]]
-
                                                                   [checkbox
                                                                    :label     [box :align :start :child [:code ":disabled?"]]
                                                                    :model     disabled?
                                                                    :on-change (fn [val]
-                                                                                (reset! disabled? val))]
-                                                                  ]]]]]]]]]])))
+                                                                                (reset! disabled? val))]]]]]]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

@@ -101,13 +101,13 @@
                                                                                :label     "false - Call on-change on every keystroke"
                                                                                :value     false
                                                                                :model     @change-on-blur?
-                                                                               :on-change #(reset! change-on-blur? false)
+                                                                               :on-change #(reset! change-on-blur? %)
                                                                                :style     {:margin-left "20px"}]
                                                                               [radio-button
                                                                                :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
                                                                                :value     true
                                                                                :model     @change-on-blur?
-                                                                               :on-change #(reset! change-on-blur? true)
+                                                                               :on-change #(reset! change-on-blur? %)
                                                                                :style     {:margin-left "20px"}]]]
                                                                   [v-box
                                                                    :children [[box :align :start :child [:code ":status"]]
@@ -116,7 +116,7 @@
                                                                                :value     nil
                                                                                :model     @status
                                                                                :on-change #(do
-                                                                                            (reset! status nil)
+                                                                                            (reset! status %)
                                                                                             (reset! status-tooltip ""))
                                                                                :style {:margin-left "20px"}]
                                                                               [radio-button
@@ -124,7 +124,7 @@
                                                                                :value :validating
                                                                                :model @status
                                                                                :on-change #(do
-                                                                                            (reset! status :validating)
+                                                                                            (reset! status %)
                                                                                             (reset! status-tooltip "Validating tooltip - this (optionally) appears when an input-text is validating."))
                                                                                :style {:margin-left "20px"}]
                                                                               [radio-button
@@ -132,7 +132,7 @@
                                                                                :value :success
                                                                                :model @status
                                                                                :on-change #(do
-                                                                                            (reset! status :success)
+                                                                                            (reset! status %)
                                                                                             (reset! status-tooltip "Success tooltip - this (optionally) appears when an input-text components has validated successfully."))
                                                                                :style {:margin-left "20px"}]
                                                                               [radio-button
@@ -140,7 +140,7 @@
                                                                                :value     :warning
                                                                                :model     @status
                                                                                :on-change #(do
-                                                                                            (reset! status :warning)
+                                                                                            (reset! status %)
                                                                                             (reset! status-tooltip "Warning tooltip - this (optionally) appears when there are warnings on input-text components."))
                                                                                :style     {:margin-left "20px"}]
                                                                               [radio-button
@@ -148,7 +148,7 @@
                                                                                :value     :error
                                                                                :model     @status
                                                                                :on-change #(do
-                                                                                            (reset! status :error)
+                                                                                            (reset! status %)
                                                                                             (reset! status-tooltip "Error tooltip - this (optionally) appears when there are errors on input-text components."))
                                                                                :style     {:margin-left "20px"}]]]
                                                                   [h-box
@@ -167,14 +167,14 @@
                                                                                :label     "nil/omitted - no character validation"
                                                                                :value     nil
                                                                                :model     @regex
-                                                                               :on-change #(do (reset! regex nil)
+                                                                               :on-change #(do (reset! regex %)
                                                                                                (reset! text-val ""))
                                                                                :style     {:margin-left "20px"}]
                                                                               [radio-button
                                                                                :label     "only accept input matching '99.9'"
                                                                                :value     regex999
                                                                                :model     @regex
-                                                                               :on-change #(do (reset! regex regex999)
+                                                                               :on-change #(do (reset! regex %)
                                                                                                (reset! text-val ""))
                                                                                :style     {:margin-left "20px"}]]]
                                                                   [checkbox

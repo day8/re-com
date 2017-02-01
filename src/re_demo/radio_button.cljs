@@ -38,7 +38,7 @@
                                                                 :model       color
                                                                 :label-style (if (= c @color) {:color       c
                                                                                                 :font-weight "bold"})
-                                                                :on-change   #(reset! color c)]))]]]]]]]])))
+                                                                :on-change   #(reset! color %)]))]]]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
