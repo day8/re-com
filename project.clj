@@ -10,9 +10,9 @@
   :license          {:name "MIT"}
 
   :dependencies     [[org.clojure/clojure         "1.8.0"]
-                     [org.clojure/clojurescript   "1.9.89"]
+                     [org.clojure/clojurescript   "1.9.456"]
                      [reagent                     "0.6.0"]
-                     [org.clojure/core.async "0.2.391"]
+                     [org.clojure/core.async "0.2.395"]
                      [com.andrewmcveigh/cljs-time "0.4.0"]] ;; TODO: Bump this to 0.5.0 as soon as it's available (https://github.com/Day8/re-com/pull/98/files)
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
@@ -29,15 +29,15 @@
   ;                    :extract-path "run/resources-frame"}]
 
   :profiles         {:dev       {:dependencies [[clj-stacktrace                  "0.2.8"]
-                                                [figwheel                        "0.5.7"]
-                                                [binaryage/devtools              "0.8.2"]
+                                                [figwheel                        "0.5.9"]
+                                                [binaryage/devtools              "0.9.0"]
                                                 [binaryage/dirac                 "RELEASE"]]
                                  :repl-options {:port 8230
                                                 :nrepl-middleware [dirac.nrepl/middleware]
                                                 :init (do (require 'dirac.agent)
                                                           (dirac.agent/boot!))}
-                                 :plugins      [[lein-cljsbuild                  "1.1.4"]
-                                                [lein-figwheel                   "0.5.7"]
+                                 :plugins      [[lein-cljsbuild                  "1.1.5"]
+                                                [lein-figwheel                   "0.5.9"]
                                                 [lein-shell                      "0.5.0"]
                                                 [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
                                                 [lein-ancient                    "0.6.10"]]}
@@ -48,7 +48,7 @@
                                             :nrepl-middleware ["cider.nrepl/cider-middleware"
                                                                "cemerick.piggieback/wrap-cljs-repl"]}
                                  :dependencies [[com.cemerick/piggieback "0.2.1"]
-                                                [figwheel-sidecar "0.5.4-6"]]}
+                                                [figwheel-sidecar "0.5.9"]]}
                      :dev-run   {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
                      :prod-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
                      :dev-test  {:clean-targets ^{:protect false} ["run/test/compiled"]}}
