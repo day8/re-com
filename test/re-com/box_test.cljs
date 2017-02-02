@@ -1,4 +1,4 @@
-(ns re-com-test.box-test
+(ns re-com.box-test
   (:require [cljs.test    :refer-macros [is are deftest]]
             [reagent.core :as reagent]
             [re-com.box   :as box]))

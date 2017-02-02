@@ -1,4 +1,4 @@
-(ns re-com-test.time-test
+(ns re-com.time-test
   (:require [cljs.test         :refer-macros [is are deftest]]
             [reagent.core      :as reagent]
             [re-com.input-time :as time]))

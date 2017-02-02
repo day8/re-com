@@ -1,13 +1,12 @@
 (ns day8.test-runner
   (:require [cljs.test :as cljs-test :include-macros true]
             ;; Test Namespaces
-            test.misc.goog-date-test
-            re-com-test.box-test
-            re-com-test.dropdown-test
-            re-com-test.misc-test
-            re-com-test.selection-list-test
-            re-com-test.time-test
-            re-com-test.validate-test)
+            re-com.box-test
+            re-com.dropdown-test
+            re-com.misc-test
+            re-com.selection-list-test
+            re-com.time-test
+            re-com.validate-test)
   (:refer-clojure :exclude (set-print-fn!)))
 
 (defonce cp (enable-console-print!))

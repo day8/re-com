@@ -1,4 +1,4 @@
-(ns re-com-test.selection-list-test
+(ns re-com.selection-list-test
   (:require [cljs.test             :refer-macros [is are deftest]]
             [reagent.core          :as reagent]
             [re-com.selection-list :as s-list]))

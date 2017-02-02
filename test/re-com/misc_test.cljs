@@ -1,4 +1,4 @@
-(ns re-com-test.misc-test
+(ns re-com.misc-test
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [cljs.test    :refer-macros [is deftest]]
             [reagent.core :as reagent]))

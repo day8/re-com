@@ -1,4 +1,4 @@
-(ns re-com-test.validate-test
+(ns re-com.validate-test
   (:require [cljs.test       :refer-macros [is are deftest]]
             [reagent.core    :as reagent]
             [re-com.validate :as validate]))
