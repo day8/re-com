@@ -1,7 +1,6 @@
 (ns re-com-test.time-test
-  (:require-macros [cemerick.cljs.test :refer (is are deftest with-test run-tests testing test-var)])
-  (:require [cemerick.cljs.test]
-            [reagent.core :as reagent]
+  (:require [cljs.test         :refer-macros [is are deftest]]
+            [reagent.core      :as reagent]
             [re-com.input-time :as time]))
 
 
@@ -35,14 +34,6 @@
     3000  (time/text->time "30")
     2359  (time/text->time "2359")
     2359  (time/text->time "23:59")))
-
-(deftest test-valid-text?
-  (are [expected actual] (= expected actual)
-    true  (time/valid-text? "0000")
-    true  (time/valid-text? "00:00")
-    false (time/valid-text? "99")
-    false (time/valid-text? "abcd")
-    true  (time/valid-text? "2359")))
 
 (deftest test-valid-text?
   (are [expected actual] (= expected actual)

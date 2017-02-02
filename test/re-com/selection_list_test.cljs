@@ -1,7 +1,6 @@
 (ns re-com-test.selection-list-test
-  (:require-macros [cemerick.cljs.test :refer (is are deftest with-test run-tests testing test-var)])
-  (:require [cemerick.cljs.test]
-            [reagent.core :as reagent]
+  (:require [cljs.test             :refer-macros [is are deftest]]
+            [reagent.core          :as reagent]
             [re-com.selection-list :as s-list]))
 
 ;; --- Utilities ---
@@ -46,5 +45,3 @@
           props (last (-> new-comp .-_reactInternalInstance .-_renderedComponent .-_instance .-props .-argv .-tail))
           ]
       (is (false? (:multi-select? props))  "Expected :multi-select? to default to true.")))
-
-

@@ -1,7 +1,6 @@
 (ns re-com-test.validate-test
-  (:require-macros [cemerick.cljs.test :refer (is are deftest with-test run-tests testing test-var)])
-  (:require [cemerick.cljs.test]
-            [reagent.core :as reagent]
+  (:require [cljs.test       :refer-macros [is are deftest]]
+            [reagent.core    :as reagent]
             [re-com.validate :as validate]))
 
 (deftest test-hash-map-with-name-keys

@@ -1,8 +1,7 @@
 (ns re-com-test.box-test
-  (:require-macros [cemerick.cljs.test :refer (is are deftest with-test run-tests testing test-var)])
-  (:require [cemerick.cljs.test]
+  (:require [cljs.test    :refer-macros [is are deftest]]
             [reagent.core :as reagent]
-            [re-com.box :as box]))
+            [re-com.box   :as box]))
 
 (deftest test-flex-child-style
   (are [expected actual] (= expected actual)

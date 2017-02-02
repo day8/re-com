@@ -39,7 +39,6 @@
                                  :plugins      [[lein-cljsbuild                  "1.1.4"]
                                                 [lein-figwheel                   "0.5.7"]
                                                 [lein-shell                      "0.5.0"]
-                                                [com.cemerick/clojurescript.test "0.3.3"]
                                                 [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
                                                 [lein-ancient                    "0.6.10"]]}
                      :demo {:dependencies [[alandipert/storage-atom "2.0.1"]

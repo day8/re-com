@@ -1,7 +1,7 @@
-(ns re-com-test.misc-tests
+(ns re-com-test.misc-test
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [cemerick.cljs.test :refer-macros [is deftest]]
-            [reagent.core       :as reagent]))
+  (:require [cljs.test    :refer-macros [is deftest]]
+            [reagent.core :as reagent]))
 
 
 (deftest test-handler-fn
