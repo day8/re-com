@@ -282,21 +282,22 @@
            :change-on-blur? false
            :attr {:on-key-down (partial input-text-on-key-down! state-atom)}]
           (if (or (not-empty suggestions) waiting?)
-            [v-box
-             :class "rc-typeahead-suggestions-container"
-             :children [(when waiting?
-                          [box :align :center :child [throbber :size :small :class "rc-typeahead-throbber"]])
-                        (for [[ i s ] (map vector (range) suggestions)
-                              :let [selected? (= suggestion-active-index i)]]
-                          ^{:key i}
-                          [box
-                           :child (if render-suggestion
-                                    (render-suggestion s)
-                                    s)
-                           :class (str "rc-typeahead-suggestion"
-                                       (when selected? " active"))
-                           :attr {:on-mouse-over #(swap! state-atom activate-suggestion-by-index i)
-                                  :on-mouse-down #(do (.preventDefault %) (swap! state-atom choose-suggestion-by-index i))}])]])]]))))
+            [:div {:style {:position "relative"}}
+             [v-box
+              :class "rc-typeahead-suggestions-container"
+              :children [(when waiting?
+                           [box :align :center :child [throbber :size :small :class "rc-typeahead-throbber"]])
+                         (for [[i s] (map vector (range) suggestions)
+                               :let [selected? (= suggestion-active-index i)]]
+                           ^{:key i}
+                           [box
+                            :child (if render-suggestion
+                                     (render-suggestion s)
+                                     s)
+                            :class (str "rc-typeahead-suggestion"
+                                        (when selected? " active"))
+                            :attr {:on-mouse-over #(swap! state-atom activate-suggestion-by-index i)
+                                   :on-mouse-down #(do (.preventDefault %) (swap! state-atom choose-suggestion-by-index i))}])]]])]]))))
 
 (defn- debounce
   "Return a channel which will receive a value from the `in` channel only
