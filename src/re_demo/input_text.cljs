@@ -8,6 +8,8 @@
 (defn input-text-demo
   []
   (let [text-val        (reagent/atom "")
+        text-val-cancel (reagent/atom nil)
+        text-val-enter  (reagent/atom nil)
         regex           (reagent/atom nil)
         regex999        #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$"
         status          (reagent/atom nil)
@@ -53,6 +55,8 @@
                                                                    :width            "300px"
                                                                    :placeholder      (if @regex "enter number (99.9)" "placeholder message")
                                                                    :on-change        #(reset! text-val %)
+                                                                   :on-cancel        #(reset! text-val-cancel %)
+                                                                   :on-enter         #(reset! text-val-enter %)
                                                                    :validation-regex @regex
                                                                    :change-on-blur?  change-on-blur?
                                                                    :disabled?        disabled?]
@@ -82,18 +86,33 @@
                                                                    :rows             @slider-val
                                                                    :placeholder      (if @regex "enter number (99.9)" "placeholder message")
                                                                    :on-change        #(reset! text-val %)
+                                                                   :on-cancel        #(reset! text-val-cancel %)
+                                                                   :on-enter         #(reset! text-val-enter %)
                                                                    :validation-regex @regex
                                                                    :change-on-blur?  change-on-blur?
                                                                    :disabled?        disabled?]]]
                                                       [v-box
                                                        :gap      "15px"
                                                        :children [[title :level :level3 :label "Callbacks"]
-                                                                  [h-box
-                                                                   :align    :center
-                                                                   :gap      "5px"
-                                                                   :children [[:code ":on-change"]
-                                                                              " last called with this value: "
-                                                                              [:span.bold (if @text-val @text-val "nil")]]]
+                                                                  [v-box
+                                                                   :children [[h-box
+                                                                               :padding  "10px 0"
+                                                                               :gap      "5px"
+                                                                               :children [[:code ":on-change"]
+                                                                                          " last called with this value:"
+                                                                                          [:span.bold (if @text-val @text-val "nil")]]]
+                                                                              [h-box
+                                                                               :padding  "10px 0"
+                                                                               :gap      "5px"
+                                                                               :children [[:code ":on-enter"]
+                                                                                          " last called with this value: "
+                                                                                          [:span.bold (if @text-val-enter @text-val-enter "nil")]]]
+                                                                              [h-box
+                                                                               :padding  "10px 0"
+                                                                               :gap      "5px"
+                                                                               :children [[:code ":on-cancel"]
+                                                                                          " last called with this value: "
+                                                                                          [:span.bold (if @text-val-cancel @text-val-cancel "nil")]]]]]
                                                                   [title :level :level3 :label "Parameters"]
                                                                   [v-box
                                                                    :children [[box :align :start :child [:code ":change-on-blur?"]]
