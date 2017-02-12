@@ -232,7 +232,7 @@
    {:name :title?        :required false :default false   :type "boolean"                                                      :description "if true, allows the title for the selected dropdown to be displayed via a mouse over. Handy when dropdown width is small and text is truncated"}
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
-   {:name :max-choices   :required false                  :type "integer"                       :validate-fn number-or-string? :description "the maximum number of choices to display in the dropdown"}
+   {:name :max-choices   :required false                  :type "integer"                       :validate-fn number-or-atom?   :description "the maximum number of choices to display in the dropdown"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
    {:name :class         :required false                  :type "string"                        :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style         :required false                  :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
@@ -256,6 +256,7 @@
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
       (let [choices          (deref-or-value choices)
             disabled?        (deref-or-value disabled?)
+            max-choices      (deref-or-value max-choices)
             regex-filter?    (deref-or-value regex-filter?)
             latest-ext-model (reagent/atom (deref-or-value model))
             _                (when (not= @external-model @latest-ext-model) ;; Has model changed externally?

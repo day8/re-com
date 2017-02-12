@@ -48,6 +48,13 @@
   (is (not (validate/extension-attribute? :dataattribute)))
   (is (not (validate/extension-attribute? :ariaattribute))))
 
+(deftest test-number-or-atom?
+  (are [expected actual] (= expected actual)
+    true (validate/number-or-atom? 3)
+    false (validate/number-or-atom? "test")
+    true (validate/number-or-atom? (reagent/atom 3))
+    false (validate/number-or-atom? (reagent/atom "test"))))
+
 (deftest test-string-or-atom?
   (are [expected actual] (= expected actual)
     true (validate/string-or-atom? "test")

@@ -361,6 +361,12 @@
   (let [arg (deref-or-value-peek arg)]
     (or (number? arg) (string? arg))))
 
+(defn number-or-atom?
+  "Returns true if the passed argument is a number (or a number within an atom), otherwise false/error"
+  [arg]
+  (let [arg (deref-or-value-peek arg)]
+    (number? arg)))
+
 (defn string-or-atom?
   "Returns true if the passed argument is a string (or a string within an atom), otherwise false/error"
   [arg]
