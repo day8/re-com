@@ -23,6 +23,31 @@
       (id-fn (nth choices new-index)))))
 
 
+(defn- take-n-choices
+  ([n group-headings group-choices]
+   (take-n-choices n group-headings group-choices []))
+  ([n group-headings group-choices result]
+   (if (or (= n 0) (empty? group-headings))
+     result
+     (let [first-group-heading (first group-headings)
+           first-group-choices (first group-choices)
+           num-choices (count first-group-choices)]
+       (if (> n num-choices)
+         (recur (- n num-choices)
+                (rest group-headings)
+                (rest group-choices)
+                (conj result [first-group-heading first-group-choices]))
+         (conj result [first-group-heading (take n first-group-choices)]))))))
+
+
+(defn- apply-max-choices
+  [max-choice group-headings group-choices]
+  (if max-choice
+    (let [filtered (take-n-choices max-choice group-headings group-choices)]
+      [(map first filtered) (map second filtered)])
+    [group-headings group-choices]))
+
+
 (defn- choices-with-group-headings
   "If necessary, inserts group headings entries into the choices"
   [opts group-fn]
@@ -130,7 +155,6 @@
         markup (render-fn opt)]
     ^{:key (str id)} [choice-item id markup callback internal-model]))
 
-
 (defn- filter-text-box-base
   "Base function (before lifecycle metadata) to render a filter text box"
   []
@@ -208,6 +232,7 @@
    {:name :title?        :required false :default false   :type "boolean"                                                      :description "if true, allows the title for the selected dropdown to be displayed via a mouse over. Handy when dropdown width is small and text is truncated"}
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
+   {:name :max-choices   :required false                  :type "integer"                       :validate-fn number-or-string? :description "the maximum number of choices to display in the dropdown"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
    {:name :class         :required false                  :type "string"                        :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style         :required false                  :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
@@ -225,7 +250,7 @@
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
         filter-text    (reagent/atom "")]
-    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index id-fn label-fn group-fn render-fn class style attr title?]
+    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height max-choices tab-index id-fn label-fn group-fn render-fn class style attr title?]
             :or {id-fn :id label-fn :label group-fn :group render-fn label-fn}
             :as args}]
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
@@ -312,6 +337,7 @@
              (when max-height {:style {:max-height max-height}})
              (if (-> filtered-choices count pos?)
                (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
+                     [group-names group-opt-lists] (apply-max-choices max-choices group-names group-opt-lists)
                      make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
                      make-choices                  #(map make-a-choice %1)
                      make-h-then-choices           (fn [h opts]

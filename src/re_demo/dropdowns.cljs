@@ -13,7 +13,8 @@
             {:id 5 :label "Keyboard support"}
             {:id 6 :label "Other parameters"}
             {:id 7 :label "Two dependent dropdowns"}
-            {:id 8 :label "Custom markup"}])
+            {:id 8 :label "Custom markup"}
+            {:id 9 :label "With max-values setting"}])
 
 
 (def countries [{:id "au" :label "Australia"}
@@ -362,6 +363,34 @@
                                  "None"
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
+(defn demo9
+  []
+  (let [selected-country-id (reagent/atom nil)]
+    (fn []
+      [v-box
+       :gap      "10px"
+       :children [[p "The dropdown below shows how the number of choices displayed can be limited whilst all values remain selectable by using the filter box."]
+                  [p "The " [:code ":max-values"] " parameter specifies the maximum number of choices to display. If there are more choices than this then the extra choices will not be displayed and no scrollbar appears. The intention is that a filter box could be used in conjunction with this to allow the user to find and select choices in large collections."]
+                  [h-box
+                   :gap    "10px"
+                   :align  :center
+                   :children [[single-dropdown
+                               :choices     grouped-countries
+                               :model       selected-country-id
+                               :title?      true
+                               :placeholder "Choose a country"
+                               :width       "300px"
+                               :max-height  "400px"
+                               :max-choices 3
+                               :filter-box? true
+                               :on-change   #(reset! selected-country-id %)]
+                              [:div
+                               [:strong "Selected country: "]
+                               (if (nil? @selected-country-id)
+                                 "None"
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+
+
 (defn panel2
   []
   (let [selected-demo-id (reagent/atom 1)]
@@ -415,7 +444,8 @@
                                              5 [demo5]
                                              6 [demo6]
                                              7 [demo7]
-                                             8 [demo8])]]]]]])))
+                                             8 [demo8]
+                                             9 [demo9])]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
