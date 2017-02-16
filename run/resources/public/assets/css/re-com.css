@@ -153,6 +153,16 @@ html, body {
   background: #eeeeee;
   display: list-item;
 }
+.chosen-container .chosen-results .error {
+  text-align: center;
+  background: #f2dede;
+  display: list-item;
+}
+.chosen-container .chosen-results .loading {
+  text-align: center;
+  color: #ccc;
+  display: list-item;
+}
 .chosen-container .chosen-results-scroll {
   background: white;
   margin: 0 4px;
