@@ -3,7 +3,8 @@
     [goog.date.Date]
     [reagent.core      :as    reagent]
     [reagent.ratom     :refer-macros [reaction]]
-    [cljs-time.core    :refer [now days minus plus day-of-week]]
+    [cljs-time.core    :refer [now days minus plus day-of-week before?]]
+    [cljs-time.coerce  :refer [to-local-date]]
     [cljs-time.format  :refer [formatter unparse]]
     [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p md-icon-button]]
     [re-com.datepicker :refer [iso8601->date datepicker-dropdown-args-desc]]
@@ -21,7 +22,6 @@
           (if (contains? @set-atom member)
             (disj @set-atom member)
             (conj @set-atom member))))
-
 
 (defn- checkbox-for-day
   [day enabled-days]
@@ -84,7 +84,7 @@
 (defn- show-variant
   [variation]
   (let [model1          (reagent/atom (minus (now) (days 3)))
-        model2          (reagent/atom (iso8601->date "20140914"))
+        model2          (reagent/atom (plus  (now) (days 10)))
         disabled?       (reagent/atom false)
         show-today?     (reagent/atom true)
         show-weeks?     (reagent/atom false)
@@ -101,9 +101,12 @@
                    :align    :start
                    :children [[v-box
                                :gap      "5px"
-                               :children [[label :style label-style :label ":minimum or :maximum not specified"]
+                               :children [[label
+                                           :style label-style
+                                           :label (str " :maximum " (date->string @model2))]
                                           [datepicker
                                            :model         model1
+                                           :maximum       model2
                                            :disabled?     disabled?
                                            :show-today?   @show-today?
                                            :show-weeks?   @show-weeks?
@@ -121,16 +124,19 @@
                                                       [md-icon-button
                                                        :md-icon-name "zmdi-arrow-right"
                                                        :size         :smaller
+                                                       :disabled?    (not (before? (to-local-date @model1)
+                                                                                   (to-local-date @model2)))
                                                        :on-click     #(reset! model1 (plus @model1 (days 1)))]]]]]
-                              ;; restricted to both minimum & maximum date
+
                               [v-box
                                :gap      "5px"
-                               :children [[label :style label-style :label ":minimum \"20140831\" :maximum \"20141019\", :start-of-week Monday"]
+                               :children [[label
+                                           :style label-style
+                                           :label (str ":minimum " (date->string @model1) ", :start-of-week Monday")]
                                           [datepicker
                                            :start-of-week 0
                                            :model         model2
-                                           :minimum       (iso8601->date "20140831")
-                                           :maximum       (iso8601->date "20141019")
+                                           :minimum       model1
                                            :show-today?   @show-today?
                                            :show-weeks?   @show-weeks?
                                            :selectable-fn selectable-pred
