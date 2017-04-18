@@ -83,8 +83,8 @@
 
 (defn- show-variant
   [variation]
-  (let [model1          (reagent/atom (minus (now) (days 3)))
-        model2          (reagent/atom (plus  (now) (days 10)))
+  (let [model1          (reagent/atom (now))
+        model2          (reagent/atom (plus  (now) (days 120)))
         disabled?       (reagent/atom false)
         show-today?     (reagent/atom true)
         show-weeks?     (reagent/atom false)

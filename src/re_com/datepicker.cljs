@@ -107,8 +107,7 @@
   (let [prev-date     (dec-month @display-month)
         minimum       (deref-or-value minimum)
         maximum       (deref-or-value maximum)
-        ;prev-enabled? (if minimum (after? prev-date (dec-month minimum)) true)
-        prev-enabled? (if minimum (after? prev-date minimum) true)
+        prev-enabled? (if minimum (after? prev-date (dec-month minimum)) true)
         next-date     (inc-month @display-month)
         next-enabled? (if maximum (before? next-date maximum) true)
         template-row  (if show-weeks? [:tr [:th]] [:tr])]
