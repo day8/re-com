@@ -1,6 +1,6 @@
 (ns re-demo.dropdowns
-  (:require [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p]]
-            [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-args-desc]]
+  (:require [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p dropdown]]
+            [re-com.dropdown :refer [filter-choices-by-keyword dropdown-args-desc]]
             [re-com.util     :refer [item-for-id]]
             [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core    :as    reagent]))
@@ -13,7 +13,8 @@
             {:id 5 :label "Keyboard support"}
             {:id 6 :label "Other parameters"}
             {:id 7 :label "Two dependent dropdowns"}
-            {:id 8 :label "Custom markup"}])
+            {:id 8 :label "Custom markup"}
+            {:id 9 :label "Multi dropdown"}])
 
 
 (def countries [{:id "au" :label "Australia"}
@@ -362,6 +363,35 @@
                                  "None"
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
+(defn demo9
+  []
+  (let [selected-country-ids (reagent/atom #{})]
+    (fn []
+      [v-box
+       :gap      "10px"
+       :children [[p "The dropdown allows for the selection of multiple countries from the list"]
+                  [p "Note that the filter box is always on for dropdowns that have the " [:code ":multi?"] " flag true."]
+                  [p "For this example, the model is initially an empty set, " [:code "#{}"] "."]
+                  [p "Because :model is initially empty, the " [:code ":placeholder"] " text is initially displayed."]
+                  [h-box
+                   :gap      "10px"
+                   :align    :center
+                   :children [[dropdown
+                               :choices     grouped-countries
+                               :model       selected-country-ids
+                               :title?      true
+                               :placeholder "Choose a country"
+                               :width       "300px"
+                               :max-height  "400px"
+                               :multi?      true
+                               :on-change   #(reset! selected-country-ids %)]
+                              [:div
+                               [:strong "Selected countries: "]
+                               (if (empty? @selected-country-ids)
+                                 "None"
+                                 (str (clojure.string/join ", " (map #(:label (item-for-id % grouped-countries)) @selected-country-ids))
+                                      " " @selected-country-ids ))]]]]])))
+
 (defn panel2
   []
   (let [selected-demo-id (reagent/atom 1)]
@@ -369,7 +399,7 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title "[single-dropdown ... ]"
+       :children [[panel-title "[dropdown ... ]"
                                 "src/re_com/dropdown.cljs"
                                 "src/re_demo/dropdowns.cljs"]
                   [h-box
@@ -391,8 +421,7 @@
                                              :href   "https://github.com/alxlit/bootstrap-chosen"
                                              :target "_blank"]
                                             "."]
-                                           [p "Note: Single selection only."]
-                                          [args-table single-dropdown-args-desc]]]
+                                          [args-table dropdown-args-desc]]]
                               [v-box
                                :width     "700px"
                                :gap       "10px"
@@ -415,7 +444,8 @@
                                              5 [demo5]
                                              6 [demo6]
                                              7 [demo7]
-                                             8 [demo8])]]]]]])))
+                                             8 [demo8]
+                                             9 [demo9])]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

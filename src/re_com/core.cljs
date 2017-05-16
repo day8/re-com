@@ -47,6 +47,7 @@
 (def datepicker                 datepicker/datepicker)
 (def datepicker-dropdown        datepicker/datepicker-dropdown)
 
+(def dropdown                   dropdown/dropdown)
 (def single-dropdown            dropdown/single-dropdown)
 
 (def typeahead                  typeahead/typeahead)
