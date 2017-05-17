@@ -142,7 +142,9 @@
       :value         @filter-text
       :on-change     (handler-fn (reset! filter-text (-> event .-target .-value)))
       :on-key-down   (handler-fn (when-not (key-handler event)
-                                   (.preventDefault event))) ;; When key-handler returns false, preventDefault
+                                   (.preventDefault event))  ;; When key-handler returns false, preventDefault
+                                 (when-not @drop-showing?
+                                   (reset! drop-showing? true)))
       :on-blur       (handler-fn (reset! drop-showing? false))}]))
 
 
@@ -176,7 +178,10 @@
           :on-click      (handler-fn
                            (if @ignore-click
                              (reset! ignore-click false)
-                             (dropdown-click)))
+                             (do
+                               (dropdown-click)
+                               (when multi?
+                                 (-> event .-target .-lastChild .-firstChild .focus))))) ;; TODO: perhaps find a better way to focus on filter box for multi select
           :on-mouse-down (handler-fn
                            (when @drop-showing?
                              (reset! ignore-click true)))  ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
@@ -200,7 +205,7 @@
 
          (if multi?
            [:li.search-field
-            (when (empty? @internal-model) [:span {:style {:color "#777"}} placeholder])
+            (when (empty? @internal-model) [:span.text-muted placeholder])
             [filter-text-box-base filter-box? filter-text key-handler drop-showing?]]
            [:div [:b]])])))) ;; This odd bit of markup produces the visual arrow on the right
 
