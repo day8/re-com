@@ -76,12 +76,12 @@
    :overflow-y     "auto"}) ;;TODO this should be handled by scroller later
 
 (def ^:const spacing-bordered
-  {:padding-top         "0px"
-   :padding-bottom      "0px"
-   :padding-left        "5px"
-   :padding-right       "5px"
-   :margin-top          "5px"
-   :margin-bottom       "5px"})
+  {:padding-top    "0px"
+   :padding-bottom "0px"
+   :padding-left   "5px"
+   :padding-right  "5px"
+   :margin-top     "5px"
+   :margin-bottom  "5px"})
 
 (def ^:const spacing-unbordered
   {:padding-left   "0px"
@@ -110,7 +110,7 @@
 
 ;;TODO hide hover highlights for links when disabled
 (defn- list-container
-  [{:keys [choices model on-change id-fn multi-select? disabled? hide-border? label-fn required? as-exclusions? item-renderer]
+  [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer]
     :as   args}]
   {:pre [(validate-args-macro selection-list-args-desc args "selection-list")]}
   (let [selected (if multi-select? model (-> model first vector set))

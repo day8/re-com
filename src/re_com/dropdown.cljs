@@ -133,21 +133,20 @@
 
 (defn- filter-text-box-base
   "Base function (before lifecycle metadata) to render a filter text box"
-  []
-  (fn [filter-box? filter-text key-handler drop-showing?]
-    [:div.chosen-search
-     [:input
-      {:type          "text"
-       :auto-complete "off"
-       :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
-                                             :width    "0px"      ;; The rest of these styles make the textbox invisible
-                                             :padding  "0px"
-                                             :border   "none"})
-       :value         @filter-text
-       :on-change     (handler-fn (reset! filter-text (-> event .-target .-value)))
-       :on-key-down   (handler-fn (when-not (key-handler event)
-                                    (.preventDefault event))) ;; When key-handler returns false, preventDefault
-       :on-blur       (handler-fn (reset! drop-showing? false))}]]))
+  [filter-box? filter-text key-handler drop-showing?]
+  [:div.chosen-search
+   [:input
+    {:type          "text"
+     :auto-complete "off"
+     :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
+                                           :width    "0px"      ;; The rest of these styles make the textbox invisible
+                                           :padding  "0px"
+                                           :border   "none"})
+     :value         @filter-text
+     :on-change     (handler-fn (reset! filter-text (-> event .-target .-value)))
+     :on-key-down   (handler-fn (when-not (key-handler event)
+                                  (.preventDefault event))) ;; When key-handler returns false, preventDefault
+     :on-blur       (handler-fn (reset! drop-showing? false))}]])
 
 
 (def ^:private filter-text-box
@@ -225,7 +224,7 @@
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
         filter-text    (reagent/atom "")]
-    (fn [& {:keys [choices model on-change disabled? filter-box? regex-filter? placeholder width max-height tab-index id-fn label-fn group-fn render-fn class style attr title?]
+    (fn [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? width max-height tab-index class style attr]
             :or {id-fn :id label-fn :label group-fn :group render-fn label-fn}
             :as args}]
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}

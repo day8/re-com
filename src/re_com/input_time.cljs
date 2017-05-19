@@ -141,7 +141,7 @@
 (defn input-time
   "I return the markup for an input box which will accept and validate times.
    Parameters - refer input-time-args above"
-  [& {:keys [model minimum maximum on-change class style attr] :as args
+  [& {:keys [model minimum maximum] :as args
       :or   {minimum 0 maximum 2359}}]
   {:pre [(validate-args-macro input-time-args-desc args "input-time")
          (validate-arg-times (deref-or-value model) minimum maximum)]}
@@ -149,7 +149,7 @@
         text-model     (reagent/atom (time->text deref-model))
         previous-model (reagent/atom deref-model)]
     (fn
-      [& {:keys [model minimum maximum width height disabled? hide-border? show-icon?] :as args
+      [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr] :as args
           :or   {minimum 0 maximum 2359}}]
       {:pre [(validate-args-macro input-time-args-desc args "input-time")
              (validate-arg-times (deref-or-value model) minimum maximum)]}

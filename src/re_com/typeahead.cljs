@@ -19,7 +19,7 @@
 (def typeahead-args-desc
   [{:name :data-source       :required true                   :type "fn"               :validate-fn fn?                :description [:span [:code ":data-source"] " supplies suggestion objects. This can either accept a single string argument (the search term), or a string and a callback. For the first case, the fn should return a collection of suggestion objects (which can be anything). For the second case, the fn should return "[:code "nil" ]", and eventually result in a call to the callback with a collection of suggestion objects."]}
    {:name :on-change         :required false :default nil     :type "string -> nil"    :validate-fn fn?                :description [:span [:code ":change-on-blur?"] " controls when it is called. It is passed a suggestion object."] }
-   {:name :change-on-blur?   :required false :default true    :type "boolean | atom"                                   :description [:span "when true, invoke " [:code ":on-change"] " when the use chooses a suggestion, otherwise invoke it on every change (navigating through suggestions with the mouse or keyboard, or if "[:code "rigid?"]" is also "[:code "false" ]", invoke it on every character typed.)"] }
+   {:name :change-on-blur?   :required false :default true    :type "boolean | atom"                                   :description [:span "when true, invoke " [:code ":on-change"] " when the user chooses a suggestion, otherwise invoke it on every change (navigating through suggestions with the mouse or keyboard, or if "[:code "rigid?"]" is also "[:code "false" ]", invoke it on every character typed.)"] }
    {:name :model             :required false :default nil     :type "object | atom"                                             :description "The initial value of the typeahead (should match the suggestion objects returned by " [:code ":data-source"] ")."}
    {:name :debounce-delay    :required false :default 250     :type "integer"          :validate-fn integer?           :description [:span "After receiving input, the typeahead will wait this many milliseconds without receiving new input before calling " [:code ":data-source"] "."]}
    {:name :render-suggestion :required false                  :type "render fn"        :validate-fn fn?                :description "override the rendering of the suggestion items by passing a fn that returns hiccup forms. The fn will receive two arguments: the search term, and the suggestion object."}
@@ -242,9 +242,9 @@
 ;; The typeahead component
 ;; ------------------------------------------------------------------------------------
 
-(defn- typeahead
+(defn typeahead
   "typeahead reagent component"
-  [& {:keys [data-source on-change rigid? change-on-blur?] :as args}]
+  [& {:keys [] :as args}]
   {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
   (let [{:as state :keys [c-search c-input]} (make-typeahead-state args)
         state-atom (reagent/atom state)
@@ -252,9 +252,9 @@
     (search-data-source-loop! state-atom c-search)
     (fn
       [& {:as   args
-          :keys [data-source rigid? render-suggestion suggestion-to-string model
+          :keys [data-source _on-change _change-on-blur? model _debounce-delay render-suggestion _suggestion-to-string _rigid?
                  ;; forwarded to wrapped `input-text`:
-                 placeholder width height status-icon? status status-tooltip disabled? class style]}]
+                 status status-icon? status-tooltip placeholder width height disabled? class style _attr]}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
       (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
             last-data-source (:data-source state)

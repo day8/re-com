@@ -10,8 +10,8 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def tabs-args-desc
-  [{:name :tabs      :required true                  :type "vector of tabs | atom"    :validate-fn vector-of-maps? :description "one element in the vector for each tab. Typically, each element is a map with :id and :label keys"}
-   {:name :model     :required true                  :type "unique-id | atom"                                      :description "the unique identifier of the currently selected tab"}
+  [{:name :model     :required true                  :type "unique-id | atom"                                      :description "the unique identifier of the currently selected tab"}
+   {:name :tabs      :required true                  :type "vector of tabs | atom"    :validate-fn vector-of-maps? :description "one element in the vector for each tab. Typically, each element is a map with :id and :label keys"}
    {:name :on-change :required true                  :type "unique-id -> nil"         :validate-fn fn?             :description "called when user alters the selection. Passed the unique identifier of the selection"}
    {:name :id-fn     :required false :default :id    :type "tab -> anything"          :validate-fn ifn?            :description [:span "given an element of " [:code ":tabs"] ", returns its unique identifier (aka id)"]}
    {:name :label-fn  :required false :default :label :type "tab -> string | hiccup"   :validate-fn ifn?            :description [:span "given an element of " [:code ":tabs"] ", returns its displayable label"]}

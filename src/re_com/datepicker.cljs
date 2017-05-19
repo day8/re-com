@@ -208,12 +208,12 @@
         internal-model (reagent/atom @external-model) ;; Create a new atom from the model to be used internally 
         display-month  (reagent/atom (first-day-of-the-month (or @internal-model (now))))]
     (fn datepicker-component
-      [& {:keys [model disabled? hide-border? on-change start-of-week class style attr]
+      [& {:keys [model on-change disabled? start-of-week hide-border? class style attr]
           :or   {start-of-week 6} ;; Default to Sunday
-          :as   properties}]
-      {:pre [(validate-args-macro datepicker-args-desc properties "datepicker")]}
+          :as   args}]
+      {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
       (let [latest-ext-model    (deref-or-value model)
-            props-with-defaults (merge properties {:start-of-week start-of-week})
+            props-with-defaults (merge args {:start-of-week start-of-week})
             configuration       (configure props-with-defaults)]
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)

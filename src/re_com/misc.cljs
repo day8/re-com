@@ -76,7 +76,7 @@
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)
     (fn
-      [& {:keys [model status status-icon? status-tooltip placeholder width height rows on-change change-on-blur? validation-regex disabled? class style attr]
+      [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? validation-regex disabled? class style attr]
           :or   {change-on-blur? true}
           :as   args}]
       {:pre [(validate-args-macro input-text-args-desc args "input-text")]}
@@ -211,7 +211,7 @@
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
   "I return the markup for a checkbox, with an optional RHS label"
-  [& {:keys [model on-change label disabled? style label-class label-style attr]
+  [& {:keys [model on-change label disabled? style label-style label-class attr]
       :as   args}]
   {:pre [(validate-args-macro checkbox-args-desc args "checkbox")]}
   (let [cursor      "default"
@@ -261,7 +261,7 @@
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label"
-  [& {:keys [model on-change value label disabled? style label-class label-style attr]
+  [& {:keys [model value on-change label disabled? style label-style label-class attr]
       :as   args}]
   {:pre [(validate-args-macro radio-button-args-desc args "radio-button")]}
   (let [cursor      "default"
@@ -313,38 +313,36 @@
 
 (defn slider
   "Returns markup for an HTML5 slider input"
-  []
-  (fn
-    [& {:keys [model min max step width on-change disabled? class style attr]
-        :or   {min 0 max 100}
-        :as   args}]
-    {:pre [(validate-args-macro slider-args-desc args "slider")]}
-    (let [model     (deref-or-value model)
-          min       (deref-or-value min)
-          max       (deref-or-value max)
-          step      (deref-or-value step)
-          disabled? (deref-or-value disabled?)]
-      [box
-       :align :start
-       :child [:input
-               (merge
-                 {:class     (str "rc-slider " class)
-                  :type      "range"
-                  ;:orient    "vertical" ;; Make Firefox slider vertical (doesn't work because React ignores it, I think)
-                  :style     (merge
-                               (flex-child-style "none")
-                               {;:-webkit-appearance "slider-vertical"   ;; TODO: Make a :orientation (:horizontal/:vertical) option
-                                ;:writing-mode       "bt-lr"             ;; Make IE slider vertical
-                                :width  (if width width "400px")
-                                :cursor (if disabled? "not-allowed" "default")}
-                               style)
-                  :min       min
-                  :max       max
-                  :step      step
-                  :value     model
-                  :disabled  disabled?
-                  :on-change (handler-fn (on-change (js/Number (-> event .-target .-value))))}
-                 attr)]])))
+  [& {:keys [model min max step width on-change disabled? class style attr]
+      :or   {min 0 max 100}
+      :as   args}]
+  {:pre [(validate-args-macro slider-args-desc args "slider")]}
+  (let [model     (deref-or-value model)
+        min       (deref-or-value min)
+        max       (deref-or-value max)
+        step      (deref-or-value step)
+        disabled? (deref-or-value disabled?)]
+    [box
+     :align :start
+     :child [:input
+             (merge
+               {:class     (str "rc-slider " class)
+                :type      "range"
+                ;:orient    "vertical" ;; Make Firefox slider vertical (doesn't work because React ignores it, I think)
+                :style     (merge
+                             (flex-child-style "none")
+                             {;:-webkit-appearance "slider-vertical"   ;; TODO: Make a :orientation (:horizontal/:vertical) option
+                              ;:writing-mode       "bt-lr"             ;; Make IE slider vertical
+                              :width  (if width width "400px")
+                              :cursor (if disabled? "not-allowed" "default")}
+                             style)
+                :min       min
+                :max       max
+                :step      step
+                :value     model
+                :disabled  disabled?
+                :on-change (handler-fn (on-change (js/Number (-> event .-target .-value))))}
+               attr)]]))
 
 
 ;; ------------------------------------------------------------------------------------
