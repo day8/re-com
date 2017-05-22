@@ -254,7 +254,7 @@
       {:id \"US\" :label \"United States\"  :group \"Group 1\"}
       {:id \"GB\" :label \"United Kingdom\" :group \"Group 1\"}
       {:id \"AF\" :label \"Afghanistan\"    :group \"Group 2\"}]"
-  [& {:keys [model choices regex-filter? debounce-delay]
+  [& {:keys [choices model regex-filter? debounce-delay]
       :or {debounce-delay 250}
       :as args}]
   {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
@@ -276,7 +276,7 @@
                           (load-choices text regex-filter? debounce?)
                           (reset! filter-text text))]
     (load-choices "" regex-filter? false)
-    (fn [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? width max-height tab-index class style attr]
+    (fn [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? width max-height tab-index debounce-delay class style attr]
             :or {id-fn :id label-fn :label group-fn :group render-fn label-fn}
             :as args}]
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
