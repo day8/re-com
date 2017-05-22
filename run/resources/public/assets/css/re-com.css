@@ -1350,12 +1350,3 @@ code {
 .rc-typeahead-suggestion.active {
     background-color: #ddd;
 }
-
-
-/*----------------------------------------------------------------------------------------
-  Only required for re-demo
-----------------------------------------------------------------------------------------*/
-
-.inline-hyperlink > div {
-    display: inline;
-}
