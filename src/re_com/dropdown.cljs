@@ -133,7 +133,7 @@
 
 (defn- filter-text-box-base
   "Base function (before lifecycle metadata) to render a filter text box"
-  [filter-box? filter-text key-handler drop-showing?]
+  [filter-box? filter-text key-handler drop-showing? set-filter-text]
   [:div.chosen-search
    [:input
     {:type          "text"
@@ -143,7 +143,7 @@
                                            :padding  "0px"
                                            :border   "none"})
      :value         @filter-text
-     :on-change     (handler-fn (reset! filter-text (-> event .-target .-value)))
+     :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
      :on-key-down   (handler-fn (when-not (key-handler event)
                                   (.preventDefault event))) ;; When key-handler returns false, preventDefault
      :on-blur       (handler-fn (reset! drop-showing? false))}]])
@@ -187,13 +187,16 @@
           text]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
+(defn- fn-or-vector-of-maps? [v]
+  (or (fn? v)
+      (vector-of-maps? v)))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: single-dropdown
 ;;--------------------------------------------------------------------------------------------------
 
 (def single-dropdown-args-desc
-  [{:name :choices       :required true                   :type "vector of choices | atom"      :validate-fn vector-of-maps?   :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]]}
+  [{:name :choices       :required true                   :type "vector of choices | atom | (opts, done, fail) -> nil"      :validate-fn fn-or-vector-of-maps?   :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"] ". May also be a callback " [:code "(opts, done, fail)"] " where opts is map of " [:code ":filter-text"] " and " [:code ":regex-filter?."]]}
    {:name :model         :required true                   :type "the id of a choice | atom"                                    :description [:span "the id of the selected choice. If nil, " [:code ":placeholder"] " text is shown"]}
    {:name :on-change     :required true                   :type "id -> nil"                     :validate-fn fn?               :description [:span "called when a new choice is selected. Passed the id of new choice"] }
    {:name :id-fn         :required false :default :id     :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
@@ -208,9 +211,42 @@
    {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
+   {:name :debounce-delay :required false                  :type "integer"                      :validate-fn number?           :description [:span "delay to debounce loading requests when using callback " [:code ":choices"]]}
    {:name :class         :required false                  :type "string"                        :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style         :required false                  :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr          :required false                  :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+
+(defn- load-choices*
+  "Load choices if choices is callback."
+  [choices-state choices text regex-filter?]
+  (let [id (inc (:id @choices-state))
+        callback (fn [{:keys [result error] :as args}]
+                   (println "single-dropdown callback" id args @choices-state)
+                   (when (= id (:id @choices-state))
+                     (swap! choices-state assoc
+                            :loading? false
+                            :error error
+                            :choices result)))]
+    (swap! choices-state assoc
+           :loading? true
+           :error nil
+           :id id
+           :timer nil)
+    (choices {:filter-text   text
+              :regex-filter? regex-filter?}
+             #(callback {:result %})
+             #(callback {:error %}))))
+
+(defn- load-choices
+  "Load choices or schedule lodaing depending on debounce?"
+  [choices-state choices debounce-delay text regex-filter? debounce?]
+  (when (fn? choices)
+    (when-let [timer (:timer @choices-state)]
+      (js/clearTimeout timer))
+    (if debounce?
+      (let [timer (js/setTimeout #(load-choices* choices-state choices text regex-filter?) debounce-delay)]
+        (swap! choices-state assoc :timer timer))
+      (load-choices* choices-state choices text regex-filter?))))
 
 (defn single-dropdown
   "Render a single dropdown component which emulates the bootstrap-choosen style. Sample choices object:
@@ -218,17 +254,33 @@
       {:id \"US\" :label \"United States\"  :group \"Group 1\"}
       {:id \"GB\" :label \"United Kingdom\" :group \"Group 1\"}
       {:id \"AF\" :label \"Afghanistan\"    :group \"Group 2\"}]"
-  [& {:keys [model] :as args}]
+  [& {:keys [model choices regex-filter? debounce-delay]
+      :or {debounce-delay 250}
+      :as args}]
   {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
-        filter-text    (reagent/atom "")]
+        filter-text    (reagent/atom "")
+        choices-fn?    (fn? choices)
+        choices-state (reagent/atom {:loading? choices-fn?
+                                     ; loading error
+                                     :error nil
+                                     :choices []
+                                     ; request id to ignore handling response when new request was already made
+                                     :id 0
+                                     ; to debounce requests
+                                     :timer nil})
+        load-choices (partial load-choices choices-state choices debounce-delay)
+        set-filter-text (fn [text {:keys [regex-filter?] :as args} debounce?]
+                          (load-choices text regex-filter? debounce?)
+                          (reset! filter-text text))]
+    (load-choices "" regex-filter? false)
     (fn [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? width max-height tab-index class style attr]
             :or {id-fn :id label-fn :label group-fn :group render-fn label-fn}
             :as args}]
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
-      (let [choices          (deref-or-value choices)
+      (let [choices          (if choices-fn? (:choices @choices-state) (deref-or-value choices))
             disabled?        (deref-or-value disabled?)
             regex-filter?    (deref-or-value regex-filter?)
             latest-ext-model (reagent/atom (deref-or-value model))
@@ -241,16 +293,18 @@
                                (when (and changeable? (not= @internal-model @latest-ext-model))
                                  (on-change @internal-model))
                                (swap! drop-showing? not) ;; toggle to allow opening dropdown on Enter key
-                               (reset! filter-text ""))
+                               (set-filter-text "" args false))
             cancel           #(do
                                (reset! drop-showing? false)
-                               (reset! filter-text "")
+                               (set-filter-text "" args false)
                                (reset! internal-model @external-model))
             dropdown-click   #(when-not disabled?
                                (swap! drop-showing? not))
-            filtered-choices (if regex-filter?
-                               (filter-choices-regex choices group-fn label-fn @filter-text)
-                               (filter-choices choices group-fn label-fn @filter-text))
+            filtered-choices (if choices-fn?
+                               choices
+                               (if regex-filter?
+                                 (filter-choices-regex choices group-fn label-fn @filter-text)
+                                 (filter-choices choices group-fn label-fn @filter-text)))
             press-enter      (fn []
                                (if disabled?
                                  (cancel)
@@ -265,7 +319,7 @@
                                   (do  ;; Was (callback @internal-model) but needed a customised version
                                     (when changeable? (on-change @internal-model))
                                     (reset! drop-showing? false)
-                                    (reset! filter-text "")))
+                                    (set-filter-text "" args false)))
                                 (reset! drop-showing? false)
                                 true)
             press-up          (fn []
@@ -305,11 +359,17 @@
            attr)          ;; Prevent user text selection
          [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?]
          (when (and @drop-showing? (not disabled?))
+           (println "render" choices-fn? @choices-state)
            [:div.chosen-drop
-            [filter-text-box filter-box? filter-text key-handler drop-showing?]
+            [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true)]
             [:ul.chosen-results
              (when max-height {:style {:max-height max-height}})
-             (if (-> filtered-choices count pos?)
+             (cond
+               (and choices-fn? (:loading? @choices-state))
+               [:li.loading (str "Loading...")]
+               (and choices-fn? (:error @choices-state))
+               [:li.error (:error @choices-state)]
+               (-> filtered-choices count pos?)
                (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
                      make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
                      make-choices                  #(map make-a-choice %1)
@@ -320,4 +380,5 @@
                  (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
                    (make-choices (first group-opt-lists)) ;; one group means no headings
                    (apply concat (map make-h-then-choices group-names group-opt-lists))))
+               :else
                [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))

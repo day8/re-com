@@ -93,7 +93,8 @@
                                                                    :on-change        #(reset! typeahead-on-change-value %)
                                                                    :change-on-blur?  change-on-blur?
                                                                    :rigid?           rigid?
-                                                                   :disabled?        disabled?]]]
+                                                                   :disabled?        disabled?]
+                                                                  [label :label "[underneath]"]]]
                                                       [v-box
                                                        :gap      "15px"
                                                        :children [[title :level :level3 :label "Callbacks"]

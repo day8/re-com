@@ -13,7 +13,8 @@
             {:id 5 :label "Keyboard support"}
             {:id 6 :label "Other parameters"}
             {:id 7 :label "Two dependent dropdowns"}
-            {:id 8 :label "Custom markup"}])
+            {:id 8 :label "Custom markup"}
+            {:id 9 :label "Async choices load"}])
 
 
 (def countries [{:id "au" :label "Australia"}
@@ -362,6 +363,65 @@
                                  "None"
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
+(defn demo9
+  []
+  (let [selected-country-id (reagent/atom nil)
+        selected-city-id (reagent/atom nil)
+        selected-country-id2 (reagent/atom nil)
+        filter-countries (fn [filter-text]
+                           (filter #(not= -1 (.indexOf (:label %) filter-text)) countries))
+        filter-citites (fn [country-id filter-text]
+                         (filter #(and (= (:country-id %) country-id)
+                                       (not= -1 (.indexOf (:label %) filter-text))) cities))]
+    (fn []
+      [v-box
+       :gap "10px"
+       :children [[p "You may pass " [:cod "(fn [opts done fail] ...)"] " to :choices attribute to asynchronously load data.
+                      When data is loaded callback either (done result) of (fail error) should be called."]
+                  [p "Dropdown uses initial callback. This way we don't require managing callbacks and
+                      allow passing inline callback. If callback will change (e.g. dependent dropdown) - :key may be used."]
+                  [label :label "Result after a second:"]
+                  [single-dropdown
+                   :choices (fn [{:keys [filter-text]} done fail]
+                              (js/setTimeout
+                                (fn []
+                                  (done (filter-countries filter-text)))
+                                1000))
+                   :placeholder "Choose country"
+                   :model selected-country-id
+                   :filter-box? true
+                   :width "300px"
+                   :max-height "400px"
+                   :on-change #(reset! selected-country-id %)]
+                  [label :label "Dependent dropdown:"]
+                  [:div {:key @selected-country-id}
+                   [single-dropdown
+                    :choices (fn [{:keys [filter-text]} done fail]
+                               (js/setTimeout
+                                 (fn []
+                                   (done (filter-citites @selected-country-id filter-text)))
+                                 1000))
+                    :placeholder "Choose city"
+                    :model selected-city-id
+                    :filter-box? true
+                    :width "300px"
+                    :max-height "400px"
+                    :on-change #(reset! selected-city-id %)]]
+                  [label :label "With error:"]
+                  [single-dropdown
+                   :choices (fn [{:keys [filter-text]} done fail]
+                              (js/setTimeout
+                                #(if (= "please" filter-text)
+                                   (done countries)
+                                   (fail "Server error"))
+                                1000))
+                   :placeholder "Type 'please' to get results"
+                   :model @selected-country-id2
+                   :filter-box? true
+                   :width "300px"
+                   :max-height "400px"
+                   :on-change #(reset! selected-country-id2 %)]]])))
+
 (defn panel2
   []
   (let [selected-demo-id (reagent/atom 1)]
@@ -415,7 +475,8 @@
                                              5 [demo5]
                                              6 [demo6]
                                              7 [demo7]
-                                             8 [demo8])]]]]]])))
+                                             8 [demo8]
+                                             9 [demo9])]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
