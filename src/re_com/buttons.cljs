@@ -109,13 +109,16 @@
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
                         [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
-        (if tooltip
-          [popover-tooltip
-           :label    tooltip
-           :position (if tooltip-position tooltip-position :below-center)
-           :showing? showing?
-           :anchor   the-button]
-          the-button)))))
+        [box
+         :class "display-inline-flex"
+         :align :start
+         :child (if tooltip
+                  [popover-tooltip
+                   :label    tooltip
+                   :position (if tooltip-position tooltip-position :below-center)
+                   :showing? showing?
+                   :anchor   the-button]
+                  the-button)]))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -166,13 +169,16 @@
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
                         [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
-        (if tooltip
-          [popover-tooltip
-           :label    tooltip
-           :position (if tooltip-position tooltip-position :below-center)
-           :showing? showing?
-           :anchor   the-button]
-          the-button)))))
+        [box
+         :class "display-inline-flex"
+         :align :start
+         :child (if tooltip
+                  [popover-tooltip
+                   :label    tooltip
+                   :position (if tooltip-position tooltip-position :below-center)
+                   :showing? showing?
+                   :anchor   the-button]
+                  the-button)]))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -257,13 +263,16 @@
                              :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
                           attr)
                         [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
-        (if tooltip
-          [popover-tooltip
-           :label    tooltip
-           :position (if tooltip-position tooltip-position :below-center)
-           :showing? showing?
-           :anchor   the-button]
-          the-button)))))
+        [box
+         :class "display-inline-flex"
+         :align :start
+         :child (if tooltip
+                  [popover-tooltip
+                   :label    tooltip
+                   :position (if tooltip-position tooltip-position :below-center)
+                   :showing? showing?
+                   :anchor   the-button]
+                  the-button)]))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -310,13 +319,16 @@
                                      :on-mouse-out  (handler-fn (reset! showing? false))})
                                   attr)
                                 label]]]
-        (if tooltip
-          [popover-tooltip
-           :label tooltip
-           :position (if tooltip-position tooltip-position :below-center)
-           :showing? showing?
-           :anchor the-button]
-          the-button)))))
+        [box
+         :class "display-inline-flex"
+         :align :start
+         :child (if tooltip
+                  [popover-tooltip
+                   :label    tooltip
+                   :position (if tooltip-position tooltip-position :below-center)
+                   :showing? showing?
+                   :anchor   the-button]
+                  the-button)]))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -358,10 +370,13 @@
                                attr)
                         label]]
 
-        (if tooltip
-          [popover-tooltip
-           :label tooltip
-           :position (if tooltip-position tooltip-position :below-center)
-           :showing? showing?
-           :anchor the-button]
-          the-button)))))
+        [box
+         :class "display-inline-flex"
+         :align :start
+         :child (if tooltip
+                  [popover-tooltip
+                   :label    tooltip
+                   :position (if tooltip-position tooltip-position :below-center)
+                   :showing? showing?
+                   :anchor   the-button]
+                  the-button)]))))
