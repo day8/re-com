@@ -501,6 +501,12 @@ html, body {
   background-image: none;
 }
 
+/* Padding for multiselect */
+
+.chosen-container-multi .chosen-choices {
+  padding: 0 0 0 8px;
+}
+
 /*----------------------------------------------------------------------------------------
  Stylesheet for re-com.date Date Picker variants inline-picker & dropdown-picker
  Day8 variation loosely based on:

@@ -146,7 +146,6 @@
                                  (reset! drop-showing? true)))
     :on-blur       (handler-fn (reset! drop-showing? false))}])
 
-
 (def ^:private filter-text-box
   "Render a filter text box"
   (with-meta filter-text-box-base
@@ -159,7 +158,9 @@
   "Renders a removable tag from a multi choice dropdown"
   [internal-model id-fn label-fn remove-callback ignore-click current-item item]
   (let [id (id-fn item)]
+    ^{:key id}
     [:li.search-choice
+     {:on-click (handler-fn (reset! ignore-click true))}
      [:span (label-fn item)]
      [:a.search-choice-close {:on-click (handler-fn (reset! ignore-click true)
                                                     (remove-callback id))}]]))
@@ -169,7 +170,8 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-text remove-callback current-item filter-box? drop-showing? title? multi?]
+      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-text remove-callback
+       current-item filter-box? drop-showing? title? multi? set-filter-text regex-filter?]
       (let [_    (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})]
         [(if multi? :ul.chosen-choices :a.chosen-single.chosen-default)
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
@@ -177,10 +179,7 @@
           :on-click      (handler-fn
                            (if @ignore-click
                              (reset! ignore-click false)
-                             (do
-                               (dropdown-click)
-                               (when multi?
-                                 (-> event .-target .-lastChild .-firstChild .focus))))) ;; TODO: perhaps find a better way to focus on filter box for multi select
+                             (dropdown-click)))
           :on-mouse-down (handler-fn
                            (when @drop-showing?
                              (reset! ignore-click true)))  ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
@@ -205,7 +204,8 @@
          (if multi?
            [:li.search-field
             (when (empty? @internal-model) [:span.text-muted placeholder])
-            [filter-text-box-base filter-box? filter-text key-handler drop-showing?]]
+            (when multi?
+              [filter-text-box-base filter-box? filter-text key-handler drop-showing? #(set-filter-text % regex-filter? true)])]
            [:div [:b]])])))) ;; This odd bit of markup produces the visual arrow on the right
 
 (defn- fn-or-vector-of-maps? [v]
@@ -217,7 +217,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def dropdown-args-desc
-  [{:name :choices          :required true                   :type "vector of choices | atom"                 :validate-fn vector-of-maps?   :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]]}
+  [{:name :choices       :required true                   :type "vector of choices | atom | (opts, done, fail) -> nil"      :validate-fn fn-or-vector-of-maps?   :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"] ". May also be a callback " [:code "(opts, done, fail)"] " where opts is map of " [:code ":filter-text"] " and " [:code ":regex-filter?."]]}
    {:name :model            :required true                   :type "the id of a choice | set of ids | atom"                                  :description [:span "the id or set of ids of the selected choice(s). If nil, " [:code ":placeholder"] " text is shown"]}
    {:name :on-change        :required true                   :type "id -> nil"                                :validate-fn fn?               :description [:span "called when a new choice is selected. Passed the id of new choice"] }
    {:name :id-fn            :required false :default :id     :type "choice -> anything"                       :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
@@ -244,7 +244,6 @@
   [choices-state choices text regex-filter?]
   (let [id (inc (:id @choices-state))
         callback (fn [{:keys [result error] :as args}]
-                   (println "single-dropdown callback" id args @choices-state)
                    (when (= id (:id @choices-state))
                      (swap! choices-state assoc
                             :loading? false
@@ -297,7 +296,7 @@
                                      ; to debounce requests
                                      :timer nil})
         load-choices (partial load-choices choices-state choices debounce-delay)
-        set-filter-text (fn [text {:keys [regex-filter?] :as args} debounce?]
+        set-filter-text (fn [text regex-filter? debounce?]
                           (load-choices text regex-filter? debounce?)
                           (reset! filter-text text))]
     (load-choices "" regex-filter? false)
@@ -316,21 +315,23 @@
             changeable?      (and on-change (not disabled?))
             callback         #(do
                                 (if multi?
-                                  (if (contains? @internal-model %)
-                                    (swap! internal-model disj %)
-                                    (swap! internal-model conj %))
+                                  (do
+                                    (if (contains? @internal-model %)
+                                      (swap! internal-model disj %)
+                                      (swap! internal-model conj %))
+                                    (reset! current-item nil))
                                   (reset! internal-model %))
                                (when (and changeable? (not= @internal-model @latest-ext-model))
                                  (on-change @internal-model))
                                (swap! drop-showing? not) ;; toggle to allow opening dropdown on Enter key
-                               (set-filter-text "" args false))
+                               (set-filter-text "" regex-filter? false))
             remove-callback  #(do
                                 (swap! internal-model disj %)
                                 (when (and changeable? (not= @internal-model @latest-ext-model))
                                   (on-change @internal-model)))
             cancel           #(do
                                (reset! drop-showing? false)
-                               (set-filter-text "" args false)
+                               (set-filter-text "" regex-filter? false)
                                (reset! internal-model @external-model))
             dropdown-click   #(when-not disabled?
                                (swap! drop-showing? not))
@@ -346,8 +347,13 @@
                                (if disabled?
                                  (cancel)
                                  (if multi?
-                                   (when @current-item
-                                     (callback @current-item))
+                                   (cond
+                                     @current-item
+                                     (callback @current-item)
+
+                                     (and (not (string/blank? @filter-text))
+                                          (not-empty filtered-choices))
+                                     (-> filtered-choices first id-fn callback))
                                    (callback @internal-model)))
                                true)
             press-escape      (fn []
@@ -359,7 +365,7 @@
                                   (do  ;; Was (callback @internal-model) but needed a customised version
                                     (when changeable? (on-change @internal-model))
                                     (reset! drop-showing? false)
-                                    (set-filter-text "" args false)))
+                                    (set-filter-text "" regex-filter? false)))
                                 (reset! drop-showing? false)
                                 true)
             item-for-moving   (if multi? current-item internal-model)
@@ -400,10 +406,10 @@
                           {:width (when width width)}
                           style)}
            attr)          ;; Prevent user text selection
-         [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-text remove-callback current-item filter-box? drop-showing? title? multi?]
+         [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-text remove-callback current-item filter-box? drop-showing? title? multi? set-filter-text regex-filter?]
          (when (and @drop-showing? (not disabled?))
            [:div.chosen-drop
-            (when-not multi? [:div.chosen-search [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true)]])
+            (when-not multi? [:div.chosen-search [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % regex-filter? true)]])
             [:ul.chosen-results
              (when max-height {:style {:max-height max-height}})
              (cond

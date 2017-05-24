@@ -210,7 +210,7 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[p "[single-dropdown ...] supports tab key navigation."]
+       :children [[p "[dropdown ...] supports tab key navigation."]
                   [p "The " [:code ":tab-index"] " parameter specifies position in the tab order,
                        or it can be removed from the tab order using a value of -1."]
                   [p "Up-arrow and Down-arrow do sensible things."]
@@ -459,7 +459,7 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title "[single-dropdown ... ]"
+       :children [[panel-title "[dropdown ... ]"
                                 "src/re_com/dropdown.cljs"
                                 "src/re_demo/dropdowns.cljs"]
                   [h-box
