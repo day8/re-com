@@ -106,7 +106,7 @@
                           {:code "18" :country "Bahamas"       :region "'B' COUNTRIES"}
                           {:code "19" :country "Bahrain"       :region "'B' COUNTRIES"}])
 
-(defn demo1
+(defn simple-demo
   []
   [v-box
    :gap "10px"
@@ -114,7 +114,7 @@
               [p "It presents a list of choices and allows one to be selected, via mouse or keyboard."]]])
 
 
-(defn demo2
+(defn grouping-demo
   []
   (let [selected-country-id (reagent/atom nil)]
     (fn []
@@ -143,7 +143,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo3
+(defn filtering-demo
   []
   (let [selected-country-id (reagent/atom "US")]
     (fn []
@@ -170,7 +170,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo4
+(defn id-fn-demo
   []
   (let [id-fn               #(str (:code %) "$")
         label-fn            #(str (:country %) "!")
@@ -203,7 +203,7 @@
                                  (str (label-fn (item-for-id @selected-country-id grouped-countries-2 :id-fn id-fn)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo5
+(defn keyboard-demo
   []
   (let [selected-country-id (reagent/atom "US")]
     (fn []
@@ -237,7 +237,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo6
+(defn other-params-demo
   []
   (let [selected-country-id (reagent/atom "US")
         disabled?           (reagent/atom false)
@@ -297,7 +297,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo7
+(defn two-dependent-demo
   []
   (let [selected-country-id (reagent/atom nil)
         filtered-cities     (reagent/atom [])
@@ -337,7 +337,7 @@
                                  "None"
                                  (str (:label (item-for-id @selected-city-id cities)) " [" @selected-city-id "]"))]]]]])))
 
-(defn demo8
+(defn custom-markup-demo
   []
   (let [selected-country-id (reagent/atom nil)]
     (fn []
@@ -363,7 +363,7 @@
                                  "None"
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
-(defn demo9
+(defn async-load-demo
   []
   (let [selected-country-id (reagent/atom nil)
         selected-city-id (reagent/atom nil)
@@ -468,15 +468,15 @@
                                                         :on-change #(reset! selected-demo-id %)]]]
                                            [gap :size "0px"] ;; Force a bit more space here
                                            (case @selected-demo-id
-                                             1 [demo1]
-                                             2 [demo2]
-                                             3 [demo3]
-                                             4 [demo4] ;; for testing - uncomment equivalent line in demos vector above
-                                             5 [demo5]
-                                             6 [demo6]
-                                             7 [demo7]
-                                             8 [demo8]
-                                             9 [demo9])]]]]]])))
+                                             1 [simple-demo]
+                                             2 [grouping-demo]
+                                             3 [filtering-demo]
+                                             4 [id-fn-demo] ;; for testing - uncomment equivalent line in demos vector above
+                                             5 [keyboard-demo]
+                                             6 [other-params-demo]
+                                             7 [two-dependent-demo]
+                                             8 [custom-markup-demo]
+                                             9 [async-load-demo])]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
