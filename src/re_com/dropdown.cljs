@@ -130,22 +130,21 @@
 
 (defn- filter-text-box-base
   "Base function (before lifecycle metadata) to render a filter text box"
-  []
-  (fn [filter-box? filter-text key-handler drop-showing?]
-    [:input
-     {:type          "text"
-      :auto-complete "off"
-      :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
-                                            :width    "0px"      ;; The rest of these styles make the textbox invisible
-                                            :padding  "0px"
-                                            :border   "none"})
-      :value         @filter-text
-      :on-change     (handler-fn (reset! filter-text (-> event .-target .-value)))
-      :on-key-down   (handler-fn (when-not (key-handler event)
-                                   (.preventDefault event))  ;; When key-handler returns false, preventDefault
-                                 (when-not @drop-showing?
-                                   (reset! drop-showing? true)))
-      :on-blur       (handler-fn (reset! drop-showing? false))}]))
+  [filter-box? filter-text key-handler drop-showing? set-filter-text]
+  [:input
+   {:type          "text"
+    :auto-complete "off"
+    :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
+                                          :width    "0px"      ;; The rest of these styles make the textbox invisible
+                                          :padding  "0px"
+                                          :border   "none"})
+    :value         @filter-text
+    :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
+    :on-key-down   (handler-fn (when-not (key-handler event)
+                                 (.preventDefault event))  ;; When key-handler returns false, preventDefault
+                               (when-not @drop-showing?
+                                 (reset! drop-showing? true)))
+    :on-blur       (handler-fn (reset! drop-showing? false))}])
 
 
 (def ^:private filter-text-box
@@ -209,6 +208,9 @@
             [filter-text-box-base filter-box? filter-text key-handler drop-showing?]]
            [:div [:b]])])))) ;; This odd bit of markup produces the visual arrow on the right
 
+(defn- fn-or-vector-of-maps? [v]
+  (or (fn? v)
+      (vector-of-maps? v)))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: dropdown
@@ -232,9 +234,43 @@
    {:name :width            :required false :default "100%"  :type "string"                                   :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height       :required false :default "240px" :type "string"                                   :validate-fn string?           :description "the maximum height of the dropdown part"}
    {:name :tab-index        :required false                  :type "integer | string"                         :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
+   {:name :debounce-delay   :required false                  :type "integer"                      :validate-fn number?           :description [:span "delay to debounce loading requests when using callback " [:code ":choices"]]}
    {:name :class            :required false                  :type "string"                                   :validate-fn string?           :description "CSS class names, space separated"}
    {:name :style            :required false                  :type "CSS style map"                            :validate-fn css-style?        :description "CSS styles to add or override"}
    {:name :attr             :required false                  :type "HTML attr map"                            :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+
+(defn- load-choices*
+  "Load choices if choices is callback."
+  [choices-state choices text regex-filter?]
+  (let [id (inc (:id @choices-state))
+        callback (fn [{:keys [result error] :as args}]
+                   (println "single-dropdown callback" id args @choices-state)
+                   (when (= id (:id @choices-state))
+                     (swap! choices-state assoc
+                            :loading? false
+                            :error error
+                            :choices result)))]
+    (swap! choices-state assoc
+           :loading? true
+           :error nil
+           :id id
+           :timer nil)
+    (choices {:filter-text   text
+              :regex-filter? regex-filter?}
+             #(callback {:result %})
+             #(callback {:error %}))))
+
+(defn- load-choices
+  "Load choices or schedule loading depending on debounce?"
+  [choices-state choices debounce-delay text regex-filter? debounce?]
+  (when (fn? choices)
+    (when-let [timer (:timer @choices-state)]
+      (js/clearTimeout timer))
+    (if debounce?
+      (let [timer (js/setTimeout #(load-choices* choices-state choices text regex-filter?) debounce-delay)]
+        (swap! choices-state assoc :timer timer))
+      (load-choices* choices-state choices text regex-filter?))))
+
 
 (defn dropdown
   "Render a dropdown component which emulates the bootstrap-choosen style. Sample choices object:
@@ -242,18 +278,34 @@
       {:id \"US\" :label \"United States\"  :group \"Group 1\"}
       {:id \"GB\" :label \"United Kingdom\" :group \"Group 1\"}
       {:id \"AF\" :label \"Afghanistan\"    :group \"Group 2\"}]"
-  [& {:keys [model] :as args}]
+  [& {:keys [choices model regex-filter? debounce-delay]
+      :or {debounce-delay 250}
+      :as args}]
   {:pre [(validate-args-macro dropdown-args-desc args "dropdown")]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
         filter-text    (reagent/atom "")
-        current-item   (reagent/atom nil)]
-    (fn [& {:keys [choices model on-change disabled? filter-box? multi? remove-selected? regex-filter? placeholder width max-height tab-index id-fn label-fn group-fn render-fn class style attr title?]
+        current-item   (reagent/atom nil)
+        choices-fn?    (fn? choices)
+        choices-state (reagent/atom {:loading? choices-fn?
+                                     ; loading error
+                                     :error nil
+                                     :choices []
+                                     ; request id to ignore handling response when new request was already made
+                                     :id 0
+                                     ; to debounce requests
+                                     :timer nil})
+        load-choices (partial load-choices choices-state choices debounce-delay)
+        set-filter-text (fn [text {:keys [regex-filter?] :as args} debounce?]
+                          (load-choices text regex-filter? debounce?)
+                          (reset! filter-text text))]
+    (load-choices "" regex-filter? false)
+    (fn [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? multi? remove-selected? regex-filter? placeholder title? width max-height tab-index debounce-delay class style attr]
             :or {id-fn :id label-fn :label group-fn :group render-fn label-fn}
             :as args}]
       {:pre [(validate-args-macro dropdown-args-desc args "dropdown")]}
-      (let [choices          (deref-or-value choices)
+      (let [choices          (if choices-fn? (:choices @choices-state) (deref-or-value choices))
             disabled?        (deref-or-value disabled?)
             regex-filter?    (deref-or-value regex-filter?)
             latest-ext-model (reagent/atom (deref-or-value model))
@@ -271,23 +323,25 @@
                                (when (and changeable? (not= @internal-model @latest-ext-model))
                                  (on-change @internal-model))
                                (swap! drop-showing? not) ;; toggle to allow opening dropdown on Enter key
-                               (reset! filter-text ""))
+                               (set-filter-text "" args false))
             remove-callback  #(do
                                 (swap! internal-model disj %)
                                 (when (and changeable? (not= @internal-model @latest-ext-model))
                                   (on-change @internal-model)))
             cancel           #(do
                                (reset! drop-showing? false)
-                               (reset! filter-text "")
+                               (set-filter-text "" args false)
                                (reset! internal-model @external-model))
             dropdown-click   #(when-not disabled?
                                (swap! drop-showing? not))
             remaining-choices (if remove-selected?
                                 (remove #((if multi? contains? =) @internal-model (id-fn %)) choices)
                                 choices)
-            filtered-choices (if regex-filter?
-                               (filter-choices-regex remaining-choices group-fn label-fn @filter-text)
-                               (filter-choices remaining-choices group-fn label-fn @filter-text))
+            filtered-choices (if choices-fn?
+                               choices
+                               (if regex-filter?
+                                 (filter-choices-regex remaining-choices group-fn label-fn @filter-text)
+                                 (filter-choices remaining-choices group-fn label-fn @filter-text)))
             press-enter      (fn []
                                (if disabled?
                                  (cancel)
@@ -305,7 +359,7 @@
                                   (do  ;; Was (callback @internal-model) but needed a customised version
                                     (when changeable? (on-change @internal-model))
                                     (reset! drop-showing? false)
-                                    (reset! filter-text "")))
+                                    (set-filter-text "" args false)))
                                 (reset! drop-showing? false)
                                 true)
             item-for-moving   (if multi? current-item internal-model)
@@ -349,10 +403,15 @@
          [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-text remove-callback current-item filter-box? drop-showing? title? multi?]
          (when (and @drop-showing? (not disabled?))
            [:div.chosen-drop
-            (when-not multi? [:div.chosen-search [filter-text-box filter-box? filter-text key-handler drop-showing?]])
+            (when-not multi? [:div.chosen-search [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true)]])
             [:ul.chosen-results
              (when max-height {:style {:max-height max-height}})
-             (if (-> filtered-choices count pos?)
+             (cond
+               (and choices-fn? (:loading? @choices-state))
+               [:li.loading (str "Loading...")]
+               (and choices-fn? (:error @choices-state))
+               [:li.error (:error @choices-state)]
+               (-> filtered-choices count pos?)
                (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
                      make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model current-item multi?)
                      make-choices                  #(map make-a-choice %1)
@@ -363,6 +422,7 @@
                  (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
                    (make-choices (first group-opt-lists)) ;; one group means no headings
                    (apply concat (map make-h-then-choices group-names group-opt-lists))))
+               :else
                [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))
 
 ;;--------------------------------------------------------------------------------------------------

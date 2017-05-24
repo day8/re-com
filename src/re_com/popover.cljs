@@ -173,7 +173,7 @@
 
 (defn- popover-title
   "Renders a title at the top of a popover with an optional close button on the far right"
-  [& {:keys [title showing? close-button? close-callback]
+  [& {:keys [showing? title close-button? close-callback]
       :as args}]
   {:pre [(validate-args-macro popover-title-args-desc args "popover-title")]}
   (assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback")
@@ -184,7 +184,8 @@
       :justify  :between
       :align    :center
       :children [title
-                 (when close-button? [close-button showing? close-callback])]]]))
+                 (when close-button?
+                   [close-button showing? close-callback])]]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -239,9 +240,7 @@
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
-  [& {:keys [children position position-offset width height popover-color arrow-length arrow-width arrow-gap padding margin-left margin-top tooltip-style? title]
-      :or {arrow-length 11 arrow-width 22 arrow-gap -1}
-      :as args}]
+  [& {:keys [position position-offset title] :as args}]
   {:pre [(validate-args-macro popover-border-args-desc args "popover-border")]}
   (let [pop-id                  (gensym "popover-")
         rendered-once           (reagent/atom false)        ;; The initial render is off screen because rendering it in place does not render at final width, and we need to measure it to be able to place it properly
@@ -250,9 +249,9 @@
         p-height                (reagent/atom 0)
         pop-offset              (reagent/atom 0)
         found-optimal           (reagent/atom false)
-        calc-metrics            (fn [position]
+        calc-metrics            (fn [pos]
                                   (let [popover-elem            (get-element-by-id pop-id)
-                                        [orientation arrow-pos] (split-keyword position "-")
+                                        [orientation arrow-pos] (split-keyword pos "-")
                                         grey-arrow?             (and title (or (= orientation :below) (= arrow-pos :below)))]
                                     (reset! p-width    (if popover-elem (next-even-integer (.-clientWidth  popover-elem)) 0)) ;; next-even-integer required to avoid wiggling popovers (width/height appears to prefer being even and toggles without this call)
                                     (reset! p-height   (if popover-elem (next-even-integer (.-clientHeight popover-elem)) 0))
@@ -345,9 +344,7 @@
 
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes"
-  [& {:keys [showing-injected? position-injected position-offset no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width arrow-gap padding style]
-      :or {arrow-length 11 arrow-width 22 arrow-gap -1}
-      :as args}]
+  [& {:keys [no-clip?] :as args}]
   {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
   (let [left-offset              (reagent/atom 0)
         top-offset               (reagent/atom 0)
@@ -421,7 +418,7 @@
 
 (defn popover-anchor-wrapper
   "Renders an element or control along with a Bootstrap popover"
-  [& {:keys [showing? position anchor popover style] :as args}]
+  [& {:keys [showing? position] :as args}]
   {:pre [(validate-args-macro popover-anchor-wrapper-args-desc args "popover-anchor-wrapper")]}
   (let [external-position (reagent/atom position)
         internal-position (reagent/atom @external-position)
@@ -438,7 +435,7 @@
          (when (not= @external-position position) ;; Has position changed externally?
            (reset! external-position position)
            (reset! internal-position @external-position))
-         (let [[orientation arrow-pos] (split-keyword @internal-position "-") ;; only need orientation here
+         (let [[orientation _arrow-pos] (split-keyword @internal-position "-") ;; only need orientation here
                place-anchor-before?    (case orientation (:left :above) false true)
                flex-flow               (case orientation (:left :right) "row" "column")]
            [:div {:class  "rc-popover-anchor-wrapper display-inline-flex"

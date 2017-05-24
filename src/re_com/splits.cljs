@@ -120,7 +120,7 @@
                                                       (when @over? {:background-color "#f8f8f8"}))})]
 
     (fn
-      [& {:keys [panel-1 panel-2 class style attr]}]
+      [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr]}]
       [:div (make-container-attrs class style attr @dragging?)
        [:div (make-panel-attrs "rc-h-split-top" @dragging? @split-perc)
         panel-1]
@@ -204,7 +204,7 @@
                                                       (when @over? {:background-color "#f8f8f8"}))})]
 
     (fn
-      [& {:keys [panel-1 panel-2 class style attr]}]
+      [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr]}]
       [:div (make-container-attrs class style attr @dragging?)
        [:div (make-panel-attrs "re-v-split-top" @dragging? @split-perc)
         panel-1]

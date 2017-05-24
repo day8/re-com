@@ -21,7 +21,7 @@
    main window to prevent UI interactivity and place user focus on the modal window.
    Parameters:
     - child:  The message to display in the modal (a string or a hiccup vector or function returning a hiccup vector)"
-  [& {:keys [child wrap-nicely? backdrop-color backdrop-opacity class style attr backdrop-on-click]
+  [& {:keys [child wrap-nicely? backdrop-color backdrop-opacity backdrop-on-click class style attr]
       :or   {wrap-nicely? true backdrop-color "black" backdrop-opacity 0.6}
       :as   args}]
   {:pre [(validate-args-macro modal-panel-args-desc args "modal-panel")]}

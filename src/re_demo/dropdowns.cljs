@@ -14,7 +14,8 @@
             {:id 6 :label "Other parameters"}
             {:id 7 :label "Two dependent dropdowns"}
             {:id 8 :label "Custom markup"}
-            {:id 9 :label "Multi dropdown"}])
+            {:id 9 :label "Async choices load"}
+            {:id 10 :label "Multiselect dropdown"}])
 
 
 (def countries [{:id "au" :label "Australia"}
@@ -106,7 +107,7 @@
                           {:code "18" :country "Bahamas"       :region "'B' COUNTRIES"}
                           {:code "19" :country "Bahrain"       :region "'B' COUNTRIES"}])
 
-(defn demo1
+(defn simple-demo
   []
   [v-box
    :gap "10px"
@@ -114,7 +115,7 @@
               [p "It presents a list of choices and allows one to be selected, via mouse or keyboard."]]])
 
 
-(defn demo2
+(defn grouping-demo
   []
   (let [selected-country-id (reagent/atom nil)]
     (fn []
@@ -143,7 +144,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo3
+(defn filtering-demo
   []
   (let [selected-country-id (reagent/atom "US")]
     (fn []
@@ -170,7 +171,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo4
+(defn id-fn-demo
   []
   (let [id-fn               #(str (:code %) "$")
         label-fn            #(str (:country %) "!")
@@ -203,7 +204,7 @@
                                  (str (label-fn (item-for-id @selected-country-id grouped-countries-2 :id-fn id-fn)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo5
+(defn keyboard-demo
   []
   (let [selected-country-id (reagent/atom "US")]
     (fn []
@@ -237,7 +238,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo6
+(defn other-params-demo
   []
   (let [selected-country-id (reagent/atom "US")
         disabled?           (reagent/atom false)
@@ -297,7 +298,7 @@
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
 
-(defn demo7
+(defn two-dependent-demo
   []
   (let [selected-country-id (reagent/atom nil)
         filtered-cities     (reagent/atom [])
@@ -337,7 +338,7 @@
                                  "None"
                                  (str (:label (item-for-id @selected-city-id cities)) " [" @selected-city-id "]"))]]]]])))
 
-(defn demo8
+(defn custom-markup-demo
   []
   (let [selected-country-id (reagent/atom nil)]
     (fn []
@@ -363,7 +364,66 @@
                                  "None"
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
 
-(defn demo9
+(defn async-load-demo
+  []
+  (let [selected-country-id (reagent/atom nil)
+        selected-city-id (reagent/atom nil)
+        selected-country-id2 (reagent/atom nil)
+        filter-countries (fn [filter-text]
+                           (filter #(not= -1 (.indexOf (:label %) filter-text)) countries))
+        filter-citites (fn [country-id filter-text]
+                         (filter #(and (= (:country-id %) country-id)
+                                       (not= -1 (.indexOf (:label %) filter-text))) cities))]
+    (fn []
+      [v-box
+       :gap "10px"
+       :children [[p "You may pass " [:cod "(fn [opts done fail] ...)"] " to :choices attribute to asynchronously load data.
+                      When data is loaded callback either (done result) of (fail error) should be called."]
+                  [p "Dropdown uses initial callback. This way we don't require managing callbacks and
+                      allow passing inline callback. If callback will change (e.g. dependent dropdown) - :key may be used."]
+                  [label :label "Result after a second:"]
+                  [single-dropdown
+                   :choices (fn [{:keys [filter-text]} done fail]
+                              (js/setTimeout
+                                (fn []
+                                  (done (filter-countries filter-text)))
+                                1000))
+                   :placeholder "Choose country"
+                   :model selected-country-id
+                   :filter-box? true
+                   :width "300px"
+                   :max-height "400px"
+                   :on-change #(reset! selected-country-id %)]
+                  [label :label "Dependent dropdown:"]
+                  [:div {:key @selected-country-id}
+                   [single-dropdown
+                    :choices (fn [{:keys [filter-text]} done fail]
+                               (js/setTimeout
+                                 (fn []
+                                   (done (filter-citites @selected-country-id filter-text)))
+                                 1000))
+                    :placeholder "Choose city"
+                    :model selected-city-id
+                    :filter-box? true
+                    :width "300px"
+                    :max-height "400px"
+                    :on-change #(reset! selected-city-id %)]]
+                  [label :label "With error:"]
+                  [single-dropdown
+                   :choices (fn [{:keys [filter-text]} done fail]
+                              (js/setTimeout
+                                #(if (= "please" filter-text)
+                                   (done countries)
+                                   (fail "Server error"))
+                                1000))
+                   :placeholder "Type 'please' to get results"
+                   :model @selected-country-id2
+                   :filter-box? true
+                   :width "300px"
+                   :max-height "400px"
+                   :on-change #(reset! selected-country-id2 %)]]])))
+
+(defn multiselect-demo
   []
   (let [selected-country-ids (reagent/atom #{})]
     (fn []
@@ -399,7 +459,7 @@
       [v-box
        :size     "auto"
        :gap      "10px"
-       :children [[panel-title "[dropdown ... ]"
+       :children [[panel-title "[single-dropdown ... ]"
                                 "src/re_com/dropdown.cljs"
                                 "src/re_demo/dropdowns.cljs"]
                   [h-box
@@ -437,15 +497,16 @@
                                                         :on-change #(reset! selected-demo-id %)]]]
                                            [gap :size "0px"] ;; Force a bit more space here
                                            (case @selected-demo-id
-                                             1 [demo1]
-                                             2 [demo2]
-                                             3 [demo3]
-                                             4 [demo4] ;; for testing - uncomment equivalent line in demos vector above
-                                             5 [demo5]
-                                             6 [demo6]
-                                             7 [demo7]
-                                             8 [demo8]
-                                             9 [demo9])]]]]]])))
+                                             1 [simple-demo]
+                                             2 [grouping-demo]
+                                             3 [filtering-demo]
+                                             4 [id-fn-demo] ;; for testing - uncomment equivalent line in demos vector above
+                                             5 [keyboard-demo]
+                                             6 [other-params-demo]
+                                             7 [two-dependent-demo]
+                                             8 [custom-markup-demo]
+                                             9 [async-load-demo]
+                                             10 [multiselect-demo])]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

@@ -105,8 +105,9 @@
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
   [display-month {show-weeks? :show-weeks? minimum :minimum maximum :maximum start-of-week :start-of-week}]
   (let [prev-date     (dec-month @display-month)
-        ;prev-enabled? (if minimum (after? prev-date (dec-month minimum)) true)
-        prev-enabled? (if minimum (after? prev-date minimum) true)
+        minimum       (deref-or-value minimum)
+        maximum       (deref-or-value maximum)
+        prev-enabled? (if minimum (after? prev-date (dec-month minimum)) true)
         next-date     (inc-month @display-month)
         next-enabled? (if maximum (before? next-date maximum) true)
         template-row  (if show-weeks? [:tr [:th]] [:tr])]
@@ -136,7 +137,9 @@
 (defn- table-td
   [date focus-month selected today {minimum :minimum maximum :maximum :as attributes} disabled? on-change]
   ;;following can be simplified and terse
-  (let [enabled-min   (if minimum (>=date date minimum) true)
+  (let [minimum       (deref-or-value minimum)
+        maximum       (deref-or-value maximum)
+        enabled-min   (if minimum (>=date date minimum) true)
         enabled-max   (if maximum (<=date date maximum) true)
         enabled-day   (and enabled-min enabled-max)
         disabled-day? (if enabled-day
@@ -193,8 +196,8 @@
    {:name :selectable-fn :required false :default "(fn [date] true)" :type "pred"                           :validate-fn fn?        :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
    {:name :show-weeks?   :required false :default false              :type "boolean"                                                :description "when true, week numbers are shown to the left"}
    {:name :show-today?   :required false :default false              :type "boolean"                                                :description "when true, today's date is highlighted"}
-   {:name :minimum       :required false                             :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation before this date"}
-   {:name :maximum       :required false                             :type "goog.date.UtcDateTime"          :validate-fn goog-date? :description "no selection or navigation after this date"}
+   {:name :minimum       :required false                             :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "no selection or navigation before this date"}
+   {:name :maximum       :required false                             :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "no selection or navigation after this date"}
    {:name :start-of-week :required false :default 6                  :type "int"                                                    :description "first day of week (Monday = 0 ... Sunday = 6)"}
    {:name :hide-border?  :required false :default false              :type "boolean"                                                :description "when true, the border is not displayed"}
    {:name :class         :required false                             :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
@@ -208,12 +211,12 @@
         internal-model (reagent/atom @external-model) ;; Create a new atom from the model to be used internally 
         display-month  (reagent/atom (first-day-of-the-month (or @internal-model (now))))]
     (fn datepicker-component
-      [& {:keys [model disabled? hide-border? on-change start-of-week class style attr]
+      [& {:keys [model on-change disabled? start-of-week hide-border? class style attr]
           :or   {start-of-week 6} ;; Default to Sunday
-          :as   properties}]
-      {:pre [(validate-args-macro datepicker-args-desc properties "datepicker")]}
+          :as   args}]
+      {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
       (let [latest-ext-model    (deref-or-value model)
-            props-with-defaults (merge properties {:start-of-week start-of-week})
+            props-with-defaults (merge args {:start-of-week start-of-week})
             configuration       (configure props-with-defaults)]
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)

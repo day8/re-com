@@ -30,14 +30,11 @@
   []
   [:span
    "See "
-   [box
-    :class "inline-hyperlink" ;; Convert hyperlink box wrapper to be inline rather than block
-    :style {:display "inline"}
-    :child [hyperlink
-            :label "Popover Demos"
-            :on-click #(do
-                        (.open js/window "#/popovers" "_self")
-                        (scroll-to-top (get-element-by-id "right-panel")))]]
+   [hyperlink
+    :label "Popover Demos"
+    :on-click #(do
+                 (.open js/window "#/popovers" "_self")
+                 (scroll-to-top (get-element-by-id "right-panel")))]
    " page."])
 
 (defn simple-code-and-demo []
