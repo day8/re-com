@@ -1,7 +1,6 @@
 (ns re-demo.tabs
-  (:require [re-com.core             :refer [h-box v-box box gap line scroller border horizontal-tabs horizontal-bar-tabs
-                                             vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs label button
-                                             single-dropdown p]]
+  (:require [re-com.core             :refer [h-box v-box box gap line scroller border horizontal-tabs horizontal-bar-tabs vertical-bar-tabs
+                                             horizontal-pill-tabs vertical-pill-tabs label button single-dropdown p]]
             [re-com.tabs             :refer [tabs-args-desc]]
             [re-com.util             :refer [item-for-id]]
             [re-demo.utils           :refer [panel-title title2 args-table github-hyperlink status-text]]

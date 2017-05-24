@@ -3,9 +3,8 @@
   (:require [re-com.util     :refer [deref-or-value px]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-            [re-com.validate :refer [input-status-type? input-status-types-list regex?
-                                     string-or-hiccup? css-style? html-attr? number-or-string?
-                                     string-or-atom? throbber-size? throbber-sizes-list] :refer-macros [validate-args-macro]]
+            [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr?
+                                     number-or-string? string-or-atom? throbber-size? throbber-sizes-list] :refer-macros [validate-args-macro]]
             [reagent.core    :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------

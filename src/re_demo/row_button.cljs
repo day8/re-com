@@ -1,6 +1,5 @@
 (ns re-demo.row-button
-  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox horizontal-bar-tabs vertical-bar-tabs title p]
-                                           :refer-macros [handler-fn]]
+  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox horizontal-bar-tabs vertical-bar-tabs title p] :refer-macros [handler-fn]]
             [re-com.buttons                :refer [row-button-args-desc]]
             [re-com.util                   :refer [enumerate]]
             [re-demo.md-circle-icon-button :refer [icons example-icons]]

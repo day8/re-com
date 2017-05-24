@@ -1,10 +1,10 @@
 (ns re-demo.typeahead
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [re-com.core   :refer [h-box v-box box gap line typeahead label checkbox radio-button slider title p]]
-            [re-com.typeahead   :refer [typeahead-args-desc]]
-            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
-            [reagent.core  :as    reagent]
-            [cljs.core.async  :refer    [timeout]]))
+  (:require [re-com.core      :refer [h-box v-box box gap line typeahead label checkbox radio-button slider title p]]
+            [re-com.typeahead :refer [typeahead-args-desc]]
+            [re-demo.utils    :refer [panel-title title2 args-table github-hyperlink status-text]]
+            [reagent.core     :as    reagent]
+            [cljs.core.async  :refer [timeout]]))
 
 (declare md-icon-names)
 

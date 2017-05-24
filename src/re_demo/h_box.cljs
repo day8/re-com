@@ -1,8 +1,7 @@
 (ns re-demo.h-box
   (:require [clojure.string  :as    string]
-            [re-com.core     :refer [p h-box v-box box gap line scroller border label title button checkbox hyperlink-href
-                                     slider horizontal-bar-tabs info-button input-text input-textarea
-                                     popover-anchor-wrapper popover-content-wrapper popover-tooltip px] :refer-macros [handler-fn]]
+            [re-com.core     :refer [p h-box v-box box gap line scroller border label title button checkbox hyperlink-href slider horizontal-bar-tabs info-button
+                                     input-text input-textarea popover-anchor-wrapper popover-content-wrapper popover-tooltip px] :refer-macros [handler-fn]]
             [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc flex-child-style]]
             [re-com.util     :refer [px]]
             [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]

@@ -1,6 +1,5 @@
 (ns re-demo.tour
-  (:require [re-com.core   :refer [h-box v-box box gap align-style make-tour start-tour make-tour-nav button
-                                   popover-content-wrapper popover-anchor-wrapper p]]
+  (:require [re-com.core   :refer [h-box v-box box gap align-style make-tour start-tour make-tour-nav button popover-content-wrapper popover-anchor-wrapper p]]
             [re-demo.utils :refer [panel-title title2 github-hyperlink status-text]]))
 
 

@@ -1,10 +1,10 @@
 (ns re-com.dropdown
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util      :refer [deref-or-value position-for-id item-for-id]]
-            [re-com.box       :refer [align-style flex-child-style]]
-            [re-com.validate  :refer [vector-of-maps? css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
-            [clojure.string   :as    string]
-            [reagent.core     :as    reagent]))
+  (:require [re-com.util     :refer [deref-or-value position-for-id item-for-id]]
+            [re-com.box      :refer [align-style flex-child-style]]
+            [re-com.validate :refer [vector-of-maps? css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
+            [clojure.string  :as    string]
+            [reagent.core    :as    reagent]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
