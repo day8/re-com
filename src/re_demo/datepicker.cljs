@@ -103,7 +103,7 @@
                                :gap      "5px"
                                :children [[label
                                            :style label-style
-                                           :label (str " :maximum " (date->string @model2))]
+                                           :label [:span " :maximum " (date->string @model2) [:br] ":start-of-week Sunday"]]
                                           [datepicker
                                            :model         model1
                                            :maximum       model2
@@ -132,7 +132,7 @@
                                :gap      "5px"
                                :children [[label
                                            :style label-style
-                                           :label (str ":minimum " (date->string @model1) ", :start-of-week Monday")]
+                                           :label [:span ":minimum " (date->string @model1) [:br] ":start-of-week Monday"]]
                                           [datepicker
                                            :start-of-week 0
                                            :model         model2
