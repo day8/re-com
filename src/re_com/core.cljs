@@ -81,8 +81,8 @@
 (def vertical-pill-tabs         tabs/vertical-pill-tabs)
 
 (def label                      text/label)
-(def title                      text/title)
 (def p                          text/p)
+(def title                      text/title)
 
 (def make-tour                  tour/make-tour)
 (def start-tour                 tour/start-tour)

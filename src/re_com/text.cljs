@@ -73,6 +73,10 @@
                                   :style {:margin-bottom margin-bottom}])]]))
 
 
+;; ------------------------------------------------------------------------------------
+;;  Component: p
+;; ------------------------------------------------------------------------------------
+
 (defn p
   "acts like [:p ]
 
@@ -81,7 +85,7 @@
 
    Why limited text width?  See http://baymard.com/blog/line-length-readability
 
-   The actualy font-size is inherited.
+   The actual font-size is inherited.
 
    At 14px, 450px will yield between 69 and 73 chars.
    At 15px, 450px will yield about 66 to 70 chars.
@@ -98,5 +102,3 @@
                                            :min-width "450px"}}
                                   m)]
     [:span m (into [:p] children)]))    ;; the wrapping span allows children to contain [:ul] etc
-
-

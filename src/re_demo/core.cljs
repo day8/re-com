@@ -5,7 +5,7 @@
             [reagent.core                  :as    reagent]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
-            [re-com.core                   :refer [h-box v-box box gap line scroller border label title alert-box h-split] :refer-macros [handler-fn]]
+            [re-com.core                   :refer [h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]
             [re-demo.introduction          :as    introduction]
@@ -14,6 +14,7 @@
             [re-demo.input-text            :as    input-text]
             [re-demo.slider                :as    slider]
             [re-demo.label                 :as    label]
+            [re-demo.p                     :as    p]
             [re-demo.title                 :as    title]
             [re-demo.progress-bar          :as    progress-bar]
             [re-demo.throbber              :as    throbber]
@@ -72,7 +73,7 @@
    {:id :time                   :level :minor :label "Input Time"         :panel input-time/panel}
 
    {:id :selection              :level :major :label "Selection"}
-   {:id :dropdown               :level :minor :label "Dropdowns"          :panel dropdowns/panel}
+   {:id :dropdown               :level :minor :label "Dropdown"           :panel dropdowns/panel}
    {:id :lists                  :level :minor :label "Selection List"     :panel selection-list/panel}
    {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
@@ -85,6 +86,7 @@
 
    {:id :typography             :level :major :label "Typography"}
    {:id :label                  :level :minor :label "Label"              :panel label/panel}
+   {:id :p                      :level :minor :label "Paragraph (p)"      :panel p/panel}
    {:id :title                  :level :minor :label "Title"              :panel title/panel} ;; TODO: field-label?
    {:id :alert-box              :level :minor :label "Alert Box"          :panel alert-box/panel}
    {:id :alert-list             :level :minor :label "Alert List"         :panel alert-list/panel}
