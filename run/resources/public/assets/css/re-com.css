@@ -1048,6 +1048,10 @@ code {
     color:  #428bca;
 }
 
+.rc-md-circle-icon-button:active {
+    border: 1px solid #1770b5;
+    color:  #1770b5;
+
 .rc-circle-smaller {
     width:  26px;
     height: 26px;
@@ -1111,6 +1115,10 @@ code {
 
 .rc-md-icon-button:hover {
     color: #2196f3;
+}
+
+.rc-md-icon-button:active {
+    color: #1770b5;
 }
 
 .rc-icon-smaller {
