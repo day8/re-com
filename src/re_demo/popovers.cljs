@@ -1,10 +1,7 @@
 (ns re-demo.popovers
-  (:require [re-com.core                 :refer [h-box v-box box gap line scroller border label title input-text checkbox radio-button button
-                                                 hyperlink hyperlink-href p single-dropdown popover-content-wrapper popover-anchor-wrapper
-                                                 popover-border popover-tooltip flex-child-style]
-             :refer-macros [handler-fn]]
-            [re-com.popover              :refer [popover-content-wrapper-args-desc popover-anchor-wrapper-args-desc popover-border-args-desc
-                                                 popover-tooltip-args-desc]]
+  (:require [re-com.core                 :refer [h-box v-box box gap line scroller border label title input-text checkbox radio-button button hyperlink hyperlink-href p  single-dropdown
+                                                 popover-content-wrapper popover-anchor-wrapper popover-border popover-tooltip flex-child-style] :refer-macros [handler-fn]]
+            [re-com.popover              :refer [popover-content-wrapper-args-desc popover-anchor-wrapper-args-desc popover-border-args-desc popover-tooltip-args-desc]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
             [re-com.util                 :refer [get-element-by-id px]]
             [re-demo.utils               :refer [panel-title title2 args-table github-hyperlink status-text scroll-to-top]]

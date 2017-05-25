@@ -55,9 +55,9 @@
         popover-left   (case pop-orient
                          :left           "initial" ;; TODO: Ultimately remove this (must have NO :left which is in Bootstrap .popover class)
                          :right          (px total-offset)
-                         (:above :below) (px (if pop-offset pop-offset (/ p-width 2)) :negative))
+                         (:above :below) (px (or pop-offset (/ p-width 2)) :negative))
         popover-top    (case pop-orient
-                         (:left :right)  (px (if pop-offset pop-offset (/ p-height 2)) :negative)
+                         (:left :right)  (px (or pop-offset (/ p-height 2)) :negative)
                          :above          "initial"
                          :below          (px total-offset))
         popover-right  (case pop-orient
@@ -157,7 +157,7 @@
                     :width            "100%"
                     :height           "100%"
                     :background-color "black"
-                    :opacity          (if opacity opacity 0.0)}
+                    :opacity          (or opacity 0.0)}
          :on-click (handler-fn (on-click))}])
 
 
@@ -288,9 +288,9 @@
                              (when pop-id (calc-popover-pos orientation @p-width @p-height @pop-offset arrow-length arrow-gap))
                              {:top "-10000px" :left "-10000px"})
 
-                           (if width  {:width  width})
-                           (if height {:height height})
-                           (if popover-color {:background-color popover-color})
+                           (when width  {:width  width})
+                           (when height {:height height})
+                           (when popover-color {:background-color popover-color})
                            (when tooltip-style?
                              {:border-radius "4px"
                               :box-shadow    "none"

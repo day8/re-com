@@ -55,7 +55,7 @@
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
-                   :position (if tooltip-position tooltip-position :below-center)
+                   :position (or tooltip-position :below-center)
                    :showing? showing?
                    :anchor   the-button]
                   the-button)]))))
@@ -115,7 +115,7 @@
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
-                   :position (if tooltip-position tooltip-position :below-center)
+                   :position (or tooltip-position :below-center)
                    :showing? showing?
                    :anchor   the-button]
                   the-button)]))))
@@ -175,7 +175,7 @@
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
-                   :position (if tooltip-position tooltip-position :below-center)
+                   :position (or tooltip-position :below-center)
                    :showing? showing?
                    :anchor   the-button]
                   the-button)]))))
@@ -206,8 +206,8 @@
       [popover-tooltip
        :label     info
        :status    :info
-       :position  (if position position :right-below)
-       :width     (if width width "250px")
+       :position  (or position :right-below)
+       :width     (or width "250px")
        :showing?  showing?
        :on-cancel #(swap! showing? not)
        :anchor    [:div
@@ -269,7 +269,7 @@
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
-                   :position (if tooltip-position tooltip-position :below-center)
+                   :position (or tooltip-position :below-center)
                    :showing? showing?
                    :anchor   the-button]
                   the-button)]))))
@@ -325,7 +325,7 @@
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
-                   :position (if tooltip-position tooltip-position :below-center)
+                   :position (or tooltip-position :below-center)
                    :showing? showing?
                    :anchor   the-button]
                   the-button)]))))
@@ -376,7 +376,7 @@
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
-                   :position (if tooltip-position tooltip-position :below-center)
+                   :position (or tooltip-position :below-center)
                    :showing? showing?
                    :anchor   the-button]
                   the-button)]))))

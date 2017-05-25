@@ -25,7 +25,7 @@
                            :gap      "10px"
                            :children [[title2 "Demo"]
                                       [v-box
-                                       :children [[label :label "This is a label"]]]]]]]]])
+                                       :children [[label :label "This is a label."]]]]]]]]])
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

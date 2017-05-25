@@ -1,7 +1,7 @@
 (ns re-com.box
   (:require [clojure.string  :as    string]
-            [re-com.validate :refer [justify-style? justify-options-list align-style? align-options-list
-                                     scroll-style? scroll-options-list string-or-hiccup? css-style? html-attr?] :refer-macros [validate-args-macro]]))
+            [re-com.validate :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
+                                     scroll-options-list string-or-hiccup? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 (def debug false)
 

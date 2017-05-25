@@ -1,8 +1,8 @@
 (ns re-demo.throbber
-  (:require [re-com.core    :refer [h-box v-box box gap line button label throbber p]]
-            [re-com.misc    :refer [throbber-args-desc]]
-            [re-demo.utils  :refer [panel-title title2 args-table github-hyperlink status-text]]
-            [reagent.core   :as    reagent]))
+  (:require [re-com.core   :refer [h-box v-box box gap line button label throbber p]]
+            [re-com.misc   :refer [throbber-args-desc]]
+            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
+            [reagent.core  :as    reagent]))
 
 
 (def state (reagent/atom
