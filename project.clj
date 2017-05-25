@@ -4,7 +4,7 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "2.0.0"
+(defproject         re-com "2.1.0"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
@@ -39,6 +39,7 @@
                                  :plugins      [[lein-cljsbuild                  "1.1.5"]
                                                 [lein-figwheel                   "0.5.9"]
                                                 [lein-shell                      "0.5.0"]
+                                                [org.clojure/data.json           "0.2.6"]
                                                 [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
                                                 [lein-ancient                    "0.6.10"]]}
                      :demo {:dependencies [[alandipert/storage-atom "2.0.1"]
