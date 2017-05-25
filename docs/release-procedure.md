@@ -7,6 +7,8 @@ A number of things need to be set up before the release procedure can commence.
 
 ### GPG
 
+NOTE: GPG signing is no longer required but we'll leave the process here just in case we need to reinstate it...
+
 Here are the basic instructions to follow to get GPG running: https://github.com/technomancy/leiningen/blob/stable/doc/GPG.md
 
 A few notes for Windows:
@@ -69,10 +71,10 @@ Note that all these commands are entered at the repo root folder.
 
 - [ ] Push this release to Clojars:
 
-       lein deploy clojars
+       lein deploy
        ---
        Will prompt for your Clojars username and password
-       Will also prompt for your GPG passphrase
+       Note: `project.clj` has been modified to no longer require signing, so it will no longer prompt for a passphrase
 
 
 ### Deploy demo to AWS
