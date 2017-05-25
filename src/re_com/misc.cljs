@@ -106,7 +106,7 @@
                                         :input "text"
                                         :password "password"
                                         nil)
-                         :rows        (when (= input-type :textarea) (if rows rows 3))
+                         :rows        (when (= input-type :textarea) (or rows 3))
                          :style       (merge
                                         (flex-child-style "none")
                                         {:height        height
@@ -332,7 +332,7 @@
                              (flex-child-style "none")
                              {;:-webkit-appearance "slider-vertical"   ;; TODO: Make a :orientation (:horizontal/:vertical) option
                               ;:writing-mode       "bt-lr"             ;; Make IE slider vertical
-                              :width  (if width width "400px")
+                              :width  (or width "400px")
                               :cursor (if disabled? "not-allowed" "default")}
                              style)
                 :min       min
