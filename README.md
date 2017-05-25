@@ -31,12 +31,12 @@ In short, re-com attempts to provide the kind of UI basics you'd need to build a
 ## Warning: re-com Might Not Be For You (just yet)
 
 We build desktop-class apps to run in controlled browser environments
-like [atom-shell](https://github.com/atom/atom-shell).  So, we know we're dealing with Chrome.
+like [Electron](https://electron.atom.io).  So, we know we're dealing with Chrome.
 
 If you are similar, or if you work on Intranet apps where you can mandate a modern browser,
 re-com could be ideal for you, right now.
 
-On the other hand, if you target the retail web, you will have to make your own determination, based on [availability of support for Flexbox](http://caniuse.com/#feat=flexbox). The entire layout side of this library plus a few of the widgets rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) which only works on [modern browsers](http://caniuse.com/#feat=flexbox), and specifically not IE 9, 10, 11.
+On the other hand, if you target the retail web, you will have to make your own determination, based on [availability of support for Flexbox](http://caniuse.com/#feat=flexbox). The entire layout side of this library plus a few of the widgets rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) which doesn't work on some older browser versions, specifically IE 9, 10, and 11 (even Edge is not quite perfect yet).
 
 Even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
 testing once a month, re-com appears to work reasonably on IE11 and Safari. 
