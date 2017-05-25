@@ -33,9 +33,11 @@ Note that all these commands are entered at the repo root folder.
 
 - [ ] Close all auto-compiles (command line and/or IntelliJ).
 - [ ] Build each of these aliases (will require separate terminals for each):
-       - `lein dev-auto`
-       - `lein prod-auto`
-       - `lein test-auto`
+
+       lein dev-auto
+       lein prod-auto
+       lein test-auto
+
 - [ ] For `dev` and `prod`, run through each demo page and make sure no errors or debug output appears in the console. 
 - [ ] For `test`, make sure all tests pass. Modify code/tests until all tests pass. 
 - [ ] Close all auto-compiles again.
@@ -47,10 +49,12 @@ Note that all these commands are entered at the repo root folder.
 - [ ] Bump version in project.clj to `x.x.x`.
 - [ ] Update README.md file if required.
 - [ ] Push master:
-       - `git commit -a -m "Bumped version to x.x.x  etc."`
-       - `git tag x.x.x`
-       - `git push`
-       - `git push --tags`
+
+       git commit -a -m "Bumped version to x.x.x  etc."
+       git tag x.x.x
+       git push
+       git push --tags
+
 - [ ] Create a GitHub Release:
        - Go to: https://github.com/Day8/re-com/releases
        - Should see your version `x.x.x` tag at the top.
@@ -64,18 +68,22 @@ Note that all these commands are entered at the repo root folder.
 ### Push library to Clojars
 
 - [ ] Push this release to Clojars:
-       - `lein deploy clojars`
-       - Will prompt for your Clojars username and password.
-       - Will also prompt for your GPG passphrase.
+
+       lein deploy clojars
+       ---
+       Will prompt for your Clojars username and password
+       Will also prompt for your GPG passphrase
 
 
 ### Deploy demo to AWS
 
 - [ ] Deploy demo to AWS:
-       - `lein s3-static-deploy`
-       - Could have used `lein deploy-aws` but this also builds the `prod` version which we have already just built.
-       - Manually change `index.html` to `index_prod.html` in S3 Browser. TODO: Find a way to automate this.
-       - Test it: http://re-demo.s3-website-ap-southeast-2.amazonaws.com.
+
+       lein s3-static-deploy
+       ---
+       Could have used `lein deploy-aws` but this also builds the `prod` version which we have already just built.
+       Manually change `index.html` to `index_prod.html` in S3 Browser. TODO: Find a way to automate this.
+       Test it: http://re-demo.s3-website-ap-southeast-2.amazonaws.com.
 
 
 ### Final tasks
