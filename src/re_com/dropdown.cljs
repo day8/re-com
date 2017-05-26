@@ -197,7 +197,6 @@
   [choices-state choices text regex-filter?]
   (let [id (inc (:id @choices-state))
         callback (fn [{:keys [result error] :as args}]
-                   (println "single-dropdown callback" id args @choices-state)
                    (when (= id (:id @choices-state))
                      (swap! choices-state assoc
                             :loading? false
@@ -360,7 +359,6 @@
            attr)          ;; Prevent user text selection
          [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?]
          (when (and @drop-showing? (not disabled?))
-           (println "render" choices-fn? @choices-state)
            [:div.chosen-drop
             [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true)]
             [:ul.chosen-results
