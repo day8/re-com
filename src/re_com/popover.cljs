@@ -25,6 +25,7 @@
 (defn- close-button
   "A button with a big X in it, placed to the right of the popover title"
   [showing? close-callback style]
+  ;; note if close-callback is not used showing? must be a ratom
   ;; Can't use [button] because [button] already uses [popover] which would be a circular dependency.
   [:button
    {:on-click (handler-fn
@@ -323,7 +324,9 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-content-wrapper-args-desc
-  [{:name :showing-injected? :required true                         :type "boolean atom"                                    :description [:span "an atom. When the value is true, the popover shows." [:br] [:strong "NOTE: "] "When used as direct " [:code ":popover"] " arg in popover-anchor-wrapper, this arg will be injected automatically by popover-anchor-wrapper. If using your own popover function, you must add this yourself"]}
+  [{:name :showing-injected? :required true                         :type "boolean atom"                                    :description [:span "an atom or value. When the value is true, the popover shows." [:br]
+                                                                                                                                          "When on-cancel is not provided this must be an atom" [:br]
+                                                                                                                                          [:strong "NOTE: "] "When used as direct " [:code ":popover"] " arg in popover-anchor-wrapper, this arg will be injected automatically by popover-anchor-wrapper. If using your own popover function, you must add this yourself"]}
    {:name :position-injected :required true                         :type "keyword atom"     :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list [:br] [:strong "NOTE: "] "See above NOTE for " [:code ":showing-injected?"] ". Same applies" ]}
    {:name :position-offset   :required false                        :type "integer"          :validate-fn number?           :description [:span "px offset of the arrow from its default " [:code ":position"] " along the popover border. Is ignored when " [:code ":position"] " is one of the " [:code ":xxx-center"] " variants. Positive numbers slide the popover toward its center"]}
    {:name :no-clip?          :required false  :default false        :type "boolean"                                         :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. By passing true for this parameter, re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
@@ -360,49 +363,49 @@
       {:display-name "popover-content-wrapper"
 
        :component-did-mount
-       (fn [this]
-         (position-no-clip-popover this))
+                     (fn [this]
+                       (position-no-clip-popover this))
 
        :component-did-update
-       (fn [this]
-         (position-no-clip-popover this))
+                     (fn [this]
+                       (position-no-clip-popover this))
 
        :reagent-render
-       (fn
-         [& {:keys [showing-injected? position-injected position-offset no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width arrow-gap padding style]
-             :or {arrow-length 11 arrow-width 22 arrow-gap -1}
-             :as args}]
-         {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
+                     (fn
+                       [& {:keys [showing-injected? position-injected position-offset no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width arrow-gap padding style]
+                           :or   {arrow-length 11 arrow-width 22 arrow-gap -1}
+                           :as   args}]
+                       {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
 
-         @position-injected ;; Dereference this atom. Although nothing here needs its value explicitly, the calculation of left-offset and top-offset are affected by it for :no-clip? true
-         [:div
-          {:class "popover-content-wrapper"
-           :style (merge (flex-child-style "inherit")
-                         (when no-clip? {:position "fixed"
-                                         :left      (px @left-offset)
-                                         :top       (px @top-offset)})
-                         style)}
-          (when (and @showing-injected? on-cancel)
-            [backdrop
-             :opacity  backdrop-opacity
-             :on-click on-cancel])
-          [popover-border
-           :position        position-injected
-           :position-offset position-offset
-           :width           width
-           :height          height
-           :tooltip-style?  tooltip-style?
-           :popover-color   popover-color
-           :arrow-length    arrow-length
-           :arrow-width     arrow-width
-           :arrow-gap       arrow-gap
-           :padding         padding
-           :title           (when title [popover-title
-                                         :title          title
-                                         :showing?       showing-injected?
-                                         :close-button?  close-button?
-                                         :close-callback on-cancel])
-           :children        [body]]])})))
+                       @position-injected ;; Dereference this atom. Although nothing here needs its value explicitly, the calculation of left-offset and top-offset are affected by it for :no-clip? true
+                       [:div
+                        {:class "popover-content-wrapper"
+                         :style (merge (flex-child-style "inherit")
+                                       (when no-clip? {:position "fixed"
+                                                       :left     (px @left-offset)
+                                                       :top      (px @top-offset)})
+                                       style)}
+                        (when (and (deref-or-value showing-injected?) on-cancel)
+                          [backdrop
+                           :opacity backdrop-opacity
+                           :on-click on-cancel])
+                        [popover-border
+                         :position position-injected
+                         :position-offset position-offset
+                         :width width
+                         :height height
+                         :tooltip-style? tooltip-style?
+                         :popover-color popover-color
+                         :arrow-length arrow-length
+                         :arrow-width arrow-width
+                         :arrow-gap arrow-gap
+                         :padding padding
+                         :title (when title [popover-title
+                                             :title title
+                                             :showing? showing-injected?
+                                             :close-button? close-button?
+                                             :close-callback on-cancel])
+                         :children [body]]])})))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -410,7 +413,8 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-anchor-wrapper-args-desc
-  [{:name :showing? :required true                        :type "boolean atom"                                   :description "an atom. When the value is true, the popover shows"}
+  [{:name :showing? :required true :type "boolean atom" :description [:span "an atom or value. When the value is true, the popover shows" [:br]
+                                                                      " if on-cancel is not provided this must be an atom"]}
    {:name :position :required true                        :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :anchor   :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the component the popover is attached to"}
    {:name :popover  :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the popover body component"}
@@ -422,7 +426,7 @@
   {:pre [(validate-args-macro popover-anchor-wrapper-args-desc args "popover-anchor-wrapper")]}
   (let [external-position (reagent/atom position)
         internal-position (reagent/atom @external-position)
-        reset-on-hide     (reaction (when-not @showing? (reset! internal-position @external-position)))]
+        reset-on-hide     (reaction (when-not (deref-or-value showing?) (reset! internal-position @external-position)))]
     (reagent/create-class
       {:display-name "popover-anchor-wrapper"
 
@@ -447,7 +451,7 @@
                             (flex-flow-style flex-flow)
                             (align-style :align-items :center))}
              (when place-anchor-before? anchor)
-             (when @showing?
+             (when (deref-or-value showing?)
                [:div                             ;; The "point" that connects the anchor to the popover
                 {:class "rc-popover-point display-inline-flex"
                  :style (merge (flex-child-style "auto")
