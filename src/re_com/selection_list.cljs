@@ -126,6 +126,7 @@
     ;; TODO: GR commented this out to fix the bug where #{nil} was being returned for an empty list. Remove when we're sure there are no ill effects.
     #_(when-not (= selected model) (on-change selected))
     [border
+     :class  "rc-selection-list"
      :radius "4px"
      :border (when hide-border? "none")
      :child  (into [:div {:class "list-group noselect" :style (merge list-style bounds spacing)}] items)]))

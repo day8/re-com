@@ -150,15 +150,15 @@
   "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
   [& {:keys [opacity on-click] :as args}]
   {:pre [(validate-args-macro backdrop-args-desc args "backdrop")]}
-  [:div {:class     "rc-backdrop noselect"
-         :style    {:position         "fixed"
-                    :left             "0px"
-                    :top              "0px"
-                    :width            "100%"
-                    :height           "100%"
-                    :background-color "black"
-                    :opacity          (or opacity 0.0)}
-         :on-click (handler-fn (on-click))}])
+  [:div.rc-backdrop.noselect
+   {:style    {:position         "fixed"
+               :left             "0px"
+               :top              "0px"
+               :width            "100%"
+               :height           "100%"
+               :background-color "black"
+               :opacity          (or opacity 0.0)}
+    :on-click (handler-fn (on-click))}])
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -375,9 +375,8 @@
          {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
 
          @position-injected ;; Dereference this atom. Although nothing here needs its value explicitly, the calculation of left-offset and top-offset are affected by it for :no-clip? true
-         [:div
-          {:class "popover-content-wrapper"
-           :style (merge (flex-child-style "inherit")
+         [:div.popover-content-wrapper
+          {:style (merge (flex-child-style "inherit")
                          (when no-clip? {:position "fixed"
                                          :left      (px @left-offset)
                                          :top       (px @top-offset)})
@@ -438,9 +437,10 @@
          (let [[orientation _arrow-pos] (split-keyword @internal-position "-") ;; only need orientation here
                place-anchor-before?    (case orientation (:left :above) false true)
                flex-flow               (case orientation (:left :right) "row" "column")]
-           [:div {:class  "rc-popover-anchor-wrapper display-inline-flex"
-                  :style (merge (flex-child-style "inherit")
-                                style)}
+           [:div
+            {:class  "rc-popover-anchor-wrapper display-inline-flex"
+             :style (merge (flex-child-style "inherit")
+                           style)}
             [:div                                ;; Wrapper around the anchor and the "point"
              {:class "rc-point-wrapper display-inline-flex"
               :style (merge (flex-child-style "auto")

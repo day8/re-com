@@ -50,7 +50,7 @@
         (when disabled?
           (reset! showing? false))
         [box
-         :class "display-inline-flex"
+         :class "rc-button-wrapper display-inline-flex"
          :align :start
          :child (if tooltip
                   [popover-tooltip
@@ -110,7 +110,7 @@
                           attr)
                         [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
         [box
-         :class "display-inline-flex"
+         :class "rc-md-circle-icon-button-wrapper display-inline-flex"
          :align :start
          :child (if tooltip
                   [popover-tooltip
@@ -170,7 +170,7 @@
                           attr)
                         [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
         [box
-         :class "display-inline-flex"
+         :class "rc-md-icon-button-wrapper display-inline-flex"
          :align :start
          :child (if tooltip
                   [popover-tooltip
@@ -264,7 +264,7 @@
                           attr)
                         [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
         [box
-         :class "display-inline-flex"
+         :class "rc-row-button-wrapper display-inline-flex"
          :align :start
          :child (if tooltip
                   [popover-tooltip
@@ -320,7 +320,7 @@
                                   attr)
                                 label]]]
         [box
-         :class "display-inline-flex"
+         :class "rc-hyperlink-wrapper display-inline-flex"
          :align :start
          :child (if tooltip
                   [popover-tooltip
@@ -371,7 +371,7 @@
                         label]]
 
         [box
-         :class "display-inline-flex"
+         :class "rc-hyperlink-href-wrapper display-inline-flex"
          :align :start
          :child (if tooltip
                   [popover-tooltip

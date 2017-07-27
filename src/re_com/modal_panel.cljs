@@ -36,7 +36,8 @@
                          style)}
           attr)
    [:div    ;; Backdrop
-    {:style    {:position         "fixed"
+    {:class    "rc-modal-panel-backdrop"
+     :style    {:position         "fixed"
                 :width            "100%"
                 :height           "100%"
                 :background-color backdrop-color
@@ -46,7 +47,8 @@
                            (.preventDefault event)
                            (.stopPropagation event))}]
    [:div    ;; Child container
-    {:style (merge {:margin  "auto"
+    {:class    "rc-modal-panel-container"
+     :style (merge {:margin  "auto"
                     :z-index 2}
                    (when wrap-nicely? {:background-color "white"
                                        :padding          "16px"

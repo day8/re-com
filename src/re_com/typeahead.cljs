@@ -261,6 +261,7 @@
         (when (not= latest-external-model external-model)
           (swap! state-atom external-model-changed latest-external-model))
         [v-box
+         :class "rc-typeahead"
          :width width
          :children
          [[input-text

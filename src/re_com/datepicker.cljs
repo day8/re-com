@@ -240,7 +240,7 @@
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   [shown? model format]
-  [:div {:class    "input-group display-flex noselect"
+  [:div {:class    "rc-datepicker-dropdown input-group display-flex noselect"
          :style    (flex-child-style "none")
          :on-click (handler-fn (swap! shown? not))}
    [h-box

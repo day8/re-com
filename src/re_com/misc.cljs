@@ -24,6 +24,7 @@
   {:pre [(validate-args-macro throbber-args-desc args "throbber")]}
   (let [seg (fn [] [:li (when color {:style {:background-color color}})])]
     [box
+     :class "rc-throbber-wrapper"
      :align :start
      :child [:ul
              (merge {:class (str "rc-throbber loader "
@@ -87,9 +88,9 @@
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model))
         [h-box
+         :class    "rc-input-text "
          :align    :start
          :width    (if width width "250px")
-         :class    "rc-input-text "
          :children [[:div
                      {:class (str "rc-input-text-inner "          ;; form-group
                                   (case status
@@ -219,8 +220,8 @@
         callback-fn #(when (and on-change (not disabled?))
                       (on-change (not model)))]  ;; call on-change with either true or false
     [h-box
+     :class    "rc-checkbox-wrapper noselect"
      :align    :start
-     :class    "noselect"
      :children [[:input
                  (merge
                    {:class     "rc-checkbox"
@@ -234,12 +235,12 @@
                    attr)]
                 (when label
                   [:span
-                   {:on-click (handler-fn (callback-fn))
-                    :class    label-class
+                   {:class    label-class
                     :style    (merge (flex-child-style "none")
                                      {:padding-left "8px"
                                       :cursor       cursor}
-                                     label-style)}
+                                     label-style)
+                    :on-click (handler-fn (callback-fn))}
                    label])]]))
 
 
@@ -269,28 +270,28 @@
         callback-fn #(when (and on-change (not disabled?))
                       (on-change value))]  ;; call on-change with the :value arg
     [h-box
+     :class    "rc-radio-button-wrapper noselect"
      :align    :start
-     :class    "noselect"
      :children [[:input
                  (merge
                    {:class     "rc-radio-button"
-                    :type      "radio"
                     :style     (merge
                                  (flex-child-style "none")
                                  {:cursor cursor}
                                  style)
+                    :type      "radio"
                     :disabled  disabled?
                     :checked   (= model value)
                     :on-change (handler-fn (callback-fn))}
                    attr)]
                 (when label
                   [:span
-                   {:on-click (handler-fn (callback-fn))
-                    :class    label-class
+                   {:class    label-class
                     :style    (merge (flex-child-style "none")
                                      {:padding-left "8px"
                                       :cursor       cursor}
-                                     label-style)}
+                                     label-style)
+                    :on-click (handler-fn (callback-fn))}
                    label])]]))
 
 
@@ -322,6 +323,7 @@
         step      (deref-or-value step)
         disabled? (deref-or-value disabled?)]
     [box
+     :class "rc-slider-wrapper"
      :align :start
      :child [:input
              (merge
@@ -365,6 +367,7 @@
   {:pre [(validate-args-macro progress-bar-args-desc args "progress-bar")]}
   (let [model (deref-or-value model)]
     [box
+     :class "rc-progress-bar-wrapper"
      :align :start
      :child [:div
              (merge

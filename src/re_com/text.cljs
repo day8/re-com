@@ -23,9 +23,9 @@
       :as   args}]
   {:pre [(validate-args-macro label-args-desc args "label")]}
   [box
+   :class "rc-label-wrapper display-inline-flex"
    :width width
    :align :start
-   :class "display-inline-flex"
    :child [:span
            (merge
              {:class (str "rc-label " class)
@@ -59,7 +59,7 @@
   {:pre [(validate-args-macro title-args-desc args "title")]}
   (let [preset-class (if (nil? level) "" (name level))]
     [v-box
-     :class    preset-class
+     :class    (str "rc-title-wrapper" preset-class)
      :children [[:span (merge {:class (str "rc-title display-flex " preset-class " " class)
                                :style (merge (flex-child-style "none")
                                              {:margin-top margin-top}
@@ -101,4 +101,6 @@
                                            :width     "450px"
                                            :min-width "450px"}}
                                   m)]
-    [:span m (into [:p] children)]))    ;; the wrapping span allows children to contain [:ul] etc
+    [:span.rc-p
+     m
+     (into [:p] children)]))    ;; the wrapping span allows children to contain [:ul] etc
