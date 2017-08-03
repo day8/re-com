@@ -40,7 +40,7 @@
     [:div
      (merge {:class (str "rc-alert alert fade in " alert-class " " class)
              :style (merge (flex-child-style "none")
-                           {:padding (when padding padding)}
+                           {:padding padding}
                            style)}
             attr)
      (when heading
@@ -71,6 +71,8 @@
    {:name :max-height   :required false                                :type "string"                :validate-fn string?         :description "CSS style for maximum list height. By default, it grows forever"}
    {:name :padding      :required false :default "4px"                 :type "string"                :validate-fn string?         :description "CSS padding within the alert"}
    {:name :border-style :required false :default "1px solid lightgrey" :type "string"                :validate-fn string?         :description "CSS border style surrounding the list"}
+   {:name :alert-class  :required false                                :type "string"                :validate-fn string?         :description "CSS class names, space separated. Applied to each alert-box component"}
+   {:name :alert-style  :required false                                :type "CSS style map"         :validate-fn css-style?      :description "CSS styles. Applied to each alert-box component"}
    {:name :class        :required false                                :type "string"                :validate-fn string?         :description "CSS class names, space separated. Applied to outer container"}
    {:name :style        :required false                                :type "CSS style map"         :validate-fn css-style?      :description "CSS styles. Applied to outer container"}
    {:name :attr         :required false                                :type "HTML attr map"         :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed. Applied to outer container"]}])
@@ -87,7 +89,7 @@
        :alert-type :info
        :heading \"Heading\"
        :body \"Body\"}]"
-  [& {:keys [alerts on-close max-height padding border-style class style attr]
+  [& {:keys [alerts on-close max-height padding border-style alert-class alert-style class style attr]
       :or   {padding "4px"}
       :as   args}]
   {:pre [(validate-args-macro alert-list-args-desc args "alert-list")]}
@@ -95,22 +97,24 @@
     [box
      :child [border
              :padding padding
-             :border border-style
-             :class class
-             :style style
-             :attr attr
-             :child [scroller
-                     :v-scroll :auto
-                     :style    {:max-height max-height}
-                     :child    [v-box
-                                :size     "auto"
-                                :children [(for [alert alerts]
-                                             (let [{:keys [id alert-type heading body padding closeable?]} alert]
-                                               ^{:key id} [alert-box
-                                                           :id id
-                                                           :alert-type alert-type
-                                                           :heading    heading
-                                                           :body       body
-                                                           :padding    padding
-                                                           :closeable? closeable?
-                                                           :on-close   on-close]))]]]]]))
+             :border  border-style
+             :class   (str "rc-alert-list " class)
+             :style   style
+             :attr    attr
+             :child   [scroller
+                       :v-scroll :auto
+                       :style    {:max-height max-height}
+                       :child    [v-box
+                                  :size     "auto"
+                                  :children [(for [alert alerts]
+                                               (let [{:keys [id alert-type heading body padding closeable?]} alert]
+                                                 ^{:key id} [alert-box
+                                                             :id         id
+                                                             :alert-type alert-type
+                                                             :heading    heading
+                                                             :body       body
+                                                             :padding    padding
+                                                             :closeable? closeable?
+                                                             :on-close   on-close
+                                                             :class      alert-class
+                                                             :style      alert-style]))]]]]]))

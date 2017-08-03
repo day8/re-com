@@ -85,6 +85,7 @@
   [table-div hide-border? class style attr]
   ;;extra h-box is currently necessary so that calendar & border do not strecth to width of any containing v-box
   [h-box
+   :class    "rc-datepicker-wrapper"
    :children [[border
                :radius "4px"
                :size   "none"
@@ -240,7 +241,7 @@
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
   [shown? model format]
-  [:div {:class    "rc-datepicker-dropdown input-group display-flex noselect"
+  [:div {:class    "rc-datepicker-dropdown-anchor input-group display-flex noselect"
          :style    (flex-child-style "none")
          :on-click (handler-fn (swap! shown? not))}
    [h-box
@@ -279,6 +280,7 @@
                                     vec
                                     flatten)]
         [popover-anchor-wrapper
+         :class    "rc-datepicker-dropdown-wrapper"
          :showing? shown?
          :position position
          :anchor   [anchor-button shown? model format]
