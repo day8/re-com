@@ -147,7 +147,7 @@
    {:name :on-click :required false              :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}])
 
 (defn- backdrop
-  "Renders a backdrop dive which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
+  "Renders a backdrop div which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
   [& {:keys [opacity on-click] :as args}]
   {:pre [(validate-args-macro backdrop-args-desc args "backdrop")]}
   [:div.rc-backdrop.noselect
@@ -340,7 +340,9 @@
    {:name :arrow-width       :required false  :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
    {:name :arrow-gap         :required false  :default -1           :type "integer"          :validate-fn number?           :description "px gap between the anchor and the arrow tip. Positive numbers push the popover away from the anchor"}
    {:name :padding           :required false                        :type "string"           :validate-fn string?           :description "a CSS style which overrides the inner padding of the popover"}
-   {:name :style             :required false                        :type "CSS style map"    :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
+   {:name :class             :required false                        :type "string"           :validate-fn string?           :description "CSS class names, space separated"}
+   {:name :style             :required false                        :type "CSS style map"    :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}
+   {:name :attr              :required false                        :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes"
@@ -369,18 +371,21 @@
 
        :reagent-render
        (fn
-         [& {:keys [showing-injected? position-injected position-offset no-clip? width height backdrop-opacity on-cancel title close-button? body tooltip-style? popover-color arrow-length arrow-width arrow-gap padding style]
+         [& {:keys [showing-injected? position-injected position-offset no-clip? width height backdrop-opacity on-cancel title
+                    close-button? body tooltip-style? popover-color arrow-length arrow-width arrow-gap padding class style attr]
              :or {arrow-length 11 arrow-width 22 arrow-gap -1}
              :as args}]
          {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
 
          @position-injected ;; Dereference this atom. Although nothing here needs its value explicitly, the calculation of left-offset and top-offset are affected by it for :no-clip? true
-         [:div.popover-content-wrapper
-          {:style (merge (flex-child-style "inherit")
-                         (when no-clip? {:position "fixed"
-                                         :left      (px @left-offset)
-                                         :top       (px @top-offset)})
-                         style)}
+         [:div
+          (merge {:class (str "popover-content-wrapper " class)
+                  :style (merge (flex-child-style "inherit")
+                                (when no-clip? {:position "fixed"
+                                                :left      (px @left-offset)
+                                                :top       (px @top-offset)})
+                                style)}
+                 attr)
           (when (and @showing-injected? on-cancel)
             [backdrop
              :opacity  backdrop-opacity
@@ -413,7 +418,9 @@
    {:name :position :required true                        :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :anchor   :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the component the popover is attached to"}
    {:name :popover  :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the popover body component"}
-   {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}])
+   {:name :class    :required false                       :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+   {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency"}
+   {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 (defn popover-anchor-wrapper
   "Renders an element or control along with a Bootstrap popover"
@@ -427,7 +434,7 @@
 
        :reagent-render
        (fn
-         [& {:keys [showing? position anchor popover style] :as args}]
+         [& {:keys [showing? position anchor popover class style attr] :as args}]
          {:pre [(validate-args-macro popover-anchor-wrapper-args-desc args "popover-anchor-wrapper")]}
 
          @reset-on-hide ;; Dereference this reaction, otherwise it won't be set up. The reaction is set to run whenever the popover closes
@@ -438,9 +445,10 @@
                place-anchor-before?    (case orientation (:left :above) false true)
                flex-flow               (case orientation (:left :right) "row" "column")]
            [:div
-            {:class  "rc-popover-anchor-wrapper display-inline-flex"
-             :style (merge (flex-child-style "inherit")
-                           style)}
+            (merge {:class (str "rc-popover-anchor-wrapper display-inline-flex " class)
+                    :style (merge (flex-child-style "inherit")
+                                  style)}
+                   attr)
             [:div                                ;; Wrapper around the anchor and the "point"
              {:class "rc-point-wrapper display-inline-flex"
               :style (merge (flex-child-style "auto")
@@ -471,11 +479,13 @@
    {:name :position      :required false :default :below-center :type "keyword"                :validate-fn position?            :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :no-clip?      :required false :default true          :type "boolean"                                                  :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
    {:name :width         :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}
-   {:name :style         :required false                        :type "CSS style map"          :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency"}])
+   {:name :class         :required false                        :type "string"                 :validate-fn string?              :description "CSS class names, space separated (applies to popover-anchor-wrapper component)"}
+   {:name :style         :required false                        :type "CSS style map"          :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency (applies to popover-anchor-wrapper component)"}
+   {:name :attr          :required false                        :type "HTML attr map"          :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to popover-anchor-wrapper component)"]}])
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style"
-  [& {:keys [label showing? on-cancel close-button? status anchor position no-clip? width style]
+  [& {:keys [label showing? on-cancel close-button? status anchor position no-clip? width class style attr]
       :or {no-clip? true}
       :as args}]
   {:pre [(validate-args-macro popover-tooltip-args-desc args "popover-tooltip")]}
@@ -490,7 +500,9 @@
      :showing? showing?
      :position (or position :below-center)
      :anchor   anchor
+     :class    class
      :style    style
+     :attr     attr
      :popover [popover-content-wrapper
                :no-clip?       no-clip?
                :on-cancel      on-cancel
