@@ -234,9 +234,9 @@
    {:name :width             :required false :default "250px" :type "string"           :validate-fn string?            :description "standard CSS width setting for this input"}
    {:name :height            :required false                  :type "string"           :validate-fn string?            :description "standard CSS height setting for this input"}
    {:name :disabled?         :required false :default false   :type "boolean | atom"                                   :description "if true, the user can't interact (input anything)"}
-   {:name :class             :required false                  :type "string"           :validate-fn string?            :description "CSS class names, space separated"}
-   {:name :style             :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override"}
-   {:name :attr              :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :class             :required false                  :type "string"           :validate-fn string?            :description "CSS class names, space separated (applies to the input-text component)"}
+   {:name :style             :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override (applies to the input-text component)"}
+   {:name :attr              :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
 
 (defn typeahead
   "typeahead reagent component"
@@ -250,7 +250,7 @@
       [& {:as   args
           :keys [data-source _on-change _change-on-blur? model _debounce-delay render-suggestion _suggestion-to-string _rigid?
                  ;; forwarded to wrapped `input-text`:
-                 status status-icon? status-tooltip placeholder width height disabled? class style _attr]}]
+                 status status-icon? status-tooltip placeholder width height disabled? class style attr]}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
       (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
             last-data-source (:data-source state)
@@ -261,41 +261,43 @@
         (when (not= latest-external-model external-model)
           (swap! state-atom external-model-changed latest-external-model))
         [v-box
-         :class "rc-typeahead"
-         :width width
-         :children
-         [[input-text
-           :model          input-text-model
-           :class          class
-           :style          style
-           :disabled?      disabled?
-           :status-icon?   status-icon?
-           :status         status
-           :status-tooltip status-tooltip
-           :width          width
-           :height         height
-           :placeholder    placeholder
-           :on-change      (partial input-text-on-change! state-atom)
-           :change-on-blur? false
-           :attr {:on-key-down (partial input-text-on-key-down! state-atom)}]
-          (if (or (not-empty suggestions) waiting?)
-            [box
-             :style {:position "relative"}
-             :child [v-box
-                     :class "rc-typeahead-suggestions-container"
-                     :children [(when waiting?
-                                  [box :align :center :child [throbber :size :small :class "rc-typeahead-throbber"]])
-                                (for [[i s] (map vector (range) suggestions)
-                                      :let [selected? (= suggestion-active-index i)]]
-                                  ^{:key i}
-                                  [box
-                                   :child (if render-suggestion
-                                            (render-suggestion s)
-                                            s)
-                                   :class (str "rc-typeahead-suggestion"
-                                               (when selected? " active"))
-                                   :attr {:on-mouse-over #(swap! state-atom activate-suggestion-by-index i)
-                                          :on-mouse-down #(do (.preventDefault %) (swap! state-atom choose-suggestion-by-index i))}])]]])]]))))
+         :class    "rc-typeahead"
+         :attr     attr
+         :width    width
+         :children [[input-text
+                     :model          input-text-model
+                     :class          class
+                     :style          style
+                     :disabled?      disabled?
+                     :status-icon?   status-icon?
+                     :status         status
+                     :status-tooltip status-tooltip
+                     :width          width
+                     :height         height
+                     :placeholder    placeholder
+                     :on-change      (partial input-text-on-change! state-atom)
+                     :change-on-blur? false
+                     :attr {:on-key-down (partial input-text-on-key-down! state-atom)}]
+                    (if (or (not-empty suggestions) waiting?)
+                      [box
+                       :style {:position "relative"}
+                       :child [v-box
+                               :class "rc-typeahead-suggestions-container"
+                               :children [(when waiting?
+                                            [box
+                                             :align :center
+                                             :child [throbber :size :small :class "rc-typeahead-throbber"]])
+                                          (for [[i s] (map vector (range) suggestions)
+                                                :let [selected? (= suggestion-active-index i)]]
+                                            ^{:key i}
+                                            [box
+                                             :child (if render-suggestion
+                                                      (render-suggestion s)
+                                                      s)
+                                             :class (str "rc-typeahead-suggestion"
+                                                         (when selected? " active"))
+                                             :attr {:on-mouse-over #(swap! state-atom activate-suggestion-by-index i)
+                                                    :on-mouse-down #(do (.preventDefault %) (swap! state-atom choose-suggestion-by-index i))}])]]])]]))))
 
 (defn- debounce
   "Return a channel which will receive a value from the `in` channel only

@@ -78,22 +78,22 @@
                                                        :children [[label :label "[typeahead ... ]"]
                                                                   [gap :size "5px"]
                                                                   [typeahead
-                                                                   :model typeahead-model
-                                                                   :data-source      (case @data-source-choice :async data-source-async :immediate data-source-immediate)
+                                                                   :model                typeahead-model
+                                                                   :data-source          (case @data-source-choice :async data-source-async :immediate data-source-immediate)
                                                                    :suggestion-to-string #(:name %)
-                                                                   :render-suggestion (fn [{:keys [name]}]
-                                                                                        [:span
-                                                                                         [:i {:style {:width "40px"} :class (md-classes-for-icon name)}]
-                                                                                         name])
-                                                                   :status           @status
-                                                                   :status-icon?     @status-icon?
-                                                                   :status-tooltip   @status-tooltip
-                                                                   :width            "300px"
-                                                                   :placeholder      "Material Design Icons"
-                                                                   :on-change        #(reset! typeahead-on-change-value %)
-                                                                   :change-on-blur?  change-on-blur?
-                                                                   :rigid?           rigid?
-                                                                   :disabled?        disabled?]]]
+                                                                   :render-suggestion    (fn [{:keys [name]}]
+                                                                                           [:span
+                                                                                            [:i {:style {:width "40px"} :class (md-classes-for-icon name)}]
+                                                                                            name])
+                                                                   :status               @status
+                                                                   :status-icon?         @status-icon?
+                                                                   :status-tooltip       @status-tooltip
+                                                                   :width                "300px"
+                                                                   :placeholder          "Material Design Icons"
+                                                                   :on-change            #(reset! typeahead-on-change-value %)
+                                                                   :change-on-blur?      change-on-blur?
+                                                                   :rigid?               rigid?
+                                                                   :disabled?            disabled?]]]
                                                       [v-box
                                                        :gap      "15px"
                                                        :children [[title :level :level3 :label "Callbacks"]
