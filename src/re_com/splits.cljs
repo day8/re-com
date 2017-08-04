@@ -46,9 +46,9 @@
    {:name :initial-split   :required false :default 50     :type "double | string" :validate-fn number-or-string? :description [:span "initial split percentage for " [:code ":panel-1"] ". Can be double value or string (with/without percentage sign)"]}
    {:name :splitter-size   :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the splitter"}
    {:name :margin          :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}
-   {:name :class           :required false                 :type "string"          :validate-fn string?           :description "CSS class names, space separated, applied to outer container"}
-   {:name :style           :required false                 :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override, applied to outer container"}
-   {:name :attr            :required false                 :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed, applied to outer container"]}])
+   {:name :class           :required false                 :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
+   {:name :style           :required false                 :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
+   {:name :attr            :required false                 :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
 
 (defn h-split
   "Returns markup for a horizontal layout component"

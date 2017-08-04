@@ -201,9 +201,9 @@
    {:name :maximum       :required false                             :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "no selection or navigation after this date"}
    {:name :start-of-week :required false :default 6                  :type "int"                                                    :description "first day of week (Monday = 0 ... Sunday = 6)"}
    {:name :hide-border?  :required false :default false              :type "boolean"                                                :description "when true, the border is not displayed"}
-   {:name :class         :required false                             :type "string"                         :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style         :required false                             :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr          :required false                             :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :class         :required false                             :type "string"                         :validate-fn string?    :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
+   {:name :style         :required false                             :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
+   {:name :attr          :required false                             :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer border div, not the wrapping div)"]}])
 
 (defn datepicker
   [& {:keys [model] :as args}]

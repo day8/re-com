@@ -234,9 +234,9 @@
    {:name :width             :required false :default "250px" :type "string"           :validate-fn string?            :description "standard CSS width setting for this input"}
    {:name :height            :required false                  :type "string"           :validate-fn string?            :description "standard CSS height setting for this input"}
    {:name :disabled?         :required false :default false   :type "boolean | atom"                                   :description "if true, the user can't interact (input anything)"}
-   {:name :class             :required false                  :type "string"           :validate-fn string?            :description "CSS class names, space separated (applies to the input-text component)"}
-   {:name :style             :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override (applies to the input-text component)"}
-   {:name :attr              :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
+   {:name :class             :required false                  :type "string"           :validate-fn string?            :description "CSS class names, space separated (applies to the textbox)"}
+   {:name :style             :required false                  :type "CSS style map"    :validate-fn css-style?         :description "CSS styles to add or override (applies to the textbox)"}
+   {:name :attr              :required false                  :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to " [:span.bold "the outer container"] ", rather than the textbox)"]}])
 
 (defn typeahead
   "typeahead reagent component"

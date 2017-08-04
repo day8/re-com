@@ -134,9 +134,9 @@
    {:name :hide-border? :required false :default false   :type "boolean"                                                :description "when true, input filed is displayed without a border"}
    {:name :width        :required false                  :type "string"                  :validate-fn string?           :description "standard CSS width setting for width of the input box (excluding the icon if present)"}
    {:name :height       :required false                  :type "string"                  :validate-fn string?           :description "standard CSS height setting"}
-   {:name :class        :required false                  :type "string"                  :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style        :required false                  :type "CSS style map"           :validate-fn css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"}" }
-   {:name :attr         :required false                  :type "HTML attr map"           :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :class        :required false                  :type "string"                  :validate-fn string?           :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
+   {:name :style        :required false                  :type "CSS style map"           :validate-fn css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"} (applies to the textbox, not the wrapping div)" }
+   {:name :attr         :required false                  :type "HTML attr map"           :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}])
 
 (defn input-time
   "I return the markup for an input box which will accept and validate times.
@@ -166,8 +166,7 @@
 
         [h-box
          :class    "rc-input-time"
-         :style    (merge {:height height}
-                          style)
+         :style    {:height height}
          :children [[:input
                      (merge
                        {:type      "text"
@@ -181,9 +180,6 @@
                         :on-key-up (handler-fn (lose-focus-if-enter event))}
                        attr)]
                     (when show-icon?
-                      #_[:div.time-icon ;; TODO: Remove
-                       [:span.glyphicon.glyphicon-time
-                        {:style {:position "static" :margin "auto"}}]]
                       [:div.time-icon
                        [:i.zmdi.zmdi-hc-fw-rc.zmdi-time
                         {:style {:position "static" :margin "auto"}}]])]]))))

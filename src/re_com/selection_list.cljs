@@ -107,9 +107,9 @@
    {:name :disabled?      :required false :default false  :type "boolean | atom"                                                  :description "when true, the time input will be disabled. Can be atom or value"}
    {:name :hide-border?   :required false :default false  :type "boolean | atom"                                                  :description "when true, the list will be displayed without a border"}
    {:name :item-renderer  :required false                 :type "-> nil | atom"                      :validate-fn fn?             :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
-   {:name :class          :required false                 :type "string"                             :validate-fn string?         :description "CSS class names, space separated"}
-   {:name :style          :required false                 :type "CSS style map"                      :validate-fn css-style?      :description "CSS styles to add or override"}
-   {:name :attr           :required false                 :type "HTML attr map"                      :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+   {:name :class          :required false                 :type "string"                             :validate-fn string?         :description "CSS class names, space separated (applies to the outer container)"}
+   {:name :style          :required false                 :type "CSS style map"                      :validate-fn css-style?      :description "CSS styles to add or override (applies to the outer container)"}
+   {:name :attr           :required false                 :type "HTML attr map"                      :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
 
 ;;TODO hide hover highlights for links when disabled
 (defn- list-container
