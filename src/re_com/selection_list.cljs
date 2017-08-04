@@ -4,7 +4,7 @@
     [re-com.text     :refer [label]]
     [re-com.misc     :refer [checkbox radio-button]]
     [re-com.box      :refer [box border h-box v-box]]
-    [re-com.validate :refer [vector-of-maps? string-or-atom? set-or-atom?] :refer-macros [validate-args-macro]]
+    [re-com.validate :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr?] :refer-macros [validate-args-macro]]
     [re-com.util     :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
@@ -106,11 +106,14 @@
    {:name :max-height     :required false                 :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll"}
    {:name :disabled?      :required false :default false  :type "boolean | atom"                                                  :description "when true, the time input will be disabled. Can be atom or value"}
    {:name :hide-border?   :required false :default false  :type "boolean | atom"                                                  :description "when true, the list will be displayed without a border"}
-   {:name :item-renderer  :required false                 :type "-> nil | atom"                      :validate-fn fn?             :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}])
+   {:name :item-renderer  :required false                 :type "-> nil | atom"                      :validate-fn fn?             :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
+   {:name :class          :required false                 :type "string"                             :validate-fn string?         :description "CSS class names, space separated"}
+   {:name :style          :required false                 :type "CSS style map"                      :validate-fn css-style?      :description "CSS styles to add or override"}
+   {:name :attr           :required false                 :type "HTML attr map"                      :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
 
 ;;TODO hide hover highlights for links when disabled
 (defn- list-container
-  [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer]
+  [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr]
     :as   args}]
   {:pre [(validate-args-macro selection-list-args-desc args "selection-list")]}
   (let [selected (if multi-select? model (-> model first vector set))
@@ -126,7 +129,9 @@
     ;; TODO: GR commented this out to fix the bug where #{nil} was being returned for an empty list. Remove when we're sure there are no ill effects.
     #_(when-not (= selected model) (on-change selected))
     [border
-     :class  "rc-selection-list"
+     :class  (str "rc-selection-list " class)
+     :style  style
+     :attr   attr
      :radius "4px"
      :border (when hide-border? "none")
      :child  (into [:div {:class "list-group noselect" :style (merge list-style bounds spacing)}] items)]))
