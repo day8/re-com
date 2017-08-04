@@ -169,19 +169,18 @@
                    placeholder)]
         [:a.chosen-single.chosen-default
          {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
-          :tab-index     (when tab-index tab-index)
+          :tab-index     tab-index
           :on-click      (handler-fn
                            (if @ignore-click
                              (reset! ignore-click false)
                              (dropdown-click)))
           :on-mouse-down (handler-fn
                            (when @drop-showing?
-                             (reset! ignore-click true)))  ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
+                             (reset! ignore-click true)))   ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
           :on-key-down   (handler-fn
                            (key-handler event)
-                           (when (= (.-which event) 13)  ;; Pressing enter on an anchor also triggers click event, which we don't want
-                             (reset! ignore-click true)))  ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
-          }
+                           (when (= (.-which event) 13)     ;; Pressing enter on an anchor also triggers click event, which we don't want
+                             (reset! ignore-click true)))}  ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
          [:span (when title?
                   {:title text})
           text]
@@ -354,7 +353,7 @@
            {:class (str "rc-dropdown chosen-container chosen-container-single noselect " (when @drop-showing? "chosen-container-active chosen-with-drop ") class)
             :style (merge (flex-child-style (if width "0 0 auto" "auto"))
                           (align-style :align-self :start)
-                          {:width (when width width)}
+                          {:width width}
                           style)}
            attr)          ;; Prevent user text selection
          [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?]

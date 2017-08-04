@@ -7,7 +7,7 @@
 
 (defn input-text-demo
   []
-  (let [text-val        (reagent/atom "")
+  (let [text-val        (reagent/atom nil)
         regex           (reagent/atom nil)
         regex999        #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$"
         status          (reagent/atom nil)

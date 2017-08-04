@@ -366,6 +366,12 @@
   [arg]
   (string? (deref-or-value-peek arg)))
 
+(defn nillable-string-or-atom?
+  "Returns true if the passed argument is a string/nil (or a string/nil within an atom), otherwise false/error"
+  [arg]
+  (let [value (deref-or-value-peek arg)]
+    (or (string? value) (nil? value))))
+
 (defn set-or-atom?
   "Returns true if the passed argument is a set (or a set within an atom), otherwise false/error"
   [arg]
