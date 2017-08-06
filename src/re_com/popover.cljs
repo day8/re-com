@@ -500,7 +500,7 @@
      :showing? showing?
      :position (or position :below-center)
      :anchor   anchor
-     :class    class
+     :class    (str "rc-popover-tooltip " class)
      :style    style
      :attr     attr
      :popover [popover-content-wrapper

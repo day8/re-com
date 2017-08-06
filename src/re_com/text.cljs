@@ -9,13 +9,13 @@
 ;;  Component: label
 ;; ------------------------------------------------------------------------------------
 
-  (def label-args-desc
-    [{:name :label    :required true  :type "anything"                              :description "text or hiccup or whatever to display"}
-     {:name :on-click :required false :type "-> nil"        :validate-fn fn?        :description "a function which takes no params and returns nothing. Called when the label is clicked"}
-     {:name :width    :required false :type "string"        :validate-fn string?    :description "a CSS width"}
-     {:name :class    :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated (applies to the label, not the wrapping div)"}
-     {:name :style    :required false :type "CSS style map" :validate-fn css-style? :description "additional CSS styles (applies to the label, not the wrapping div)"}
-     {:name :attr     :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the label, not the wrapping div)"]}])
+(def label-args-desc
+  [{:name :label    :required true  :type "anything"                              :description "text or hiccup or whatever to display"}
+   {:name :on-click :required false :type "-> nil"        :validate-fn fn?        :description "a function which takes no params and returns nothing. Called when the label is clicked"}
+   {:name :width    :required false :type "string"        :validate-fn string?    :description "a CSS width"}
+   {:name :class    :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated (applies to the label, not the wrapping div)"}
+   {:name :style    :required false :type "CSS style map" :validate-fn css-style? :description "additional CSS styles (applies to the label, not the wrapping div)"}
+   {:name :attr     :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the label, not the wrapping div)"]}])
 
 (defn label
   "Returns markup for a basic label"
@@ -59,7 +59,7 @@
   {:pre [(validate-args-macro title-args-desc args "title")]}
   (let [preset-class (if (nil? level) "" (name level))]
     [v-box
-     :class    (str "rc-title-wrapper" preset-class)
+     :class    (str "rc-title-wrapper " preset-class)
      :children [[:span (merge {:class (str "rc-title display-flex " preset-class " " class)
                                :style (merge (flex-child-style "none")
                                              {:margin-top margin-top}

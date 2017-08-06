@@ -96,11 +96,11 @@
   (let [alerts (deref-or-value alerts)]
     [box
      :child [border
-             :padding padding
-             :border  border-style
              :class   (str "rc-alert-list " class)
              :style   style
              :attr    attr
+             :padding padding
+             :border  border-style
              :child   [scroller
                        :v-scroll :auto
                        :style    {:max-height max-height}
