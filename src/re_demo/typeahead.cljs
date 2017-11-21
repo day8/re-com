@@ -19,6 +19,7 @@
         status-tooltip            (reagent/atom "")
         disabled?                 (reagent/atom false)
         change-on-blur?           (reagent/atom true)
+        immediate-model-update?   (reagent/atom false)
         rigid?                    (reagent/atom false)
         data-source-choice        (reagent/atom :immediate)
         md-icon-result            #(-> {:name % :more :stuff})
@@ -64,7 +65,7 @@
                                           [p "Text input that shows suggestions as the user types, and allows the user to choose one of the suggestions using the keyboard or mouse."]
                                           [p "The " [:code ":data-source"] " function provides suggestions (which can be arbitrary objects). This can be done synchronously or asynchronously."]
                                           [p "The " [:code ":on-change"] " function will be called when the user chooses a selection (the default), or as the user navigates through the available suggestions."]
-                                          [p "The user can navigate through suggestions using the mouse, the UP & DOWN arrow keys, or the TAB key. The ENTER key chooses the active suggestion. The ESCAPE key resets."]
+                                          [p "The user can navigate through suggestions using the mouse, the UP & DOWN arrow keys, or the TAB key. The ENTER key chooses the active suggestion. The ESCAPE hides suggestions."]
                                           [p "Setting "[:code ":rigid?" ]" to "[:code "false" ]" will allow the typeahead's model value to be arbitrary text input from the user. By default the model value can only be one of the suggestions."]
                                           [p "The " [:code ":render-suggestion"] " function can override the default rendering of suggestions."]
                                           [p "Input warnings and errors can be indicated visually by border colors and icons."]
@@ -92,6 +93,7 @@
                                                                    :placeholder          "Material Design Icons"
                                                                    :on-change            #(reset! typeahead-on-change-value %)
                                                                    :change-on-blur?      change-on-blur?
+                                                                   :immediate-model-update? immediate-model-update?
                                                                    :rigid?               rigid?
                                                                    :disabled?            disabled?]]]
                                                       [v-box
@@ -131,6 +133,20 @@
                                                                                :value     true
                                                                                :model     @change-on-blur?
                                                                                :on-change #(reset! change-on-blur? %)
+                                                                               :style     {:margin-left "20px"}]]]
+                                                                  [v-box
+                                                                   :children [[box :align :start :child [:code ":immediate-model-update?"]]
+                                                                              [radio-button
+                                                                               :label     "false - Do not update model on every keystroke"
+                                                                               :value     false
+                                                                               :model     @immediate-model-update?
+                                                                               :on-change #(reset! immediate-model-update? %)
+                                                                               :style     {:margin-left "20px"}]
+                                                                              [radio-button
+                                                                               :label     "true - Update model on every keystroke"
+                                                                               :value     true
+                                                                               :model     @immediate-model-update?
+                                                                               :on-change #(reset! immediate-model-update? %)
                                                                                :style     {:margin-left "20px"}]]]
                                                                   [v-box
                                                                    :children [[box :align :start :child [:code ":rigid?"]]
