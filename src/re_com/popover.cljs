@@ -101,7 +101,7 @@
 
 (defn- popover-arrow
   "Render the triangle which connects the popover to the anchor (using SVG)"
-  [orientation pop-offset arrow-length arrow-width grey-arrow? no-border? popover-color]
+  [orientation pop-offset arrow-length arrow-width grey-arrow? no-border? popover-color popover-border-color]
   (let [half-arrow-width (/ arrow-width 2)
         arrow-shape {:left  (str (point 0 0)            (point arrow-length half-arrow-width) (point 0 arrow-width))
                      :right (str (point arrow-length 0) (point 0 half-arrow-width)            (point arrow-length arrow-width))
@@ -134,7 +134,7 @@
                  :style {:fill (if popover-color
                                  popover-color
                                  (if grey-arrow? "#f7f7f7" "white"))
-                         :stroke (when-not no-border? "rgba(0, 0, 0, .2)")
+                         :stroke (or popover-border-color (when-not no-border? "rgba(0, 0, 0, .2)"))
                          :stroke-width "1"}}]]))
 
 
@@ -236,7 +236,8 @@
    {:name :margin-left     :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the horiztonal offset from anchor after position"}
    {:name :margin-top      :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the vertical offset from anchor after position"}
    {:name :tooltip-style?  :required false :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
-   {:name :title           :required false                       :type "string | markup"                                 :description "describes a title"}])
+   {:name :title           :required false                       :type "string | markup"                                 :description "describes a title"}
+   {:name :popover-border-color :required false                  :type "string"           :validate-fn string?           :description "color of the popover arrow stroke"}])
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
@@ -277,7 +278,7 @@
 
        :reagent-render
        (fn
-         [& {:keys [children position position-offset width height popover-color arrow-length arrow-width arrow-gap padding margin-left margin-top tooltip-style? title]
+         [& {:keys [children position position-offset width height popover-color popover-border-color arrow-length arrow-width arrow-gap padding margin-left margin-top tooltip-style? title]
              :or {arrow-length 11 arrow-width 22 arrow-gap -1}
              :as args}]
          {:pre [(validate-args-macro popover-border-args-desc args "popover-border")]}
@@ -313,7 +314,7 @@
                             :opacity   (if @ready-to-show? "1" "0")
                             :max-width "none"
                             :padding   "0px"})}
-            [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color]
+            [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color popover-border-color]
             (when title title)
             (into [:div.popover-content {:style {:padding padding}}] children)]))})))
 
@@ -336,6 +337,7 @@
    {:name :body              :required false                        :type "string | hiccup"  :validate-fn string-or-hiccup? :description "describes the popover body. Must be a single component"}
    {:name :tooltip-style?    :required false  :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
    {:name :popover-color     :required false  :default "white"      :type "string"           :validate-fn string?           :description "fill color of the popover"}
+   {:name :popover-border-color :required false                     :type "string"           :validate-fn string?           :description "color of the popover arrow stroke"}
    {:name :arrow-length      :required false  :default 11           :type "integer | string" :validate-fn number-or-string? :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
    {:name :arrow-width       :required false  :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
    {:name :arrow-gap         :required false  :default -1           :type "integer"          :validate-fn number?           :description "px gap between the anchor and the arrow tip. Positive numbers push the popover away from the anchor"}
@@ -372,7 +374,7 @@
        :reagent-render
        (fn
          [& {:keys [showing-injected? position-injected position-offset no-clip? width height backdrop-opacity on-cancel title
-                    close-button? body tooltip-style? popover-color arrow-length arrow-width arrow-gap padding class style attr]
+                    close-button? body tooltip-style? popover-color popover-border-color arrow-length arrow-width arrow-gap padding class style attr]
              :or {arrow-length 11 arrow-width 22 arrow-gap -1}
              :as args}]
          {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
@@ -397,6 +399,7 @@
            :height          height
            :tooltip-style?  tooltip-style?
            :popover-color   popover-color
+           :popover-border-color popover-border-color
            :arrow-length    arrow-length
            :arrow-width     arrow-width
            :arrow-gap       arrow-gap
