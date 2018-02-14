@@ -8,6 +8,7 @@
             [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]] ;; need?
             [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? number-or-string?
                                      string-or-atom? throbber-size? throbber-sizes-list] :refer-macros [validate-args-macro]]
+            [clojure.string  :as    string]
             [reagent.core    :as    reagent]
             [goog.events.KeyCodes]))
 
@@ -189,7 +190,7 @@
   (let [{:as state :keys [input-text c-input]} @state-atom]
     (if (= new-text input-text) state ;; keypresses that do not change the value still call on-change, ignore these
         (do
-          (when-not (clojure.string/blank? new-text) (put! c-input new-text))
+          (when-not (string/blank? new-text) (put! c-input new-text))
           (swap! state-atom
                  #(cond-> %
                     :always (assoc :input-text new-text :displaying-suggestion? false)
