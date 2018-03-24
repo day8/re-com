@@ -140,6 +140,7 @@
   "Update state when the `input-text` is about to lose focus."
   [{:keys [input-text displaying-suggestion?] :as state}]
   (cond-> state
+    :always clear-suggestions
     (and (not displaying-suggestion?)
          (event-updates-model? state :input-text-blurred))
     (update-model input-text)))
@@ -189,7 +190,7 @@
   (let [{:as state :keys [input-text c-input]} @state-atom]
     (if (= new-text input-text) state ;; keypresses that do not change the value still call on-change, ignore these
         (do
-          (when-not (clojure.string/blank? new-text) (put! c-input new-text))
+          (put! c-input new-text)
           (swap! state-atom
                  #(cond-> %
                     :always (assoc :input-text new-text :displaying-suggestion? false)
@@ -225,6 +226,7 @@
    {:name :render-suggestion :required false                  :type "render fn"        :validate-fn fn?                :description "override the rendering of the suggestion items by passing a fn that returns hiccup forms. The fn will receive two arguments: the search term, and the suggestion object."}
    {:name :suggestion-to-string :required false               :type "suggestion -> string" :validate-fn fn?            :description "When a suggestion is chosen, the input-text value will be set to the result of calling this fn with the suggestion object."}
    {:name :rigid?            :required false :default true    :type "boolean | atom"                                   :description [:span "If "[:code "false"]" the user will be allowed to choose arbitrary text input rather than a suggestion from " [:code ":data-source"]". In this case, a string will be supplied in lieu of a suggestion object." ]}
+   {:name :open-on-focus?    :required false :default false   :type "boolean"                                          :description "Open menu on input focus?"}
 
    ;; the rest of the arguments are forwarded to the wrapped `input-text`
    {:name :status            :required false                  :type "keyword"          :validate-fn input-status-type? :description [:span "validation status. " [:code "nil/omitted"] " for normal status or one of: " input-status-types-list]}
@@ -275,6 +277,8 @@
                      :width          width
                      :height         height
                      :placeholder    placeholder
+                     :focus          #(if (:open-on-focus? args) (put! c-input (:input-text @state-atom)))
+                     :blur           #(swap! state-atom clear-suggestions)
                      :on-change      (partial input-text-on-change! state-atom)
                      :change-on-blur? false
                      :attr {:on-key-down (partial input-text-on-key-down! state-atom)}]

@@ -54,6 +54,8 @@
    {:name :width            :required false :default "250px" :type "string"            :validate-fn string?                  :description "standard CSS width setting for this input"}
    {:name :height           :required false                  :type "string"            :validate-fn string?                  :description "standard CSS height setting for this input"}
    {:name :rows             :required false :default 3       :type "integer | string"  :validate-fn number-or-string?        :description "ONLY applies to 'input-textarea': the number of rows of text to show"}
+   {:name :blur             :required false                  :type "fn"                                                      :description "Function called when blurred"}
+   {:name :focus            :required false                  :type "fn"                                                      :description "Function called when focus received"}
    {:name :change-on-blur?  :required false :default true    :type "boolean | atom"                                          :description [:span "when true, invoke " [:code ":on-change"] " function on blur, otherwise on every change (character by character)"] }
    {:name :validation-regex :required false                  :type "regex"             :validate-fn regex?                   :description "user input is only accepted if it would result in a string that matches this regular expression"}
    {:name :disabled?        :required false :default false   :type "boolean | atom"                                          :description "if true, the user can't interact (input anything)"}
@@ -76,7 +78,7 @@
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)
     (fn
-      [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? validation-regex disabled? class style attr]
+      [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? blur focus validation-regex disabled? class style attr]
           :or   {change-on-blur? true}
           :as   args}]
       {:pre [(validate-args-macro input-text-args-desc args "input-text")]}
@@ -125,7 +127,9 @@
                                             (reset! internal-model new-val)
                                             (when-not change-on-blur?
                                               (on-change @internal-model)))))
+                         :on-focus    (handler-fn (if focus (focus)))
                          :on-blur     (handler-fn
+                                        (if blur (blur))
                                         (when (and
                                                 on-change
                                                 change-on-blur?

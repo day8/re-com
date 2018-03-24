@@ -79,6 +79,7 @@
                                                                   [gap :size "5px"]
                                                                   [typeahead
                                                                    :model                typeahead-model
+                                                                   :open-on-focus?       true
                                                                    :data-source          (case @data-source-choice :async data-source-async :immediate data-source-immediate)
                                                                    :suggestion-to-string #(:name %)
                                                                    :render-suggestion    (fn [{:keys [name]}]
