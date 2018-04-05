@@ -85,7 +85,7 @@ Note that all these commands are entered at the repo root folder.
        ---
        Could have used `lein deploy-aws` but this also builds the `prod` version which we have already just built.
        Manually change `index.html` to `index_prod.html` in S3 Browser. TODO: Find a way to automate this.
-       Test it: http://re-demo.s3-website-ap-southeast-2.amazonaws.com.
+       Test it: https://re-com.day8.com.au.
 
 
 ### Final tasks
