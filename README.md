@@ -59,7 +59,7 @@ That number includes ReactJS plus the ClojureScript libs and runtime. So, everyt
 Still here?  Good. I'm glad we got all that negative stuff out the way.  I think you're
 going to like re-com.
 
-Start by [looking at the demo](http://re-demo.s3-website-ap-southeast-2.amazonaws.com).
+Start by [looking at the demo](https://re-com.day8.com.au).
 
 
 ## Navigating The Source
