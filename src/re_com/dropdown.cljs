@@ -133,7 +133,7 @@
 
 (defn- filter-text-box-base
   "Base function (before lifecycle metadata) to render a filter text box"
-  [filter-box? filter-text key-handler drop-showing? set-filter-text]
+  [filter-box? filter-text key-handler drop-showing? mouse-over-drop? set-filter-text]
   [:div.chosen-search
    [:input
     {:type          "text"
@@ -146,7 +146,9 @@
      :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
      :on-key-down   (handler-fn (when-not (key-handler event)
                                   (.preventDefault event))) ;; When key-handler returns false, preventDefault
-     :on-blur       (handler-fn (reset! drop-showing? false))}]])
+     :on-blur       (handler-fn (if-not @mouse-over-drop?
+                                  (reset! drop-showing? false)
+                                  (.focus (-> event .-target))))}]])
 
 
 (def ^:private filter-text-box
@@ -260,6 +262,7 @@
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom false)
+        mouse-over-drop? (reagent/atom false)
         filter-text    (reagent/atom "")
         choices-fn?    (fn? choices)
         choices-state (reagent/atom {:loading? choices-fn?
@@ -359,7 +362,9 @@
          [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?]
          (when (and @drop-showing? (not disabled?))
            [:div.chosen-drop
-            [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true)]
+            {:on-mouse-enter #(reset! mouse-over-drop? true)
+             :on-mouse-leave #(reset! mouse-over-drop? false)}
+            [filter-text-box filter-box? filter-text key-handler drop-showing? mouse-over-drop? #(set-filter-text % args true)]
             [:ul.chosen-results
              (when max-height {:style {:max-height max-height}})
              (cond
