@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  cljs:
+  clj:
     executors:
       lein_browsers:
         docker:
