@@ -36,4 +36,4 @@ jobs:
     # Note that this is a clj orb, not a cljs one.
     executor: clj/lein_browsers
     steps:
-      - clj/test-cljs
+      - clj/test-clj
