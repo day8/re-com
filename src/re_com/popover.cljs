@@ -229,6 +229,7 @@
    {:name :width                :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the popover width"}
    {:name :height               :required false :default "auto"       :type "string"           :validate-fn string?           :description "a CSS style describing the popover height"}
    {:name :popover-color        :required false :default "white"      :type "string"           :validate-fn string?           :description "fill color of the popover"}
+   {:name :popover-border-color :required false                       :type "string"           :validate-fn string?           :description "color of the popover border, including the arrow"}
    {:name :arrow-length         :required false :default 11           :type "integer | string" :validate-fn number-or-string? :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
    {:name :arrow-width          :required false :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
    {:name :arrow-gap            :required false :default -1           :type "integer"          :validate-fn number?           :description "px gap between the anchor and the arrow tip. Positive numbers push the popover away from the anchor"}
@@ -236,8 +237,7 @@
    {:name :margin-left          :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the horiztonal offset from anchor after position"}
    {:name :margin-top           :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the vertical offset from anchor after position"}
    {:name :tooltip-style?       :required false :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
-   {:name :title                :required false                       :type "string | markup"                                 :description "describes a title"}
-   {:name :popover-border-color :required false                       :type "string"           :validate-fn string?           :description "color of the popover arrow stroke"}])
+   {:name :title                :required false                       :type "string | markup"                                 :description "describes a title"}])
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
@@ -292,6 +292,7 @@
                            (when width  {:width  width})
                            (when height {:height height})
                            (when popover-color {:background-color popover-color})
+                           (when popover-border-color {:border-color popover-border-color})
                            (when tooltip-style?
                              {:border-radius "4px"
                               :box-shadow    "none"
@@ -337,7 +338,7 @@
    {:name :body                 :required false                        :type "string | hiccup"  :validate-fn string-or-hiccup? :description "describes the popover body. Must be a single component"}
    {:name :tooltip-style?       :required false  :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
    {:name :popover-color        :required false  :default "white"      :type "string"           :validate-fn string?           :description "fill color of the popover"}
-   {:name :popover-border-color :required false                        :type "string"           :validate-fn string?           :description "color of the popover arrow stroke"}
+   {:name :popover-border-color :required false                        :type "string"           :validate-fn string?           :description "color of the popover border, including the arrow"}
    {:name :arrow-length         :required false  :default 11           :type "integer | string" :validate-fn number-or-string? :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
    {:name :arrow-width          :required false  :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
    {:name :arrow-gap            :required false  :default -1           :type "integer"          :validate-fn number?           :description "px gap between the anchor and the arrow tip. Positive numbers push the popover away from the anchor"}
