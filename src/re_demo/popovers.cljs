@@ -438,11 +438,12 @@
 
 (defn popover-tooltip-demo
   []
-  (let [showing? (reagent/atom false)
-        status   (reagent/atom nil)
-        text     (reagent/atom "This is a tooltip")
-        width?   (reagent/atom false)
-        tt-width "200px"]
+  (let [showing?      (reagent/atom false)
+        status        (reagent/atom nil)
+        text          (reagent/atom "This is a tooltip")
+        width?        (reagent/atom false)
+        close-button? (reagent/atom false)
+        tt-width      "200px"]
     (fn []
       [v-box
        :children [[title2 "[popover-tooltip ... ]"]
@@ -459,15 +460,16 @@
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
                                :children [[popover-tooltip
-                                           :label    @text
-                                           :position @curr-position
-                                           :showing? showing?
-                                           :status   @status
-                                           :width    (when @width? tt-width)
-                                           :anchor   [button
-                                                      :label    "click me"
-                                                      :on-click #(swap! showing? not)
-                                                      :class    "btn-success"]]]]
+                                           :label         @text
+                                           :position      @curr-position
+                                           :showing?      showing?
+                                           :status        @status
+                                           :width         (when @width? tt-width)
+                                           :close-button? @close-button?
+                                           :anchor        [button
+                                                           :label    "click me"
+                                                           :on-click #(swap! showing? not)
+                                                           :class    "btn-success"]]]]
                               [v-box
                                :children [[gap :size "15px"]
                                           [title :level :level3 :label "Parameters"]
@@ -522,7 +524,16 @@
                                                        :on-change #(reset! width? %)]
                                                       [:span (str (if @width?
                                                                     (str "\"" tt-width "\" - the tooltip is fixed to this width.")
-                                                                    "not specified - the tooltip is as wide as it's contents."))]]]]]]]]])))
+                                                                    "not specified - the tooltip is as wide as it's contents."))]]]
+                                          [gap :size "15px"]
+                                          [h-box
+                                           :align    :center
+                                           :gap      "15px"
+                                           :children [[checkbox
+                                                       :label [box :align :start :child [:code ":close-button?"]]
+                                                       :model close-button?
+                                                       :on-change #(reset! close-button? %)]
+                                                      "Mostly used when :status is set to :info"]]]]]]]])))
 
 
 (defn complex-popover-demo

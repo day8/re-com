@@ -17,8 +17,8 @@
 
 (def close-button-args-desc
   [{:name :on-click     :required false                   :type "-> nil"           :validate-fn fn?                :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-   {:name :div-size     :required false  :default "16"    :type "number"           :validate-fn number?            :description "numeric px size of the div containing the close button (can be 0 because the 'x' button text is absolutely positioned and centered within the div)"}
-   {:name :font-size    :required false  :default "16"    :type "number"           :validate-fn number?            :description "numeric px font size of the 'x' button text"}
+   {:name :div-size     :required false  :default 16      :type "number"           :validate-fn number?            :description "numeric px size of the div containing the close button (can be 0 because the 'x' button text is absolutely positioned and centered within the div)"}
+   {:name :font-size    :required false  :default 16      :type "number"           :validate-fn number?            :description "numeric px font size of the 'x' button text"}
    {:name :color        :required false  :default "#ccc"  :type "string"           :validate-fn string?            :description "HTML color of the 'x' button text"}
    {:name :hover-color  :required false  :default "#999"  :type "string"           :validate-fn string?            :description "HTML color of the button text when the mouse is hovering over it"}
    {:name :tooltip      :required false                   :type "string | hiccup"  :validate-fn string-or-hiccup?  :description "what to show in the tooltip"}

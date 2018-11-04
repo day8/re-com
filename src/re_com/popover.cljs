@@ -522,7 +522,6 @@
                                                            :on-click    #(if on-cancel
                                                                            (on-cancel)
                                                                            (reset! showing? false))
-                                                           :color       "white"
                                                            :div-size    15
                                                            :font-size   20
                                                            :left-offset 5]])
