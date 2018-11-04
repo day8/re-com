@@ -1,10 +1,11 @@
 (ns re-com.alert
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util     :refer [deref-or-value]]
-            [re-com.buttons  :refer [button]]
-            [re-com.box      :refer [h-box v-box box scroller border flex-child-style]]
-            [re-com.validate :refer [string-or-hiccup? alert-type? alert-types-list
-                                     vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]))
+  (:require [re-com.util         :refer [deref-or-value]]
+            [re-com.buttons      :refer [button]]
+            [re-com.close-button :refer [close-button]]
+            [re-com.box          :refer [h-box v-box box scroller border flex-child-style]]
+            [re-com.validate     :refer [string-or-hiccup? alert-type? alert-types-list
+                                         vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert
@@ -28,11 +29,10 @@
       :or   {alert-type :info}
       :as   args}]
   {:pre [(validate-args-macro alert-box-args-desc args "alert-box")]}
-  (let [close-button [button
-                      :label    [:i {:class "zmdi created zmdi-hc-fw-rc zmdi-close"
-                                     :style {:font-size "20px"}}]    ;"×"
-                      :on-click (handler-fn (on-close id))
-                      :class    "close"]
+  (let [close-alert  [close-button
+                      :on-click  #(on-close id)
+                      :div-size  20
+                      :font-size 20]
         alert-class  (alert-type {:none           ""
                                   :info           "alert-success"
                                   :warning        "alert-warning"
@@ -52,14 +52,14 @@
                     {:style {:margin-bottom "0px"}} ;; Override h4
                     heading]
                    (when (and closeable? on-close)
-                     close-button)]])
+                     close-alert)]])
      (when body
        [h-box
         :justify  :between
         :align    :center
         :children [[:div body]
                    (when (and (not heading) closeable? on-close)
-                     close-button)]])]))
+                     close-alert)]])]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert-list

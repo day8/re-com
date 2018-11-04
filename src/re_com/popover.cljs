@@ -1,12 +1,13 @@
 (ns re-com.popover
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util     :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
-            [re-com.box      :refer [h-box v-box flex-child-style flex-flow-style align-style]]
-            [re-com.validate :refer [position? position-options-list popover-status-type? popover-status-types-list number-or-string?
-                                     string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]
-            [clojure.string  :as    string]
-            [reagent.core    :as    reagent]
-            [reagent.ratom   :refer-macros [reaction]]))
+  (:require [re-com.util         :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
+            [re-com.box          :refer [box h-box v-box flex-child-style flex-flow-style align-style]]
+            [re-com.close-button :refer [close-button]]
+            [re-com.validate     :refer [position? position-options-list popover-status-type? popover-status-types-list number-or-string?
+                                         string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]
+            [clojure.string      :as    string]
+            [reagent.core        :as    reagent]
+            [reagent.ratom       :refer-macros [reaction]]))
 
 
 (defn point
@@ -20,25 +21,6 @@
   [kw delimiter]
   (let [keywords (string/split (str kw) (re-pattern (str "[" delimiter ":]")))]
     [(keyword (keywords 1)) (keyword (keywords 2))]))
-
-
-(defn- close-button
-  "A button with a big X in it, placed to the right of the popover title"
-  [showing? close-callback style]
-  ;; Can't use [button] because [button] already uses [popover] which would be a circular dependency.
-  [:button
-   {:on-click (handler-fn
-                (if close-callback
-                  (close-callback)
-                  (reset! showing? false)))
-    :class    "close"
-    :style    (merge {:width     "34px"
-                      :font-size "26px"
-                      :position  "absolute"
-                      :top       "4px"
-                      :right     "2px"}
-                     style)}
-   [:i {:class "zmdi zmdi-hc-fw-rc zmdi-close"}]])
 
 
 (defn- calc-popover-pos
@@ -185,7 +167,14 @@
       :align    :center
       :children [title
                  (when close-button?
-                   [close-button showing? close-callback])]]]))
+                   [close-button
+                    :on-click    #(if close-callback
+                                    (close-callback)
+                                    (reset! showing? false))
+                    :div-size    0
+                    :font-size   26
+                    :top-offset  -1
+                    :left-offset -5])]]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -526,8 +515,15 @@
                                           :font-size   "12px"
                                           :font-weight "bold"
                                           :text-align  "center"})
-                                :children [label (when close-button?
-                                                   [close-button showing? on-cancel {:font-size   "20px"
-                                                                                     :color       "white"
-                                                                                     :text-shadow "none"
-                                                                                     :right       "1px"}])]]]]))
+                                :children [(when close-button?
+                                             [box
+                                              :align-self :end
+                                              :child      [close-button
+                                                           :on-click    #(if on-cancel
+                                                                           (on-cancel)
+                                                                           (reset! showing? false))
+                                                           :color       "white"
+                                                           :div-size    15
+                                                           :font-size   20
+                                                           :left-offset 5]])
+                                           label]]]]))

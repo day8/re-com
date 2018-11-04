@@ -1,6 +1,6 @@
 (ns re-demo.h-box
   (:require [clojure.string  :as    string]
-            [re-com.core     :refer [p h-box v-box box gap line scroller border label title button checkbox hyperlink-href slider horizontal-bar-tabs info-button
+            [re-com.core     :refer [p h-box v-box box gap line scroller border label title button close-button checkbox hyperlink-href slider horizontal-bar-tabs info-button
                                      input-text input-textarea popover-anchor-wrapper popover-content-wrapper popover-tooltip px] :refer-macros [handler-fn]]
             [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc flex-child-style]]
             [re-com.util     :refer [px]]
@@ -402,15 +402,15 @@
         (conj [:div {:style (merge panel-style
                                    (when over? over-style))} (get-in box-parameters [:text :value])]))))
 
-(defn close-button
+(defn close-editor
   "close button used for all the editors"
   [on-close]
-  [button
-   :label    [:i {:class "zmdi zmdi-hc-fw-rc zmdi-close"
-                  :style {:font-size "20px"
-                          :margin-left "8px"}}]
-   :on-click #(on-close)
-   :class    "close"])
+  [box
+   :style {:margin-left "8px"}
+   :child [close-button
+           :on-click  #(on-close)
+           :div-size  20
+           :font-size 20]])
 
 (defn px-editor
   "provides a single slider to edit pixel value in the state atom"
@@ -426,7 +426,7 @@
                    :max       max
                    :width     "200px"
                    :on-change #(swap! box-state assoc-in (conj path :value) (px %))]
-                  [close-button on-close]]])))
+                  [close-editor on-close]]])))
 
 (defn justify-editor
   "provides horizontal bar tabs to set the :justify value in the state atom"
@@ -446,7 +446,7 @@
                    :tabs      opts
                    :style     editor-style
                    :on-change #(swap! box-state assoc-in (conj path :value) %)]
-                  [close-button on-close]]])))
+                  [close-editor on-close]]])))
 
 (defn align-editor
   "provides horizontal bar tabs to set the :align OR :align-self values in the state atom"
@@ -466,7 +466,7 @@
                    :tabs      opts
                    :style     editor-style
                    :on-change #(swap! box-state assoc-in (conj path :value) %)]
-                  [close-button on-close]]])))
+                  [close-editor on-close]]])))
 
 (defn child-editor
   "provides several options for the :child parameters, including typing your own text"
@@ -498,7 +498,7 @@
                      :change-on-blur? false
                      :style           editor-style
                      :on-change       #(update-model path :text %)])
-                  [close-button on-close]]])))
+                  [close-editor on-close]]])))
 
 (defn box-size
   "works out what to pass to :size from a map like {:value \"none\" :omit? false :type :none :px \"\100px\" :ratio \"1\" :gsb \"\"}"
@@ -569,7 +569,7 @@
                                                       (do (reset! size-status nil)
                                                           (update-model path :gsb %))
                                                       (reset! size-status :warning)))])
-                              [close-button on-close]]]
+                              [close-editor on-close]]]
                   [:span
                    {:style {:font-family "sans-serif"
                             :font-size   "10px"

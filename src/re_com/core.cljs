@@ -2,6 +2,7 @@
   (:require [re-com.alert          :as alert]
             [re-com.box            :as box]
             [re-com.buttons        :as buttons]
+            [re-com.close-button   :as close-button]
             [re-com.datepicker     :as datepicker]
             [re-com.dropdown       :as dropdown]
             [re-com.typeahead      :as typeahead]
@@ -43,6 +44,8 @@
 (def row-button                 buttons/row-button)
 (def hyperlink                  buttons/hyperlink)
 (def hyperlink-href             buttons/hyperlink-href)
+
+(def close-button               close-button/close-button)
 
 (def datepicker                 datepicker/datepicker)
 (def datepicker-dropdown        datepicker/datepicker-dropdown)
