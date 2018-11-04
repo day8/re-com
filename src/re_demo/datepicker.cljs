@@ -84,7 +84,8 @@
 (defn- show-variant
   [variation]
   (let [model1          (reagent/atom (now))
-        model2          (reagent/atom (plus  (now) (days 120)))
+        model2          (reagent/atom (plus (now) (days 120)))
+        model3          (reagent/atom nil)
         disabled?       (reagent/atom false)
         show-today?     (reagent/atom true)
         show-weeks?     (reagent/atom false)
@@ -155,13 +156,14 @@
                      :align    :start
                      :children [[gap :size "120px"]
                                 [datepicker-dropdown
-                                 :model         model1
+                                 :model         model3
                                  :show-today?   @show-today?
                                  :show-weeks?   @show-weeks?
                                  :selectable-fn selectable-pred
+                                 :placeholder   "Select a date"
                                  :format        "dd MMM, yyyy"
                                  :disabled?     disabled?
-                                 :on-change     #(reset! model1 %)]]]
+                                 :on-change     #(reset! model3 %)]]]
                     enabled-days
                     disabled?
                     show-today?
