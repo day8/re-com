@@ -251,7 +251,7 @@
     :children  [[:label {:class "form-control dropdown-button"}
                  (if (instance? js/goog.date.Date (deref-or-value model))
                    (unparse (if (seq format) (formatter format) date-format) (deref-or-value model))
-                   [:span {:style {:color "#999999"}} placeholder])]
+                   [:span {:style {:color "#bbb"}} placeholder])]
                 [:span.dropdown-button.activator.input-group-addon
                  {:style {:padding "3px 0px 0px 0px"}}
                  [:i.zmdi.zmdi-apps {:style {:font-size "24px"}}]]]]])
