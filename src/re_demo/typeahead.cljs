@@ -65,7 +65,7 @@
                                           [p "Text input that shows suggestions as the user types, and allows the user to choose one of the suggestions using the keyboard or mouse."]
                                           [p "The " [:code ":data-source"] " function provides suggestions (which can be arbitrary objects). This can be done synchronously or asynchronously."]
                                           [p "The " [:code ":on-change"] " function will be called when the user chooses a selection (the default), or as the user navigates through the available suggestions."]
-                                          [p "The user can navigate through suggestions using the mouse, the UP & DOWN arrow keys, or the TAB key. The ENTER key chooses the active suggestion. The ESCAPE hides suggestions."]
+                                          [p "The user can navigate through suggestions using the mouse, the UP & DOWN arrow keys, or the TAB key. The ENTER key chooses the active suggestion. The ESCAPE key hides the suggestions."]
                                           [p "Setting "[:code ":rigid?" ]" to "[:code "false" ]" will allow the typeahead's model value to be arbitrary text input from the user. By default the model value can only be one of the suggestions."]
                                           [p "The " [:code ":render-suggestion"] " function can override the default rendering of suggestions."]
                                           [p "Input warnings and errors can be indicated visually by border colors and icons."]
