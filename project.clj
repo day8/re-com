@@ -4,7 +4,7 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "2.2.0"
+(defproject         re-com "2.3.0-SNAPSHOT"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
