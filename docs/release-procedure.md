@@ -28,7 +28,7 @@ Note: If using GPG, your GPG public key from above needs to be pasted into your 
 
 More info on deploying libraries using lein: https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md
 
-You should set up your Clojars authentication in your Leiningen profile: `~/.lein/profiles.clj` (or `%USERPROFILE%\.lein\profiles.clj` for Windows)
+You should set up your Clojars authentication in your Leiningen profile: `~/.lein/profiles.clj` (or `%USERPROFILE%\.lein\profiles.clj` for Windows):
 ```
 {:user {}
  :auth {
@@ -78,13 +78,14 @@ Note that all these commands are entered at the repo root folder.
 ### Make a Github release
 
 - [ ] Create a GitHub Release:
-       - Go to: https://github.com/Day8/re-com/releases
-       - Should see your version `x.x.x` tag at the top.
-       - Press the `Draft a new release` button.
-       - Select this new `x.x.x` version in the Tag version dropdown.
-       - For the title, enter the version number: `x.x.x`.
-       - Enter a description that includes a list of "Changes" and "Fixes" (since the last release).
-       - Click the `Publish release` button.
+
+    - Go to: https://github.com/Day8/re-com/releases
+    - Should see your version `x.x.x` tag at the top.
+    - Press the `Draft a new release` button.
+    - Select this new `x.x.x` version in the Tag version dropdown.
+    - For the title, enter the version number: `x.x.x`.
+    - Enter a description that includes a list of "Changes" and "Fixes" (since the last release).
+    - Click the `Publish release` button.
 
 
 ### Final tasks
