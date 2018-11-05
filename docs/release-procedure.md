@@ -7,7 +7,9 @@ A number of things need to be set up before the release procedure can commence.
 
 ### GPG
 
+```
 NOTE: GPG signing is no longer required but we'll leave the process here just in case we need to reinstate it...
+```
 
 Here are the basic instructions to follow to get GPG running: https://github.com/technomancy/leiningen/blob/stable/doc/GPG.md
 
@@ -22,9 +24,17 @@ A few notes for Windows:
 
 Simply need to set up your own account, then get the Day8 Clojars admin to add you to the family. Then you can publish to Day8 Clojars.
  
-Note that your GPG public key from above needs to be pasted into your Clojars profile for this process to work.
+Note: If using GPG, your GPG public key from above needs to be pasted into your Clojars profile for this process to work.
 
 More info on deploying libraries using lein: https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md
+
+You should set up your Clojars authentication in your Leiningen profile: `~/.lein/profiles.clj` (or `%USERPROFILE%\.lein\profiles.clj` for Windows)
+```
+{:user {}
+ :auth {
+  :repository-auth {
+    #"https://clojars.org/repo" {:username "your-username" :password "your-password"}}}}
+```
 
 
 ## Release Steps
@@ -33,6 +43,8 @@ More info on deploying libraries using lein: https://github.com/technomancy/lein
 
 Note that all these commands are entered at the repo root folder.
 
+- [ ] Finish any feature branch you're working on. You should now be on the master branch.
+- [ ] Update README.md file if required and commit it.
 - [ ] Close all auto-compiles (command line and/or IntelliJ).
 - [ ] Build each of these aliases (will require separate terminals for each):
 
@@ -45,36 +57,11 @@ Note that all these commands are entered at the repo root folder.
 - [ ] Close all auto-compiles again.
 
 
-### Make a Github release
-
-- [ ] Finish any feature branch you're working on. You should now be on the master branch.
-- [ ] Bump version in project.clj to `x.x.x`.
-- [ ] Update README.md file if required.
-- [ ] Push master:
-
-       git commit -a -m "Bumped version to x.x.x  etc."
-       git tag x.x.x
-       git push
-       git push --tags
-
-- [ ] Create a GitHub Release:
-       - Go to: https://github.com/Day8/re-com/releases
-       - Should see your version `x.x.x` tag at the top.
-       - Press the `Draft a new release` button.
-       - Select this new `x.x.x` version in the Tag version dropdown.
-       - For the title, enter the version number: `x.x.x`.
-       - Enter a description that includes a list of "Changes" and "Fixes" (since the last release).
-       - Click the `Publish release` button.
-
-
 ### Push library to Clojars
 
 - [ ] Push this release to Clojars:
 
-       lein deploy
-       ---
-       Will prompt for your Clojars username and password
-       Note: `project.clj` has been modified to no longer require signing, so it will no longer prompt for a passphrase
+       lein release :minor
 
 
 ### Deploy demo to AWS
@@ -84,8 +71,20 @@ Note that all these commands are entered at the repo root folder.
        lein s3-static-deploy
        ---
        Could have used `lein deploy-aws` but this also builds the `prod` version which we have already just built.
-       Manually change `index.html` to `index_prod.html` in S3 Browser. TODO: Find a way to automate this.
        Test it: https://re-com.day8.com.au.
+       If it can't find the site, you may need to change `index.html` to `index_prod.html` in S3 Browser (although this was unnecessary with the most recent build).
+
+
+### Make a Github release
+
+- [ ] Create a GitHub Release:
+       - Go to: https://github.com/Day8/re-com/releases
+       - Should see your version `x.x.x` tag at the top.
+       - Press the `Draft a new release` button.
+       - Select this new `x.x.x` version in the Tag version dropdown.
+       - For the title, enter the version number: `x.x.x`.
+       - Enter a description that includes a list of "Changes" and "Fixes" (since the last release).
+       - Click the `Publish release` button.
 
 
 ### Final tasks
