@@ -4,7 +4,7 @@
 
 Branch | Status | Artifact
 ----------|--------|--------
-`master` | [![CircleCI](https://circleci.com/gh/Day8/re-com/tree/master.svg?style=svg)](https://circleci.com/gh/Day8/re-com/tree/master) | `[re-com "0.9.0"]`
+`master` | [![CircleCI](https://circleci.com/gh/Day8/re-com/tree/master.svg?style=svg)](https://circleci.com/gh/Day8/re-com/tree/master) | `[re-com "2.2.0"]`
 
 A ClojureScript library of UI components.
 
@@ -36,7 +36,7 @@ like [Electron](https://electron.atom.io).  So, we know we're dealing with Chrom
 If you are similar, or if you work on Intranet apps where you can mandate a modern browser,
 re-com could be ideal for you, right now.
 
-On the other hand, if you target the retail web, you will have to make your own determination, based on [availability of support for Flexbox](http://caniuse.com/#feat=flexbox). The entire layout side of this library plus a few of the widgets rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) which doesn't work on some older browser versions, specifically IE 9, 10, and 11 (even Edge is not quite perfect yet).
+On the other hand, if you target the retail web, you will have to make your own determination, based on [availability of support for Flexbox](http://caniuse.com/#feat=flexbox). The entire layout side of this library plus a few of the widgets rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) which doesn't work on some older browser versions, specifically IE 9, 10, and 11. Edge works pretty well, these days.
 
 Even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
 testing once a month, re-com appears to work reasonably on IE11 and Safari. 
@@ -219,7 +219,7 @@ See [re-frame-template](https://github.com/Day8/re-frame-template).
 * virtual grid. Straight v-box is good enough at small grids, so no problem there. But when the number of
 rows gets huge, you need a widget which does virtual rows, otherwise there's just too much DOM
 and there's performance problems.
-Can we use [Fixed Data Tables for React](http://facebook.github.io/fixed-data-table)?
+Can we use [Fixed Data Tables for React](https://github.com/facebookarchive/fixed-data-table)?
 * drag and drop.
 * animations / transitions.  We have ideas.  They seem clunky.
 * Focus management - When the user presses tab, to which field does focus move?
