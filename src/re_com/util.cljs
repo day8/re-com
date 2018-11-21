@@ -130,7 +130,7 @@
 ;; ----------------------------------------------------------------------------
 
 (defn enumerate
-  "(for [[index item first? last?] (enumerate coll)] ...)  "
+  "(for [[index item first? last?] (enumerate coll)] ...)"
   [coll]
   (let [c (dec (count coll))
         f (fn [index item] [index item (= 0 index) (= c index)])]
@@ -151,12 +151,40 @@
        :top  sum-scroll-top})))
 
 ;; ----------------------------------------------------------------------------
-;; date functions
+;; Date functions
+;;
+;; For reference:
+;;
+;; (js/console.log "(now)................" (now))
+;; (js/console.log "(now->utc)..........." (now->utc))
+;; (js/console.log "(today).............." (today))
+;;
+;; (js/console.log "(time-now)..........." (time-now))
+;; (js/console.log "(today-at-midnight).." (today-at-midnight))
+;; (js/console.log "(date-midnight)......" (date-midnight   2018 11 22))
+;;;
+;; (js/console.log "(date-time).........." (date-time       2018 11 22 08 05 05))
+;; (js/console.log "(local-date-time)...." (local-date-time 2018 11 22 08 05 05))
+;; (js/console.log "(local-date)........." (local-date      2018 11 22))
+;;
+;; Run at 09:22:35 in Sydney Australia...
+;;
+;; (now)................ goog.date.UtcDateTime {date: Thu Nov 22 2018 09:22:35 GMT+1100 (Australian Eastern Daylight Time)}
+;; (now->utc)........... goog.date.UtcDateTime {date: Thu Nov 22 2018 11:00:00 GMT+1100 (Australian Eastern Daylight Time)}
+;; (today).............. goog.date.Date        {date: Thu Nov 22 2018 00:00:00 GMT+1100 (Australian Eastern Daylight Time)}
+;;
+;; (time-now)........... goog.date.DateTime    {date: Thu Nov 22 2018 09:22:35 GMT+1100 (Australian Eastern Daylight Time)}
+;; (today-at-midnight).. goog.date.UtcDateTime {date: Wed Nov 21 2018 11:00:00 GMT+1100 (Australian Eastern Daylight Time), firstDayOfWeek_: 6, firstWeekCutOffDay_: 5}
+;; (date-midnight)...... goog.date.UtcDateTime {date: Thu Nov 22 2018 11:00:00 GMT+1100 (Australian Eastern Daylight Time)}
+;;
+;; (date-time).......... goog.date.UtcDateTime {date: Thu Nov 22 2018 19:05:05 GMT+1100 (Australian Eastern Daylight Time)}
+;; (local-date-time).... goog.date.DateTime    {date: Thu Nov 22 2018 08:05:05 GMT+1100 (Australian Eastern Daylight Time)}
+;; (local-date)......... goog.date.Date        {date: Thu Nov 22 2018 00:00:00 GMT+1100 (Australian Eastern Daylight Time)}
+;;
 ;; ----------------------------------------------------------------------------
 
-;; TODO: Remove? This should be equivalent to a call to (today), except that the returned date is goog.date.UtcDateTime rather than goog.date.Date
 (defn now->utc
-  "Answer a goog.date.UtcDateTime based on local date/time."
+  "Return a goog.date.UtcDateTime based on local date/time."
   []
   (let [local-date (js/goog.date.DateTime.)]
     (js/goog.date.UtcDateTime.

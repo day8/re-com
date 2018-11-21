@@ -3,12 +3,13 @@
     [goog.date.Date]
     [reagent.core      :as    reagent]
     [reagent.ratom     :refer-macros [reaction]]
-    [cljs-time.core    :refer [now today days minus plus day-of-week before?]]
+    [cljs-time.core    :refer [today days minus plus day-of-week before?]]
     [cljs-time.coerce  :refer [to-local-date]]
     [cljs-time.format  :refer [formatter unparse]]
-    [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p md-icon-button]]
+    [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p button md-icon-button]]
     [re-com.datepicker :refer [iso8601->date datepicker-dropdown-args-desc]]
     [re-com.validate   :refer [goog-date?]]
+    [re-com.util       :refer [now->utc]]
     [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
@@ -78,13 +79,13 @@
   [date]
   (if (goog-date? date)
     (unparse (formatter "dd MMM, yyyy") date)
-    "invalid date"))
+    "no date"))
 
 
 (defn- show-variant
   [variation]
-  (let [model1          (reagent/atom #_nil  #_(today)                    (now))                      ;; Test 3 valid data types
-        model2          (reagent/atom #_nil  #_(plus (today) (days 120))  (plus (now) (days 120)))    ;; (today) = goog.date.Date, (now) = goog.date.UtcDateTime
+  (let [model1          (reagent/atom #_nil  #_(today)                    (now->utc))                      ;; Test 3 valid data types
+        model2          (reagent/atom #_nil  #_(plus (today) (days 120))  (plus (now->utc) (days 120)))    ;; (today) = goog.date.Date, (now->utc) = goog.date.UtcDateTime
         model3          (reagent/atom nil)
         disabled?       (reagent/atom false)
         show-today?     (reagent/atom true)
@@ -104,7 +105,7 @@
                                :gap      "5px"
                                :children [[label
                                            :style label-style
-                                           :label [:span " :maximum " (date->string @model2) [:br] ":start-of-week Sunday"]]
+                                           :label [:span " :maximum - " (date->string @model2) [:br] ":start-of-week - Sunday"]]
                                           [datepicker
                                            :model         model1
                                            :maximum       model2
@@ -117,6 +118,7 @@
                                           [h-box
                                            :gap      "6px"
                                            :margin   "10px 0px 0px 0px"
+                                           :align    :center
                                            :children [[label :style label-style :label "Change model:"]
                                                       [md-icon-button
                                                        :md-icon-name "zmdi-arrow-left"
@@ -132,13 +134,18 @@
                                                                                      (to-local-date @model2)))
                                                                        true)
                                                        :on-click     #(when (goog-date? @model1)
-                                                                        (reset! model1 (plus @model1 (days 1))))]]]]]
+                                                                        (reset! model1 (plus @model1 (days 1))))]
+                                                      [button
+                                                       :label    "Reset"
+                                                       :class    "btn btn-default"
+                                                       :style    {:padding  "1px 4px"}
+                                                       :on-click #(reset! model1 nil)]]]]]
 
                               [v-box
                                :gap      "5px"
                                :children [[label
                                            :style label-style
-                                           :label [:span ":minimum " (date->string @model1) [:br] ":start-of-week Monday"]]
+                                           :label [:span ":minimum - " (date->string @model1) [:br] ":start-of-week - Monday"]]
                                           [datepicker
                                            :start-of-week 0
                                            :model         model2

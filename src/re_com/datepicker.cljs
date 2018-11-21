@@ -169,7 +169,7 @@
 ;  {:pre [(sunday? date)]}
   (let [table-row (if (:show-weeks? attributes) [:tr (week-td date)] [:tr])
         row-dates (map #(inc-date date %) (range 7))
-        today     (when (:show-today? attributes) (:today attributes))] ;; TODO: Could replace (:today attributes) with (today)
+        today     (when (:show-today? attributes) (:today attributes))]
     (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change) row-dates))))
 
 
@@ -197,13 +197,13 @@
   [date-type]
   (cond
     (= date-type js/goog.date.Date)         (today)
-    (= date-type js/goog.date.UtcDateTime)  (now)
-    (nil? date-type)                        (now)     ;; Default for when dat was not nil/unspecified
+    (= date-type js/goog.date.UtcDateTime)  (now->utc)
+    (nil? date-type)                        (now->utc)     ;; Default for when dat was not nil/unspecified
     :else                                   (throw (js/Error. "Invalid date type - must be goog.date.UtcDateTime/Date or nil"))))
 
 
 (def datepicker-args-desc
-  [{:name :model          :required false                               :type "goog.date.UtcDateTime/Date | atom"  :validate-fn goog-date?  :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
+  [{:name :model          :required false                               :type "goog.date.UtcDateTime/Date | atom"  :validate-fn goog-date?  :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now->utc) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
    {:name :on-change      :required true                                :type "goog.date.UtcDateTime/Date -> nil"  :validate-fn fn?         :description [:span "called when a new selection is made. Returned type is the same as model (unless model is nil, in which case it will be " [:code "goog.date.UtcDateTime"] ")"]}
    {:name :disabled?      :required false  :default false               :type "boolean | atom"                                              :description "when true, the user can't select dates but can navigate"}
    {:name :selectable-fn  :required false  :default "(fn [date] true)"  :type "pred"                               :validate-fn fn?         :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
