@@ -154,6 +154,7 @@
 ;; date functions
 ;; ----------------------------------------------------------------------------
 
+;; TODO: Remove? This should be equivalent to a call to (today), except that the returned date is goog.date.UtcDateTime rather than goog.date.Date
 (defn now->utc
   "Answer a goog.date.UtcDateTime based on local date/time."
   []

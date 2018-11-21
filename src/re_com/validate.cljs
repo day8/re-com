@@ -5,7 +5,8 @@
     [reagent.core          :as    reagent]
     [reagent.impl.template :refer [valid-tag?]]
     [goog.string           :as    gstring]
-    [goog.date.UtcDateTime]))
+    [goog.date.UtcDateTime]
+    [goog.date.Date]))
 
 
 ;; -- Helpers -----------------------------------------------------------------
@@ -344,10 +345,10 @@
                   :message result}))))))
 
 (defn goog-date?
-  "Returns true if the passed argument is a valid goog.date.UtcDateTime, otherwise false/error"
+  "Returns true if the passed argument is a valid goog.date.UtcDateTime or goog.date.Date, otherwise false/error"
   [arg]
   (let [arg (deref-or-value-peek arg)]
-    (instance? js/goog.date.UtcDateTime arg)))
+    (or (= js/goog.date.UtcDateTime (type arg)) (= js/goog.date.Date (type arg)))))
 
 (defn regex?
   "Returns true if the passed argument is a valid regular expression, otherwise false/error"

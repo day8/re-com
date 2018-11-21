@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
     [reagent.core         :as    reagent]
-    [cljs-time.core       :refer [now minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
+    [cljs-time.core       :refer [now today minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
     [re-com.validate      :refer [goog-date? css-style? html-attr?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
@@ -34,8 +34,9 @@
 
 (defn previous
   "If date fails pred, subtract period until true, otherwise answer date"
-  ;; date   - a goog.date.UtcDateTime now if ommited
-  ;; pred   - can be one of cljs-time.predicate e.g. sunday? but anything that can deal with goog.date.UtcDateTime
+  ;; date   - a goog.date.UtcDateTime OR goog.date.Date, depending on type of date.
+  ;;          If omitted, use now->utc, which returns a goog.date.UtcDateTime version of now with time removed
+  ;; pred   - can be one of cljs-time.predicate e.g. sunday? but anything that can deal with goog.date.UtcDateTime/Date
   ;; period - a period which will be subtracted see cljs-time.core periods
   ;; Note:  If period and pred do not represent same granularity, some steps may be skipped
   ;         e.g Pass a Wed date, specify sunday? as pred and a period (days 2) will skip one Sunday.
@@ -168,7 +169,7 @@
 ;  {:pre [(sunday? date)]}
   (let [table-row (if (:show-weeks? attributes) [:tr (week-td date)] [:tr])
         row-dates (map #(inc-date date %) (range 7))
-        today     (if (:show-today? attributes) (:today attributes) nil)]
+        today     (when (:show-today? attributes) (:today attributes))] ;; TODO: Could replace (:today attributes) with (today)
     (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change) row-dates))))
 
 
@@ -188,50 +189,61 @@
   (let [selectable-fn (if (-> attributes :selectable-fn fn?)
                         (:selectable-fn attributes)
                         (fn [date] true))]
-    (merge attributes {:selectable-fn selectable-fn :today (now->utc)})))
+    (merge attributes {:selectable-fn selectable-fn
+                       :today         (now->utc)})))
+
+
+(defn now-today
+  [date-type]
+  (cond
+    (= date-type js/goog.date.Date)         (today)
+    (= date-type js/goog.date.UtcDateTime)  (now)
+    (nil? date-type)                        (now)     ;; Default for when dat was not nil/unspecified
+    :else                                   (throw (js/Error. "Invalid date type - must be goog.date.UtcDateTime/Date or nil"))))
+
 
 (def datepicker-args-desc
-  [{:name :model         :required false                             :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "the selected date. If provided, should pass pred :selectable-fn"}
-   {:name :on-change     :required true                              :type "goog.date.UtcDateTime -> nil"   :validate-fn fn?        :description "called when a new selection is made"}
-   {:name :disabled?     :required false :default false              :type "boolean | atom"                                         :description "when true, the can't select dates but can navigate"}
-   {:name :selectable-fn :required false :default "(fn [date] true)" :type "pred"                           :validate-fn fn?        :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
-   {:name :show-weeks?   :required false :default false              :type "boolean"                                                :description "when true, week numbers are shown to the left"}
-   {:name :show-today?   :required false :default false              :type "boolean"                                                :description "when true, today's date is highlighted"}
-   {:name :minimum       :required false                             :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "no selection or navigation before this date"}
-   {:name :maximum       :required false                             :type "goog.date.UtcDateTime | atom"   :validate-fn goog-date? :description "no selection or navigation after this date"}
-   {:name :start-of-week :required false :default 6                  :type "int"                                                    :description "first day of week (Monday = 0 ... Sunday = 6)"}
-   {:name :hide-border?  :required false :default false              :type "boolean"                                                :description "when true, the border is not displayed"}
-   {:name :class         :required false                             :type "string"                         :validate-fn string?    :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
-   {:name :style         :required false                             :type "CSS style map"                  :validate-fn css-style? :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
-   {:name :attr          :required false                             :type "HTML attr map"                  :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer border div, not the wrapping div)"]}])
+  [{:name :model          :required false                               :type "goog.date.UtcDateTime/Date | atom"  :validate-fn goog-date?  :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
+   {:name :on-change      :required true                                :type "goog.date.UtcDateTime/Date -> nil"  :validate-fn fn?         :description [:span "called when a new selection is made. Returned type is the same as model (unless model is nil, in which case it will be " [:code "goog.date.UtcDateTime"] ")"]}
+   {:name :disabled?      :required false  :default false               :type "boolean | atom"                                              :description "when true, the user can't select dates but can navigate"}
+   {:name :selectable-fn  :required false  :default "(fn [date] true)"  :type "pred"                               :validate-fn fn?         :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
+   {:name :show-weeks?    :required false  :default false               :type "boolean"                                                     :description "when true, week numbers are shown to the left"}
+   {:name :show-today?    :required false  :default false               :type "boolean"                                                     :description "when true, today's date is highlighted"}
+   {:name :minimum        :required false                               :type "goog.date.UtcDateTime/Date | atom"  :validate-fn goog-date?  :description "no selection or navigation before this date"}
+   {:name :maximum        :required false                               :type "goog.date.UtcDateTime/Date | atom"  :validate-fn goog-date?  :description "no selection or navigation after this date"}
+   {:name :start-of-week  :required false  :default 6                   :type "int"                                                         :description "first day of week (Monday = 0 ... Sunday = 6)"}
+   {:name :hide-border?   :required false  :default false               :type "boolean"                                                     :description "when true, the border is not displayed"}
+   {:name :class          :required false                               :type "string"                             :validate-fn string?     :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
+   {:name :style          :required false                               :type "CSS style map"                      :validate-fn css-style?  :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
+   {:name :attr           :required false                               :type "HTML attr map"                      :validate-fn html-attr?  :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] " allowed (applies to the outer border div, not the wrapping div)"]}])
 
 (defn datepicker
   [& {:keys [model] :as args}]
   {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
-  (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
-        internal-model (reagent/atom @external-model) ;; Create a new atom from the model to be used internally 
-        display-month  (reagent/atom (first-day-of-the-month (or @internal-model (now))))]
+  (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
+        internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
+        date-type      (if @internal-model                    ;; Create a new atom from the model to be used internally
+                         (type @internal-model)
+                         js/goog.date.UtcDateTime)            ;; Default to UtcDateTime if model is nil (for backward compatibility)
+        display-month  (reagent/atom (first-day-of-the-month (or @internal-model (now-today date-type))))]
     (fn datepicker-component
       [& {:keys [model on-change disabled? start-of-week hide-border? class style attr]
           :or   {start-of-week 6} ;; Default to Sunday
           :as   args}]
       {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
       (let [latest-ext-model    (deref-or-value model)
-            props-with-defaults (merge args {:start-of-week start-of-week})
+            disabled?           (deref-or-value disabled?)
+            props-with-defaults (merge args {:start-of-week start-of-week
+                                             #_:date-type   #_date-type}) ;; Uncomment if required down the line
             configuration       (configure props-with-defaults)]
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model)
-          (reset! display-month  (first-day-of-the-month (or @internal-model (now)))))
+          (reset! display-month  (first-day-of-the-month (or @internal-model (now-today date-type)))))
         [main-div-with
          [:table {:class "table-condensed"}
           [table-thead display-month configuration]
-          [table-tbody
-           @display-month
-           @internal-model
-           configuration
-           (if (nil? disabled?) false (deref-or-value disabled?))
-           on-change]]
+          [table-tbody @display-month @internal-model configuration disabled? on-change]]
          hide-border?
          class
          style
@@ -248,8 +260,9 @@
     :align     :center
     :class     "noselect"
     :min-width "10em"
+    :max-width "10em"
     :children  [[:label {:class "form-control dropdown-button"}
-                 (if (instance? js/goog.date.Date (deref-or-value model))
+                 (if (goog-date? (deref-or-value model))
                    (unparse (if (seq format) (formatter format) date-format) (deref-or-value model))
                    [:span {:style {:color "#bbb"}} placeholder])]
                 [:span.dropdown-button.activator.input-group-addon
@@ -258,7 +271,7 @@
 
 (def datepicker-dropdown-args-desc
   (conj datepicker-args-desc
-        {:name :format       :required false  :default "yyyy MMM dd"  :type "string"   :description "[datepicker-dropdown only] a represenatation of a date format. See cljs_time.format"}
+        {:name :format       :required false  :default "yyyy MMM dd"  :type "string"   :description "[datepicker-dropdown only] a representation of a date format. See cljs_time.format"}
         {:name :no-clip?     :required false  :default true           :type "boolean"  :description "[datepicker-dropdown only] when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
         {:name :placeholder  :required false                          :type "string"   :description "[datepicker-dropdown only] placeholder text for when a date is not selected."}))
 

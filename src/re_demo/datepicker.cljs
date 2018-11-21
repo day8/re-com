@@ -3,11 +3,12 @@
     [goog.date.Date]
     [reagent.core      :as    reagent]
     [reagent.ratom     :refer-macros [reaction]]
-    [cljs-time.core    :refer [now days minus plus day-of-week before?]]
+    [cljs-time.core    :refer [now today days minus plus day-of-week before?]]
     [cljs-time.coerce  :refer [to-local-date]]
     [cljs-time.format  :refer [formatter unparse]]
     [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p md-icon-button]]
     [re-com.datepicker :refer [iso8601->date datepicker-dropdown-args-desc]]
+    [re-com.validate   :refer [goog-date?]]
     [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
@@ -75,16 +76,15 @@
 
 (defn- date->string
   [date]
-  (if (instance? js/goog.date.Date date)
+  (if (goog-date? date)
     (unparse (formatter "dd MMM, yyyy") date)
-    ""))
-
+    "invalid date"))
 
 
 (defn- show-variant
   [variation]
-  (let [model1          (reagent/atom (now))
-        model2          (reagent/atom (plus (now) (days 120)))
+  (let [model1          (reagent/atom #_nil  #_(today)                    (now))                      ;; Test 3 valid data types
+        model2          (reagent/atom #_nil  #_(plus (today) (days 120))  (plus (now) (days 120)))    ;; (today) = goog.date.Date, (now) = goog.date.UtcDateTime
         model3          (reagent/atom nil)
         disabled?       (reagent/atom false)
         show-today?     (reagent/atom true)
@@ -121,13 +121,18 @@
                                                       [md-icon-button
                                                        :md-icon-name "zmdi-arrow-left"
                                                        :size         :smaller
-                                                       :on-click     #(reset! model1 (minus @model1 (days 1)))]
+                                                       :disabled?    (not (goog-date? @model1))
+                                                       :on-click     #(when (goog-date? @model1)
+                                                                        (reset! model1 (minus @model1 (days 1))))]
                                                       [md-icon-button
                                                        :md-icon-name "zmdi-arrow-right"
                                                        :size         :smaller
-                                                       :disabled?    (not (before? (to-local-date @model1)
-                                                                                   (to-local-date @model2)))
-                                                       :on-click     #(reset! model1 (plus @model1 (days 1)))]]]]]
+                                                       :disabled?    (if (and (goog-date? @model1) (goog-date? @model2))
+                                                                       (not (before? (to-local-date @model1)
+                                                                                     (to-local-date @model2)))
+                                                                       true)
+                                                       :on-click     #(when (goog-date? @model1)
+                                                                        (reset! model1 (plus @model1 (days 1))))]]]]]
 
                               [v-box
                                :gap      "5px"
