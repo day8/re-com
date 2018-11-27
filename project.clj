@@ -9,11 +9,11 @@
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
 
-  :dependencies     [[org.clojure/clojure         "1.8.0"]
-                     [org.clojure/clojurescript   "1.9.671"]
-                     [reagent                     "0.7.0"]
-                     [org.clojure/core.async      "0.3.443"]
-                     [com.andrewmcveigh/cljs-time "0.5.1"]]
+  :dependencies     [[org.clojure/clojure         "1.9.0"]
+                     [org.clojure/clojurescript   "1.10.439"]
+                     [reagent                     "0.8.1"]
+                     [org.clojure/core.async      "0.4.474"]
+                     [com.andrewmcveigh/cljs-time "0.5.2"]]
 
   ;:plugins          [[lein-unpack-resources "0.1.1"]]
   ;
@@ -29,27 +29,26 @@
   ;                    :extract-path "run/resources-frame"}]
 
   :profiles         {:dev       {:dependencies [[clj-stacktrace                  "0.2.8"]
-                                                [figwheel                        "0.5.12"]
-                                                [binaryage/devtools              "0.9.4"]
+                                                [binaryage/devtools              "0.9.10"]
                                                 [binaryage/dirac                 "RELEASE"]]
                                  :repl-options {:port 8230
                                                 :nrepl-middleware [dirac.nrepl/middleware]
                                                 :init (do (require 'dirac.agent)
                                                           (dirac.agent/boot!))}
                                  :plugins      [[lein-cljsbuild                  "1.1.5"]
-                                                [lein-figwheel                   "0.5.12"]
+                                                [lein-figwheel                   "0.5.17"]
                                                 [lein-shell                      "0.5.0"]
                                                 [org.clojure/data.json           "0.2.6"]
                                                 [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
-                                                [lein-ancient                    "0.6.10"]]}
-                     :demo {:dependencies [[alandipert/storage-atom "2.0.1"]
-                                           [com.cognitect/transit-cljs "0.8.239"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
-                                           [secretary "1.2.3"]]}
+                                                [lein-ancient                    "0.6.15"]]}
+                     :demo      {:dependencies [[alandipert/storage-atom         "2.0.1"]
+                                                [com.cognitect/transit-cljs      "0.8.239"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
+                                                [clj-commons/secretary           "1.2.4"]]}
                      :dev-cider {:figwheel {:nrepl-port       7777
                                             :nrepl-middleware ["cider.nrepl/cider-middleware"
                                                                "cemerick.piggieback/wrap-cljs-repl"]}
                                  :dependencies [[com.cemerick/piggieback "0.2.2"]
-                                                [figwheel-sidecar "0.5.12"]]}
+                                                #_[figwheel-sidecar "0.5.12"]]}
                      :dev-run   {:clean-targets ^{:protect false} ["run/resources/public/compiled_dev"]}
                      :prod-run  {:clean-targets ^{:protect false} ["run/resources/public/compiled_prod"]}
                      :dev-test  {:clean-targets ^{:protect false} ["run/test/compiled"]}}

@@ -186,9 +186,9 @@
 (defn now->utc
   "Return a goog.date.UtcDateTime based on local date/time."
   []
-  (let [local-date (js/goog.date.DateTime.)]
+  (let [local-date-time (js/goog.date.DateTime.)]
     (js/goog.date.UtcDateTime.
-      (.getYear local-date)
-      (.getMonth local-date)
-      (.getDate local-date)
+      (.getYear local-date-time)
+      (.getMonth local-date-time)
+      (.getDate local-date-time)
       0 0 0 0)))
