@@ -1,6 +1,6 @@
 (ns re-demo.h-box
   (:require [clojure.string  :as    string]
-            [re-com.core     :refer [p h-box v-box box gap line scroller border label title button close-button checkbox hyperlink-href slider horizontal-bar-tabs info-button
+            [re-com.core     :refer [p p-span h-box v-box box gap line scroller border label title button close-button checkbox hyperlink-href slider horizontal-bar-tabs info-button
                                      input-text input-textarea popover-anchor-wrapper popover-content-wrapper popover-tooltip px] :refer-macros [handler-fn]]
             [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc flex-child-style]]
             [re-com.util     :refer [px]]
@@ -116,10 +116,10 @@
                                [:ul
                                 [:li "Select different " [:code ":justify"] " values and notice how the children are repositioned."]
                                 [:li "Untick " [:code ":justify"] ". When not specified, the default value is :start."]]
-                               [:p [:code ":justify"] " is the analog of " [hyperlink-href
-                                                                            :label "Flexbox justify-content style"
-                                                                            :href "https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content"
-                                                                            :target "_blank"] "."]]]}
+                               [p-span [:code ":justify"] " is the analog of " [hyperlink-href
+                                                                                :label "Flexbox justify-content style"
+                                                                                :href "https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content"
+                                                                                :target "_blank"] "."]]]}
 
             ;; Align
             {:hbox {:over?      false
@@ -158,10 +158,10 @@
                                 [:li "Select different " [:code ":align"] " values for the h-box and notice how this only affects Box1 because both other boxes have an overriding :align-self setting."]
                                 [:li "Change the " [:code ":align-self"] " values for Box2 and Box3 to see them adjust their vertical position."]
                                 [:li "Adjust the h-box " [:code ":height"] " and notice boxes 2 and 3 sticking to their specified alignment."]]
-                               [:p [:code ":align"] " is the analog of " [hyperlink-href
-                                                                          :label "Flexbox align-items style"
-                                                                          :href "https://developer.mozilla.org/en-US/docs/Web/CSS/align-items"
-                                                                          :target "_blank"] "."]]]}
+                               [p-span [:code ":align"] " is the analog of " [hyperlink-href
+                                                                              :label "Flexbox align-items style"
+                                                                              :href "https://developer.mozilla.org/en-US/docs/Web/CSS/align-items"
+                                                                              :target "_blank"] "."]]]}
 
             ;; Size
             {:hbox {:over?      false
@@ -193,7 +193,7 @@
                     :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
              :desc [v-box
                     :children [[:p.info-subheading "The " [:code ":size"] " parameter"]
-                               [p "The "
+                               [p-span "The "
                                 [hyperlink-href
                                  :label [:span "Layout page"]
                                  :href "#/layout"
@@ -207,10 +207,10 @@
                                 [:li "Adjust the h-box " [:code ":width"] " and notice how Box1 and Box2 don't change in width, and Box3 greedily takes any excess space and squeezes down to nothing as the h-box width is reduced further."]
                                 [:li "Set the Box2 " [:code ":size"] " to a ratio value of \"2\" and notice how it will always take up double the width of Box3 (ratio \"1\") as you adjust the h-box " [:code ":width"] "."]
                                 [:li "Set the Box2 " [:code ":size"] " to a gsb value of \"0 0 80%\". Its width is fixed to 80% of its parent h-box, with no growing or shrinking. Box1 and Box2 now have fixed widths. Box3 can grow and shrink. See this in action as you adjust the h-box " [:code ":width"] "."]]
-                               [:p [:code ":size"] " is the analog of " [hyperlink-href
-                                                                         :label "Flexbox flex style"
-                                                                         :href "https://developer.mozilla.org/en-US/docs/Web/CSS/flex"
-                                                                         :target "_blank"] "."]]]}
+                               [p-span [:code ":size"] " is the analog of " [hyperlink-href
+                                                                             :label "Flexbox flex style"
+                                                                             :href "https://developer.mozilla.org/en-US/docs/Web/CSS/flex"
+                                                                             :target "_blank"] "."]]]}
 
             ;; Size2
             {:hbox {:over?      false
@@ -787,7 +787,7 @@
                              :children [[title2 "Notes"]
                                         [status-text "Stable"]
                                         [p "h-box is a container which lays out its  " [:code ":children"] " in a single horizontal row."]
-                                        [p "The "
+                                        [p-span "The "
                                          [hyperlink-href
                                           :label     [:span.bold "Layout page"]
                                           :href      "#/layout"]

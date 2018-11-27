@@ -89,7 +89,7 @@
 
    At 14px, 450px will yield between 69 and 73 chars.
    At 15px, 450px will yield about 66 to 70 chars.
-   So we're at the upper end of the prefered 50 to 75 char range.
+   So we're at the upper end of the preferred 50 to 75 char range.
 
    If the first child is a map, it is interpreted as a map of styles / attributes."
   [& children]
@@ -101,6 +101,27 @@
                                            :width     "450px"
                                            :min-width "450px"}}
                                   m)]
-    [:span.rc-p
-     m
-     (into [:p] children)]))    ;; the wrapping span allows children to contain [:ul] etc
+    [:span.rc-p m (into [:p] children)]))    ;; the wrapping span allows children to contain [:ul] etc
+
+
+(defn p-span
+  "like p above but uses a [:span] in place of the [:p] and adds bottom margin of 0.7ems which
+  produces the same visual result but might have been a breaking change for some users.
+
+  This is here because React has become more unforgiving about nesting [:div]s under [:p]s and dumps
+  a big red warning message in DevTools.
+
+  By adding, for example, a [hyperlink] component within your `p` (which contains a [:div]), you can get this warning message
+
+  We did it this way to avoid potential breaking changes for p"
+  [& children]
+  (let [child1       (first children)    ;; it might be a map of attributes, including styles
+        [m children] (if (map? child1)
+                       [child1  (rest children)]
+                       [{}      children])
+        m             (deep-merge {:style {:flex          "none"
+                                           :width         "450px"
+                                           :min-width     "450px"
+                                           :margin-bottom "0.7em"}}
+                                  m)]
+    [:span.rc-p m (into [:span] children)]))

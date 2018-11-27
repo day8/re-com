@@ -1,5 +1,5 @@
 (ns re-demo.dropdowns
-  (:require [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p]]
+  (:require [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span]]
             [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-args-desc]]
             [re-com.util     :refer [item-for-id]]
             [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]
@@ -439,7 +439,7 @@
                                :width    "450px"
                                :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                           [p
+                                           [p-span
                                             "A dropdown selection component, similar to "
                                             [hyperlink-href
                                              :label  "Chosen"

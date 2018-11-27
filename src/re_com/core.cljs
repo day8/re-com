@@ -85,6 +85,7 @@
 
 (def label                      text/label)
 (def p                          text/p)
+(def p-span                     text/p-span)
 (def title                      text/title)
 
 (def make-tour                  tour/make-tour)

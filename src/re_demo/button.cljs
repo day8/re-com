@@ -1,5 +1,5 @@
 (ns re-demo.button
-  (:require [re-com.core    :refer [h-box v-box box gap line button label throbber hyperlink-href p] :refer-macros [handler-fn]]
+  (:require [re-com.core    :refer [h-box v-box box gap line button label throbber hyperlink-href p p-span] :refer-macros [handler-fn]]
             [re-com.buttons :refer [button-args-desc]]
             [re-demo.utils  :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core   :as    reagent]))
@@ -39,7 +39,7 @@
 
                                            [p "A button component with optional tooltip."]
                                            [p "Styling to be provided via the " [:code ":class"] " attribute. Typically you'll be using Bootstrap CSS styles such as \"btn-info\"."]
-                                           [p "See "
+                                           [p-span "See "
                                             [hyperlink-href
                                              :label "Bootstrap Button Options"
                                              :href "http://getbootstrap.com/css/#buttons-options"

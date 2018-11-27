@@ -1,5 +1,5 @@
 (ns re-demo.introduction
-  (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href input-text p]]
+  (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href input-text p p-span]]
             [re-demo.utils :refer [panel-title title2]]))
 
 
@@ -16,7 +16,7 @@
   []
   [v-box
    :children [[gap :size "10px"]
-              [p
+              [p-span
                "Re-com is a library of ClojureScript UI components, built on top of "
                [hyperlink-href
                 :label "Reagent"
@@ -28,7 +28,7 @@
                :children [
                           [p "It provides " [:span.bold "layout"] " and " [:span.bold "widget"] " components
                           for building desktop-class apps. The set of widgets is incomplete but growing."]
-                          [p RHS-column-style [:br] "The github repo "
+                          [p-span RHS-column-style [:br] "The github repo "
                            [hyperlink-href
                             :label "is here"
                             :href "https://github.com/Day8/re-com"
@@ -108,7 +108,7 @@
                                        [:li "the code seems more easily read and understood (although longer)"]
                                        [:li "optionality - not all parameters need be supplied and defaults can be introduced"]
                                        [:li "API flexibility - easy to add new parameters"]]
-                                      [p RHS-column-style "Read further analysis "
+                                      [p-span RHS-column-style "Read further analysis "
                                         [hyperlink-href
                                          :label "here"
                                          :href "https://clojurefun.wordpress.com/2012/08/13/keyword-arguments-in-clojure/"
@@ -143,7 +143,7 @@
               ... etc
               ]]"]]]
                            [v-box
-                            :children [[p RHS-column-style "The underlying technology is "
+                            :children [[p-span RHS-column-style "The underlying technology is "
                                         [hyperlink-href
                                          :label "flexbox"
                                          :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"

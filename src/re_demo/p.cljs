@@ -1,5 +1,5 @@
 (ns re-demo.p
-  (:require [re-com.core   :refer [h-box v-box box gap line label p hyperlink-href]]
+  (:require [re-com.core   :refer [h-box v-box box gap line label p p-span hyperlink-href]]
             [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text ]]))
 
 
@@ -22,7 +22,7 @@
                            :width    "450px"
                            :children [[title2 "Notes"]
                                       [status-text "Stable"]
-                                      [p "Acts like an html [:p]." [:br] [:br]
+                                      [p-span "Acts like an html [:p]." [:br] [:br]
 
                                        "Creates a paragraph of body text, expected to have a font-szie of 14px or 15px, which should have limited width (450px)." [:br] [:br]
 

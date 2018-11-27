@@ -1,5 +1,5 @@
 (ns re-demo.row-button
-  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox horizontal-bar-tabs vertical-bar-tabs title p] :refer-macros [handler-fn]]
+  (:require [re-com.core                   :refer [h-box v-box box gap line row-button label checkbox horizontal-bar-tabs vertical-bar-tabs title p p-span] :refer-macros [handler-fn]]
             [re-com.buttons                :refer [row-button-args-desc]]
             [re-com.util                   :refer [enumerate]]
             [re-demo.md-circle-icon-button :refer [icons example-icons]]
@@ -112,7 +112,7 @@
                                           [p "Designed for tables which have per-row buttons. To avoid visual clutter, they only appear on row mouse-over."]
                                           [p "To understand, mouse-over the table in the demo.  Notice that buttons appear for each row, muted initially, but more strongly as the mouse is over them specifically."]
                                           [p "Notice also that these buttons can have an optional explanatory tooltip."]
-                                          [p "Material design icons, and their names, can be " [material-design-hyperlink "found here"] "."]
+                                          [p-span "Material design icons, and their names, can be " [material-design-hyperlink "found here"] "."]
                                           [args-table row-button-args-desc]]]
                               [v-box
                                :gap      "10px"

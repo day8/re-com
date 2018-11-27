@@ -1,5 +1,5 @@
 (ns re-demo.title
-  (:require [re-com.core   :refer [h-box v-box box gap line title label checkbox hyperlink-href p]]
+  (:require [re-com.core   :refer [h-box v-box box gap line title label checkbox hyperlink-href p p-span]]
             [re-com.text   :refer [title-args-desc]]
             [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core  :as    reagent]))
@@ -26,14 +26,14 @@
                                  :children [[title2 "Notes"]
                                             [status-text "Stable"]
                                             [p "We use a four tier system of titles, the equivalent of h1 to h4."]
-                                            [p
+                                            [p-span
                                              "If you actually use [:h1] to [:h4] then "
                                              [hyperlink-href
                                               :label "Bootstrap styles"
                                               :href "http://getbootstrap.com/css/#type"
                                               :target "_blank"]
                                              " will apply."]
-                                            [p
+                                            [p-span
                                              "Re-com uses "
                                              [hyperlink-href
                                               :label  "Segoe UI"

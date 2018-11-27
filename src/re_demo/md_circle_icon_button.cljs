@@ -1,5 +1,5 @@
 (ns re-demo.md-circle-icon-button
-  (:require [re-com.core    :refer [h-box v-box box gap line label md-circle-icon-button horizontal-bar-tabs vertical-bar-tabs p]]
+  (:require [re-com.core    :refer [h-box v-box box gap line label md-circle-icon-button horizontal-bar-tabs vertical-bar-tabs p p-span]]
             [re-com.buttons :refer [md-circle-icon-button-args-desc]]
             [re-demo.utils  :refer [panel-title title2 args-table material-design-hyperlink github-hyperlink status-text]]
             [reagent.core   :as    reagent]))
@@ -44,7 +44,7 @@
                                :width    "450px"
                                :children [[title2 "Notes"]
                                           [status-text "Stable"]
-                                          [p "Material design icons, and their names, can be " [material-design-hyperlink "found here"] "."]
+                                          [p-span "Material design icons, and their names, can be " [material-design-hyperlink "found here"] "."]
                                           [args-table md-circle-icon-button-args-desc]]]
                               [v-box
                                :gap "10px"
