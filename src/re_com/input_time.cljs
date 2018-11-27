@@ -47,7 +47,7 @@
        (filter (comp not nil?))))                           ;; of the 9 items, there should be only 3 non-nil matches coresponding to  H : M
 
 
-(defn- text->time
+(defn text->time
   "return as a time int, the contents of 'text'"
   [text]
   (->> text
@@ -56,14 +56,14 @@
        triple->time))                                       ;; turn the triple of values into a single int
 
 
-(defn- time->text
+(defn time->text
   "return a string of format HH:MM for 'time'"
   [time]
   (let [hrs  (time->hrs  time)
         mins (time->mins time)]
     (str (pad-zero-number hrs 2) ":" (pad-zero-number mins 2))))
 
-(defn- valid-text?
+(defn valid-text?
   "Return true if text passes basic time validation.
    Can't do to much validation because user input might not be finished.
    Why?  On the way to entering 6:30, you must pass through the invalid state of '63'.
@@ -71,7 +71,7 @@
   [text]
   (= 3 (count (extract-triple-from-text text))))
 
-(defn- valid-time?
+(defn valid-time?
   [time]
   (cond
     (nil? time) false                                       ;; can't be nil
