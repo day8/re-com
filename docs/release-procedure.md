@@ -69,10 +69,14 @@ Note that all these commands are entered at the repo root folder.
 - [ ] Deploy demo to AWS:
 
        lein s3-static-deploy
-       ---
-       Could have used `lein deploy-aws` but this also builds the `prod` version which we have already just built.
-       Test it: https://re-com.day8.com.au.
-       If it can't find the site, you may need to change `index.html` to `index_prod.html` in S3 Browser (although this was unnecessary with the most recent build).
+
+       or if you didn't just do a `lein prod-auto`...
+
+       lein deploy-aws
+
+Test it: https://re-com.day8.com.au.
+
+If it can't find the site, you may need to change `index.html` to `index_prod.html` in S3 Browser (although this was unnecessary with the most recent build).
 
 
 ### Make a Github release
