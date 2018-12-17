@@ -3,7 +3,7 @@
   (:require
     [reagent.core         :as    reagent]
     [cljs-time.core       :refer [now today minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
-    [re-com.validate      :refer [goog-date? css-style? html-attr?] :refer-macros [validate-args-macro]]
+    [re-com.validate      :refer [date-like? css-style? html-attr?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box flex-child-style]]
@@ -34,9 +34,9 @@
 
 (defn previous
   "If date fails pred, subtract period until true, otherwise answer date"
-  ;; date   - a goog.date.UtcDateTime OR goog.date.Date, depending on type of date.
-  ;;          If omitted, use now->utc, which returns a goog.date.UtcDateTime version of now with time removed
-  ;; pred   - can be one of cljs-time.predicate e.g. sunday? but anything that can deal with goog.date.UtcDateTime/Date
+  ;; date   - a date object that satisfies cljs-time.core/DateTimeProtocol.
+  ;;          If omitted, use now->utc, which returns a goog.date.UtcDateTime version of now with time removed.
+  ;; pred   - can be one of cljs-time.predicate e.g. sunday? but any valid pred is supported.
   ;; period - a period which will be subtracted see cljs-time.core periods
   ;; Note:  If period and pred do not represent same granularity, some steps may be skipped
   ;         e.g Pass a Wed date, specify sunday? as pred and a period (days 2) will skip one Sunday.
@@ -203,14 +203,14 @@
 
 
 (def datepicker-args-desc
-  [{:name :model          :required false                               :type "goog.date.UtcDateTime/Date | atom"  :validate-fn goog-date?  :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now->utc) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
-   {:name :on-change      :required true                                :type "goog.date.UtcDateTime/Date -> nil"  :validate-fn fn?         :description [:span "called when a new selection is made. Returned type is the same as model (unless model is nil, in which case it will be " [:code "goog.date.UtcDateTime"] ")"]}
+  [{:name :model          :required false                               :type "satisfies DateTimeProtocol | atom"  :validate-fn date-like?  :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now->utc) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
+   {:name :on-change      :required true                                :type "satisfies DateTimeProtocol -> nil"  :validate-fn fn?         :description [:span "called when a new selection is made. Returned type is the same as model (unless model is nil, in which case it will be " [:code "goog.date.UtcDateTime"] ")"]}
    {:name :disabled?      :required false  :default false               :type "boolean | atom"                                              :description "when true, the user can't select dates but can navigate"}
    {:name :selectable-fn  :required false  :default "(fn [date] true)"  :type "pred"                               :validate-fn fn?         :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
    {:name :show-weeks?    :required false  :default false               :type "boolean"                                                     :description "when true, week numbers are shown to the left"}
    {:name :show-today?    :required false  :default false               :type "boolean"                                                     :description "when true, today's date is highlighted"}
-   {:name :minimum        :required false                               :type "goog.date.UtcDateTime/Date | atom"  :validate-fn goog-date?  :description "no selection or navigation before this date"}
-   {:name :maximum        :required false                               :type "goog.date.UtcDateTime/Date | atom"  :validate-fn goog-date?  :description "no selection or navigation after this date"}
+   {:name :minimum        :required false                               :type "satisfies DateTimeProtocol | atom"  :validate-fn date-like?  :description "no selection or navigation before this date"}
+   {:name :maximum        :required false                               :type "satisfies DateTimeProtocol | atom"  :validate-fn date-like?  :description "no selection or navigation after this date"}
    {:name :start-of-week  :required false  :default 6                   :type "int"                                                         :description "first day of week (Monday = 0 ... Sunday = 6)"}
    {:name :hide-border?   :required false  :default false               :type "boolean"                                                     :description "when true, the border is not displayed"}
    {:name :class          :required false                               :type "string"                             :validate-fn string?     :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
@@ -262,7 +262,7 @@
     :min-width "10em"
     :max-width "10em"
     :children  [[:label {:class "form-control dropdown-button"}
-                 (if (goog-date? (deref-or-value model))
+                 (if (date-like? (deref-or-value model))
                    (unparse (if (seq format) (formatter format) date-format) (deref-or-value model))
                    [:span {:style {:color "#bbb"}} placeholder])]
                 [:span.dropdown-button.activator.input-group-addon

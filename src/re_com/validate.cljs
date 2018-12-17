@@ -1,12 +1,11 @@
 (ns re-com.validate
   (:require
+    [cljs-time.core :as time.core]
     [clojure.set           :refer [superset?]]
     [re-com.util           :refer [deref-or-value-peek]]
     [reagent.core          :as    reagent]
     [reagent.impl.template :refer [valid-tag?]]
-    [goog.string           :as    gstring]
-    [goog.date.UtcDateTime]
-    [goog.date.Date]))
+    [goog.string           :as    gstring]))
 
 
 ;; -- Helpers -----------------------------------------------------------------
@@ -344,11 +343,11 @@
                  {:status  (if (or contains-class? contains-style?) :error :warning)
                   :message result}))))))
 
-(defn goog-date?
-  "Returns true if the passed argument is a valid goog.date.UtcDateTime or goog.date.Date, otherwise false/error"
+(defn date-like?
+  "Returns true if arg satisfies cljs-time.core/DateTimeProtocol typically goog.date.UtcDateTime or goog.date.Date,
+   otherwise false/error."
   [arg]
-  (let [arg (deref-or-value-peek arg)]
-    (or (= js/goog.date.UtcDateTime (type arg)) (= js/goog.date.Date (type arg)))))
+  (-> arg deref-or-value-peek time.core/date?))
 
 (defn regex?
   "Returns true if the passed argument is a valid regular expression, otherwise false/error"
