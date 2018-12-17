@@ -8,7 +8,7 @@
     [cljs-time.format  :refer [formatter unparse]]
     [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p button md-icon-button]]
     [re-com.datepicker :refer [iso8601->date datepicker-dropdown-args-desc]]
-    [re-com.validate   :refer [goog-date?]]
+    [re-com.validate   :refer [date-like?]]
     [re-com.util       :refer [now->utc]]
     [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
@@ -77,7 +77,7 @@
 
 (defn- date->string
   [date]
-  (if (goog-date? date)
+  (if (date-like? date)
     (unparse (formatter "dd MMM, yyyy") date)
     "no date"))
 
@@ -123,17 +123,17 @@
                                                       [md-icon-button
                                                        :md-icon-name "zmdi-arrow-left"
                                                        :size         :smaller
-                                                       :disabled?    (not (goog-date? @model1))
-                                                       :on-click     #(when (goog-date? @model1)
+                                                       :disabled?    (not (date-like? @model1))
+                                                       :on-click     #(when (date-like? @model1)
                                                                         (reset! model1 (minus @model1 (days 1))))]
                                                       [md-icon-button
                                                        :md-icon-name "zmdi-arrow-right"
                                                        :size         :smaller
-                                                       :disabled?    (if (and (goog-date? @model1) (goog-date? @model2))
+                                                       :disabled?    (if (and (date-like? @model1) (date-like? @model2))
                                                                        (not (before? (to-local-date @model1)
                                                                                      (to-local-date @model2)))
                                                                        true)
-                                                       :on-click     #(when (goog-date? @model1)
+                                                       :on-click     #(when (date-like? @model1)
                                                                         (reset! model1 (plus @model1 (days 1))))]
                                                       [button
                                                        :label    "Reset"
