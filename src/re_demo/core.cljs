@@ -167,8 +167,8 @@
 
 ;; -- Routes, Local Storage and History ------------------------------------------------------
 
-(def id-store        (local-storage (atom nil) ::id-store))
-(def selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (item-for-id @id-store tabs-definition)))
+(defonce id-store        (local-storage (atom nil) ::id-store))
+(defonce selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (item-for-id @id-store tabs-definition)))
                                      (:id (first tabs-definition))
                                      @id-store)))  ;; id of the selected tab from local storage
 
@@ -176,7 +176,7 @@
                                     (reset! selected-tab-id id)
                                     (reset! id-store id)))
 
-(def history (History.))
+(defonce history (History.))
 (events/listen history EventType/NAVIGATE (fn [event] (secretary/dispatch! (.-token event))))
 (.setEnabled history true)
 
