@@ -1,6 +1,6 @@
 (ns re-com.validate
   (:require
-    [cljs-time.core :as time.core]
+    [cljs-time.core        :as    time.core]
     [clojure.set           :refer [superset?]]
     [re-com.util           :refer [deref-or-value-peek]]
     [reagent.core          :as    reagent]
