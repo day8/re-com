@@ -169,7 +169,7 @@
 ;  {:pre [(sunday? date)]}
   (let [table-row (if (:show-weeks? attributes) [:tr (week-td date)] [:tr])
         row-dates (map #(inc-date date %) (range 7))
-        today     (when (:show-today? attributes) (:today attributes))]
+        today     (when (:show-today? attributes) (now->utc))]
     (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change) row-dates))))
 
 
@@ -188,18 +188,8 @@
   [attributes]
   (let [selectable-fn (if (-> attributes :selectable-fn fn?)
                         (:selectable-fn attributes)
-                        (fn [date] true))]
-    (merge attributes {:selectable-fn selectable-fn
-                       :today         (now->utc)})))
-
-
-(defn now-today
-  [date-type]
-  (cond
-    (= date-type js/goog.date.Date)         (today)
-    (= date-type js/goog.date.UtcDateTime)  (now->utc)
-    (nil? date-type)                        (now->utc)     ;; Default for when dat was not nil/unspecified
-    :else                                   (throw (js/Error. "Invalid date type - must be goog.date.UtcDateTime/Date or nil"))))
+                        (constantly true))]
+    (merge attributes {:selectable-fn selectable-fn})))
 
 
 (def datepicker-args-desc
@@ -222,10 +212,7 @@
   {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
         internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
-        date-type      (if @internal-model                    ;; Create a new atom from the model to be used internally
-                         (type @internal-model)
-                         js/goog.date.UtcDateTime)            ;; Default to UtcDateTime if model is nil (for backward compatibility)
-        display-month  (reagent/atom (first-day-of-the-month (or @internal-model (now-today date-type))))]
+        display-month  (reagent/atom (first-day-of-the-month (or @internal-model (now->utc))))]
     (fn datepicker-component
       [& {:keys [model on-change disabled? start-of-week hide-border? class style attr]
           :or   {start-of-week 6} ;; Default to Sunday
@@ -233,13 +220,12 @@
       {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
       (let [latest-ext-model    (deref-or-value model)
             disabled?           (deref-or-value disabled?)
-            props-with-defaults (merge args {:start-of-week start-of-week
-                                             #_:date-type   #_date-type}) ;; Uncomment if required down the line
+            props-with-defaults (merge args {:start-of-week start-of-week})
             configuration       (configure props-with-defaults)]
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model)
-          (reset! display-month  (first-day-of-the-month (or @internal-model (now-today date-type)))))
+          (reset! display-month  (first-day-of-the-month (or @internal-model (now->utc)))))
         [main-div-with
          [:table {:class "table-condensed"}
           [table-thead display-month configuration]

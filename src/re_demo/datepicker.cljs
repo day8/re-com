@@ -113,7 +113,7 @@
                                            :show-today?   @show-today?
                                            :show-weeks?   @show-weeks?
                                            :selectable-fn selectable-pred
-                                           :on-change     #(reset! model1 %)]
+                                           :on-change     #(do #_(js/console.log "model1:" %) (reset! model1 %))]
                                           [label :style label-style :label (str "selected: " (date->string @model1))]
                                           [h-box
                                            :gap      "6px"
@@ -154,7 +154,7 @@
                                            :show-weeks?   @show-weeks?
                                            :selectable-fn selectable-pred
                                            :disabled?     disabled?
-                                           :on-change     #(reset! model2 %)]
+                                           :on-change     #(do #_(js/console.log "model2" %) (reset! model2 %))]
                                           [label :style label-style :label (str "selected: " (date->string @model2))]]]]]
                   enabled-days
                   disabled?
