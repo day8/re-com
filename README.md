@@ -4,7 +4,7 @@
 
 Branch | Status | Artifact
 ----------|--------|--------
-`master` | [![CircleCI](https://circleci.com/gh/Day8/re-com/tree/master.svg?style=svg)](https://circleci.com/gh/Day8/re-com/tree/master) | `[re-com "2.3.0"]`
+`master` | [![CircleCI](https://circleci.com/gh/Day8/re-com/tree/master.svg?style=svg)](https://circleci.com/gh/Day8/re-com/tree/master) | `[re-com "2.4.0"]`
 
 A ClojureScript library of UI components.
 
