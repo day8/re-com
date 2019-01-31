@@ -205,7 +205,7 @@
   (condp = (.-which event)
     goog.events.KeyCodes.UP     (swap! state-atom activate-suggestion-prev)
     goog.events.KeyCodes.DOWN   (swap! state-atom activate-suggestion-next)
-    goog.events.KeyCodes.ENTER  (swap! state-atom choose-suggestion-active)
+    goog.events.KeyCodes.ENTER  (do (swap! state-atom choose-suggestion-active) (.focus (aget event "target")))
     goog.events.KeyCodes.ESC    (swap! state-atom got-suggestions [])
     ;; tab requires special treatment
     ;; trap it IFF there are suggestions, otherwise let the input defocus
