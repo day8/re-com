@@ -141,11 +141,15 @@
 
 (defn- input-text-will-blur
   "Update state when the `input-text` is about to lose focus."
-  [{:keys [input-text displaying-suggestion?] :as state}]
+  [{:keys [input-text displaying-suggestion? model] :as state}]
   (cond
     (and (not displaying-suggestion?)
          (event-updates-model? state :input-text-blurred))
-    (update-model input-text state)))
+    (update-model state input-text)
+    :else (-> state
+              ;; if nothing was actually selected, then view should be the unchanged value
+              (assoc :input-text model)
+              clear-suggestions)))
 
 (defn- change-data-source
   "Update `state` given a new `data-source`. Resets the typeahead since any existing suggestions
@@ -154,14 +158,6 @@
   (-> state
       reset-typeahead
       (assoc :data-source data-source)))
-
-(defn- external-model-changed
-  "Update state when the external model value has changed."
-  [state new-value]
-  (-> state
-      (update-model new-value)
-      (display-suggestion new-value)
-      clear-suggestions))
 
 ;; ------------------------------------------------------------------------------------
 ;; Functions with side-effects
@@ -258,14 +254,11 @@
                  ;; forwarded to wrapped `input-text`:
                  status status-icon? status-tooltip placeholder width height disabled? class style attr]}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-      (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
+      (let [{:as state :keys [suggestions waiting? suggestion-active-index]} @state-atom
             last-data-source (:data-source state)
-            latest-external-model (deref-or-value model)
             width (or width "250px")]
         (when (not= last-data-source data-source)
           (swap! state-atom change-data-source data-source))
-        (when (not= latest-external-model external-model)
-          (swap! state-atom external-model-changed latest-external-model))
         [v-box
          :class    "rc-typeahead"
          :attr     attr
@@ -285,7 +278,8 @@
                      :change-on-blur? false
                      :attr {:on-key-down (partial input-text-on-key-down! state-atom)
                             :on-focus #()
-                            :on-blur  #(swap! state-atom got-suggestions [])}]
+                            ;; on-blur should behave the same as tabbing off
+                            :on-blur #(swap! state-atom input-text-will-blur)}]
                     (if (or (not-empty suggestions) waiting?)
                       [box
                        :style {:position "relative"}
