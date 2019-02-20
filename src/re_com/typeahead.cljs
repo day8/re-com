@@ -115,13 +115,13 @@
 (defn- activate-suggestion-next
   [{:as state :keys [suggestions suggestion-active-index]}]
   (cond-> state
-    suggestions
+    (seq suggestions)
     (activate-suggestion-by-index (-> suggestion-active-index (or -1) inc (wrap (count suggestions))))))
 
 (defn- activate-suggestion-prev
   [{:as state :keys [suggestions suggestion-active-index]}]
   (cond-> state
-    suggestions
+    (seq suggestions)
     (activate-suggestion-by-index (-> suggestion-active-index (or 0) dec (wrap (count suggestions))))))
 
 (defn- reset-typeahead
