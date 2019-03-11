@@ -148,7 +148,7 @@
     (update-model state input-text)
     :else (-> state
               ;; if nothing was actually selected, then view should be the unchanged value
-              (assoc :input-text model)
+              (assoc :input-text input-text)
               clear-suggestions)))
 
 (defn- change-data-source
