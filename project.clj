@@ -39,7 +39,6 @@
                                                 [lein-figwheel                   "0.5.17"]
                                                 [lein-shell                      "0.5.0"]
                                                 [org.clojure/data.json           "0.2.6"]
-                                                [lein-s3-static-deploy           "0.1.1-SNAPSHOT"]
                                                 [lein-ancient                    "0.6.15"]]}
                      :demo      {:dependencies [[alandipert/storage-atom         "2.0.1"]
                                                 [com.cognitect/transit-cljs      "0.8.239"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
@@ -97,11 +96,6 @@
              :server-port ~fig-port
              :repl        false}
 
-  :aws {:access-key       ~(System/getenv "DAY8_AWS_ACCESS_KEY_ID")
-        :secret-key       ~(System/getenv "DAY8_AWS_SECRET_ACCESS_KEY")
-        :s3-static-deploy {:bucket     "re-demo"
-                           :local-root "run/resources/public"}}
-
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
                   ["vcs" "commit"]
@@ -141,7 +135,7 @@
                      "deploy-aws" ["with-profile" "+prod-run,+demo,-dev" "do"
                                    ["clean"]
                                    ["cljsbuild" "once" "prod"]
-                                   ["s3-static-deploy"]]
+                                   ~["shell" "aws" "s3" "--profile=day8" "sync" "run/resources/public" "s3://re-demo/" "--acl" "public-read" "--cache-control" "max-age=2592000,public"]]
 
                      ;; *** TEST ***
 
