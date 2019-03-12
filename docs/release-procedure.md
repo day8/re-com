@@ -48,9 +48,9 @@ Note that all these commands are entered at the repo root folder.
 - [ ] Close all auto-compiles (command line and/or IntelliJ).
 - [ ] Build each of these aliases (will require separate terminals for each):
 
-       lein dev-auto
-       lein prod-auto
-       lein test-auto
+      lein dev-auto
+      lein prod-auto
+      lein test-auto
 
 - [ ] For `dev` and `prod`, run through each demo page and make sure no errors or debug output appears in the console. 
 - [ ] For `test`, make sure all tests pass. Modify code/tests until all tests pass. 
@@ -61,18 +61,14 @@ Note that all these commands are entered at the repo root folder.
 
 - [ ] Push this release to Clojars:
 
-       lein release :minor
+      lein release :minor
 
 
 ### Deploy demo to AWS
 
 - [ ] Deploy demo to AWS:
 
-       lein s3-static-deploy
-
-       or if you didn't just do a `lein prod-auto`...
-
-       lein deploy-aws
+      lein deploy-aws
 
 Test it: https://re-com.day8.com.au.
 

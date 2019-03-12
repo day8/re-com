@@ -4,7 +4,7 @@
 
 Branch | Status | Artifact
 ----------|--------|--------
-`master` | [![CircleCI](https://circleci.com/gh/Day8/re-com/tree/master.svg?style=svg)](https://circleci.com/gh/Day8/re-com/tree/master) | `[re-com "2.4.0"]`
+`master` | [![CircleCI](https://circleci.com/gh/Day8/re-com/tree/master.svg?style=svg)](https://circleci.com/gh/Day8/re-com/tree/master) | [![Clojars Project](https://img.shields.io/clojars/v/re-com.svg)](https://clojars.org/re-com)
 
 A ClojureScript library of UI components.
 
@@ -39,10 +39,10 @@ re-com could be ideal for you, right now.
 On the other hand, if you target the retail web, you will have to make your own determination, based on [availability of support for Flexbox](http://caniuse.com/#feat=flexbox). The entire layout side of this library plus a few of the widgets rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) which doesn't work on some older browser versions, specifically IE 9, 10, and 11. Edge works pretty well, these days.
 
 Even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
-testing once a month, re-com appears to work reasonably on IE11 and Safari. 
-On the other hand, Firefox (pre version 38) has all the speed of a snail on performance reducing drugs. Version 38 and beyond 
+testing once a month, re-com appears to work reasonably on IE11 and Safari.
+On the other hand, Firefox (pre version 38) has all the speed of a snail on performance reducing drugs. Version 38 and beyond
 have a [fix](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) for the performance problems caused by nested flexboxes,
-however as per issue #49 it is still not as fast as Chrome if you are using **deeply** nested flexbox layouts 
+however as per issue #49 it is still not as fast as Chrome if you are using **deeply** nested flexbox layouts
 (much more nested than our demo app).
 
 We can also confirm that none of the components have been designed with mobile in mind, and
@@ -94,9 +94,9 @@ two sub-directories:
    lein dev-once
    ```
 
-  This will run the demo, by doing: 
-  - a clean 
-  - a compile 
+  This will run the demo, by doing:
+  - a clean
+  - a compile
   - a load of the right `index.html` into your default browser
 
 
@@ -117,20 +117,20 @@ two sub-directories:
 
   Your part to play in the process:
 
-  - the initial load of `index.html` will fail because the figwheel compile hasn't yet finished. 
+  - the initial load of `index.html` will fail because the figwheel compile hasn't yet finished.
   - be patient - the initial compile might take anything from 10 seconds to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
-  - keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message.  
+  - keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message.
   - you can now refresh the HTML page to see the running demo.
-  
+
   **Devtools/Dirac**
-  
+
   The app is pre-configured with the binaryage/devtools & binaryage/dirac dependencies and initalisations. See initial setup here [DEVTOOLS.md](/docs/DEVTOOLS.md)
 
   With your app running *(see Developing)* in your browser *Canary/Unstable* click on the Dirac extension icon *(you can also use standard devtools (F12) if you don't want a Dirac cljs repl)*
 
 
 4. Run The (erm, modest) Tests
- 
+
    ```shell
    lein test-once
    ```
@@ -164,7 +164,7 @@ two sub-directories:
 
 re-com is available from clojars. Add it to your project.clj dependencies:
 
-[![Clojars Project](http://clojars.org/re-com/latest-version.svg)](http://clojars.org/re-com)
+[![Clojars Project](https://img.shields.io/clojars/v/re-com.svg)](https://clojars.org/re-com)
 
 You should now be able to require the `re-com.core` namespace, which exposes all of the API functions documented in the `re-demo` example app.
 
