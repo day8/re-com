@@ -9,24 +9,11 @@
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
 
-  :dependencies     [[org.clojure/clojure         "1.9.0"]
+  :dependencies     [[org.clojure/clojure         "1.10.0"]
                      [org.clojure/clojurescript   "1.10.439"]
                      [reagent                     "0.8.1"]
                      [org.clojure/core.async      "0.4.474"]
                      [com.andrewmcveigh/cljs-time "0.5.2"]]
-
-  ;:plugins          [[lein-unpack-resources "0.1.1"]]
-  ;
-  ;:unpack-resources {:resource     [re-com "0.1.6"]
-  ;                   :extract-path "run/resources2"}
-  ; FUTURE VERSION SHOULD SUPPORT THE FOLLOWING SYNTAX
-  ;:unpack-resources [{:resource     [re-com "0.1.6"]
-  ;                    :extract-from "resources"
-  ;                    :extract-path "run/resources-com"
-  ;                    :overwrite    true}
-  ;                   {:resource     [re-frame "0.1.1"]
-  ;                    :extract-from "resources"
-  ;                    :extract-path "run/resources-frame"}]
 
   :profiles         {:dev       {:dependencies [[clj-stacktrace                  "0.2.8"]
                                                 [binaryage/devtools              "0.9.10"]
@@ -35,8 +22,8 @@
                                                 :nrepl-middleware [dirac.nrepl/middleware]
                                                 :init (do (require 'dirac.agent)
                                                           (dirac.agent/boot!))}
-                                 :plugins      [[lein-cljsbuild                  "1.1.5"]
-                                                [lein-figwheel                   "0.5.17"]
+                                 :plugins      [[lein-cljsbuild                  "1.1.7"]
+                                                [lein-figwheel                   "0.5.18"]
                                                 [lein-shell                      "0.5.0"]
                                                 [org.clojure/data.json           "0.2.6"]
                                                 [lein-ancient                    "0.6.15"]]}
