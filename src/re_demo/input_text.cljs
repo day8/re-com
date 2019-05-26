@@ -1,8 +1,9 @@
 (ns re-demo.input-text
-  (:require [re-com.core   :refer [h-box v-box box gap line input-text input-password input-textarea label checkbox radio-button slider title p]]
-            [re-com.misc   :refer [input-text-args-desc]]
-            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
-            [reagent.core  :as    reagent]))
+  (:require [re-com.core    :refer [h-box v-box box gap line input-text input-password input-textarea label checkbox radio-button slider title p]]
+            [re-com.misc    :refer [input-text-args-desc]]
+            [re-demo.utils  :refer [panel-title title2 args-table github-hyperlink status-text]]
+            [clojure.string :as    string]
+            [reagent.core   :as    reagent]))
 
 
 (defn input-text-demo
@@ -10,6 +11,7 @@
   (let [text-val        (reagent/atom nil)
         regex           (reagent/atom nil)
         regex999        #"^(\d{0,2})$|^(\d{0,2}\.\d{0,1})$"
+        on-alter?       (reagent/atom false)
         status          (reagent/atom nil)
         status-icon?    (reagent/atom false)
         status-tooltip  (reagent/atom "")
@@ -54,6 +56,7 @@
                                                                    :placeholder      (if @regex "enter number (99.9)" "placeholder message")
                                                                    :on-change        #(reset! text-val %)
                                                                    :validation-regex @regex
+                                                                   :on-alter         (if @on-alter? string/upper-case identity)
                                                                    :change-on-blur?  change-on-blur?
                                                                    :disabled?        disabled?]
                                                                   [gap :size "20px"]
@@ -68,6 +71,7 @@
                                                                    :placeholder      (if @regex "enter number (99.9)" "placeholder message")
                                                                    :on-change        #(reset! text-val %)
                                                                    :validation-regex @regex
+                                                                   :on-alter         (if @on-alter? string/upper-case identity)
                                                                    :change-on-blur?  change-on-blur?
                                                                    :disabled?        disabled?]
                                                                   [gap :size "20px"]
@@ -83,6 +87,7 @@
                                                                    :placeholder      (if @regex "enter number (99.9)" "placeholder message")
                                                                    :on-change        #(reset! text-val %)
                                                                    :validation-regex @regex
+                                                                   :on-alter         (if @on-alter? string/upper-case identity)
                                                                    :change-on-blur?  change-on-blur?
                                                                    :disabled?        disabled?]]]
                                                       [v-box
@@ -177,6 +182,15 @@
                                                                                :on-change #(do (reset! regex %)
                                                                                                (reset! text-val ""))
                                                                                :style     {:margin-left "20px"}]]]
+                                                                  [h-box
+                                                                   :align    :start
+                                                                   :gap      "5px"
+                                                                   :children [[checkbox
+                                                                               :label     [:code ":on-alter"]
+                                                                               :model     on-alter?
+                                                                               :on-change (fn [val]
+                                                                                            (reset! on-alter? val))]
+                                                                              [:span " (set to " [:code "string/upper-case"] ")"]]]
                                                                   [checkbox
                                                                    :label     [box :align :start :child [:code ":disabled?"]]
                                                                    :model     disabled?
