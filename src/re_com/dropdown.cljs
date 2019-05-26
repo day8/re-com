@@ -2,9 +2,13 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value position-for-id item-for-id]]
             [re-com.box      :refer [align-style flex-child-style]]
-            [re-com.validate :refer [vector-of-maps? css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
+            [re-com.validate :refer [vector-of-maps? css-style? html-attr? number-or-string? log-warning
+                                     string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
+            [re-com.popover  :refer [popover-tooltip]]
             [clojure.string  :as    string]
-            [reagent.core    :as    reagent]))
+            [reagent.core    :as    reagent]
+            [goog.string     :as    gstring]
+            [goog.string.format]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
@@ -69,6 +73,36 @@
     (filter filter-fn choices)))
 
 
+(defn- insert
+  "Return text after insertion in place of selection"
+  [& {:keys [text sel-start sel-end ins]}]
+  (str (when text (subs text 0 sel-start))
+    ins
+    (when text (subs text sel-end))))
+
+
+(defn auto-complete
+  "Return text/selection map after insertion in place of selection & completion"
+  [& {:keys [choices text sel-start sel-end ins]}]
+  (let [text' (insert :text text :sel-start sel-start :sel-end sel-end :ins ins)
+        find  #(gstring/caseInsensitiveStartsWith % text')
+        ret   (when-first [choice (filter find choices)]
+                {:text      (str text' (subs choice (count text')))
+                 :sel-start (+ sel-start (count ins))
+                 :sel-end   (count choice)})]
+    (when (and (not= (:sel-start ret) (:sel-end ret))
+               (seq ins))
+      ret)))
+
+
+(defn capitalize-first-letter
+  "Capitalize the first letter leaving the rest as is"
+  [text]
+  (if (seq text)
+    (str (string/upper-case (first text)) (subs text 1))
+    text))
+
+
 (defn show-selected-item
   [node]
   (let [item-offset-top       (.-offsetTop node)
@@ -120,7 +154,9 @@
             {:class         (str "active-result group-option " class)
              :on-mouse-over (handler-fn (reset! mouse-over? true))
              :on-mouse-out  (handler-fn (reset! mouse-over? false))
-             :on-mouse-down (handler-fn (on-click id))}
+             :on-mouse-down (handler-fn
+                              (on-click id)
+                              (.preventDefault event))}         ;; Prevent free-text input as well as the normal dropdown from loosing focus
             label]))})))
 
 
@@ -133,7 +169,7 @@
 
 (defn- filter-text-box-base
   "Base function (before lifecycle metadata) to render a filter text box"
-  [filter-box? filter-text key-handler drop-showing? set-filter-text]
+  [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
   [:div.chosen-search
    [:input
     {:type          "text"
@@ -143,8 +179,10 @@
                                            :padding  "0px"
                                            :border   "none"})
      :value         @filter-text
+     :placeholder   filter-placeholder
      :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
      :on-key-down   (handler-fn (when-not (key-handler event)
+                                  (.stopPropagation event)
                                   (.preventDefault event))) ;; When key-handler returns false, preventDefault
      :on-blur       (handler-fn (reset! drop-showing? false))}]])
 
@@ -186,10 +224,94 @@
           text]
          [:div [:b]]])))) ;; This odd bit of markup produces the visual arrow on the right
 
-(defn- fn-or-vector-of-maps? ;; Would normally move this to re-com.validate but this is very specific to this component
+(defn handle-free-text-insertion
+  [event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change]
+  (let [input             (.-target event)
+        input-sel-start   (.-selectionStart input)
+        input-sel-end     (.-selectionEnd input)
+        ins'              (cond-> ins (and capitalize? (zero? input-sel-start)) capitalize-first-letter)
+        auto-complete-ret (and auto-complete? (auto-complete :choices   choices
+                                                             :text      @internal-model
+                                                             :sel-start input-sel-start
+                                                             :sel-end   input-sel-end
+                                                             :ins       ins'))]
+    (cond
+      auto-complete-ret (let [{:keys [text sel-start sel-end]} auto-complete-ret]
+                          (if (= @internal-model text)
+                            (.setSelectionRange input sel-start sel-end)
+                            (do
+                              (reset! free-text-sel-range [sel-start sel-end])
+                              (free-text-change text)))
+                          (.preventDefault event))
+      (not= ins ins')   (do
+                          (reset! free-text-sel-range [(+ input-sel-start (count ins)) (+ input-sel-start (count ins))])
+                          (free-text-change (insert :text      @internal-model
+                                                    :sel-start input-sel-start
+                                                    :sel-end   input-sel-end
+                                                    :ins       ins'))
+                          (.preventDefault event)))))
+
+(defn- free-text-dropdown-top-base
+  "Base function (before lifecycle metadata) to render the top part of the dropdown (free-text), with the editable area and the up/down arrow"
+  [free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize?]
+  [:ul.chosen-choices
+   [:li.search-field
+    [:div.free-text
+     [:input
+      {:type          "text"
+       :auto-complete "off"
+       :class         "form-control"
+       :style         {:width width}
+       :tab-index     tab-index
+       :placeholder   placeholder
+       :value         @internal-model
+       :on-change     (handler-fn (let [value (-> event .-target .-value)]
+                                    (free-text-change (cond-> value capitalize? capitalize-first-letter))))
+       :on-key-down   (handler-fn (when-not (key-handler event)
+                                    (.stopPropagation event)
+                                    (.preventDefault event))) ;; When key-handler returns false, preventDefault
+       :on-key-press  (handler-fn
+                        (let [ins (.-key event)]
+                          (when (= (count ins) 1) ;; Filter out special keys (e.g. enter)
+                            (handle-free-text-insertion event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change))))
+       :on-paste      (handler-fn
+                        (let [ins (.getData (.-clipboardData event) "Text")]
+                          (handle-free-text-insertion event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change)))
+       :on-focus      (handler-fn
+                        (reset! free-text-focused? true)
+                        (reset! select-free-text? true))
+       :on-blur       (handler-fn
+                        (when-not filter-box?
+                          (cancel))
+                        (reset! free-text-focused? false))  ;; Set free-text-focused? after calling cancel to prevent re-focusing
+       :on-mouse-down (handler-fn (when @drop-showing?
+                                    (cancel)
+                                    (.preventDefault event))) ;; Prevent text selection flicker (esp. with filter-box)
+       :ref           #(reset! free-text-input %)}]
+     [:span.b-wrapper
+      {:on-mouse-down (handler-fn
+                        (dropdown-click)
+                        (when @free-text-focused?
+                          (.preventDefault event)))}            ;; Prevent free-text input from loosing focus
+      [:b]]]]])
+
+(def ^:private free-text-dropdown-top
+  "Render the top part of the dropdown (free-text), with the editable area and the up/down arrow"
+  (with-meta free-text-dropdown-top-base
+    {:component-did-update #(let [[_ free-text-input select-free-text? free-text-focused? free-text-sel-range] (reagent/argv %)]
+                              (when (and @free-text-input @select-free-text? @free-text-focused?)
+                                (.select @free-text-input))
+                              (when (and @free-text-input @free-text-sel-range)
+                                (.setSelectionRange @free-text-input (first @free-text-sel-range) (second @free-text-sel-range))
+                                (reset! free-text-sel-range nil)))}))
+
+(defn- fn-or-vector-of-maps-or-strings? ;; Would normally move this to re-com.validate but this is very specific to this component
   [v]
   (or (fn? v)
-      (vector-of-maps? v)))
+      (vector-of-maps? v)
+      (and (sequential? v)
+           (or (empty? v)
+               (string? (first v))))))
 
 (defn- load-choices*
   "Load choices if choices is callback."
@@ -227,25 +349,40 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def single-dropdown-args-desc
-  [{:name :choices       :required true                   :type "vector of choices | atom | (opts, done, fail) -> nil" :validate-fn fn-or-vector-of-maps? :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"] ". May also be a callback " [:code "(opts, done, fail)"] " where opts is map of " [:code ":filter-text"] " and " [:code ":regex-filter?."]]}
-   {:name :model         :required true                   :type "the id of a choice | atom"                                    :description [:span "the id of the selected choice. If nil, " [:code ":placeholder"] " text is shown"]}
-   {:name :on-change     :required true                   :type "id -> nil"                     :validate-fn fn?               :description [:span "called when a new choice is selected. Passed the id of new choice"] }
-   {:name :id-fn         :required false :default :id     :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
-   {:name :label-fn      :required false :default :label  :type "choice -> string"              :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its displayable label."]}
-   {:name :group-fn      :required false :default :group  :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its group identifier"]}
-   {:name :render-fn     :required false                  :type "choice -> string | hiccup"     :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the markup that will be rendered for that choice. Defaults to the label if no custom markup is required."]}
-   {:name :disabled?     :required false :default false   :type "boolean | atom"                                               :description "if true, no user selection is allowed"}
-   {:name :filter-box?   :required false :default false   :type "boolean"                                                      :description "if true, a filter text field is placed at the top of the dropdown"}
-   {:name :regex-filter? :required false :default false   :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
-   {:name :placeholder   :required false                  :type "string"                        :validate-fn string?           :description "background text when no selection"}
-   {:name :title?        :required false :default false   :type "boolean"                                                      :description "if true, allows the title for the selected dropdown to be displayed via a mouse over. Handy when dropdown width is small and text is truncated"}
-   {:name :width         :required false :default "100%"  :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
-   {:name :max-height    :required false :default "240px" :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
-   {:name :tab-index     :required false                  :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
-   {:name :debounce-delay :required false                 :type "integer"                       :validate-fn number?           :description [:span "delay to debounce loading requests when using callback " [:code ":choices"]]}
-   {:name :class         :required false                  :type "string"                        :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
-   {:name :style         :required false                  :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
-   {:name :attr          :required false                  :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
+  [{:name :choices            :required true                         :type "vector of choices | atom | (opts, done, fail) -> nil" :validate-fn fn-or-vector-of-maps-or-strings? :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"] ". May also be a callback " [:code "(opts, done, fail)"] " where opts is map of " [:code ":filter-text"] " and " [:code ":regex-filter?."]]}
+   {:name :model              :required true                         :type "the id of a choice | atom"                                    :description [:span "the id of the selected choice. If nil, " [:code ":placeholder"] " text is shown"]}
+   {:name :on-change          :required true                         :type "id -> nil"                     :validate-fn fn?               :description [:span "called when a new choice is selected. Passed the id of new choice"] }
+   {:name :id-fn              :required false :default :id           :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
+   {:name :label-fn           :required false :default :label        :type "choice -> string"              :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its displayable label."]}
+   {:name :group-fn           :required false :default :group        :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its group identifier"]}
+   {:name :render-fn          :required false                        :type "choice -> string | hiccup"     :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the markup that will be rendered for that choice. Defaults to the label if no custom markup is required."]}
+   {:name :disabled?          :required false :default false         :type "boolean | atom"                                               :description "if true, no user selection is allowed"}
+   {:name :filter-box?        :required false :default false         :type "boolean"                                                      :description "if true, a filter text field is placed at the top of the dropdown"}
+   {:name :regex-filter?      :required false :default false         :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
+   {:name :placeholder        :required false                        :type "string"                        :validate-fn string?           :description "background text when no selection"}
+   {:name :title?             :required false :default false         :type "boolean"                                                      :description "if true, allows the title for the selected dropdown to be displayed via a mouse over. Handy when dropdown width is small and text is truncated"}
+   {:name :width              :required false :default "100%"        :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
+   {:name :max-height         :required false :default "240px"       :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
+   {:name :tab-index          :required false                        :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
+   {:name :debounce-delay     :required false                        :type "integer"                       :validate-fn number?           :description [:span "delay to debounce loading requests when using callback " [:code ":choices"]]}
+   {:name :tooltip            :required false                        :type "string | hiccup"               :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+   {:name :tooltip-position   :required false :default :below-center :type "keyword"                       :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :free-text?         :required false :default false         :type "boolean"                                                      :description [:span "is the text freely editable? If true then " [:code ":chocies"] " is a vector of strings, " [:code ":model"] " is a string (atom) and " [:code ":on-change"] " is called with a string"]}
+   {:name :auto-complete?     :required false :default false         :type "boolean"                                                      :description [:span "auto-complete text while typing using dropdown choices. Has no effect if " [:code ":free-text?"] " is not turned on"]}
+   {:name :capitalize?        :required false :default false         :type "boolean"                                                      :description [:span "capitalize the first letter. Has no effect if " [:code ":free-text?"] " is not turned on"]}
+   {:name :enter-drop?        :required false :default true          :type "boolean"                                                      :description "should pressing Enter display the dropdown part?"}
+   {:name :cancelable?        :required false :default true          :type "boolean"                                                      :description "should pressing Esc or clicking outside the dropdown part cancel selection made with arrow keys?"}
+   {:name :set-to-filter      :required false :default #{}           :type "set"                           :validate-fn set?              :description [:span "when " [:code ":filter-box?"] " and " [:code ":free-text?"] " are turned on and there are no results, current text can be set to filter text " [:code ":on-enter-press"] " and/or " [:code ":on-no-results-match-click"]]}
+   {:name :filter-placeholder :required false                        :type "string"                        :validate-fn string?           :description "background text in filter box when no filter"}
+   {:name :can-drop-above?    :required false :default false         :type "boolean"                                                      :description "should the dropdown part be displayed above if it does not fit below the top part?"}
+   {:name :est-item-height    :required false :default 30            :type "integer"                       :validate-fn number?           :description [:span "estimated dropdown item height (for " [:code ":can-drop-above?"] "). used only *before* the dropdown part is displayed to guess whether it fits below the top part or not which is later verified when the dropdown is displayed"]}
+   {:name :just-drop?         :required false :default false         :type "boolean"                                                      :description "display just the dropdown part"}
+   {:name :repeat-change?     :required false :default false         :type "boolean"                                                      :description [:span "repeat " [:code ":on-change"] " events if an already selected item is selected again"]}
+   {:name :i18n               :required false                        :type "map"                                                          :description [:span "internationalization map with optional keys " [:code ":loading"] ", " [:code ":no-results"] " and " [:code ":no-results-match"]]}
+   {:name :on-drop            :required false                        :type "() -> nil"                     :validate-fn fn?               :description "called when the dropdown part is displayed"}
+   {:name :class              :required false                        :type "string"                        :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
+   {:name :style              :required false                        :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
+   {:name :attr               :required false                        :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
 
 (defn single-dropdown
   "Render a single dropdown component which emulates the bootstrap-choosen style. Sample choices object:
@@ -253,13 +390,13 @@
       {:id \"US\" :label \"United States\"  :group \"Group 1\"}
       {:id \"GB\" :label \"United Kingdom\" :group \"Group 1\"}
       {:id \"AF\" :label \"Afghanistan\"    :group \"Group 2\"}]"
-  [& {:keys [choices model regex-filter? debounce-delay]
+  [& {:keys [choices model regex-filter? debounce-delay just-drop?]
       :or {debounce-delay 250}
       :as args}]
   {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
-        drop-showing?  (reagent/atom false)
+        drop-showing?  (reagent/atom (boolean just-drop?))
         filter-text    (reagent/atom "")
         choices-fn?    (fn? choices)
         choices-state (reagent/atom {:loading? choices-fn?
@@ -273,13 +410,25 @@
         load-choices (partial load-choices choices-state choices debounce-delay)
         set-filter-text (fn [text {:keys [regex-filter?] :as args} debounce?]
                           (load-choices text regex-filter? debounce?)
-                          (reset! filter-text text))]
+                          (reset! filter-text text))
+        over?               (reagent/atom false)
+        showing?            (reagent/track #(and (not @drop-showing?) @over?))
+        free-text-focused?  (reagent/atom false)
+        free-text-input     (reagent/atom nil)
+        select-free-text?   (reagent/atom false)
+        free-text-sel-range (reagent/atom nil)
+        focus-free-text     #(when @free-text-input (.focus @free-text-input))
+        node                (reagent/atom nil)
+        focus-anchor        #(some-> @node (.getElementsByClassName "chosen-single") (.item 0) (.focus))]
     (load-choices "" regex-filter? false)
-    (fn [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? width max-height tab-index debounce-delay class style attr]
-            :or {id-fn :id label-fn :label group-fn :group render-fn label-fn}
+    (fn [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? free-text? auto-complete? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? est-item-height repeat-change? i18n on-drop width max-height tab-index debounce-delay tooltip tooltip-position class style attr]
+            :or {id-fn :id label-fn :label group-fn :group render-fn label-fn enter-drop? true cancelable? true est-item-height 30}
             :as args}]
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
       (let [choices          (if choices-fn? (:choices @choices-state) (deref-or-value choices))
+            id-fn            (if free-text? identity id-fn)
+            label-fn         (if free-text? identity label-fn)
+            render-fn        (if free-text? identity render-fn)
             disabled?        (deref-or-value disabled?)
             regex-filter?    (deref-or-value regex-filter?)
             latest-ext-model (reagent/atom (deref-or-value model))
@@ -287,96 +436,190 @@
                                (reset! external-model @latest-ext-model)
                                (reset! internal-model @latest-ext-model))
             changeable?      (and on-change (not disabled?))
+            call-on-change   #(when (and changeable? (or (not= @internal-model @latest-ext-model)
+                                                         repeat-change?))
+                               (on-change @internal-model))
             callback         #(do
-                               (reset! internal-model %)
-                               (when (and changeable? (not= @internal-model @latest-ext-model))
-                                 (on-change @internal-model))
-                               (swap! drop-showing? not) ;; toggle to allow opening dropdown on Enter key
+                               (reset! internal-model (cond-> % (and free-text? capitalize?) capitalize-first-letter))
+                               (reset! select-free-text? true)
+                               (call-on-change)
+                               (let [current-drop-showing? @drop-showing?]
+                                 (when current-drop-showing?
+                                   (focus-free-text))
+                                 (when-not just-drop?
+                                   (reset! drop-showing? (not current-drop-showing?))) ;; toggle to allow opening dropdown on Enter key
+                                 (when current-drop-showing?
+                                   (focus-anchor)))
                                (set-filter-text "" args false))
+            free-text-change #(do
+                                (reset! internal-model %)
+                                (reset! select-free-text? false)
+                                (call-on-change))
             cancel           #(do
+                               (when-not @free-text-focused? ;; Prevent re-focusing free-text input on free-text input blur
+                                 (focus-free-text))
                                (reset! drop-showing? false)
                                (set-filter-text "" args false)
                                (reset! internal-model @external-model))
             dropdown-click   #(when-not disabled?
-                               (swap! drop-showing? not))
+                               (if @drop-showing?
+                                 (cancel)
+                                 (do
+                                   (reset! drop-showing? true)
+                                   (focus-free-text)            ;; After drop-showing? reset so hiding dropdown in filter-box blur will not be overwritten
+                                   (reset! select-free-text? true))))
             filtered-choices (if choices-fn?
                                choices
                                (if regex-filter?
                                  (filter-choices-regex choices group-fn label-fn @filter-text)
                                  (filter-choices choices group-fn label-fn @filter-text)))
+            visible-count    #(let [results-node (and @node
+                                                      (.item (.getElementsByClassName @node "chosen-results") 0))]
+                               (if (and results-node (.-firstChild results-node))
+                                 (quot (.-clientHeight results-node)
+                                       (.-offsetHeight (.-firstChild results-node)))
+                                 0))
+            est-drop-height  #(let [items-height  (* (count filtered-choices) est-item-height)
+                                    drop-margin   12
+                                    filter-height 32
+                                    maxh          (cond
+                                                    (not max-height) 240
+                                                    (string/ends-with? max-height "px") (js/parseInt max-height 10)
+                                                    :else (do (log-warning "max-height is not in pxs, using 240px for estimation")
+                                                              240))]
+                               (min (+ items-height drop-margin (if filter-box? filter-height 0))
+                                    maxh))
+            drop-height      (reagent/track
+                               #(if-let [drop-node (and @node
+                                                        (.item (.getElementsByClassName @node "chosen-drop") 0))]
+                                 (-> drop-node .getBoundingClientRect .-height)
+                                 (est-drop-height)))
+            top-height       34
+            drop-above?      (reagent/track
+                               #(when (and can-drop-above? @node)
+                                 (let [node-top      (-> @node .getBoundingClientRect .-top)
+                                       window-height (-> js/document .-documentElement .-clientHeight)]
+                                   (> (+ node-top top-height @drop-height)
+                                      window-height))))
             press-enter      (fn []
-                               (if disabled?
-                                 (cancel)
-                                 (callback @internal-model))
-                               true)
+                               (let [drop-was-showing? @drop-showing?]
+                                 (cond
+                                   disabled?                             (cancel)
+                                   (and (:on-enter-press set-to-filter)
+                                        (seq @filter-text)
+                                        (empty? filtered-choices)
+                                        free-text?
+                                        @drop-showing?)                  (callback @filter-text)
+                                   (or @drop-showing? enter-drop?)       (callback @internal-model))
+                                 (not drop-was-showing?)))
             press-escape      (fn []
-                                (cancel)
-                                true)
-            press-tab         (fn []
+                                (let [drop-was-showing? @drop-showing?]
+                                  (cancel)
+                                  (when drop-was-showing?
+                                    (focus-anchor))
+                                  (not drop-was-showing?)))
+            press-tab         (fn [shift-key?]
                                 (if disabled?
                                   (cancel)
-                                  (do  ;; Was (callback @internal-model) but needed a customised version
-                                    (when changeable? (on-change @internal-model))
+                                  (let [drop-was-showing? @drop-showing?]  ;; Was (callback @internal-model) but needed a customised version
+                                    (call-on-change)
                                     (reset! drop-showing? false)
-                                    (set-filter-text "" args false)))
+                                    (set-filter-text "" args false)
+                                    (when (and drop-was-showing? shift-key?)
+                                      (focus-anchor))))
                                 (reset! drop-showing? false)
                                 true)
-            press-up          (fn []
-                                (if @drop-showing?  ;; Up arrow
-                                  (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model -1))
-                                  (reset! drop-showing? true))
+            press-arrow       (fn [offset]
+                                (when (and @drop-showing? (seq filtered-choices))
+                                  (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model offset))
+                                  (when-not cancelable?
+                                    (call-on-change)))
+                                (reset! drop-showing? true)
+                                (reset! select-free-text? true)
                                 true)
-            press-down        (fn []
-                                (if @drop-showing?  ;; Down arrow
-                                  (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model 1))
-                                  (reset! drop-showing? true))
+            press-up          #(press-arrow -1)                   ;; Up arrow
+            press-down        #(press-arrow 1)                    ;; Down arrow
+            press-page-up     #(press-arrow (- (dec (visible-count))))
+            press-page-down   #(press-arrow (dec (visible-count)))
+            press-home-or-end (fn [offset]
+                                (when (and (not @free-text-focused?)
+                                           (seq filtered-choices))
+                                  (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model offset))
+                                  (reset! select-free-text? true))
                                 true)
-            press-home        (fn []
-                                (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model :start))
-                                true)
-            press-end         (fn []
-                                (reset! internal-model (move-to-new-choice filtered-choices id-fn @internal-model :end))
-                                true)
+            press-home        #(press-home-or-end :start)
+            press-end         #(press-home-or-end :end)
             key-handler      #(if disabled?
                                false
                                (case (.-which %)
                                  13 (press-enter)
                                  27 (press-escape)
-                                 9  (press-tab)
+                                 9  (press-tab (.-shiftKey %))
                                  38 (press-up)
                                  40 (press-down)
+                                 33 (press-page-up)
+                                 34 (press-page-down)
                                  36 (press-home)
                                  35 (press-end)
-                                 filter-box?))]  ;; Use this boolean to allow/prevent the key from being processed by the text box
-        [:div
-         (merge
-           {:class (str "rc-dropdown chosen-container chosen-container-single noselect " (when @drop-showing? "chosen-container-active chosen-with-drop ") class)
-            :style (merge (flex-child-style (if width "0 0 auto" "auto"))
-                          (align-style :align-self :start)
-                          {:width width}
-                          style)}
-           attr)          ;; Prevent user text selection
-         [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?]
-         (when (and @drop-showing? (not disabled?))
-           [:div.chosen-drop
-            [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true)]
-            [:ul.chosen-results
-             (when max-height {:style {:max-height max-height}})
-             (cond
-               (and choices-fn? (:loading? @choices-state))
-               [:li.loading (str "Loading...")]
-               (and choices-fn? (:error @choices-state))
-               [:li.error (:error @choices-state)]
-               (-> filtered-choices count pos?)
-               (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
-                     make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
-                     make-choices                  #(map make-a-choice %1)
-                     make-h-then-choices           (fn [h opts]
-                                                     (cons (make-group-heading h)
-                                                           (make-choices opts)))
-                     has-no-group-names?           (nil? (:group (first group-names)))]
-                 (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
-                   (make-choices (first group-opt-lists)) ;; one group means no headings
-                   (apply concat (map make-h-then-choices group-names group-opt-lists))))
-               :else
-               [:li.no-results (str "No results match \"" @filter-text "\"")])]])]))))
+                                 (or filter-box? free-text?)))                  ;; Use this boolean to allow/prevent the key from being processed by the text box
+            dropdown         [:div
+                              (merge
+                                {:class (str "rc-dropdown chosen-container " (if free-text? "chosen-container-multi " "chosen-container-single ") "noselect " (when (or @drop-showing? @free-text-focused?) "chosen-container-active ") (when @drop-showing? "chosen-with-drop ") class)          ;; Prevent user text selection
+                                 :style (merge (flex-child-style (if width "0 0 auto" "auto"))
+                                               (align-style :align-self :start)
+                                               {:width width}
+                                               style)
+                                 :ref #(reset! node %)}
+                                (when tooltip
+                                  {:on-mouse-over (handler-fn (reset! over? true))
+                                   :on-mouse-out (handler-fn (reset! over? false))})
+                                attr)
+                              (cond
+                                just-drop? nil
+                                free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize?]
+                                :else [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?])
+                              (when (and @drop-showing? (not disabled?))
+                                [:div.chosen-drop
+                                 {:style (when @drop-above? {:transform (gstring/format "translate3d(0px, -%ipx, 0px)" (+ top-height @drop-height -2))})}
+                                 (when (and (or filter-box? (not free-text?))
+                                            (not just-drop?))
+                                   [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true) filter-placeholder])
+                                 [:ul.chosen-results
+                                  (when max-height {:style {:max-height max-height}})
+                                  (cond
+                                    (and choices-fn? (:loading? @choices-state))
+                                    [:li.loading (get i18n :loading "Loading...")]
+                                    (and choices-fn? (:error @choices-state))
+                                    [:li.error (:error @choices-state)]
+                                    (-> filtered-choices count pos?)
+                                    (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
+                                          make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
+                                          make-choices                  #(map make-a-choice %1)
+                                          make-h-then-choices           (fn [h opts]
+                                                                          (cons (make-group-heading h)
+                                                                                (make-choices opts)))
+                                          has-no-group-names?           (nil? (:group (first group-names)))]
+                                      (if (and (= 1 (count group-opt-lists)) has-no-group-names?)
+                                        (make-choices (first group-opt-lists)) ;; one group means no headings
+                                        (apply concat (map make-h-then-choices group-names group-opt-lists))))
+                                    :else
+                                    [:li.no-results
+                                     {:on-mouse-down (handler-fn
+                                                       (when (and (:on-no-results-match-click set-to-filter)
+                                                                  (seq @filter-text)
+                                                                  free-text?)
+                                                         (callback @filter-text)))}
+                                     (gstring/format (or (and (seq @filter-text) (:no-results-match i18n))
+                                                         (and (empty? @filter-text) (:no-results i18n))
+                                                         (:no-results-match i18n)
+                                                         "No results match \"%s\"")
+                                                     @filter-text)])]])]
+            _                (when tooltip (add-watch drop-showing? :tooltip #(reset! over? false)))
+            _                (when on-drop (add-watch drop-showing? :on-drop #(when (and (not %3) %4) (on-drop))))]
+        (if tooltip
+          [popover-tooltip
+           :label    tooltip
+           :position (or tooltip-position :below-center)
+           :showing? showing?
+           :anchor   dropdown]
+          dropdown)))))
