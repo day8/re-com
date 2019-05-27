@@ -10,7 +10,9 @@
     [re-com.datepicker :refer [iso8601->date datepicker-dropdown-args-desc]]
     [re-com.validate   :refer [date-like?]]
     [re-com.util       :refer [now->utc]]
-    [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]))
+    [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]])
+  (:import
+    [goog.i18n DateTimeSymbols_pl]))
 
 
 (def ^:private days-map
@@ -87,6 +89,7 @@
   (let [model1          (reagent/atom #_nil  #_(today)                    (now->utc))                      ;; Test 3 valid data types
         model2          (reagent/atom #_nil  #_(plus (today) (days 120))  (plus (now->utc) (days 120)))    ;; (today) = goog.date.Date, (now->utc) = goog.date.UtcDateTime
         model3          (reagent/atom nil)
+        model4          (reagent/atom (today))
         disabled?       (reagent/atom false)
         show-today?     (reagent/atom true)
         show-weeks?     (reagent/atom false)
@@ -179,12 +182,28 @@
                     enabled-days
                     disabled?
                     show-today?
-                    show-weeks?])])))
+                    show-weeks?])]
+      :i18n [(fn i18n-fn
+               []
+               (set! (.-DateTimeSymbols goog.i18n) DateTimeSymbols_pl)
+               [box
+                :margin     "30px 0 0 0"
+                :align-self :start
+                :child      [datepicker-dropdown
+                             :model           model4
+                             :format          "d MMMM yyyy"
+                             :goog?           true
+                             :i18n            {:days   ["PON" "WT" "ŚR" "CZW" "PT" "SOB" "ND"]
+                                               :months ["Styczeń" "Luty" "Marzec" "Kwiecień" "Maj" "Czerwiec" "Lipiec" "Sierpień" "Wrzesień" "Październik" "Listopad" "Grudzień"]}
+                             :width           "190px"
+                             :position-offset 25
+                             :on-change       #(reset! model4 %)]])])))
 
 
 (def variations ^:private
   [{:id :inline   :label "Inline"}
-   {:id :dropdown :label "Dropdown"}])
+   {:id :dropdown :label "Dropdown"}
+   {:id :i18n     :label "I18n"}])
 
 
 (defn datepicker-examples
