@@ -12,7 +12,7 @@
   :dependencies     [[org.clojure/clojure         "1.10.1"]
                      [org.clojure/clojurescript   "1.10.520"]
                      [reagent                     "0.8.1"]
-                     [org.clojure/core.async      "0.4.474"]
+                     [org.clojure/core.async      "0.4.500"]
                      [com.andrewmcveigh/cljs-time "0.5.2"]]
 
   :profiles         {:dev       {:dependencies [[clj-stacktrace                  "0.2.8"]
