@@ -9,7 +9,7 @@
   :url              "https://github.com/Day8/re-com.git"
   :license          {:name "MIT"}
 
-  :dependencies     [[org.clojure/clojure         "1.10.0"]
+  :dependencies     [[org.clojure/clojure         "1.10.1"]
                      [org.clojure/clojurescript   "1.10.439"]
                      [reagent                     "0.8.1"]
                      [org.clojure/core.async      "0.4.474"]
