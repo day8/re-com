@@ -11,3 +11,8 @@ out/
 target/
 compiled*/
 misc/
+/node_modules/
+/.shadow-cljs/
+/shadow-cljs.edn
+/package.json
+/package-lock.json
