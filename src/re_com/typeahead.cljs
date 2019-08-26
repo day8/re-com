@@ -159,6 +159,15 @@
       reset-typeahead
       (assoc :data-source data-source)))
 
+(defn- external-model-changed
+  "Update state when the external model value has changed."
+  [state new-value]
+  (-> state
+      (update-model new-value)
+      (display-suggestion new-value)
+      (assoc :external-model new-value)
+      clear-suggestions))
+
 ;; ------------------------------------------------------------------------------------
 ;; Functions with side-effects
 ;; ------------------------------------------------------------------------------------
@@ -254,11 +263,14 @@
                  ;; forwarded to wrapped `input-text`:
                  status status-icon? status-tooltip placeholder width height disabled? class style attr]}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
-      (let [{:as state :keys [suggestions waiting? suggestion-active-index]} @state-atom
+      (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
             last-data-source (:data-source state)
+            latest-external-model (deref-or-value model)
             width (or width "250px")]
         (when (not= last-data-source data-source)
           (swap! state-atom change-data-source data-source))
+        (when (not= latest-external-model external-model)
+          (swap! state-atom external-model-changed latest-external-model))
         [v-box
          :class    "rc-typeahead"
          :attr     attr
