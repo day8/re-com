@@ -44,8 +44,14 @@
                                     "run/resources/public/compiled_prod"
                                     "run/resources/public/compiled_test"]
 
-  :deploy-repositories [["releases"  {:sign-releases false :url "https://clojars.org/repo"}]
-                        ["snapshots" {:sign-releases false :url "https://clojars.org/repo"}]]
+  :deploy-repositories [["releases"  {:sign-releases false
+                                      :url "https://clojars.org/repo"
+                                      :username :env/CLOJARS_USER
+                                      :password :env/CLOJARS_PASS}]
+                        ["snapshots" {:sign-releases false
+                                      :url "https://clojars.org/repo"
+                                      :username :env/CLOJARS_USER
+                                      :password :env/CLOJARS_PASS}]]
 
   ;; Exclude the demo and compiled files from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
