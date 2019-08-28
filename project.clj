@@ -36,7 +36,7 @@
   :test-paths      ["test"]
   :resource-paths  ["run/resources"]
 
-  :clean-targets ^{:protect false} [".shadow-cljs"
+  :clean-targets ^{:protect false} [:target-path
                                     "shadow-cljs.edn"
                                     "package.json"
                                     "package-lock.json"
