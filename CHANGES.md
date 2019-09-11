@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 2.6.0 (2019-09-12)
+
 #### Fixed
 
 - Fix typeahead does not take external model changes into account anymore.
