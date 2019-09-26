@@ -18,7 +18,7 @@
                  [org.clojure/core.async "0.4.500"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
-  :plugins [[lein-shadow "0.1.5"]]
+  :plugins [[lein-shadow "0.1.6"]]
 
   :profiles {:dev      {:dependencies [[clj-stacktrace "0.2.8"]
                                        [binaryage/devtools "0.9.10"]]
