@@ -6,7 +6,7 @@
 
 (defproject         re-com "2.6.1-SNAPSHOT"
   :description      "Reusable UI components for Reagent"
-  :url              "https://github.com/Day8/re-com.git"
+  :url              "https://github.com/day8/re-com.git"
   :license          {:name "MIT"}
 
   :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]

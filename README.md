@@ -4,7 +4,7 @@
 
 Branch | Status | Artifact
 ----------|--------|--------
-`master` | [![CircleCI](https://circleci.com/gh/Day8/re-com/tree/master.svg?style=svg)](https://circleci.com/gh/Day8/re-com/tree/master) | [![Clojars Project](https://img.shields.io/clojars/v/re-com.svg)](https://clojars.org/re-com)
+`master` | [![CircleCI](https://circleci.com/gh/day8/re-com/tree/master.svg?style=svg)](https://circleci.com/gh/day8/re-com/tree/master) | [![Clojars Project](https://img.shields.io/clojars/v/re-com.svg)](https://clojars.org/re-com)
 
 A ClojureScript library of UI components.
 
@@ -80,7 +80,7 @@ two sub-directories:
 
 
    ```shell
-   git clone https://github.com/Day8/re-com.git
+   git clone https://github.com/day8/re-com.git
    ```
 
    ```shell
@@ -169,10 +169,10 @@ re-com is available from clojars. Add it to your project.clj dependencies:
 You should now be able to require the `re-com.core` namespace, which exposes all of the API functions documented in the `re-demo` example app.
 
 You'll then need to include these asset folders in your app:
-https://github.com/Day8/re-com/tree/master/run/resources/public/assets
+https://github.com/day8/re-com/tree/master/run/resources/public/assets
 
 As far as your `index.html` is concerned, take inspiration from here:
-https://github.com/Day8/re-com/tree/master/run/resources/public
+https://github.com/day8/re-com/tree/master/run/resources/public
 
 In particular, you'll need bootstrap (assumedly via a CDN):
 ```html
@@ -199,7 +199,7 @@ so you don't need to include it explicitly.
 
 ## MVC
 
-If you decide to use re-com, consider also using [re-frame](https://github.com/Day8/re-frame)
+If you decide to use re-com, consider also using [re-frame](https://github.com/day8/re-frame)
 (an MVC-ish framework).
 
 Although both `re-frame` and `re-com` can be used independently of each other, they dovetail well.
@@ -207,7 +207,7 @@ Although both `re-frame` and `re-com` can be used independently of each other, t
 ## Lein Template
 
 
-See [re-frame-template](https://github.com/Day8/re-frame-template).
+See [re-frame-template](https://github.com/day8/re-frame-template).
 
 
 ## The Missing Components
@@ -237,7 +237,7 @@ When creating new components, we have found it useful to use the CSS from existi
 JavaScript projects (assuming their licence is compatible with MIT) and then
 replace the JavaScript with ClojureScript. Reagent really is very nice.
 
-Also, please refer to [CONTRIBUTING.md](https://github.com/Day8/re-com/blob/master/CONTRIBUTING.md) for further 
+Also, please refer to [CONTRIBUTING.md](https://github.com/day8/re-com/blob/master/CONTRIBUTING.md) for further 
 details on creating issues and pull requests.
 
 

@@ -10,7 +10,7 @@
   (let [underline? (reagent/atom false)]
     (fn
       []
-      (let [base-url  (str "https://github.com/Day8/re-com/tree/" (if ^boolean js/goog.DEBUG "develop" "master") "/")
+      (let [base-url  (str "https://github.com/day8/re-com/tree/" (if ^boolean js/goog.DEBUG "develop" "master") "/")
             para-text [p "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quod si ita est, sequitur id ipsum, quod te velle video, omnes semper beatos esse sapientes. Tamen a proposito, inquam, aberramus. "]]
         [v-box
          :size "auto"

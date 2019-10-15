@@ -9,7 +9,7 @@
 #### Fixed
 
 - Fix typeahead does not take external model changes into account anymore.
-  See [#205](https://github.com/Day8/re-com/issues/205).
+  See [#205](https://github.com/day8/re-com/issues/205).
 
 #### Changed
 
