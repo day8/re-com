@@ -79,7 +79,7 @@ If it can't find the site, you may need to change `index.html` to `index_prod.ht
 
 - [ ] Create a GitHub Release:
 
-    - Go to: https://github.com/Day8/re-com/releases
+    - Go to: https://github.com/day8/re-com/releases
     - Should see your version `x.x.x` tag at the top.
     - Press the `Draft a new release` button.
     - Select this new `x.x.x` version in the Tag version dropdown.

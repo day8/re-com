@@ -31,7 +31,7 @@
                           [p-span RHS-column-style [:br] "The github repo "
                            [hyperlink-href
                             :label "is here"
-                            :href "https://github.com/Day8/re-com"
+                            :href "https://github.com/day8/re-com"
                             :target "_blank"] "."]]]]])
 
 
