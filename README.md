@@ -4,7 +4,7 @@
 
 Branch | Status | Artifact
 ----------|--------|--------
-`master` | [![CircleCI](https://circleci.com/gh/day8/re-com/tree/master.svg?style=svg)](https://circleci.com/gh/day8/re-com/tree/master) | [![Clojars Project](https://img.shields.io/clojars/v/re-com.svg)](https://clojars.org/re-com)
+`master` | [![Continuous Integration](https://github.com/day8/re-com/workflows/Continuous%20Integration/badge.svg)](https://github.com/day8/re-com/actions) | [![Clojars Project](https://img.shields.io/clojars/v/re-com.svg)](https://clojars.org/re-com)
 
 A ClojureScript library of UI components.
 
