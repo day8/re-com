@@ -4,10 +4,22 @@
 
 ;; ---------------------------------------------------------------------------------------
 
-(defproject         re-com "2.6.1-SNAPSHOT"
+(defproject         re-com "see :git-version below https://github.com/arrdem/lein-git-version"
   :description      "Reusable UI components for Reagent"
   :url              "https://github.com/day8/re-com.git"
   :license          {:name "MIT"}
+
+  :git-version
+  {:status-to-version
+   (fn [{:keys [tag version branch ahead ahead? dirty?] :as git}]
+     (assert (re-find #"\d+\.\d+\.\d+" tag)
+       "Tag is assumed to be a raw SemVer version")
+     (if (and tag (not ahead?) (not dirty?))
+       tag
+       (let [[_ prefix patch] (re-find #"(\d+\.\d+)\.(\d+)" tag)
+             patch            (Long/parseLong patch)
+             patch+           (inc patch)]
+         (format "%s.%d-%s-SNAPSHOT" prefix patch+ ahead))))}
 
   :dependencies [[org.clojure/clojure         "1.10.1" :scope "provided"]
                  [org.clojure/clojurescript   "1.10.520" :scope "provided"
@@ -18,7 +30,8 @@
                  [org.clojure/core.async      "0.4.500"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
-  :plugins [[lein-shadow "0.1.6"]]
+  :plugins [[me.arrdem/lein-git-version "2.0.3"]
+            [lein-shadow                "0.1.6"]]
 
   :profiles {:dev      {:dependencies [[clj-stacktrace "0.2.8"]
                                        [binaryage/devtools "0.9.10"]]
@@ -72,14 +85,7 @@
                                                            :http-root "run/resources/public/compiled_test/demo"
                                                            :preloads  [day8.app.dev-preload]}}}}
 
-  :release-tasks [["vcs" "assert-committed"]
-                  ["change" "version" "leiningen.release/bump-version" "release"]
-                  ["vcs" "commit"]
-                  ["vcs" "tag" "v" "--no-sign"]
-                  ["deploy" "clojars"]
-                  ["change" "version" "leiningen.release/bump-version"]
-                  ["vcs" "commit"]
-                  ["vcs" "push"]]
+  :release-tasks [["deploy" "clojars"]]
 
   :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
                              :macosx  "open"
