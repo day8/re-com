@@ -2,8 +2,8 @@ name: ci
 on: [push]
 
 jobs:
-  build:
-    test: Test
+  test:
+    name: Test
     runs-on: ubuntu-18.04
     container:
       # Ref: https://github.community/t5/GitHub-Actions/docker-pull-from-public-GitHub-Package-Registry-fail-with-quot/m-p/32782
