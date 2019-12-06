@@ -207,7 +207,7 @@ details on creating issues and pull requests.
 
 ### License
 
-Copyright © 2015 Michael Thompson
+Copyright © 2015-2019 Michael Thompson
 
 Distributed under The MIT License (MIT) - See LICENSE.txt
 
