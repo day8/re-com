@@ -84,14 +84,11 @@
                              :linux   "xdg-open"}}}
 
   :aliases          {;; *** DEV ***
-
                      "dev-auto"   ["with-profile" "+dev-run,+demo" "do"
                                    ["clean"]
-                                   ~["shell" "open" (str "http://localhost:" http-port "/index_dev.html")]   ;; NOTE: run will initially fail, refresh browser once build complete
                                    ["shadow" "watch" "demo"]]
 
                      ;; *** PROD ***
-
                      "prod-once"  ["with-profile" "+prod-run,+demo,-dev" "do"
                                    ["clean"]
                                    ["shadow" "release" "demo"]]
@@ -102,7 +99,6 @@
                                    ~["shell" "aws" "s3" "--profile=day8" "sync" "run/resources/public" "s3://re-demo/" "--acl" "public-read" "--cache-control" "max-age=2592000,public"]]
 
                      ;; *** TEST ***
-
                      "test" ["do"
                              ["with-profile" "+dev-test" "do"
                               ["clean"]
