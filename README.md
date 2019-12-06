@@ -91,60 +91,30 @@ two sub-directories:
   This will run the demo, by doing:
   - a clean
   - a compile
-  - a load of the right `index.html` into your default browser
 
+  Wait until `[:demo] Build completed.` is displayed in the console indicating
+  the dev HTTP server is ready.
 
-3. Debugging The Demo
-
-   We love using [figwheel](https://github.com/bhauman/lein-figwheel) to debug.
-
-   To begin a debug session, do this:
-   ```shell
-   lein dev-auto
-   ```
-
-  This will:
-
-  - clean
-  - start the [figwheel](https://github.com/bhauman/lein-figwheel) server & compiler  (a terminal window will be started)
-  - load the right `index.html` (specialised for figwheel use)
-
-  Your part to play in the process:
-
-  - the initial load of `index.html` will fail because the figwheel compile hasn't yet finished.
-  - be patient - the initial compile might take anything from 10 seconds to 3 mins depending on how many dependencies need to be downloaded (how many are not yet in your local Maven repo).
-  - keep an eye on the terminal started by figwheel, waiting for a green `Successfully compiled` message.
-  - you can now refresh the HTML page to see the running demo.
-
-  **Devtools/Dirac**
-
-  The app is pre-configured with the binaryage/devtools & binaryage/dirac dependencies and initalisations. See initial setup here [DEVTOOLS.md](/docs/DEVTOOLS.md)
-
-  With your app running *(see Developing)* in your browser *Canary/Unstable* click on the Dirac extension icon *(you can also use standard devtools (F12) if you don't want a Dirac cljs repl)*
-
+  Now you can open [`http://localhost:3449/`](http://localhost:3449/) in your
+  browser.
 
 4. Run The (erm, modest) Tests
 
    ```shell
-   lein test-once
+   lein test
    ```
 
   This will:
 
   - clean
   - compile the tests
-  - load the required `test.html` into your default browser, so you can see the results.
+  - compile in release mode as a basic optimized build check
 
-
-5. Debug the tests:
+5. Run or Debug the tests:
 
    ```shell
    lein test-auto
    ```
-
-  Unlike `debug` which uses figwheel, `debug-test` uses cljsbuild's `auto` for
-  recompilation.  This probably isn't a good idea, but that's the way it is right now.
-
 
 6. Deploy The Demo App To S3 bucket
 
