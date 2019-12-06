@@ -66,7 +66,8 @@
                                                    :compiler-options {:external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}
                                         :release  {:output-dir "run/resources/public/compiled_prod/demo"}
                                         :devtools {:http-port ~http-port
-                                                   :http-root "run/resources/public"}}
+                                                   :http-root "run/resources/public"
+                                                   :push-state/index "index_dev.html"}}
 
                          :browser-test {:target           :browser-test
                                         :ns-regexp        "-test$"
