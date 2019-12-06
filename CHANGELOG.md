@@ -1,9 +1,18 @@
 ## Unreleased
 
+#### Fixed
+
+- Default index for `lein dev-auto` HTTP server is now `index_dev.html` instead
+  of a 404 error. Thanks to [@mmower](https://github.com/mmower)'s report on
+  Clojurians.
+
 #### Changed
 
-- Upgrade shadow-cljs to 2.8.69
+- Upgrade shadow-cljs to 2.8.80
+- Upgrade ClojureScript to 1.10.597
 - Upgrade karma to 4.4.1
+- Upgrade org.clojure/core.async to 0.6.532
+- Upgrade binaryage/devtools to 0.9.11
 
 ## 2.6.0 (2019-09-12)
 
