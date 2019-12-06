@@ -14,15 +14,9 @@ Branch | Status | Artifact
 ----------|--------|--------
 `master` | [![ci](https://github.com/day8/re-com/workflows/ci/badge.svg)](https://github.com/day8/re-com/actions?workflow=ci) | [![Clojars Project](https://img.shields.io/clojars/v/re-com.svg)](https://clojars.org/re-com)
 
-A ClojureScript library of UI components.
+A ClojureScript library of UI components for [Reagent](http://reagent-project.github.io). 
 
-It is built on top of Dan Holmsand's terrific
-[Reagent](http://reagent-project.github.io)
-which, in turn, is a layer over Facebook's trailblazing [React](http://facebook.github.io/react).
-
-Just to be clear: this library is 100% ClojureScript. We're not wrapping jQuery plugins here.
-
-Re-com has:
+Re-com provides:
 
 * familiar UI widgetry **components** such as dropdowns, date pickers, popovers, tabs, etc.
 * layout **components**, which arrange widgets vertically and horizontally, within
@@ -32,16 +26,17 @@ Re-com has:
 * a mostly [Bootstrap](http://getbootstrap.com/) look, mixed with
   some [Material Design Icons](http://zavoloklom.github.io/material-design-iconic-font/icons.html).
 
-In short, re-com attempts to provide the kind of UI basics you'd need to build a desktop-class app.
+In short, re-com attempts to provide the kind of UI basics you'd need to build a desktop-class SPA app.
 
-## Warning: re-com Requires Flexbox
+## Warning #1: Uses Flexbox
 
 The entire layout side of this library plus a few of the widgets rely on 
 [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
 
 Pretty much every modern browser that you probably care about 
-[has support for Flexbox](http://caniuse.com/#feat=flexbox) so unless you must
-support really old browsers it is probably not an issue. 
+[has support for Flexbox](http://caniuse.com/#feat=flexbox) so 
+this is probably a non-issue these days, unless you need to 
+support old versions of IE. 
 
 We build desktop-class apps to run in controlled browser environments
 like [Electron](https://electron.atom.io).  So, we know we're dealing with Chrome.
@@ -52,15 +47,12 @@ We can also confirm that none of the components have been designed with mobile i
 that there's no attempt to handle media queries.  We said we had a desktop app focus, right?
 
 Neither have we been worried too much about code size because other design goals have
-taken precedence.  Our main demo app which includes every component, plus all demo
-code and plenty of yadda yadda, comes to about 167K compressed when
-using `:optimizations :advanced` (700K pre-compress).
+taken precedence. To gie you some idea, our main demo app which includes every component, plus all demo
+code and plenty of yadda yadda explanatory strings, comes to about 167K compressed when
+using `:optimizations :advanced` (700K uncompressed).
 That number includes ReactJS plus the ClojureScript libs and runtime. So, everything.
 
 ## So, Without Ado Being Any Furthered ...
-
-Still here?  Good. I'm glad we got all that negative stuff out the way.  I think you're
-going to like re-com.
 
 Start by [looking at the demo](https://re-com.day8.com.au).
 
