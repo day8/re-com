@@ -26,24 +26,19 @@ Re-com has:
 
 In short, re-com attempts to provide the kind of UI basics you'd need to build a desktop-class app.
 
+## Warning: re-com Requires Flexbox
 
+The entire layout side of this library plus a few of the widgets rely on 
+[Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
 
-## Warning: re-com Might Not Be For You (just yet)
+Pretty much every modern browser that you probably care about 
+[has support for Flexbox](http://caniuse.com/#feat=flexbox) so unless you must
+support really old browsers it is probably not an issue. 
 
 We build desktop-class apps to run in controlled browser environments
 like [Electron](https://electron.atom.io).  So, we know we're dealing with Chrome.
 
-If you are similar, or if you work on Intranet apps where you can mandate a modern browser,
-re-com could be ideal for you, right now.
-
-On the other hand, if you target the retail web, you will have to make your own determination, based on [availability of support for Flexbox](http://caniuse.com/#feat=flexbox). The entire layout side of this library plus a few of the widgets rely on [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) which doesn't work on some older browser versions, specifically IE 9, 10, and 11. Edge works pretty well, these days.
-
-Even when it comes to modern browsers, there will be teething issues. Based on 5 minutes of
-testing once a month, re-com appears to work reasonably on IE11 and Safari.
-On the other hand, Firefox (pre version 38) has all the speed of a snail on performance reducing drugs. Version 38 and beyond
-have a [fix](https://bugzilla.mozilla.org/show_bug.cgi?id=1149339) for the performance problems caused by nested flexboxes,
-however as per issue #49 it is still not as fast as Chrome if you are using **deeply** nested flexbox layouts
-(much more nested than our demo app).
+## Warning: No Mobile Focus
 
 We can also confirm that none of the components have been designed with mobile in mind, and
 that there's no attempt to handle media queries.  We said we had a desktop app focus, right?
@@ -60,7 +55,6 @@ Still here?  Good. I'm glad we got all that negative stuff out the way.  I think
 going to like re-com.
 
 Start by [looking at the demo](https://re-com.day8.com.au).
-
 
 ## Navigating The Source
 
