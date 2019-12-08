@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Maven cache
         uses: actions/cache@v1
+        id: maven-cache
         with:
           path: /root/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('project.clj') }}
@@ -31,4 +32,7 @@ jobs:
           key: ${{ runner.os }}-shadow-cljs-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-shadow-cljs-
-      - run: lein test
+      - if: steps.maven-cache.outputs.cache-hit != 'true'
+        run: lein test
+      - if: steps.maven-cache.outputs.cache-hit == 'true'
+        run: lein -o test
