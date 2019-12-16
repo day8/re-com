@@ -36,3 +36,12 @@ jobs:
         run: lein test
       - if: steps.maven-cache.outputs.cache-hit == 'true'
         run: lein -o test
+      - uses: homoluctus/slatify@v2.0.1
+        if: failure() || cancelled()
+        with:
+          type: ${{ job.status  }}
+          job_name: re-com Tests
+          channel: '#re-frame'
+          url: ${{ secrets.SLACK_WEBHOOK }}
+          commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
