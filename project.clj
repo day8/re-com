@@ -19,7 +19,7 @@
                  [org.clojure/core.async      "0.6.532"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
-  :plugins      [[day8/lein-git-inject "0.0.6"]
+  :plugins      [[day8/lein-git-inject "0.0.11"]
                  [lein-shadow          "0.1.6"]]
 
   :middleware   [leiningen.git-inject/middleware]
