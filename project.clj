@@ -20,7 +20,7 @@
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
   :plugins      [[day8/lein-git-inject "0.0.11"]
-                 [lein-shadow          "0.1.6"]]
+                 [lein-shadow          "0.1.7"]]
 
   :middleware   [leiningen.git-inject/middleware]
 
