@@ -25,7 +25,7 @@
   :middleware   [leiningen.git-inject/middleware]
 
   :profiles {:dev      {:dependencies [[clj-stacktrace "0.2.8"]
-                                       [binaryage/devtools "0.9.11"]]
+                                       [binaryage/devtools "1.0.0"]]
                         :plugins      [[lein-shell "0.5.0"]
                                        [org.clojure/data.json "0.2.6"]
                                        [lein-ancient "0.6.15"]]}
