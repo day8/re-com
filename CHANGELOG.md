@@ -8,6 +8,7 @@
 
 #### Changed
 
+- Upgrade reagent to 0.9.1
 - Upgrade shadow-cljs to 2.8.80
 - Upgrade ClojureScript to 1.10.597
 - Upgrade karma to 4.4.1
