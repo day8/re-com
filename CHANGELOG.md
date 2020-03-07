@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 2.8.0 (2020-03-08)
+
 #### Changed
 
 - Upgrade reagent to 0.10.0
