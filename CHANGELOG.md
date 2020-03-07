@@ -1,5 +1,17 @@
 ## Unreleased
 
+#### Changed
+
+- Upgrade reagent to 0.10.0
+
+#### Fixed
+
+- Use `reagent.impl.component/component-name` instead of `component-path` which
+  has been removed upstream.
+- Use `reagent.dom/dom-node` instead of deprecated `reagent.core/dom-node`.
+
+## 2.7.0 (2020-02-14)
+
 #### Fixed
 
 - Default index for `lein dev-auto` HTTP server is now `index_dev.html` instead

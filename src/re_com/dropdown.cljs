@@ -4,7 +4,8 @@
             [re-com.box      :refer [align-style flex-child-style]]
             [re-com.validate :refer [vector-of-maps? css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
             [clojure.string  :as    string]
-            [reagent.core    :as    reagent]))
+            [reagent.core    :as    reagent]
+            [reagent.dom     :as    rdom]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
@@ -97,13 +98,13 @@
     (reagent/create-class
       {:component-did-mount
        (fn [this]
-         (let [node (reagent/dom-node this)
+         (let [node (rdom/dom-node this)
                selected (= @internal-model id)]
            (when selected (show-selected-item node))))
 
        :component-did-update
        (fn [this]
-         (let [node (reagent/dom-node this)
+         (let [node (rdom/dom-node this)
                selected (= @internal-model id)]
            (when selected (show-selected-item node))))
 
@@ -152,9 +153,9 @@
 (def ^:private filter-text-box
   "Render a filter text box"
   (with-meta filter-text-box-base
-             {:component-did-mount #(let [node (.-firstChild (reagent/dom-node %))]
+             {:component-did-mount #(let [node (.-firstChild (rdom/dom-node %))]
                                      (.focus node))
-              :component-did-update #(let [node (.-firstChild (reagent/dom-node %))]
+              :component-did-update #(let [node (.-firstChild (rdom/dom-node %))]
                                       (.focus node))}))
 
 (defn- dropdown-top

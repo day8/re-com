@@ -1,11 +1,12 @@
 (ns re-com.validate
   (:require
-    [cljs-time.core        :as    time.core]
-    [clojure.set           :refer [superset?]]
-    [re-com.util           :refer [deref-or-value-peek]]
-    [reagent.core          :as    reagent]
-    [reagent.impl.template :refer [valid-tag?]]
-    [goog.string           :as    gstring]))
+    [cljs-time.core         :as    time.core]
+    [clojure.set            :refer [superset?]]
+    [re-com.util            :refer [deref-or-value-peek]]
+    [reagent.core           :as    reagent]
+    [reagent.impl.component :as    component]
+    [reagent.impl.template  :refer [valid-tag?]]
+    [goog.string            :as    gstring]))
 
 
 ;; -- Helpers -----------------------------------------------------------------
@@ -83,19 +84,19 @@
                              required?       (:required v-arg-def)
                              validate-result ((:validate-fn v-arg-def) arg-val)
                              log-msg-base    (str "Validation failed for argument '" arg-name "' in component '" component-name "': ")
-                             comp-path       (str " at " (reagent/component-path (reagent/current-component)))
+                             comp-name       (str " at " (component/component-name (reagent/current-component)))
                              warning?        (= (:status validate-result) :warning)]
                          ;(println (str "[" component-name "] " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 200)) "' => " validate-result))
                          (cond
                            (or (true? validate-result)
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
                                     (not required?))) true
-                           (false? validate-result)  (log-error log-msg-base "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 60)) "'" comp-path)
+                           (false? validate-result)  (log-error log-msg-base "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 60)) "'" comp-name)
                            (map?   validate-result)  ((if warning? log-warning log-error)
                                                        log-msg-base
                                                        (:message validate-result)
-                                                       (when warning? comp-path))
-                           :else                      (log-error "Invalid return from validate-fn: " validate-result comp-path))))]
+                                                       (when warning? comp-name))
+                           :else                      (log-error "Invalid return from validate-fn: " validate-result comp-name))))]
     (->> (select-keys args-with-validators (vec (keys passed-args)))
          (map validate-arg)
          (every? true?))))
