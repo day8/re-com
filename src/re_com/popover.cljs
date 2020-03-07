@@ -7,6 +7,7 @@
                                          string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]
             [clojure.string      :as    string]
             [reagent.core        :as    reagent]
+            [reagent.dom         :as    rdom]
             [reagent.ratom       :refer-macros [reaction]]))
 
 
@@ -256,7 +257,7 @@
 
        :component-did-update
        (fn [this]
-         (let [pop-border-node (reagent/dom-node this)
+         (let [pop-border-node (rdom/dom-node this)
                clipped?        (popover-clipping pop-border-node)
                anchor-node     (-> pop-border-node .-parentNode .-parentNode .-parentNode)] ;; Get reference to rc-point-wrapper node
            (when (and clipped? (not @found-optimal))
@@ -345,7 +346,7 @@
         position-no-clip-popover (fn position-no-clip-popover
                                    [this]
                                    (when no-clip?
-                                     (let [node               (reagent/dom-node this)
+                                     (let [node               (rdom/dom-node this)
                                            popover-point-node (.-parentNode node)                           ;; Get reference to rc-popover-point node
                                            bounding-rect      (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop. Returns this: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMClientRect
                                        (reset! left-offset (.-left bounding-rect))

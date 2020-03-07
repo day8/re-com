@@ -8,7 +8,8 @@
             [clojure.string  :as    string]
             [reagent.core    :as    reagent]
             [goog.string     :as    gstring]
-            [goog.string.format]))
+            [goog.string.format]
+            [reagent.dom     :as    rdom]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
@@ -131,13 +132,13 @@
     (reagent/create-class
       {:component-did-mount
        (fn [this]
-         (let [node (reagent/dom-node this)
+         (let [node (rdom/dom-node this)
                selected (= @internal-model id)]
            (when selected (show-selected-item node))))
 
        :component-did-update
        (fn [this]
-         (let [node (reagent/dom-node this)
+         (let [node (rdom/dom-node this)
                selected (= @internal-model id)]
            (when selected (show-selected-item node))))
 
@@ -190,9 +191,9 @@
 (def ^:private filter-text-box
   "Render a filter text box"
   (with-meta filter-text-box-base
-             {:component-did-mount #(let [node (.-firstChild (reagent/dom-node %))]
+             {:component-did-mount #(let [node (.-firstChild (rdom/dom-node %))]
                                      (.focus node))
-              :component-did-update #(let [node (.-firstChild (reagent/dom-node %))]
+              :component-did-update #(let [node (.-firstChild (rdom/dom-node %))]
                                       (.focus node))}))
 
 (defn- dropdown-top
