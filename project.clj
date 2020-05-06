@@ -14,7 +14,7 @@
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
-                 [thheller/shadow-cljs        "2.8.109" :scope "provided"]
+                 [thheller/shadow-cljs        "2.8.110" :scope "provided"]
                  [reagent                     "0.10.0" :scope "provided"]
                  [org.clojure/core.async      "0.7.559"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
