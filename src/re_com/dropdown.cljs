@@ -290,6 +290,7 @@
             callback         #(do
                                (reset! internal-model %)
                                (when (and changeable? (not= @internal-model @latest-ext-model))
+                                 (reset! external-model @internal-model)
                                  (on-change @internal-model))
                                (swap! drop-showing? not) ;; toggle to allow opening dropdown on Enter key
                                (set-filter-text "" args false))
@@ -315,8 +316,10 @@
             press-tab         (fn []
                                 (if disabled?
                                   (cancel)
-                                  (do  ;; Was (callback @internal-model) but needed a customised version
-                                    (when changeable? (on-change @internal-model))
+                                  (do
+                                    (when changeable?
+                                      (reset! external-model @internal-model)
+                                      (on-change @internal-model))
                                     (reset! drop-showing? false)
                                     (set-filter-text "" args false)))
                                 (reset! drop-showing? false)
