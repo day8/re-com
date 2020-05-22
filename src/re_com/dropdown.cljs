@@ -438,6 +438,7 @@
             changeable?      (and on-change (not disabled?))
             call-on-change   #(when (and changeable? (or (not= @internal-model @latest-ext-model)
                                                          repeat-change?))
+                               (reset! external-model @internal-model)
                                (on-change @internal-model))
             callback         #(do
                                (reset! internal-model (cond-> % (and free-text? capitalize?) capitalize-first-letter))
