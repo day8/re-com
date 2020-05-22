@@ -207,12 +207,15 @@
 
 (defn keyboard-demo
   []
-  (let [selected-country-id (reagent/atom "US")]
+  (let [selected-country-id   (reagent/atom "US")
+        selected-country-id-1 (reagent/atom "AU")
+        selected-country-id-2 (reagent/atom "E2")
+        selected-country-id-3 (reagent/atom "GB")]
     (fn []
       [v-box
        :gap      "10px"
        :children [[p "[single-dropdown ...] supports tab key navigation."]
-                  [p "The " [:code ":tab-index"] " parameter specifies position in the tab order,
+                  [p "The " [:code ":tab-index"] " parameter specifies position in the tab order (default is 0),
                        or it can be removed from the tab order using a value of -1."]
                   [p "Up-arrow and Down-arrow do sensible things."]
                   [p "Home and End keys move to the beginning and end of the list."]
@@ -229,14 +232,50 @@
                               [single-dropdown
                                :choices     grouped-countries
                                :model       selected-country-id
-                               :width       "300px"
+                               :width       "200px"
                                :filter-box? true
                                :on-change   #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
+                  [gap :size "10px"]
+                  [p "All components on this page have " [:code ":tab-index"] " set to the default (0) except the ones below.
+                      Keep pressing the Tab key and note how the focus cycles through the components."]
+                  [h-box
+                   :align :center
+                   :gap "10px"
+                   :children [[label :label [:span [:code ":tab-index"] " is set to 3"]]
+                              [single-dropdown
+                               :choices       grouped-countries
+                               :model         selected-country-id-1
+                               :tab-index     3
+                               :width         "200px"
+                               :filter-box?   true
+                               :on-change     #(reset! selected-country-id-1 %)]]]
+                  [h-box
+                   :align :center
+                   :gap "10px"
+                   :children [[label :label [:span [:code ":tab-index"] " is set to 2"]]
+                              [single-dropdown
+                               :choices       grouped-countries
+                               :model         selected-country-id-2
+                               :tab-index     2
+                               :width         "200px"
+                               :filter-box?   true
+                               :on-change     #(reset! selected-country-id-2 %)]]]
+                  [h-box
+                   :align :center
+                   :gap "10px"
+                   :children [[label :label [:span [:code ":tab-index"] " is set to 1"]]
+                              [single-dropdown
+                               :choices       grouped-countries
+                               :model         selected-country-id-3
+                               :tab-index     1
+                               :width         "200px"
+                               :filter-box?   true
+                               :on-change     #(reset! selected-country-id-3 %)]]]]])))
 
 
 (defn other-params-demo

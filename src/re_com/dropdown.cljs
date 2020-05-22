@@ -207,8 +207,7 @@
                    (label-fn (item-for-id @internal-model choices :id-fn id-fn))
                    placeholder)]
         [:a.chosen-single.chosen-default
-         {:href          "javascript:"   ;; Required to make this anchor appear in the tab order
-          :tab-index     tab-index
+         {:tab-index     (or tab-index 0)
           :on-click      (handler-fn
                            (if @ignore-click
                              (reset! ignore-click false)
@@ -352,7 +351,7 @@
 (def single-dropdown-args-desc
   [{:name :choices            :required true                         :type "vector of choices | atom | (opts, done, fail) -> nil" :validate-fn fn-or-vector-of-maps-or-strings? :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"] ". May also be a callback " [:code "(opts, done, fail)"] " where opts is map of " [:code ":filter-text"] " and " [:code ":regex-filter?."]]}
    {:name :model              :required true                         :type "the id of a choice | atom"                                    :description [:span "the id of the selected choice. If nil, " [:code ":placeholder"] " text is shown"]}
-   {:name :on-change          :required true                         :type "id -> nil"                     :validate-fn fn?               :description [:span "called when a new choice is selected. Passed the id of new choice"] }
+   {:name :on-change          :required true                         :type "id -> nil"                     :validate-fn fn?               :description [:span "called when a new choice is selected. Passed the id of new choice"]}
    {:name :id-fn              :required false :default :id           :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
    {:name :label-fn           :required false :default :label        :type "choice -> string"              :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its displayable label."]}
    {:name :group-fn           :required false :default :group        :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its group identifier"]}
@@ -364,7 +363,7 @@
    {:name :title?             :required false :default false         :type "boolean"                                                      :description "if true, allows the title for the selected dropdown to be displayed via a mouse over. Handy when dropdown width is small and text is truncated"}
    {:name :width              :required false :default "100%"        :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :max-height         :required false :default "240px"       :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
-   {:name :tab-index          :required false                        :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
+   {:name :tab-index          :required false :default 0             :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
    {:name :debounce-delay     :required false                        :type "integer"                       :validate-fn number?           :description [:span "delay to debounce loading requests when using callback " [:code ":choices"]]}
    {:name :tooltip            :required false                        :type "string | hiccup"               :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position   :required false :default :below-center :type "keyword"                       :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
