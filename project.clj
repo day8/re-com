@@ -10,7 +10,7 @@
   :license          {:name "MIT"}
 
   :dependencies [[org.clojure/clojure         "1.10.1" :scope "provided"]
-                 [org.clojure/clojurescript   "1.10.758" :scope "provided"
+                 [org.clojure/clojurescript   "1.10.764" :scope "provided"
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
@@ -19,8 +19,8 @@
                  [org.clojure/core.async      "1.1.587"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
-  :plugins      [[day8/lein-git-inject "0.0.11"]
-                 [lein-shadow          "0.1.7"]]
+  :plugins      [[day8/lein-git-inject "0.0.14"]
+                 [lein-shadow          "0.2.0"]]
 
   :middleware   [leiningen.git-inject/middleware]
 
