@@ -415,7 +415,7 @@
     (fn []
       [v-box
        :gap "10px"
-       :children [[p "You may pass " [:cod "(fn [opts done fail] ...)"] " to :choices attribute to asynchronously load data.
+       :children [[p "You may pass " [:code "(fn [opts done fail] ...)"] " to :choices attribute to asynchronously load data.
                       When data is loaded callback either (done result) of (fail error) should be called."]
                   [p "Dropdown uses initial callback. This way we don't require managing callbacks and
                       allow passing inline callback. If callback will change (e.g. dependent dropdown) - :key may be used."]
