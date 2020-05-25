@@ -47,7 +47,7 @@ We can also confirm that none of the components have been designed with mobile i
 that there's no attempt to handle media queries.  We said we had a desktop app focus, right?
 
 Neither have we been worried too much about code size because other design goals have
-taken precedence. To gie you some idea, our main demo app which includes every component, plus all demo
+taken precedence. To give you some idea, our main demo app which includes every component, plus all demo
 code and plenty of yadda yadda explanatory strings, comes to about 167K compressed when
 using `:optimizations :advanced` (700K uncompressed).
 That number includes ReactJS plus the ClojureScript libs and runtime. So, everything.
