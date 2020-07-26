@@ -70,12 +70,12 @@
              :label (label-fn item)]]))
 
 
-(def ^:const list-style
+(def list-style
   ;;TODO: These should be in CSS resource
   {:overflow-x     "hidden"
    :overflow-y     "auto"}) ;;TODO this should be handled by scroller later
 
-(def ^:const spacing-bordered
+(def spacing-bordered
   {:padding-top    "0px"
    :padding-bottom "0px"
    :padding-left   "5px"
@@ -83,7 +83,7 @@
    :margin-top     "5px"
    :margin-bottom  "5px"})
 
-(def ^:const spacing-unbordered
+(def spacing-unbordered
   {:padding-left   "0px"
    :padding-right  "5px"
    :padding-top    "0px"
