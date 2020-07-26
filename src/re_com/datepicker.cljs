@@ -14,11 +14,11 @@
 
 ;; --- cljs-time facades ------------------------------------------------------
 
-(def ^:const month-format (formatter "MMMM yyyy"))
+(def month-format (formatter "MMMM yyyy"))
 
-(def ^:const week-format (formatter "ww"))
+(def week-format (formatter "ww"))
 
-(def ^:const date-format (formatter "yyyy MMM dd"))
+(def date-format (formatter "yyyy MMM dd"))
 
 (defn iso8601->date [iso8601]
   (when (seq iso8601)
