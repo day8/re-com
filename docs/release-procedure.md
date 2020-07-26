@@ -49,8 +49,8 @@ Note that all these commands are entered at the repo root folder.
 - [ ] Build each of these aliases (will require separate terminals for each):
 
       lein dev-auto
-      lein prod-auto
-      lein test-auto
+      lein prod-once
+      lein test
 
 - [ ] For `dev` and `prod`, run through each demo page and make sure no errors or debug output appears in the console. 
 - [ ] For `test`, make sure all tests pass. Modify code/tests until all tests pass. 

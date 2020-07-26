@@ -56,8 +56,7 @@
               [h-box
                :gap "100px"
                :children [[v-box
-                           :children [
-                                      [p "Re-com's layout model is a thin layer over " [:span.bold "CSS Flexbox"] "."]
+                           :children [[p "Re-com's layout model is a thin layer over " [:span.bold "CSS Flexbox"] "."]
                                       [p "To fully understand Re-com's layout components and use them
                                           powerfully, you " [:span.bold "will"] " need to have a strong understanding of
                                           Flexbox. You should do these tutorials very soon:"]

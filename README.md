@@ -85,7 +85,7 @@ two sub-directories:
 
 
    ```shell
-   lein dev-once
+   lein dev-auto
    ```
 
   This will run the demo, by doing:
