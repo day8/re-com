@@ -24,17 +24,15 @@
 
   :middleware   [leiningen.git-inject/middleware]
 
-  :profiles {:dev      {:dependencies [[clj-stacktrace "0.2.8"]
+  :profiles {:dev      {:source-paths ["dev-src"]
+                        :dependencies [[clj-stacktrace "0.2.8"]
                                        [binaryage/devtools "1.0.2"]]
                         :plugins      [[lein-shell "0.5.0"]
                                        [org.clojure/data.json "0.2.6"]
                                        [lein-ancient "0.6.15"]]}
              :demo     {:dependencies [[alandipert/storage-atom "2.0.1"]
                                        [com.cognitect/transit-cljs "0.8.256"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
-                                       [clj-commons/secretary "1.2.4"]]}
-             :dev-run  {:source-paths  ["dev-src"]}
-             :prod-run {}
-             :dev-test {:source-paths  ["dev-src"]}}
+                                       [clj-commons/secretary "1.2.4"]]}}
 
   :source-paths    ["src"]
   :test-paths      ["test"]
@@ -75,7 +73,11 @@
                                         :compiler-options {:external-config {:devtools/config {:features-to-install [:formatters :hints]}}}
                                         :devtools         {:http-port 8021
                                                            :http-root "run/resources/public/compiled_test/demo"
-                                                           :preloads  [day8.app.dev-preload]}}}}
+                                                           :preloads  [day8.app.dev-preload]}}
+                         :karma-test    {:target :karma
+                                         :ns-regexp ".*-test$"
+                                         :output-to "target/karma/test.js"
+                                         :compiler-options {:pretty-print true}}}}
 
   :release-tasks [["deploy" "clojars"]]
 
@@ -84,9 +86,9 @@
                              :linux   "xdg-open"}}}
 
   :aliases          {;; *** DEV ***
-                     "dev-auto"   ["with-profile" "+dev-run,+demo" "do"
+                     "watch"   ["with-profile" "+dev,+demo" "do"
                                    ["clean"]
-                                   ["shadow" "watch" "demo"]]
+                                   ["shadow" "watch" "demo" "browser-test" "karma-test"]]
 
                      ;; *** PROD ***
                      "prod-once"  ["with-profile" "+prod-run,+demo,-dev" "do"
@@ -99,14 +101,13 @@
                                    ~["shell" "aws" "s3" "--profile=day8" "sync" "run/resources/public" "s3://re-demo/" "--acl" "public-read" "--cache-control" "max-age=2592000,public"]]
 
                      ;; *** TEST ***
-                     "test" ["do"
-                             ["with-profile" "+dev-test" "do"
+                     "ci" ["do"
+                             ["with-profile" "+dev" "do"
                               ["clean"]
-                              ["shadow" "compile" "browser-test"]]
-                             ["with-profile" "+prod-run,+demo,-dev" "do"
+                              ["shadow" "compile" "karma-test"]
+                              ["shell" "karma" "start" "--single-run" "--reporters" "junit,dots"]]
+                             ["with-profile" "+demo,-dev" "do"
                               ["clean"]
-                              ["shadow" "release" "demo"]]]
-
-                     "test-auto"  ["with-profile" "+dev-test" "do"
-                                    ["shadow" "watch" "browser-test"]]})
+                              ["shadow" "release" "demo"]]]}
+)
 
