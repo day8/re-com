@@ -78,7 +78,8 @@
                                          :output-to "target/karma/test.js"
                                          :compiler-options {:pretty-print true}}}}
 
-  :release-tasks [["deploy" "clojars"]]
+  :release-tasks [["deploy-aws"]
+                  ["deploy" "clojars"]]
 
   :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
                              :macosx  "open"
