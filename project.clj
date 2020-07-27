@@ -40,7 +40,6 @@
 
   :clean-targets ^{:protect false} [:target-path
                                     "shadow-cljs.edn"
-                                    "package.json"
                                     "package-lock.json"
                                     "run/resources/public/compiled_dev"
                                     "run/resources/public/compiled_prod"
