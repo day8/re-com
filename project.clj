@@ -87,11 +87,13 @@
   :aliases          {;; *** DEV ***
                      "watch"   ["with-profile" "+dev,+demo" "do"
                                    ["clean"]
+                                   ["shell" "git" "update-index" "--assume-unchanged" "package.json"]
                                    ["shadow" "watch" "demo" "browser-test" "karma-test"]]
 
                      ;; *** PROD ***
                      "prod-once"  ["with-profile" "+prod-run,+demo,-dev" "do"
                                    ["clean"]
+                                   ["shell" "git" "update-index" "--assume-unchanged" "package.json"]
                                    ["shadow" "release" "demo"]]
 
                      "deploy-aws" ["with-profile" "+prod-run,+demo,-dev" "do"
@@ -103,10 +105,11 @@
                      "ci" ["do"
                              ["with-profile" "+dev" "do"
                               ["clean"]
+                              ["shell" "git" "update-index" "--assume-unchanged" "package.json"]
                               ["shadow" "compile" "karma-test"]
                               ["shell" "karma" "start" "--single-run" "--reporters" "junit,dots"]]
                              ["with-profile" "+demo,-dev" "do"
                               ["clean"]
-                              ["shadow" "release" "demo"]]]}
-)
+                              ["shadow" "release" "demo"]]]})
+
 
