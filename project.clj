@@ -100,7 +100,7 @@
                      "deploy-aws" ["with-profile" "+prod-run,+demo,-dev" "do"
                                    ["clean"]
                                    ["shadow" "release" "demo"]
-                                   ~["shell" "aws" "s3" "--profile=day8" "sync" "run/resources/public" "s3://re-demo/" "--acl" "public-read" "--cache-control" "max-age=2592000,public"]]
+                                   ~["shell" "aws" "s3" "sync" "run/resources/public" "s3://re-demo/" "--acl" "public-read" "--cache-control" "max-age=2592000,public"]]
 
                      ;; *** TEST ***
                      "ci" ["do"
