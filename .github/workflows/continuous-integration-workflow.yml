@@ -33,9 +33,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-shadow-cljs-
       - if: steps.maven-cache.outputs.cache-hit != 'true'
-        run: lein test
+        run: lein ci 
       - if: steps.maven-cache.outputs.cache-hit == 'true'
-        run: lein -o test
+        run: lein -o ci
       - name: Slack notification
         uses: homoluctus/slatify@v2.0.1
         if: failure() || cancelled()
