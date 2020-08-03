@@ -51,7 +51,7 @@
   :deploy-repositories [["clojars"  {:sign-releases false
                                      :url "https://clojars.org/repo"
                                      :username :env/CLOJARS_USERNAME
-                                     :password :env/CLOJARS_PASSWORD}]]
+                                     :password :env/CLOJARS_TOKEN}]]
 
   ;; Exclude the demo and compiled files from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
