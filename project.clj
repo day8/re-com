@@ -20,16 +20,19 @@
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
   :plugins      [[day8/lein-git-inject "0.0.14"]
-                 [lein-shadow          "0.2.0"]]
+                 [lein-shadow          "0.2.0"]
+                 [lein-ancient         "0.6.15"]
+                 [lein-shell           "0.5.0"]
+                 [lein-pprint          "1.3.2"]]
+
 
   :middleware   [leiningen.git-inject/middleware]
 
   :profiles {:dev      {:source-paths ["dev-src"]
                         :dependencies [[clj-stacktrace "0.2.8"]
                                        [binaryage/devtools "1.0.2"]]
-                        :plugins      [[lein-shell "0.5.0"]
-                                       [org.clojure/data.json "0.2.6"]
-                                       [lein-ancient "0.6.15"]]}
+                        :plugins      [[org.clojure/data.json "0.2.6"]]}
+
              :demo     {:dependencies [[alandipert/storage-atom "2.0.1"]
                                        [com.cognitect/transit-cljs "0.8.256"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
                                        [clj-commons/secretary "1.2.4"]]}}
