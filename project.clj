@@ -84,9 +84,11 @@
   :release-tasks [["deploy-aws"]
                   ["deploy" "clojars"]]
 
-  :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
-                             :macosx  "open"
-                             :linux   "xdg-open"}}}
+  :shell {:commands {"karma" {:windows         ["cmd" "/c" "karma"]
+                              :default-command "karma"}
+                     "open"  {:windows         ["cmd" "/c" "start"]
+                              :macosx          "open"
+                              :linux           "xdg-open"}}}
 
   :aliases          {;; *** DEV ***
                      "watch"   ["with-profile" "+dev,+demo" "do"
