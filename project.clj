@@ -20,7 +20,7 @@
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
   :plugins      [[day8/lein-git-inject "0.0.14"]
-                 [lein-shadow          "0.2.0"]
+                 [lein-shadow          "0.2.2"]
                  [lein-ancient         "0.6.15"]
                  [lein-shell           "0.5.0"]
                  [lein-pprint          "1.3.2"]]
@@ -91,13 +91,11 @@
   :aliases          {;; *** DEV ***
                      "watch"   ["with-profile" "+dev,+demo" "do"
                                    ["clean"]
-                                   ["shell" "git" "update-index" "--assume-unchanged" "package.json"]
                                    ["shadow" "watch" "demo" "browser-test" "karma-test"]]
 
                      ;; *** PROD ***
                      "prod-once"  ["with-profile" "+prod-run,+demo,-dev" "do"
                                    ["clean"]
-                                   ["shell" "git" "update-index" "--assume-unchanged" "package.json"]
                                    ["shadow" "release" "demo"]]
 
                      "deploy-aws" ["with-profile" "+prod-run,+demo,-dev" "do"
@@ -109,7 +107,6 @@
                      "ci" ["do"
                              ["with-profile" "+dev" "do"
                               ["clean"]
-                              ["shell" "git" "update-index" "--assume-unchanged" "package.json"]
                               ["shadow" "compile" "karma-test"]
                               ["shell" "karma" "start" "--single-run" "--reporters" "junit,dots"]]
                              ["with-profile" "+demo,-dev" "do"
