@@ -20,7 +20,7 @@ The project.clj already has the necessary dependencies namely:
 
 #####Running after setup
 
-1. Build re-demo as normal via ```lein dev-auto```
+1. Build re-demo as normal via ```lein watch```
 2. From a project terminal, ```lein repl```  this opens nrepl on port 8230 and gateway waiting for port 8231 (which is dirac/devtools console repl will connect to).
 3. Launch Canary/Unstable Chrome as per 2. in first time setup in prior section. You might want to setup a shortcut *(or Intellij external tool command)* for convenience.
 4. With re-demo running, click on the Dirac extension icon (not normal devtools).
