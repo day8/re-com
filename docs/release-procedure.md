@@ -48,9 +48,9 @@ Note that all these commands are entered at the repo root folder.
 - [ ] Close all auto-compiles (command line and/or IntelliJ).
 - [ ] Build each of these aliases (will require separate terminals for each):
 
-      lein dev-auto
+      lein watch
       lein prod-once
-      lein test
+      lein ci
 
 - [ ] For `dev` and `prod`, run through each demo page and make sure no errors or debug output appears in the console. 
 - [ ] For `test`, make sure all tests pass. Modify code/tests until all tests pass. 

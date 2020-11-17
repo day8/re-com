@@ -85,7 +85,7 @@ two sub-directories:
 
 
    ```shell
-   lein dev-auto
+   lein watch
    ```
 
   This will run the demo, by doing:
@@ -101,7 +101,7 @@ two sub-directories:
 4. Run The (erm, modest) Tests
 
    ```shell
-   lein test
+   lein ci
    ```
 
   This will:
@@ -113,7 +113,7 @@ two sub-directories:
 5. Run or Debug the tests:
 
    ```shell
-   lein test-auto
+   lein watch
    ```
 
 6. Deploy The Demo App To S3 bucket
