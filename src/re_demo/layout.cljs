@@ -18,14 +18,10 @@
 (defn example-layout
   []
   [v-box
-   :children [
-              [h-box
-               :children [
-                          [v-box
-                           :children [
-                                      [p "And this example code, showing an " [:span.bold "h-box"] " as a child of a " [:span.bold "v-box"] " ..."]
-                                      [:pre
-                                       {:style {:width "460px"}}
+   :children [[h-box
+               :children [[v-box
+                           :children [[p "And this example code, showing an " [:span.bold "h-box"] " as a child of a " [:span.bold "v-box"] " ..."]
+                                      [:pre {:style {:width "460px"}}
 "[v-box
   :children [[box :child \"Header\"]
              [h-box
@@ -60,8 +56,7 @@
               [h-box
                :gap "100px"
                :children [[v-box
-                           :children [
-                                      [p "Re-com's layout model is a thin layer over " [:span.bold "CSS Flexbox"] "."]
+                           :children [[p "Re-com's layout model is a thin layer over " [:span.bold "CSS Flexbox"] "."]
                                       [p "To fully understand Re-com's layout components and use them
                                           powerfully, you " [:span.bold "will"] " need to have a strong understanding of
                                           Flexbox. You should do these tutorials very soon:"]
@@ -79,18 +74,21 @@
 
                           [v-box
                            :style {:font-size "13px" :color "#aaa"}
-                           :children [[p {:style {:width "250px"}} "While, flexbox may be waaaaaay better than the HTML5 alternatives ..."]
-                                      [p {:style {:width "250px"}} "How crazy that Knuth pioneered this box/glue stuff "
-                                       [hyperlink-href
-                                        :label "35 years ago"
-                                        :href "http://i.stanford.edu/pub/cstr/reports/csl/tr/88/358/CSL-TR-88-358.pdf"
-                                        :target "_blank"]
-                                       ", and GUI toolkits had it "
-                                       [hyperlink-href
-                                        :label "25 years ago"
-                                        :href "http://i.stanford.edu/pub/cstr/reports/csl/tr/88/358/CSL-TR-88-358.pdf"
-                                        :target "_blank"]
-                                       ", and yet HTML5 only has a weak, half-arsed version?"]]]]]
+                           :children [[p "While, flexbox may be waaaaaay better than the HTML5 alternatives ..."]
+                                      [box
+                                       :width "450px"
+                                       :child [:span
+                                               "How crazy that Knuth pioneered this box/glue stuff "
+                                               [hyperlink-href
+                                                :label "35 years ago"
+                                                :href "http://i.stanford.edu/pub/cstr/reports/csl/tr/88/358/CSL-TR-88-358.pdf"
+                                                :target "_blank"]
+                                               ", and GUI toolkits had it "
+                                               [hyperlink-href
+                                                :label "25 years ago"
+                                                :href "http://i.stanford.edu/pub/cstr/reports/csl/tr/88/358/CSL-TR-88-358.pdf"
+                                                :target "_blank"]
+                                               ", and yet HTML5 only has a weak, half-arsed version?"]]]]]]
               [v-box
                :children [[title :level :level2 :label "Warning: Be All In"]
                           [p "Flexbox works via the interplay of styles present on a " [:span.bold "container"] " (parent) and its " [:span.bold "items"]

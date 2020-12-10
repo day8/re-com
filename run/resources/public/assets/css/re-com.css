@@ -501,6 +501,74 @@ html, body {
   background-image: none;
 }
 
+/* Free-text drop-down */
+.chosen-container .free-text input {
+  display: inline-block;
+  padding-left: 12px !important;
+  padding-right: 27px !important;
+}
+
+.chosen-container .free-text .b-wrapper {
+  display: inline-block;
+  position: absolute;
+  right: 0;
+  padding-left: 7px;
+  padding-right: 2px;
+  cursor: pointer;
+}
+
+.chosen-container .free-text b {
+  display: inline-block;
+  background: url("chosen-sprite.png") no-repeat 0 7px;
+  width: 16px;
+  height: 28px;
+}
+
+.chosen-container.chosen-with-drop .free-text b {
+  background-position: -18px 7px !important;
+}
+
+/* The two rules below copied from .chosen-container-single .chosen-search above (support for filter box in free-text drop-down) */
+.chosen-container-multi .chosen-search {
+  margin: 0;
+  padding: 3px 4px;
+  position: relative;
+  white-space: nowrap;
+  z-index: 1000;
+}
+.chosen-container-multi .chosen-search input[type="text"] {
+  background: url("chosen-sprite.png") no-repeat 100% -20px, #ffffff;
+  border: 1px solid #cccccc;
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  margin: 1px 0;
+  padding: 4px 20px 4px 4px;
+  width: 100%;
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 144dpi) {
+  .chosen-container .free-text b,
+  .chosen-container-multi .chosen-search input[type="text"] {
+    background-image: url("chosen-sprite@2x.png") !important;
+    background-size: 52px 37px !important;
+    background-repeat: no-repeat !important;
+  }
+}
+
+/* Drop-down filter placeholder color */
+.chosen-container .chosen-search input::-webkit-input-placeholder {
+  color: #bbb;
+}
+
+/* Fix for width 100% dropdown in a flex container */
+.chosen-container-multi .chosen-choices .search-field {
+  width: 100%;
+}
+
 /*----------------------------------------------------------------------------------------
  Stylesheet for re-com.date Date Picker variants inline-picker & dropdown-picker
  Day8 variation loosely based on:

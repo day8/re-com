@@ -80,7 +80,7 @@
 (defn p
   "acts like [:p ]
 
-   Creates a paragraph of body text, expected to have a font-szie of 14px or 15px,
+   Creates a paragraph of body text, expected to have a font-size of 14px or 15px,
    which should have limited width.
 
    Why limited text width?  See http://baymard.com/blog/line-length-readability

@@ -48,9 +48,9 @@ Note that all these commands are entered at the repo root folder.
 - [ ] Close all auto-compiles (command line and/or IntelliJ).
 - [ ] Build each of these aliases (will require separate terminals for each):
 
-      lein dev-auto
-      lein prod-auto
-      lein test-auto
+      lein watch
+      lein prod-once
+      lein ci
 
 - [ ] For `dev` and `prod`, run through each demo page and make sure no errors or debug output appears in the console. 
 - [ ] For `test`, make sure all tests pass. Modify code/tests until all tests pass. 
@@ -79,7 +79,7 @@ If it can't find the site, you may need to change `index.html` to `index_prod.ht
 
 - [ ] Create a GitHub Release:
 
-    - Go to: https://github.com/Day8/re-com/releases
+    - Go to: https://github.com/day8/re-com/releases
     - Should see your version `x.x.x` tag at the top.
     - Press the `Draft a new release` button.
     - Select this new `x.x.x` version in the Tag version dropdown.

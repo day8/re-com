@@ -3,6 +3,7 @@
                    [secretary.core         :refer [defroute]])
   (:require [goog.events                   :as    events]
             [reagent.core                  :as    reagent]
+            [reagent.dom                   :as    rdom]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
             [re-com.core                   :refer [h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
@@ -213,4 +214,4 @@
 
 (defn ^:export mount-demo
   []
-  (reagent/render [main] (get-element-by-id "app")))
+  (rdom/render [main] (get-element-by-id "app")))

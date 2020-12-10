@@ -31,7 +31,7 @@
                           [p-span RHS-column-style [:br] "The github repo "
                            [hyperlink-href
                             :label "is here"
-                            :href "https://github.com/Day8/re-com"
+                            :href "https://github.com/day8/re-com"
                             :target "_blank"] "."]]]]])
 
 
@@ -70,7 +70,7 @@
                :children [[v-box
                            :children [[p "re-com catches these errors early by validating both parameter names and values."]
                                       [p "To avoid the overhead in this checking,
-                                         include the following in your project.clj for your productuion builds:"]
+                                         include the following in your project.clj for your production builds:"]
                                       [:pre
                                        {:style {:width "450px"}}
                                        ":closure-defines {:goog.DEBUG false}"]]]

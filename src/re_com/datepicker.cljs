@@ -16,9 +16,9 @@
 
 ;; --- cljs-time facades ------------------------------------------------------
 
-(def ^:const month-format (formatter "MMMM yyyy"))
+(def month-format (formatter "MMMM yyyy"))
 
-(def ^:const week-format (formatter "ww"))
+(def week-format (formatter "ww"))
 
 (def ^:const date-format-str "yyyy MMM dd")
 

@@ -1,11 +1,12 @@
 (ns re-com.validate
   (:require
-    [cljs-time.core        :as    time.core]
-    [clojure.set           :refer [superset?]]
-    [re-com.util           :refer [deref-or-value-peek]]
-    [reagent.core          :as    reagent]
-    [reagent.impl.template :refer [valid-tag?]]
-    [goog.string           :as    gstring]))
+    [cljs-time.core         :as    time.core]
+    [clojure.set            :refer [superset?]]
+    [re-com.util            :refer [deref-or-value-peek]]
+    [reagent.core           :as    reagent]
+    [reagent.impl.component :as    component]
+    [reagent.impl.template  :refer [valid-tag?]]
+    [goog.string            :as    gstring]))
 
 
 ;; -- Helpers -----------------------------------------------------------------
@@ -83,19 +84,19 @@
                              required?       (:required v-arg-def)
                              validate-result ((:validate-fn v-arg-def) arg-val)
                              log-msg-base    (str "Validation failed for argument '" arg-name "' in component '" component-name "': ")
-                             comp-path       (str " at " (reagent/component-path (reagent/current-component)))
+                             comp-name       (str " at " (component/component-name (reagent/current-component)))
                              warning?        (= (:status validate-result) :warning)]
                          ;(println (str "[" component-name "] " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 200)) "' => " validate-result))
                          (cond
                            (or (true? validate-result)
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
                                     (not required?))) true
-                           (false? validate-result)  (log-error log-msg-base "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 60)) "'" comp-path)
+                           (false? validate-result)  (log-error log-msg-base "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 60)) "'" comp-name)
                            (map?   validate-result)  ((if warning? log-warning log-error)
                                                        log-msg-base
                                                        (:message validate-result)
-                                                       (when warning? comp-path))
-                           :else                      (log-error "Invalid return from validate-fn: " validate-result comp-path))))]
+                                                       (when warning? comp-name))
+                           :else                      (log-error "Invalid return from validate-fn: " validate-result comp-name))))]
     (->> (select-keys args-with-validators (vec (keys passed-args)))
          (map validate-arg)
          (every? true?))))
@@ -179,8 +180,9 @@
 
 (def html-attrs #{; ----- HTML attributes (:class and :style commented out as they are not valid in re-com)
                   ; ----- Reference: https://facebook.github.io/react/docs/dom-elements.html#all-supported-html-attributes
+                  ; ----- Another place for names: https://github.com/facebook/react/blob/master/packages/react-dom/src/shared/possibleStandardNames.js
                   :accept :accept-charset :access-key :action :allow-full-screen :allow-transparency :alt :async :auto-complete :auto-focus :auto-play :capture
-                  :cell-padding :cell-spacing :challenge :char-set :checked :cite #_:class :class-name :cols :col-span :content :content-editable :context-menu :controls
+                  :cell-padding :cell-spacing :challenge :char-set :checked :cite #_:class :class-name :cols :col-span :content :content-editable :context-menu :controls :controls-list
                   :coords :cross-origin :data :date-time :default :defer :dir :disabled :download :draggable :enc-type :form :form-action :form-enc-type :form-method
                   :form-no-validate :form-target :frame-border :headers :height :hidden :high :href :href-lang :html-for :http-equiv :icon :id :input-mode :integrity
                   :is :key-params :key-type :kind :label :lang :list :loop :low :manifest
@@ -207,30 +209,42 @@
                   :text-rendering :to :transform :u1 :u2 :underline-position :underline-thickness :unicode :unicode-bidi :unicode-range :units-per-em :v-alphabetic :v-hanging
                   :v-ideographic :v-mathematical :values :vector-effect :version :vert-adv-y :vert-origin-x :vert-origin-y :view-box :view-target :visibility :widths :word-spacing
                   :writing-mode :x :x1 :x2 :x-channel-selector :x-height :xlink-actuate :xlink-arcrole :xlink-href :xlink-role :xlink-show :xlink-title :xlink-type :xml-base
-                  :xml-lang :xml-space :y :y1 :y2 :y-channel-selector :z :zoom-and-pan
+                  :xml-lang :xml-space :xmlns :xmlns-xlink :y :y1 :y2 :y-channel-selector :z :zoom-and-pan
                   ; ----- Event attributes
                   ; ----- Reference: https://facebook.github.io/react/docs/events.html#supported-events
                   :on-copy :on-cut :on-paste :on-composition-end :on-composition-start :on-composition-update :on-key-down
-                  :on-key-press :on-key-up :on-focus :on-blur :on-change :on-input :on-submit :on-click
+                  :on-key-press :on-key-up :on-focus :on-blur :on-change :on-input :on-invalid :on-reset
+                  :on-submit :on-error :on-load :on-click
                   :on-context-menu :on-double-click :on-drag :on-drag-end :on-drag-enter :on-drag-exit :on-drag-leave
                   :on-drag-over :on-drag-start :on-drop :on-mouse-down :on-mouse-enter :on-mouse-leave :on-mouse-move
-                  :on-mouse-out :on-mouse-over :on-mouse-up :on-select :on-touch-cancel :on-touch-end :on-touch-move
+                  :on-mouse-out :on-mouse-over :on-mouse-up
+                  :on-pointer-down :on-pointer-move :on-pointer-up :on-pointer-cancel :on-got-pointer-capture
+                  :on-lost-pointer-capture :on-pointer-enter :on-pointer-leave :on-pointer-over :on-pointer-out
+                  :on-select :on-touch-cancel :on-touch-end :on-touch-move
                   :on-touch-start :on-scroll :on-wheel :on-abort :on-can-play :on-can-play-through :on-duration-change
-                  :on-emptied :on-encrypted :on-ended :on-error :on-loaded-data :on-loaded-metadata :on-load-start
+                  :on-emptied :on-encrypted :on-ended #_:on-error :on-loaded-data :on-loaded-metadata :on-load-start
                   :on-pause :on-play :on-playing :on-progress :on-rate-change :on-seeked :on-seeking :on-stalled
-                  :on-suspend :on-time-update :on-volume-change :on-waiting :on-load #_:on-error :on-animation-start
-                  :on-animation-end :on-animation-iteration :on-transition-end
+                  :on-suspend :on-time-update :on-volume-change :on-waiting #_:on-load #_:on-error :on-animation-start
+                  :on-animation-end :on-animation-iteration :on-transition-end :on-toggle
                   ; ----- '--capture' versions of the above events
                   :on-copy-capture :on-cut-capture :on-paste-capture :on-composition-end-capture :on-composition-start-capture :on-composition-update-capture :on-key-down-capture
-                  :on-key-press-capture :on-key-up-capture :on-focus-capture :on-blur-capture :on-change-capture :on-input-capture :on-submit-capture :on-click-capture
+                  :on-key-press-capture :on-key-up-capture :on-focus-capture :on-blur-capture :on-change-capture :on-input-capture :on-invalid-capture :on-reset-capture
+                  :on-submit-capture :on-error-capture :on-load-capture :on-click-capture
                   :on-context-menu-capture :on-double-click-capture :on-drag-capture :on-drag-end-capture :on-drag-enter-capture :on-drag-exit-capture :on-drag-leave-capture
                   :on-drag-over-capture :on-drag-start-capture :on-drop-capture :on-mouse-down-capture :on-mouse-enter-capture :on-mouse-leave-capture :on-mouse-move-capture
-                  :on-mouse-out-capture :on-mouse-over-capture :on-mouse-up-capture :on-select-capture :on-touch-cancel-capture :on-touch-end-capture :on-touch-move-capture
+                  :on-mouse-out-capture :on-mouse-over-capture :on-mouse-up-capture
+                  :on-pointer-down-capture :on-pointer-move-capture :on-pointer-up-capture :on-pointer-cancel-capture :on-got-pointer-capture-capture
+                  :on-lost-pointer-capture-capture :on-pointer-enter-capture :on-pointer-leave-capture :on-pointer-over-capture :on-pointer-out-capture
+                  :on-select-capture :on-touch-cancel-capture :on-touch-end-capture :on-touch-move-capture
                   :on-touch-start-capture :on-scroll-capture :on-wheel-capture :on-abort-capture :on-can-play-capture :on-can-play-through-capture :on-duration-change-capture
-                  :on-emptied-capture :on-encrypted-capture :on-ended-capture :on-error-capture :on-loaded-data-capture :on-loaded-metadata-capture :on-load-start-capture
+                  :on-emptied-capture :on-encrypted-capture #_:on-ended #_:on-error-capture :on-loaded-data-capture :on-loaded-metadata-capture :on-load-start-capture
                   :on-pause-capture :on-play-capture :on-playing-capture :on-progress-capture :on-rate-change-capture :on-seeked-capture :on-seeking-capture :on-stalled-capture
-                  :on-suspend-capture :on-time-update-capture :on-volume-change-capture :on-waiting-capture :on-load-capture #_:on-error-capture :on-animation-start-capture
-                  :on-animation-end-capture :on-animation-iteration-capture :on-transition-end-capture})
+                  :on-suspend-capture :on-time-update-capture :on-volume-change-capture :on-waiting-capture #_:on-load #_:on-error-capture :on-animation-start-capture
+                  :on-animation-end-capture :on-animation-iteration-capture :on-transition-end-capture :on-toggle-capture
+                  ; ----- React attributes
+                  ; ----- Reference: Refs: https://reactjs.org/docs/refs-and-the-dom.html
+                  ; ----- Reference: Keys: https://reactjs.org/docs/lists-and-keys.html
+                  :ref :key})
 
 ; ----- Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*
 ; -----            https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
@@ -271,8 +285,25 @@
                   :touch-action :transform :transform-box :transform-origin :transform-style :transition :transition-delay :transition-duration :transition-property
                   :transition-timing-function :turn :unicode-bidi :unicode-range :unset :vertical-align :vh :visibility :vmax :vmin :vw :white-space :widows :width
                   :will-change :word-break :word-spacing :word-wrap :writing-mode :z-index
+                  ; ----- Additions from https://www.w3.org/Style/CSS/all-properties.en.html as at July-2020
+                  ; ----- Only added new WD (Working Draft) styles
+                  :appearance :caret :caret-color :caret-shape :nav-down :nav-left :nav-right :nav-up :user-select :gap :justify-items :justify-self :place-content
+                  :place-items :place-self :row-gap :color-adjust :color-scheme :forced-color-adjust :contain :wrap-flow :wrap-through :font-optical-sizing :font-palette
+                  :font-synthesis-small-caps :font-synthesis-style :font-synthesis-weight :font-variant-emoji :font-variation-settings :bookmark-label :bookmark-level
+                  :bookmark-state :footnote-display :footnote-policy :running :string-set :alignment-baseline :baseline-shift :dominant-baseline :initial-letters
+                  :initial-letters-align :initial-letters-wrap :inline-sizing :box-snap :line-grid :line-snap :counter-set :marker-side :border-block :border-block-color
+                  :border-block-style :border-block-width :border-end-end-radius :border-end-start-radius :border-inline :border-inline-color :border-inline-style
+                  :border-inline-width :border-start-end-radius :border-start-start-radius :inset :inset-block :inset-block-end :inset-block-start :inset-inline
+                  :inset-inline-end :inset-inline-start :margin-block :margin-inline :padding-block :padding-inline :block-overflow :continue :line-clamp :max-lines
+                  :overflow-block :overflow-inline :page :flow-from :flow-into :region-fragment :border-boundary :shape-inside :ruby-overhang :spatial-navigation-action
+                  :spatial-navigation-contain :spatial-navigation-function :text-decoration-skip :text-decoration-skip-box :text-decoration-skip-ink
+                  :text-decoration-skip-inset :text-decoration-skip-self :text-decoration-skip-spaces :text-decoration-thickness :text-emphasis-skip
+                  :text-underline-offset :hanging-punctuation :text-align-all :text-justify :hyphenate-character :hyphenate-limit-chars :hyphenate-limit-last
+                  :hyphenate-limit-lines :hyphenate-limit-zone :line-padding :text-group-align :text-space-collapse :text-space-trim :text-spacing :text-wrap
+                  :word-boundary-detection :word-boundary-expansion :wrap-after :wrap-before :wrap-inside :color-interpolation-filters :flood-color :flood-opacity
+                  :lighting-color :offset :offset-anchor :offset-distance :offset-path :offset-position :offset-rotate
                   ; ----- Browser specific styles
-                  :-webkit-user-select :-moz-user-select :-ms-user-select :user-select
+                  :-webkit-user-select :-moz-user-select :-ms-user-select
                   :-webkit-flex-flow :-webkit-flex-direction :-webkit-flex-wrap :-webkit-justify-content :-webkit-align-items :-webkit-align-content
                   :-webkit-flex :-webkit-flex-grow :-webkit-flex-shrink :-webkit-flex-basis :-webkit-order :-webkit-align-self})
 

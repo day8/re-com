@@ -4,7 +4,7 @@
 (defn github-hyperlink
   "given a label and a relative path, return a component which hyperlinks to the GitHub URL in a new tab"
   [label src-path]
-  (let [base-url (str "https://github.com/Day8/re-com/tree/master/")]
+  (let [base-url (str "https://github.com/day8/re-com/tree/master/")]
     [hyperlink-href
      :label  label
      ;:style  {:font-size    "13px"}

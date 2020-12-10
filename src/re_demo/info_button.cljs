@@ -14,16 +14,13 @@
                           "(defn square [n] (* n n))" [:br]
                           "=> #'user/square" [:br]
                           "(square 45)" [:br]
-                          "=> 2025" [:br]
-                          ]
+                          "=> 2025" [:br]]
                          [:p.info-subheading "Sub heading"]
-                         [:p
-                          "Note: Styles copied from "
-                          [hyperlink-href
-                           :label  "ClojureScript Cheatsheet"
-                           :href   "http://cljs.info/cheatsheet"
-                           :target "_blank"]
-                          "."]]]]
+                         [:p "Note: Styles copied from"]
+                         [hyperlink-href
+                          :label  "ClojureScript Cheatsheet"
+                          :href   "http://cljs.info/cheatsheet"
+                          :target "_blank"]]]]
     (fn []
       [v-box
        :size     "auto"
