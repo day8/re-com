@@ -10,7 +10,8 @@
 
 (def demos [{:id 1 :label "Tab Styles"}
             {:id 2 :label "Persistent Tab Selection"}
-            {:id 3 :label "Dynamic Tabs"}])
+            {:id 3 :label "Dynamic Tabs"}
+            {:id 4 :label "Tooltips"}])
 
 
 ;; Define some tabs.
@@ -144,6 +145,22 @@
                                                  new-tab {:id (keyword c) :label c}]
                                              (swap! tab-defs conj new-tab)))]]]]])))
 
+
+(defn tooltips-demo
+  []
+  (let [tab-defs        [{:id ::1 :label "Left Tab"   :tooltip "This is the first tooltip..."}
+                         {:id ::2 :label "Middle Tab" :tooltip "This is the second tooltip..."}
+                         {:id ::3 :label "Right Tab"  :tooltip "This is the third and the final tooltip!"}]
+        selected-tab-id (reagent/atom (:id (first tab-defs)))]
+    (fn []
+      [v-box
+       :gap      "20px"
+       :children [[p "Hover over a tab to see a tooltip."]
+                  [horizontal-bar-tabs
+                   :model     selected-tab-id
+                   :tabs      tab-defs
+                   :on-change #(reset! selected-tab-id %)]]])))
+
 (defn panel2
   []
   (let [selected-demo-id (reagent/atom 1)]
@@ -186,7 +203,8 @@
                                                       (case @selected-demo-id
                                                         1 [tab-styles-demo]
                                                         2 [remembers-demo]
-                                                        3 [adding-tabs-demo])]]]]]]]])))
+                                                        3 [adding-tabs-demo]
+                                                        4 [tooltips-demo])]]]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
