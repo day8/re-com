@@ -8,7 +8,9 @@
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border h-box flex-child-style]]
     [re-com.util          :refer [deref-or-value now->utc]]
-    [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]))
+    [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]])
+  (:import
+    [goog.i18n DateTimeFormat]))
 
 ;; Loosely based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
 
@@ -18,13 +20,18 @@
 
 (def week-format (formatter "ww"))
 
-(def date-format (formatter "yyyy MMM dd"))
+(def ^:const date-format-str "yyyy MMM dd")
+
+(def ^:const date-format (formatter date-format-str))
 
 (defn iso8601->date [iso8601]
   (when (seq iso8601)
     (parse (formatters :basic-date) iso8601)))
 
-(defn- month-label [date] (unparse month-format date))
+(defn- month-label [date months]
+  (if months
+    (str (nth months (dec (month date))) " " (unparse (formatter "yyyy") date))
+    (unparse month-format date)))
 
 (defn- dec-month [date] (minus date (months 1)))
 
@@ -71,6 +78,8 @@
    {:key :Sa :short-name "S" :name "SAT"}
    {:key :Su :short-name "S" :name "SUN"}])
 
+(defn to-days-vector [xs] (mapv (fn [x m] (assoc m :name x)) xs days-vector))
+
 (defn- rotate
   [n coll]
   (let [c (count coll)]
@@ -105,7 +114,8 @@
 
 (defn- table-thead
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
-  [display-month {show-weeks? :show-weeks? minimum :minimum maximum :maximum start-of-week :start-of-week}]
+  [display-month {show-weeks? :show-weeks? minimum :minimum maximum :maximum start-of-week :start-of-week
+                  {:keys [days months]} :i18n}]
   (let [prev-date     (dec-month @display-month)
         minimum       (deref-or-value minimum)
         maximum       (deref-or-value maximum)
@@ -120,14 +130,14 @@
                  :on-click (handler-fn (when prev-enabled? (reset! display-month prev-date)))}
             [:i.zmdi.zmdi-chevron-left
              {:style {:font-size "24px"}}]]
-           [:th {:class "month" :col-span "5"} (month-label @display-month)]
+           [:th {:class "month" :col-span "5"} (month-label @display-month months)]
            [:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))
                  :style {:padding "0px"}
                  :on-click (handler-fn (when next-enabled? (reset! display-month next-date)))}
             [:i.zmdi.zmdi-chevron-right
              {:style {:font-size "24px"}}]])
      (conj template-row
-           (for [day (rotate start-of-week days-vector)]
+           (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
              ^{:key (:key day)} [:th {:class "day-enabled"} (str (:name day))]))]))
 
 
@@ -203,6 +213,7 @@
    {:name :maximum        :required false                               :type "satisfies DateTimeProtocol | atom"  :validate-fn date-like?  :description "no selection or navigation after this date"}
    {:name :start-of-week  :required false  :default 6                   :type "int"                                                         :description "first day of week (Monday = 0 ... Sunday = 6)"}
    {:name :hide-border?   :required false  :default false               :type "boolean"                                                     :description "when true, the border is not displayed"}
+   {:name :i18n           :required false                               :type "map"                                                         :description [:span "internationalization map with optional keys " [:code ":days"] " and " [:code ":months"] " (both vectors of strings)"]}
    {:name :class          :required false                               :type "string"                             :validate-fn string?     :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
    {:name :style          :required false                               :type "CSS style map"                      :validate-fn css-style?  :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
    {:name :attr           :required false                               :type "HTML attr map"                      :validate-fn html-attr?  :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] " allowed (applies to the outer border div, not the wrapping div)"]}])
@@ -238,28 +249,33 @@
 
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
-  [shown? model format placeholder]
+  [shown? model format goog? placeholder width]
   [:div {:class    "rc-datepicker-dropdown-anchor input-group display-flex noselect"
          :style    (flex-child-style "none")
          :on-click (handler-fn (swap! shown? not))}
    [h-box
     :align     :center
     :class     "noselect"
-    :min-width "10em"
-    :max-width "10em"
+    :min-width (when-not width "10em")
+    :max-width (when-not width "10em")
+    :width     width
     :children  [[:label {:class "form-control dropdown-button"}
-                 (if (date-like? (deref-or-value model))
-                   (unparse (if (seq format) (formatter format) date-format) (deref-or-value model))
-                   [:span {:style {:color "#bbb"}} placeholder])]
+                 (cond (not (date-like?
+                         (deref-or-value model))) [:span {:style {:color "#bbb"}} placeholder]
+                       goog?                      (.format (DateTimeFormat. (if (seq format) format date-format-str)) (deref-or-value model))
+                       :else                      (unparse (if (seq format) (formatter format) date-format) (deref-or-value model)))]
                 [:span.dropdown-button.activator.input-group-addon
                  {:style {:padding "3px 0px 0px 0px"}}
                  [:i.zmdi.zmdi-apps {:style {:font-size "24px"}}]]]]])
 
 (def datepicker-dropdown-args-desc
   (conj datepicker-args-desc
-        {:name :format       :required false  :default "yyyy MMM dd"  :type "string"   :description "[datepicker-dropdown only] a representation of a date format. See cljs_time.format"}
-        {:name :no-clip?     :required false  :default true           :type "boolean"  :description "[datepicker-dropdown only] when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
-        {:name :placeholder  :required false                          :type "string"   :description "[datepicker-dropdown only] placeholder text for when a date is not selected."}))
+        {:name :format          :required false  :default "yyyy MMM dd"  :type "string"   :description "[datepicker-dropdown only] a representation of a date format. See cljs_time.format"}
+        {:name :goog?           :required false  :default false          :type "boolean"  :description [:span "[datepicker-dropdown only] use " [:code "goog.i18n.DateTimeFormat"] " instead of " [:code "cljs_time.format"] " for applying " [:code ":format"]]}
+        {:name :no-clip?        :required false  :default true           :type "boolean"  :description "[datepicker-dropdown only] when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
+        {:name :placeholder     :required false                          :type "string"   :description "[datepicker-dropdown only] placeholder text for when a date is not selected."}
+        {:name :width           :required false  :validate-fn string?    :type "string"   :description "[datepicker-dropdown only] a CSS width style"}
+        {:name :position-offset :required false  :validate-fn number?    :type "integer"  :description "[datepicker-dropdown only] px horizontal offset of the popup"}))
 
 (defn datepicker-dropdown
   [& {:as args}]
@@ -268,24 +284,24 @@
         cancel-popover #(reset! shown? false)
         position       :below-left]
     (fn
-      [& {:keys [model show-weeks? on-change format no-clip? placeholder]
-          :or {no-clip? true}
+      [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width position-offset]
+          :or {no-clip? true, position-offset 0}
           :as passthrough-args}]
       (let [collapse-on-select (fn [new-model]
                                  (reset! shown? false)
-                                 (when on-change (on-change new-model)))                 ;; wrap callback to collapse popover
-            passthrough-args   (dissoc passthrough-args :format :no-clip? :placeholder)  ;; :format, :no-clip? and :placeholder only valid at this API level
+                                 (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
+            passthrough-args   (dissoc passthrough-args :format :goog? :no-clip? :placeholder :width :position-offset)  ;; these keys only valid at this API level
             passthrough-args   (->> (assoc passthrough-args :on-change collapse-on-select)
-                                    (merge {:hide-border? true})                         ;; apply defaults
+                                    (merge {:hide-border? true})                                                        ;; apply defaults
                                     vec
                                     flatten)]
         [popover-anchor-wrapper
          :class    "rc-datepicker-dropdown-wrapper"
          :showing? shown?
          :position position
-         :anchor   [anchor-button shown? model format placeholder]
+         :anchor   [anchor-button shown? model format goog? placeholder width]
          :popover  [popover-content-wrapper
-                    :position-offset (if show-weeks? 43 44)
+                    :position-offset (+ (if show-weeks? 43 44) position-offset)
                     :no-clip?       no-clip?
                     :arrow-length    0
                     :arrow-width     0
