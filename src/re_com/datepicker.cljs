@@ -249,10 +249,12 @@
 
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
-  [shown? model format goog? placeholder width]
+  [shown? model format goog? placeholder width disabled?]
   [:div {:class    "rc-datepicker-dropdown-anchor input-group display-flex noselect"
          :style    (flex-child-style "none")
-         :on-click (handler-fn (swap! shown? not))}
+         :on-click (handler-fn
+                     (when (not (deref-or-value disabled?))
+                       (swap! shown? not)))}
    [h-box
     :align     :center
     :class     "noselect"
@@ -264,8 +266,9 @@
                          (deref-or-value model))) [:span {:style {:color "#bbb"}} placeholder]
                        goog?                      (.format (DateTimeFormat. (if (seq format) format date-format-str)) (deref-or-value model))
                        :else                      (unparse (if (seq format) (formatter format) date-format) (deref-or-value model)))]
-                [:span.dropdown-button.activator.input-group-addon
-                 {:style {:padding "3px 0px 0px 0px"}}
+                [:span
+                 {:class (str "dropdown-button activator input-group-addon" (when (deref-or-value disabled?) " dropdown-button-disabled"))
+                  :style {:padding "3px 0px 0px 0px"}}
                  [:i.zmdi.zmdi-apps {:style {:font-size "24px"}}]]]]])
 
 (def datepicker-dropdown-args-desc
@@ -284,7 +287,7 @@
         cancel-popover #(reset! shown? false)
         position       :below-left]
     (fn
-      [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width position-offset]
+      [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset]
           :or {no-clip? true, position-offset 0}
           :as passthrough-args}]
       (let [collapse-on-select (fn [new-model]
@@ -299,7 +302,7 @@
          :class    "rc-datepicker-dropdown-wrapper"
          :showing? shown?
          :position position
-         :anchor   [anchor-button shown? model format goog? placeholder width]
+         :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
          :popover  [popover-content-wrapper
                     :position-offset (+ (if show-weeks? 43 44) position-offset)
                     :no-clip?       no-clip?

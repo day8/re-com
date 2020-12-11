@@ -111,7 +111,6 @@
    {:name :style          :required false                 :type "CSS style map"                      :validate-fn css-style?      :description "CSS styles to add or override (applies to the outer container)"}
    {:name :attr           :required false                 :type "HTML attr map"                      :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
 
-;;TODO hide hover highlights for links when disabled
 (defn- list-container
   [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr]
     :as   args}]
@@ -130,7 +129,10 @@
     #_(when-not (= selected model) (on-change selected))
     [border
      :class  (str "rc-selection-list " class)
-     :style  style
+     :style (merge
+              (when (deref-or-value disabled?)
+                {:pointer-events "none"})
+              style)
      :attr   attr
      :radius "4px"
      :border (when hide-border? "none")

@@ -66,7 +66,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-circle-icon-button-args-desc
-  [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]] }
+  [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
    {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
    {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
    {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
@@ -189,6 +189,7 @@
   [{:name :info     :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what's shown in the popover"}
    {:name :position :required false :default :right-below :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :width    :required false :default "250px"      :type "string"          :validate-fn string?           :description "width in px"}
+   {:name :disabled? :required false :default false       :type "boolean"                                        :description "if true, the user can't click the button"}
    {:name :class    :required false                       :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the popover wrapper)"}
    {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the popover wrapper)"}
    {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the popover wrapper)"]}])
@@ -201,7 +202,7 @@
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [info position width class style attr] :as args}]
+      [& {:keys [info position width disabled? class style attr] :as args}]
       {:pre [(validate-args-macro info-button-args-desc args "info-button")]}
       [popover-tooltip
        :label     info
@@ -212,9 +213,15 @@
        :on-cancel #(swap! showing? not)
        :anchor    [:div
                    (merge
-                     {:class    (str "rc-info-button noselect " class)
-                      :style    (merge {:cursor "pointer"} style)
-                      :on-click (handler-fn (swap! showing? not))}
+                     {:class    (str "rc-info-button noselect "
+                                     (when disabled? "rc-icon-disabled ")
+                                     class)
+                      :style    (merge
+                                  {:cursor (when-not disabled? "pointer")}
+                                  style)
+                      :on-click (handler-fn
+                                  (when (not disabled?)
+                                    (swap! showing? not)))}
                      attr)
                    [:svg {:width "11" :height "11"}
                     [:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
@@ -308,7 +315,8 @@
                                   {:class    (str "rc-hyperlink noselect " class)
                                    :style    (merge
                                                (flex-child-style "none")
-                                               {:cursor (if disabled? "not-allowed" "pointer")
+                                               {:cursor (if disabled? "default" "pointer")
+                                                :pointer-events (when disabled? "none")
                                                 :color  (when disabled? "grey")}
                                                style)
                                    :on-click (handler-fn
@@ -341,6 +349,7 @@
    {:name :target           :required false :default "_self"       :type "string | atom"          :validate-fn string-or-atom?   :description "one of \"_self\" or \"_blank\""}
    {:name :tooltip          :required false                        :type "string | hiccup"        :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+   {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
    {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
    {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}])
@@ -352,18 +361,28 @@
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [label href target tooltip tooltip-position class style attr] :as args}]
+      [& {:keys [label href target tooltip tooltip-position disabled? class style attr] :as args}]
       {:pre [(validate-args-macro hyperlink-href-args-desc args "hyperlink-href")]}
       (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [label      (deref-or-value label)
             href       (deref-or-value href)
             target     (deref-or-value target)
+            disabled?  (deref-or-value disabled?)
             the-button [:a
                         (merge {:class  (str "rc-hyperlink-href noselect " class)
                                 :style  (merge (flex-child-style "none")
+                                               {:cursor (if disabled? "default" "pointer")
+                                                :pointer-events (when disabled? "none")
+                                                :color  (when disabled? "grey")}
                                                style)
-                                :href   href
                                 :target target}
+                               ;; As of HTML5 the href attribute on a elements is not required; when those elements do
+                               ;; not have href attributes they do not create hyperlinks. These are also known as a
+                               ;; 'placeholder link'. A placeholder link resembles a traditional hyperlink, but does not
+                               ;; lead anywhere; i.e. it is disabled.
+                               ;; Ref: https://www.w3.org/TR/html5/links.html#attr-hyperlink-href
+                               (when (not disabled?)
+                                 {:href   href})
                                (when tooltip
                                  {:on-mouse-over (handler-fn (reset! showing? true))
                                   :on-mouse-out  (handler-fn (reset! showing? false))})

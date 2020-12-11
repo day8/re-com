@@ -45,6 +45,19 @@ html, body {
     pointer-events: initial;
 }
 
+/*----------------------------------------------------------------------------------------
+  Bootstrap disabled style overrides
+----------------------------------------------------------------------------------------*/
+
+.btn.disabled,
+.btn[disabled],
+fieldset[disabled] .btn {
+  cursor: default !important;
+}
+
+.form-control[disabled], fieldset[disabled] .form-control {
+  cursor: default !important;
+}
 
 /*----------------------------------------------------------------------------------------
   The section immediately below is required for the drop-down components and comes from
@@ -763,6 +776,10 @@ html, body {
     font-weight: normal;
 }
 
+.dropdown-button-disabled {
+    cursor: default !important;
+}
+
 .dropdown-button.activator {
     width: 40px;
     color: #777;
@@ -1201,6 +1218,10 @@ code {
 .rc-icon-emphasis:hover {
     background-color: #2196f3;
     color:            white;
+}
+
+.rc-icon-disabled {
+  pointer-events: none;
 }
 
 .rc-icon-disabled > i {
