@@ -1288,7 +1288,7 @@ code {
 
 .rc-row-button {
     text-align:          center;             /* to horizontally center the icon */
-    color:               #2167f2; /2196f3;
+    color:               #2167f2; /* 2196f3; */
     background-color:    inherit;
     opacity:             0;
     cursor:              pointer;
