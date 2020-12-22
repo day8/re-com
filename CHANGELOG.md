@@ -10,6 +10,7 @@
 
 #### Added
 
+- Add 15 new attributes and 1 fix to single-dropdown. See [#202](https://github.com/day8/re-com/pull/202)
 - Add datepicker i18n and ability to set its width. See [#201](https://github.com/day8/re-com/pull/201)
 - Add :on-alter to input-text-base. See [#200](https://github.com/day8/re-com/pull/200)
 - Add tooltip to horizontal-bar-tabs & :validate?. See [#199](https://github.com/day8/re-com/pull/199)
