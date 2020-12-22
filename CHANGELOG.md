@@ -1,10 +1,38 @@
 ## Unreleased
 
+## 2.10.0 (2020-12-22)
+
+#### Added
+
+- Add datepicker i18n and ability to set its width. See [#201](https://github.com/day8/re-com/pull/201)
+- Add :on-alter to input-text-base. See [#200](https://github.com/day8/re-com/pull/200)
+- Add tooltip to horizontal-bar-tabs & :validate?. See [#199](https://github.com/day8/re-com/pull/199)
+
+#### Fixed
+
+- Remove reset! of external-model in input-text-base event handlers. Fixes [#219](https://github.com/day8/re-com/issue/219)
+- Fix consistency of `disabled?` arg
+- Fix CSS comment syntax. See [#222](https://github.com/day8/re-com/pull/222).
+- Fix typeahead not taking external changes into account. See [#206](https://github.com/day8/re-com/pull/206)
+
+## 2.9.0 (2020-08-11)
+
 #### Changed
 
-- Upgrade ClojureScript to [1.10.758](https://github.com/clojure/clojurescript/blob/master/changes.md)
-- Upgrade shadow-cljs to 2.8.110
-- Upgrade core.async to 1.1.587
+- Upgrade ClojureScript to [1.10.773](https://github.com/clojure/clojurescript/blob/master/changes.md)
+- Upgrade shadow-cljs to 2.10.19
+- Upgrade core.async to 1.3.610
+
+#### Fixed
+
+- Fix Reagent deprecation warning
+- Fix #212 - Warning/future error in React 16 (also improved the tab-index demo)
+- Fix bug where single-dropdown was optimistically updating the model and ignoring any model validation/changes made by the caller (same bug was fixed in input-text a while back: commit ebad92bc)
+- Fix invalid markup in dropdown async demo
+- Fix "validateDOMNesting(...): div cannot appear as a descendant of p" warning in info-button demo
+- Fix #185. Also added other new html attributes and new css styles
+- Remove ^:const references as this compile error was appearing in the demo: https://github.com/thheller/shadow-cljs/issues/708
+- Fix potential 'Cannot find local Karma!' error on GitHub Actions
 
 ## 2.8.0 (2020-03-08)
 
