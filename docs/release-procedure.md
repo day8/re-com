@@ -1,42 +1,5 @@
 # Re-com Release Procedure
 
-## Setting your environment up
-
-A number of things need to be set up before the release procedure can commence.
-
-
-### GPG
-
-```
-NOTE: GPG signing is no longer required but we'll leave the process here just in case we need to reinstate it...
-```
-
-Here are the basic instructions to follow to get GPG running: https://github.com/technomancy/leiningen/blob/stable/doc/GPG.md
-
-A few notes for Windows:
-
- - The recommended gpg version for windows is: http://www.gpg4win.org.
- - There are several version on the download page. I used the "Vanilla" one. Direct link: http://files.gpg4win.org/gpg4win-vanilla-2.2.4.exe
- - To display your public key, just type: `gpg --export -a`.
-
-
-### Clojars
-
-Simply need to set up your own account, then get the Day8 Clojars admin to add you to the family. Then you can publish to Day8 Clojars.
- 
-Note: If using GPG, your GPG public key from above needs to be pasted into your Clojars profile for this process to work.
-
-More info on deploying libraries using lein: https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md
-
-You should set up your Clojars authentication in your Leiningen profile: `~/.lein/profiles.clj` (or `%USERPROFILE%\.lein\profiles.clj` for Windows):
-```
-{:user {}
- :auth {
-  :repository-auth {
-    #"https://clojars.org/repo" {:username "your-username" :password "your-password"}}}}
-```
-
-
 ## Release Steps
 
 ### Build library and test the demo
@@ -57,36 +20,14 @@ Note that all these commands are entered at the repo root folder.
 - [ ] Close all auto-compiles again.
 
 
-### Push library to Clojars
+### Tag release 
 
-- [ ] Push this release to Clojars:
+- [ ] Tag the release on GitHub:
 
-      lein release :minor
+      git tag v2.10.0 HEAD
+      git push --tags
 
-
-### Deploy demo to AWS
-
-- [ ] Deploy demo to AWS:
-
-      lein deploy-aws
-
-Test it: https://re-com.day8.com.au.
-
-If it can't find the site, you may need to change `index.html` to `index_prod.html` in S3 Browser (although this was unnecessary with the most recent build).
-
-
-### Make a Github release
-
-- [ ] Create a GitHub Release:
-
-    - Go to: https://github.com/day8/re-com/releases
-    - Should see your version `x.x.x` tag at the top.
-    - Press the `Draft a new release` button.
-    - Select this new `x.x.x` version in the Tag version dropdown.
-    - For the title, enter the version number: `x.x.x`.
-    - Enter a description that includes a list of "Changes" and "Fixes" (since the last release).
-    - Click the `Publish release` button.
-
+NOTE: Tagging the release will trigger GitHub Actions to deploy the library to Clojars and the demo site to AWS S3.
 
 ### Final tasks
 

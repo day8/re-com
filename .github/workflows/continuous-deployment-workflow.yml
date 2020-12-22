@@ -36,9 +36,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-shadow-cljs-
       - if: steps.maven-cache.outputs.cache-hit != 'true'
-        run: lein ci
+        run: |
+          lein ci
+          lein prod-once
       - if: steps.maven-cache.outputs.cache-hit == 'true'
-        run: lein -o ci
+        run: |
+          lein -o ci
+          lein -o prod-once
       - name: Slack notification
         uses: homoluctus/slatify@v2.0.1
         if: failure() || cancelled()
@@ -91,7 +95,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
           body: |
-            [Changelog](https://github.com/day8/re-com/blob/${{ github.ref }}/CHANGELOG.md)
+            [Changelog](https://github.com/day8/re-com/blob/master/CHANGELOG.md)
           draft: false
           prerelease: false
       - name: Slack notification
