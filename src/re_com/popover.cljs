@@ -315,8 +315,8 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-content-wrapper-args-desc
-  [{:name :showing-injected?    :required true                         :type "boolean atom"                                    :description [:span "an atom. When the value is true, the popover shows." [:br] [:strong "NOTE: "] "When used as direct " [:code ":popover"] " arg in popover-anchor-wrapper, this arg will be injected automatically by popover-anchor-wrapper. If using your own popover function, you must add this yourself"]}
-   {:name :position-injected    :required true                         :type "keyword atom"     :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list [:br] [:strong "NOTE: "] "See above NOTE for " [:code ":showing-injected?"] ". Same applies" ]}
+  [{:name :showing-injected?    :required true                         :type "boolean atom"                                    :description [:span "an atom or value. When the value is true, the popover shows." [:br] [:strong "NOTE: "] "When used as direct " [:code ":popover"] " arg in popover-anchor-wrapper, this arg will be injected automatically by popover-anchor-wrapper. If using your own popover function, you must add this yourself"]}
+   {:name :position-injected    :required true                         :type "keyword atom"     :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list [:br] [:strong "NOTE: "] "See above NOTE for " [:code ":showing-injected?"] ". Same applies"]}
    {:name :position-offset      :required false                        :type "integer"          :validate-fn number?           :description [:span "px offset of the arrow from its default " [:code ":position"] " along the popover border. Is ignored when " [:code ":position"] " is one of the " [:code ":xxx-center"] " variants. Positive numbers slide the popover toward its center"]}
    {:name :no-clip?             :required false  :default false        :type "boolean"                                         :description "when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. By passing true for this parameter, re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
    {:name :width                :required false                        :type "string"           :validate-fn string?           :description "a CSS style representing the popover width"}
@@ -379,7 +379,7 @@
                                                 :top       (px @top-offset)})
                                 style)}
                  attr)
-          (when (and @showing-injected? on-cancel)
+          (when (and (deref-or-value showing-injected?)  on-cancel)
             [backdrop
              :opacity  backdrop-opacity
              :on-click on-cancel])
@@ -396,10 +396,10 @@
            :arrow-gap            arrow-gap
            :padding              padding
            :title                (when title [popover-title
-                                             :title          title
-                                             :showing?       showing-injected?
-                                             :close-button?  close-button?
-                                             :close-callback on-cancel])
+                                              :title          title
+                                              :showing?       showing-injected?
+                                              :close-button?  close-button?
+                                              :close-callback on-cancel])
            :children             [body]]])})))
 
 
@@ -408,7 +408,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def popover-anchor-wrapper-args-desc
-  [{:name :showing? :required true                        :type "boolean atom"                                   :description "an atom. When the value is true, the popover shows"}
+  [{:name :showing? :required true                        :type "boolean atom"                                   :description "an atom or value. When the value is true, the popover shows"}
    {:name :position :required true                        :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :anchor   :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the component the popover is attached to"}
    {:name :popover  :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the popover body component"}
@@ -422,7 +422,7 @@
   {:pre [(validate-args-macro popover-anchor-wrapper-args-desc args "popover-anchor-wrapper")]}
   (let [external-position (reagent/atom position)
         internal-position (reagent/atom @external-position)
-        reset-on-hide     (reaction (when-not @showing? (reset! internal-position @external-position)))]
+        reset-on-hide     (reaction (when-not (deref-or-value showing?) (reset! internal-position @external-position)))]
     (reagent/create-class
       {:display-name "popover-anchor-wrapper"
 
@@ -449,7 +449,7 @@
                             (flex-flow-style flex-flow)
                             (align-style :align-items :center))}
              (when place-anchor-before? anchor)
-             (when @showing?
+             (when (deref-or-value showing?)
                [:div                             ;; The "point" that connects the anchor to the popover
                 {:class "rc-popover-point display-inline-flex"
                  :style (merge (flex-child-style "auto")
