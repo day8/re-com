@@ -1,5 +1,9 @@
 ## Unreleased
 
+#### Changed
+
+- Change popover-anchor-wrapper to allow the use of values in `showing?`. See [#153](https://github.com/day8/re-com/pull/153)
+
 ## 2.10.0 (2020-12-22)
 
 #### Added
