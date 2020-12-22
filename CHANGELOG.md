@@ -17,7 +17,7 @@
 
 #### Fixed
 
-- Remove reset! of external-model in input-text-base event handlers. Fixes [#219](https://github.com/day8/re-com/issue/219)
+- Remove reset! of external-model in input-text-base event handlers. Fixes [#219](https://github.com/day8/re-com/issues/219)
 - Fix consistency of `disabled?` arg
 - Fix CSS comment syntax. See [#222](https://github.com/day8/re-com/pull/222).
 - Fix typeahead not taking external changes into account. See [#206](https://github.com/day8/re-com/pull/206)
