@@ -128,7 +128,9 @@
     ;; TODO: GR commented this out to fix the bug where #{nil} was being returned for an empty list. Remove when we're sure there are no ill effects.
     #_(when-not (= selected model) (on-change selected))
     [border
-     :class  (str "rc-selection-list " class)
+     :class  (str "rc-selection-list "
+                  (when (deref-or-value disabled?) "rc-disabled")
+                  class)
      :style (merge
               (when (deref-or-value disabled?)
                 {:pointer-events "none"})

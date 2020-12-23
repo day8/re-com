@@ -973,6 +973,13 @@ fieldset[disabled] .btn {
     background-color: #eeeeee;
 }
 
+.rc-selection-list.rc-disabled,
+.rc-selection-list.rc-disabled .list-group-item {
+  background-color: #eee;
+}
+
+
+
 /*----------------------------------------------------------------------------------------
   Custom scrollbars
    - http://css-tricks.com/custom-scrollbars-in-webkit
@@ -1106,6 +1113,10 @@ code {
   border-left:      none;
   border-radius:    0 4px 4px 0;
   background-color: #ddd;
+}
+
+.time-entry:disabled {
+  background-color: #eee;
 }
 
 /*----------------------------------------------------------------------------------------
