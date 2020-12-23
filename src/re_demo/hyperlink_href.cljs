@@ -1,5 +1,5 @@
 (ns re-demo.hyperlink-href
-  (:require [re-com.core    :refer [h-box v-box box gap line label title radio-button hyperlink-href p]]
+  (:require [re-com.core    :refer [h-box v-box box gap line label title radio-button hyperlink-href p checkbox]]
             [re-com.buttons :refer [hyperlink-href-args-desc]]
             [re-demo.utils  :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core   :as    reagent]))
@@ -7,7 +7,8 @@
 
 (defn hyperlink-href-demo
   []
-  (let [target    (reagent/atom "_blank")
+  (let [disabled? (reagent/atom false)
+        target    (reagent/atom "_blank")
         href?     (reagent/atom true)]
     (fn
       []
@@ -40,7 +41,8 @@
                                                                :label     "Launch Google"
                                                                :tooltip   "You're about to launch Google"
                                                                :href      (when href? "http://google.com")
-                                                               :target    (when href? target)]]
+                                                               :target    (when href? target)
+                                                               :disabled?        disabled?]]
                                                       [v-box
                                                        :gap "15px"
                                                        :children [[title :level :level3 :label "Parameters"]
@@ -58,7 +60,12 @@
                                                                                  :value "_blank"
                                                                                  :model @target
                                                                                  :on-change #(reset! target %)
-                                                                                 :style {:margin-left "20px"}]]])]]]]]]]]]])))
+                                                                                 :style {:margin-left "20px"}]
+                                                                                [checkbox
+                                                                                 :label [:code ":disabled?"]
+                                                                                 :model disabled?
+                                                                                 :on-change (fn [val]
+                                                                                              (reset! disabled? val))]]])]]]]]]]]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

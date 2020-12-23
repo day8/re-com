@@ -70,6 +70,20 @@
                                                       [input-text
                                                        :model       ""
                                                        :placeholder "Example input #2"
+                                                       :on-change   #()]
+                                                      [gap :size "30px"]
+                                                      [h-box
+                                                       :gap      "4px"
+                                                       :children [[:span.field-label "disabled"]
+                                                                  [info-button
+                                                                   :position :right-center
+                                                                   :width    "370px"
+                                                                   :disabled? true
+                                                                   :info     info]]]
+                                                      [input-text
+                                                       :model       ""
+                                                       :placeholder "Example input #3"
+                                                       :disabled? true
                                                        :on-change   #()]]]]]]]]])))
 
 
