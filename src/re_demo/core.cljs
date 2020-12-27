@@ -83,6 +83,7 @@
    {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}
    {:id :popovers               :level :minor :label "Popover"            :panel popovers/panel}
    {:id :popover-reference      :level :minor :label "Popover Reference"  :panel popovers/arg-lists}
+   {:id :popover-component-hierarchy :level :minor :label "Popover Component Hierarchy" :panel popovers/popover-component-hierarchy}
    {:id :tour                   :level :minor :label "Tour"               :panel tour/panel}
 
    {:id :typography             :level :major :label "Typography"}

@@ -73,7 +73,10 @@
         code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
     [v-box
      :gap      "10px"
-     :children [[title2 "Advanced: Component hierarchy of a Popover"]
+     :children [[panel-title "Popover Component Hierarchy"
+                 "src/re_com/popover.cljs"
+                 "src/re_demo/popovers.cljs"]
+                [title2 "Advanced: Component hierarchy of a Popover"]
                 [p "Here is that simple example from above again. It should come in handy as you refer to the table below:"]
                 [simple-code-and-demo]
                 [p "A popover is made up of a number of sub-components.
@@ -115,7 +118,7 @@
                   [:tr
                    [:td border-style-nw (indent-text 4 "[backdrop]")]
                    [:td border-style-nw "rc-backdrop"]
-                   [:td border-style (code-text ":display \"block\"") (code-text ":position \"fixed\"") ]
+                   [:td border-style (code-text ":display \"block\"") (code-text ":position \"fixed\"")]
                    [:td border-style "The (semi-)transparent backdrop between the popover and the rest of the screen. Calls " (code-text ":on-cancel") " when backdrop is clicked. Optional based on " (code-text ":on-cancel") " arg being set."]]
                   [:tr
                    [:td border-style-nw (indent-text 4 "[popover-border]")]
@@ -213,7 +216,6 @@
                            :children [[title2 "Demo"]
                                       [see-demo-page]]]]]
               [line :style {:margin-top "20px"}]
-              [popover-component-hierarchy]
               [gap :size "30px"]]])
 
 (defn simple-popover-demo
