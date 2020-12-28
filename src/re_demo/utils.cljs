@@ -30,7 +30,7 @@
                                       :gap    "7px"
                                       :align  :center
                                       :children [
-                                                 [label :label "source:" ]
+                                                 [label :label "source:"]
                                                  [github-hyperlink "component" src1]
                                                  [label :label "|"  :style {:font-size "12px"}]
                                                  ;[line]

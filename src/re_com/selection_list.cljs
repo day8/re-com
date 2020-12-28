@@ -10,18 +10,18 @@
 ;; ----------------------------------------------------------------------------
 (defn label-style
   ([selected? as-exclusions?]
-    (label-style selected? as-exclusions? nil))
+   (label-style selected? as-exclusions? nil))
 
   ([selected? as-exclusions? selected-color]
     ;;TODO: margin-top required because currently checkbox & radio-button don't center label
-    (let [base-style {:margin-top "1px"}
+   (let [base-style {:margin-top "1px"}
           base-style (if (and selected? as-exclusions?)
                        (merge base-style {:text-decoration "line-through"})
                        base-style)
           base-style (if (and selected? selected-color)
                        (merge base-style {:color selected-color})
                        base-style)]
-          base-style)))
+     base-style)))
 
 
 (defn- check-clicked

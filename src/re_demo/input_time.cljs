@@ -2,6 +2,7 @@
   (:require [re-com.core       :refer [h-box v-box box gap input-time label title button checkbox p]]
             [re-com.input-time :refer [input-time-args-desc]]
             [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]
+            [re-com.util       :refer [px]]
             [reagent.core      :as    reagent]))
 
 
@@ -40,9 +41,9 @@
       [v-box
        :gap "10px"
        :children [[title2 "Demo"]
-                   [:p "There are two instances of this component below."]
-                   [:p "The first one is the default size."]
-                   [:p "The second one specifies " [:code ":style {:font-size \"11px\"}"] " to make a smaller version."]
+                  [:p "There are two instances of this component below."]
+                  [:p "The first one is the default size."]
+                  [:p "The second one specifies " [:code ":style {:font-size \"11px\"}"] " to make a smaller version."]
                   [gap :size "20px"]
                   [h-box
                    :children [[v-box
@@ -119,10 +120,10 @@
                            :width    "450px"
                            :children [[title2 "Notes"]
                                       [status-text "Stable"]
-                                       [p "Allows the user to input time in 24hr format."]
-                                       [p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
+                                      [p "Allows the user to input time in 24hr format."]
+                                      [p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
                                             Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
-                                       [p "If the user exits the input field with an invalid value, it will be replaced with the last known valid value."]
+                                      [p "If the user exits the input field with an invalid value, it will be replaced with the last known valid value."]
                                       [args-table input-time-args-desc]]]
                           [basics-demo]]]]])
 
@@ -131,3 +132,54 @@
 (defn panel
   []
   [panel2])
+
+(defn input-time-component-hierarchy
+  []
+  (let [indent          20
+        table-style     {:style {:border "2px solid lightgrey" :margin-right "10px"}}
+        border          {:border "1px solid lightgrey" :padding "6px 12px"}
+        border-style    {:style border}
+        border-style-nw {:style (merge border {:white-space "nowrap"})}
+        valign          {:vertical-align "top"}
+        valign-style    {:style valign}
+        valign-style-hd {:style (merge valign {:background-color "#e8e8e8"})}
+        indent-text     (fn [level text] [:span {:style {:padding-left (px (* level indent))}} text])
+        highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
+        code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
+    [v-box
+     :gap      "10px"
+     :children [[panel-title "Input Time Classes"
+                 "src/re_com/input_time.cljs"
+                 "src/re_demo/input_time.cljs"]
+                [title2 "Advanced: Component hierarchy of Input Time"]
+                [p "A time intput is made up of a number of sub-components.
+                The following table shows how these components are arranged (in the form of a component tree).
+                Those highlighted in blue are the public API components."]
+                [:table table-style
+                 [:thead valign-style-hd
+                  [:tr
+                   [:th border-style-nw "Component"]
+                   [:th border-style-nw "Naming class"]
+                   [:th border-style "Key inline styles"]
+                   [:th border-style "Notes"]]]
+                 [:tbody valign-style
+                  [:tr
+                   [:td border-style-nw (indent-text 0 (highlight-text "[input-time]"))]
+                   [:td border-style-nw "rc-input-time"]
+                   [:td border-style (code-text ":display \"flex\"") (code-text ":flex-flow \"row nowrap\"")]
+                   [:td border-style "Outer wrapper of the time input box and the icon (if enabled)."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 1 "[:input]")]
+                   [:td border-style-nw "time-entry"]
+                   [:td border-style "n/a"]
+                   [:td border-style "The input field for the time."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 1 "[:div]")]
+                   [:td border-style-nw "time-icon"]
+                   [:td border-style (code-text ":display \"flex\"") (code-text ":padding \"0 0.3em\"")]
+                   [:td border-style "The container for the time icon."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 2 "[:i]")]
+                   [:td border-style-nw "zmdi zmdi-hc-fw-rc zmdi-time"]
+                   [:td border-style (code-text ":position \"static\"") (code-text ":margin \"auto\"")]
+                   [:td border-style [:span "The time icon if " (code-text ":show-icon?") " argument of " (code-text "[input-time]") " is true."]]]]]]]))

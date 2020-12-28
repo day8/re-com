@@ -38,14 +38,14 @@
 (defn extract-arg-data
   "Package up all the relevant data for validation purposes from the xxx-args-desc map into a new map"
   [args-desc]
-    {:arg-names      (set (map :name args-desc))
-     :required-args  (->> args-desc
-                          (filter :required)
-                          (map :name)
-                          set)
-     :validated-args (->> (filter :validate-fn args-desc)
-                          vec
-                          (hash-map-with-name-keys))})
+  {:arg-names      (set (map :name args-desc))
+   :required-args  (->> args-desc
+                        (filter :required)
+                        (map :name)
+                        set)
+   :validated-args (->> (filter :validate-fn args-desc)
+                        vec
+                        (hash-map-with-name-keys))})
 
 ;; ----------------------------------------------------------------------------
 ;; Primary validation functions
@@ -93,9 +93,9 @@
                                     (not required?))) true
                            (false? validate-result)  (log-error log-msg-base "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 60)) "'" comp-name)
                            (map?   validate-result)  ((if warning? log-warning log-error)
-                                                       log-msg-base
-                                                       (:message validate-result)
-                                                       (when warning? comp-name))
+                                                      log-msg-base
+                                                      (:message validate-result)
+                                                      (when warning? comp-name))
                            :else                      (log-error "Invalid return from validate-fn: " validate-result comp-name))))]
     (->> (select-keys args-with-validators (vec (keys passed-args)))
          (map validate-arg)
@@ -342,7 +342,7 @@
   ([attr]
    (let [attr (name attr)
          ext? #(and (= (.indexOf attr %) 0)
-                       (> (count attr) (count %)))]
+                    (> (count attr) (count %)))]
      (some (comp ext? #(str % "-") name) extension-attrs))))
 
 (defn invalid-html-attrs

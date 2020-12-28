@@ -81,15 +81,15 @@
     [:div
      [:hr {:style (merge (flex-child-style "none")
                          {:margin "10px 0px 10px"})}]
-      (when-not on-first-button
-        [button
-         :label    "Previous"
-         :on-click (handler-fn (prev-tour-step tour))
-         :style    {:margin-right "15px"}
-         :class     "btn-default"])
-      [button
-       :label    (if on-last-button "Finish" "Next")
-       :on-click (handler-fn (if on-last-button
-                               (finish-tour tour)
-                               (next-tour-step tour)))
-       :class     "btn-default"]]))
+     (when-not on-first-button
+       [button
+        :label    "Previous"
+        :on-click (handler-fn (prev-tour-step tour))
+        :style    {:margin-right "15px"}
+        :class     "btn-default rc-tour-btn-previous"])
+     [button
+      :label    (if on-last-button "Finish" "Next")
+      :on-click (handler-fn (if on-last-button
+                              (finish-tour tour)
+                              (next-tour-step tour)))
+      :class    (str "btn-default " (if on-last-button "rc-tour-btn-finish" "rc-tour-btn-next"))]]))

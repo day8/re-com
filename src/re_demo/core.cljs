@@ -72,6 +72,7 @@
    {:id :throbber               :level :minor :label "Throbber"           :panel throbber/panel}
    {:id :date                   :level :minor :label "Date Picker"        :panel datepicker/panel}
    {:id :time                   :level :minor :label "Input Time"         :panel input-time/panel}
+   {:id :time-classes           :level :minor :label "Input Time Classes" :panel input-time/input-time-component-hierarchy}
 
    {:id :selection              :level :major :label "Selection"}
    {:id :dropdown               :level :minor :label "Dropdown"           :panel dropdowns/panel}
@@ -81,9 +82,10 @@
 
    {:id :layers                 :level :major :label "Layers"}
    {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}
+   {:id :modal-panel-classes    :level :minor :label "Modal Panel Classes" :panel modal-panel/modal-panel-component-hierarchy}
    {:id :popovers               :level :minor :label "Popover"            :panel popovers/panel}
    {:id :popover-reference      :level :minor :label "Popover Reference"  :panel popovers/arg-lists}
-   {:id :popover-component-hierarchy :level :minor :label "Popover Component Hierarchy" :panel popovers/popover-component-hierarchy}
+   {:id :popover-classes        :level :minor :label "Popover Classes"    :panel popovers/popover-component-hierarchy}
    {:id :tour                   :level :minor :label "Tour"               :panel tour/panel}
 
    {:id :typography             :level :major :label "Typography"}
@@ -136,12 +138,11 @@
 
 (defn left-side-nav-bar
   [selected-tab-id on-select-tab]
-    [v-box
-     :class    "noselect"
-     :style    {:background-color "#fcfcfc"}
-     ;:size    "1"
-     :children (for [tab tabs-definition]
-                 [nav-item tab selected-tab-id on-select-tab])])
+  [v-box
+   :class    "noselect"
+   :style    {:background-color "#fcfcfc"}
+   :children (for [tab tabs-definition]
+               [nav-item tab selected-tab-id on-select-tab])])
 
 
 (defn re-com-title-box

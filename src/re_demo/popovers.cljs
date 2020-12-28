@@ -77,7 +77,7 @@
                  "src/re_com/popover.cljs"
                  "src/re_demo/popovers.cljs"]
                 [title2 "Advanced: Component hierarchy of a Popover"]
-                [p "Here is that simple example from above again. It should come in handy as you refer to the table below:"]
+                [p "Here is that simple example again. It should come in handy as you refer to the table below:"]
                 [simple-code-and-demo]
                 [p "A popover is made up of a number of sub-components.
                 The following table shows how these components are arranged (in the form of a component tree).

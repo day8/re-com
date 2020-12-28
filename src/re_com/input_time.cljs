@@ -135,7 +135,7 @@
    {:name :width        :required false                  :type "string"                  :validate-fn string?           :description "standard CSS width setting for width of the input box (excluding the icon if present)"}
    {:name :height       :required false                  :type "string"                  :validate-fn string?           :description "standard CSS height setting"}
    {:name :class        :required false                  :type "string"                  :validate-fn string?           :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
-   {:name :style        :required false                  :type "CSS style map"           :validate-fn css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"} (applies to the textbox, not the wrapping div)" }
+   {:name :style        :required false                  :type "CSS style map"           :validate-fn css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"} (applies to the textbox, not the wrapping div)"}
    {:name :attr         :required false                  :type "HTML attr map"           :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}])
 
 (defn input-time

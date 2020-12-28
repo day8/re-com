@@ -2,6 +2,7 @@
   (:require [re-com.core        :refer [h-box v-box box gap line border title label modal-panel progress-bar input-text checkbox button p]]
             [re-com.modal-panel :refer [modal-panel-args-desc]]
             [re-demo.utils      :refer [panel-title title2 args-table github-hyperlink status-text]]
+            [re-com.util        :refer [px]]
             [reagent.core       :as    reagent]))
 
 
@@ -129,6 +130,56 @@
                                                       process-ok
                                                       process-cancel]])]])))
 
+(defn modal-panel-component-hierarchy
+  []
+  (let [indent          20
+        table-style     {:style {:border "2px solid lightgrey" :margin-right "10px"}}
+        border          {:border "1px solid lightgrey" :padding "6px 12px"}
+        border-style    {:style border}
+        border-style-nw {:style (merge border {:white-space "nowrap"})}
+        valign          {:vertical-align "top"}
+        valign-style    {:style valign}
+        valign-style-hd {:style (merge valign {:background-color "#e8e8e8"})}
+        indent-text     (fn [level text] [:span {:style {:padding-left (px (* level indent))}} text])
+        highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
+        code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
+    [v-box
+     :gap      "10px"
+     :children [[panel-title "Modal Panel Classes"
+                 "src/re_com/modal_panel.cljs"
+                 "src/re_demo/modal_panel.cljs"]
+                [title2 "Advanced: Component hierarchy of a Modal Panel"]
+                [p "A modal panel is made up of a number of sub-components.
+                The following table shows how these components are arranged (in the form of a component tree).
+                Those highlighted in blue are the public API components."]
+                [:table table-style
+                 [:thead valign-style-hd
+                  [:tr
+                   [:th border-style-nw "Component"]
+                   [:th border-style-nw "Naming class"]
+                   [:th border-style "Key inline styles"]
+                   [:th border-style "Notes"]]]
+                 [:tbody valign-style
+                  [:tr
+                   [:td border-style-nw (indent-text 0 (highlight-text "[modal-panel]"))]
+                   [:td border-style-nw "rc-modal-panel"]
+                   [:td border-style (code-text ":display \"flex\"") (code-text ":position \"fixed\"")]
+                   [:td border-style "Outer wrapper of the modal panel, backdrop, everything."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 1 "[:div]")]
+                   [:td border-style-nw "rc-modal-panel-backdrop"]
+                   [:td border-style (code-text ":position \"fixed\"") (code-text ":width \"100%\"") (code-text ":height \"100%\"")]
+                   [:td border-style "Semi-transparent backdrop, which prevents other user interaction."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 1 "[:div]")]
+                   [:td border-style-nw "rc-modal-panel-container"]
+                   [:td border-style (code-text ":margin \"auto\"") (code-text ":z-index 2")]
+                   [:td border-style "The container for the " (code-text ":child") " component."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 2 (highlight-text ":modal-panel arg [child]"))]
+                   [:td border-style-nw "n/a"]
+                   [:td border-style "n/a"]
+                   [:td border-style [:span "The " (code-text ":child") " argument of " (code-text "[modal-panel]") " is placed here."]]]]]]]))
 
 (defn panel2
   []
@@ -146,11 +197,11 @@
                            :width    "450px"
                            :children [[title2 "Notes"]
                                       [status-text "Stable"]
-                                       [p "Displays a " [:code ":child"] " component centered with a semi-transparent
+                                      [p "Displays a " [:code ":child"] " component centered with a semi-transparent
                                        backdrop, which prevents other user interaction."]
-                                       [p "Good for showing progress of long running operations and gathering user
+                                      [p "Good for showing progress of long running operations and gathering user
                                        input via modal dialogs."]
-                                       [p "Warning: This component should be placed at the end of surrounding markup
+                                      [p "Warning: This component should be placed at the end of surrounding markup
                                        to ensure the backdrop covers everything. Otherwise, in certain cases,
                                        absolutely positioned components added to the DOM after this component can
                                        appear above the backdrop."]

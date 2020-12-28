@@ -262,10 +262,9 @@
     :max-width (when-not width "10em")
     :width     width
     :children  [[:label {:class "form-control dropdown-button"}
-                 (cond (not (date-like?
-                         (deref-or-value model))) [:span {:style {:color "#bbb"}} placeholder]
-                       goog?                      (.format (DateTimeFormat. (if (seq format) format date-format-str)) (deref-or-value model))
-                       :else                      (unparse (if (seq format) (formatter format) date-format) (deref-or-value model)))]
+                 (cond (not (date-like? (deref-or-value model))) [:span {:style {:color "#bbb"}} placeholder]
+                       goog?                                     (.format (DateTimeFormat. (if (seq format) format date-format-str)) (deref-or-value model))
+                       :else                                     (unparse (if (seq format) (formatter format) date-format) (deref-or-value model)))]
                 [:span
                  {:class (str "dropdown-button activator input-group-addon" (when (deref-or-value disabled?) " dropdown-button-disabled"))
                   :style {:padding "3px 0px 0px 0px"}}

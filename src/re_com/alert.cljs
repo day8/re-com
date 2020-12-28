@@ -48,6 +48,7 @@
         :justify  :between
         :align    :center
         :style    {:margin-bottom (if body "10px" "0px")}
+        :class    "rc-alert-heading"
         :children [[:h4
                     {:style {:margin-bottom "0px"}} ;; Override h4
                     heading]
@@ -57,6 +58,7 @@
        [h-box
         :justify  :between
         :align    :center
+        :class    "rc-alert-body"
         :children [[:div body]
                    (when (and (not heading) closeable? on-close)
                      close-alert)]])]))
