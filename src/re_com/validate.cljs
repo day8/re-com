@@ -374,6 +374,42 @@
                  {:status  (if (or contains-class? contains-style?) :error :warning)
                   :message result}))))))
 
+(defn parts?
+  "Returns a function that validates a value is a map that contains `keys` mapped to values that are maps containing
+   `class`, `:style` and/or `:attr`."
+  [keys]
+  {:pre [(set? keys)]}
+  (fn [arg]
+    (if-not ^boolean js/goog.DEBUG
+      true
+      (reduce-kv
+        (fn [_ k v]
+          (if-not (keys k)
+            (reduced {:status  :error
+                      :message (str k " not allowed in :parts argument")})
+            (reduce-kv
+              (fn [_ k2 v2]
+                (case k2
+                  :class (if-not (string? v2)
+                           (reduced {:status :error
+                                     :message (str ":parts [" k " " k2 "] argument must be a string")})
+                           true)
+                  :style (let [valid? (css-style? v2)]
+                           (if-not (true? valid?)
+                             (reduced valid?)
+                             true))
+                  :attr  (let [valid? (html-attr? v2)]
+                           (if-not (true? valid?)
+                             (reduced valid?)
+                             true))
+                  (reduced {:status :error
+                            :message (str k2 " not allowed in [:parts " k "] argument")})))
+              true
+              v)))
+        true
+        arg))))
+
+
 (defn date-like?
   "Returns true if arg satisfies cljs-time.core/DateTimeProtocol typically goog.date.UtcDateTime or goog.date.Date,
    otherwise false/error."

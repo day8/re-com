@@ -1,14 +1,15 @@
 (ns re-com.datepicker
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
-    [reagent.core         :as    reagent]
-    [cljs-time.core       :refer [now today minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
-    [re-com.validate      :refer [date-like? css-style? html-attr?] :refer-macros [validate-args-macro]]
+    [reagent.core :as reagent]
+    [cljs-time.core :refer [now today minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
+    [re-com.validate :refer [date-like? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
-    [cljs-time.format     :refer [parse unparse formatters formatter]]
-    [re-com.box           :refer [border h-box flex-child-style]]
-    [re-com.util          :refer [deref-or-value now->utc]]
-    [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]])
+    [cljs-time.format :refer [parse unparse formatters formatter]]
+    [re-com.box :refer [border h-box flex-child-style]]
+    [re-com.util :refer [deref-or-value now->utc]]
+    [re-com.popover :refer [popover-anchor-wrapper popover-content-wrapper]]
+    [clojure.string :as string])
   (:import
     [goog.i18n DateTimeFormat]))
 
@@ -92,22 +93,25 @@
 
 
 (defn- main-div-with
-  [table-div hide-border? class style attr]
-  ;;extra h-box is currently necessary so that calendar & border do not strecth to width of any containing v-box
+  [table-div hide-border? class style attr parts]
+  ;;extra h-box is currently necessary so that calendar & border do not stretch to width of any containing v-box
   [h-box
    :class    "rc-datepicker-wrapper"
    :children [[border
+               :class  (str "rc-datepicker-border " (get-in parts [:border :class]))
+               :style  (get-in parts [:border :style] {})
+               :attr   (get-in parts [:border :attr] {})
                :radius "4px"
                :size   "none"
                :border (when hide-border? "none")
                :child  [:div
                         (merge
-                          {:class (str "rc-datepicker datepicker noselect " class)
-                           ;; override inherrited body larger 14px font-size
+                          {:class (str "datepicker noselect rc-datepicker " class)
+                           ;; override inherited body larger 14px font-size
                            ;; override position from css because we are inline
                            :style (merge {:font-size "13px"
                                           :position  "static"}
-                                          style)}
+                                         style)}
                           attr)
                         table-div]]]])
 
@@ -115,7 +119,7 @@
 (defn- table-thead
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
   [display-month {show-weeks? :show-weeks? minimum :minimum maximum :maximum start-of-week :start-of-week
-                  {:keys [days months]} :i18n}]
+                  {:keys [days months]} :i18n} parts]
   (let [prev-date     (dec-month @display-month)
         minimum       (deref-or-value minimum)
         maximum       (deref-or-value maximum)
@@ -124,21 +128,52 @@
         next-enabled? (if maximum (before? next-date maximum) true)
         template-row  (if show-weeks? [:tr [:th]] [:tr])]
     [:thead
+     (merge
+       {:class (str "rc-datepicker-header " (get-in parts [:header :class]))
+        :style (get-in parts [:header :style] {})}
+       (get-in parts [:header :attr]))
      (conj template-row
-           [:th {:class (str "prev " (if prev-enabled? "available selectable" "disabled"))
-                 :style {:padding "0px"}
-                 :on-click (handler-fn (when prev-enabled? (reset! display-month prev-date)))}
-            [:i.zmdi.zmdi-chevron-left
-             {:style {:font-size "24px"}}]]
-           [:th {:class "month" :col-span "5"} (month-label @display-month months)]
-           [:th {:class (str "next " (if next-enabled? "available selectable" "disabled"))
-                 :style {:padding "0px"}
-                 :on-click (handler-fn (when next-enabled? (reset! display-month next-date)))}
-            [:i.zmdi.zmdi-chevron-right
-             {:style {:font-size "24px"}}]])
+           [:th (merge
+                  {:class    (str "prev " (if prev-enabled? "available selectable " "disabled ") "rc-datepicker-prev " (get-in parts [:prev :class]))
+                   :style    (merge {:padding "0px"}
+                                  (get-in parts [:prev :style]))
+                   :on-click (handler-fn (when prev-enabled? (reset! display-month prev-date)))}
+                  (get-in parts [:prev :attr]))
+            [:i
+             (merge
+               {:class (str "zmdi zmdi-chevron-left rc-datepicker-prev-icon " (get-in parts [:prev-icon :class]))
+                :style (merge {:font-size "24px"}
+                              (get-in parts [:prev-icon :style]))}
+               (get-in parts [:prev-icon :attr]))]]
+           [:th
+            (merge
+              {:class    (str "month rc-datepicker-month " (get-in parts [:month :class]))
+               :style    (get-in parts [:month :style] {})
+               :col-span "5"}
+              (get-in parts [:month :attr]))
+            (month-label @display-month months)]
+           [:th
+            (merge
+              {:class    (str "next " (if next-enabled? "available selectable " "disabled ") "rc-datepicker-next " (get-in parts [:next :class]))
+               :style    (merge {:padding "0px"}
+                                (get-in parts [:next :style]))
+               :on-click (handler-fn (when next-enabled? (reset! display-month next-date)))}
+              (get-in parts [:next :attr]))
+            [:i
+             (merge
+               {:class (str "zmdi zmdi-chevron-right rc-datepicker-next-icon " (get-in parts [:next-icon :class]))
+                :style (merge {:font-size "24px"}
+                              (get-in parts [:next-icon :style]))}
+               (get-in parts [:next-icon :attr]))]])
      (conj template-row
            (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
-             ^{:key (:key day)} [:th {:class "day-enabled"} (str (:name day))]))]))
+             ^{:key (:key day)}
+             [:th
+              (merge
+                {:class (str "day-enabled rc-datepicker-day rc-datepicker-day-" (string/lower-case (:name day)) " " (get-in parts [:day :class]))
+                 :style (get-in parts [:day :style] {})}
+                (get-in parts [:day :attr]))
+              (str (:name day))]))]))
 
 
 (defn- selection-changed
@@ -147,7 +182,7 @@
 
 
 (defn- table-td
-  [date focus-month selected today {minimum :minimum maximum :maximum :as attributes} disabled? on-change]
+  [date focus-month selected today {minimum :minimum maximum :maximum :as attributes} disabled? on-change parts]
   ;;following can be simplified and terse
   (let [minimum       (deref-or-value minimum)
         maximum       (deref-or-value maximum)
@@ -161,12 +196,17 @@
                             disabled-day?                "off"
                             (= focus-month (month date)) "available"
                             :else                        "available off")
-        classes       (cond (and selected (=date selected date)) (str classes " active start-date end-date")
-                            (and today (=date date today))       (str classes " today")
-                            :else                                classes)
+        classes       (cond (and selected (=date selected date)) (str classes " active start-date end-date ")
+                            (and today (=date date today))       (str classes " today ")
+                            :else                                (str classes " "))
         on-click      #(when-not (or disabled? disabled-day?) (selection-changed date on-change))]
-    [:td {:class    classes
-          :on-click (handler-fn (on-click))} (day date)]))
+    [:td
+     (merge
+       {:class    (str classes "rc-datepicker-date " (get-in parts [:date :class]))
+        :style    (get-in parts [:date :style] {})
+        :on-click (handler-fn (on-click))}
+       (get-in parts [:date :attr]))
+     (day date)]))
 
 
 (defn- week-td [date]
@@ -175,22 +215,27 @@
 
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive"
-  [date focus-month selected attributes disabled? on-change]
+  [date focus-month selected attributes disabled? on-change parts]
 ;  {:pre [(sunday? date)]}
   (let [table-row (if (:show-weeks? attributes) [:tr (week-td date)] [:tr])
         row-dates (map #(inc-date date %) (range 7))
         today     (when (:show-today? attributes) (now->utc))]
-    (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change) row-dates))))
+    (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change parts) row-dates))))
 
 
 (defn- table-tbody
   "Return matrix of 6 rows x 7 cols table cells representing 41 days from start-date inclusive"
-  [display-month selected attributes disabled? on-change]
+  [display-month selected attributes disabled? on-change parts]
   (let [start-of-week   (:start-of-week attributes)
         current-start   (previous (is-day-pred start-of-week) display-month)
         focus-month     (month display-month)
         row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
-    (into [:tbody] (map #(table-tr % focus-month selected attributes disabled? on-change) row-start-dates))))
+    (into [:tbody
+           (merge
+             {:class (str "rc-datepicker-dates " (get-in parts [:dates :class]))
+              :style (get-in parts [:dates :style])}
+             (get-in parts [:dates :attr]))]
+          (map #(table-tr % focus-month selected attributes disabled? on-change parts) row-start-dates))))
 
 
 (defn- configure
@@ -216,7 +261,8 @@
    {:name :i18n           :required false                               :type "map"                                                         :description [:span "internationalization map with optional keys " [:code ":days"] " and " [:code ":months"] " (both vectors of strings)"]}
    {:name :class          :required false                               :type "string"                             :validate-fn string?     :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
    {:name :style          :required false                               :type "CSS style map"                      :validate-fn css-style?  :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
-   {:name :attr           :required false                               :type "HTML attr map"                      :validate-fn html-attr?  :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] " allowed (applies to the outer border div, not the wrapping div)"]}])
+   {:name :attr           :required false                               :type "HTML attr map"                      :validate-fn html-attr?  :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] " allowed (applies to the outer border div, not the wrapping div)"]}
+   {:name :parts          :required false                               :type "map"                                :validate-fn (parts? #{:wrapper :border :table :header :prev :prev-icon :month :next :next-icon :day :dates :date}) :description "See Parts section below."}])
 
 (defn datepicker
   [& {:keys [model] :as args}]
@@ -225,7 +271,7 @@
         internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
         display-month  (reagent/atom (first-day-of-the-month (or @internal-model (now->utc))))]
     (fn datepicker-component
-      [& {:keys [model on-change disabled? start-of-week hide-border? class style attr]
+      [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts]
           :or   {start-of-week 6} ;; Default to Sunday
           :as   args}]
       {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
@@ -238,13 +284,18 @@
           (reset! internal-model latest-ext-model)
           (reset! display-month  (first-day-of-the-month (or @internal-model (now->utc)))))
         [main-div-with
-         [:table {:class "table-condensed"}
-          [table-thead display-month configuration]
-          [table-tbody @display-month @internal-model configuration disabled? on-change]]
+         [:table
+          (merge
+            {:class (str "table-condensed rc-datepicker-table " (get-in parts [:table :class]))
+             :style (get-in parts [:table :style] {})}
+            (get-in parts [:table :attr]))
+          [table-thead display-month configuration parts]
+          [table-tbody @display-month @internal-model configuration disabled? on-change parts]]
          hide-border?
          class
          style
-         attr]))))
+         attr
+         parts]))))
 
 
 (defn- anchor-button

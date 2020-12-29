@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value px]]
             [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
-                                     string-or-hiccup? css-style? html-attr? string-or-atom?] :refer-macros [validate-args-macro]]
+                                     string-or-hiccup? css-style? html-attr? string-or-atom? parts?] :refer-macros [validate-args-macro]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
             [reagent.core    :as    reagent]))
@@ -19,14 +19,15 @@
    {:name :disabled?        :required false :default false         :type "boolean | atom"                                 :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
    {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles (applies to the button, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}])
+   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+   {:name :parts            :required false                        :type "map"             :validate-fn (parts? #{:wrapper :tooltip}) :description "See Parts section below."}])
 
 (defn button
   "Returns the markup for a basic button"
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr]
+      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts]
           :or   {class "btn-default"}
           :as   args}]
       {:pre [(validate-args-macro button-args-desc args "button")]}
@@ -50,14 +51,19 @@
         (when disabled?
           (reset! showing? false))
         [box
-         :class "rc-button-wrapper display-inline-flex"
+         :class (str "rc-button-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
+         :style (get-in parts [:wrapper :style] {})
+         :attr  (get-in parts [:wrapper :attr] {})
          :align :start
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
                    :position (or tooltip-position :below-center)
                    :showing? showing?
-                   :anchor   the-button]
+                   :anchor   the-button
+                   :class    (str "rc-button-tooltip " (get-in parts [:tooltip :class]))
+                   :style    (get-in parts [:tooltip :style] {})
+                   :attr     (get-in parts [:tooltip :attr] {})]
                   the-button)]))))
 
 
@@ -75,14 +81,15 @@
    {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
    {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}])
+   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+   {:name :parts            :required false                        :type "map"             :validate-fn (parts? #{:wrapper :tooltip :icon}) :description "See Parts section below."}])
 
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
+      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr parts]
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro md-circle-icon-button-args-desc args "md-circle-icon-button")]}
@@ -90,7 +97,7 @@
       (let [the-button [:div
                         (merge
                           {:class    (str
-                                       "rc-md-circle-icon-button noselect "
+                                       "noselect rc-md-circle-icon-button "
                                        (case size
                                          :smaller "rc-circle-smaller "
                                          :larger "rc-circle-larger "
@@ -108,16 +115,25 @@
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
-                        [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
+                        [:i
+                         (merge
+                           {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-md-circle-icon-button-icon " (get-in parts [:icon :class]))
+                            :style (get-in parts [:icon :style] {})}
+                           (get-in parts [:icon :attr]))]]]
         [box
-         :class "rc-md-circle-icon-button-wrapper display-inline-flex"
          :align :start
+         :class (str "display-inline-flex rc-md-circle-icon-button-wrapper " (get-in parts [:wrapper :class]))
+         :style (get-in parts [:wrapper :style] {})
+         :attr  (get-in parts [:wrapper :attr] {})
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
                    :position (or tooltip-position :below-center)
                    :showing? showing?
-                   :anchor   the-button]
+                   :anchor   the-button
+                   :class    (str "rc-md-circle-icon-button-tooltip " (get-in parts [:tooltip :class]))
+                   :style    (get-in parts [:tooltip :style] {})
+                   :attr     (get-in parts [:tooltip :attr] {})]
                   the-button)]))))
 
 
@@ -135,14 +151,15 @@
    {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
    {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}])
+   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+   {:name :parts            :required false                        :type "map"             :validate-fn (parts? #{:wrapper :tooltip :icon}) :description "See Parts section below."}])
 
 (defn md-icon-button
   "a square button containing a material design icon"
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr]
+      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr parts]
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro md-icon-button-args-desc args "md-icon-button")]}
@@ -150,7 +167,7 @@
       (let [the-button [:div
                         (merge
                           {:class    (str
-                                       "rc-md-icon-button noselect "
+                                       "noselect rc-md-icon-button "
                                        (case size
                                          :smaller "rc-icon-smaller "
                                          :larger "rc-icon-larger "
@@ -168,16 +185,25 @@
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))})
                           attr)
-                        [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
+                        [:i
+                         (merge
+                           {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-md-icon-button-icon " (get-in parts [:icon :class]))
+                            :style (get-in parts [:icon :style] {})}
+                           (get-in parts [:icon :attr]))]]]
         [box
-         :class "rc-md-icon-button-wrapper display-inline-flex"
          :align :start
+         :class (str "display-inline-flex rc-md-icon-button-wrapper " (get-in parts [:wrapper :class]))
+         :style (get-in parts [:wrapper :style] {})
+         :attr  (get-in parts [:wrapper :attr] {})
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
                    :position (or tooltip-position :below-center)
                    :showing? showing?
-                   :anchor   the-button]
+                   :anchor   the-button
+                   :class    (str "rc-md-icon-button-tooltip " (get-in parts [:tooltip :class]))
+                   :style    (get-in parts [:tooltip :style] {})
+                   :attr     (get-in parts [:tooltip :attr] {})]
                   the-button)]))))
 
 
@@ -192,17 +218,18 @@
    {:name :disabled? :required false :default false       :type "boolean"                                        :description "if true, the user can't click the button"}
    {:name :class    :required false                       :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the popover wrapper)"}
    {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the popover wrapper)"}
-   {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the popover wrapper)"]}])
+   {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the popover wrapper)"]}
+   {:name :parts    :required false                       :type "map"             :validate-fn (parts? #{:tooltip :icon})        :description "See Parts section below."}])
 
 (defn info-button
-  "A tiny light grey button, with an 'i' in it. Meant to be unobrusive.
-  When pressed, displays a popup assumidly containing helpful information.
+  "A tiny light grey button, with an 'i' in it. Meant to be unobtrusive.
+  When pressed, displays a popup assumedly containing helpful information.
   Primarily designed to be nestled against the label of an input field, explaining the purpose of that field.
   Create a very small \"i\" icon via SVG"
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [info position width disabled? class style attr] :as args}]
+      [& {:keys [info position width disabled? class style attr parts] :as args}]
       {:pre [(validate-args-macro info-button-args-desc args "info-button")]}
       [popover-tooltip
        :label     info
@@ -211,9 +238,12 @@
        :width     (or width "250px")
        :showing?  showing?
        :on-cancel #(swap! showing? not)
+       :class     (str "rc-info-button-popover-anchor-wrapper " (get-in parts [:tooltip :class]))
+       :style     (get-in parts [:tooltip :style] {})
+       :attr      (get-in parts [:tooltip :attr] {})
        :anchor    [:div
                    (merge
-                     {:class    (str "rc-info-button noselect "
+                     {:class    (str "noselect rc-info-button "
                                      (when disabled? "rc-icon-disabled ")
                                      class)
                       :style    (merge
@@ -223,7 +253,13 @@
                                   (when (not disabled?)
                                     (swap! showing? not)))}
                      attr)
-                   [:svg {:width "11" :height "11"}
+                   [:svg
+                    (merge
+                      {:width  "11"
+                       :height "11"
+                       :class  (str "rc-info-button-icon " (get-in parts [:icon :class]))
+                       :style  (get-in parts [:icon :style] {})}
+                      (get-in parts [:icon :attr]))
                     [:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
                     [:circle {:cx "5.5" :cy "2.5" :r "1.4" :fill "white"}]
                     [:line   {:x1 "5.5" :y1 "5.2" :x2 "5.5" :y2 "9.7" :stroke "white" :stroke-width "2.5"}]]]])))
@@ -242,14 +278,15 @@
    {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
    {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}])
+   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+   {:name :parts            :required false                        :type "map"             :validate-fn (parts? #{:wrapper :tooltip :icon}) :description "See Parts section below."}])
 
 (defn row-button
   "a small button containing a material design icon"
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [md-icon-name on-click mouse-over-row? tooltip tooltip-position disabled? class style attr]
+      [& {:keys [md-icon-name on-click mouse-over-row? tooltip tooltip-position disabled? class style attr parts]
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       {:pre [(validate-args-macro row-button-args-desc args "row-button")]}
@@ -257,7 +294,7 @@
       (let [the-button [:div
                         (merge
                           {:class    (str
-                                       "rc-row-button noselect "
+                                       "noselect rc-row-button "
                                        (when mouse-over-row? "rc-row-mouse-over-row ")
                                        (when disabled? "rc-row-disabled ")
                                        class)
@@ -269,16 +306,25 @@
                             {:on-mouse-over (handler-fn (reset! showing? true))
                              :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
                           attr)
-                        [:i {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name)}]]]
+                        [:i
+                         (merge
+                           {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-row-button-icon " (get-in parts [:icon :class]))
+                            :style (get-in parts [:icon :style] {})}
+                           (get-in parts [:icon :attr]))]]]
         [box
-         :class "rc-row-button-wrapper display-inline-flex"
          :align :start
+         :class (str "display-inline-flex rc-row-button-wrapper " (get-in parts [:wrapper :class]))
+         :style (get-in parts [:wrapper :style] {})
+         :attr  (get-in parts [:wrapper :attr] {})
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
                    :position (or tooltip-position :below-center)
                    :showing? showing?
-                   :anchor   the-button]
+                   :anchor   the-button
+                   :class    (str "rc-row-button-tooltip " (get-in parts [:tooltip :class]))
+                   :style    (get-in parts [:tooltip :style])
+                   :attr     (get-in parts [:tooltip :attr])]
                   the-button)]))))
 
 
@@ -294,7 +340,8 @@
    {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
    {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}])
+   {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
+   {:name :parts            :required false                        :type "map"                    :validate-fn (parts? #{:wrapper :container :tooltip}) :description "See Parts section below."}])
 
 (defn hyperlink
   "Renders an underlined text hyperlink component.
@@ -303,16 +350,17 @@
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr] :as args}]
+      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts] :as args}]
       {:pre [(validate-args-macro hyperlink-args-desc args "hyperlink")]}
       (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [label      (deref-or-value label)
             disabled?  (deref-or-value disabled?)
             the-button [box
                         :align :start
+                        :class (str "rc-hyperlink-container " (get-in parts [:container :class]))
                         :child [:a
                                 (merge
-                                  {:class    (str "rc-hyperlink noselect " class)
+                                  {:class    (str "noselect rc-hyperlink " class)
                                    :style    (merge
                                                (flex-child-style "none")
                                                {:cursor (if disabled? "default" "pointer")
@@ -328,14 +376,19 @@
                                   attr)
                                 label]]]
         [box
-         :class "rc-hyperlink-wrapper display-inline-flex"
          :align :start
+         :class (str "display-inline-flex rc-hyperlink-wrapper " (get-in parts [:wrapper :class]))
+         :style (get-in parts [:wrapper :style] {})
+         :attr  (get-in parts [:wrapper :attr] {})
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
                    :position (or tooltip-position :below-center)
                    :showing? showing?
-                   :anchor   the-button]
+                   :anchor   the-button
+                   :class    (str "rc-hyperlink-tooltip " (get-in parts [:tooltip :class]))
+                   :style    (get-in parts [:tooltip :style] {})
+                   :attr     (get-in parts [:tooltip :attr] {})]
                   the-button)]))))
 
 
@@ -352,7 +405,8 @@
    {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}
    {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
    {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}])
+   {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
+   {:name :parts            :required false                        :type "map"                    :validate-fn (parts? #{:wrapper :tooltip}) :description "See Parts section below."}])
 
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.
@@ -361,7 +415,7 @@
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [label href target tooltip tooltip-position disabled? class style attr] :as args}]
+      [& {:keys [label href target tooltip tooltip-position disabled? class style attr parts] :as args}]
       {:pre [(validate-args-macro hyperlink-href-args-desc args "hyperlink-href")]}
       (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [label      (deref-or-value label)
@@ -390,12 +444,17 @@
                         label]]
 
         [box
-         :class "rc-hyperlink-href-wrapper display-inline-flex"
          :align :start
+         :class (str "rc-hyperlink-href-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
+         :style (get-in parts [:wrapper :style] {})
+         :attr  (get-in parts [:wrapper :attr] {})
          :child (if tooltip
                   [popover-tooltip
                    :label    tooltip
                    :position (or tooltip-position :below-center)
                    :showing? showing?
-                   :anchor   the-button]
+                   :anchor   the-button
+                   :class    (str "rc-hyperlink-href-tooltip " (get-in parts [:tooltip :class]))
+                   :style    (get-in parts [:tooltip :style] {})
+                   :attr     (get-in parts [:tooltip :attr] {})]
                   the-button)]))))

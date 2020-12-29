@@ -1,7 +1,7 @@
 (ns re-com.input-time
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [reagent.core    :as    reagent]
-            [re-com.validate :refer [css-style? html-attr? number-or-string?] :refer-macros [validate-args-macro]]
+            [re-com.validate :refer [css-style? html-attr? parts? number-or-string?] :refer-macros [validate-args-macro]]
             [re-com.text     :refer [label]]
             [re-com.box      :refer [h-box gap]]
             [re-com.util     :refer [pad-zero-number deref-or-value]]))
@@ -136,7 +136,8 @@
    {:name :height       :required false                  :type "string"                  :validate-fn string?           :description "standard CSS height setting"}
    {:name :class        :required false                  :type "string"                  :validate-fn string?           :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
    {:name :style        :required false                  :type "CSS style map"           :validate-fn css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"} (applies to the textbox, not the wrapping div)"}
-   {:name :attr         :required false                  :type "HTML attr map"           :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}])
+   {:name :attr         :required false                  :type "HTML attr map"           :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
+   {:name :parts        :required false                  :type "map"                     :validate-fn (parts? #{:wrapper :time-icon-container :time-icon}) :description "See Parts section below."}])
 
 (defn input-time
   "I return the markup for an input box which will accept and validate times.
@@ -149,7 +150,7 @@
         text-model     (reagent/atom (time->text deref-model))
         previous-model (reagent/atom deref-model)]
     (fn
-      [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr] :as args
+      [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts] :as args
           :or   {minimum 0 maximum 2359}}]
       {:pre [(validate-args-macro input-time-args-desc args "input-time")
              (validate-arg-times (deref-or-value model) minimum maximum)]}
@@ -165,12 +166,15 @@
           (reset! previous-model new-val))
 
         [h-box
-         :class    "rc-input-time"
-         :style    {:height height}
+         :class    (str "rc-input-time " (get-in parts [:wrapper :class]))
+         :style    (merge {:height height}
+                          (get-in parts [:wrapper :style]))
+         :attr     (get-in parts [:wrapper :attr] {})
          :children [[:input
                      (merge
                        {:type      "text"
-                        :class     (str "time-entry " class)
+                        ;; Leaving time-entry class (below) for backwards compatibility only.
+                        :class     (str "time-entry rc-time-entry " class)
                         :style     (merge {:width width}
                                           style)
                         :value     @text-model
@@ -180,6 +184,16 @@
                         :on-key-up (handler-fn (lose-focus-if-enter event))}
                        attr)]
                     (when show-icon?
-                      [:div.time-icon
-                       [:i.zmdi.zmdi-hc-fw-rc.zmdi-time
-                        {:style {:position "static" :margin "auto"}}]])]]))))
+                      ;; Leaving time-icon class (below) for backwards compatibility only.
+                      [:div
+                       (merge
+                         {:class (str "time-icon rc-time-icon-container " (get-in parts [:time-icon-container :class]))
+                          :style (get-in parts [:time-icon-container :style] {})}
+                         (get-in parts [:time-icon-container :attr]))
+                       [:i
+                        (merge
+                          {:class (str "zmdi zmdi-hc-fw-rc zmdi-time rc-time-icon " (get-in parts [:time-icon :class]))
+                           :style (merge {:position "static"
+                                          :margin   "auto"}
+                                         (get-in parts [:time-icon :style]))}
+                          (get-in parts [:time-icon :attr]))]])]]))))

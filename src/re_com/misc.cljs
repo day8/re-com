@@ -3,7 +3,7 @@
   (:require [re-com.util     :refer [deref-or-value px]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-            [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr?
+            [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
                                      number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list] :refer-macros [validate-args-macro]]
             [reagent.core    :as    reagent]))
 
@@ -16,18 +16,28 @@
    {:name :color :required false :default "#999"   :type "string"        :validate-fn string?        :description "CSS color"}
    {:name :class :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated (applies to the throbber, not the wrapping div)"}
    {:name :style :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override (applies to the throbber, not the wrapping div)"}
-   {:name :attr  :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the throbber, not the wrapping div)"]}])
+   {:name :attr  :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the throbber, not the wrapping div)"]}
+   {:name :parts :required false                   :type "map"           :validate-fn (parts? #{:wrapper :segment}) :description "See Parts section below."}])
 
 (defn throbber
   "Render an animated throbber using CSS"
-  [& {:keys [size color class style attr] :as args}]
+  [& {:keys [size color class style attr parts] :as args}]
   {:pre [(validate-args-macro throbber-args-desc args "throbber")]}
-  (let [seg (fn [] [:li (when color {:style {:background-color color}})])]
+  (let [seg (fn []
+              [:li
+               (merge
+                 {:class (str "rc-throbber-segment " (get-in parts [:segment :class]))
+                  :style (merge
+                           (when color {:background-color color})
+                           (get-in parts [:segment :style]))}
+                 (get-in parts [:segment :attr]))])]
     [box
-     :class "rc-throbber-wrapper"
+     :class (str "rc-throbber-wrapper " (get-in parts [:wrapper :class]))
+     :style (get-in parts [:wrapper :style] {})
+     :attr  (get-in parts [:wrapper :attr] {})
      :align :start
      :child [:ul
-             (merge {:class (str "rc-throbber loader "
+             (merge {:class (str "loader rc-throbber "
                                  (case size :regular ""
                                             :smaller "smaller "
                                             :small "small "
@@ -61,6 +71,7 @@
    {:name :class            :required false                  :type "string"            :validate-fn string?                  :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
    {:name :style            :required false                  :type "CSS style map"     :validate-fn css-style?               :description "CSS styles to add or override (applies to the textbox, not the wrapping div)"}
    {:name :attr             :required false                  :type "HTML attr map"     :validate-fn html-attr?               :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
+   {:name :parts            :required false                  :type "map"               :validate-fn (parts? #{:wrapper :inner}) :description "See Parts section below."}
    {:name :input-type       :required false                  :type "keyword"           :validate-fn keyword?                 :description [:span "ONLY applies to super function 'base-input-text': either " [:code ":input"] ", " [:code ":password"] " or " [:code ":textarea"]]}])
 
 ;; Sample regex's:
@@ -77,7 +88,7 @@
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)
     (fn
-      [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr]
+      [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts]
           :or   {change-on-blur? true, on-alter identity}
           :as   args}]
       {:pre [(validate-args-macro input-text-args-desc args "input-text")]}
@@ -89,18 +100,24 @@
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model))
         [h-box
-         :class    "rc-input-text "
          :align    :start
+         :class    (str "rc-input-text " (get-in parts [:wrapper :class]))
+         :style    (get-in parts [:wrapper :style] {})
+         :attr     (get-in parts [:wrapper :attr] {})
          :width    (if width width "250px")
          :children [[:div
-                     {:class (str "rc-input-text-inner "          ;; form-group
-                                  (case status
-                                    :success "has-success "
-                                    :warning "has-warning "
-                                    :error "has-error "
-                                    "")
-                                  (when (and status status-icon?) "has-feedback"))
-                      :style (flex-child-style "auto")}
+                     (merge
+                       {:class (str "rc-input-text-inner "          ;; form-group
+                                    (case status
+                                      :success "has-success "
+                                      :warning "has-warning "
+                                      :error "has-error "
+                                      "")
+                                    (when (and status status-icon?) "has-feedback ")
+                                    (get-in parts [:inner :class]))
+                        :style (merge (flex-child-style "auto")
+                                      (get-in parts [:inner :style]))}
+                       (get-in parts [:inner :attr]))
                      [(if (= input-type :password) :input input-type)
                       (merge
                         {:class       (str "form-control " class)
@@ -210,12 +227,13 @@
    {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the label)"}
    {:name :class       :required false                :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the checkbox, not the wrapping div)"}
    {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the checkbox, not the wrapping div)"}
-   {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the checkbox, not the wrapping div)"]}])
+   {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the checkbox, not the wrapping div)"]}
+   {:name :parts       :required false                :type "map"              :validate-fn (parts? #{:wrapper}) :description "See Parts section below."}])
 
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox
   "I return the markup for a checkbox, with an optional RHS label"
-  [& {:keys [model on-change label disabled? label-class label-style class style attr]
+  [& {:keys [model on-change label disabled? label-class label-style class style attr parts]
       :as   args}]
   {:pre [(validate-args-macro checkbox-args-desc args "checkbox")]}
   (let [cursor      "default"
@@ -224,7 +242,9 @@
         callback-fn #(when (and on-change (not disabled?))
                       (on-change (not model)))]  ;; call on-change with either true or false
     [h-box
-     :class    "rc-checkbox-wrapper noselect"
+     :class    (str "noselect rc-checkbox-wrapper " (get-in parts [:wrapper :class]))
+     :style    (get-in parts [:wrapper :style] {})
+     :attr     (get-in parts [:wrapper :attr] {})
      :align    :start
      :children [[:input
                  (merge
@@ -239,7 +259,7 @@
                    attr)]
                 (when label
                   [:span
-                   {:class    label-class
+                   {:class    (str "rc-checkbox-label " label-class)
                     :style    (merge (flex-child-style "none")
                                      {:padding-left "8px"
                                       :cursor       cursor}
@@ -262,11 +282,12 @@
    {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the label)"}
    {:name :class       :required false                :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the radio-button, not the wrapping div)"}
    {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the radio-button, not the wrapping div)"}
-   {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the radio-button, not the wrapping div)"]}])
+   {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the radio-button, not the wrapping div)"]}
+   {:name :parts       :required false                :type "map"              :validate-fn (parts? #{:wrapper}) :description "See Parts section below."}])
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label"
-  [& {:keys [model value on-change label disabled? label-class label-style class style attr]
+  [& {:keys [model value on-change label disabled? label-class label-style class style attr parts]
       :as   args}]
   {:pre [(validate-args-macro radio-button-args-desc args "radio-button")]}
   (let [cursor      "default"
@@ -275,7 +296,9 @@
         callback-fn #(when (and on-change (not disabled?))
                       (on-change value))]  ;; call on-change with the :value arg
     [h-box
-     :class    "rc-radio-button-wrapper noselect"
+     :class    (str "noselect rc-radio-button-wrapper " (get-in parts [:wrapper :class]))
+     :style    (get-in parts [:wrapper :style] {})
+     :attr     (get-in parts [:wrapper :attr] {})
      :align    :start
      :children [[:input
                  (merge
@@ -291,7 +314,7 @@
                    attr)]
                 (when label
                   [:span
-                   {:class    label-class
+                   {:class    (str "rc-radio-button-label " label-class)
                     :style    (merge (flex-child-style "none")
                                      {:padding-left "8px"
                                       :cursor       cursor}
@@ -314,11 +337,12 @@
    {:name :disabled? :required false :default false   :type "boolean | atom"                                        :description "if true, the user can't change the slider"}
    {:name :class     :required false                  :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the slider, not the wrapping div)"}
    {:name :style     :required false                  :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the slider, not the wrapping div)"}
-   {:name :attr      :required false                  :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the slider, not the wrapping div)"]}])
+   {:name :attr      :required false                  :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the slider, not the wrapping div)"]}
+   {:name :parts     :required false                  :type "map"                    :validate-fn (parts? #{:wrapper}) :description "See Parts section below."}])
 
 (defn slider
   "Returns markup for an HTML5 slider input"
-  [& {:keys [model min max step width on-change disabled? class style attr]
+  [& {:keys [model min max step width on-change disabled? class style attr parts]
       :or   {min 0 max 100}
       :as   args}]
   {:pre [(validate-args-macro slider-args-desc args "slider")]}
@@ -328,7 +352,9 @@
         step      (deref-or-value step)
         disabled? (deref-or-value disabled?)]
     [box
-     :class "rc-slider-wrapper"
+     :class (str "rc-slider-wrapper " (get-in parts [:wrapper :class]))
+     :style (get-in parts [:wrapper :style] {})
+     :attr  (get-in parts [:wrapper :attr] {})
      :align :start
      :child [:input
              (merge
@@ -362,27 +388,30 @@
    {:name :bar-class :required false                 :type "string"                 :validate-fn string?           :description "CSS class name(s) for the actual progress bar itself, space separated"}
    {:name :class     :required false                 :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the progress-bar, not the wrapping div)"}
    {:name :style     :required false                 :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the progress-bar, not the wrapping div)"}
-   {:name :attr      :required false                 :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the progress-bar, not the wrapping div)"]}])
+   {:name :attr      :required false                 :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the progress-bar, not the wrapping div)"]}
+   {:name :parts     :required false                 :type "map"                    :validate-fn (parts? #{:wrapper :segment}) :description "See Parts section below."}])
 
 (defn progress-bar
   "Render a bootstrap styled progress bar"
-  [& {:keys [model width striped? class bar-class style attr]
+  [& {:keys [model width striped? class bar-class style attr parts]
       :or   {width "100%"}
       :as   args}]
   {:pre [(validate-args-macro progress-bar-args-desc args "progress-bar")]}
   (let [model (deref-or-value model)]
     [box
-     :class "rc-progress-bar-wrapper"
+     :class (str "rc-progress-bar-wrapper " (get-in parts [:wrapper :class]))
+     :style (get-in parts [:wrapper :style] {})
+     :attr  (get-in parts [:wrapper :attr] {})
      :align :start
      :child [:div
              (merge
-               {:class (str "rc-progress-bar progress " class)
+               {:class (str "progress rc-progress-bar " class)
                 :style (merge (flex-child-style "none")
                               {:width width}
                               style)}
                attr)
              [:div
-              {:class (str "progress-bar " (when striped? "progress-bar-striped active ") bar-class)
+              {:class (str "progress-bar " (when striped? "progress-bar-striped active rc-progress-bar-portion ") bar-class)
                :role  "progressbar"
                :style {:width      (str model "%")
                        :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind

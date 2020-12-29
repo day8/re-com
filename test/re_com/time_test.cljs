@@ -50,15 +50,15 @@
    (let [result (input-time-fn :model (reagent/atom 1530) :on-change #() :minimum 600 :maximum 2159)]
      ;(is (= :span.input-append (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
      (is (fn? (first result)) "Expected first element to be a function")
-     (let [input-time-comp (first (nth result 6))
+     (let [input-time-comp (first (nth result 8))
            input-time-attrs (last input-time-comp)]
        (is (= :input (first input-time-comp)) "Expected time input start with :input")
        (are [expected actual] (= expected actual)
          nil           (:disabled input-time-attrs)
-         "time-entry " (:class input-time-attrs)
+         "time-entry rc-time-entry " (:class input-time-attrs)
          "15:30"       (:value input-time-attrs)
          "text"        (:type input-time-attrs)
-         "time-entry " (:class input-time-attrs)
+         "time-entry rc-time-entry " (:class input-time-attrs)
          true          (fn? (:on-blur input-time-attrs))
          true          (fn? (:on-change input-time-attrs))))))
  ;; These tests don't work. But i have verified that the check is happening and it works

@@ -1,7 +1,7 @@
 (ns re-demo.input-time
   (:require [re-com.core       :refer [h-box v-box box gap input-time label title button checkbox p]]
             [re-com.input-time :refer [input-time-args-desc]]
-            [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]]
+            [re-demo.utils     :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
             [re-com.util       :refer [px]]
             [reagent.core      :as    reagent]))
 
@@ -104,6 +104,59 @@
                                                        :model     (not= @maximum init-maximum)
                                                        :on-change #(reset! maximum (if % 1400 init-maximum))]]]]]]]]])))
 
+(defn input-time-component-hierarchy
+  []
+  (let [indent          20
+        table-style     {:style {:border "2px solid lightgrey" :margin-right "10px"}}
+        border          {:border "1px solid lightgrey" :padding "6px 12px"}
+        border-style    {:style border}
+        border-style-nw {:style (merge border {:white-space "nowrap"})}
+        valign          {:vertical-align "top"}
+        valign-style    {:style valign}
+        valign-style-hd {:style (merge valign {:background-color "#e8e8e8"})}
+        indent-text     (fn [level text] [:span {:style {:padding-left (px (* level indent))}} text])
+        highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
+        code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
+    [v-box
+     :gap      "10px"
+     :children [[title2 "Parts"]
+                [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
+                [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
+                    Also, each part is identified by a keyword for use in " [:code ":parts"] " like this:" [:br]]
+                [:pre "[input-time\n"
+                      "   ...\n"
+                      "   :parts {:wrapper {:class \"blah\"\n"
+                      "                     :style { ... }\n"
+                      "                     :attr  { ... }}}]"]
+                [title3 "Part Hierarchy"]
+                [:table table-style
+                 [:thead valign-style-hd
+                  [:tr
+                   [:th border-style-nw "Part"]
+                   [:th border-style-nw "CSS Class"]
+                   [:th border-style-nw "Keyword"]
+                   [:th border-style "Notes"]]]
+                 [:tbody valign-style
+                  [:tr
+                   [:td border-style-nw (indent-text 0 "[input-time]")]
+                   [:td border-style-nw "rc-input-time"]
+                   [:td border-style-nw (code-text ":wrapper")]
+                   [:td border-style "Outer wrapper of the time input."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 1 "[:input]")]
+                   [:td border-style-nw "rc-time-entry"]
+                   [:td border-style-nw "Use " (code-text ":class") ", " (code-text ":style") " or " (code-text ":attr") " arguments instead."]
+                   [:td border-style "The actual input field."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 1 "[:div]")]
+                   [:td border-style-nw "rc-time-icon-container"]
+                   [:td border-style-nw (code-text ":time-icon-container")]
+                   [:td border-style "The time icon container."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 2 "[:i]")]
+                   [:td border-style-nw "rc-time-icon"]
+                   [:td border-style-nw (code-text ":time-icon")]
+                   [:td border-style "The time icon."]]]]]]))
 
 (defn panel2
   []
@@ -122,10 +175,11 @@
                                       [status-text "Stable"]
                                       [p "Allows the user to input time in 24hr format."]
                                       [p "Filters out all keystrokes other than numbers and ':'. Attempts to limit input to valid values.
-                                            Provides interpretation of incomplete input, for example '123' is interpretted as '1:23'."]
+                                            Provides interpretation of incomplete input, for example '123' is interpreted as '1:23'."]
                                       [p "If the user exits the input field with an invalid value, it will be replaced with the last known valid value."]
                                       [args-table input-time-args-desc]]]
-                          [basics-demo]]]]])
+                          [basics-demo]]]
+              [input-time-component-hierarchy]]])
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
@@ -133,53 +187,3 @@
   []
   [panel2])
 
-(defn input-time-component-hierarchy
-  []
-  (let [indent          20
-        table-style     {:style {:border "2px solid lightgrey" :margin-right "10px"}}
-        border          {:border "1px solid lightgrey" :padding "6px 12px"}
-        border-style    {:style border}
-        border-style-nw {:style (merge border {:white-space "nowrap"})}
-        valign          {:vertical-align "top"}
-        valign-style    {:style valign}
-        valign-style-hd {:style (merge valign {:background-color "#e8e8e8"})}
-        indent-text     (fn [level text] [:span {:style {:padding-left (px (* level indent))}} text])
-        highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
-        code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
-    [v-box
-     :gap      "10px"
-     :children [[panel-title "Input Time Classes"
-                 "src/re_com/input_time.cljs"
-                 "src/re_demo/input_time.cljs"]
-                [title2 "Advanced: Component hierarchy of Input Time"]
-                [p "A time intput is made up of a number of sub-components.
-                The following table shows how these components are arranged (in the form of a component tree).
-                Those highlighted in blue are the public API components."]
-                [:table table-style
-                 [:thead valign-style-hd
-                  [:tr
-                   [:th border-style-nw "Component"]
-                   [:th border-style-nw "Naming class"]
-                   [:th border-style "Key inline styles"]
-                   [:th border-style "Notes"]]]
-                 [:tbody valign-style
-                  [:tr
-                   [:td border-style-nw (indent-text 0 (highlight-text "[input-time]"))]
-                   [:td border-style-nw "rc-input-time"]
-                   [:td border-style (code-text ":display \"flex\"") (code-text ":flex-flow \"row nowrap\"")]
-                   [:td border-style "Outer wrapper of the time input box and the icon (if enabled)."]]
-                  [:tr
-                   [:td border-style-nw (indent-text 1 "[:input]")]
-                   [:td border-style-nw "time-entry"]
-                   [:td border-style "n/a"]
-                   [:td border-style "The input field for the time."]]
-                  [:tr
-                   [:td border-style-nw (indent-text 1 "[:div]")]
-                   [:td border-style-nw "time-icon"]
-                   [:td border-style (code-text ":display \"flex\"") (code-text ":padding \"0 0.3em\"")]
-                   [:td border-style "The container for the time icon."]]
-                  [:tr
-                   [:td border-style-nw (indent-text 2 "[:i]")]
-                   [:td border-style-nw "zmdi zmdi-hc-fw-rc zmdi-time"]
-                   [:td border-style (code-text ":position \"static\"") (code-text ":margin \"auto\"")]
-                   [:td border-style [:span "The time icon if " (code-text ":show-icon?") " argument of " (code-text "[input-time]") " is true."]]]]]]]))

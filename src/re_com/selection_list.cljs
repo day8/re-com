@@ -4,7 +4,7 @@
     [re-com.text     :refer [label]]
     [re-com.misc     :refer [checkbox radio-button]]
     [re-com.box      :refer [box border h-box v-box]]
-    [re-com.validate :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr?] :refer-macros [validate-args-macro]]
+    [re-com.validate :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
     [re-com.util     :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
@@ -33,19 +33,25 @@
       (if ticked? (conj selections item-id) (disj selections item-id)))))
 
 (defn- as-checked
-  [item id-fn selections on-change disabled? label-fn required? as-exclusions?]
+  [item id-fn selections on-change disabled? label-fn required? as-exclusions? parts]
   ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
   (let [item-id (id-fn item)]
     [box
-     :class "list-group-item compact"
-     :attr {:on-click (handler-fn (when-not disabled?
-                                    (on-change (check-clicked selections item-id (not (selections item-id)) required?))))}
+     :class (str "list-group-item compact rc-selection-list-group-item " (get-in parts [:list-group-item :class]))
+     :style (get-in parts [:list-group-item :style] {})
+     :attr  (merge
+              {:on-click (handler-fn (when-not disabled?
+                                       (on-change (check-clicked selections item-id (not (selections item-id)) required?))))}
+              (get-in parts [:list-group-item :attr]))
      :child [checkbox
-             :model (some? (selections item-id))
-             :on-change #()                                 ;; handled by enclosing box
-             :disabled? disabled?
+             :class       (str "rc-selection-list-checkbox " (get-in parts [:checkbox :class]))
+             :style       (get-in parts [:checkbox :style] {})
+             :attr        (get-in parts [:checkbox :attr] {})
+             :model       (some? (selections item-id))
+             :on-change   #()                                 ;; handled by enclosing box
+             :disabled?   disabled?
              :label-style (label-style (selections item-id) as-exclusions?)
-             :label (label-fn item)]]))
+             :label       (label-fn item)]]))
 
 
 (defn- radio-clicked
@@ -55,19 +61,24 @@
     (if (selections item-id) #{} #{item-id})))
 
 (defn- as-radio
-  [item id-fn selections on-change disabled? label-fn required? as-exclusions?]
+  [item id-fn selections on-change disabled? label-fn required? as-exclusions? parts]
   (let [item-id (id-fn item)]
     [box
-     :class "list-group-item compact"
-     :attr {:on-click (handler-fn (when-not disabled?
-                                    (on-change (radio-clicked selections item-id required?))))}
+     :class (str "list-group-item compact rc-selection-list-group-item " (get-in parts [:list-group-item :class]))
+     :style (get-in parts [:list-group-item :style] {})
+     :attr  (merge {:on-click (handler-fn (when-not disabled?
+                                            (on-change (radio-clicked selections item-id required?))))}
+                   (get-in parts [:list-group-item :attr]))
      :child [radio-button
-             :model (first selections)
-             :value item-id
-             :on-change #()                                 ;; handled by enclosing box
-             :disabled? disabled?
+             :class       (str "rc-selection-list-radio-button " (get-in parts [:radio-button :class]))
+             :style       (get-in parts [:radio-button :style] {})
+             :attr        (get-in parts [:radio-button :attr] {})
+             :model       (first selections)
+             :value       item-id
+             :on-change   #()                                 ;; handled by enclosing box
+             :disabled?   disabled?
              :label-style (label-style (selections item-id) as-exclusions?)
-             :label (label-fn item)]]))
+             :label       (label-fn item)]]))
 
 
 (def list-style
@@ -109,18 +120,19 @@
    {:name :item-renderer  :required false                 :type "-> nil | atom"                      :validate-fn fn?             :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
    {:name :class          :required false                 :type "string"                             :validate-fn string?         :description "CSS class names, space separated (applies to the outer container)"}
    {:name :style          :required false                 :type "CSS style map"                      :validate-fn css-style?      :description "CSS styles to add or override (applies to the outer container)"}
-   {:name :attr           :required false                 :type "HTML attr map"                      :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
+   {:name :attr           :required false                 :type "HTML attr map"                      :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+   {:name :parts          :required false                 :type "map"                                :validate-fn (parts? #{:list-group :list-group-item :checkbox :radio-button}) :description "See Parts section below."}])
 
 (defn- list-container
-  [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr]
+  [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr parts]
     :as   args}]
   {:pre [(validate-args-macro selection-list-args-desc args "selection-list")]}
   (let [selected (if multi-select? model (-> model first vector set))
         items    (map (if item-renderer
                         #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
                         (if multi-select?
-                          #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions?)
-                          #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions?)))
+                          #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)
+                          #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)))
                       choices)
         bounds   (select-keys args [:width :height :max-height])
         spacing  (if hide-border? spacing-unbordered spacing-bordered)]
@@ -138,7 +150,16 @@
      :attr   attr
      :radius "4px"
      :border (when hide-border? "none")
-     :child  (into [:div {:class "list-group noselect" :style (merge list-style bounds spacing)}] items)]))
+     :child  (into [:div
+                    (merge
+                      {:class (str "list-group noselect rc-selection-list-group " (get-in parts [:list-group :class]))
+                       :style (merge
+                                list-style
+                                bounds
+                                spacing
+                                (get-in parts [:list-group :style]))}
+                      (get-in parts [:list-group :attr]))]
+                   items)]))
 
 
 (defn- configure

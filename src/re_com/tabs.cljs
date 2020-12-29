@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value]]
             [re-com.box      :refer [flex-child-style]]
-            [re-com.validate :refer [css-style? html-attr? vector-of-maps?
+            [re-com.validate :refer [css-style? html-attr? parts? vector-of-maps?
                                      position? position-options-list] :refer-macros [validate-args-macro]]
             [re-com.popover  :refer [popover-tooltip]]
             [reagent.core    :as    reagent]))
@@ -23,10 +23,11 @@
    {:name :class            :required false                        :type "string"                   :validate-fn string?         :description "CSS class names, space separated (applies to the outer container)"}
    {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?      :description [:span "CSS styles to add or override (aplies to " [:span.bold "each individual tab"] " rather than the container)"]}
    {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+   {:name :parts            :required false                        :type "map"                      :validate-fn (parts? #{:button :tooltip}) :description "See Parts section below."}
    {:name :validate?        :required false :default true          :type "boolean"                                               :description [:span "[horizontal-bar-tabs & vertical-bar-tabs only] validate " [:code ":model"] " against " [:code ":tabs"]]}])
 
 (defn horizontal-tabs
-  [& {:keys [model tabs on-change id-fn label-fn class style attr]
+  [& {:keys [model tabs on-change id-fn label-fn class style attr parts]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
@@ -34,7 +35,7 @@
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
     [:ul
-     (merge {:class (str "rc-tabs nav nav-tabs noselect " class)
+     (merge {:class (str "nav nav-tabs noselect rc-tabs " class)
              :style (flex-child-style "none")}
             attr)
      (for [t tabs]
@@ -56,15 +57,15 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (defn- bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position vertical? class style attr validate?]}]
+  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position vertical? class style attr parts validate?]}]
   (let [showing (reagent/atom nil)]
     (fn [& {:keys [model tabs]}]
       (let [current  (deref-or-value model)
             tabs     (deref-or-value tabs)
             _        (assert (or (not validate?) (not-empty (filter #(= current (id-fn %)) tabs))) "model not found in tabs vector")]
         (into [:div
-              (merge {:class (str "rc-tabs noselect btn-group" (if vertical? "-vertical") " " class)
-                      :style (flex-child-style "none")}
+               (merge {:class (str "noselect btn-group" (if vertical? "-vertical") " rc-tabs " class)
+                       :style (flex-child-style "none")}
                 attr)]
          (for [t tabs]
            (let [id        (id-fn t)
@@ -75,24 +76,28 @@
                              (merge
                                {:type     "button"
                                 :key      (str id)
-                                :class    (str "btn btn-default " (if selected? "active"))
+                                :class    (str "btn btn-default " (if selected? "active ") "rc-tabs-btn " (get-in parts [:button :class]))
                                 :style    style
                                 :on-click (when on-change (handler-fn (on-change id)))}
                                (when tooltip
                                  {:on-mouse-over (handler-fn (reset! showing id))
-                                  :on-mouse-out  (handler-fn (swap! showing #(when-not (= id %) %)))}))
+                                  :on-mouse-out  (handler-fn (swap! showing #(when-not (= id %) %)))})
+                               (get-in parts [:button :attr]))
                              label]]
              (if tooltip
                [popover-tooltip
                 :label    tooltip
                 :position (or tooltip-position :below-center)
                 :showing? (reagent/track #(= id @showing))
-                :anchor   the-button]
+                :anchor   the-button
+                :class    (str "rc-tabs-tooltip " (get-in parts [:tooltip :class]))
+                :style    (get-in parts [:tooltip :style] {})
+                :attr     (get-in parts [:tooltip :attr] {})]
                the-button))))))))
 
 
 (defn horizontal-bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position class style attr validate?]
+  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position class style attr parts validate?]
       :or   {id-fn :id label-fn :label tooltip-fn :tooltip}
       :as   args}]
   {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
@@ -108,10 +113,11 @@
     :class            class
     :style            style
     :attr             attr
+    :parts            parts
     :validate?        validate?))
 
 (defn vertical-bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn class style attr validate?]
+  [& {:keys [model tabs on-change id-fn label-fn class style attr parts validate?]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   {:pre [(validate-args-macro tabs-args-desc args "tabs")]}
@@ -125,6 +131,7 @@
     :class     class
     :style     style
     :attr      attr
+    :parts     parts
     :validate? validate?))
 
 
@@ -133,7 +140,7 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (defn- pill-tabs    ;; tabs-like in action
-  [& {:keys [model tabs on-change id-fn label-fn vertical? class style attr]}]
+  [& {:keys [model tabs on-change id-fn label-fn vertical? class style attr parts]}]
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]

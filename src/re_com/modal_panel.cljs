@@ -1,6 +1,6 @@
 (ns re-com.modal-panel
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr?] :refer-macros [validate-args-macro]]))
+  (:require [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  modal-panel
@@ -14,19 +14,21 @@
    {:name :backdrop-on-click :required false :default nil     :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}
    {:name :class             :required false                  :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
    {:name :style             :required false                  :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
-   {:name :attr              :required false                  :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
+   {:name :attr              :required false                  :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+   {:name :parts             :required false                  :type "map"             :validate-fn (parts? #{:backdrop :container}) :description "See Parts section below."}])
+
 
 (defn modal-panel
   "Renders a modal window centered on screen. A dark transparent backdrop sits between this and the underlying
    main window to prevent UI interactivity and place user focus on the modal window.
    Parameters:
     - child:  The message to display in the modal (a string or a hiccup vector or function returning a hiccup vector)"
-  [& {:keys [child wrap-nicely? backdrop-color backdrop-opacity backdrop-on-click class style attr]
+  [& {:keys [child wrap-nicely? backdrop-color backdrop-opacity backdrop-on-click class style attr parts]
       :or   {wrap-nicely? true backdrop-color "black" backdrop-opacity 0.6}
       :as   args}]
   {:pre [(validate-args-macro modal-panel-args-desc args "modal-panel")]}
   [:div    ;; Containing div
-   (merge {:class  (str "rc-modal-panel display-flex " class)
+   (merge {:class  (str "display-flex rc-modal-panel " class)
            :style (merge {:position "fixed"
                           :left     "0px"
                           :top      "0px"
@@ -36,21 +38,27 @@
                          style)}
           attr)
    [:div    ;; Backdrop
-    {:class    "rc-modal-panel-backdrop"
-     :style    {:position         "fixed"
-                :width            "100%"
-                :height           "100%"
-                :background-color backdrop-color
-                :opacity          backdrop-opacity
-                :z-index          1}
-     :on-click (handler-fn (when backdrop-on-click (backdrop-on-click))
-                           (.preventDefault event)
-                           (.stopPropagation event))}]
+    (merge
+      {:class    (str "rc-modal-panel-backdrop " (get-in parts [:backdrop :class]))
+       :style    (merge {:position         "fixed"
+                         :width            "100%"
+                         :height           "100%"
+                         :background-color backdrop-color
+                         :opacity          backdrop-opacity
+                         :z-index          1}
+                        (get-in parts [:backdrop :style]))
+       :on-click (handler-fn (when backdrop-on-click (backdrop-on-click))
+                             (.preventDefault event)
+                             (.stopPropagation event))}
+      (get-in parts [:backdrop :attr]))]
    [:div    ;; Child container
-    {:class    "rc-modal-panel-container"
-     :style (merge {:margin  "auto"
-                    :z-index 2}
-                   (when wrap-nicely? {:background-color "white"
-                                       :padding          "16px"
-                                       :border-radius    "6px"}))}
+    (merge
+      {:class    (str  "rc-modal-panel-child-container " (get-in parts [:child-container :class]))
+       :style (merge {:margin  "auto"
+                      :z-index 2}
+                     (get-in parts [:child-container :style])
+                     (when wrap-nicely? {:background-color "white"
+                                         :padding          "16px"
+                                         :border-radius    "6px"}))}
+      (get-in parts [:child-container :attr]))
     child]])

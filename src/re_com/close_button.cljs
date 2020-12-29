@@ -1,7 +1,7 @@
 (ns re-com.close-button
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value px]]
-            [re-com.validate :refer [string-or-hiccup? css-style? html-attr?] :refer-macros [validate-args-macro]]
+            [re-com.validate :refer [string-or-hiccup? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
             [re-com.box      :refer [box]]
             [reagent.core    :as    reagent]))
 
@@ -27,22 +27,25 @@
    {:name :disabled?    :required false  :default false   :type "boolean | atom"                                   :description "if true, the user can't click the button"}
    {:name :class        :required false                   :type "string"           :validate-fn string?            :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
    {:name :style        :required false                   :type "CSS style map"    :validate-fn css-style?         :description "CSS styles (applies to the button, not the wrapping div)"}
-   {:name :attr         :required false                   :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}])
+   {:name :attr         :required false                   :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+   {:name :parts        :required false                   :type "map"              :validate-fn (parts? #{:wrapper :icon}) :description "See Parts section below."}])
 
 (defn close-button
   []
   (let [over? (reagent/atom false)]
     (fn close-button-render
-      [& {:keys [on-click div-size font-size color hover-color tooltip top-offset left-offset disabled? class style attr] :as args
+      [& {:keys [on-click div-size font-size color hover-color tooltip top-offset left-offset disabled? class style attr parts] :as args
           :or   {div-size 16 font-size 16 color "#ccc" hover-color "#999"}}]
       {:pre [(validate-args-macro close-button-args-desc args "close-button")]}
       (let [disabled?  (deref-or-value disabled?)]
         [box
-         :class "rc-close-button"
-         :style {:display          "inline-block"
-                 :position         "relative"
-                 :width            (px div-size)
-                 :height           (px div-size)}
+         :class (str "rc-close-button " (get-in parts [:wrapper :class]))
+         :style (merge {:display          "inline-block"
+                        :position         "relative"
+                        :width            (px div-size)
+                        :height           (px div-size)}
+                       (get-in parts [:wrapper :style]))
+         :attr  (get-in parts [:wrapper :attr] {})
          :child [box
                  :class class
                  :style (merge
@@ -62,4 +65,8 @@
                            :on-mouse-enter (handler-fn (reset! over? true))
                            :on-mouse-leave (handler-fn (reset! over? false))}
                           attr)
-                 :child [:i {:class "zmdi zmdi-hc-fw-rc zmdi zmdi-close"}]]]))))
+                 :child [:i
+                         (merge
+                           {:class (str "rc-close-button-icon zmdi zmdi-hc-fw-rc zmdi zmdi-close " (get-in parts [:icon :class]))
+                            :style (get-in parts [:icon :style] {})}
+                           (get-in parts [:icon :attr]))]]]))))

@@ -45,6 +45,14 @@
    :level :level2
    :style style])
 
+(defn title3
+  "3rd level title"
+  [text style]
+  [title
+   :label text
+   :level :level3
+   :style style])
+
 (defn status-text
   "given some status text, return a component that displays that status"
   [status style]

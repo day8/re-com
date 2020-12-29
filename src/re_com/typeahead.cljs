@@ -6,7 +6,7 @@
             [re-com.util     :refer [deref-or-value px]]
             [re-com.popover  :refer [popover-tooltip]] ;; need?
             [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]] ;; need?
-            [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? number-or-string?
+            [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts? number-or-string?
                                      string-or-atom? throbber-size? throbber-sizes-list] :refer-macros [validate-args-macro]]
             [reagent.core    :as    reagent]
             [goog.events.KeyCodes]))
@@ -247,7 +247,8 @@
    {:name :disabled?               :required false :default false   :type "boolean | atom"                                       :description "if true, the user can't interact (input anything)"}
    {:name :class                   :required false                  :type "string"               :validate-fn string?            :description "CSS class names, space separated (applies to the textbox)"}
    {:name :style                   :required false                  :type "CSS style map"        :validate-fn css-style?         :description "CSS styles to add or override (applies to the textbox)"}
-   {:name :attr                    :required false                  :type "HTML attr map"        :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to " [:span.bold "the outer container"] ", rather than the textbox)"]}])
+   {:name :attr                    :required false                  :type "HTML attr map"        :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to " [:span.bold "the outer container"] ", rather than the textbox)"]}
+   {:name :parts                   :required false                  :type "map"                  :validate-fn (parts? #{:suggestions-container :suggestion :throbber}) :description "See Parts section below."}])
 
 (defn typeahead
   "typeahead reagent component"
@@ -261,7 +262,7 @@
       [& {:as   args
           :keys [data-source _on-change _change-on-blur? _immediate-model-update? model _debounce-delay render-suggestion _suggestion-to-string _rigid?
                  ;; forwarded to wrapped `input-text`:
-                 status status-icon? status-tooltip placeholder width height disabled? class style attr]}]
+                 status status-icon? status-tooltip placeholder width height disabled? class style attr parts]}]
       {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
       (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
             last-data-source (:data-source state)
@@ -296,11 +297,11 @@
                       [box
                        :style {:position "relative"}
                        :child [v-box
-                               :class "rc-typeahead-suggestions-container"
+                               :class (str "rc-typeahead-suggestions-container " (get-in parts [:suggestions-container :class]))
                                :children [(when waiting?
                                             [box
                                              :align :center
-                                             :child [throbber :size :small :class "rc-typeahead-throbber"]])
+                                             :child [throbber :size :small :class (str "rc-typeahead-throbber " (get-in parts [:throbber :class]))]])
                                           (for [[i s] (map vector (range) suggestions)
                                                 :let [selected? (= suggestion-active-index i)]]
                                             ^{:key i}
@@ -309,7 +310,8 @@
                                                       (render-suggestion s)
                                                       s)
                                              :class (str "rc-typeahead-suggestion"
-                                                         (when selected? " active"))
+                                                         (when selected? " active")
+                                                         (get-in parts [:suggestion :class]))
                                              :attr {:on-mouse-over #(swap! state-atom activate-suggestion-by-index i)
                                                     :on-mouse-down #(do (.preventDefault %) (swap! state-atom choose-suggestion-by-index i))}])]]])]]))))
 

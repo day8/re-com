@@ -9,8 +9,8 @@
     [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p button md-icon-button]]
     [re-com.datepicker :refer [iso8601->date datepicker-dropdown-args-desc]]
     [re-com.validate   :refer [date-like?]]
-    [re-com.util       :refer [now->utc]]
-    [re-demo.utils     :refer [panel-title title2 args-table github-hyperlink status-text]])
+    [re-com.util       :refer [now->utc px]]
+    [re-demo.utils     :refer [panel-title title2 title3 args-table github-hyperlink status-text]])
   (:import
     [goog.i18n DateTimeSymbols_pl]))
 
@@ -206,6 +206,150 @@
    {:id :i18n     :label "I18n"}])
 
 
+(defn datepicker-component-hierarchy
+  []
+  (let [indent          20
+        table-style     {:style {:border "2px solid lightgrey" :margin-right "10px"}}
+        border          {:border "1px solid lightgrey" :padding "6px 12px"}
+        border-style    {:style border}
+        border-style-nw {:style (merge border {:white-space "nowrap"})}
+        valign          {:vertical-align "top"}
+        valign-style    {:style valign}
+        valign-style-hd {:style (merge valign {:background-color "#e8e8e8"})}
+        indent-text     (fn [level text] [:span {:style {:padding-left (px (* level indent))}} text])
+        highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
+        code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
+    [v-box
+     :gap      "10px"
+     :children [[title2 "Parts"]
+                [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
+                [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
+                    Also, each part is identified by a keyword for use in " [:code ":parts"] " like this:" [:br]]
+                [:pre "[datepicker\n"
+                      "   ...\n"
+                      "   :parts {:prev {:class \"blah\"\n"
+                      "                  :style { ... }\n"
+                      "                  :attr  { ... }}}]"]
+                [title3 "Part Hierarchy"]
+                [:table table-style
+                 [:thead valign-style-hd
+                  [:tr
+                   [:th border-style-nw "Part"]
+                   [:th border-style-nw "CSS Class"]
+                   [:th border-style-nw "Keyword"]
+                   [:th border-style "Notes"]]]
+                 [:tbody valign-style
+                  [:tr
+                   [:td border-style-nw (indent-text 0 "[datepicker]")]
+                   [:td border-style-nw "rc-datepicker-wrapper"]
+                   [:td border-style-nw (code-text ":wrapper")]
+                   [:td border-style "Outer wrapper of the datepicker."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 1 "[:border]")]
+                   [:td border-style-nw "rc-datepicker-border"]
+                   [:td border-style-nw (code-text ":border")]
+                   [:td border-style "The datepicker border."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 2 "[:div]")]
+                   [:td border-style-nw "rc-datepicker"]
+                   [:td border-style-nw "Use " (code-text ":class") ", " (code-text ":style") " or " (code-text ":attr") " arguments instead."]
+                   [:td border-style "The datepicker container."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 3 "[:table]")]
+                   [:td border-style-nw "rc-datepicker-table"]
+                   [:td border-style-nw (code-text ":table")]
+                   [:td border-style "The table."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 4 "[:thead]")]
+                   [:td border-style-nw "rc-datepicker-header"]
+                   [:td border-style-nw (code-text ":header")]
+                   [:td border-style "The table header."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 5 "[:tr]")]
+                   [:td border-style-nw ""]
+                   [:td border-style-nw ""]
+                   [:td border-style "The month row."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:th]")]
+                   [:td border-style-nw "rc-datepicker-prev"]
+                   [:td border-style-nw (code-text ":prev")]
+                   [:td border-style "The previous month button."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 7 "[:i]")]
+                   [:td border-style-nw "rc-datepicker-prev-icon"]
+                   [:td border-style-nw (code-text ":prev-icon")]
+                   [:td border-style "The previous month button icon."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:th]")]
+                   [:td border-style-nw "rc-datepicker-month"]
+                   [:td border-style-nw (code-text ":month")]
+                   [:td border-style "The month."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:th]")]
+                   [:td border-style-nw "rc-datepicker-next"]
+                   [:td border-style-nw (code-text ":next")]
+                   [:td border-style "The next month button."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 7 "[:i]")]
+                   [:td border-style-nw "rc-datepicker-next-icon"]
+                   [:td border-style-nw (code-text ":next-icon")]
+                   [:td border-style "The next month button icon."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 5 "[:tr]")]
+                   [:td border-style-nw ""]
+                   [:td border-style-nw ""]
+                   [:td border-style "The day row."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:th]")]
+                   [:td border-style-nw "rc-datepicker-day rc-datepicker-day-sun"]
+                   [:td border-style-nw (code-text ":day")]
+                   [:td border-style "Sun. WARNING: First day of week and naming of days depends on parameters incl i18n."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:th]")]
+                   [:td border-style-nw "rc-datepicker-day rc-datepicker-day-mon"]
+                   [:td border-style-nw (code-text ":day")]
+                   [:td border-style "Mon."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:th]")]
+                   [:td border-style-nw "rc-datepicker-day rc-datepicker-day-tue"]
+                   [:td border-style-nw (code-text ":day")]
+                   [:td border-style "Tue."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:th]")]
+                   [:td border-style-nw "rc-datepicker-day rc-datepicker-day-wed"]
+                   [:td border-style-nw (code-text ":day")]
+                   [:td border-style "Wed."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:th]")]
+                   [:td border-style-nw "rc-datepicker-day rc-datepicker-day-thu"]
+                   [:td border-style-nw (code-text ":day")]
+                   [:td border-style "Thu."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:th]")]
+                   [:td border-style-nw "rc-datepicker-day rc-datepicker-day-fri"]
+                   [:td border-style-nw (code-text ":day")]
+                   [:td border-style "Fri."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:th]")]
+                   [:td border-style-nw "rc-datepicker-day rc-datepicker-day-sat"]
+                   [:td border-style-nw (code-text ":day")]
+                   [:td border-style "Sat."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 4 "[:tbody]")]
+                   [:td border-style-nw "rc-datepicker-dates"]
+                   [:td border-style-nw (code-text ":dates")]
+                   [:td border-style "The table body containing the dates."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 5 "[:tr]")]
+                   [:td border-style-nw ""]
+                   [:td border-style-nw ""]
+                   [:td border-style "A date row. Repeats 6 times."]]
+                  [:tr
+                   [:td border-style-nw (indent-text 6 "[:td]")]
+                   [:td border-style-nw "rc-datepicker-date"]
+                   [:td border-style-nw (code-text ":date")]
+                   [:td border-style "A date cell. Repeats 7 times per date row."]]]]]]))
+
 (defn datepicker-examples
   []
   (let [selected-variation (reagent/atom :inline)]
@@ -238,7 +382,8 @@
                                                         :model     selected-variation
                                                         :width     "200px"
                                                         :on-change #(reset! selected-variation %)]]]
-                                           [show-variant @selected-variation]]]]]]])))
+                                           [show-variant @selected-variation]]]]]
+                  [datepicker-component-hierarchy]]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

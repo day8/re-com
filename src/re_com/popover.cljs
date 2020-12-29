@@ -4,7 +4,7 @@
             [re-com.box          :refer [box h-box v-box flex-child-style flex-flow-style align-style]]
             [re-com.close-button :refer [close-button]]
             [re-com.validate     :refer [position? position-options-list popover-status-type? popover-status-types-list number-or-string?
-                                         string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr?] :refer-macros [validate-args-macro]]
+                                         string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
             [clojure.string      :as    string]
             [reagent.core        :as    reagent]
             [reagent.dom         :as    rdom]
@@ -335,7 +335,8 @@
    {:name :padding              :required false                        :type "string"           :validate-fn string?           :description "a CSS style which overrides the inner padding of the popover"}
    {:name :class                :required false                        :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
    {:name :style                :required false                        :type "CSS style map"    :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
-   {:name :attr                 :required false                        :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
+   {:name :attr                 :required false                        :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+   {:name :parts                :required false                        :type "map"              :validate-fn (parts? #{:backdrop :border :title}) :description "See Parts section below."}])
 
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes"
@@ -365,7 +366,7 @@
        :reagent-render
        (fn
          [& {:keys [showing-injected? position-injected position-offset no-clip? width height backdrop-opacity on-cancel title
-                    close-button? body tooltip-style? popover-color popover-border-color arrow-length arrow-width arrow-gap padding class style attr]
+                    close-button? body tooltip-style? popover-color popover-border-color arrow-length arrow-width arrow-gap padding class style attr parts]
              :or {arrow-length 11 arrow-width 22 arrow-gap -1}
              :as args}]
          {:pre [(validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")]}
@@ -381,9 +382,11 @@
                  attr)
           (when (and (deref-or-value showing-injected?)  on-cancel)
             [backdrop
+             :class    (get-in parts [:backdrop :class])
              :opacity  backdrop-opacity
              :on-click on-cancel])
           [popover-border
+           :class                (get-in parts [:border :class])
            :position             position-injected
            :position-offset      position-offset
            :width                width
@@ -396,6 +399,7 @@
            :arrow-gap            arrow-gap
            :padding              padding
            :title                (when title [popover-title
+                                              :class          (get-in parts [:title :class])
                                               :title          title
                                               :showing?       showing-injected?
                                               :close-button?  close-button?
@@ -414,7 +418,8 @@
    {:name :popover  :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "the popover body component"}
    {:name :class    :required false                       :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
    {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
-   {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
+   {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+   {:name :parts    :required false                       :type "map"             :validate-fn (parts? #{:point-wrapper :point}) :description "See Parts section below."}])
 
 (defn popover-anchor-wrapper
   "Renders an element or control along with a Bootstrap popover"
@@ -428,7 +433,7 @@
 
        :reagent-render
        (fn
-         [& {:keys [showing? position anchor popover class style attr] :as args}]
+         [& {:keys [showing? position anchor popover class style attr parts] :as args}]
          {:pre [(validate-args-macro popover-anchor-wrapper-args-desc args "popover-anchor-wrapper")]}
 
          @reset-on-hide ;; Dereference this reaction, otherwise it won't be set up. The reaction is set to run whenever the popover closes
@@ -444,14 +449,14 @@
                                   style)}
                    attr)
             [:div                                ;; Wrapper around the anchor and the "point"
-             {:class "rc-point-wrapper display-inline-flex"
+             {:class (str "display-inline-flex rc-point-wrapper " (get-in parts [:point-wrapper :class]))
               :style (merge (flex-child-style "auto")
                             (flex-flow-style flex-flow)
                             (align-style :align-items :center))}
              (when place-anchor-before? anchor)
              (when (deref-or-value showing?)
                [:div                             ;; The "point" that connects the anchor to the popover
-                {:class "rc-popover-point display-inline-flex"
+                {:class (str "display-inline-flex rc-popover-point " (get-in parts [:point :class]))
                  :style (merge (flex-child-style "auto")
                                {:position "relative"
                                 :z-index  4})}
@@ -475,11 +480,12 @@
    {:name :width         :required false                        :type "string"                 :validate-fn string?              :description "specifies width of the tooltip"}
    {:name :class         :required false                        :type "string"                 :validate-fn string?              :description "CSS class names, space separated (applies to popover-anchor-wrapper component)"}
    {:name :style         :required false                        :type "CSS style map"          :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency (applies to popover-anchor-wrapper component)"}
-   {:name :attr          :required false                        :type "HTML attr map"          :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to popover-anchor-wrapper component)"]}])
+   {:name :attr          :required false                        :type "HTML attr map"          :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to popover-anchor-wrapper component)"]}
+   {:name :parts         :required false                        :type "map"                    :validate-fn (parts? #{:v-box :close-button-container :close-button}) :description "See Parts section below."}])
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style"
-  [& {:keys [label showing? on-cancel close-button? status anchor position no-clip? width class style attr]
+  [& {:keys [label showing? on-cancel close-button? status anchor position no-clip? width class style attr parts]
       :or {no-clip? true}
       :as args}]
   {:pre [(validate-args-macro popover-tooltip-args-desc args "popover-tooltip")]}
@@ -508,6 +514,7 @@
                :arrow-width    12
                :arrow-gap      4
                :body           [v-box
+                                :class (get-in parts [:v-box :class])
                                 :style (if (= status :info)
                                          {:color       "white"
                                           :font-size   "14px"
@@ -518,8 +525,10 @@
                                           :text-align  "center"})
                                 :children [(when close-button?
                                              [box
+                                              :class      (str "rc-popover-tooltip-close-button-container " (get-in parts [:close-button-container :class]))
                                               :align-self :end
                                               :child      [close-button
+                                                           :class       (str "rc-popover-tooltip-close-button " (get-in parts [:close-button :class]))
                                                            :on-click    #(if on-cancel
                                                                            (on-cancel)
                                                                            (reset! showing? false))

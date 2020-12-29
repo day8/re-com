@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require [re-com.util     :refer [deref-or-value position-for-id item-for-id]]
             [re-com.box      :refer [align-style flex-child-style]]
-            [re-com.validate :refer [vector-of-maps? css-style? html-attr? number-or-string? log-warning
+            [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
                                      string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
             [re-com.popover  :refer [popover-tooltip]]
             [clojure.string  :as    string]
@@ -382,7 +382,8 @@
    {:name :on-drop            :required false                        :type "() -> nil"                     :validate-fn fn?               :description "called when the dropdown part is displayed"}
    {:name :class              :required false                        :type "string"                        :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
    {:name :style              :required false                        :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
-   {:name :attr               :required false                        :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}])
+   {:name :attr               :required false                        :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+   {:name :parts              :required false                        :type "map"                           :validate-fn (parts? #{:tooltip :chosen-drop :chosen-results :choices-loading :choices-error :choices-no-results})        :description "See Parts section below."}])
 
 (defn single-dropdown
   "Render a single dropdown component which emulates the bootstrap-choosen style. Sample choices object:
@@ -421,7 +422,7 @@
         node                (reagent/atom nil)
         focus-anchor        #(some-> @node (.getElementsByClassName "chosen-single") (.item 0) (.focus))]
     (load-choices "" regex-filter? false)
-    (fn [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? free-text? auto-complete? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? est-item-height repeat-change? i18n on-drop width max-height tab-index debounce-delay tooltip tooltip-position class style attr]
+    (fn [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? free-text? auto-complete? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? est-item-height repeat-change? i18n on-drop width max-height tab-index debounce-delay tooltip tooltip-position class style attr parts]
             :or {id-fn :id label-fn :label group-fn :group render-fn label-fn enter-drop? true cancelable? true est-item-height 30}
             :as args}]
       {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
@@ -580,18 +581,36 @@
                                 free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize?]
                                 :else [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title?])
                               (when (and @drop-showing? (not disabled?))
-                                [:div.chosen-drop
-                                 {:style (when @drop-above? {:transform (gstring/format "translate3d(0px, -%ipx, 0px)" (+ top-height @drop-height -2))})}
+                                [:div
+                                 (merge
+                                   {:class (str "chosen-drop rc-dropdown-chosen-drop " (get-in parts [:chosen-drop :class]))
+                                    :style (merge (when @drop-above? {:transform (gstring/format "translate3d(0px, -%ipx, 0px)" (+ top-height @drop-height -2))})
+                                                  (get-in parts [:chosen-drop :style]))}
+                                   (get-in parts [:chosen-drop :attr]))
                                  (when (and (or filter-box? (not free-text?))
                                             (not just-drop?))
                                    [filter-text-box filter-box? filter-text key-handler drop-showing? #(set-filter-text % args true) filter-placeholder])
-                                 [:ul.chosen-results
-                                  (when max-height {:style {:max-height max-height}})
+                                 [:ul
+                                  (merge
+                                    {:class (str "chosen-results rc-dropdown-chosen-results " (get-in parts [:chosen-results :class]))
+                                     :style (merge (when max-height {:max-height max-height})
+                                                   (get-in parts [:chosen-results :style]))}
+                                    (get-in parts [:chosen-results :attr]))
                                   (cond
                                     (and choices-fn? (:loading? @choices-state))
-                                    [:li.loading (get i18n :loading "Loading...")]
+                                    [:li
+                                     (merge
+                                       {:class (str "loading rc-dropdown-choices-loading " (get-in parts [:choices-loading :class]))
+                                        :style (get-in parts [:choices-loading :style] {})}
+                                       (get-in parts [:choices-loading :attr]))
+                                     (get i18n :loading "Loading...")]
                                     (and choices-fn? (:error @choices-state))
-                                    [:li.error (:error @choices-state)]
+                                    [:li
+                                     (merge
+                                       {:class (str "error rc-dropdown-choices-error " (get-in parts [:choices-error :class]))
+                                        :style (get-in parts [:choices-error :style] {})}
+                                       (get-in parts [:choices-error :attr]))
+                                     (:error @choices-state)]
                                     (-> filtered-choices count pos?)
                                     (let [[group-names group-opt-lists] (choices-with-group-headings filtered-choices group-fn)
                                           make-a-choice                 (partial make-choice-item id-fn render-fn callback internal-model)
@@ -604,12 +623,16 @@
                                         (make-choices (first group-opt-lists)) ;; one group means no headings
                                         (apply concat (map make-h-then-choices group-names group-opt-lists))))
                                     :else
-                                    [:li.no-results
-                                     {:on-mouse-down (handler-fn
-                                                       (when (and (:on-no-results-match-click set-to-filter)
-                                                                  (seq @filter-text)
-                                                                  free-text?)
-                                                         (callback @filter-text)))}
+                                    [:li
+                                     (merge
+                                       {:class (str "no-results rc-dropdown-choices-no-results " (get-in parts [:choices-no-results :class]))
+                                        :style (get-in parts [:choices-no-results :style] {})
+                                        :on-mouse-down (handler-fn
+                                                         (when (and (:on-no-results-match-click set-to-filter)
+                                                                    (seq @filter-text)
+                                                                    free-text?)
+                                                           (callback @filter-text)))}
+                                       (get-in parts [:choices-no-results :attr]))
                                      (gstring/format (or (and (seq @filter-text) (:no-results-match i18n))
                                                          (and (empty? @filter-text) (:no-results i18n))
                                                          (:no-results-match i18n)
@@ -622,5 +645,8 @@
            :label    tooltip
            :position (or tooltip-position :below-center)
            :showing? showing?
-           :anchor   dropdown]
+           :anchor   dropdown
+           :class    (str "rc-dropdown-tooltip " (get-in parts [:tooltip :class]))
+           :style    (get-in parts [:tooltip :class] {})
+           :attr     (get-in parts [:tooltip :attr] {})]
           dropdown)))))
