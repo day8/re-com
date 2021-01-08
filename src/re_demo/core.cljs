@@ -47,6 +47,8 @@
             [re-demo.scroller              :as    scroller]
             [re-demo.border                :as    border]
             [re-demo.typeahead             :as    typeahead]
+            [re-demo.v-table               :as    v-table]
+            [re-demo.basic-v-table         :as    basic-v-table]
             [goog.history.EventType        :as    EventType])
   (:import [goog History]))
 
@@ -102,7 +104,9 @@
    {:id :line                   :level :minor :label "Line"               :panel line/panel}
    {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
    {:id :border                 :level :minor :label "Border"             :panel border/panel}
-   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}])
+   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}
+   {:id :v-table                :level :minor :label "V-table"            :panel v-table/panel}
+   {:id :basic-v-table          :level :minor :label "Basic V-table"      :panel basic-v-table/panel}])
 
 
 (defn nav-item

@@ -14,7 +14,7 @@
                             "src/re_demo/v_box.cljs"]
 
               [h-box
-               :gap      "100px"
+               :gap      "100px"]
               :children [[v-box
                            :gap      "10px"
                            :width    "450px"
@@ -22,7 +22,7 @@
                                       [status-text "Stable"]
                                       [p "Same as [h-box] except in the vertical direction."]
                                       [p "See [h-box] for further details."]
-                                      [args-table v-box-args-desc]]]
+                                      [args-table v-box-args-desc]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]

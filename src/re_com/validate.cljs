@@ -433,6 +433,16 @@
   [arg]
   (string? (deref-or-value-peek arg)))
 
+(defn vector-or-atom?
+  "Returns true if the passed argument is a vector (or a vector within an atom), otherwise false/error"
+  [arg]
+  (vector? (deref-or-value-peek arg)))
+
+(defn map-or-atom?
+  "Returns true if the passed argument is a map (or a map within an atom), otherwise false/error"
+  [arg]
+  (map? (deref-or-value-peek arg)))
+
 (defn nillable-string-or-atom?
   "Returns true if the passed argument is a string/nil (or a string/nil within an atom), otherwise false/error"
   [arg]
