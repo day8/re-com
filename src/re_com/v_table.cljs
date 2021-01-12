@@ -170,9 +170,9 @@
 
 (defn top-left-content
   "Render section 1 - the content component"
-  [top-left-renderer col-header-height style attr]
+  [top-left-renderer col-header-height class style attr]
   [box/box ;; content component
-   :class  "v-table-top-left v-table-content"
+   :class  (str "rc-v-table-top-left rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
    :attr   attr
@@ -195,10 +195,12 @@
    - rows                a vector of row maps to render the row-headers from
    - scroll-y            current horizonal scrollbar position in px
   "
-  [row-header-renderer id-fn top-row-index rows scroll-y]
+  [row-header-renderer id-fn top-row-index rows scroll-y class style attr]
   [box/v-box
-   :class    "v-table-row-header-content v-table-content"
-   :style    {:margin-top (px scroll-y :negative)}
+   :class    (str "rc-v-table-row-header-content rc-v-table-content " class)
+   :style    (merge {:margin-top (px scroll-y :negative)}
+                    style)
+   :attr     attr
    :children (map
                (fn [index row]
                  ^{:key (id-fn row)} [row-header-renderer index row])
@@ -211,9 +213,9 @@
   [row-header-renderer id-fn top-row-index rows scroll-y
    row-header-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-height content-rows-height
-   style sel-style attr]
+   class style attr sel-class sel-style sel-attr content-class content-style content-attr]
   [box/v-box ;; viewport component
-   :class    "v-table-row-headers v-table-viewport"
+   :class    (str "rc-v-table-row-headers rc-v-table-viewport " class)
    :style    (merge {:position   "relative"
                      :overflow   "hidden"
                      :max-height (px content-rows-height)}
@@ -226,9 +228,9 @@
    :size     (if row-viewport-height "none" "auto")
    :height   (when row-viewport-height (px row-viewport-height))
    :children [(when selection-allowed?
-                [selection-renderer sel-style]) ;; selection rectangle component
+                [selection-renderer sel-class sel-style sel-attr]) ;; selection rectangle component
               (if row-header-renderer
-                [row-header-content row-header-renderer id-fn top-row-index rows scroll-y] ;; content component
+                [row-header-content row-header-renderer id-fn top-row-index rows scroll-y content-class content-style content-attr] ;; content component
                 "")]])
 
 
@@ -236,9 +238,9 @@
 
 (defn bottom-left-content
   "Render section 3 - the content component"
-  [bottom-left-renderer col-footer-height style attr]
+  [bottom-left-renderer col-footer-height class style attr]
   [box/box ;; content component
-   :class  "v-table-bottom-left v-table-content"
+   :class  (str "rc-v-table-bottom-left rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
    :attr   attr
@@ -257,10 +259,12 @@
    - col-header-renderer function that knows how to render col-headers
    - scroll-x            current horizonal scrollbar position in px
   "
-  [col-header-renderer scroll-x]
+  [col-header-renderer scroll-x class style attr]
   [box/box
-   :class "v-table-col-header-content v-table-content"
-   :style    {:margin-left (px scroll-x :negative)}
+   :class (str "rc-v-table-col-header-content rc-v-table-content " class)
+   :style (merge {:margin-left (px scroll-x :negative)}
+                 style)
+   :attr  attr
    :child [col-header-renderer]])
 
 
@@ -269,9 +273,9 @@
   [col-header-renderer scroll-x
    col-header-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-width col-header-height content-rows-width
-   style sel-style attr]
+   class style attr sel-class sel-style sel-attr content-class content-style content-attr]
   [box/v-box ;; viewport component
-   :class    "v-table-col-headers v-table-viewport"
+   :class    (str "rc-v-table-col-headers rc-v-table-viewport " class)
    :style    (merge {:overflow "hidden"
                      :position "relative"}
                     style)
@@ -283,9 +287,9 @@
    :width    (when row-viewport-width (px row-viewport-width))
    :height   (px (or col-header-height 0))
    :children [(when selection-allowed?
-                [selection-renderer sel-style]) ;; selection rectangle component
+                [selection-renderer sel-class sel-style sel-attr]) ;; selection rectangle component
               (if col-header-renderer
-                [col-header-content col-header-renderer scroll-x] ;; content component
+                [col-header-content col-header-renderer scroll-x content-class content-style content-attr] ;; content component
                 "")]])
 
 
@@ -304,11 +308,13 @@
    - scroll-x      current horizonal scrollbar position in px
    - scroll-y      current horizonal scrollbar position in px
   "
-  [row-renderer id-fn top-row-index rows scroll-x scroll-y]
+  [row-renderer id-fn top-row-index rows scroll-x scroll-y class style attr]
   [box/v-box
-   :class    "v-table-row-content v-table-content"
-   :style    {:margin-left (px scroll-x :negative)
-              :margin-top (px scroll-y :negative)}
+   :class    (str "rc-v-table-row-content rc-v-table-content " class)
+   :style    (merge {:margin-left (px scroll-x :negative)
+                     :margin-top (px scroll-y :negative)}
+                    style)
+   :attr     attr
    :children (map
                (fn [index row]
                  ^{:key (id-fn row)} [row-renderer index row])
@@ -321,9 +327,9 @@
   [row-renderer id-fn top-row-index rows scroll-x scroll-y
    row-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-height row-viewport-width row-viewport-id content-rows-height content-rows-width
-   style sel-style attr]
+   class style attr sel-class sel-style sel-attr content-class content-style content-attr]
   [box/v-box ;; viewport component
-   :class    "v-table-rows v-table-viewport"
+   :class    (str "rc-v-table-rows rc-v-table-viewport " class)
    :style    (merge {:overflow   "hidden"
                      :position   "relative"
                      :max-height (px content-rows-height)}
@@ -338,8 +344,8 @@
    :width    (when row-viewport-width (px row-viewport-width))
    :height   (when row-viewport-height (px row-viewport-height))
    :children [(when selection-allowed?
-                [selection-renderer sel-style]) ;; selection rectangle component
-              [row-content row-renderer id-fn top-row-index rows scroll-x scroll-y]]]) ;; content component
+                [selection-renderer sel-class sel-style sel-attr]) ;; selection rectangle component
+              [row-content row-renderer id-fn top-row-index rows scroll-x scroll-y content-class content-style content-attr]]]) ;; content component
 
 
 ;; ================================================================================== SECTION 6 - col-footers
@@ -353,25 +359,27 @@
    - col-footer-renderer function that knows how to render col-footers
    - scroll-x            current horizonal scrollbar position in px
   "
-  [col-footer-renderer scroll-x]
+  [col-footer-renderer scroll-x class style attr]
   [box/box
-   :class "v-table-col-footer-content v-table-content"
-   :style    {:margin-left (px scroll-x :negative)}
+   :class (str "rc-v-table-col-footer-content rc-v-table-content " class)
+   :style (merge {:margin-left (px scroll-x :negative)}
+                 style)
+   :attr  attr
    :child [col-footer-renderer]])
 
 
 (defn col-footer-viewport
   "Render section 6 - the viewport component (which renders the content component as its child)"
-  [col-footer-renderer scroll-x row-viewport-width col-footer-height style attr]
+  [col-footer-renderer scroll-x row-viewport-width col-footer-height class style attr content-class content-style content-attr]
   [box/box ;; viewport component
-   :class  "v-table-col-footers v-table-viewport"
+   :class  (str "rc-v-table-col-footers rc-v-table-viewport " class)
    :style  (merge {:overflow "hidden"}
                   style)
    :attr   attr
    :width  (when row-viewport-width (px row-viewport-width))
    :height (px (or col-footer-height 0))
    :child  (if col-footer-renderer
-             [col-footer-content col-footer-renderer scroll-x] ;; content component
+             [col-footer-content col-footer-renderer scroll-x content-class content-style content-attr] ;; content component
              "")])
 
 
@@ -379,9 +387,9 @@
 
 (defn top-right-content
   "Render section 7 - the content component"
-  [top-right-renderer col-header-height style attr]
+  [top-right-renderer col-header-height class style attr]
   [box/box ;; content component
-   :class  "v-table-top-right v-table-content"
+   :class  (str  "rc-v-table-top-right rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
    :attr   attr
@@ -404,10 +412,12 @@
    - rows                a vector of row maps to render the row-footers from
    - scroll-y            current horizonal scrollbar position in px
   "
-  [row-footer-renderer id-fn top-row-index rows scroll-y]
+  [row-footer-renderer id-fn top-row-index rows scroll-y class style attr]
   [box/v-box
-   :class    "v-table-row-footer-content v-table-content"
-   :style    {:margin-top (px scroll-y :negative)}
+   :class    (str "rc-v-table-row-footer-content rc-v-table-content " class)
+   :style    (merge {:margin-top (px scroll-y :negative)}
+                    style)
+   :attr     attr
    :children (map
                (fn [index row]
                  ^{:key (id-fn row)} [row-footer-renderer index row])
@@ -419,9 +429,9 @@
   "Render section 8 - the viewport component (which renders the content component as its child)"
   [row-footer-renderer id-fn top-row-index rows scroll-y
    row-viewport-height content-rows-height
-   style attr]
+   class style attr content-class content-style content-attr]
   [box/box ;; viewport component
-   :class  "v-table-row-footers v-table-viewport"
+   :class  (str "rc-v-table-row-footers rc-v-table-viewport " class)
    :style  (merge {:overflow   "hidden"
                    :max-height (px content-rows-height)}
                   style)
@@ -429,7 +439,7 @@
    :size   (if row-viewport-height "none" "auto")
    :height (when row-viewport-height (px row-viewport-height))
    :child  (if row-footer-renderer
-             [row-footer-content row-footer-renderer id-fn top-row-index rows scroll-y] ;; content component
+             [row-footer-content row-footer-renderer id-fn top-row-index rows scroll-y content-class content-style content-attr] ;; content component
              "")])
 
 
@@ -437,9 +447,9 @@
 
 (defn bottom-right-content
   "Render section 9 - the content component"
-  [bottom-right-renderer col-footer-height style attr]
+  [bottom-right-renderer col-footer-height class style attr]
   [box/box ;; content component
-   :class  "v-table-bottom-right v-table-content"
+   :class  (str "rc-v-table-bottom-right rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
    :attr   attr
@@ -822,7 +832,7 @@
 
         ;; The selection rectangle component
         selection-renderer    (fn selection-renderer
-                                [style]
+                                [class style attr]
                                 (let [selecting-down?  (> @sel-content-y-end @sel-content-y-start)
                                       selecting-right? (> @sel-content-x-end @sel-content-x-start)
                                       width            (if selecting-right?
@@ -838,15 +848,18 @@
                                                          (- @sel-content-x-start @scroll-x)
                                                          (- @sel-content-x-start @scroll-x width))]
                                   [:div
-                                   {:style (merge {:position         "absolute"
-                                                   :z-index          1
-                                                   :top              (px top)
-                                                   :left             (px left)
-                                                   :width            (px width)
-                                                   :height           (px height)
-                                                   :background-color "rgba(0,0,255,0.1)"
-                                                   :border           "1px solid rgba(0,0,255,0.4)"}
-                                                  style)}
+                                   (merge
+                                     {:class (str "rc-v-table-selection " class)
+                                      :style (merge {:position         "absolute"
+                                                     :z-index          1
+                                                     :top              (px top)
+                                                     :left             (px left)
+                                                     :width            (px width)
+                                                     :height           (px height)
+                                                     :background-color "rgba(0,0,255,0.1)"
+                                                     :border           "1px solid rgba(0,0,255,0.4)"}
+                                                    style)}
+                                     attr)
                                    ""]))
 
         coords-debug          (reagent/atom nil)            ;; Handy when debugging - used to show selection coords on the left-hand debug section
@@ -1049,7 +1062,7 @@
                           ;; TODO: [DJ] Suggested that the many merges below could be placed in the let above as reaction for performace improvements (readability would suffer a bit)
 
                           [box/h-box
-                           :class    (str "v-table " class)
+                           :class    (str "rc-v-table " class " " (get-in parts [:wrapper :class]))
                            :style    (merge
                                        {:max-width  max-table-width ;; TODO: Can't do equivalent of :max-height because we don't know col-header-width or col-footer-width
                                         :max-height (when remove-empty-row-space?
@@ -1060,13 +1073,13 @@
                                                         scrollbar-tot-thick))}
                                        (get-in parts [:wrapper :style]))
                            :attr     (merge {:on-wheel (handler-fn (on-wheel event))}
-                                            (get-in parts [:v-table :attr]))
+                                            (get-in parts [:wrapper :attr]))
                            :size     "auto"
                            :children [
                                       ;; ========== LEFT SECTION (1, 2, 3) - row header area
 
                                       [box/v-box
-                                       :class    "v-table-left-section"
+                                       :class    (str "rc-v-table-left-section " (get-in parts [:left-section :class]))
                                        :style    (get-in parts [:left-section :style])
                                        :attr     (get-in parts [:left-section :attr])
                                        :children [
@@ -1077,6 +1090,7 @@
                                                    ;-----------------
                                                    col-header-height
                                                    ;-----------------
+                                                   (get-in parts [:top-left :class])
                                                    (get-in parts [:top-left :style])
                                                    (get-in parts [:top-left :attr])]
 
@@ -1096,9 +1110,15 @@
                                                    row-viewport-height
                                                    @content-rows-height
                                                    ;-----------------
+                                                   (get-in parts [:row-headers :class])
                                                    (get-in parts [:row-headers :style])
+                                                   (get-in parts [:row-headers :attr])
+                                                   (get-in parts [:row-header-selection-rect :class])
                                                    (get-in parts [:row-header-selection-rect :style])
-                                                   (get-in parts [:row-headers :attr])]
+                                                   (get-in parts [:row-header-selection-rect :attr])
+                                                   (get-in parts [:row-header-content :class])
+                                                   (get-in parts [:row-header-content :style])
+                                                   (get-in parts [:row-header-content :attr])]
 
                                                   ;; ========== SECTION 3 - bottom-left
 
@@ -1107,6 +1127,7 @@
                                                    ;-----------------
                                                    col-footer-height
                                                    ;-----------------
+                                                   (get-in parts [:bottom-left :class])
                                                    (get-in parts [:bottom-left :style])
                                                    (get-in parts [:bottom-left :attr])]
 
@@ -1115,7 +1136,7 @@
                                       ;; ========== MIDDLE SECTION (4, 5, 6) - column header/footer and content area
 
                                       [box/v-box
-                                       :class    "v-table-middle-section"
+                                       :class    (str "rc-v-table-middle-section " (get-in parts [:middle-section :class]))
                                        :style    (merge {:max-width (px @content-rows-width)}
                                                         (get-in parts [:middle-section :style]))
                                        :attr     (get-in parts [:middle-section :attr])
@@ -1135,9 +1156,15 @@
                                                    col-header-height
                                                    @content-rows-width
                                                    ;-----------------
+                                                   (get-in parts [:col-headers :class])
                                                    (get-in parts [:col-headers :style])
+                                                   (get-in parts [:col-headers :attr])
+                                                   (get-in parts [:col-header-selection-rect :class])
                                                    (get-in parts [:col-header-selection-rect :style])
-                                                   (get-in parts [:col-headers :attr])]
+                                                   (get-in parts [:col-header-selection-rect :attr])
+                                                   (get-in parts [:col-header-content :class])
+                                                   (get-in parts [:col-header-content :style])
+                                                   (get-in parts [:col-header-content :attr])]
 
                                                   ;; ========== SECTION 5 - rows (main content area)
 
@@ -1159,9 +1186,15 @@
                                                    @content-rows-height
                                                    @content-rows-width
                                                    ;-----------------
+                                                   (get-in parts [:rows :class])
                                                    (get-in parts [:rows :style])
+                                                   (get-in parts [:rows :attr])
+                                                   (get-in parts [:row-selection-rect :class])
                                                    (get-in parts [:row-selection-rect :style])
-                                                   (get-in parts [:rows :attr])]
+                                                   (get-in parts [:row-selection-rect :attr])
+                                                   (get-in parts [:row-content :class])
+                                                   (get-in parts [:row-content :style])
+                                                   (get-in parts [:row-content :attr])]
 
                                                   ;; ========== SECTION 6 - col-footers
 
@@ -1172,12 +1205,17 @@
                                                    row-viewport-width
                                                    col-footer-height
                                                    ;-----------------
+                                                   (get-in parts [:col-footers :class])
                                                    (get-in parts [:col-footers :style])
-                                                   (get-in parts [:col-footers :attr])]
+                                                   (get-in parts [:col-footers :attr])
+                                                   (get-in parts [:col-footer-content :class])
+                                                   (get-in parts [:col-footer-content :style])
+                                                   (get-in parts [:col-footer-content :attr])]
 
                                                   ;; ========== Horizontal scrollbar section
 
                                                   [scrollbar
+                                                   :class          (str "rc-v-table-h-scroll " (get-in parts [:h-scroll :class]))
                                                    :type           :horizontal
                                                    :length         @rl-row-viewport-width
                                                    :width          scrollbar-thickness
@@ -1191,7 +1229,7 @@
                                       ;; ========== Right section (7, 8, 9) - row footer area
 
                                       [box/v-box
-                                       :class    "v-table-right-section"
+                                       :class    (str "rc-v-table-right-section " (get-in parts [:right-section :class]))
                                        :style    (get-in parts [:right-section :style])
                                        :attr     (get-in parts [:right-section :attr])
                                        :children [
@@ -1202,6 +1240,7 @@
                                                    ;-----------------
                                                    col-header-height
                                                    ;-----------------
+                                                   (get-in parts [:top-right :class])
                                                    (get-in parts [:top-right :style])
                                                    (get-in parts [:top-right :attr])]
 
@@ -1217,8 +1256,12 @@
                                                    row-viewport-height
                                                    @content-rows-height
                                                    ;-----------------
+                                                   (get-in parts [:row-footers :class])
                                                    (get-in parts [:row-footers :style])
-                                                   (get-in parts [:row-footers :attr])]
+                                                   (get-in parts [:row-footers :attr])
+                                                   (get-in parts [:row-footer-content :class])
+                                                   (get-in parts [:row-footer-content :style])
+                                                   (get-in parts [:row-footer-content :attr])]
 
                                                   ;; ========== SECTION 9 - bottom-right
 
@@ -1227,6 +1270,7 @@
                                                    ;-----------------
                                                    col-footer-height
                                                    ;-----------------
+                                                   (get-in parts [:bottom-right :class])
                                                    (get-in parts [:bottom-right :style])
                                                    (get-in parts [:bottom-right :attr])]
 
@@ -1235,13 +1279,14 @@
                                       ;; ========== Vertical scrollbar section
 
                                       [box/v-box
-                                       :class    "v-table-v-scroll-section"
+                                       :class    (str "rc-v-table-v-scroll-section " (get-in parts [:v-scroll-section :class]))
                                        :style    (get-in parts [:v-scroll-section :style])
                                        :attr     (get-in parts [:v-scroll-section :attr])
                                        :children [[box/gap :size (px (or col-header-height 0))]
                                                   [box/box
                                                    :size  "auto"
                                                    :child [scrollbar
+                                                           :class          (str "rc-v-table-v-scroll " (get-in parts [:v-scroll :class]))
                                                            :type           :vertical
                                                            :length         @rl-row-viewport-height
                                                            :width          scrollbar-thickness

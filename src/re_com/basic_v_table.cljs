@@ -88,7 +88,7 @@
    {:name :scroll-rows-into-view :required false               :type "atom"           :validate-fn map-or-atom?    :description "Set this argument to scroll the table to a particular row range."}
    {:name :scroll-cols-into-view :required false               :type "atom"           :validate-fn map-or-atom?    :description "Set this argument to scroll the table of a particular column range."}
    {:name :class          :required false                 :type "string"                             :validate-fn string?         :description "CSS class names, space separated (applies to the outer container)"}
-   {:name :parts          :required false                 :type "map"                                :validate-fn (parts? #{:wrapper :top-left :row-headers :bottom-left :col-headers :rows :col-footers :h-scroll :top-right :row-footers :bottom-right :v-scroll :row-selection-rect}) :description "See Parts section below."}])
+   {:name :parts          :required false                 :type "map"                                :validate-fn (parts? #{:wrapper :left-section :top-left :row-headers :row-header-selection-rect :row-header-content :bottom-left :middle-section :col-headers :col-header-selection-rect :col-header-content :rows :row-selection-rect :row-content :col-footers :col-footer-content :h-scroll :right-section :top-right :row-footers :row-footer-content :bottom-right :v-scroll-section :v-scroll}) :description "See Parts section below."}])
 
 (defn table
   "Render a v-table and introduce the concept of columns (provide a spec for each).
