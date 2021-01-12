@@ -10,6 +10,7 @@
             [re-com.splits         :as splits]
             [re-com.misc           :as misc]
             [re-com.modal-panel    :as modal-panel]
+            [re-com.multi-select   :as multi-select]
             [re-com.popover        :as popover]
             [re-com.selection-list :as selection-list]
             [re-com.tabs           :as tabs]
@@ -76,6 +77,7 @@
 (def popover-tooltip            popover/popover-tooltip)
 
 (def selection-list             selection-list/selection-list)
+(def multi-select               multi-select/multi-select)
 
 (def horizontal-tabs            tabs/horizontal-tabs)
 (def horizontal-bar-tabs        tabs/horizontal-bar-tabs)

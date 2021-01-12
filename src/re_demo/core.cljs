@@ -38,6 +38,7 @@
             [re-demo.splits                :as    splits]
             [re-demo.tour                  :as    tour]
             [re-demo.modal-panel           :as    modal-panel]
+            [re-demo.multi-select          :as    multi-select]
             [re-demo.h-box                 :as    h-box]
             [re-demo.v-box                 :as    v-box]
             [re-demo.box                   :as    box]
@@ -76,6 +77,7 @@
    {:id :selection              :level :major :label "Selection"}
    {:id :dropdown               :level :minor :label "Dropdown"           :panel dropdowns/panel}
    {:id :lists                  :level :minor :label "Selection List"     :panel selection-list/panel}
+   {:id :multi-select           :level :minor :label "Multi-select List"  :panel multi-select/panel}
    {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
 
