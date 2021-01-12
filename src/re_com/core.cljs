@@ -15,7 +15,9 @@
             [re-com.selection-list :as selection-list]
             [re-com.tabs           :as tabs]
             [re-com.text           :as text]
-            [re-com.tour           :as tour]))
+            [re-com.tour           :as tour]
+            [re-com.v-table        :as v-table]
+            [re-com.basic-v-table  :as basic-v-table]))
 
 ;; -----------------------------------------------------------------------------
 ;; re-com public API (see also re-com.util)
@@ -37,6 +39,9 @@
 (def gap                        box/gap)
 (def scroller                   box/scroller)
 (def border                     box/border)
+
+(def v-table                    v-table/table)
+(def basic-v-table              basic-v-table/table)
 
 (def button                     buttons/button)
 (def md-circle-icon-button      buttons/md-circle-icon-button)
