@@ -103,7 +103,7 @@
                                                                    :align    :center
                                                                    :gap      "5px"
                                                                    :children [[v-box
-                                                                               :children [[:p [:code ":on-change"] " last called with this value: " ]
+                                                                               :children [[:p [:code ":on-change"] " last called with this value: "]
                                                                                           [:pre (str @typeahead-on-change-value)]]]]]
                                                                   [title :level :level3 :label "Parameters"]
                                                                   [v-box
