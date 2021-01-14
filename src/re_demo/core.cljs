@@ -83,6 +83,11 @@
    {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
 
+   {:id :tables                 :level :major :label "Tables"}
+   {:id :basic-v-table          :level :minor :label "Basic V-table"      :panel basic-v-table/panel}
+   {:id :v-table                :level :minor :label "V-table"            :panel v-table/panel}
+
+
    {:id :layers                 :level :major :label "Layers"}
    {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}
    {:id :popovers               :level :minor :label "Popover"            :panel popovers/panel}
@@ -104,9 +109,7 @@
    {:id :line                   :level :minor :label "Line"               :panel line/panel}
    {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
    {:id :border                 :level :minor :label "Border"             :panel border/panel}
-   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}
-   {:id :v-table                :level :minor :label "V-table"            :panel v-table/panel}
-   {:id :basic-v-table          :level :minor :label "Basic V-table"      :panel basic-v-table/panel}])
+   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}])
 
 
 (defn nav-item

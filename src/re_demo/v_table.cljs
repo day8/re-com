@@ -223,7 +223,7 @@
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Notes"]
-                                      [status-text "Stable"]
+                                      [status-text "Alpha" {:color "red" :font-weight "bold"}]
                                       [p "Renders a scrollable table with optional fixed column and row headers and footers, totalling nine addressable sections."]
                                       [p "By default, it only displays rows that are visible, so it is very efficient for large data structures."]
                                       [args-table table-args-desc]]]
