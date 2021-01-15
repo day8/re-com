@@ -459,35 +459,42 @@
 
 ;;============================ PUBLIC API ===================================
 
+(def table-parts
+  #{:wrapper :left-section :top-left :row-headers :row-header-selection-rect :row-header-content :bottom-left
+    :middle-section :col-headers :col-header-selection-rect :col-header-content :rows :row-selection-rect :row-content
+    :col-footers :col-footer-content :h-scroll :right-section :top-right :row-footers :row-footer-content :bottom-right
+    :v-scroll-section :v-scroll})
+
 (def table-args-desc
-  [{:name :model            :required true                   :type "atom"              :validate-fn vector-or-atom?          :description "text of the input (can be atom or value/nil)"}
-   {:name :id-fn            :required false :default :id     :type "row -> anything"   :validate-fn ifn?                     :description [:span "given an row of " [:code ":model"] ", returns its unique identifier (aka id)"]}
-   {:name :virtual?         :required false :default true    :type "boolean"                                                 :description [:span "when true, use virtual feature where only a screen-full (viewport) of rows are rendered at any one time"]}
-   {:name :remove-empty-row-space? :required false :default true    :type "boolean"                                                 :description "Specifies whether to remove empty row space (the space between the last row and the horizontal scrollbar) for small tables that don't fill the space available to the v-table. This will cause the horizontal scrollbar section to be nestled against the last row, and whatever is underneath the v-table to be brought up with it"}
-   {:name :max-table-width   :required false                  :type "string"            :validate-fn string?                  :description "standard CSS max-width setting of the entire v-table"}
-   {:name :top-left-renderer :required false                  :type "-> nil"     :validate-fn fn?                      :description "Render the top left section. Height is determined by the col-header-height arg. Width is determined by the component itself."}
-   {:name :row-header-renderer :required false                  :type "row -> hiccup"     :validate-fn fn?                      :description "Render a single row header. Height is determined by the row-height arg. Width is determined by the component itself."}
-   {:name :row-header-selection-fn :required false                  :type "event -> "     :validate-fn fn?                      :description "If provided, indicates that the row header section is selectable via click+drag."}
-   {:name :bottom-left-renderer :required false                  :type "-> nil"     :validate-fn fn?                      :description "Render the bottom left section. Height is determined by the col-footer-height arg. Width is determined by the component itself."}
-   {:name :col-header-renderer :required false                  :type "-> hiccup"     :validate-fn fn?                      :description "Render the entire column header. Height is determined by the col-header-height arg. Width is determined by the width available to the v-table OR the row-viewport-width arg if specified."}
-   {:name :col-header-height   :required false                  :type "integer"       :validate-fn number?                  :description "px height of the column header section"}
-   {:name :col-header-selection-fn :required false              :type "event ->"      :validate-fn fn?                      :description "if provided, indicates that the column header section is selectable via click+drag"}
-   {:name :row-renderer         :required true                 :type "row-index, row -> hiccup" :validate-fn fn?        :description "Render a single content row"}
-   {:name :row-height           :required true                 :type "integer"        :validate-fn? number?             :description "px height of each row"}
-   {:name :row-content-width    :required true                 :type "integer"        :validate-fn? number?             :description "px width of the content rendered by row-renderer"}
-   {:name :row-viewport-width   :required false                :type "integer"        :validate-fn? number?             :description "px width of the row viewport area. If not specified, takes up all the width available to it."}
-   {:name :row-viewport-height  :required false                :type "integer"        :validate-fn? number?             :description "px height of the row viewport area. If not specified, takes up all height available to it."}
-   {:name :max-row-viewport-height :required false             :type "integer"        :validate-fn? number?             :description "Maximum px height of the row viewport area."}
-   {:name :row-selection-fn    :required false                 :type "event -> "      :validate-fn? fn?             :description "If provided, indicates that the row section is selectable via click+drag"}
-   {:name :col-footer-renderer :required false                 :type "-> hiccup"      :validate-fn? fn?            :description "Render the entire column footer. Height is determined by the col-footer-height arg. Width is determined by the width available to the v-table OR the row-viewport-width arg if specified."}
-   {:name :col-footer-height   :required false                 :type "number"         :validate-fn number?         :description "px height of the column footer section"}
-   {:name :top-right-renderer  :required false                 :type "-> hiccup"      :validate-fn fn?             :description "Render the top right section. Height is determined by the col-header-height arg. Width is determined by the component itself."}
-   {:name :row-footer-renderer :required false                 :type "row -> hiccup"  :validate-fn fn?             :description "Render a single row footer. Height is determined by the row-height arg. Width is determined by the component itself."}
-   {:name :bottom-right-renderer :required false               :type "-> hiccup"      :validate-fn fn?             :description "Render the bottom right section. Height is determined by the col-footer-height arg. Width is determined by the component itself."}
-   {:name :scroll-rows-into-view :required false               :type "atom"           :validate-fn map-or-atom?    :description "Set this argument to scroll the table to a particular row range."}
-   {:name :scroll-cols-into-view :required false               :type "atom"           :validate-fn map-or-atom?    :description "Set this argument to scroll the table of a particular column range."}
-   {:name :class          :required false                 :type "string"                             :validate-fn string?         :description "CSS class names, space separated (applies to the outer container)"}
-   {:name :parts          :required false                 :type "map"                                :validate-fn (parts? #{:wrapper :top-left :row-headers :bottom-left :col-headers :rows :col-footers :h-scroll :top-right :row-footers :bottom-right :v-scroll :row-selection-rect}) :description "See Parts section below."}])
+  ;; TODO deref-or-value model
+  [{:name :model                   :required true                 :type "vector of maps | atom"    :validate-fn vector-or-atom?      :description "one element for each row in the table."}
+   {:name :id-fn                   :required false :default :id   :type "map -> anything"          :validate-fn ifn?                 :description [:span "given a element of " [:code ":model"] ", returns its unique identifier."]}
+   {:name :virtual?                :required false :default true  :type "boolean"                                                    :description [:span "when true, only those rows that are visible are rendered to the DOM."]}
+   {:name :remove-empty-row-space? :required false :default true  :type "boolean"                                                    :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
+   {:name :max-table-width         :required false                :type "string"                   :validate-fn string?              :description "standard CSS max-width setting of the entire table."}
+   {:name :top-left-renderer       :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the top left section (section 1)."}
+   {:name :row-header-renderer     :required false                :type "row -> hiccup"            :validate-fn fn?                  :description "This function returns the hiccup displayed in section row header (section 2)."}
+   {:name :bottom-left-renderer    :required false                :type "-> nil"                   :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the bottom left section (section 3)."}
+   {:name :col-header-renderer     :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the entire column header (section 4)."}
+   {:name :row-renderer            :required true                 :type "row-index, row -> hiccup" :validate-fn fn?                  :description "This function returns the hiccup to display a single content row (section 5)."}
+   {:name :col-footer-renderer     :required false                :type "-> hiccup"                :validate-fn? fn?                 :description "This function returns the hiccup to display the entire column footer (section 6)."}
+   {:name :top-right-renderer      :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the top right section (section 7)."}
+   {:name :row-footer-renderer     :required false                :type "row -> hiccup"            :validate-fn fn?                  :description "This function returns the hiccup to display a single row footer (section 8)."}
+   {:name :bottom-right-renderer   :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the bottom right section (section 9)."}
+   {:name :row-header-selection-fn :required false                :type "event -> "                :validate-fn fn?                  :description "If present, this function will be called on mousedown, mousemove and mouseup events, allowing you to capture user selection of cells, columns or rows in section 2."}
+   {:name :col-header-selection-fn :required false                :type "event ->"                 :validate-fn fn?                  :description "If present, this function will be called on mousedown, mousemove and mouseup events, allowing you to capture user selection of cells, columns or rows in section 4."}
+   {:name :row-selection-fn        :required false                :type "event -> "                :validate-fn? fn?                 :description "If present, this function will be called on mousedown, mousemove and mouseup events, allowing you to capture user selection of cells, columns or rows in section 5."}
+   {:name :col-header-height       :required false                :type "integer"                  :validate-fn number?              :description "px height of the column header section."}
+   {:name :row-height              :required true                 :type "integer"                  :validate-fn? number?             :description "px height of each row."}
+   {:name :row-content-width       :required true                 :type "integer"                  :validate-fn? number?             :description "px width of the content rendered by row-renderer."}
+   {:name :row-viewport-width      :required false                :type "integer"                  :validate-fn? number?             :description "px width of the row viewport area. If not specified, takes up all the width available to it."}
+   {:name :row-viewport-height     :required false                :type "integer"                  :validate-fn? number?             :description "px height of the row viewport area. If not specified, takes up all height available to it."}
+   {:name :max-row-viewport-height :required false                :type "integer"                  :validate-fn? number?             :description "Maximum px height of the row viewport area."}
+   {:name :col-footer-height       :required false                :type "integer"                  :validate-fn number?              :description "px height of the column footer section."}
+   {:name :scroll-rows-into-view   :required false                :type "atom"                     :validate-fn map-or-atom?         :description "Scrolls the table to a particular row range. Map that contains the keys :start-row and :end-row."} ;; TODO [:code ] blocks around keys
+   {:name :scroll-cols-into-view   :required false                :type "atom"                     :validate-fn map-or-atom?         :description "Scrolls the table of a particular column range. Map that contains the keys :start-col and :end-col in pixel units."}
+   {:name :class                   :required false                :type "string"                   :validate-fn string?              :description "CSS class names, space separated (applies to the outer container)."}
+   {:name :parts                   :required false                :type "map"                      :validate-fn (parts? table-parts) :description "See Parts section below."}])
 
 (defn table
   "Renders a scrollable table with optional fixed column and row headers and footers, totalling nine addressable sections
@@ -575,7 +582,7 @@
 
    - top-left-renderer        [optional fn]
                               Render the top left section
-                              Height is determined by the col-header-height arg
+                              Height is determined by the :col-header-height arg
                               Width is determined by the component itself
                               Passed args: none
 

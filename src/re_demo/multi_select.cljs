@@ -1,7 +1,7 @@
 (ns re-demo.multi-select
   (:require [cljs.pprint          :as pprint]
             [reagent.core         :as reagent]
-            [re-com.core          :refer [h-box gap v-box multi-select hyperlink-href p label]]
+            [re-com.core          :refer [h-box box checkbox gap v-box multi-select hyperlink-href p label]]
             [re-com.multi-select  :refer [multi-select-args-desc]]
             [re-demo.utils        :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
             [re-com.util          :refer [px]]))
@@ -197,9 +197,11 @@
                    [:td border-style-nw (code-text ":right-filter-result-count")]
                    [:td border-style ""]]]]]]))
 
-
-
 (def model (reagent/atom #{:tesla-model-s}))
+(def disabled? (reagent/atom false))
+(def required? (reagent/atom false))
+(def filter-box? (reagent/atom true))
+(def regex-filter? (reagent/atom false))
 
 (defn panel
   []
@@ -216,30 +218,70 @@
                             :gap      "10px"
                             :width    "450px"
                             :children [[title2 "Notes"]
-                                       [status-text "Alpha" {:color "red" :font-weight "bold"}]
-                                       [p "A multi-select component."]
+                                       [status-text "Stable"]
+                                       [p "A compound component that allows the user to incrementally build up a selection from a list of choices, often a big list."]
+                                       [p "Choices and selections can optionally be grouped. Filtering is available for big lists."]
+                                       [p "Takes up a lot of screen real estate but can be placed in a popup."]
                                        [args-table multi-select-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Demo"]
+                                      [title3 "Parameters"]
+                                      [h-box
+                                       :children [[checkbox
+                                                   :label     [box
+                                                               :align :start
+                                                               :child [:code ":disabled?"]]
+                                                   :model     disabled?
+                                                   :on-change #(reset! disabled? %)]
+                                                  [checkbox
+                                                   :label     [box
+                                                               :align :start
+                                                               :child [:code ":required?"]]
+                                                   :model     required?
+                                                   :on-change #(reset! required? %)]
+                                                  [checkbox
+                                                   :label     [box
+                                                               :align :start
+                                                               :child [:code ":filter-box?"]]
+                                                   :model     filter-box?
+                                                   :on-change #(reset! filter-box? %)]
+                                                  [checkbox
+                                                   :label     [box
+                                                               :align :start
+                                                               :child [:code ":regex-filter?"]]
+                                                   :model     regex-filter?
+                                                   :on-change #(reset! regex-filter? %)]]]
+
                                       [h-box
                                        :children [[label :label [:code ":model"]]
                                                   [:code (with-out-str (pprint/pprint @model))]]]
                                       [multi-select
-                                       :width       "450px"
-                                       :left-label  "foo"
-                                       :right-label "bar"
-                                       :choices     [{:id :tesla-model-s  :label "Model S" :group "Tesla"}
-                                                     {:id :tesla-model-3  :label "Model 3" :group "Tesla"}
-                                                     {:id :porsche-taycan :label "Taycan"  :group "Porsche"}
-                                                     {:id :renault-zoe    :label "Zoe"     :group "Renault"}
-                                                     {:id :kia-e-niro     :label "e-Niro"  :group "Kia"}
-                                                     {:id :kia-soul       :label "Soul"    :group "Kia"}]
-                                       :model       model
-                                       :sort-fn     :group
-                                       :filter-box? true
-                                       :on-change   #(reset! model %)]]]]]
+                                       :width         "450px"
+                                       :left-label    "Car Choices"
+                                       :right-label   "Cars Selected"
+                                       :placeholder   "Select some cars."
+                                       :disabled?     disabled?
+                                       :required?     required?
+                                       :filter-box?   filter-box?
+                                       :regex-filter? regex-filter?
+                                       :choices       [{:id :tesla-model-s          :label "Model S"        :group "Tesla"}
+                                                       {:id :tesla-model-3          :label "Model 3"        :group "Tesla"}
+                                                       {:id :porsche-taycan         :label "Taycan"         :group "Porsche"}
+                                                       {:id :renault-zoe            :label "Zoe"            :group "Renault"}
+                                                       {:id :kia-e-niro             :label "e-Niro"         :group "Kia"}
+                                                       {:id :kia-soul               :label "Soul"           :group "Kia"}
+                                                       {:id :vw-id3                 :label "ID.3"           :group "VW"}
+                                                       {:id :vw-e-up                :label "e-Up"           :group "VW"}
+                                                       {:id :mini-electric          :label "Electric"       :group "Mini"}
+                                                       {:id :ford-mustang-mach-e    :label "Mustang Mach-E" :group "Ford"}
+                                                       {:id :volvo-xc40-recharge    :label "XC40 Recharge"  :group "Volvo"}
+                                                       {:id :hyundai-ioniq-electric :label "Ioniq Electric" :group "Hyundai"}]
+                                       :model         model
+                                       :sort-fn       :group
+                                       :filter-box?   true
+                                       :on-change     #(reset! model %)]]]]]
               [multi-select-component-hierarchy]]])
 
 

@@ -67,28 +67,27 @@
             ((:row-label-fn col) row)]))))
 
 (def table-args-desc
-  [{:name :model            :required true                   :type "atom"              :validate-fn vector-or-atom?          :description "text of the input (can be atom or value/nil)"}
-   {:name :id-fn            :required false :default :id     :type "row -> anything"   :validate-fn ifn?                     :description [:span "given an row of " [:code ":model"] ", returns its unique identifier (aka id)"]}
-   {:name :virtual?         :required false :default true    :type "boolean"                                                 :description [:span "when true, use virtual feature where only a screen-full (viewport) of rows are rendered at any one time"]}
-   {:name :remove-empty-row-space? :required false :default true    :type "boolean"                                                 :description "Specifies whether to remove empty row space (the space between the last row and the horizontal scrollbar) for small tables that don't fill the space available to the v-table. This will cause the horizontal scrollbar section to be nestled against the last row, and whatever is underneath the v-table to be brought up with it"}
-   {:name :max-table-width   :required false                  :type "string"            :validate-fn string?                  :description "standard CSS max-width setting of the entire v-table"}
-   {:name :top-left-renderer :required false                  :type "-> nil"     :validate-fn fn?                      :description "Render the top left section. Height is determined by the col-header-height arg. Width is determined by the component itself."}
-   {:name :row-header-renderer :required false                  :type "row -> hiccup"     :validate-fn fn?                      :description "Render a single row header. Height is determined by the row-height arg. Width is determined by the component itself."}
-   {:name :row-header-selection-fn :required false                  :type "event -> "     :validate-fn fn?                      :description "If provided, indicates that the row header section is selectable via click+drag."}
-   {:name :col-header-renderer :required false                  :type "-> hiccup"     :validate-fn fn?                      :description "Render the entire column header. Height is determined by the col-header-height arg. Width is determined by the width available to the v-table OR the row-viewport-width arg if specified."}
-   {:name :col-header-height   :required false                  :type "integer"       :validate-fn number?                  :description "px height of the column header section"}
-   {:name :col-header-selection-fn :required false              :type "event ->"      :validate-fn fn?                      :description "if provided, indicates that the column header section is selectable via click+drag"}
-   {:name :row-renderer         :required true                 :type "row-index, row -> hiccup" :validate-fn fn?        :description "Render a single content row"}
-   {:name :row-height           :required true                 :type "integer"        :validate-fn? number?             :description "px height of each row"}
-   {:name :row-content-width    :required true                 :type "integer"        :validate-fn? number?             :description "px width of the content rendered by row-renderer"}
-   {:name :row-viewport-width   :required false                :type "integer"        :validate-fn? number?             :description "px width of the row viewport area. If not specified, takes up all the width available to it."}
-   {:name :row-viewport-height  :required false                :type "integer"        :validate-fn? number?             :description "px height of the row viewport area. If not specified, takes up all height available to it."}
-   {:name :max-row-viewport-height :required false             :type "integer"        :validate-fn? number?             :description "Maximum px height of the row viewport area."}
-   {:name :row-selection-fn    :required false                 :type "event -> "      :validate-fn? fn?             :description "If provided, indicates that the row section is selectable via click+drag"}
-   {:name :scroll-rows-into-view :required false               :type "atom"           :validate-fn map-or-atom?    :description "Set this argument to scroll the table to a particular row range."}
-   {:name :scroll-cols-into-view :required false               :type "atom"           :validate-fn map-or-atom?    :description "Set this argument to scroll the table of a particular column range."}
-   {:name :class          :required false                 :type "string"                             :validate-fn string?         :description "CSS class names, space separated (applies to the outer container)"}
-   {:name :parts          :required false                 :type "map"                                :validate-fn (parts? #{:wrapper :left-section :top-left :row-headers :row-header-selection-rect :row-header-content :bottom-left :middle-section :col-headers :col-header-selection-rect :col-header-content :rows :row-selection-rect :row-content :col-footers :col-footer-content :h-scroll :right-section :top-right :row-footers :row-footer-content :bottom-right :v-scroll-section :v-scroll}) :description "See Parts section below."}])
+  [{:name :model                     :required true                     :type "vector of maps | atom"    :validate-fn vector-or-atom?              :description "one element for each row in the table."}
+   {:name :cols                      :required true                     :type "vector of maps"           :validate-fn vector-or-atom?              :description "one element for each column in the table. May contain :id, :header-label, :row-label-fn, :width, :align and :v-align."}
+   {:name :fixed-left-col-count      :required false :default 0         :type "integer"                  :validate-fn number?                      :description "the number of non-scrolling columns fixed on the left."}
+   ;; TODO descriptions. 3 following put an event handler on the row...
+   {:name :on-click-row              :required false                    :type "function"                 :validate-fn ifn?                         :description ""}
+   {:name :on-enter-row              :required false                    :type "function"                 :validate-fn ifn?                         :description ""}
+   {:name :on-leave-row              :required false                    :type "function"                 :validate-fn ifn?                         :description ""}
+   {:name :col-header-height         :required false :default 31        :type "integer"                  :validate-fn number?                      :description "px height of the column header section"}
+   {:name :row-height                :required false :default 31        :type "integer"                  :validate-fn? number?                     :description "px height of each row"}
+   {:name :max-rows                  :required false :default 8         :type "integer"                  :validate-fn? number?                     :description "The maximum number of rows to display in the table without scrolling."}
+   {:name :table-padding             :required false :default 19        :type "integer"                  :validate-fn? number?                     :description "Padding in pixels for the table."}
+   {:name :table-row-line-color      :required false :default "#EAEEF1" :type "string"                   :validate-fn? string?                     :description "The CSS color of the line between rows."}
+   {:name :fixed-column-border-color :required false :default "#BBBEC0" :type "string"                   :validate-fn? string?                     :description "The CSS color of the column border."}
+   {:name :max-table-width           :required false                    :type "string"                   :validate-fn string?                      :description "standard CSS max-width setting of the entire table"}
+   {:name :wrapper-style             :required false                    :type "map"                      :validate-fn map?                         :description "CSS styles to add or override on the outer container."}
+   {:name :header-renderer           :required false                    :type "function"                 :validate-fn ifn?                         :description ""}
+   {:name :header-style              :required false                    :type "map | function"           :validate-fn #(or (ifn? %) (map? %))      :description "CSS styles to add or override on the header."}
+   {:name :row-style                 :required false                    :type "map | function"           :validate-fn #(or (ifn? %) (map? %))      :description "CSS styles to add or override on each row."}
+   {:name :cell-style                :required false                    :type "map | function"           :validate-fn #(or (ifn? %) (map? %))      :description "CSS styles to add or override on each cell."}
+   {:name :class                     :required false                    :type "string"                   :validate-fn string?                      :description "CSS class names, space separated (applies to the outer container)."}
+   {:name :parts                     :required false                    :type "map"                      :validate-fn (parts? v-table/table-parts) :description "See Parts section below."}])
 
 (defn table
   "Render a v-table and introduce the concept of columns (provide a spec for each).
@@ -99,10 +98,10 @@
    - (cell-style row col)
   where row is the data for that row and col is the definition map for that column
   "
-  [& {:keys [model cols fixed-col-count on-click-row on-enter-row on-leave-row col-header-height row-height max-rows
+  [& {:keys [model cols fixed-left-col-count on-click-row on-enter-row on-leave-row col-header-height row-height max-rows
              table-padding table-row-line-color fixed-column-border-color max-table-width
-             wrapper-style header-renderer header-style row-style cell-style style-parts class]
-      :or   {fixed-col-count           0
+             wrapper-style header-renderer header-style row-style cell-style class parts]
+      :or   {fixed-left-col-count      0
              table-padding             19               ;; Based on g/s-19
              max-rows                  8
              row-height                31               ;; Based on g/s-31
@@ -110,7 +109,7 @@
              table-row-line-color      "#EAEEF1"
              fixed-column-border-color "#BBBEC0"
              header-renderer           render-header}}]
-  (let [fcc-bounded            (min fixed-col-count (count cols))
+  (let [fcc-bounded            (min fixed-left-col-count (count cols))
         fixed-cols             (subvec cols 0 fcc-bounded)
         content-cols           (subvec cols fcc-bounded (count cols))
         fixed-content-width    (reduce #(+ %1 (:width %2)) 0 fixed-cols)
@@ -118,7 +117,7 @@
         table-border-style     (str "1px solid " table-row-line-color)
         fixed-col-border-style (str "1px solid " fixed-column-border-color)
         actual-table-width     (+ fixed-content-width
-                                  (when (pos? fixed-col-count) 1) ;; 1 border width (for fixed-col-border)
+                                  (when (pos? fixed-left-col-count) 1) ;; 1 border width (for fixed-col-border)
                                   content-width
                                   v-table/scrollbar-tot-thick
                                   (* 2 table-padding)
@@ -148,9 +147,10 @@
              ;:max-table-width         (px (or max-table-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick)))
 
              :class                   class
-             :style-parts             (merge {:v-table {:font-size "13px"
-                                                        :cursor    "default"}}
-                                             (when (pos? fixed-col-count)
-                                               {:v-table-top-left    {:border-right fixed-col-border-style}
-                                                :v-table-row-headers {:border-right fixed-col-border-style}})
-                                             style-parts)]]))
+             ;; TODO do we need to fix nested merging w/ [:parts :name :style] etc ?
+             :parts                   (merge {:wrapper {:style {:font-size "13px"
+                                                                :cursor    "default"}}}
+                                             (when (pos? fixed-left-col-count)
+                                               {:top-left    {:style {:border-right fixed-col-border-style}}
+                                                :row-headers {:style {:border-right fixed-col-border-style}}})
+                                             parts)]]))

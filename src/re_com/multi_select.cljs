@@ -9,7 +9,7 @@
     [re-com.buttons              :as buttons]
     [re-com.close-button         :as close-button]
     [re-com.misc                 :as misc]
-    [re-com.util                 :as rc.util]
+    [re-com.util                 :as rc.util :refer [deref-or-value]]
     [re-com.validate             :as validate :refer [string-or-hiccup? parts?] :refer-macros [validate-args-macro]]
     [reagent.core                :as reagent]))
 
@@ -190,31 +190,37 @@
 ;; LHS: set of candidates with selected id set removed, sorted/grouped by fn
 ;; RHS: set of candidates selecting on id, sorted/grouped by fn
 
-(def multi-select-args-desc
-  [{:name :choices            :required true                      :type "vector of choices | atom"          :validate-fn validate/vector-of-maps?   :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]]}
-   {:name :model              :required true                      :type "a set of ids from choices | atom"                                          :description [:span "a set of selected ids from choice. If nil, " [:code ":placeholder"] " text is shown"]}
-   {:name :required?          :required false :default false      :type "boolean | atom"                                                            :description "when true, at least one item must be selected"}
-   {:name :max-selected-items :required false :default nil        :type "integer"                                                                   :description "maximum number of items allowed to be transferred from the left list to the right list"}
-   {:name :left-label         :required false                     :type "string | hiccup"                   :validate-fn string-or-hiccup?          :description "heading for the left list"}
-   {:name :right-label        :required false                     :type "string | hiccup"                   :validate-fn string-or-hiccup?          :description "heading for the right list"}
-   {:name :on-change          :required true                      :type "id -> nil"                         :validate-fn fn?                        :description [:span "called when a new choice is selected. Passed the id of new choice"]}
-   {:name :id-fn              :required false :default :id        :type "choice -> anything"                :validate-fn ifn?                       :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
-   {:name :label-fn           :required false :default :label     :type "choice -> string | hiccup"         :validate-fn ifn?                       :description [:span "given an element of " [:code ":choices"] ", returns its displayable label"]}
-   {:name :group-fn           :required false :default :group     :type "choice -> anything"                :validate-fn ifn?                       :description [:span "given an element of " [:code ":choices"] ", returns its group identifier"]}
-   {:name :sort-fn            :required false :default "identity" :type "choice -> anything"                :validate-fn ifn?                       :description "Sorting function"}
-   {:name :disabled?          :required false :default false      :type "boolean | atom"                                                            :description "if true, no user selection is allowed"}
-   {:name :filter-box?        :required false :default false      :type "boolean"                                                                   :description "if true, a filter text field is placed at the bottom of the component"}
-   {:name :regex-filter?      :required false :default false      :type "boolean | atom"                                                            :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
-   {:name :placeholder        :required false                     :type "string"                            :validate-fn string?                    :description "background text when no selection"}
-   {:name :width              :required false :default "100%"     :type "string"                            :validate-fn string?                    :description "the CSS width. e.g.: \"500px\" or \"20em\""}
-   {:name :height             :required false                     :type "string"                            :validate-fn string?                    :description "the specific height of the component"}
-   {:name :max-height         :required false                     :type "string"                            :validate-fn string?                    :description "the maximum height of the component"}
-   {:name :tab-index          :required false                     :type "integer | string"                  :validate-fn validate/number-or-string? :description "component's tabindex. A value of -1 removes from order"}
-   {:name :class              :required false                     :type "string"                            :validate-fn string?                    :description "CSS class names, space separated"}
-   {:name :style              :required false                     :type "CSS style map"                     :validate-fn validate/css-style?        :description "CSS styles to add or override"}
-   {:name :attr               :required false                     :type "HTML attr map"                     :validate-fn validate/html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-   {:name :parts              :required false                     :type "map"                               :validate-fn (parts? #{:container :left :left-label-container :left-label :left-label-item-count :left-list-box :filter-text-box :filter-input-text :filter-reset-button :left-filter-result-count :middle-container :middle-top-spacer :middle :include-all-button :include-selected-button :exclude-selected-button :exclude-all-button :middle-bottom-spacer :right :warning-message :right-label-container :right-label :right-label-item-count :right-list-box :right-filter-result-count}) :description "See Parts section below."}])
+(def multi-select-parts
+  #{:container :left :left-label-container :left-label :left-label-item-count :left-list-box :filter-text-box
+    :filter-input-text :filter-reset-button :left-filter-result-count :middle-container :middle-top-spacer :middle
+    :include-all-button :include-selected-button :exclude-selected-button :exclude-all-button :middle-bottom-spacer
+    :right :warning-message :right-label-container :right-label :right-label-item-count :right-list-box
+    :right-filter-result-count})
 
+(def multi-select-args-desc
+  [{:name :choices            :required true                      :type "vector of maps | atom"    :validate-fn validate/vector-of-maps?   :description [:span "Each map represents a choice. Values corresponding to id, label and, optionally, a group, are extracted by the functions " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]  ". See below."]}
+   {:name :id-fn              :required false :default :id        :type "map -> anything"          :validate-fn ifn?                       :description [:span "a function taking one argument (a map) and returns the unique identifier for that map. Called for each element in " [:code ":choices"]]}
+   {:name :label-fn           :required false :default :label     :type "map -> string | hiccup"   :validate-fn ifn?                       :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
+   {:name :group-fn           :required false :default :group     :type "map -> string | hiccup"   :validate-fn ifn?                       :description [:span "a function taking one argument (a map) and returns the group identifier for that map. Called for each element in " [:code ":choices"]]}
+   {:name :sort-fn            :required false :default " compare"  :type "map, map -> integer"     :validate-fn ifn?                       :description [:span "The comparator function used with " [:code "cljs.core/sort-by"] " to sort choices."]}
+   {:name :model              :required true                      :type "a set of ids | atom"                                              :description [:span "a set of the ids for currently selected choices. If nil, see " [:code ":placeholder"] "."]}
+   {:name :required?          :required false :default false      :type "boolean | atom"                                                   :description "when true, at least one item must be selected"}
+   {:name :max-selected-items :required false :default nil        :type "integer"                                                          :description "maximum number of items that can be selected"}
+   {:name :left-label         :required false                     :type "string | hiccup"          :validate-fn string-or-hiccup?          :description "label displayed above the left list"}
+   {:name :right-label        :required false                     :type "string | hiccup"          :validate-fn string-or-hiccup?          :description "label displayed above the right list"}
+   {:name :on-change          :required true                      :type "id -> nil"                :validate-fn fn?                        :description [:span "a function that will be called when the selection changes. Passed the set of selected ids. See " [:code ":model"] "."]}
+   {:name :disabled?          :required false :default false      :type "boolean | atom"                                                   :description "if true, no user selection is allowed"}
+   {:name :filter-box?        :required false :default false      :type "boolean | atom"                                                   :description "if true, a filter text field is placed at the bottom of the component"}
+   {:name :regex-filter?      :required false :default false      :type "boolean | atom"                                                   :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
+   {:name :placeholder        :required false                     :type "string"                   :validate-fn string?                    :description "background text when no selection"} ;; TODO this is actually broken, does not display background text
+   {:name :width              :required false :default "100%"     :type "string"                   :validate-fn string?                    :description "the CSS width. e.g.: \"500px\" or \"20em\""}
+   {:name :height             :required false                     :type "string"                   :validate-fn string?                    :description "the specific height of the component"}
+   {:name :max-height         :required false                     :type "string"                   :validate-fn string?                    :description "the maximum height of the component"}
+   {:name :tab-index          :required false                     :type "integer | string"         :validate-fn validate/number-or-string? :description "component's tabindex. A value of -1 removes from the tab order"}
+   {:name :class              :required false                     :type "string"                   :validate-fn string?                    :description "CSS class names, space separated"}
+   {:name :style              :required false                     :type "CSS style map"            :validate-fn validate/css-style?        :description "CSS styles to add or override"}
+   {:name :attr               :required false                     :type "HTML attr map"            :validate-fn validate/html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+   {:name :parts              :required false                     :type "map"                      :validate-fn (parts? multi-select-parts) :description "See Parts section below."}])
 
 (defn multi-select
   "Render a multi-select component which emulates the bootstrap-choosen style. Sample choices object:
@@ -251,11 +257,14 @@
             :or   {id-fn     :id
                    label-fn  :label
                    group-fn  :group
-                   sort-fn   identity
+                   sort-fn   compare
                    required? false}
             :as   args}]
       {:pre [(validate-args-macro multi-select-args-desc args "multi-select")]}
-      (let [min-msg                "Must have at least one"
+      (let [required?              (deref-or-value required?)
+            filter-box?            (deref-or-value filter-box?)
+            regex-filter?          (deref-or-value regex-filter?)
+            min-msg                "Must have at least one"
             max-msg                (str "Max items allowed is " max-selected-items)
             group-fn               (or group-fn ::$$$) ;; TODO: If nil is passed because of a when, this will prevent exceptions...smelly!
             choices                (set (rc.util/deref-or-value choices))

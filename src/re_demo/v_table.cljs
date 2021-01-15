@@ -226,6 +226,8 @@
                                       [status-text "Alpha" {:color "red" :font-weight "bold"}]
                                       [p "Renders a scrollable table with optional fixed column and row headers and footers, totalling nine addressable sections."]
                                       [p "By default, it only displays rows that are visible, so it is very efficient for large data structures."]
+                                      [p [:code ":model"] " does not have to be a vector of maps, it can be a vector of anything as long as the renderer functions and " [:code ":id-fn"] " are written to handle whatever type(s) are in the vector."]
+                                      ;; TODO: define viewport area(s)
                                       [args-table table-args-desc]]]
                           [v-box
                            :gap      "10px"
