@@ -1,5 +1,5 @@
 (ns re-demo.v-table
-  (:require [re-com.core    :refer [h-box gap v-box v-table hyperlink-href p]]
+  (:require [re-com.core    :refer [h-box gap v-box box v-table hyperlink-href p label]]
             [re-com.v-table :refer [table-args-desc]]
             [re-demo.utils  :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
             [re-com.util   :refer [px]]))
@@ -224,10 +224,92 @@
                            :width    "450px"
                            :children [[title2 "Notes"]
                                       [status-text "Alpha" {:color "red" :font-weight "bold"}]
-                                      [p "Renders a scrollable table with optional fixed column and row headers and footers, totalling nine addressable sections."]
-                                      [p "By default, it only displays rows that are visible, so it is very efficient for large data structures."]
+                                      [p "This Component provides a framework for creating a large table-like visual structure - something organised into rows with a horizontal structure (columns?). It is up to you if it is read-only or read-write."]
+                                      [p "But this Component is low level and abstract.  While it can be very flexible in some ways, it is rigid in others, so you'll have to figure out if it is appropriate for your usecase."]
+                                      [p "It is a framework. You supply a bunch of functions which do the work and it coordinates their input. Essentially, it provides you with a scrolling and virtualisation infrastructure."]
+                                      [p "Imagine an Excel workbook. It is a large \"canvas\" of rows and columns,  too big to be viewed all at once.  You must use scrollbars to see it all.  Now imagine you want to \"lock/freeze\" a few rows at the top because they contain `column headings` and then also a few rows at the bottom which contain say, totals - call them `column footers`. Likewise, we want to lock/freeze a few left-most columns - let's call this area \"row headers\", and some of the right-most columns - call that `row-footers`.  Now, as  you scroll around the large worksheet, these locked areas always remain in view - eg: you can always see the column headings.  As you scroll left and right, the column headings (and footers) scroll horizontally in-sync with the central body of cells/worksheet.  So too the row-headers and row-footers scroll vertically to match the main body of worksheet/cells you are viewing."]
+                                      [p "So, this Component will help you to create a virtual, scrolling table structure.  It models a table as having up to nine optional `sections`:  the four locked ones described above, plus the centre \"body\", and finally the four corners created by the intersection of the locked section (top-left, bottom-right, etc)."]
+                                      [v-box
+                                       :style    {:border "1px solid #333"}
+                                       :children [[h-box
+                                                   :justify  :center
+                                                   :align    :center
+                                                   :height   "70px"
+                                                   :style    {:border-bottom "1px solid #333"}
+                                                   :children [[box
+                                                               :size    "1"
+                                                               :height  "100%"
+                                                               :align   :center
+                                                               :justify :center
+                                                               :style   {:border-right "1px solid #333"}
+                                                               :child   [:span "top-left (1)"]]
+                                                              [box
+                                                               :size    "1"
+                                                               :height  "100%"
+                                                               :align   :center
+                                                               :justify :center
+                                                               :style   {:border-right "1px solid #333"}
+                                                               :child [:span "col-headers (4)"]]
+                                                              [box
+                                                               :size    "1"
+                                                               :height  "100%"
+                                                               :align   :center
+                                                               :justify :center
+                                                               :child [:span "top-right (7)"]]]]
+                                                  [h-box
+                                                   :justify  :center
+                                                   :align    :center
+                                                   :height   "150px"
+                                                   :style    {:border-bottom "1px solid #333"}
+                                                   :children [[box
+                                                               :size    "1"
+                                                               :height  "100%"
+                                                               :align   :center
+                                                               :justify :center
+                                                               :style   {:border-right "1px solid #333"}
+                                                               :child   [:span "row-headers (2)"]]
+                                                              [box
+                                                               :size    "1"
+                                                               :height  "100%"
+                                                               :align   :center
+                                                               :justify :center
+                                                               :style   {:border-right "1px solid #333"}
+                                                               :child   [:span "rows (5)"]]
+                                                              [box
+                                                               :size    "1"
+                                                               :height  "100%"
+                                                               :align   :center
+                                                               :justify :center
+                                                               :child   [:span "row-footers (8)"]]]]
+                                                  [h-box
+                                                   :justify  :center
+                                                   :align    :center
+                                                   :height   "70px"
+                                                   :children [[box
+                                                               :size    "1"
+                                                               :height  "100%"
+                                                               :align   :center
+                                                               :justify :center
+                                                               :style   {:border-right "1px solid #333"}
+                                                               :child   [:span "bottom-left (3)"]]
+                                                              [box
+                                                               :size    "1"
+                                                               :height  "100%"
+                                                               :align   :center
+                                                               :justify :center
+                                                               :style   {:border-right "1px solid #333"}
+                                                               :child   [:span "col-footers (6)"]]
+                                                              [box
+                                                               :size    "1"
+                                                               :height  "100%"
+                                                               :align   :center
+                                                               :justify :center
+                                                               :child   [:span "bottom-right (9)"]]]]]]
+                                      [p "Except, this Component is sufficiently abstract that it has no native concept of columns - which is kinda odd for something calling itself \"a table\". However, it does understand rows - indeed, the design is very row centric - and it does understand that rows have a horizontal extent. If your rows have columns, you'll have to render them yourself."]
+                                      [p "This Component will allow you to have a million rows in your table because it \nwill render only those few which are currently viewable, but it does not virtualise the horizontal extent of the row - each visible row will be fully rendered to DOM."]
+                                      [p "So, it is a good framework for representing complicated spreadsheet with many rows, but not too many columns. Or perhaps Gannt Charts (although rendering lines up and down across rows involves swimming slightly against the tide abstractions-wise).  But, anyway, that sort of thing."]
+                                      [p "BTW, all rows must have the same fixed height."]
                                       [p [:code ":model"] " does not have to be a vector of maps, it can be a vector of anything as long as the renderer functions and " [:code ":id-fn"] " are written to handle whatever type(s) are in the vector."]
-                                      ;; TODO: define viewport area(s)
                                       [args-table table-args-desc]]]
                           [v-box
                            :gap      "10px"
