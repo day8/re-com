@@ -227,7 +227,8 @@
    {:name :margin-left          :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the horiztonal offset from anchor after position"}
    {:name :margin-top           :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the vertical offset from anchor after position"}
    {:name :tooltip-style?       :required false :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
-   {:name :title                :required false                       :type "string | markup"                                 :description "describes a title"}])
+   {:name :title                :required false                       :type "string | markup"                                 :description "describes a title"}
+   {:name :class                :required false                       :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}])
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
@@ -268,13 +269,14 @@
 
        :reagent-render
        (fn
-         [& {:keys [children position position-offset width height popover-color popover-border-color arrow-length arrow-width arrow-gap padding margin-left margin-top tooltip-style? title]
+         [& {:keys [children position position-offset width height popover-color popover-border-color arrow-length arrow-width arrow-gap padding margin-left margin-top tooltip-style? title class]
              :or {arrow-length 11 arrow-width 22 arrow-gap -1}
              :as args}]
          {:pre [(validate-args-macro popover-border-args-desc args "popover-border")]}
          (let [[orientation grey-arrow?] (calc-metrics @position)]
            [:div.popover.fade.in
-            {:id pop-id
+            {:class (str "rc-popover-border " class)
+             :id    pop-id
              :style (merge (if @rendered-once
                              (when pop-id (calc-popover-pos orientation @p-width @p-height @pop-offset arrow-length arrow-gap))
                              {:top "-10000px" :left "-10000px"})
@@ -382,11 +384,11 @@
                  attr)
           (when (and (deref-or-value showing-injected?)  on-cancel)
             [backdrop
-             :class    (get-in parts [:backdrop :class])
+             :class    (get-in parts [:backdrop :class] "")
              :opacity  backdrop-opacity
              :on-click on-cancel])
           [popover-border
-           :class                (get-in parts [:border :class])
+           :class                (get-in parts [:border :class] "")
            :position             position-injected
            :position-offset      position-offset
            :width                width
@@ -399,7 +401,7 @@
            :arrow-gap            arrow-gap
            :padding              padding
            :title                (when title [popover-title
-                                              :class          (get-in parts [:title :class])
+                                              :class          (get-in parts [:title :class] "")
                                               :title          title
                                               :showing?       showing-injected?
                                               :close-button?  close-button?
