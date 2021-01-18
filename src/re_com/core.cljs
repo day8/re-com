@@ -14,6 +14,7 @@
             [re-com.popover        :as popover]
             [re-com.selection-list :as selection-list]
             [re-com.tabs           :as tabs]
+            [re-com.tag-dropdown   :as tag-dropdown]
             [re-com.text           :as text]
             [re-com.tour           :as tour]
             [re-com.v-table        :as v-table]
@@ -83,6 +84,7 @@
 
 (def selection-list             selection-list/selection-list)
 (def multi-select               multi-select/multi-select)
+(def tag-dropdown               tag-dropdown/tag-dropdown)
 
 (def horizontal-tabs            tabs/horizontal-tabs)
 (def horizontal-bar-tabs        tabs/horizontal-bar-tabs)

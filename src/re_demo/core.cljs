@@ -46,6 +46,7 @@
             [re-demo.line                  :as    line]
             [re-demo.scroller              :as    scroller]
             [re-demo.border                :as    border]
+            [re-demo.tag-dropdown          :as    tag-dropdown]
             [re-demo.typeahead             :as    typeahead]
             [re-demo.v-table               :as    v-table]
             [re-demo.basic-v-table         :as    basic-v-table]
@@ -80,6 +81,7 @@
    {:id :dropdown               :level :minor :label "Dropdown"           :panel dropdowns/panel}
    {:id :lists                  :level :minor :label "Selection List"     :panel selection-list/panel}
    {:id :multi-select           :level :minor :label "Multi-select List"  :panel multi-select/panel}
+   {:id :tag-dropdown           :level :minor :label "Tag Dropdown"       :panel tag-dropdown/panel}
    {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
 
