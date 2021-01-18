@@ -244,7 +244,7 @@
                                                                :style   {:border-right "1px solid #333"}
                                                                :child   [:span "top-left (1)"]]
                                                               [box
-                                                               :size    "1"
+                                                               :size    "2"
                                                                :height  "100%"
                                                                :align   :center
                                                                :justify :center
@@ -269,7 +269,7 @@
                                                                :style   {:border-right "1px solid #333"}
                                                                :child   [:span "row-headers (2)"]]
                                                               [box
-                                                               :size    "1"
+                                                               :size    "2"
                                                                :height  "100%"
                                                                :align   :center
                                                                :justify :center
@@ -293,7 +293,7 @@
                                                                :style   {:border-right "1px solid #333"}
                                                                :child   [:span "bottom-left (3)"]]
                                                               [box
-                                                               :size    "1"
+                                                               :size    "2"
                                                                :height  "100%"
                                                                :align   :center
                                                                :justify :center
@@ -309,7 +309,7 @@
                                       [p "This Component will allow you to have a million rows in your table because it \nwill render only those few which are currently viewable, but it does not virtualise the horizontal extent of the row - each visible row will be fully rendered to DOM."]
                                       [p "So, it is a good framework for representing complicated spreadsheet with many rows, but not too many columns. Or perhaps Gannt Charts (although rendering lines up and down across rows involves swimming slightly against the tide abstractions-wise).  But, anyway, that sort of thing."]
                                       [p "BTW, all rows must have the same fixed height."]
-                                      [p [:code ":model"] " does not have to be a vector of maps, it can be a vector of anything as long as the renderer functions and " [:code ":id-fn"] " are written to handle whatever type(s) are in the vector."]
+                                      [p [:code ":model"] " does not have to be a vector of maps, it can be a vector of anything as long as the renderer functions and " [:code ":id-fn"] " are written to handle whatever data is in the " [:code ":model"] " vector."]
                                       [args-table table-args-desc]]]
                           [v-box
                            :gap      "10px"

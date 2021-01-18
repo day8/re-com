@@ -86,7 +86,7 @@
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
 
    {:id :tables                 :level :major :label "Tables"}
-   {:id :basic-v-table          :level :minor :label "Basic V-table"      :panel basic-v-table/panel}
+   {:id :basic-v-table          :level :minor :label "Simple V-table"      :panel basic-v-table/panel}
    {:id :v-table                :level :minor :label "V-table"            :panel v-table/panel}
 
 

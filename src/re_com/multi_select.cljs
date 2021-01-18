@@ -236,7 +236,7 @@
   RHS - selections - comes from model => internal-model - the selected items from choices collection
   "
   ;{:pre [(validate/validate-args-macro multi-select-args-desc args "multi-select")]}
-  (let [*external-model                    (reagent/atom (rc.util/deref-or-value model)) ;; Holds the last known external value of model, to detect external model changes
+  (let [*external-model                    (reagent/atom (deref-or-value model)) ;; Holds the last known external value of model, to detect external model changes
         *internal-model                    (reagent/atom @*external-model) ;; Create a new atom from the model to be used internally
         *current-choice-id                 (reagent/atom nil)
         *current-selection-id              (reagent/atom nil)
@@ -267,10 +267,10 @@
             min-msg                "Must have at least one"
             max-msg                (str "Max items allowed is " max-selected-items)
             group-fn               (or group-fn ::$$$) ;; TODO: If nil is passed because of a when, this will prevent exceptions...smelly!
-            choices                (set (rc.util/deref-or-value choices))
-            disabled?              (rc.util/deref-or-value disabled?)
-            regex-filter?          (rc.util/deref-or-value regex-filter?)
-            *latest-ext-model      (reagent/atom (rc.util/deref-or-value model))
+            choices                (set (deref-or-value choices))
+            disabled?              (deref-or-value disabled?)
+            regex-filter?          (deref-or-value regex-filter?)
+            *latest-ext-model      (reagent/atom (deref-or-value model))
             _                      (when (not= @*external-model @*latest-ext-model) ;; Has model changed externally?
                                      (reset! *external-model @*latest-ext-model)
                                      (reset! *internal-model @*latest-ext-model))

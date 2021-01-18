@@ -200,7 +200,7 @@
 (def model (reagent/atom #{:tesla-model-s}))
 (def disabled? (reagent/atom false))
 (def required? (reagent/atom false))
-(def filter-box? (reagent/atom true))
+(def filter-box? (reagent/atom false))
 (def regex-filter? (reagent/atom false))
 
 (defn panel
@@ -259,7 +259,7 @@
                                                   [:code (with-out-str (pprint/pprint @model))]]]
                                       [multi-select
                                        :width         "450px"
-                                       :left-label    "Car Choices"
+                                       :left-label    "XXX Car Choices"
                                        :right-label   "Cars Selected"
                                        :placeholder   "Select some cars."
                                        :disabled?     disabled?
@@ -280,7 +280,6 @@
                                                        {:id :hyundai-ioniq-electric :label "Ioniq Electric" :group "Hyundai"}]
                                        :model         model
                                        :sort-fn       :group
-                                       :filter-box?   true
                                        :on-change     #(reset! model %)]]]]]
               [multi-select-component-hierarchy]]])
 
