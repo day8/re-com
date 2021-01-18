@@ -127,14 +127,16 @@
 
 (def backdrop-args-desc
   [{:name :opacity  :required false :default 0.0 :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
-   {:name :on-click :required false              :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}])
+   {:name :on-click :required false              :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}
+   {:name :class    :required false              :type "string"          :validate-fn string?           :description "CSS class names, space separated"}])
 
 (defn- backdrop
   "Renders a backdrop div which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
-  [& {:keys [opacity on-click] :as args}]
+  [& {:keys [opacity on-click class] :as args}]
   {:pre [(validate-args-macro backdrop-args-desc args "backdrop")]}
-  [:div.rc-backdrop.noselect
-   {:style    {:position         "fixed"
+  [:div
+   {:class    (str "noselect rc-backdrop " class)
+    :style    {:position         "fixed"
                :left             "0px"
                :top              "0px"
                :width            "100%"
@@ -152,17 +154,19 @@
   [{:name :showing?       :required true                 :type "boolean atom"                                   :description "an atom. When the value is true, the popover shows."}
    {:name :title          :required false                :type "string | hiccup" :validate-fn string-or-hiccup? :description "describes the title of the popover. Default font size is 18px to make it stand out"}
    {:name :close-button?  :required false  :default true :type "boolean"                                        :description "when true, displays the close button"}
-   {:name :close-callback :required false                :type "-> nil"          :validate-fn fn?               :description [:span "a function which takes no params and returns nothing. Called when the close button is pressed. Not required if " [:code ":showing?"] " atom passed in OR " [:code ":close-button?"] " is set to false"]}])
+   {:name :close-callback :required false                :type "-> nil"          :validate-fn fn?               :description [:span "a function which takes no params and returns nothing. Called when the close button is pressed. Not required if " [:code ":showing?"] " atom passed in OR " [:code ":close-button?"] " is set to false"]}
+   {:name :class          :required false                :type "string"          :validate-fn string?           :description "CSS class names, space separated"}])
 
 (defn- popover-title
   "Renders a title at the top of a popover with an optional close button on the far right"
-  [& {:keys [showing? title close-button? close-callback]
+  [& {:keys [showing? title close-button? close-callback class]
       :as args}]
   {:pre [(validate-args-macro popover-title-args-desc args "popover-title")]}
   (assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback")
   (let [close-button? (if (nil? close-button?) true close-button?)]
-    [:h3.popover-title {:style (merge (flex-child-style "inherit")
-                                      {:font-size "18px"})}
+    [:h3 {:class (str "popover-title rc-popover-title " class)
+          :style (merge (flex-child-style "inherit")
+                        {:font-size "18px"})}
      [h-box
       :justify  :between
       :align    :center
