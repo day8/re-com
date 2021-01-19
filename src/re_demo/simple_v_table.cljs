@@ -1,7 +1,8 @@
-(ns re-demo.basic-v-table
-  (:require [re-com.core    :refer [h-box gap v-box v-table hyperlink-href p]]
-            [re-com.basic-v-table :as basic-v-table :refer [table-args-desc]]
-            [re-demo.utils  :refer [panel-title title2 args-table github-hyperlink status-text]]))
+(ns re-demo.simple-v-table
+  (:require
+    [re-com.core           :refer [h-box gap v-box v-table hyperlink-href p]]
+    [re-com.simple-v-table :refer [simple-v-table simple-v-table-args-desc]]
+    [re-demo.utils         :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
 (defn panel
@@ -10,8 +11,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[simple-v-table ... ]"
-                            "src/re_com/basic_v_table.cljs"
-                            "src/re_demo/basic_v_table.cljs"]
+                            "src/re_com/simple_v_table.cljs"
+                            "src/re_demo/simple_v_table.cljs"]
 
               [h-box
                :gap      "100px"
@@ -22,11 +23,11 @@
                                       [status-text "Alpha" {:color "red" :font-weight "bold"}]
                                       [p "This component provides a table which virtualises row rendering. You can have 1M rows but only those currently viewable will be in the DOM."]
                                       [p [:code "simple-v-table"] " is built on " [:code "v-table"] " and it exists because " [:code "v-table"] " is too low level and complicated for everyday use."]
-                                      [args-table table-args-desc]]]
+                                      [args-table simple-v-table-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [basic-v-table/table
+                                      [simple-v-table
                                        :fixed-column-count 1
                                        :fixed-column-border-color "red"
                                        :columns [{:id :country :header-label "Country" :row-label-fn :country :width 130 :align "left"}

@@ -1,6 +1,6 @@
 (ns re-demo.v-table
   (:require [re-com.core    :refer [h-box gap v-box box v-table hyperlink-href p label]]
-            [re-com.v-table :refer [table-args-desc]]
+            [re-com.v-table :refer [v-table-args-desc]]
             [re-demo.utils  :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
             [re-com.util   :refer [px]]))
 
@@ -310,10 +310,10 @@
                                       [p "So, it is a good framework for representing complicated spreadsheet with many rows, but not too many columns. Or perhaps Gannt Charts (although rendering lines up and down across rows involves swimming slightly against the tide abstractions-wise).  But, anyway, that sort of thing."]
                                       [p "BTW, all rows must have the same fixed height."]
                                       [p [:code ":model"] " does not have to be a vector of maps, it can be a vector of anything as long as the renderer functions and " [:code ":id-fn"] " are written to handle whatever data is in the " [:code ":model"] " vector."]
-                                      [args-table table-args-desc]]]
+                                      [args-table v-table-args-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [p "Refer to the demo in the [basic-v-table] section."]]]]]
+                                      [p "Refer to the demo in the [simple-v-table] section."]]]]]
 
               [v-table-component-hierarchy]]])

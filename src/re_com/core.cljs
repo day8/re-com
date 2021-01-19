@@ -18,7 +18,7 @@
             [re-com.text           :as text]
             [re-com.tour           :as tour]
             [re-com.v-table        :as v-table]
-            [re-com.basic-v-table  :as basic-v-table]))
+            [re-com.simple-v-table  :as simple-v-table]))
 
 ;; -----------------------------------------------------------------------------
 ;; re-com public API (see also re-com.util)
@@ -41,8 +41,8 @@
 (def scroller                   box/scroller)
 (def border                     box/border)
 
-(def v-table                    v-table/table)
-(def basic-v-table              basic-v-table/table)
+(def v-table                    v-table/v-table)
+(def simple-v-table             simple-v-table/simple-v-table)
 
 (def button                     buttons/button)
 (def md-circle-icon-button      buttons/md-circle-icon-button)

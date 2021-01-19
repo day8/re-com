@@ -1,4 +1,4 @@
-(ns re-com.basic-v-table
+(ns re-com.simple-v-table
   (:require-macros  [re-com.core :refer [handler-fn]])
   (:require
     [re-com.box     :as box]
@@ -66,8 +66,8 @@
                                   cell-style))}
             ((:row-label-fn col) row)]))))
 
-(def simple-table-parts
-  (conj v-table/table-parts
+(def simple-v-table-parts
+  (conj v-table/v-table-parts
         :simple-wrapper
         :simple-header))
 
@@ -75,7 +75,7 @@
 ;; :fixed-column-count
 ;; :col-header-height
 
-(def table-args-desc
+(def simple-v-table-args-desc
   [{:name :model                     :required true                     :type "vector of maps | atom"    :validate-fn vector-or-atom?              :description "one element for each row in the table."}
    {:name :columns                   :required true                     :type "vector of maps"           :validate-fn vector-or-atom?              :description [:span "one element for each column in the table. Must contain " [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"] "," [:code ":width"] ", and " [:code ":height"] ". Optionally contains " [:code ":align"] " and " [:code ":v-align"] "."]}
    {:name :fixed-column-count        :required false :default 0         :type "integer"                  :validate-fn number?                      :description "the number of fixed (non-scrolling) columns on the left."}
@@ -94,9 +94,9 @@
    {:name :row-style                 :required false                    :type "map | function"           :validate-fn #(or (ifn? %) (map? %))      :description "CSS styles to add or override on each row."}
    {:name :cell-style                :required false                    :type "map | function"           :validate-fn #(or (ifn? %) (map? %))      :description "CSS styles to add or override on each cell."}
    {:name :class                     :required false                    :type "string"                   :validate-fn string?                      :description "CSS class names, space separated (applies to the outer container)."}
-   {:name :parts                     :required false                    :type "map"                      :validate-fn (parts? simple-table-parts)  :description "See Parts section below."}])
+   {:name :parts                     :required false                    :type "map"                      :validate-fn (parts? simple-v-table-parts)  :description "See Parts section below."}])
 
-(defn table
+(defn simple-v-table
   "Render a v-table and introduce the concept of columns (provide a spec for each).
   Of the nine possible sections of v-table, this table only supports four:
   top-left (1), row-headers (2), col-headers (4) and rows (5)
@@ -139,7 +139,7 @@
      :attr  (get-in parts [:simple-wrapper :attr])
      :child
      (cond->
-       [v-table/table
+       [v-table/v-table
         :virtual?                true
         :model                   model
 

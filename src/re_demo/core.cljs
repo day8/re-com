@@ -49,7 +49,7 @@
             [re-demo.tag-dropdown          :as    tag-dropdown]
             [re-demo.typeahead             :as    typeahead]
             [re-demo.v-table               :as    v-table]
-            [re-demo.basic-v-table         :as    basic-v-table]
+            [re-demo.simple-v-table         :as   simple-v-table]
             [goog.history.EventType        :as    EventType])
   (:import [goog History]))
 
@@ -86,7 +86,7 @@
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
 
    {:id :tables                 :level :major :label "Tables"}
-   {:id :basic-v-table          :level :minor :label "Simple V-table"      :panel basic-v-table/panel}
+   {:id :simple-v-table         :level :minor :label "Simple V-table"     :panel simple-v-table/panel}
    {:id :v-table                :level :minor :label "V-table"            :panel v-table/panel}
 
 

@@ -459,13 +459,13 @@
 
 ;;============================ PUBLIC API ===================================
 
-(def table-parts
+(def v-table-parts
   #{:wrapper :left-section :top-left :row-headers :row-header-selection-rect :row-header-content :bottom-left
     :middle-section :col-headers :col-header-selection-rect :col-header-content :rows :row-selection-rect :row-content
     :col-footers :col-footer-content :h-scroll :right-section :top-right :row-footers :row-footer-content :bottom-right
     :v-scroll-section :v-scroll})
 
-(def table-args-desc
+(def v-table-args-desc
   ;; TODO deref-or-value model
   [{:name :model                   :required true                 :type "vector of maps | atom"    :validate-fn vector-or-atom?      :description "one element for each row in the table."}
    {:name :id-fn                   :required false :default :id   :type "map -> anything"          :validate-fn ifn?                 :description [:span "given a element of " [:code ":model"] ", returns its unique identifier."]}
@@ -494,9 +494,9 @@
    {:name :scroll-rows-into-view   :required false                :type "atom"                     :validate-fn map-or-atom?         :description "Scrolls the table to a particular row range. Map that contains the keys :start-row and :end-row."} ;; TODO [:code ] blocks around keys
    {:name :scroll-cols-into-view   :required false                :type "atom"                     :validate-fn map-or-atom?         :description "Scrolls the table of a particular column range. Map that contains the keys :start-col and :end-col in pixel units."}
    {:name :class                   :required false                :type "string"                   :validate-fn string?              :description "CSS class names, space separated (applies to the outer container)."}
-   {:name :parts                   :required false                :type "map"                      :validate-fn (parts? table-parts) :description "See Parts section below."}])
+   {:name :parts                   :required false                :type "map"                      :validate-fn (parts? v-table-parts) :description "See Parts section below."}])
 
-(defn table
+(defn v-table
   "Renders a scrollable table with optional fixed column and row headers and footers, totalling nine addressable sections
   By default, it only displays rows that are visible, so is very efficient for large data structures
   The table supports click+drag selections within the rows section (5), row header section (2) and col header section (4)
