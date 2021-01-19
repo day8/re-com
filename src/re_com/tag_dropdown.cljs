@@ -64,13 +64,13 @@
   []
   (let [over? (reagent/atom false)]
     (fn text-tag-render
-      [& {:keys [tag-data on-click on-close tooltip label-fn width height hover-style class style attr]
+      [& {:keys [tag-data on-click on-unselect tooltip label-fn width height hover-style class style attr]
           :or   {label-fn       :label}}]
-      (let [clickable?   (some? on-click)
-            closeable?   (some? on-close)
-            placeholder? (= (:id tag-data) :$placeholder$)
-            border       (when placeholder? "1px dashed #828282")
-            tag-label    (label-fn tag-data)]
+      (let [clickable?    (some? on-click)
+            unselectable? (some? on-unselect)
+            placeholder?  (= (:id tag-data) :$placeholder$)
+            border        (when placeholder? "1px dashed #828282")
+            tag-label     (label-fn tag-data)]
         [v-box
          :children [[h-box
                      :align :center
@@ -112,7 +112,7 @@
                                                          (on-click (:id tag-data)))
                                                        #_(.stopPropagation event))}
                                    :child (or tag-label "???")])
-                                (when (and closeable? (not placeholder?))
+                                (when (and unselectable? (not placeholder?))
                                   [h-box
                                    :align    :center
                                    :children [[box
@@ -125,8 +125,8 @@
                                                :div-size    13
                                                :font-size   13
                                                :top-offset  1
-                                               :on-click    #(when closeable?
-                                                               (on-close (:id tag-data)))]]])]]]]))))
+                                               :on-click    #(when unselectable?
+                                                               (on-unselect (:id tag-data)))]]])]]]]))))
 
 
 (def tag-dropdown-parts
@@ -138,8 +138,7 @@
    {:name :placeholder        :required false                     :type "string"                   :validate-fn string?                     :description "Background text when no selection"}
    {:name :on-change          :required true                      :type "id -> nil"                :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. Called with one argument, the set of selected ids. See " [:code ":model"] "."]}
    {:name :on-tag-click       :required false                     :type "id -> nil"                :validate-fn fn?                         :description "This function is called when the user clicks a tag. Called with one argument, the tag id."}
-   ;; TODO: rename to :unselect-buttons?
-   {:name :close-buttons?     :required false :default true       :type "boolean"                                                           :description "When true, buttons will be displayed on tags to unselect the tag."}
+   {:name :unselect-buttons?  :required false :default true       :type "boolean"                                                           :description "When true, buttons will be displayed on tags to unselect the tag."}
    {:name :label-fn           :required false :default ":label"   :type "map -> hiccup"            :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
    {:name :width              :required false                     :type "string"                   :validate-fn string?                     :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :height             :required false :default "25px"     :type "string"                   :validate-fn string?                     :description "the specific height of the component"}
@@ -155,14 +154,14 @@
   {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
   (let [showing?      (reagent/atom false)]
     (fn tag-dropdown-render
-      [& {:keys [choices model placeholder on-change on-tag-click close-buttons? label-fn width height tag-width tag-height style disabled? tag-comp parts]
+      [& {:keys [choices model placeholder on-change on-tag-click unselect-buttons? label-fn width height tag-width tag-height style disabled? tag-comp parts]
           :or   {label-fn       :label
                  height         "25px"
                  tag-comp       text-tag
-                 close-buttons? true}
+                 unselect-buttons? true}
           :as   args}]
       {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
-      (let [close-buttons?  (deref-or-value close-buttons?)
+      (let [unselect-buttons?  (deref-or-value unselect-buttons?)
             placeholder-tag [tag-comp
                              :tag-data    {:id               :$placeholder$
                                            :label            ""
@@ -217,7 +216,7 @@
                                                                                ;#(on-change (disj @model %)) ;; Delete this tag
                                                                                #(reset! showing? true))      ;; Show dropdown
 
-                                                                :on-close    (when close-buttons? #(on-change (disj @model %)))
+                                                                :on-unselect (when unselect-buttons? #(on-change (disj @model %)))
                                                                 :width       tag-width
                                                                 :height      tag-height
                                                                 :hover-style {:opacity "0.8"}

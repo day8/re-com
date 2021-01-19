@@ -75,7 +75,7 @@
 (def model (reagent/atom #{:bug}))
 (def disabled? (reagent/atom false))
 #_(def required? (reagent/atom false))
-(def close-buttons? (reagent/atom false))
+(def unselect-buttons? (reagent/atom false))
 
 (defn panel
   []
@@ -117,9 +117,9 @@
                                                   [checkbox
                                                    :label     [box
                                                                :align :start
-                                                               :child [:code ":close-buttons?"]]
-                                                   :model     close-buttons?
-                                                   :on-change #(reset! close-buttons? %)]]]
+                                                               :child [:code ":unselect-buttons?"]]
+                                                   :model     unselect-buttons?
+                                                   :on-change #(reset! unselect-buttons? %)]]]
 
                                       [h-box
                                        :children [[label :label [:code ":model"]]
@@ -128,7 +128,7 @@
                                        :width             "450px"
                                        :disabled?         disabled?
                                        ;:required?        required?
-                                       :close-buttons?    close-buttons?
+                                       :unselect-buttons? unselect-buttons?
                                        :choices           [{:id :bug :description "Something isn't working" :label "bug" :background-color "#fc2a29"}
                                                            {:id :documentation :description "Improvements or additions to documentation" :label "documentation" :background-color "#0052cc"}
                                                            {:id :duplicate :description "This issue or pull request already exists" :label "duplicate" :background-color "#cccccc"}
