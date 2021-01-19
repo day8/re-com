@@ -50,29 +50,27 @@
     [box
      :class "list-group-item compact"
      :style {:height "25px"}
-             ;:background-color "#F3F6F7"}
-     :attr {:on-click (handler-fn (when-not disabled?
-                                    (on-change (check-clicked selections item-id (not (selections item-id)) required?))))}
+     :attr  {:on-click (handler-fn (when-not disabled?
+                                     (on-change (check-clicked selections item-id (not (selections item-id)) required?))))}
      :child [checkbox
-             :model (some? (selections item-id))
-             :on-change #()                                 ;; handled by enclosing box
-             :disabled? disabled?
+             :model       (some? (selections item-id))
+             :on-change   #()                                 ;; handled by enclosing box
+             :disabled?   disabled?
              :label-style (label-style (selections item-id) as-exclusions?)
-             :label (label-fn item)]]))
+             :label       (label-fn item)]]))
 
 
 (defn text-tag
   []
   (let [over? (reagent/atom false)]
     (fn text-tag-render
-      [& {:keys [tag-data on-click on-close tooltip label-fn description-fn width height hover-style class style attr]
+      [& {:keys [tag-data on-click on-close tooltip label-fn width height hover-style class style attr]
           :or   {label-fn       :label}}]
       (let [clickable?   (some? on-click)
             closeable?   (some? on-close)
             placeholder? (= (:id tag-data) :$placeholder$)
             border       (when placeholder? "1px dashed #828282")
             tag-label    (label-fn tag-data)]
-            ;description  (when (ifn? description-fn) (description-fn tag-data))]
         [v-box
          :children [[h-box
                      :align :center
@@ -128,9 +126,7 @@
                                                :font-size   13
                                                :top-offset  1
                                                :on-click    #(when closeable?
-                                                               (on-close (:id tag-data)))]]])]]
-                    #_(when description
-                        [:p description])]]))))
+                                                               (on-close (:id tag-data)))]]])]]]]))))
 
 
 (def tag-dropdown-parts
@@ -159,9 +155,8 @@
   {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
   (let [showing?      (reagent/atom false)]
     (fn tag-dropdown-render
-      [& {:keys [choices model placeholder on-change on-tag-click close-buttons? label-fn description-fn width height tag-width tag-height style disabled? tag-comp parts]
+      [& {:keys [choices model placeholder on-change on-tag-click close-buttons? label-fn width height tag-width tag-height style disabled? tag-comp parts]
           :or   {label-fn       :label
-                 description-fn :description
                  height         "25px"
                  tag-comp       text-tag
                  close-buttons? true}
@@ -183,7 +178,6 @@
                              :label-fn      (fn [tag]
                                               [tag-comp
                                                :label-fn label-fn
-                                               :description-fn description-fn
                                                :tag-data tag
                                                :width    tag-width
                                                :height   tag-height
