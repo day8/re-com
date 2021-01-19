@@ -8,7 +8,7 @@
     [reagent.core          :as reagent]
     [re-com.util           :refer [deref-or-value]]
     [re-com.validate       :as validate :refer [parts?]]
-    [re-com.box            :refer [box h-box gap]]
+    [re-com.box            :refer [box h-box v-box gap]]
     [re-com.misc           :refer [checkbox]]
     [re-com.selection-list :refer [selection-list]]
     [re-com.close-button   :refer [close-button]]
@@ -65,100 +65,106 @@
   []
   (let [over? (reagent/atom false)]
     (fn text-tag-render
-      [& {:keys [tag-data on-click on-close tooltip label-fn width height hover-style class style attr]
-          :or   {label-fn :label}}]
+      [& {:keys [tag-data on-click on-close tooltip label-fn description-fn width height hover-style class style attr]
+          :or   {label-fn       :label}}]
       (let [clickable?   (some? on-click)
             closeable?   (some? on-close)
             placeholder? (= (:id tag-data) :$placeholder$)
             border       (when placeholder? "1px dashed #828282")
-            tag-label   (label-fn tag-data)]
-        [h-box
-         :align :center
-         :justify (if placeholder? :end :center)
+            tag-label    (label-fn tag-data)]
+            ;description  (when (ifn? description-fn) (description-fn tag-data))]
+        [v-box
+         :children [[h-box
+                     :align :center
+                     :justify (if placeholder? :end :center)
 
-         ;:width    (if placeholder? (:width tag-data) width)
+                     ;:width    (if placeholder? (:width tag-data) width)
 
-         :width width
-         :min-width (when placeholder? (:width tag-data))
+                     :width width
+                     :min-width (when placeholder? (:width tag-data))
 
-         :height height
-         :padding "0px 4px"
-         :margin (str "2px " (if placeholder? 0 6) "px 2px 0px")
-         :class (str "noselect rc-text-tag " class)
-         :style (merge
-                  {:color            "white"
-                   :background-color (:background-color tag-data)
-                   :cursor           (if placeholder? "pointer" "default")
-                   :font-size        "12px"
-                   ;:font-weight      "bold"
-                   :border           border
-                   :border-radius    "3px"}
-                  (when @over? hover-style)
-                  style)
-         :attr (merge
-                 {:title          tooltip
-                  :on-click       (handler-fn (when placeholder? (on-click (:id tag-data))))
-                  :on-mouse-enter (handler-fn (reset! over? true))
-                  :on-mouse-leave (handler-fn (reset! over? false))}
-                 attr)
-         :children [(if placeholder?
-                      [box
-                       :style {:color "hsl(194, 61%, 85%)"}
-                       :child  (gstring/unescapeEntities "&#9660;")]
-                      [box
-                       :style {:cursor (when clickable? "pointer")}
-                       :attr  {:on-click (handler-fn
-                                           (when clickable?
-                                             (on-click (:id tag-data)))
-                                           #_(.stopPropagation event))}
-                       :child (or tag-label "???")])
-                    (when (and closeable? (not placeholder?))
-                      [h-box
-                       :align    :center
-                       :children [[box
-                                   :style {:margin-left "4px"
-                                           :margin-right "3px"}
-                                   :child "|"]
-                                  [close-button
-                                   :color       "white"
-                                   :hover-color "#ccc"
-                                   :div-size    13
-                                   :font-size   13
-                                   :top-offset  1
-                                   :on-click    #(when closeable?
-                                                   (on-close (:id tag-data)))]]])]]))))
+                     :height height
+                     :padding "0px 4px"
+                     :margin (str "2px " (if placeholder? 0 6) "px 2px 0px")
+                     :class (str "noselect rc-text-tag " class)
+                     :style (merge
+                              {:color            "white"
+                               :background-color (:background-color tag-data)
+                               :cursor           (if placeholder? "pointer" "default")
+                               :font-size        "12px"
+                               ;:font-weight      "bold"
+                               :border           border
+                               :border-radius    "3px"}
+                              (when @over? hover-style)
+                              style)
+                     :attr (merge
+                             {:title          tooltip
+                              :on-click       (handler-fn (when placeholder? (on-click (:id tag-data))))
+                              :on-mouse-enter (handler-fn (reset! over? true))
+                              :on-mouse-leave (handler-fn (reset! over? false))}
+                             attr)
+                     :children [(if placeholder?
+                                  [box
+                                   :style {:color "hsl(194, 61%, 85%)"}
+                                   :child  (gstring/unescapeEntities "&#9660;")]
+                                  [box
+                                   :style {:cursor (when clickable? "pointer")}
+                                   :attr  {:on-click (handler-fn
+                                                       (when clickable?
+                                                         (on-click (:id tag-data)))
+                                                       #_(.stopPropagation event))}
+                                   :child (or tag-label "???")])
+                                (when (and closeable? (not placeholder?))
+                                  [h-box
+                                   :align    :center
+                                   :children [[box
+                                               :style {:margin-left "4px"
+                                                       :margin-right "3px"}
+                                               :child "|"]
+                                              [close-button
+                                               :color       "white"
+                                               :hover-color "#ccc"
+                                               :div-size    13
+                                               :font-size   13
+                                               :top-offset  1
+                                               :on-click    #(when closeable?
+                                                               (on-close (:id tag-data)))]]])]]
+                    #_(when description
+                        [:p description])]]))))
+
 
 (def tag-dropdown-parts
   #{:popover-anchor-wrapper})
 
 (def tag-dropdown-args-desc
-  [{:name :choices            :required true                      :type "vector of maps | atom"    :validate-fn validate/vector-of-maps?   :description [:span "Each map represents a choice. Values corresponding to id, label, short label and tag background color are extracted by the functions " [:code ":id"] ", " [:code ":label-fn"] " & " [:code ":short-label-fn"]  " & " [:code ":background-color"] ". See below."]}
-   {:name :model              :required true                      :type "a set of ids | atom"                                              :description [:span "a set of the ids for currently selected choices. If nil, see " [:code ":placeholder"] "."]}
-   {:name :placeholder        :required false                     :type "string"                   :validate-fn string?                    :description "background text when no selection"}
-   {:name :on-change          :required true                      :type "id -> nil"                :validate-fn fn?                        :description [:span "a function that will be called when the selection changes. Passed the set of selected ids. See " [:code ":model"] "."]}
-   {:name :on-tag-click       :required false                     :type "id -> nil"                :validate-fn fn?                        :description ""}
-   {:name :close-buttons?     :required false :default false      :type "boolean"                                                          :description ""}
-   {:name :short-label-fn     :required false :default ":short-label" :type "map -> hiccup"        :validate-fn ifn?                       :description ""}
-   {:name :short-label-count  :required false :default 0          :type "integer"                  :validate-fn number?                    :description ""}
-   {:name :width              :required false                     :type "string"                   :validate-fn string?                    :description ""}
-   {:name :height             :required false :default "25px"     :type "string"                   :validate-fn string?                    :description ""}
-   {:name :tag-width          :required false                     :type "string"                   :validate-fn string?                    :description ""}
-   {:name :tag-height         :required false                     :type "string"                   :validate-fn string?                    :description ""}
-   {:name :style              :required false                     :type "map"                      :validate-fn map?                       :description ""}
-   {:name :disabled?          :required false :default false      :type "boolean"                                                          :description ""}
-   {:name :tag-comp           :required false :default "text-tag" :type "function"                 :validate-fn ifn?                       :description ""}
+  [{:name :choices            :required true                      :type "vector of maps | atom"    :validate-fn validate/vector-of-maps?    :description [:span "Each map represents a choice. Values corresponding to id, label, short label and tag background color are extracted by the functions " [:code ":id"] ", " [:code ":label-fn"] " & " [:code ":short-label-fn"]  " & " [:code ":background-color"] ". See below."]}
+   {:name :model              :required true                      :type "a set of ids | atom"                                               :description [:span "The set of the ids for currently selected choices. If nil or empty, see " [:code ":placeholder"] "."]}
+   {:name :placeholder        :required false                     :type "string"                   :validate-fn string?                     :description "Background text when no selection"}
+   {:name :on-change          :required true                      :type "id -> nil"                :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. Called with one argument, the set of selected ids. See " [:code ":model"] "."]}
+   {:name :on-tag-click       :required false                     :type "id -> nil"                :validate-fn fn?                         :description "This function is called when the user clicks a tag. Called with one argument, the tag id."}
+   ;; TODO: rename to :unselect-buttons?
+   {:name :close-buttons?     :required false :default true       :type "boolean"                                                           :description "When true, buttons will be displayed on tags to unselect the tag."}
+   {:name :label-fn           :required false :default ":label"   :type "map -> hiccup"            :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
+   {:name :width              :required false                     :type "string"                   :validate-fn string?                     :description "the CSS width. e.g.: \"500px\" or \"20em\""}
+   {:name :height             :required false :default "25px"     :type "string"                   :validate-fn string?                     :description "the specific height of the component"}
+   {:name :tag-width          :required false                     :type "string"                   :validate-fn string?                     :description "the width of each individual tag"}
+   {:name :tag-height         :required false                     :type "string"                   :validate-fn string?                     :description "the height of each individual tag"}
+   {:name :style              :required false                     :type "map"                      :validate-fn map?                        :description "CSS styles to add or override"}
+   {:name :disabled?          :required false :default false      :type "boolean"                                                           :description ""}
+   {:name :tag-comp           :required false :default "text-tag" :type "function"                 :validate-fn ifn?                        :description "This function returns the hiccup to render a tag."}
    {:name :parts              :required false                     :type "map"                      :validate-fn (parts? tag-dropdown-parts) :description "See Parts section below."}])
 
 (defn tag-dropdown
-  [& {:keys [model short-label-count] :as args}]
+  [& {:keys [] :as args}]
   {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
-  (let [showing?      (reagent/atom false)
-        short-labels? (reaction (>= (count @model) short-label-count))]
+  (let [showing?      (reagent/atom false)]
     (fn tag-dropdown-render
-      [& {:keys [choices model placeholder on-change on-tag-click close-buttons? short-label-fn short-label-count width height tag-width tag-height style disabled? tag-comp parts]
-          :or   {short-label-fn :short-label
+      [& {:keys [choices model placeholder on-change on-tag-click close-buttons? label-fn description-fn width height tag-width tag-height style disabled? tag-comp parts]
+          :or   {label-fn       :label
+                 description-fn :description
                  height         "25px"
-                 tag-comp       text-tag}
+                 tag-comp       text-tag
+                 close-buttons? true}
           :as   args}]
       {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
       (let [close-buttons?  (deref-or-value close-buttons?)
@@ -176,6 +182,8 @@
                              :hide-border?  true
                              :label-fn      (fn [tag]
                                               [tag-comp
+                                               :label-fn label-fn
+                                               :description-fn description-fn
                                                :tag-data tag
                                                :width    tag-width
                                                :height   tag-height
@@ -207,15 +215,15 @@
                                                      (mapv (fn [tag]
                                                              (when (contains? @model (:id tag))
                                                                [tag-comp
+                                                                :label-fn    label-fn
                                                                 :tag-data    tag
-                                                                :label-fn    (if @short-labels? short-label-fn :label)
                                                                 :tooltip     (:label tag)
                                                                 :on-click    (if on-tag-click
                                                                                #(on-tag-click (:id tag))
                                                                                ;#(on-change (disj @model %)) ;; Delete this tag
                                                                                #(reset! showing? true))      ;; Show dropdown
 
-                                                                :on-close    (when (and close-buttons? (not @short-labels?)) #(on-change (disj @model %)))
+                                                                :on-close    (when close-buttons? #(on-change (disj @model %)))
                                                                 :width       tag-width
                                                                 :height      tag-height
                                                                 :hover-style {:opacity "0.8"}

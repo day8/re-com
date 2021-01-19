@@ -129,14 +129,13 @@
                                        :disabled?         disabled?
                                        ;:required?        required?
                                        :close-buttons?    close-buttons?
-                                       :short-label-count 3
-                                       :choices           [{:id :bug :label "Something isn't working" :short-label "bug" :background-color "#fc2a29"}
-                                                           {:id :documentation :label "Improvements or additions to documentation" :short-label "documentation" :background-color "#0052cc"}
-                                                           {:id :duplicate :label "This issue or pull request already exists" :short-label "duplicate" :background-color "#cccccc"}
-                                                           {:id :enhancement :label "New feature or request" :short-label "enhancement" :background-color "#84b6eb"}
-                                                           {:id :help :label "Extra attention is needed" :short-label "help" :background-color "#169819"}
-                                                           {:id :invalid :label "This doesn't seem right" :short-label "invalid" :background-color "#e6e6e6"}
-                                                           {:id :wontfix :label "This will not be worked on" :short-label "wontfix" :background-color "#eb6421"}]
+                                       :choices           [{:id :bug :description "Something isn't working" :label "bug" :background-color "#fc2a29"}
+                                                           {:id :documentation :description "Improvements or additions to documentation" :label "documentation" :background-color "#0052cc"}
+                                                           {:id :duplicate :description "This issue or pull request already exists" :label "duplicate" :background-color "#cccccc"}
+                                                           {:id :enhancement :description "New feature or request" :label "enhancement" :background-color "#84b6eb"}
+                                                           {:id :help :description "Extra attention is needed" :label "help" :background-color "#169819"}
+                                                           {:id :invalid :description "This doesn't seem right" :label "invalid" :background-color "#e6e6e6"}
+                                                           {:id :wontfix :description "This will not be worked on" :label "wontfix" :background-color "#eb6421"}]
                                        :model             model
                                        :on-change         #(reset! model %)]]]]]
               [tag-dropdown-component-hierarchy]]])
