@@ -122,7 +122,7 @@
       [& {:keys [item id-fn label-fn disabled? click-callback double-click-callback selected-item-id group-selected?]}]
       (let [id              (id-fn item)
             selected?       (= id selected-item-id)
-            class           (if selected?
+            class           (if (and selected? (not disabled?))
                               "highlighted"
                               (when @*mouse-over? "mouseover"))]
         [:li
@@ -166,9 +166,11 @@
     [box/box
      :size  "1"
      :class (if disabled? "bm-multi-select-list-disabled" "bm-multi-select-list")
-     :style {:background-color "#fafafa"
-             :border           "1px solid #ccc"
-             :border-radius    "4px"}
+     :style (merge {:background-color "#fafafa"
+                    :border           "1px solid #ccc"
+                    :border-radius    "4px"}
+                   (when disabled?
+                     {:pointer-events "none"}))
      :child [:ul.chosen-results
              {:style {:max-height "none"}} ;; Override the 240px in the class
              (if (-> items count pos?)
