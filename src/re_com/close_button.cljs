@@ -44,6 +44,7 @@
                         :position         "relative"
                         :width            (px div-size)
                         :height           (px div-size)}
+                       (when disabled? {:pointer-events "none"})
                        (get-in parts [:wrapper :style]))
          :attr  (get-in parts [:wrapper :attr] {})
          :child [box

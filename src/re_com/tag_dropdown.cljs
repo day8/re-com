@@ -64,9 +64,9 @@
   []
   (let [over? (reagent/atom false)]
     (fn text-tag-render
-      [& {:keys [tag-data on-click on-unselect tooltip label-fn width height hover-style class style attr]
+      [& {:keys [tag-data on-click on-unselect tooltip label-fn width height hover-style disabled? class style attr]
           :or   {label-fn       :label}}]
-      (let [clickable?    (some? on-click)
+      (let [clickable?    (and (some? on-click) (not disabled?))
             unselectable? (some? on-unselect)
             placeholder?  (= (:id tag-data) :$placeholder$)
             border        (when placeholder? "1px dashed #828282")
@@ -88,16 +88,16 @@
                      :style (merge
                               {:color            "white"
                                :background-color (:background-color tag-data)
-                               :cursor           (if placeholder? "pointer" "default")
+                               :cursor           (if (and placeholder? (not  disabled?)) "pointer" "default")
                                :font-size        "12px"
                                ;:font-weight      "bold"
                                :border           border
                                :border-radius    "3px"}
-                              (when @over? hover-style)
+                              (when (and @over? (not disabled?)) hover-style)
                               style)
                      :attr (merge
                              {:title          tooltip
-                              :on-click       (handler-fn (when placeholder? (on-click (:id tag-data))))
+                              :on-click       (handler-fn (when (and placeholder? (not disabled?)) (on-click (:id tag-data))))
                               :on-mouse-enter (handler-fn (reset! over? true))
                               :on-mouse-leave (handler-fn (reset! over? false))}
                              attr)
@@ -125,6 +125,7 @@
                                                :div-size    13
                                                :font-size   13
                                                :top-offset  1
+                                               :disabled?   disabled?
                                                :on-click    #(when unselectable?
                                                                (on-unselect (:id tag-data)))]]])]]]]))))
 
@@ -161,16 +162,19 @@
                  unselect-buttons? true}
           :as   args}]
       {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
-      (let [unselect-buttons?  (deref-or-value unselect-buttons?)
+      (let [disabled?          (deref-or-value disabled?)
+            unselect-buttons?  (deref-or-value unselect-buttons?)
             placeholder-tag [tag-comp
                              :tag-data    {:id               :$placeholder$
                                            :label            ""
                                            :background-color "white"
                                            :width            "40px"} ;; change this and you need to adjust :position-offset below
                              :on-click    #(reset! showing? true)
+                             :disabled?   disabled?
                              :tooltip     "Click to select tags"
                              :hover-style {:background-color "#eee"}]
             tag-list-body   [selection-list
+                             :disabled?     disabled?
                              :parts         {:list-group-item {:style {:background-color "#F3F6F7"}}}
                              :choices       choices
                              :hide-border?  true
@@ -194,10 +198,11 @@
                              :style    (merge {:background-color "white"
                                                :border           "1px solid lightgrey"
                                                :border-radius    "2px"
-                                               :overflow          "hidden"
-                                               :cursor            "pointer"}
+                                               :overflow         "hidden"
+                                               :cursor           (if disabled? "default" "pointer")}
                                               (get-in parts [:main :style]))
-                             :attr     (merge {:on-click (handler-fn (reset! showing? true))}
+                             :attr     (merge {}
+                                              (when (not disabled?) {:on-click (handler-fn (reset! showing? true))})
                                               (get-in parts [:main :attr]))
                              :children [(if (zero? (count @model)) placeholder "")
                                         [h-box
@@ -211,6 +216,7 @@
                                                                 :label-fn    label-fn
                                                                 :tag-data    tag
                                                                 :tooltip     (:label tag)
+                                                                :disabled?   disabled?
                                                                 :on-click    (if on-tag-click
                                                                                #(on-tag-click (:id tag))
                                                                                ;#(on-change (disj @model %)) ;; Delete this tag
@@ -225,7 +231,9 @@
                                                      placeholder-tag)]
                                         [gap :size "6px"]
                                         (when-not (empty? @model)
-                                          [close-button :on-click #(on-change #{})])]]]
+                                          [close-button
+                                           :disabled? disabled?
+                                           :on-click  #(on-change #{})])]]]
         [popover-anchor-wrapper
          :class    (str "rc-tag-dropdown-popover-anchor-wrapper " (get-in parts [:popover-anchor-wrapper :class]))
          :showing? showing?
