@@ -67,7 +67,7 @@
       [& {:keys [tag-data on-click on-unselect tooltip label-fn width height hover-style disabled? class style attr]
           :or   {label-fn       :label}}]
       (let [clickable?    (and (some? on-click) (not disabled?))
-            unselectable? (some? on-unselect)
+            unselectable? (and (some? on-unselect) (not disabled?))
             placeholder?  (= (:id tag-data) :$placeholder$)
             border        (when placeholder? "1px dashed #828282")
             tag-label     (label-fn tag-data)]
@@ -125,7 +125,6 @@
                                                :div-size    13
                                                :font-size   13
                                                :top-offset  1
-                                               :disabled?   disabled?
                                                :on-click    #(when unselectable?
                                                                (on-unselect (:id tag-data)))]]])]]]]))))
 
@@ -170,7 +169,6 @@
                                            :background-color "white"
                                            :width            "40px"} ;; change this and you need to adjust :position-offset below
                              :on-click    #(reset! showing? true)
-                             :disabled?   disabled?
                              :tooltip     "Click to select tags"
                              :hover-style {:background-color "#eee"}]
             tag-list-body   [selection-list
@@ -228,11 +226,11 @@
                                                                 :hover-style {:opacity "0.8"}
                                                                 :style       style]))
                                                            choices)
-                                                     placeholder-tag)]
+                                                     (when (not disabled?)
+                                                       placeholder-tag))]
                                         [gap :size "6px"]
-                                        (when-not (empty? @model)
+                                        (when (and (not-empty @model) (not disabled?))
                                           [close-button
-                                           :disabled? disabled?
                                            :on-click  #(on-change #{})])]]]
         [popover-anchor-wrapper
          :class    (str "rc-tag-dropdown-popover-anchor-wrapper " (get-in parts [:popover-anchor-wrapper :class]))
