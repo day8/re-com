@@ -145,18 +145,21 @@
                                                   (if validation-regex (re-find validation-regex new-val) true))
                                             (reset! internal-model new-val)
                                             (when-not change-on-blur?
+                                              (reset! external-model @internal-model)
                                               (on-change @internal-model)))))
                          :on-blur     (handler-fn
                                         (when (and
                                                 on-change
                                                 change-on-blur?
                                                 (not= @internal-model @external-model))
+                                          (reset! external-model @internal-model)
                                           (on-change @internal-model)))
                          :on-key-up   (handler-fn
                                         (if disabled?
                                           (.preventDefault event)
                                           (case (.-which event)
                                             13 (when on-change
+                                                 (reset! external-model @internal-model)
                                                  (on-change @internal-model))
                                             27 (reset! internal-model @external-model)
                                             true)))}
