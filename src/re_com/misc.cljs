@@ -56,7 +56,7 @@
 
 (def input-text-args-desc
   [{:name :model            :required true                   :type "string/nil | atom" :validate-fn nillable-string-or-atom? :description "text of the input (can be atom or value/nil)"}
-   {:name :on-change        :required true                   :type "string -> nil"     :validate-fn fn?                      :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string"]}
+   {:name :on-change        :required true                   :type "string[, done-fn] -> nil"     :validate-fn fn?                      :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string, and optionally a function to call (with no args) to signal that " [:code ":model"] " has reached a steady state to avoid displaying a prior value while processing."]}
    {:name :status           :required false                  :type "keyword"           :validate-fn input-status-type?       :description [:span "validation status. " [:code "nil/omitted"] " for normal status or one of: " input-status-types-list]}
    {:name :status-icon?     :required false :default false   :type "boolean"                                                 :description [:span "when true, display an icon to match " [:code ":status"] " (no icon for nil)"]}
    {:name :status-tooltip   :required false                  :type "string"            :validate-fn string?                  :description "displayed in status icon's tooltip"}
