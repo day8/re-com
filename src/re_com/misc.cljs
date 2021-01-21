@@ -92,12 +92,6 @@
           :or   {change-on-blur? true, on-alter identity}
           :as   args}]
       {:pre [(validate-args-macro input-text-args-desc args "input-text")]}
-      (js/console.group)
-      (js/console.log "input-text-base render!")
-      (js/console.log "@internal-model" (pr-str @internal-model))
-      (js/console.log "@external-model" (pr-str @external-model))
-      (js/console.log "latest-ext-model" (deref-or-value model))
-      (js/console.groupEnd)
       (let [latest-ext-model  (deref-or-value model)
             disabled?         (deref-or-value disabled?)
             change-on-blur?   (deref-or-value change-on-blur?)

@@ -96,49 +96,49 @@
                                            :children [[v-box
                                                        :children [[label :label "[input-text ... ]"]
                                                                   [gap :size "5px"]
-                                                                  #_[input-text
-                                                                     :model            text-val
-                                                                     :status           @status
-                                                                     :status-icon?     @status-icon?
-                                                                     :status-tooltip   @status-tooltip
-                                                                     :width            "300px"
-                                                                     :placeholder      (if @regex "enter number (99.9)" "placeholder message")
-                                                                     :on-change        #(reset! text-val %)
-                                                                     :validation-regex @regex
-                                                                     :on-alter         (if @on-alter? string/upper-case identity)
-                                                                     :change-on-blur?  change-on-blur?
-                                                                     :disabled?        disabled?]
+                                                                  [input-text
+                                                                   :model            text-val
+                                                                   :status           @status
+                                                                   :status-icon?     @status-icon?
+                                                                   :status-tooltip   @status-tooltip
+                                                                   :width            "300px"
+                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
+                                                                   :on-change        #(reset! text-val %)
+                                                                   :validation-regex @regex
+                                                                   :on-alter         (if @on-alter? string/upper-case identity)
+                                                                   :change-on-blur?  change-on-blur?
+                                                                   :disabled?        disabled?]
                                                                   [gap :size "20px"]
                                                                   [label :label "[input-password ... ]"]
                                                                   [gap :size "5px"]
-                                                                  #_[input-password
-                                                                     :model            text-val
-                                                                     :status           @status
-                                                                     :status-icon?     @status-icon?
-                                                                     :status-tooltip   @status-tooltip
-                                                                     :width            "300px"
-                                                                     :placeholder      (if @regex "enter number (99.9)" "placeholder message")
-                                                                     :on-change        #(reset! text-val %)
-                                                                     :validation-regex @regex
-                                                                     :on-alter         (if @on-alter? string/upper-case identity)
-                                                                     :change-on-blur?  change-on-blur?
-                                                                     :disabled?        disabled?]
+                                                                  [input-password
+                                                                   :model            text-val
+                                                                   :status           @status
+                                                                   :status-icon?     @status-icon?
+                                                                   :status-tooltip   @status-tooltip
+                                                                   :width            "300px"
+                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
+                                                                   :on-change        #(reset! text-val %)
+                                                                   :validation-regex @regex
+                                                                   :on-alter         (if @on-alter? string/upper-case identity)
+                                                                   :change-on-blur?  change-on-blur?
+                                                                   :disabled?        disabled?]
                                                                   [gap :size "20px"]
                                                                   [label :label "[input-textarea ... ]"]
                                                                   [gap :size "5px"]
-                                                                  #_[input-textarea
-                                                                     :model            text-val
-                                                                     :status           @status
-                                                                     :status-icon?     @status-icon?
-                                                                     :status-tooltip   @status-tooltip
-                                                                     :width            "300px"
-                                                                     :rows             @slider-val
-                                                                     :placeholder      (if @regex "enter number (99.9)" "placeholder message")
-                                                                     :on-change        #(reset! text-val %)
-                                                                     :validation-regex @regex
-                                                                     :on-alter         (if @on-alter? string/upper-case identity)
-                                                                     :change-on-blur?  change-on-blur?
-                                                                     :disabled?        disabled?]
+                                                                  [input-textarea
+                                                                   :model            text-val
+                                                                   :status           @status
+                                                                   :status-icon?     @status-icon?
+                                                                   :status-tooltip   @status-tooltip
+                                                                   :width            "300px"
+                                                                   :rows             @slider-val
+                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
+                                                                   :on-change        #(reset! text-val %)
+                                                                   :validation-regex @regex
+                                                                   :on-alter         (if @on-alter? string/upper-case identity)
+                                                                   :change-on-blur?  change-on-blur?
+                                                                   :disabled?        disabled?]
                                                                   [gap :size "20px"]
                                                                   [label :label "[input-text w/ alpha filter in on-change ... ]"]
                                                                   [gap :size "5px"]
@@ -151,14 +151,8 @@
                                                                    :placeholder      (if @regex "enter number (99.9)" "placeholder message")
                                                                    :on-change        (fn [v resolve-fn]
                                                                                        (let [v (string/replace v #"[^a-zA-Z]" "")]
-                                                                                         #_(js/console.log "reset!" v)
-                                                                                         #_(reset! text-val v)
-                                                                                         (js/setTimeout
-                                                                                           (fn []
-                                                                                             (js/console.log "reset!" v)
-                                                                                             (reset! text-val v)
-                                                                                             (resolve-fn))
-                                                                                           1000)))
+                                                                                         (reset! text-val v)
+                                                                                         (resolve-fn)))
                                                                    :validation-regex @regex
                                                                    :on-alter         (if @on-alter? string/upper-case identity)
                                                                    :change-on-blur?  change-on-blur?
