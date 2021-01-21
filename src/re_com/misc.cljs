@@ -109,11 +109,13 @@
             ;; can be done thus avoiding the flicker.
             on-change-handler (fn []
                                 (when (fn? on-change)
-                                  (let [num-args (.-length on-change)]
+                                  (let [num-args (.-length on-change)
+                                        reset-fn #(reset! external-model @internal-model)]
                                     (if (= num-args 2)
-                                      (let [p (new js/Promise #(on-change @internal-model %))]
-                                        (.then p #(reset! external-model @internal-model)))
-                                      (reset! external-model @internal-model)))))]
+                                      (on-change @internal-model reset-fn)
+                                      (do
+                                        (on-change @internal-model)
+                                        (reset-fn))))))]
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model))
@@ -162,7 +164,8 @@
                                                   (not disabled?)
                                                   (if validation-regex (re-find validation-regex new-val) true))
                                             (reset! internal-model new-val)
-                                            (on-change-handler))))
+                                            (when-not change-on-blur?
+                                              (on-change-handler)))))
                          :on-blur     (handler-fn
                                         (when (and
                                                 change-on-blur?
