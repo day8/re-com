@@ -86,16 +86,40 @@
   [& {:keys [model input-type] :as args}]
   {:pre [(validate-args-macro input-text-args-desc args "input-text")]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
-        internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)
+        internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)]
     (fn
       [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts]
           :or   {change-on-blur? true, on-alter identity}
           :as   args}]
       {:pre [(validate-args-macro input-text-args-desc args "input-text")]}
-      (let [latest-ext-model (deref-or-value model)
-            disabled?        (deref-or-value disabled?)
-            change-on-blur?  (deref-or-value change-on-blur?)
-            showing?         (reagent/atom false)]
+      (js/console.group)
+      (js/console.log "input-text-base render!")
+      (js/console.log "@internal-model" (pr-str @internal-model))
+      (js/console.log "@external-model" (pr-str @external-model))
+      (js/console.log "latest-ext-model" (deref-or-value model))
+      (js/console.groupEnd)
+      (let [latest-ext-model  (deref-or-value model)
+            disabled?         (deref-or-value disabled?)
+            change-on-blur?   (deref-or-value change-on-blur?)
+            showing?          (reagent/atom false)
+            ;; If the user types a value that is subsequently modified in :on-change to the prior value of :model, such
+            ;; as validation or filtering, then the :model is reset! to the same value the value that the user typed
+            ;; (not the value of :model after the reset!) will remain displayed in the text input as no change is
+            ;; detected. To fix this we force an update via (reset! external-model @internal-model) on any change.
+            ;;
+            ;; This causes another problem, where if there is a delay in processing on-change before reset! of :model
+            ;; is called, such as if on-change is asynchronous, the displayed value can 'flicker' between the prior
+            ;; value of :model and the eventual reset! of :model to a new value. To give developers an escape hatch to
+            ;; fix this problem there is an optional 2-arity version of on-change that receives a function as the second
+            ;; arg that when called signals that :model has reached a 'steady state' and the reset! of external-model
+            ;; can be done thus avoiding the flicker.
+            on-change-handler (fn []
+                                (when (fn? on-change)
+                                  (let [num-args (.-length on-change)]
+                                    (if (= num-args 2)
+                                      (let [p (new js/Promise #(on-change @internal-model %))]
+                                        (.then p #(reset! external-model @internal-model)))
+                                      (reset! external-model @internal-model)))))]
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model))
@@ -144,23 +168,17 @@
                                                   (not disabled?)
                                                   (if validation-regex (re-find validation-regex new-val) true))
                                             (reset! internal-model new-val)
-                                            (when-not change-on-blur?
-                                              (reset! external-model @internal-model)
-                                              (on-change @internal-model)))))
+                                            (on-change-handler))))
                          :on-blur     (handler-fn
                                         (when (and
-                                                on-change
                                                 change-on-blur?
                                                 (not= @internal-model @external-model))
-                                          (reset! external-model @internal-model)
-                                          (on-change @internal-model)))
+                                          (on-change-handler)))
                          :on-key-up   (handler-fn
                                         (if disabled?
                                           (.preventDefault event)
                                           (case (.-which event)
-                                            13 (when on-change
-                                                 (reset! external-model @internal-model)
-                                                 (on-change @internal-model))
+                                            13 (on-change-handler)
                                             27 (reset! internal-model @external-model)
                                             true)))}
                         attr)]]
