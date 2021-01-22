@@ -1,9 +1,9 @@
 (ns re-demo.throbber
-  (:require [re-com.core   :refer [h-box v-box box gap line button label throbber p]]
-            [re-com.misc   :refer [throbber-args-desc]]
-            [re-demo.utils :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
-            [re-com.util   :refer [px]]
-            [reagent.core  :as    reagent]))
+  (:require [re-com.core     :refer [h-box v-box box gap line button label throbber p]]
+            [re-com.throbber :refer [throbber-args-desc]]
+            [re-demo.utils   :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
+            [re-com.util     :refer [px]]
+            [reagent.core    :as    reagent]))
 
 
 (def state (reagent/atom
@@ -65,7 +65,7 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[throbber ... ]"
-                            "src/re_com/misc.cljs"
+                            "src/re_com/throbber.cljs"
                             "src/re_demo/throbber.cljs"]
 
               [h-box

@@ -1,9 +1,9 @@
 (ns re-demo.checkbox
-  (:require [re-com.core   :refer [h-box v-box box gap line checkbox label p]]
-            [re-com.misc   :refer [checkbox-args-desc]]
-            [re-demo.utils :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
-            [re-com.util   :refer [px]]
-            [reagent.core  :as    reagent]))
+  (:require [re-com.core     :refer [h-box v-box box gap line checkbox label p]]
+            [re-com.checkbox :refer [checkbox-args-desc]]
+            [re-demo.utils   :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
+            [re-com.util     :refer [px]]
+            [reagent.core    :as    reagent]))
 
 
 (defn right-arrow
@@ -91,7 +91,7 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[checkbox ... ]"
-                                "src/re_com/misc.cljs"
+                                "src/re_com/checkbox.cljs"
                                 "src/re_demo/checkbox.cljs"]
 
                   [h-box

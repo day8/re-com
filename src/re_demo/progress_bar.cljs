@@ -1,9 +1,9 @@
 (ns re-demo.progress-bar
-  (:require [re-com.core   :refer [h-box v-box box gap line label title progress-bar slider checkbox p]]
-            [re-com.misc   :refer [progress-bar-args-desc]]
-            [re-demo.utils :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
-            [re-com.util   :refer [px]]
-            [reagent.core  :as    reagent]))
+  (:require [re-com.core         :refer [h-box v-box box gap line label title progress-bar slider checkbox p]]
+            [re-com.progress-bar :refer [progress-bar-args-desc]]
+            [re-demo.utils       :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
+            [re-com.util         :refer [px]]
+            [reagent.core        :as    reagent]))
 
 (defn progress-bar-component-hierarchy
   []
@@ -64,7 +64,7 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[progress-bar ... ]"
-                                "src/re_com/misc.cljs"
+                                "src/re_com/progress_bar.cljs"
                                 "src/re_demo/progress_bar.cljs"]
                   [h-box
                    :gap      "100px"

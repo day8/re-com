@@ -2,7 +2,8 @@
   (:require-macros [re-com.core :refer [handler-fn]]
                    [cljs.core.async.macros :refer [alt! go-loop]])
   (:require [cljs.core.async :refer [chan timeout <! put!]]
-            [re-com.misc     :refer [throbber input-text]]
+            [re-com.throbber :refer [throbber]]
+            [re-com.input-text :refer [input-text]]
             [re-com.util     :refer [deref-or-value px]]
             [re-com.popover  :refer [popover-tooltip]] ;; need?
             [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]] ;; need?

@@ -1,9 +1,9 @@
 (ns re-demo.radio-button
-  (:require [re-com.core   :refer [h-box v-box box gap checkbox title line radio-button p]]
-            [re-com.misc   :refer [radio-button-args-desc]]
-            [re-demo.utils :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
-            [re-com.util   :refer [px]]
-            [reagent.core  :as    reagent]))
+  (:require [re-com.core          :refer [h-box v-box box gap checkbox title line radio-button p]]
+            [re-com.radio-button  :refer [radio-button-args-desc]]
+            [re-demo.utils        :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
+            [re-com.util          :refer [px]]
+            [reagent.core         :as    reagent]))
 
 (defn radio-button-component-hierarchy
   []
@@ -69,7 +69,7 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[radio-button ... ]"
-                                "src/re_com/misc.cljs"
+                                "src/re_com/radio_button.cljs"
                                 "src/re_demo/radio_button.cljs"]
                   [h-box
                    :gap      "100px"

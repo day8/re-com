@@ -1,6 +1,6 @@
 (ns re-demo.slider
   (:require [re-com.core   :refer [h-box v-box box gap line label title slider checkbox input-text horizontal-bar-tabs vertical-bar-tabs p]]
-            [re-com.misc   :refer [slider-args-desc]]
+            [re-com.slider :refer [slider-args-desc]]
             [re-demo.utils :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
             [re-com.util   :refer [px]]
             [reagent.core  :as    reagent]))
@@ -62,7 +62,7 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[slider ... ]"
-                                "src/re_com/misc.cljs"
+                                "src/re_com/slider.cljs"
                                 "src/re_demo/slider.cljs"]
 
                   [h-box

@@ -1,11 +1,12 @@
 (ns re-com.selection-list
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
-    [re-com.text     :refer [label]]
-    [re-com.misc     :refer [checkbox radio-button]]
-    [re-com.box      :refer [box border h-box v-box]]
-    [re-com.validate :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
-    [re-com.util     :refer [fmap deref-or-value]]))
+    [re-com.text         :refer [label]]
+    [re-com.checkbox     :refer [checkbox]]
+    [re-com.radio-button :refer [radio-button]]
+    [re-com.box          :refer [box border h-box v-box]]
+    [re-com.validate     :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
+    [re-com.util         :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
 (defn label-style

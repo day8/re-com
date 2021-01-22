@@ -1,10 +1,10 @@
 (ns re-demo.input-text
-  (:require [re-com.core    :refer [h-box v-box box gap line input-text input-password input-textarea label checkbox radio-button slider title p]]
-            [re-com.misc    :refer [input-text-args-desc]]
-            [re-demo.utils  :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
-            [re-com.util    :refer [px]]
-            [clojure.string :as    string]
-            [reagent.core   :as    reagent]))
+  (:require [re-com.core       :refer [h-box v-box box gap line input-text input-password input-textarea label checkbox radio-button slider title p]]
+            [re-com.input-text :refer [input-text-args-desc]]
+            [re-demo.utils     :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
+            [re-com.util       :refer [px]]
+            [clojure.string    :as    string]
+            [reagent.core      :as    reagent]))
 
 (defn input-text-component-hierarchy
   []
@@ -73,7 +73,7 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title  "Input Text Components"
-                                "src/re_com/misc.cljs"
+                                "src/re_com/input_text.cljs"
                                 "src/re_demo/input_text.cljs"]
 
                   [h-box

@@ -4,11 +4,11 @@
     [clojure.set                 :as set]
     [clojure.string              :as string]
     [goog.string                 :as gstring]
+    [re-com.input-text           :refer [input-text]]
     [re-com.box                  :as box]
     [re-com.text                 :as text]
     [re-com.buttons              :as buttons]
     [re-com.close-button         :as close-button]
-    [re-com.misc                 :as misc]
     [re-com.util                 :as rc.util :refer [deref-or-value]]
     [re-com.validate             :as validate :refer [string-or-hiccup? parts?] :refer-macros [validate-args-macro]]
     [reagent.core                :as reagent]))
@@ -68,7 +68,7 @@
    :align    :center
    :style    (merge {:position "relative"}
                     (get-in parts [:filter-text-box :style]))
-   :children [[misc/input-text
+   :children [[input-text
                :class           (str "rc-multi-select-filter-input-text " (get-in parts [:filter-input-text :class]))
                :model           *filter-text
                :change-on-blur? false

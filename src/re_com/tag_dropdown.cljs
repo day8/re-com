@@ -9,7 +9,7 @@
     [re-com.util           :refer [deref-or-value]]
     [re-com.validate       :as validate :refer [parts?]]
     [re-com.box            :refer [box h-box v-box gap]]
-    [re-com.misc           :refer [checkbox]]
+    [re-com.checkbox       :refer [checkbox]]
     [re-com.selection-list :refer [selection-list]]
     [re-com.close-button   :refer [close-button]]
     [re-com.popover        :refer [popover-content-wrapper popover-anchor-wrapper]]))
