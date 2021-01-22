@@ -48,8 +48,8 @@
   ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
   (let [item-id (id-fn item)]
     [box
-     :class "list-group-item compact"
-     :style {:height "25px"}
+     :class "list-group-item "
+     :style {:padding "4px 8px 4px 8px"}
      :attr  {:on-click (handler-fn (when-not disabled?
                                      (on-change (check-clicked selections item-id (not (selections item-id)) required?))))}
      :child [checkbox
@@ -64,16 +64,19 @@
   []
   (let [over? (reagent/atom false)]
     (fn text-tag-render
-      [& {:keys [tag-data on-click on-unselect tooltip label-fn width height hover-style disabled? class style attr]
+      [& {:keys [tag-data on-click on-unselect tooltip label-fn description-fn width height hover-style disabled? class style attr]
           :or   {label-fn       :label}}]
       (let [clickable?    (and (some? on-click) (not disabled?))
             unselectable? (and (some? on-unselect) (not disabled?))
             placeholder?  (= (:id tag-data) :$placeholder$)
             border        (when placeholder? "1px dashed #828282")
-            tag-label     (label-fn tag-data)]
+            tag-label     (label-fn tag-data)
+            tag-description (when description-fn (description-fn tag-data))]
         [v-box
+         :align :start
          :children [[h-box
-                     :align :center
+                     ;:align :center
+                     :align-self :center
                      :justify (if placeholder? :end :center)
 
                      ;:width    (if placeholder? (:width tag-data) width)
@@ -126,7 +129,11 @@
                                                :font-size   13
                                                :top-offset  1
                                                :on-click    #(when unselectable?
-                                                               (on-unselect (:id tag-data)))]]])]]]]))))
+                                                               (on-unselect (:id tag-data)))]]])]]
+                    (when tag-description
+                      [:span
+                       {:style {:color "#586069"}}
+                       tag-description])]]))))
 
 
 (def tag-dropdown-parts
@@ -140,6 +147,7 @@
    {:name :on-tag-click       :required false                     :type "id -> nil"                :validate-fn fn?                         :description "This function is called when the user clicks a tag. Called with one argument, the tag id."}
    {:name :unselect-buttons?  :required false :default true       :type "boolean"                                                           :description "When true, buttons will be displayed on tags to unselect the tag."}
    {:name :label-fn           :required false :default ":label"   :type "map -> hiccup"            :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
+   {:name :description-fn     :required false :default ":description" :type "map -> hiccup"        :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable description for that map. Called for each element in " [:code ":choices"]]}
    {:name :width              :required false                     :type "string"                   :validate-fn string?                     :description "the CSS width. e.g.: \"500px\" or \"20em\""}
    {:name :height             :required false :default "25px"     :type "string"                   :validate-fn string?                     :description "the specific height of the component"}
    {:name :tag-width          :required false                     :type "string"                   :validate-fn string?                     :description "the width of each individual tag"}
@@ -154,8 +162,9 @@
   {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
   (let [showing?      (reagent/atom false)]
     (fn tag-dropdown-render
-      [& {:keys [choices model placeholder on-change on-tag-click unselect-buttons? label-fn width height tag-width tag-height style disabled? tag-comp parts]
+      [& {:keys [choices model placeholder on-change on-tag-click unselect-buttons? label-fn description-fn width height tag-width tag-height style disabled? tag-comp parts]
           :or   {label-fn       :label
+                 description-fn :description
                  height         "25px"
                  tag-comp       text-tag
                  unselect-buttons? true}
@@ -179,6 +188,7 @@
                              :label-fn      (fn [tag]
                                               [tag-comp
                                                :label-fn label-fn
+                                               :description-fn description-fn
                                                :tag-data tag
                                                :width    tag-width
                                                :height   tag-height
