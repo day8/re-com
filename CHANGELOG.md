@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 2.11.0 (2021-01-23)
+
 #### Added
 
 - Add `:parts` argument to all components that are constructed from a hierarchy of elements. See 'Parts' section of 
