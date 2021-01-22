@@ -1,5 +1,7 @@
 (ns re-com.simple-v-table
-  (:require-macros  [re-com.core :refer [handler-fn]])
+  (:require-macros
+    [re-com.core :refer [handler-fn]]
+    [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.box     :as box]
     [re-com.util    :refer [px]]
@@ -71,10 +73,6 @@
         :simple-wrapper
         :simple-header))
 
-;; :cols
-;; :fixed-column-count
-;; :col-header-height
-
 (def simple-v-table-args-desc
   [{:name :model                     :required true                     :type "vector of maps | atom"    :validate-fn vector-or-atom?              :description "one element for each row in the table."}
    {:name :columns                   :required true                     :type "vector of maps"           :validate-fn vector-or-atom?              :description [:span "one element for each column in the table. Must contain " [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"] "," [:code ":width"] ", and " [:code ":height"] ". Optionally contains " [:code ":align"] " and " [:code ":v-align"] "."]}
@@ -89,7 +87,7 @@
    {:name :on-leave-row              :required false                    :type "function"                 :validate-fn ifn?                         :description "This function is called when the user's mouse pointer leaves a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
    {:name :row-height                :required false :default 31        :type "integer"                  :validate-fn? number?                     :description "px height of each row."}
    {:name :table-padding             :required false :default 19        :type "integer"                  :validate-fn? number?                     :description "Padding in pixels for the entire table."}
-   {:name :header-renderer           :required false                    :type "cols -> hiccup"           :validate-fn ifn?                         :description "This function returns the hiccup to render the column headings."}
+   {:name :header-renderer           :required false                    :type "columns -> hiccup"        :validate-fn ifn?                         :description "This function returns the hiccup to render the column headings."}
    {:name :row-style                 :required false                    :type "map | function"           :validate-fn #(or (ifn? %) (map? %))      :description "CSS styles to add or override on each row."}
    {:name :cell-style                :required false                    :type "map | function"           :validate-fn #(or (ifn? %) (map? %))      :description "CSS styles to add or override on each cell."}
    {:name :class                     :required false                    :type "string"                   :validate-fn string?                      :description "CSS class names, space separated (applies to the outer container)."}
@@ -113,7 +111,9 @@
              column-header-height         31               ;; Based on g/s-31
              table-row-line-color      "#EAEEF1"
              fixed-column-border-color "#BBBEC0"
-             header-renderer           render-header}}]
+             header-renderer           render-header}
+      :as   args}]
+  {:pre [(validate-args-macro simple-v-table-args-desc args "simple-v-table")]}
   (let [fcc-bounded            (min fixed-column-count (count columns))
         fixed-cols             (subvec columns 0 fcc-bounded)
         content-cols           (subvec columns fcc-bounded (count columns))
@@ -145,11 +145,11 @@
              :row-header-renderer     (partial render-row fixed-cols   on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
              :row-renderer            (partial render-row content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
 
-             :col-header-height       column-header-height
+             :column-header-height    column-header-height
              ;; For fixed columns:
              :top-left-renderer       (partial header-renderer fixed-cols   parts)
              ;; Only for non-fixed columns:
-             :col-header-renderer     (partial header-renderer content-cols parts)
+             :column-header-renderer  (partial header-renderer content-cols parts)
 
              ;:max-table-width         (px (or max-table-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick)))
 

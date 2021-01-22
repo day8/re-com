@@ -94,21 +94,21 @@
                    [:td border-style ""]]
                   [:tr
                    [:td border-style-nw (indent-text 2 "[v-box]")]
-                   [:td border-style-nw "rc-v-table-col-headers rc-v-table-viewport"]
-                   [:td border-style-nw (code-text ":col-headers")]
+                   [:td border-style-nw "rc-v-table-column-headers rc-v-table-viewport"]
+                   [:td border-style-nw (code-text ":column-headers")]
                    [:td border-style ""]]
                   [:tr
                    [:td border-style-nw (indent-text 3 "[:div]")]
                    [:td border-style-nw "rc-v-table-selection"]
-                   [:td border-style-nw (code-text ":col-header-selection-rect")]
+                   [:td border-style-nw (code-text ":column-header-selection-rect")]
                    [:td border-style ""]]
                   [:tr
                    [:td border-style-nw (indent-text 3 "[box]")]
-                   [:td border-style-nw "rc-v-table-col-header-content rc-v-table-content"]
-                   [:td border-style-nw (code-text ":col-header-content")]
+                   [:td border-style-nw "rc-v-table-column-header-content rc-v-table-content"]
+                   [:td border-style-nw (code-text ":column-header-content")]
                    [:td border-style ""]]
                   [:tr
-                   [:td border-style-nw (indent-text 4 (code-text ":col-header-renderer"))]
+                   [:td border-style-nw (indent-text 4 (code-text ":column-header-renderer"))]
                    [:td border-style-nw ""]
                    [:td border-style-nw ""]
                    [:td border-style ""]]
@@ -134,16 +134,16 @@
                    [:td border-style ""]]
                   [:tr
                    [:td border-style-nw (indent-text 2 "[box]")]
-                   [:td border-style-nw "rc-v-table-col-footers rc-v-table-viewport"]
-                   [:td border-style-nw (code-text ":col-footers")]
+                   [:td border-style-nw "rc-v-table-column-footers rc-v-table-viewport"]
+                   [:td border-style-nw (code-text ":column-footers")]
                    [:td border-style ""]]
                   [:tr
                    [:td border-style-nw (indent-text 3 "[box]")]
-                   [:td border-style-nw "rc-v-table-col-footer-content rc-v-table-content"]
-                   [:td border-style-nw (code-text ":col-footer-content")]
+                   [:td border-style-nw "rc-v-table-column-footer-content rc-v-table-content"]
+                   [:td border-style-nw (code-text ":column-footer-content")]
                    [:td border-style ""]]
                   [:tr
-                   [:td border-style-nw (indent-text 4 (code-text ":col-footer-renderer"))]
+                   [:td border-style-nw (indent-text 4 (code-text ":column-footer-renderer"))]
                    [:td border-style-nw ""]
                    [:td border-style-nw ""]
                    [:td border-style ""]]
@@ -249,7 +249,7 @@
                                                                :align   :center
                                                                :justify :center
                                                                :style   {:border-right "1px solid #333"}
-                                                               :child [:span "col-headers (4)"]]
+                                                               :child [:span "column-headers (4)"]]
                                                               [box
                                                                :size    "1"
                                                                :height  "100%"
@@ -298,7 +298,7 @@
                                                                :align   :center
                                                                :justify :center
                                                                :style   {:border-right "1px solid #333"}
-                                                               :child   [:span "col-footers (6)"]]
+                                                               :child   [:span "column-footers (6)"]]
                                                               [box
                                                                :size    "1"
                                                                :height  "100%"

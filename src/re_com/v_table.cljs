@@ -1,6 +1,8 @@
 (ns re-com.v-table
-  (:require-macros [reagent.ratom :refer [reaction]]
-                   [re-com.core :refer [handler-fn]])
+  (:require-macros
+    [reagent.ratom :refer [reaction]]
+    [re-com.core :refer [handler-fn]]
+    [re-com.validate :refer [validate-args-macro]])
   (:require
     [reagent.core       :as    reagent]
     [re-com.box         :as    box]
@@ -170,13 +172,13 @@
 
 (defn top-left-content
   "Render section 1 - the content component"
-  [top-left-renderer col-header-height class style attr]
+  [top-left-renderer column-header-height class style attr]
   [box/box ;; content component
    :class  (str "rc-v-table-top-left rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
    :attr   attr
-   :height (px (or col-header-height 0))
+   :height (px (or column-header-height 0))
    :child  (if top-left-renderer [top-left-renderer] "")])
 
 
@@ -238,58 +240,58 @@
 
 (defn bottom-left-content
   "Render section 3 - the content component"
-  [bottom-left-renderer col-footer-height class style attr]
+  [bottom-left-renderer column-footer-height class style attr]
   [box/box ;; content component
    :class  (str "rc-v-table-bottom-left rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
    :attr   attr
-   :height (px (or col-footer-height 0))
+   :height (px (or column-footer-height 0))
    :child  (if bottom-left-renderer [bottom-left-renderer] "")])
 
 
-;; ================================================================================== SECTION 4 - col-headers
+;; ================================================================================== SECTION 4 - column-headers
 
-(defn col-header-content
-  "The col-header section 'content' component. Takes a function that renders col-headers and draws all of
+(defn column-header-content
+  "The column-header section 'content' component. Takes a function that renders column-headers and draws all of
   them in section 4 (sections explained below).
   This component is also responsible for setting the horizontal scroll position of this section based on scroll-x
 
   Arguments:
-   - col-header-renderer function that knows how to render col-headers
+   - column-header-renderer function that knows how to render column-headers
    - scroll-x            current horizonal scrollbar position in px
   "
-  [col-header-renderer scroll-x class style attr]
+  [column-header-renderer scroll-x class style attr]
   [box/box
-   :class (str "rc-v-table-col-header-content rc-v-table-content " class)
+   :class (str "rc-v-table-column-header-content rc-v-table-content " class)
    :style (merge {:margin-left (px scroll-x :negative)}
                  style)
    :attr  attr
-   :child [col-header-renderer]])
+   :child [column-header-renderer]])
 
 
-(defn col-header-viewport
+(defn column-header-viewport
   "Render section 4 - the viewport component (which renders the content component as its child)"
-  [col-header-renderer scroll-x
-   col-header-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
-   row-viewport-width col-header-height content-rows-width
+  [column-header-renderer scroll-x
+   column-header-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
+   row-viewport-width column-header-height content-rows-width
    class style attr sel-class sel-style sel-attr content-class content-style content-attr]
   [box/v-box ;; viewport component
-   :class    (str "rc-v-table-col-headers rc-v-table-viewport " class)
+   :class    (str "rc-v-table-column-headers rc-v-table-viewport " class)
    :style    (merge {:overflow "hidden"
                      :position "relative"}
                     style)
-   :attr     (merge (when col-header-selection-fn
-                      {:on-mouse-down  (handler-fn (on-mouse-down  :col-header col-header-selection-fn col-header-height content-rows-width event))
-                       :on-mouse-enter (handler-fn (on-mouse-enter :col-header))
-                       :on-mouse-leave (handler-fn (on-mouse-leave :col-header))})
+   :attr     (merge (when column-header-selection-fn
+                      {:on-mouse-down  (handler-fn (on-mouse-down  :column-header column-header-selection-fn column-header-height content-rows-width event))
+                       :on-mouse-enter (handler-fn (on-mouse-enter :column-header))
+                       :on-mouse-leave (handler-fn (on-mouse-leave :column-header))})
                     attr)
    :width    (when row-viewport-width (px row-viewport-width))
-   :height   (px (or col-header-height 0))
+   :height   (px (or column-header-height 0))
    :children [(when selection-allowed?
                 [selection-renderer sel-class sel-style sel-attr]) ;; selection rectangle component
-              (if col-header-renderer
-                [col-header-content col-header-renderer scroll-x content-class content-style content-attr] ;; content component
+              (if column-header-renderer
+                [column-header-content column-header-renderer scroll-x content-class content-style content-attr] ;; content component
                 "")]])
 
 
@@ -348,38 +350,38 @@
               [row-content row-renderer id-fn top-row-index rows scroll-x scroll-y content-class content-style content-attr]]]) ;; content component
 
 
-;; ================================================================================== SECTION 6 - col-footers
+;; ================================================================================== SECTION 6 - column-footers
 
-(defn col-footer-content
-  "The col-footer section 'content' component. Takes a function that renders col-footers and draws all of
+(defn column-footer-content
+  "The column-footer section 'content' component. Takes a function that renders column-footers and draws all of
   them in section 6 (sections explained below).
   This component is also responsible for setting the horizontal scroll position of this section based on scroll-x
 
   Arguments:
-   - col-footer-renderer function that knows how to render col-footers
+   - column-footer-renderer function that knows how to render column-footers
    - scroll-x            current horizonal scrollbar position in px
   "
-  [col-footer-renderer scroll-x class style attr]
+  [column-footer-renderer scroll-x class style attr]
   [box/box
-   :class (str "rc-v-table-col-footer-content rc-v-table-content " class)
+   :class (str "rc-v-table-column-footer-content rc-v-table-content " class)
    :style (merge {:margin-left (px scroll-x :negative)}
                  style)
    :attr  attr
-   :child [col-footer-renderer]])
+   :child [column-footer-renderer]])
 
 
-(defn col-footer-viewport
+(defn column-footer-viewport
   "Render section 6 - the viewport component (which renders the content component as its child)"
-  [col-footer-renderer scroll-x row-viewport-width col-footer-height class style attr content-class content-style content-attr]
+  [column-footer-renderer scroll-x row-viewport-width column-footer-height class style attr content-class content-style content-attr]
   [box/box ;; viewport component
-   :class  (str "rc-v-table-col-footers rc-v-table-viewport " class)
+   :class  (str "rc-v-table-column-footers rc-v-table-viewport " class)
    :style  (merge {:overflow "hidden"}
                   style)
    :attr   attr
    :width  (when row-viewport-width (px row-viewport-width))
-   :height (px (or col-footer-height 0))
-   :child  (if col-footer-renderer
-             [col-footer-content col-footer-renderer scroll-x content-class content-style content-attr] ;; content component
+   :height (px (or column-footer-height 0))
+   :child  (if column-footer-renderer
+             [column-footer-content column-footer-renderer scroll-x content-class content-style content-attr] ;; content component
              "")])
 
 
@@ -387,13 +389,13 @@
 
 (defn top-right-content
   "Render section 7 - the content component"
-  [top-right-renderer col-header-height class style attr]
+  [top-right-renderer column-header-height class style attr]
   [box/box ;; content component
    :class  (str  "rc-v-table-top-right rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
    :attr   attr
-   :height (px (or col-header-height 0))
+   :height (px (or column-header-height 0))
    :child  (if top-right-renderer [top-right-renderer] "")])
 
 
@@ -447,13 +449,13 @@
 
 (defn bottom-right-content
   "Render section 9 - the content component"
-  [bottom-right-renderer col-footer-height class style attr]
+  [bottom-right-renderer column-footer-height class style attr]
   [box/box ;; content component
    :class  (str "rc-v-table-bottom-right rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
    :attr   attr
-   :height (px (or col-footer-height 0))
+   :height (px (or column-footer-height 0))
    :child  (if bottom-right-renderer [bottom-right-renderer] "")])
 
 
@@ -461,40 +463,40 @@
 
 (def v-table-parts
   #{:wrapper :left-section :top-left :row-headers :row-header-selection-rect :row-header-content :bottom-left
-    :middle-section :col-headers :col-header-selection-rect :col-header-content :rows :row-selection-rect :row-content
-    :col-footers :col-footer-content :h-scroll :right-section :top-right :row-footers :row-footer-content :bottom-right
+    :middle-section :column-headers :column-header-selection-rect :column-header-content :rows :row-selection-rect :row-content
+    :column-footers :column-footer-content :h-scroll :right-section :top-right :row-footers :row-footer-content :bottom-right
     :v-scroll-section :v-scroll})
 
 (def v-table-args-desc
   ;; TODO deref-or-value model
-  [{:name :model                   :required true                 :type "vector of maps | atom"    :validate-fn vector-or-atom?      :description "one element for each row in the table."}
-   {:name :id-fn                   :required false :default :id   :type "map -> anything"          :validate-fn ifn?                 :description [:span "given a element of " [:code ":model"] ", returns its unique identifier."]}
-   {:name :virtual?                :required false :default true  :type "boolean"                                                    :description [:span "when true, only those rows that are visible are rendered to the DOM."]}
-   {:name :remove-empty-row-space? :required false :default true  :type "boolean"                                                    :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
-   {:name :max-table-width         :required false                :type "string"                   :validate-fn string?              :description "standard CSS max-width setting of the entire table."}
-   {:name :top-left-renderer       :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the top left section (section 1)."}
-   {:name :row-header-renderer     :required false                :type "row -> hiccup"            :validate-fn fn?                  :description "This function returns the hiccup displayed in section row header (section 2)."}
-   {:name :bottom-left-renderer    :required false                :type "-> nil"                   :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the bottom left section (section 3)."}
-   {:name :col-header-renderer     :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the entire column header (section 4)."}
-   {:name :row-renderer            :required true                 :type "row-index, row -> hiccup" :validate-fn fn?                  :description "This function returns the hiccup to display a single content row (section 5)."}
-   {:name :col-footer-renderer     :required false                :type "-> hiccup"                :validate-fn? fn?                 :description "This function returns the hiccup to display the entire column footer (section 6)."}
-   {:name :top-right-renderer      :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the top right section (section 7)."}
-   {:name :row-footer-renderer     :required false                :type "row -> hiccup"            :validate-fn fn?                  :description "This function returns the hiccup to display a single row footer (section 8)."}
-   {:name :bottom-right-renderer   :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the bottom right section (section 9)."}
-   {:name :row-header-selection-fn :required false                :type "event -> "                :validate-fn fn?                  :description "If present, this function will be called on mousedown, mousemove and mouseup events, allowing you to capture user selection of cells, columns or rows in section 2."}
-   {:name :col-header-selection-fn :required false                :type "event ->"                 :validate-fn fn?                  :description "If present, this function will be called on mousedown, mousemove and mouseup events, allowing you to capture user selection of cells, columns or rows in section 4."}
-   {:name :row-selection-fn        :required false                :type "event -> "                :validate-fn? fn?                 :description "If present, this function will be called on mousedown, mousemove and mouseup events, allowing you to capture user selection of cells, columns or rows in section 5."}
-   {:name :col-header-height       :required false                :type "integer"                  :validate-fn number?              :description "px height of the column header section."}
-   {:name :row-height              :required true                 :type "integer"                  :validate-fn? number?             :description "px height of each row."}
-   {:name :row-content-width       :required true                 :type "integer"                  :validate-fn? number?             :description "px width of the content rendered by row-renderer."}
-   {:name :row-viewport-width      :required false                :type "integer"                  :validate-fn? number?             :description "px width of the row viewport area. If not specified, takes up all the width available to it."}
-   {:name :row-viewport-height     :required false                :type "integer"                  :validate-fn? number?             :description "px height of the row viewport area. If not specified, takes up all height available to it."}
-   {:name :max-row-viewport-height :required false                :type "integer"                  :validate-fn? number?             :description "Maximum px height of the row viewport area."}
-   {:name :col-footer-height       :required false                :type "integer"                  :validate-fn number?              :description "px height of the column footer section."}
-   {:name :scroll-rows-into-view   :required false                :type "atom"                     :validate-fn map-or-atom?         :description "Scrolls the table to a particular row range. Map that contains the keys :start-row and :end-row."} ;; TODO [:code ] blocks around keys
-   {:name :scroll-cols-into-view   :required false                :type "atom"                     :validate-fn map-or-atom?         :description "Scrolls the table of a particular column range. Map that contains the keys :start-col and :end-col in pixel units."}
-   {:name :class                   :required false                :type "string"                   :validate-fn string?              :description "CSS class names, space separated (applies to the outer container)."}
-   {:name :parts                   :required false                :type "map"                      :validate-fn (parts? v-table-parts) :description "See Parts section below."}])
+  [{:name :model                      :required true                 :type "vector of maps | atom"    :validate-fn vector-or-atom?      :description "one element for each row in the table."}
+   {:name :id-fn                      :required false :default :id   :type "map -> anything"          :validate-fn ifn?                 :description [:span "given a element of " [:code ":model"] ", returns its unique identifier."]}
+   {:name :virtual?                   :required false :default true  :type "boolean"                                                    :description [:span "when true, only those rows that are visible are rendered to the DOM."]}
+   {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                    :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
+   {:name :max-table-width            :required false                :type "string"                   :validate-fn string?              :description "standard CSS max-width setting of the entire table."}
+   {:name :top-left-renderer          :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the top left section (section 1)."}
+   {:name :row-header-renderer        :required false                :type "row -> hiccup"            :validate-fn fn?                  :description "This function returns the hiccup displayed in section row header (section 2)."}
+   {:name :bottom-left-renderer       :required false                :type "-> nil"                   :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the bottom left section (section 3)."}
+   {:name :column-header-renderer     :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the entire column header (section 4)."}
+   {:name :row-renderer               :required true                 :type "row-index, row -> hiccup" :validate-fn fn?                  :description "This function returns the hiccup to display a single content row (section 5)."}
+   {:name :column-footer-renderer     :required false                :type "-> hiccup"                :validate-fn? fn?                 :description "This function returns the hiccup to display the entire column footer (section 6)."}
+   {:name :top-right-renderer         :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the top right section (section 7)."}
+   {:name :row-footer-renderer        :required false                :type "row -> hiccup"            :validate-fn fn?                  :description "This function returns the hiccup to display a single row footer (section 8)."}
+   {:name :bottom-right-renderer      :required false                :type "-> hiccup"                :validate-fn fn?                  :description "This function returns the hiccup to be displayed in the bottom right section (section 9)."}
+   {:name :row-header-selection-fn    :required false                :type "event -> "                :validate-fn fn?                  :description "If present, this function will be called on mousedown, mousemove and mouseup events, allowing you to capture user selection of cells, columns or rows in section 2."}
+   {:name :column-header-selection-fn :required false                :type "event ->"                 :validate-fn fn?                  :description "If present, this function will be called on mousedown, mousemove and mouseup events, allowing you to capture user selection of cells, columns or rows in section 4."}
+   {:name :row-selection-fn           :required false                :type "event -> "                :validate-fn? fn?                 :description "If present, this function will be called on mousedown, mousemove and mouseup events, allowing you to capture user selection of cells, columns or rows in section 5."}
+   {:name :column-header-height       :required false                :type "integer"                  :validate-fn number?              :description "px height of the column header section."}
+   {:name :row-height                 :required true                 :type "integer"                  :validate-fn? number?             :description "px height of each row."}
+   {:name :row-content-width          :required true                 :type "integer"                  :validate-fn? number?             :description "px width of the content rendered by row-renderer."}
+   {:name :row-viewport-width         :required false                :type "integer"                  :validate-fn? number?             :description "px width of the row viewport area. If not specified, takes up all the width available to it."}
+   {:name :row-viewport-height        :required false                :type "integer"                  :validate-fn? number?             :description "px height of the row viewport area. If not specified, takes up all height available to it."}
+   {:name :max-row-viewport-height    :required false                :type "integer"                  :validate-fn? number?             :description "Maximum px height of the row viewport area."}
+   {:name :column-footer-height       :required false                :type "integer"                  :validate-fn number?              :description "px height of the column footer section."}
+   {:name :scroll-rows-into-view      :required false                :type "atom"                     :validate-fn map-or-atom?         :description "Scrolls the table to a particular row range. Map that contains the keys :start-row and :end-row."} ;; TODO [:code ] blocks around keys
+   {:name :scroll-columns-into-view   :required false                :type "atom"                     :validate-fn map-or-atom?         :description "Scrolls the table of a particular column range. Map that contains the keys :start-col and :end-col in pixel units."}
+   {:name :class                      :required false                :type "string"                   :validate-fn string?              :description "CSS class names, space separated (applies to the outer container)."}
+   {:name :parts                      :required false                :type "map"                      :validate-fn (parts? v-table-parts) :description "See Parts section below."}])
 
 (defn v-table
   "Renders a scrollable table with optional fixed column and row headers and footers, totalling nine addressable sections
@@ -538,9 +540,9 @@
    - 1: top-left
    - 2: row-headers
    - 3: bottom-left
-   - 4: col-headers
+   - 4: column-headers
    - 5: rows
-   - 6: col-footers
+   - 6: column-footers
    - 7: top-right
    - 8: row-footers
    - 9: bottom-right
@@ -582,7 +584,7 @@
 
    - top-left-renderer        [optional fn]
                               Render the top left section
-                              Height is determined by the :col-header-height arg
+                              Height is determined by the :column-header-height arg
                               Width is determined by the component itself
                               Passed args: none
 
@@ -605,7 +607,7 @@
 
    - bottom-left-renderer     [optional fn]
                               Render the bottom left section
-                              Height is determined by the col-footer-height arg
+                              Height is determined by the column-footer-height arg
                               Width is determined by the component itself
                               Passed args: none
 
@@ -613,21 +615,21 @@
                                     is determined by the widest section
 
 
-     ========== SECTION 4 - col-headers
+     ========== SECTION 4 - column-headers
 
-   - col-header-renderer      [optional fn]
+   - column-header-renderer      [optional fn]
                               Render the entire column header
-                              Height is determined by the col-header-height arg
+                              Height is determined by the column-header-height arg
                               Width is determined by the width available to the v-table OR the row-viewport-width arg if specified
                               Passed args: none
 
-   - col-header-height        [optional number]
+   - column-header-height        [optional number]
                               px height of the column header section
 
-   - col-header-selection-fn  [optional fn]
+   - column-header-selection-fn  [optional fn]
                               if provided, indicates that the column header section is selectable via click+drag
                               Passed args: see row-selection-fn below for details
-                              Use the :col-header-selection-rect style-part to style the selection rectangle
+                              Use the :column-header-selection-rect style-part to style the selection rectangle
 
 
      ========== SECTION 5 - rows (main content area)
@@ -663,7 +665,7 @@
                               The fn will be called (on mouse-down, mouse-move and mouse-up) with four positional args
                               Passed args:
                                     selection-event: One of :selection-start, :selecting or :selection-end
-                                    coords:          {:start-row integer   ;; rows are returned as zero-based row numbers (except col-header which returns px)
+                                    coords:          {:start-row integer   ;; rows are returned as zero-based row numbers (except column-header which returns px)
                                                       :end-row   integer
                                                       :start-col integer   ;; cols are returned as px offsets
                                                       :end-col   integer}
@@ -673,15 +675,15 @@
                               Use the :selection-rect style-part to style the selection rectangle
 
 
-     ========== SECTION 6 - col-footers
+     ========== SECTION 6 - column-footers
 
-   - col-footer-renderer      [optional fn]
+   - column-footer-renderer      [optional fn]
                               Render the entire column footer
-                              Height is determined by the col-footer-height arg
+                              Height is determined by the column-footer-height arg
                               Width is determined by the width available to the v-table OR the row-viewport-width arg if specified
                               Passed args: none
 
-   - col-footer-height        [optional number]
+   - column-footer-height        [optional number]
                               px height of the column footer section
 
 
@@ -689,7 +691,7 @@
 
    - top-right-renderer       [optional fn]
                               Render the top right section
-                              Height is determined by the col-header-height arg
+                              Height is determined by the column-header-height arg
                               Width is determined by the component itself
                               Passed args: none
 
@@ -707,7 +709,7 @@
 
    - bottom-right-renderer    [optional fn]
                               Render the bottom right section
-                              Height is determined by the col-footer-height arg
+                              Height is determined by the column-footer-height arg
                               Width is determined by the component itself
                               Passed args: none
 
@@ -723,7 +725,7 @@
                                 {:start-row   12   ;; Start row number (zero-based) to be scrolled into view
                                  :end-row     14}  ;; End row number to be scrolled into view
 
-   - scroll-cols-into-view    [optional atom map]
+   - scroll-columns-into-view    [optional atom map]
                               Set this argument to scroll the table to a particular column range (in this case columns are pixels!)
                               map example:
                                 {:start-col   200  ;; Start column px offset to be scrolled into view
@@ -742,37 +744,39 @@
 
                               Keys can be:
 
-                               - :v-table                   The outer container of the table
+                               - :wrapper                   The outer container of the table
 
-                               - :v-table-left-section      The left v-box container section of the table, containing:
-                                  - :v-table-top-left       Top left section (1)
-                                  - :v-table-row-headers    Row header section (2)
-                                  - :v-table-bottom-left    Bottom left section (3)
+                               - :left-section      The left v-box container section of the table, containing:
+                                  - :top-left       Top left section (1)
+                                  - :row-headers    Row header section (2)
+                                  - :bottom-left    Bottom left section (3)
 
                                - :v-table-middle-section    The middle v-box container section of the table, containing:
-                                  - :v-table-col-headers    Column header section (4)
-                                  - :v-table-rows           Main rows section (5)
-                                  - :v-table-col-footers    Column footer section (6)
+                                  - :column-headers    Column header section (4)
+                                  - :rows           Main rows section (5)
+                                  - :column-footers    Column footer section (6)
                                   - :h-scroll               The horizonal scrollbar
 
-                               - :v-table-right-section     The right container section v-box of the table, containing:
-                                  - :v-table-top-right      Rop right section (7)
-                                  - :v-table-row-footers    Row footer section (8)
-                                  - :v-table-bottom-right   Bottom right section (9)
+                               - :vright-section     The right container section v-box of the table, containing:
+                                  - :top-right      Rop right section (7)
+                                  - :row-footers    Row footer section (8)
+                                  - :bottom-right   Bottom right section (9)
 
-                               - :v-table-v-scroll-section  The v-box containing the vertical scrollbar:
+                               - :v-scroll-section  The v-box containing the vertical scrollbar:
                                   - :v-scroll               The vertical scrollbar
 
                                - :row-selection-rect        Override the default style for the ROW rectangle used for click+drag selection of rows
                                                             Defaults to being above the rows (:z-index 1). Set to 0 to place it underneath rows
                                - :row-header-selection-rect Override the default style for the ROW-HEADER rectangle used for click+drag selection of row headers
-                               - :col-header-selection-rect Override the default style for the COL-HEADER rectangle used for click+drag selection of column headers
+                               - :column-header-selection-rect Override the default style for the COL-HEADER rectangle used for click+drag selection of column headers
    "
-  ;; TODO: Ideally make the component work out row-content-width so it doesn't need to be passed (and col-header-height/col-footer-height if possible)
+  ;; TODO: Ideally make the component work out row-content-width so it doesn't need to be passed (and column-header-height/column-footer-height if possible)
   ;; TODO: [STU] Suggest we allow model to be passed as a value like other re-com components (DJ agrees)
 
   [& {:keys [model virtual? row-height row-viewport-width row-viewport-height max-row-viewport-height]
-      :or   {virtual? true}}]
+      :or   {virtual? true}
+      :as   args}]
+  {:pre [(validate-args-macro v-table-args-desc args "v-table")]}
   (let [scroll-x              (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
         scroll-y              (reagent/atom 0)              ;; px offset from top of header/content/footer sections (note: this value remains the same when virtual-mode? is both true and false)
         ;wheel-row-increment   (* 10 row-height)             ;; Could be an argument
@@ -784,7 +788,7 @@
         rl-row-viewport-width (reagent/atom 0)              ;; The current width of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-width arg)
         rl-row-viewport-height (reagent/atom (min (* row-height (count @model)) max-row-viewport-height)) ;; The current height of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-height arg). Initialise to prevent that annoying cascading render effect
         internal-scroll-rows-into-view (reagent/atom nil)   ;; Internal state for scrolling a particular row number (or range or rows) into view
-        internal-scroll-cols-into-view (reagent/atom nil)   ;; Internal state for scrolling a px range of columns into view
+        internal-scroll-columns-into-view (reagent/atom nil)   ;; Internal state for scrolling a px range of columns into view
         m-size                (reaction (count @model))     ;; TODO/NOTE: This reaction was not always fired at the required time when creating virtual-rows after deleting a constraint. Could be an FRP glitch?
         rows-per-viewport     (reaction (.round js/Math (/ @rl-row-viewport-height row-height)))          ;; The number of rows that can currently be displayed in the row-viewport component
         max-scroll-x          (reaction (- @content-rows-width  @rl-row-viewport-width))                  ;; The maximum number of pixels the content can be scrolled vertically so it stops at the very bottom of the content section
@@ -871,7 +875,7 @@
 
         coords-debug          (reagent/atom nil)            ;; Handy when debugging - used to show selection coords on the left-hand debug section
         event-debug           (reagent/atom nil)            ;; Handy when debugging - use this to display data from the event object on the left-hand debug section
-        selection-target      (reagent/atom nil)            ;; Indicates which section we're selecting in (one of :row, :row-header or :col-header)
+        selection-target      (reagent/atom nil)            ;; Indicates which section we're selecting in (one of :row, :row-header or :column-header)
         sel-max-content-rows-px (reagent/atom 0)            ;; The maximum value that can be passed in the callback of px rows to be used for the selection callback
         sel-max-content-cols-px (reagent/atom 0)            ;; The maximum number of px columns to be used for the selection callback
 
@@ -881,7 +885,7 @@
                                 (if @sel-parent-bounding-rect
                                   (let [selecting-down?      (> @sel-content-y-end @sel-content-y-start)
                                         selecting-right?     (> @sel-content-x-end @sel-content-x-start)
-                                        use-rows-numbers?    (not= @selection-target :col-header)           ;; rows and row-headers return row numbers, col-headers return px values
+                                        use-rows-numbers?    (not= @selection-target :column-header)           ;; rows and row-headers return row numbers, column-headers return px values
                                         start-row-px         (if selecting-down?  @sel-content-y-start @sel-content-y-end)
                                         end-row-px           (if selecting-down?  @sel-content-y-end @sel-content-y-start)
                                         start-col-px         (if selecting-right? @sel-content-x-start @sel-content-x-end)
@@ -910,7 +914,7 @@
                                       left-offset    (.-left   @sel-parent-bounding-rect)
                                       bottom-offset  (.-bottom @sel-parent-bounding-rect)
                                       right-offset   (.-right  @sel-parent-bounding-rect)
-                                      scroll-delta-y (if (and @dragging-outside? (not= @selection-target :col-header))
+                                      scroll-delta-y (if (and @dragging-outside? (not= @selection-target :column-header))
                                                        (cond
                                                          (< curr-y top-offset)    (- curr-y top-offset)
                                                          (> curr-y bottom-offset) (- curr-y bottom-offset)
@@ -1009,11 +1013,11 @@
                                      ;; Section 3
                                      bottom-left-renderer
                                      ;; Section 4
-                                     col-header-renderer col-header-height col-header-selection-fn
+                                     column-header-renderer column-header-height column-header-selection-fn
                                      ;; Section 5
                                      row-renderer row-height row-selection-fn row-viewport-width row-viewport-height max-row-viewport-height row-content-width
                                      ;; Section 6
-                                     col-footer-renderer col-footer-height
+                                     column-footer-renderer column-footer-height
                                      ;; Section 7
                                      top-right-renderer
                                      ;; Section 8
@@ -1021,7 +1025,7 @@
                                      ;; Section 9
                                      bottom-right-renderer
                                      ;; Others
-                                     scroll-rows-into-view scroll-cols-into-view
+                                     scroll-rows-into-view scroll-columns-into-view
                                      class parts]
                               :or   {virtual? true remove-empty-row-space? true id-fn :id}}]
                           (reset! content-rows-width row-content-width)
@@ -1044,9 +1048,9 @@
                               (reset! internal-scroll-rows-into-view (deref-or-value scroll-rows-into-view))))
 
                           ;; Scroll columns into view handling
-                          (when (not= (deref-or-value scroll-cols-into-view) @internal-scroll-cols-into-view)
+                          (when (not= (deref-or-value scroll-columns-into-view) @internal-scroll-columns-into-view)
                             ;; TODO: Ideally allow non-atom nil but exception if it's not an atom when there's a value
-                            (let [{:keys [start-col end-col]} (deref-or-value scroll-cols-into-view)
+                            (let [{:keys [start-col end-col]} (deref-or-value scroll-columns-into-view)
                                   left-col-px  @scroll-x                     ;; Unnecessary but consistent
                                   right-col-px (+ @scroll-x @rl-row-viewport-width -1)
                                   new-scroll-x (cond
@@ -1055,7 +1059,7 @@
                                                  :else                      nil)]
                               (when (some? new-scroll-x)
                                 (reset! scroll-x (max 0 (min @max-scroll-x new-scroll-x))))
-                              (reset! internal-scroll-cols-into-view (deref-or-value scroll-cols-into-view))))
+                              (reset! internal-scroll-columns-into-view (deref-or-value scroll-columns-into-view))))
 
                           ;; If model count has changed and now has less rows than before AND the current scroll-y is beyond the new max-scroll-y, reset to end of table
                           (when (> @scroll-y @max-scroll-y)
@@ -1071,12 +1075,12 @@
                           [box/h-box
                            :class    (str "rc-v-table " class " " (get-in parts [:wrapper :class]))
                            :style    (merge
-                                       {:max-width  max-table-width ;; TODO: Can't do equivalent of :max-height because we don't know col-header-width or col-footer-width
+                                       {:max-width  max-table-width ;; TODO: Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
                                         :max-height (when remove-empty-row-space?
                                                       (+
-                                                        (or col-header-height 0)
+                                                        (or column-header-height 0)
                                                         (or max-row-viewport-height (inc @content-rows-height)) ;; TODO: The inc prevents content scrollbar. Need to inc more if more than 1px borders specified
-                                                        (or col-footer-height 0)
+                                                        (or column-footer-height 0)
                                                         scrollbar-tot-thick))}
                                        (get-in parts [:wrapper :style]))
                            :attr     (merge {:on-wheel (handler-fn (on-wheel event))}
@@ -1095,7 +1099,7 @@
                                                   [top-left-content
                                                    top-left-renderer
                                                    ;-----------------
-                                                   col-header-height
+                                                   column-header-height
                                                    ;-----------------
                                                    (get-in parts [:top-left :class])
                                                    (get-in parts [:top-left :style])
@@ -1132,7 +1136,7 @@
                                                   [bottom-left-content
                                                    bottom-left-renderer
                                                    ;-----------------
-                                                   col-footer-height
+                                                   column-footer-height
                                                    ;-----------------
                                                    (get-in parts [:bottom-left :class])
                                                    (get-in parts [:bottom-left :style])
@@ -1149,29 +1153,29 @@
                                        :attr     (get-in parts [:middle-section :attr])
                                        :size     (if row-viewport-width "none" "auto")
                                        :children [
-                                                  ;; ========== SECTION 4 - col-headers
+                                                  ;; ========== SECTION 4 - column-headers
 
-                                                  [col-header-viewport
-                                                   col-header-renderer
+                                                  [column-header-viewport
+                                                   column-header-renderer
                                                    @scroll-x
                                                    ;-----------------
-                                                   col-header-selection-fn
+                                                   column-header-selection-fn
                                                    selection-fns
-                                                   (and col-header-selection-fn @sel-parent-bounding-rect (= @selection-target :col-header)) ;; selection-allowed?
+                                                   (and column-header-selection-fn @sel-parent-bounding-rect (= @selection-target :column-header)) ;; selection-allowed?
                                                    ;-----------------
                                                    row-viewport-width
-                                                   col-header-height
+                                                   column-header-height
                                                    @content-rows-width
                                                    ;-----------------
-                                                   (get-in parts [:col-headers :class])
-                                                   (get-in parts [:col-headers :style])
-                                                   (get-in parts [:col-headers :attr])
-                                                   (get-in parts [:col-header-selection-rect :class])
-                                                   (get-in parts [:col-header-selection-rect :style])
-                                                   (get-in parts [:col-header-selection-rect :attr])
-                                                   (get-in parts [:col-header-content :class])
-                                                   (get-in parts [:col-header-content :style])
-                                                   (get-in parts [:col-header-content :attr])]
+                                                   (get-in parts [:column-headers :class])
+                                                   (get-in parts [:column-headers :style])
+                                                   (get-in parts [:column-headers :attr])
+                                                   (get-in parts [:column-header-selection-rect :class])
+                                                   (get-in parts [:column-header-selection-rect :style])
+                                                   (get-in parts [:column-header-selection-rect :attr])
+                                                   (get-in parts [:column-header-content :class])
+                                                   (get-in parts [:column-header-content :style])
+                                                   (get-in parts [:column-header-content :attr])]
 
                                                   ;; ========== SECTION 5 - rows (main content area)
 
@@ -1203,21 +1207,21 @@
                                                    (get-in parts [:row-content :style])
                                                    (get-in parts [:row-content :attr])]
 
-                                                  ;; ========== SECTION 6 - col-footers
+                                                  ;; ========== SECTION 6 - column-footers
 
-                                                  [col-footer-viewport
-                                                   col-footer-renderer
+                                                  [column-footer-viewport
+                                                   column-footer-renderer
                                                    @scroll-x
                                                    ;-----------------
                                                    row-viewport-width
-                                                   col-footer-height
+                                                   column-footer-height
                                                    ;-----------------
-                                                   (get-in parts [:col-footers :class])
-                                                   (get-in parts [:col-footers :style])
-                                                   (get-in parts [:col-footers :attr])
-                                                   (get-in parts [:col-footer-content :class])
-                                                   (get-in parts [:col-footer-content :style])
-                                                   (get-in parts [:col-footer-content :attr])]
+                                                   (get-in parts [:column-footers :class])
+                                                   (get-in parts [:column-footers :style])
+                                                   (get-in parts [:column-footers :attr])
+                                                   (get-in parts [:column-footer-content :class])
+                                                   (get-in parts [:column-footer-content :style])
+                                                   (get-in parts [:column-footer-content :attr])]
 
                                                   ;; ========== Horizontal scrollbar section
 
@@ -1245,7 +1249,7 @@
                                                   [top-right-content
                                                    top-right-renderer
                                                    ;-----------------
-                                                   col-header-height
+                                                   column-header-height
                                                    ;-----------------
                                                    (get-in parts [:top-right :class])
                                                    (get-in parts [:top-right :style])
@@ -1275,7 +1279,7 @@
                                                   [bottom-right-content
                                                    bottom-right-renderer
                                                    ;-----------------
-                                                   col-footer-height
+                                                   column-footer-height
                                                    ;-----------------
                                                    (get-in parts [:bottom-right :class])
                                                    (get-in parts [:bottom-right :style])
@@ -1289,7 +1293,7 @@
                                        :class    (str "rc-v-table-v-scroll-section " (get-in parts [:v-scroll-section :class]))
                                        :style    (get-in parts [:v-scroll-section :style])
                                        :attr     (get-in parts [:v-scroll-section :attr])
-                                       :children [[box/gap :size (px (or col-header-height 0))]
+                                       :children [[box/gap :size (px (or column-header-height 0))]
                                                   [box/box
                                                    :size  "auto"
                                                    :child [scrollbar
@@ -1303,7 +1307,7 @@
                                                            :style          (merge {:margin (str "0px " (px scrollbar-margin))}
                                                                                   (get-in parts [:v-scroll :style]))
                                                            :attr           (get-in parts [:v-scroll :attr])]]
-                                                  [box/gap :size (px (or col-footer-height 0))]
+                                                  [box/gap :size (px (or column-footer-height 0))]
                                                   [box/gap :size (px scrollbar-tot-thick)]]]
 
                                       ;; ========== Debug section
