@@ -24,6 +24,15 @@
                                       [status-text "Alpha" {:color "red" :font-weight "bold"}]
                                       [p "This component provides a table which virtualises row rendering. You can have 1M rows but only those currently viewable will be in the DOM."]
                                       [p [:code "simple-v-table"] " is built on " [:code "v-table"] " and it exists because " [:code "v-table"] " is too low level and complicated for everyday use."]
+                                      [p "The features of this component include:"]
+                                      [:ul
+                                       [:li "Unlimited columns with fixed column header at the top"]
+                                       [:li "Unlimited (virtualised) rows with fixed row header at the left by simply specifying the number of columns to fix"]
+                                       [:li "Width will shrink and grow with available space"]
+                                       [:li "Height will shrink and grow with available space, or you can specify max number of rows to display"]
+                                       [:li "Every part of the table is stylable using the " [:code ":parts"] " argument that can set " [:code ":class"] " or " [:code ":style"] " attributes"]
+                                       [:li "Individual rows can be dynamically styled based on row data"]
+                                       [:li "Individual cells can be dynamically styled based on row data"]]
                                       [args-table simple-v-table-args-desc]]]
                           [v-box
                            :gap      "10px"
