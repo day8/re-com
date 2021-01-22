@@ -92,7 +92,7 @@
                             :gap      "10px"
                             :width    "450px"
                             :children [[title2 "Notes"]
-                                       [status-text "Stable"]
+                                       [status-text "Alpha" {:color "red" :font-weight "bold"}]
                                        [p "A compound component that allows the user to incrementally build up a selection from a list of choices, often only a few selections and a short list of choices."]
                                        [p "Takes up a lot of screen real estate but can be placed in a popup."]
                                        [args-table tag-dropdown-args-desc]]]
