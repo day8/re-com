@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 2.12.0 (2012-01-23)
+
 #### Fixed
 
 - Fix v-table as `:model` deref was broken in last release.
