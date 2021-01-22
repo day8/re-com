@@ -468,7 +468,6 @@
     :v-scroll-section :v-scroll})
 
 (def v-table-args-desc
-  ;; TODO deref-or-value model
   [{:name :model                      :required true                 :type "vector of maps | atom"    :validate-fn vector-or-atom?      :description "one element for each row in the table."}
    {:name :id-fn                      :required false :default :id   :type "map -> anything"          :validate-fn ifn?                 :description [:span "given a element of " [:code ":model"] ", returns its unique identifier."]}
    {:name :virtual?                   :required false :default true  :type "boolean"                                                    :description [:span "when true, only those rows that are visible are rendered to the DOM."]}
@@ -777,7 +776,8 @@
       :or   {virtual? true}
       :as   args}]
   {:pre [(validate-args-macro v-table-args-desc args "v-table")]}
-  (let [scroll-x              (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
+  (let [model                 (deref-or-value model)
+        scroll-x              (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
         scroll-y              (reagent/atom 0)              ;; px offset from top of header/content/footer sections (note: this value remains the same when virtual-mode? is both true and false)
         ;wheel-row-increment   (* 10 row-height)             ;; Could be an argument
         ;wheel-col-increment   (* 4 102)                     ;; Could be an argument - can't calculate this in here, needs to be passed
@@ -1027,7 +1027,9 @@
                                      ;; Others
                                      scroll-rows-into-view scroll-columns-into-view
                                      class parts]
-                              :or   {virtual? true remove-empty-row-space? true id-fn :id}}]
+                              :or   {virtual? true remove-empty-row-space? true id-fn :id}
+                              :as   args}]
+                          {:pre [(validate-args-macro v-table-args-desc args "v-table")]}
                           (reset! content-rows-width row-content-width)
                           (reset! content-rows-height (* @m-size row-height))
 
