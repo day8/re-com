@@ -136,34 +136,30 @@
                     :border-radius    "3px"}
                    (get-in parts [:simple-wrapper :style]))
      :attr  (get-in parts [:simple-wrapper :attr])
-     :child
-     (cond->
-       [v-table/v-table
-        :virtual?                true
-        :model                   model
+     :child [v-table/v-table
+             :virtual?                true
+             :model                   model
 
-        :row-height              row-height
-        :row-content-width       content-width
-        :row-header-renderer     (partial render-row fixed-cols   on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
-        :row-renderer            (partial render-row content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
+             :row-height              row-height
+             :row-content-width       content-width
+             :row-header-renderer     (partial render-row fixed-cols   on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
+             :row-renderer            (partial render-row content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
 
-        :col-header-height       column-header-height
-        ;; For fixed columns:
-        :top-left-renderer       (partial header-renderer fixed-cols   parts)
-        ;; Only for non-fixed columns:
-        :col-header-renderer     (partial header-renderer content-cols parts)
+             :col-header-height       column-header-height
+             ;; For fixed columns:
+             :top-left-renderer       (partial header-renderer fixed-cols   parts)
+             ;; Only for non-fixed columns:
+             :col-header-renderer     (partial header-renderer content-cols parts)
 
-        ;:max-table-width         (px (or max-table-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick)))
+             ;:max-table-width         (px (or max-table-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick)))
 
-        :class                   class
-        ;; TODO do we need to fix nested merging w/ [:parts :name :style] etc ?
-        :parts                   (merge {:wrapper {:style {:font-size "13px"
-                                                           :cursor    "default"}}}
-                                        (when (pos? fixed-column-count)
-                                          {:top-left    {:style {:border-right fixed-col-border-style}}
-                                           :row-headers {:style {:border-right fixed-col-border-style}}})
-                                        parts)]
+             :max-row-viewport-height (when max-rows (* max-rows row-height))
 
-       ;; TODO :max-row-viewport-height nil if max-rows not provided, then grow the table vertical.
-       (number? max-rows)
-       (conj :max-row-viewport-height (when max-rows (* max-rows row-height))))]))
+             :class                   class
+             ;; TODO do we need to fix nested merging w/ [:parts :name :style] etc ?
+             :parts                   (merge {:wrapper {:style {:font-size "13px"
+                                                                :cursor    "default"}}}
+                                             (when (pos? fixed-column-count)
+                                               {:top-left    {:style {:border-right fixed-col-border-style}}
+                                                :row-headers {:style {:border-right fixed-col-border-style}}})
+                                             parts)]]))
