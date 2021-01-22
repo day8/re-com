@@ -75,9 +75,8 @@
         [v-box
          :align :start
          :children [[h-box
-                     ;:align :center
-                     :align-self :center
-                     :justify (if placeholder? :end :center)
+                     :align-self :start
+                     :justify    (if placeholder? :end :center)
 
                      ;:width    (if placeholder? (:width tag-data) width)
 
@@ -91,7 +90,7 @@
                      :style (merge
                               {:color            "white"
                                :background-color (:background-color tag-data)
-                               :cursor           (if (and placeholder? (not  disabled?)) "pointer" "default")
+                               :cursor           (if (not  disabled?) "pointer" "default")
                                :font-size        "12px"
                                ;:font-weight      "bold"
                                :border           border
@@ -187,12 +186,12 @@
                              :hide-border?  true
                              :label-fn      (fn [tag]
                                               [tag-comp
-                                               :label-fn label-fn
+                                               :label-fn       label-fn
                                                :description-fn description-fn
-                                               :tag-data tag
-                                               :width    tag-width
-                                               :height   tag-height
-                                               :style    style])
+                                               :tag-data       tag
+                                               :width          tag-width
+                                               :height         tag-height
+                                               :style          style])
                              :item-renderer as-checked
                              :model         model
                              :on-change     #(on-change %)
