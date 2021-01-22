@@ -259,7 +259,7 @@
                                                   [:code (with-out-str (pprint/pprint @model))]]]
                                       [multi-select
                                        :width         "450px"
-                                       :left-label    "XXX Car Choices"
+                                       :left-label    "Car Choices"
                                        :right-label   "Cars Selected"
                                        :placeholder   "Select some cars."
                                        :disabled?     disabled?
@@ -276,6 +276,7 @@
                                                        {:id :vw-e-up                :label "e-Up"           :group "VW"}
                                                        {:id :mini-electric          :label "Electric"       :group "Mini"}
                                                        {:id :ford-mustang-mach-e    :label "Mustang Mach-E" :group "Ford"}
+                                                       {:id :ford-phev              :label "Escape PHEV"    :group "Ford"}
                                                        {:id :volvo-xc40-recharge    :label "XC40 Recharge"  :group "Volvo"}
                                                        {:id :hyundai-ioniq-electric :label "Ioniq Electric" :group "Hyundai"}]
                                        :model         model
