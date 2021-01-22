@@ -1,5 +1,19 @@
 ## Unreleased
 
+#### Added
+
+- Add `:parts` argument to all components that are constructed from a hierarchy of elements. See 'Parts' section of 
+  component pages at [https://re-com.day8.com.au/](https://re-com.day8.com.au/). 
+- Add `multi-select`. See [https://re-com.day8.com.au/#/multi-select](https://re-com.day8.com.au/#/multi-select).
+- Add `v-table` and `simple-v-table`. See [https://re-com.day8.com.au/#/v-table](https://re-com.day8.com.au/#/v-table) and
+  [https://re-com.day8.com.au/#/simple-v-table](https://re-com.day8.com.au/#/simple-v-table).
+- Add `tag-dropdown`. See [https://re-com.day8.com.au/#/tag-dropdown](https://re-com.day8.com.au/#/tag-dropdown).
+- Add optional 2-arity variant of `on-change` to `input-text`. Fixes [#219](https://github.com/day8/re-com/issues/219).
+
+#### Changed
+
+- Improved `disabled?` styling of many components.
+
 ## 2.10.1 (2020-12-22)
 
 #### Changed
@@ -18,6 +32,7 @@
 #### Fixed
 
 - Remove reset! of external-model in input-text-base event handlers. Fixes [#219](https://github.com/day8/re-com/issues/219)
+  Caused regression of [#187](https://github.com/day8/re-com/issues/187). Fixed in 2.11.0.
 - Fix consistency of `disabled?` arg
 - Fix CSS comment syntax. See [#222](https://github.com/day8/re-com/pull/222).
 - Fix typeahead not taking external changes into account. See [#206](https://github.com/day8/re-com/pull/206)
