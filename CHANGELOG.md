@@ -1,5 +1,14 @@
 ## Unreleased
 
+#### Fixed
+
+- Fix v-table as `:model` deref was broken in last release.
+
+#### Removed
+
+- Remove `re-com.misc` ns. Replaced by `re-com.checkbox`, `re-com.input-text`, `re-com.radio-button`, `re-com.slider`,
+  `re-com.progress-bar` and `re-com.slider`.
+
 ## 2.11.0 (2021-01-23)
 
 #### Added
