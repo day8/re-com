@@ -93,8 +93,7 @@
                             :width    "450px"
                             :children [[title2 "Notes"]
                                        [status-text "Alpha" {:color "red" :font-weight "bold"}]
-                                       [p "A compound component that allows the user to incrementally build up a selection from a list of choices, often only a few selections and a short list of choices."]
-                                       [p "Takes up a lot of screen real estate but can be placed in a popup."]
+                                       [p "A multi-select component. Useful when the list of choices is small and those choosen need to all be visible to the user."]
                                        [args-table tag-dropdown-args-desc]]]
                           [v-box
                            :gap      "10px"
