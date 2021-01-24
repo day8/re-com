@@ -215,17 +215,15 @@
 (def rows (reduce  #(conj %1 {:id %2}) [] (range num_rows)))  
 
 
-(def light-blue "#5B9BD5")
+(def light-blue "#DBEFF9")
+(def medium-blue "#5B9BD5")
 (def blue "#0F6FC6")
-(def blue2 "#009DD9")
-(def ocean "#DBEFF9")
 
 
-(def header-footer-style  {:style {:color "white" :background-color light-blue}})
+(def header-footer-style  {:style {:color "white" :background-color medium-blue}})
 
 
-
-(def width-of-main-row-content 300)
+(def width-of-main-row-content 250)
 (def row-height 20)
 
 
@@ -236,7 +234,7 @@
    :style {:color "white" :background-color background} 
    :align :center 
    :children [[label :label name] 
-              [label :label section :style {:font-size 10}]]])
+              [label :label section :style {:font-size 11}]]])
 
 
 (defn sections-demo 
@@ -247,24 +245,23 @@
               [:p "There are nine sections in a v-table. Only section 5 is mandatory. This table has 6 rows of data. "]
               
               [v-table
-               :model rows
-               :row-height            row-height
-               :row-content-width     width-of-main-row-content
+               :model              rows
+               :row-height         row-height
+               :row-content-width  width-of-main-row-content
 
                ;; :remove-empty-row-space? false
 
                ;; section 2
-               ;; the width of section is derived from the width of the content 
                :row-header-renderer    (fn [row-index] [:div header-footer-style (str row-index (when (= row-index 2) "   row header") (when (= row-index 3) "   (section 2)"))])
                :row-footer-renderer    (fn [row-index] [:div header-footer-style (str "row footer: " row-index)])
 
                ;; column header - section 4
                :column-header-height   (* 2 row-height)
-               :column-header-renderer (fn [] [on-two-lines "column headers" "(section 4)" light-blue])
+               :column-header-renderer (fn [] [on-two-lines "column headers" "(section 4)" medium-blue])
 
                ;; column footer - section 5
                :column-footer-height   (* 2 row-height)
-               :column-footer-renderer (fn [] [on-two-lines "column footers" "(section 6)" light-blue])
+               :column-footer-renderer (fn [] [on-two-lines "column footers" "(section 6)" medium-blue])
 
                ;; corners 
                :top-left-renderer     (fn [] [on-two-lines "top left"     "(section 1)" blue])
@@ -272,14 +269,14 @@
                :bottom-right-renderer (fn [] [on-two-lines "bottom right" "(section 9)" blue])
                :top-right-renderer    (fn [] [on-two-lines "top right"    "(section 7)" blue])
 
-               :row-renderer           (fn [row-index] [:div  {:style {:flex "auto" :background-color ocean}} (str  row-index)])]]])
+               :row-renderer           (fn [row-index] [:div  {:style {:flex "auto" :background-color light-blue}} (str  row-index)])]]])
 
 
 ;; MT's Notes: 
 ;; 
 ;; If we put in a few demos, we should probably split them off to other namespaces, otherwise this one might get a bit complex
 ;; 
-;; Is it really row_index that passed into renderers? Or is it row id?  Clarify with Gregg. Document. 
+;; There is a lot of good information across in the v-table docstring which should be transfered into parameter docs. Because of text volume, perhaps make "Parameters" section wider. 
 ;; 
 ;; On section width:
 ;;   - the width of left sections 1,2,3 is determined by the widest hiccup returned by the 3 renderers for these sections. 
@@ -297,6 +294,11 @@
 ;; I'm surprised that row renderers don't get BOTH the `row-index` and the `row map` itself. That's to help with subscriptions I guess. Check.
 ;; 
 ;; Mention in docs that you are likely to use h-box and v-box in renderers.
+;; 
+;; Discuss with Gregg and Isaac:
+;;   - the idea of variable row heights. 
+;;   - performance: we have to reduce the amount of inline styles
+;;   - is it really row_index that is passed into renderers? Or is it row id?  Clarify. Document. 
 
 
 (defn notes-column
