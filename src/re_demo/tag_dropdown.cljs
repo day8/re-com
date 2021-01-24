@@ -20,7 +20,7 @@
         highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
         code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
     [v-box
-     :gap      "10px"
+     :\      "10px"
      :children [[title2 "Parts"]
                 [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
                 [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
@@ -96,7 +96,7 @@
                                        [p "A multi-select component. Useful when the list of choices is small and those choosen need to all be visible to the user."]
                                        [args-table tag-dropdown-args-desc]]]
                           [v-box
-                           :gap      "10px"
+                           :gap      "20px"
                            :width    "450px"
                            :children [[title2 "Demo"]
                                       [title3 "Parameters"]
@@ -119,10 +119,13 @@
                                                                :child [:code ":unselect-buttons?"]]
                                                    :model     unselect-buttons?
                                                    :on-change #(reset! unselect-buttons? %)]]]
-
+                                      [gap :size "10px"]  
                                       [h-box
+                                       :gap "5px"
                                        :children [[label :label [:code ":model"]]
+                                                  [label :label " is currently" ]
                                                   [:code (with-out-str (pprint/pprint @model))]]]
+                                      [line]
                                       [tag-dropdown
                                        :width             "450px"
                                        :disabled?         disabled?
