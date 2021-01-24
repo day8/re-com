@@ -210,6 +210,88 @@
                    [:td border-style ""]]]]]]))
 
 
+
+(def num_rows 10)
+(def rows (reduce  #(conj %1 {:id %2}) [] (range num_rows)))  
+
+
+(def light-blue "#DBEFF9")
+(def blue "#0F6FC6")
+(def blue2 "#009DD9")
+(def ocean "#10CF9B")
+
+
+(def header-footer-style  {:style {:color "white" :background-color blue}})
+
+
+
+(def width-of-main-row-content 300)
+(def row-height 20)
+
+
+(defn on-two-lines
+  [name section background]
+  [v-box
+   :size  "1 0 auto"
+   :style {:color "white" :background-color background} 
+   :align :center 
+   :children [[label :label name] 
+              [label :label section :style {:font-size 9}]]])
+
+
+(defn sections-demo 
+  []
+  [v-box
+   :gap      "10px"
+   :children [[title2 "Sections Demo"]
+              [:p "There are nine sections in a v-table. Only section 5 in mandatory. This table has 10 rows of data"]
+              
+              [v-table
+               :model rows
+               :row-height            row-height
+               :row-content-width     width-of-main-row-content
+
+               ;; :remove-empty-row-space? false
+
+               ;; section 2
+               ;; the width of section is derived from the width of the content 
+               :row-header-renderer    (fn [row-index] [:div header-footer-style (str row-index (when (= row-index 5) "   row header") (when (= row-index 6) "   (section 2)"))])
+               :row-footer-renderer    (fn [row] [:div header-footer-style (str "row footer: " row)])
+
+               ;; column header - section 4
+               :column-header-height   (* 2 row-height)
+               :column-header-renderer (fn [] [on-two-lines "col header" "(section 4)" blue])
+
+               ;; column footer - section 5
+               :column-footer-height   (* 2 row-height)
+               :column-footer-renderer (fn [] [on-two-lines "col footer" "(section 6)" blue])
+
+               ;; corners 
+               :top-left-renderer     (fn [] [on-two-lines "top left" "(section 1)" light-blue])
+               :bottom-left-renderer  (fn [] [on-two-lines "bottom left" "(section 3)" light-blue])
+               :bottom-right-renderer (fn [] [on-two-lines "bottom right" "(section 9)" light-blue])
+               :top-right-renderer    (fn [] [on-two-lines "top right" "(section 7)" light-blue])
+
+               :row-renderer           (fn [row] [:div  {:style {:flex "auto" :background-color ocean}} (str  row)])]]])
+
+
+;; MT's Notes: 
+;; 
+;; On section width:
+;;   - the width of left sections 1,2,3 is determined by the widest hiccup returned by the 3 renderers for these sections. 
+;;   - the width of center  sections 4,5,6 is determined by `:row-content-width`
+;;   - the width of left sections 7,8,9 is determined by by the widest hiccup returned by the 3 renderers for these sections.
+;; 
+;; the viewport width for 4,5,6 is determined by the widest hiccup returned for 
+;; puzzled about column headings XXX
+;; 
+;; For `:row-viewport-width` the docs say if not specified will take up all available space but this is not 
+;; correct. 
+;; 
+;; I have to provide `:column-header-height`. Could the height of top sections 1, 4, 7 should provide the height. 
+;; 
+
+
 (defn notes-column
   []
   [v-box
@@ -312,14 +394,11 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[v-table ... ]"
-                            "src/re_com/v_table.cljs"
-                            "src/re_demo/v_table.cljs"]
+               "src/re_com/v_table.cljs"
+               "src/re_demo/v_table.cljs"]
               [h-box
                :gap      "100px"
                :children [[notes-column]
-                           [args-table v-table-args-desc]
-                          [v-box
-                           :gap      "10px"
-                           :children [[title2 "Demo"]
-                                      [p "None yet"]]]]]
-               [v-table-component-hierarchy]]])
+                          [args-table v-table-args-desc]
+                          [sections-demo]]]
+              [v-table-component-hierarchy]]])
