@@ -211,17 +211,17 @@
 
 
 
-(def num_rows 10)
+(def num_rows 6)
 (def rows (reduce  #(conj %1 {:id %2}) [] (range num_rows)))  
 
 
-(def light-blue "#DBEFF9")
+(def light-blue "#5B9BD5")
 (def blue "#0F6FC6")
 (def blue2 "#009DD9")
-(def ocean "#10CF9B")
+(def ocean "#DBEFF9")
 
 
-(def header-footer-style  {:style {:color "white" :background-color blue}})
+(def header-footer-style  {:style {:color "white" :background-color light-blue}})
 
 
 
@@ -236,7 +236,7 @@
    :style {:color "white" :background-color background} 
    :align :center 
    :children [[label :label name] 
-              [label :label section :style {:font-size 9}]]])
+              [label :label section :style {:font-size 10}]]])
 
 
 (defn sections-demo 
@@ -244,7 +244,7 @@
   [v-box
    :gap      "10px"
    :children [[title2 "Sections Demo"]
-              [:p "There are nine sections in a v-table. Only section 5 in mandatory. This table has 10 rows of data"]
+              [:p "There are nine sections in a v-table. Only section 5 is mandatory. This table has 6 rows of data. "]
               
               [v-table
                :model rows
@@ -255,34 +255,38 @@
 
                ;; section 2
                ;; the width of section is derived from the width of the content 
-               :row-header-renderer    (fn [row-index] [:div header-footer-style (str row-index (when (= row-index 5) "   row header") (when (= row-index 6) "   (section 2)"))])
-               :row-footer-renderer    (fn [row] [:div header-footer-style (str "row footer: " row)])
+               :row-header-renderer    (fn [row-index] [:div header-footer-style (str row-index (when (= row-index 2) "   row header") (when (= row-index 3) "   (section 2)"))])
+               :row-footer-renderer    (fn [row-index] [:div header-footer-style (str "row footer: " row-index)])
 
                ;; column header - section 4
                :column-header-height   (* 2 row-height)
-               :column-header-renderer (fn [] [on-two-lines "col header" "(section 4)" blue])
+               :column-header-renderer (fn [] [on-two-lines "column headers" "(section 4)" light-blue])
 
                ;; column footer - section 5
                :column-footer-height   (* 2 row-height)
-               :column-footer-renderer (fn [] [on-two-lines "col footer" "(section 6)" blue])
+               :column-footer-renderer (fn [] [on-two-lines "column footers" "(section 6)" light-blue])
 
                ;; corners 
-               :top-left-renderer     (fn [] [on-two-lines "top left" "(section 1)" light-blue])
-               :bottom-left-renderer  (fn [] [on-two-lines "bottom left" "(section 3)" light-blue])
-               :bottom-right-renderer (fn [] [on-two-lines "bottom right" "(section 9)" light-blue])
-               :top-right-renderer    (fn [] [on-two-lines "top right" "(section 7)" light-blue])
+               :top-left-renderer     (fn [] [on-two-lines "top left"     "(section 1)" blue])
+               :bottom-left-renderer  (fn [] [on-two-lines "bottom left"  "(section 3)" blue])
+               :bottom-right-renderer (fn [] [on-two-lines "bottom right" "(section 9)" blue])
+               :top-right-renderer    (fn [] [on-two-lines "top right"    "(section 7)" blue])
 
-               :row-renderer           (fn [row] [:div  {:style {:flex "auto" :background-color ocean}} (str  row)])]]])
+               :row-renderer           (fn [row-index] [:div  {:style {:flex "auto" :background-color ocean}} (str  row-index)])]]])
 
 
 ;; MT's Notes: 
+;; 
+;; If we put in a few demos, we should probably split them off to other namespaces, otherwise this one might get a bit complex
+;; 
+;; Is it really row_index that passed into renderers? Or is it row id?  Clarify with Gregg. Document. 
 ;; 
 ;; On section width:
 ;;   - the width of left sections 1,2,3 is determined by the widest hiccup returned by the 3 renderers for these sections. 
 ;;   - the width of center  sections 4,5,6 is determined by `:row-content-width`
 ;;   - the width of left sections 7,8,9 is determined by by the widest hiccup returned by the 3 renderers for these sections.
 ;; 
-;; the viewport width for 4,5,6 is determined by the widest hiccup returned for 
+;; the viewport width for 4,5,6 is determined by the widest hiccup returned by renderers.  Once I put in an `h-box` it expanded out. When i only had `div` the viewport collapsed to the size of the content.
 ;; puzzled about column headings XXX
 ;; 
 ;; For `:row-viewport-width` the docs say if not specified will take up all available space but this is not 
@@ -290,6 +294,9 @@
 ;; 
 ;; I have to provide `:column-header-height`. Could the height of top sections 1, 4, 7 should provide the height. 
 ;; 
+;; I'm surprised that row renderers don't get BOTH the `row-index` and the `row map` itself. That's to help with subscriptions I guess. Check.
+;; 
+;; Mention in docs that you are likely to use h-box and v-box in renderers.
 
 
 (defn notes-column
