@@ -1,7 +1,7 @@
 (ns re-demo.tag-dropdown
   (:require [cljs.pprint          :as pprint]
             [reagent.core         :as reagent]
-            [re-com.core          :refer [h-box box checkbox gap v-box tag-dropdown hyperlink-href p label]]
+            [re-com.core          :refer [h-box box checkbox gap v-box tag-dropdown hyperlink-href p label line]]
             [re-com.tag-dropdown  :refer [tag-dropdown-args-desc]]
             [re-demo.utils        :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
             [re-com.util          :refer [px]]))
@@ -20,7 +20,7 @@
         highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
         code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
     [v-box
-     :\      "10px"
+     :gap     "10px"
      :children [[title2 "Parts"]
                 [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
                 [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
@@ -76,6 +76,13 @@
 (def disabled? (reagent/atom false))
 #_(def required? (reagent/atom false))
 (def unselect-buttons? (reagent/atom false))
+(def choices [{:id :bug           :description "Something isn't working"                    :label "bug"           :background-color "#fc2a29"}
+              {:id :documentation :description "Improvements or additions to documentation" :label "documentation" :background-color "#0052cc"}
+              {:id :duplicate     :description "This issue or pull request already exists"  :label "duplicate"     :background-color "#cccccc"}
+              {:id :enhancement   :description "New feature or request"                     :label "enhancement"   :background-color "#84b6eb"}
+              {:id :help          :description "Extra attention is needed"                  :label "help"          :background-color "#169819"}
+              {:id :invalid       :description "This doesn't seem right"                    :label "invalid"       :background-color "#e6e6e6"}
+              {:id :wontfix       :description "This will not be worked on"                 :label "wontfix"       :background-color "#eb6421"}])
 
 (defn panel
   []
@@ -96,11 +103,13 @@
                                        [p "A multi-select component. Useful when the list of choices is small and those choosen need to all be visible to the user."]
                                        [args-table tag-dropdown-args-desc]]]
                           [v-box
-                           :gap      "20px"
+                           :gap      "10px"
                            :width    "450px"
+                           :align    :start
                            :children [[title2 "Demo"]
                                       [title3 "Parameters"]
-                                      [h-box
+                                      [v-box
+                                       :gap "3px"
                                        :children [[checkbox
                                                    :label     [box
                                                                :align :start
@@ -119,25 +128,20 @@
                                                                :child [:code ":unselect-buttons?"]]
                                                    :model     unselect-buttons?
                                                    :on-change #(reset! unselect-buttons? %)]]]
-                                      [gap :size "10px"]  
+                                      #_[gap :size "5px"]  
                                       [h-box
+                                       :height "45px"      ;; means the Compontent (which is underneath) doesn't move up and down as the model changes
                                        :gap "5px"
                                        :children [[label :label [:code ":model"]]
                                                   [label :label " is currently" ]
                                                   [:code (with-out-str (pprint/pprint @model))]]]
-                                      [line]
+                                      [gap :size "10px"]
                                       [tag-dropdown
-                                       :width             "450px"
+                                       :width             "300px"
                                        :disabled?         disabled?
                                        ;:required?        required?
                                        :unselect-buttons? unselect-buttons?
-                                       :choices           [{:id :bug :description "Something isn't working" :label "bug" :background-color "#fc2a29"}
-                                                           {:id :documentation :description "Improvements or additions to documentation" :label "documentation" :background-color "#0052cc"}
-                                                           {:id :duplicate :description "This issue or pull request already exists" :label "duplicate" :background-color "#cccccc"}
-                                                           {:id :enhancement :description "New feature or request" :label "enhancement" :background-color "#84b6eb"}
-                                                           {:id :help :description "Extra attention is needed" :label "help" :background-color "#169819"}
-                                                           {:id :invalid :description "This doesn't seem right" :label "invalid" :background-color "#e6e6e6"}
-                                                           {:id :wontfix :description "This will not be worked on" :label "wontfix" :background-color "#eb6421"}]
+                                       :choices           choices
                                        :model             model
                                        :on-change         #(reset! model %)]]]]]
               [tag-dropdown-component-hierarchy]]])
