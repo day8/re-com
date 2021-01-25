@@ -144,7 +144,7 @@
    {:name :placeholder        :required false                     :type "string"                   :validate-fn string?                     :description "Background text when no selection"}
    {:name :on-change          :required true                      :type "id -> nil"                :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. Called with one argument, the set of selected ids. See " [:code ":model"] "."]}
    {:name :on-tag-click       :required false                     :type "id -> nil"                :validate-fn fn?                         :description "This function is called when the user clicks a tag. Called with one argument, the tag id."}
-   {:name :unselect-buttons?  :required false :default true       :type "boolean"                                                           :description "When true, buttons will be displayed on tags to unselect the tag."}
+   {:name :unselect-buttons?  :required false :default false      :type "boolean"                                                           :description "When true, buttons will be displayed on tags to unselect the tag."}
    {:name :abbrev-fn          :required false                     :type "choice -> hiccup"         :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable abbreviated label for that map. Called for each element in " [:code ":choices"]]}
    {:name :abbrev-characters  :required false                     :type "number"                   :validate-fn number?                     :description [:span "When the number of characters in all the selected choices is greater than this number, then " [:code ":abbrev-fn"] " instead of " [:code ":label-fn"] " will be used to get the displayable label."]}
    {:name :label-fn           :required false :default ":label"   :type "map -> hiccup"            :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
@@ -165,11 +165,10 @@
     (fn tag-dropdown-render
       [& {:keys [choices model placeholder on-change on-tag-click unselect-buttons? abbrev-fn abbrev-characters label-fn
                  description-fn width height tag-width tag-height style disabled? tag-comp parts]
-          :or   {label-fn       :label
-                 description-fn :description
-                 height         "25px"
-                 tag-comp       text-tag
-                 unselect-buttons? true}
+          :or   {label-fn          :label
+                 description-fn    :description
+                 height            "25px"
+                 tag-comp          text-tag}
           :as   args}]
       {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
       (let [choices            (deref-or-value choices)
