@@ -58,17 +58,17 @@
 
   :shadow-cljs {:nrepl  {:port 7777}
 
-                :builds {:demo         {:target   :browser
-                                        :modules  {:demo {:init-fn  re-demo.core/mount-demo
-                                                          :preloads [day8.app.dev-preload]}}
+                :builds {:demo         {:target           :browser
+                                        :modules          {:demo {:init-fn  re-demo.core/mount-demo
+                                                                  :preloads [day8.app.dev-preload]}}
                                         :compiler-options {:externs ["externs/detect-element-resize-externs.js"]}
-                                        :dev      {:asset-path       "/compiled_dev/demo"
-                                                   :output-dir       "run/resources/public/compiled_dev/demo"
-                                                   :compiler-options {:external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}
-                                        :release  {:output-dir "run/resources/public/compiled_prod/demo"}
-                                        :devtools {:http-port ~http-port
-                                                   :http-root "run/resources/public"
-                                                   :push-state/index "index_dev.html"}}
+                                        :dev              {:asset-path       "/compiled_dev/demo"
+                                                           :output-dir       "run/resources/public/compiled_dev/demo"
+                                                           :compiler-options {:external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}
+                                        :release          {:output-dir "run/resources/public/compiled_prod/demo"}
+                                        :devtools         {:http-port        ~http-port
+                                                           :http-root        "run/resources/public"
+                                                           :push-state/index "index_dev.html"}}
 
                          :browser-test {:target           :browser-test
                                         :ns-regexp        "-test$"
@@ -78,11 +78,11 @@
                                         :devtools         {:http-port 8021
                                                            :http-root "run/resources/public/compiled_test/demo"
                                                            :preloads  [day8.app.dev-preload]}}
-                         :karma-test    {:target :karma
-                                         :ns-regexp ".*-test$"
-                                         :output-to "target/karma/test.js"
-                                         :compiler-options {:externs      ["externs/detect-element-resize-externs.js"]
-                                                            :pretty-print true}}}}
+                         :karma-test   {:target           :karma
+                                        :ns-regexp        ".*-test$"
+                                        :output-to        "target/karma/test.js"
+                                        :compiler-options {:externs      ["externs/detect-element-resize-externs.js"]
+                                                           :pretty-print true}}}}
 
   :release-tasks [["deploy" "clojars"]]
 

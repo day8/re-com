@@ -180,8 +180,8 @@
 
 (defonce id-store        (local-storage (atom nil) ::id-store))
 (defonce selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (item-for-id @id-store tabs-definition)))
-                                     (:id (first tabs-definition))
-                                     @id-store)))  ;; id of the selected tab from local storage
+                                         (:id (first tabs-definition))
+                                         @id-store)))  ;; id of the selected tab from local storage
 
 (defroute demo-page "/:tab" [tab] (let [id (keyword tab)]
                                     (reset! selected-tab-id id)
@@ -222,6 +222,11 @@
                                      :padding "0px 0px 0px 50px"
                                      :child [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
-(defn ^:export mount-demo
+(defn ^:dev/after-load mount-root
   []
   (rdom/render [main] (get-element-by-id "app")))
+
+(defn ^:export mount-demo
+  []
+  (mount-root))
+
