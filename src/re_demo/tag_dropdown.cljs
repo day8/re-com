@@ -1,5 +1,6 @@
 (ns re-demo.tag-dropdown
   (:require [cljs.pprint          :as pprint]
+            [clojure.string       :as string]
             [reagent.core         :as reagent]
             [re-com.core          :refer [h-box box checkbox gap v-box tag-dropdown hyperlink-href p label line]]
             [re-com.tag-dropdown  :refer [tag-dropdown-args-desc]]
@@ -133,7 +134,7 @@
                                        :height "45px"      ;; means the Compontent (which is underneath) doesn't move up and down as the model changes
                                        :gap "5px"
                                        :children [[label :label [:code ":model"]]
-                                                  [label :label " is currently" ]
+                                                  [label :label " is currently"]
                                                   [:code (with-out-str (pprint/pprint @model))]]]
                                       [gap :size "10px"]
                                       [tag-dropdown
@@ -143,6 +144,8 @@
                                        :unselect-buttons? unselect-buttons?
                                        :choices           choices
                                        :model             model
+                                       :abbrev-fn         #(string/upper-case (first (:label %)))
+                                       :abbrev-characters 20
                                        :on-change         #(reset! model %)]]]]]
               [tag-dropdown-component-hierarchy]]])
 

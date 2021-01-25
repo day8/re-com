@@ -145,6 +145,8 @@
    {:name :on-change          :required true                      :type "id -> nil"                :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. Called with one argument, the set of selected ids. See " [:code ":model"] "."]}
    {:name :on-tag-click       :required false                     :type "id -> nil"                :validate-fn fn?                         :description "This function is called when the user clicks a tag. Called with one argument, the tag id."}
    {:name :unselect-buttons?  :required false :default true       :type "boolean"                                                           :description "When true, buttons will be displayed on tags to unselect the tag."}
+   {:name :abbrev-fn          :required false                     :type "choice -> hiccup"         :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable abbreviated label for that map. Called for each element in " [:code ":choices"]]}
+   {:name :abbrev-characters  :required false                     :type "number"                   :validate-fn number?                     :description [:span "When the number of characters in all the selected choices is greater than this number, then " [:code ":abbrev-fn"] " instead of " [:code ":label-fn"] " will be used to get the displayable label."]}
    {:name :label-fn           :required false :default ":label"   :type "map -> hiccup"            :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
    {:name :description-fn     :required false :default ":description" :type "map -> hiccup"        :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable description for that map. Called for each element in " [:code ":choices"]]}
    {:name :width              :required false                     :type "string"                   :validate-fn string?                     :description "the CSS width. e.g.: \"500px\" or \"20em\""}
@@ -161,7 +163,8 @@
   {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
   (let [showing?      (reagent/atom false)]
     (fn tag-dropdown-render
-      [& {:keys [choices model placeholder on-change on-tag-click unselect-buttons? label-fn description-fn width height tag-width tag-height style disabled? tag-comp parts]
+      [& {:keys [choices model placeholder on-change on-tag-click unselect-buttons? abbrev-fn abbrev-characters label-fn
+                 description-fn width height tag-width tag-height style disabled? tag-comp parts]
           :or   {label-fn       :label
                  description-fn :description
                  height         "25px"
@@ -169,13 +172,27 @@
                  unselect-buttons? true}
           :as   args}]
       {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
-      (let [disabled?          (deref-or-value disabled?)
+      (let [choices            (deref-or-value choices)
+            model              (deref-or-value model)
+            abbrev-characters  (deref-or-value abbrev-characters)
+            disabled?          (deref-or-value disabled?)
             unselect-buttons?  (deref-or-value unselect-buttons?)
+
+            choices-num-chars  (reduce
+                                 (fn [n choice]
+                                   (if (contains? model (:id choice))
+                                     (+ n (count (label-fn choice)))
+                                     n))
+                                 0
+                                 choices)
+            abbrev?            (and (>= choices-num-chars abbrev-characters)
+                                    (fn? abbrev-fn))
+
             placeholder-tag [tag-comp
                              :tag-data    {:id               :$placeholder$
                                            :label            ""
                                            :background-color "white"
-                                           :width            "40px"} ;; change this and you need to adjust :position-offset below
+                                           :width            (if abbrev? "20px" "40px")} ;; change this and you need to adjust :position-offset below
                              :on-click    #(reset! showing? true)
                              :tooltip     "Click to select tags"
                              :hover-style {:background-color "#eee"}]
@@ -211,25 +228,24 @@
                              :attr     (merge {}
                                               (when (not disabled?) {:on-click (handler-fn (reset! showing? true))})
                                               (get-in parts [:main :attr]))
-                             :children [(if (zero? (count @model)) placeholder "")
+                             :children [(if (zero? (count model)) placeholder "")
                                         [h-box
                                          :class    (str "rc-tag-dropdown-tags " (get-in parts [:tags :class]))
                                          :size     "1" ;; This line will align the tag placeholder to the right
                                          :style    {:overflow "hidden"}
                                          :children (conj
                                                      (mapv (fn [tag]
-                                                             (when (contains? @model (:id tag))
+                                                             (when (contains? model (:id tag))
                                                                [tag-comp
-                                                                :label-fn    label-fn
+                                                                :label-fn    (if abbrev? abbrev-fn label-fn)
                                                                 :tag-data    tag
                                                                 :tooltip     (:label tag)
                                                                 :disabled?   disabled?
                                                                 :on-click    (if on-tag-click
                                                                                #(on-tag-click (:id tag))
-                                                                               ;#(on-change (disj @model %)) ;; Delete this tag
                                                                                #(reset! showing? true))      ;; Show dropdown
 
-                                                                :on-unselect (when unselect-buttons? #(on-change (disj @model %)))
+                                                                :on-unselect (when unselect-buttons? #(on-change (disj model %)))
                                                                 :width       tag-width
                                                                 :height      tag-height
                                                                 :hover-style {:opacity "0.8"}
@@ -238,7 +254,7 @@
                                                      (when (not disabled?)
                                                        placeholder-tag))]
                                         [gap :size "6px"]
-                                        (when (and (not-empty @model) (not disabled?))
+                                        (when (and (not-empty model) (not disabled?))
                                           [close-button
                                            :on-click  #(on-change #{})])]]]
         [popover-anchor-wrapper
@@ -247,13 +263,11 @@
          :position :below-left
          :anchor   tag-main
          :popover  [popover-content-wrapper
-                    ;:popover-color   "#F3F6F7"
-                    :position-offset -20
+                    :position-offset (if abbrev? -10 -20)
                     :arrow-length    0
                     :arrow-width     0
                     :arrow-gap       1
                     :no-clip?        true
                     :on-cancel       #(reset! showing? false)
-                    ;:tooltip-style?  true
                     :padding         "19px 19px"
                     :body            tag-list-body]]))))
