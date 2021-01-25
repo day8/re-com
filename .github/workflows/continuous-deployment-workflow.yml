@@ -77,12 +77,26 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Run lein release
         if: steps.maven-cache.outputs.cache-hit != 'true'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
+          CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
+          GITHUB_USERNAME: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} CLOJARS_USERNAME=${{ secrets.CLOJARS_USERNAME }} CLOJARS_TOKEN=${{ secrets.CLOJARS_TOKEN }} GITHUB_USERNAME=${{ github.actor }} GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} lein release
+           lein release
       - name: Run lein -o release
         if: steps.maven-cache.outputs.cache-hit == 'true'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
+          CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
+          GITHUB_USERNAME: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} CLOJARS_USERNAME=${{ secrets.CLOJARS_USERNAME }} CLOJARS_TOKEN=${{ secrets.CLOJARS_TOKEN }} GITHUB_USERNAME=${{ github.actor }} GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} lein -o release
+          lein -o release
       # This creates a 'GitHub Release' from the tag and includes link to CHANGELOG.md at the current
       # git ref. We do not use draft or prerelease features as we always want
       # the latest release to show in the right hand column of the project page regardless

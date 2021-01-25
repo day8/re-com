@@ -84,8 +84,7 @@
                                          :compiler-options {:externs      ["externs/detect-element-resize-externs.js"]
                                                             :pretty-print true}}}}
 
-  :release-tasks [["deploy-aws"]
-                  ["deploy" "clojars"]]
+  :release-tasks [["deploy" "clojars"]]
 
   :shell {:commands {"karma" {:windows         ["cmd" "/c" "karma"]
                               :default-command "karma"}
