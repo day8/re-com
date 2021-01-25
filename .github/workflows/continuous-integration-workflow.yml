@@ -33,9 +33,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-shadow-cljs-
       - if: steps.maven-cache.outputs.cache-hit != 'true'
-        run: lein ci 
+        run: |
+          lein ci
+          lein build-report-ci
       - if: steps.maven-cache.outputs.cache-hit == 'true'
-        run: lein -o ci
+        run: |
+          lein -o ci
+          lein -o build-report-ci
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build-report
+          path: target/build-report.html
       - name: Slack notification
         uses: homoluctus/slatify@v2.0.1
         if: failure() || cancelled()

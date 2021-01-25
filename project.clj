@@ -108,6 +108,10 @@
                                    ~["shell" "aws" "s3" "sync" "run/resources/public" "s3://re-demo/" "--acl" "public-read" "--cache-control" "max-age=2592000,public"]]
 
                      ;; *** TEST ***
+                     "build-report-ci" ["with-profile" "+prod-run,+demo,-dev" "do"
+                                        ["clean"]
+                                        ["shadow" "run" "shadow.cljs.build-report" "demo" "target/build-report.html"]]
+
                      "ci" ["do"
                              ["with-profile" "+dev" "do"
                               ["clean"]
