@@ -103,7 +103,6 @@
                               ; {:font-size "smaller" :color "red"}
                               (:description arg)]]]]]))
 
-
 (defn args-table
   "I render component arguements in an easy to read format"
   [args  {:keys [total-width name-column-width] 
