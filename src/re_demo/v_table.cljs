@@ -1,8 +1,9 @@
 (ns re-demo.v-table
-  (:require [re-com.core    :refer [h-box gap v-box box v-table hyperlink-href p label]]
+  (:require [re-com.core    :refer [h-box gap v-box box p]]
             [re-com.v-table :refer [v-table-args-desc]]
-            [re-demo.utils  :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
-            [re-com.util   :refer [px]]))
+            [re-demo.utils  :refer [panel-title title2 title3 args-table status-text]]
+            [re-com.util    :refer [px]]
+            [re-demo.v-table-sections-demo :refer [sections-demo]]))
 
 (defn v-table-component-hierarchy
   []
@@ -15,7 +16,6 @@
         valign-style    {:style valign}
         valign-style-hd {:style (merge valign {:background-color "#e8e8e8"})}
         indent-text     (fn [level text] [:span {:style {:padding-left (px (* level indent))}} text])
-        highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
         code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
     [v-box
      :gap      "10px"
@@ -210,109 +210,24 @@
                    [:td border-style ""]]]]]]))
 
 
-
-(def num_rows 6)
-(def rows (reduce  #(conj %1 {:id %2}) [] (range num_rows)))  
-
-
-(def light-blue "#DBEFF9")
-(def medium-blue "#5B9BD5")
-(def blue "#0F6FC6")
-
-
-(def header-footer-style  {:style {:color "white" :background-color medium-blue}})
-
-
-(def width-of-main-row-content 250)
-(def row-height 20)
-
-
-(defn on-two-lines
-  [name section background]
-  [v-box
-   :size  "1 0 auto"
-   :style {:color "white" :background-color background} 
-   :align :center 
-   :children [[label :label name] 
-              [label :label section :style {:font-size 11}]]])
-
-
-(defn sections-demo 
-  []
-  [v-box
-   :gap      "10px"
-   :children [[title2 "Sections Demo"]
-              [:p "There are nine sections in a v-table. Only section 5 is mandatory. This table has 6 rows of data. "]
-              
-              [v-table
-               :model              rows
-               :row-height         row-height
-               :row-content-width  width-of-main-row-content
-
-               ;; :remove-empty-row-space? false
-
-               ;; section 2
-               :row-header-renderer    (fn [row-index] [:div header-footer-style (str row-index (when (= row-index 2) "   row header") (when (= row-index 3) "   (section 2)"))])
-               :row-footer-renderer    (fn [row-index] [:div header-footer-style (str "row footer: " row-index)])
-
-               ;; column header - section 4
-               :column-header-height   (* 2 row-height)
-               :column-header-renderer (fn [] [on-two-lines "column headers" "(section 4)" medium-blue])
-
-               ;; column footer - section 5
-               :column-footer-height   (* 2 row-height)
-               :column-footer-renderer (fn [] [on-two-lines "column footers" "(section 6)" medium-blue])
-
-               ;; corners 
-               :top-left-renderer     (fn [] [on-two-lines "top left"     "(section 1)" blue])
-               :bottom-left-renderer  (fn [] [on-two-lines "bottom left"  "(section 3)" blue])
-               :bottom-right-renderer (fn [] [on-two-lines "bottom right" "(section 9)" blue])
-               :top-right-renderer    (fn [] [on-two-lines "top right"    "(section 7)" blue])
-
-               :row-renderer           (fn [row-index] [:div  {:style {:flex "auto" :background-color light-blue}} (str  row-index)])]]])
-
-
-;; MT's Notes: 
-;; 
-;; If we put in a few demos, we should probably split them off to other namespaces, otherwise this one might get a bit complex
-;; 
-;; There is a lot of good information across in the v-table docstring which should be transfered into parameter docs. Because of text volume, perhaps make "Parameters" section wider. 
-;; 
-;; On section width:
-;;   - the width of left sections 1,2,3 is determined by the widest hiccup returned by the 3 renderers for these sections. 
-;;   - the width of center  sections 4,5,6 is determined by `:row-content-width`
-;;   - the width of left sections 7,8,9 is determined by by the widest hiccup returned by the 3 renderers for these sections.
-;; 
-;; the viewport width for 4,5,6 is determined by the widest hiccup returned by renderers.  Once I put in an `h-box` it expanded out. When i only had `div` the viewport collapsed to the size of the content.
-;; puzzled about column headings XXX
-;; 
-;; For `:row-viewport-width` the docs say if not specified will take up all available space but this is not 
-;; correct. 
-;; 
-;; I have to provide `:column-header-height`. Could the height of top sections 1, 4, 7 should provide the height. 
-;; 
-;; I'm surprised that row renderers don't get BOTH the `row-index` and the `row map` itself. That's to help with subscriptions I guess. Check.
-;; 
-;; Mention in docs that you are likely to use h-box and v-box in renderers.
-;; 
-;; Discuss with Gregg and Isaac:
-;;   - the idea of variable row heights. 
-;;   - performance: we have to reduce the amount of inline styles
-;;   - is it really row_index that is passed into renderers? Or is it row id?  Clarify. Document. 
-
-
 (defn notes-column
   []
   [v-box
    :gap      "10px"
-   :width    "450px"
+   :width    "400px"
    :children [[title2 "Notes"]
               [status-text "Alpha" {:color "red" :font-weight "bold"}]
-              [p "This Component provides a framework for creating a large table-like visual structure - something organised into rows with a horizontal structure (columns?). It is up to you if it is read-only or read-write."]
-              [p "But this Component is low level and abstract.  While it can be very flexible in some ways, it is rigid in others, so you'll have to figure out if it is appropriate for your usecase."]
-              [p "It is a framework. You supply a bunch of functions which do the work and it coordinates their input. Essentially, it provides you with a scrolling and virtualisation infrastructure."]
-              [p "Imagine an Excel workbook. It is a large \"canvas\" of rows and columns,  too big to be viewed all at once.  You must use scrollbars to see it all.  Now imagine you want to \"lock/freeze\" a few rows at the top because they contain `column headings` and then also a few rows at the bottom which contain say, totals - call them `column footers`. Likewise, we want to lock/freeze a few left-most columns - let's call this area \"row headers\", and some of the right-most columns - call that `row-footers`.  Now, as  you scroll around the large worksheet, these locked areas always remain in view - eg: you can always see the column headings.  As you scroll left and right, the column headings (and footers) scroll horizontally in-sync with the central body of cells/worksheet.  So too the row-headers and row-footers scroll vertically to match the main body of worksheet/cells you are viewing."]
-              [p "So, this Component will help you to create a virtual, scrolling table structure.  It models a table as having up to nine optional `sections`:  the four locked ones described above, plus the centre \"body\", and finally the four corners created by the intersection of the locked section (top-left, bottom-right, etc)."]
+              [p "This Component provides a framework for creating a table-like visual structures - ones that are organised around rows with a horizontal structure (columns?). It can be read-only or read-write."]
+              [p "But this Component is low level and abstract.  While it is very flexible along some dimensions, it is rigid along others, so you'll have to figure out if it is appropriate for your usecase."]
+              [p "It is a framework. You supply functions which do all the rendering and it coordinates their output. Essentially, it provides you with a scrolling and virtualisation infrastructure."]
+              [p "Imagine an Excel workbook which is a  \"canvas\" of rows and columns, too big to be viewed all at once. You must use scrollbars to see it all. "
+                 "Now imagine you want to \"lock/freeze\" a few rows at the top because they contain \"column headings\" and also a few rows at the bottom "
+                 "which contain say, totals - call them \"column footers\". Likewise, in the horizontal, we want to lock/freeze a few left-most columns - let's call this area \"row headers\", " 
+                 "and some of the right-most columns - call that \"row-footers\". Now, as  you scroll around the large worksheet, these locked areas always remain in view - eg: "
+                 "you can always see the column headings.  As you scroll left and right, the column headings (and footers) scroll horizontally in-sync with the central body of cells/worksheet.  "
+                 "So too the row-headers and row-footers scroll vertically to match the main body of worksheet/cells you are viewing."]
+              [p "So, this Component will help you to create a virtual, scrolling table structure.  It models a table as having up to nine optional \"sections\":  "
+                 "the four locked ones described above, plus the centre \"body\", and finally the four corners created by the intersection of the locked section (top-left, bottom-right, etc)."]
               [v-box
                :style    {:border "1px solid #333"}
                :children [[h-box
@@ -402,12 +317,10 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title "[v-table ... ]"
-               "src/re_com/v_table.cljs"
-               "src/re_demo/v_table.cljs"]
+   :children [[panel-title "[v-table ... ]" "src/re_com/v_table.cljs" "src/re_demo/v_table.cljs"]
               [h-box
                :gap      "100px"
-               :children [[notes-column]
-                          [args-table v-table-args-desc]
+               :children [[notes-column] 
+                          [args-table v-table-args-desc {:total-width "550px" :name-column-width "180px"}]
                           [sections-demo]]]
               [v-table-component-hierarchy]]])
