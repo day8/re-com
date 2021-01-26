@@ -82,13 +82,15 @@
                         [:code {:style {:margin-right 0}} (str default)]])
                      [[:span.semibold.all-small-caps "required"]])]
     [h-box
-     :style    {:background (if odd-row? "#F4F4F4" "#FCFCFC")}
+     :style    {:background (if odd-row? "#F4F4F4" "#FCFCFC") 
+                :border-left (when (not odd-row?) "1px solid #f4f4f4")
+                :border-right (when (not odd-row?) "1px solid #f4f4f4")}
      :children [[:span {:class "semibold"
                         :style (merge (align-style :align-self :center)
                                       {:width        name-column-width
                                        :padding-left "15px"})}
                  (str (:name arg))]
-                 [line :size "1px" :color "white"]
+                 [line :size "1px" :color (if odd-row? "white" "#f4f4f4")]
                  [v-box
                   :style {:padding "7px 15px 2px 15px"}
                   :gap  "4px"
