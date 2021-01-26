@@ -70,49 +70,53 @@
 
 
 (defn arg-row
-  "I show one argument in an args table."
-  [name-width arg odd-row?]
+  "I show one argument in an args table (which is itself a horizontal list of arguments)."
+  [name-column-width arg odd-row?]
   (let [required   (:required arg)
         default    (:default arg)
         arg-type   (:type arg)
         needed-vec (if (not required)
                      (if (nil? default)
                        [[:span.semibold.all-small-caps "optional"]]
-                       [[:span.semibold.all-small-caps "default:"] [:span.semibold (str default)]])
+                       [[:span.semibold.all-small-caps "default:"] 
+                        [:code {:style {:margin-right 0}} (str default)]])
                      [[:span.semibold.all-small-caps "required"]])]
     [h-box
      :style    {:background (if odd-row? "#F4F4F4" "#FCFCFC")}
      :children [[:span {:class "semibold"
                         :style (merge (align-style :align-self :center)
-                                      {:width        name-width
+                                      {:width        name-column-width
                                        :padding-left "15px"})}
                  (str (:name arg))]
-                [line :size "1px" :color "white"]
-                [v-box
-                 :style {:padding "7px 15px 2px 15px"}
-                 :gap  "4px"
-                 :width "310px"
-                 :children [[h-box
-                             :gap   "4px"
-                             :children (concat [[:span.semibold  arg-type]
-                                                [gap :size "10px"]]
-                                               needed-vec)]
-                            [:p
-                              {:font-size "smaller" :color "red"}
+                 [line :size "1px" :color "white"]
+                 [v-box
+                  :style {:padding "7px 15px 2px 15px"}
+                  :gap  "4px"
+                  :size  "1 1 0px"    ;; grow horizontally to fill the space
+                  :children [[h-box
+                              :gap   "4px"
+                              :children (concat [[:span.semibold  arg-type]
+                                                 [gap :size "1"]]
+                                                 needed-vec)]
+                             [line]
+                             [:p
+                              ; {:font-size "smaller" :color "red"}
                               (:description arg)]]]]]))
 
 
 (defn args-table
-  "I display a component arguements in an easy to read format"
-  [args]
-  (let [name-width  "130px"]
-    (fn
-      []
-      [v-box
-       :children (concat
-                   [[title2 "Parameters"]
-                    [gap :size "10px"]]
-                   (map (partial arg-row name-width)  args (cycle [true false])))])))
+  "I render component arguements in an easy to read format"
+  [args  {:keys [total-width name-column-width] 
+          :or   {name-column-width "130px" }}]
+  (fn
+    []
+    (println total-width)
+    [v-box
+     :width    total-width
+     :children (concat
+                [[title2 "Parameters"]
+                 [gap :size "10px"]]
+                (map (partial arg-row name-column-width)  args (cycle [true false])))]))
 
 
 (defn scroll-to-top
