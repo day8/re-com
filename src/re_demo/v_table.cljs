@@ -219,15 +219,15 @@
               [status-text "Alpha" {:color "red" :font-weight "bold"}]
               [p "This Component provides a framework for creating a table-like visual structures - ones that are organised around rows with a horizontal structure (columns?). It can be read-only or read-write."]
               [p "But this Component is low level and abstract.  While it is very flexible along some dimensions, it is rigid along others, so you'll have to figure out if it is appropriate for your usecase."]
-              [p "It is a framework. You supply functions which do all the rendering and it coordinates their output. Essentially, it provides you with a scrolling and virtualisation infrastructure."]
+              [p "It is a framework. You supply functions which do all the rendering and it coordinates their (hiccup) output. Essentially, it provides you with a scrolling and virtualisation infrastructure."]
               [p "Imagine an Excel workbook which is a  \"canvas\" of rows and columns, too big to be viewed all at once. You must use scrollbars to see it all. "
                  "Now imagine you want to \"lock/freeze\" a few rows at the top because they contain \"column headings\" and also a few rows at the bottom "
                  "which contain say, totals - call them \"column footers\". Likewise, in the horizontal, we want to lock/freeze a few left-most columns - let's call this area \"row headers\", " 
                  "and some of the right-most columns - call that \"row-footers\". Now, as  you scroll around the large worksheet, these locked areas always remain in view - eg: "
-                 "you can always see the column headings.  As you scroll left and right, the column headings (and footers) scroll horizontally in-sync with the central body of cells/worksheet.  "
+                 "you can always see the column headings.  As you scroll left and right, the column headings/footers scroll horizontally in-sync with the central body of cells/worksheet.  "
                  "So too the row-headers and row-footers scroll vertically to match the main body of worksheet/cells you are viewing."]
               [p "So, this Component will help you to create a virtual, scrolling table structure.  It models a table as having up to nine optional \"sections\":  "
-                 "the four locked ones described above, plus the centre \"body\", and finally the four corners created by the intersection of the locked section (top-left, bottom-right, etc)."]
+                 "the four locked ones described above, plus the centre \"body\", and finally the four corners created by the intersection of the locked sections (top-left, bottom-right, etc)."]
               [v-box
                :style    {:border "1px solid #333"}
                :children [[h-box
@@ -304,11 +304,11 @@
                                        :align   :center
                                        :justify :center
                                        :child   [:span "bottom-right (9)"]]]]]]
-               [p "Except, this Component is sufficiently abstract that it has no native concept of columns - which is kinda odd for something calling itself \"a table\". However, it does understand rows - indeed, the design is very row centric - and it does understand that rows have a horizontal extent. If your rows have columns, you'll have to render them yourself."]
-               [p "This Component will allow you to have a million rows in your table because it \nwill render only those few which are currently viewable, but it does not virtualise the horizontal extent of the row - each visible row will be fully rendered to DOM."]
-               [p "So, it is a good framework for representing complicated spreadsheet with many rows, but not too many columns. Or perhaps Gannt Charts (although rendering lines up and down across rows involves swimming slightly against the tide abstractions-wise).  But, anyway, that sort of thing."]
+               [p "Except, this Component is sufficiently abstract that it doesn't even have a native concept of columns - which is kinda odd for something calling itself \"a table\", right? However, it does understand rows - indeed, the design is very row centric - and it does understand that rows have a horizontal extent. If your rows have columns, you'll have to render them yourself."]
+               [p "This Component will allow you to have a million rows in your table because it will render only those few which are currently viewable, but it does not virtualise the horizontal extent of the row - each visible row will be fully rendered to DOM."]
+               [p "So, it might be a good framework for representing complicated spreadsheet with many rows, but not too many columns. Or perhaps a Gannt Chart (although rendering lines up and down across rows involves swimming slightly against the tide abstractions-wise).  But, anyway, that sort of thing."]
                [p "BTW, all rows must have the same fixed height."]
-               [p [:code ":model"] " does not have to be a vector of maps, it can be a vector of anything as long as the renderer functions and " [:code ":id-fn"] " are written to handle whatever data is in the " [:code ":model"] " vector."]
+               [p "While it certainly isn't required, it will be felicitous if the 9 (optional0 )section renderers you supply return flexbox-friendly hiccup, including " [:code "v-box"] " and " [:code "h-box"] "."]
               ]])
 
 
