@@ -144,17 +144,18 @@
    {:name :placeholder        :required false                     :type "string"                   :validate-fn string?                     :description "Background text when no selection"}
    {:name :on-change          :required true                      :type "id -> nil"                :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. Called with one argument, the set of selected ids. See " [:code ":model"] "."]}
    {:name :on-tag-click       :required false                     :type "id -> nil"                :validate-fn fn?                         :description "This function is called when the user clicks a tag. Called with one argument, the tag id."}
-   {:name :unselect-buttons?  :required false :default false      :type "boolean"                                                           :description "When true, buttons will be displayed on tags to unselect the tag."}
-   {:name :abbrev-fn          :required false                     :type "choice -> hiccup"         :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable abbreviated label for that map. Called for each element in " [:code ":choices"]]}
-   {:name :abbrev-characters  :required false                     :type "number"                   :validate-fn number?                     :description [:span "When the number of characters in all the selected choices is greater than this number, then " [:code ":abbrev-fn"] " instead of " [:code ":label-fn"] " will be used to get the displayable label."]}
-   {:name :label-fn           :required false :default ":label"   :type "map -> hiccup"            :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
-   {:name :description-fn     :required false :default ":description" :type "map -> hiccup"        :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable description for that map. Called for each element in " [:code ":choices"]]}
-   {:name :width              :required false                     :type "string"                   :validate-fn string?                     :description "the CSS width. e.g.: \"500px\" or \"20em\""}
+   {:name :disabled?          :required false :default false      :type "boolean"                                                           :description "if true, no user selection is allowed"}
+   {:name :unselect-buttons?  :required false :default false      :type "boolean"                                                           :description "When true, \"X\" buttons will be displayed on tags, allowing the user to unselect the tag."}
+   {:name :label-fn           :required false :default ":label"   :type "map -> hiccup"            :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
+   {:name :description-fn     :required false :default ":description" :type "map -> hiccup"        :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable description. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
+   {:name :abbrev-fn          :required false                     :type "choice -> hiccup"         :validate-fn ifn?                        :description [:span "A function which can turn a choice into an abbreviated label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
+   {:name :abbrev-threshold   :required false                     :type "number"                   :validate-fn number?                     :description [:span "The text displayed for selected choices is obtained via either " [:code ":label-fn"] " or " [:code "abbrev-fn"] ". When the total number of characters displayed is less than this argument then " [:code ":label-fn"] " will be used, otherwise " [:code "abbrev-fn"] ". You should set this value taking into account the width of this component. If not set, only " [:code ":label-fn"] " is used."]}
+   {:name :min-width          :required false                     :type "string"                   :validate-fn string?                     :description "the CSS min-width. e.g.: \"500px\" or \"20em\""}
+   {:name :max-width          :required false                     :type "string"                   :validate-fn string?                     :description "the CSS max-width. e.g.: \"500px\" or \"20em\""}
    {:name :height             :required false :default "25px"     :type "string"                   :validate-fn string?                     :description "the specific height of the component"}
    {:name :tag-width          :required false                     :type "string"                   :validate-fn string?                     :description "the width of each individual tag"}
    {:name :tag-height         :required false                     :type "string"                   :validate-fn string?                     :description "the height of each individual tag"}
    {:name :style              :required false                     :type "map"                      :validate-fn map?                        :description "CSS styles to add or override"}
-   {:name :disabled?          :required false :default false      :type "boolean"                                                           :description ""}
    {:name :tag-comp           :required false :default "text-tag" :type "function"                 :validate-fn ifn?                        :description "This function returns the hiccup to render a tag."}
    {:name :parts              :required false                     :type "map"                      :validate-fn (parts? tag-dropdown-parts) :description "See Parts section below."}])
 
@@ -163,8 +164,8 @@
   {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
   (let [showing?      (reagent/atom false)]
     (fn tag-dropdown-render
-      [& {:keys [choices model placeholder on-change on-tag-click unselect-buttons? abbrev-fn abbrev-characters label-fn
-                 description-fn width height tag-width tag-height style disabled? tag-comp parts]
+      [& {:keys [choices model placeholder on-change on-tag-click unselect-buttons? abbrev-fn abbrev-threshold label-fn
+                 description-fn min-width max-width height tag-width tag-height style disabled? tag-comp parts]
           :or   {label-fn          :label
                  description-fn    :description
                  height            "25px"
@@ -173,7 +174,7 @@
       {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
       (let [choices            (deref-or-value choices)
             model              (deref-or-value model)
-            abbrev-characters  (deref-or-value abbrev-characters)
+            abbrev-threshold   (deref-or-value abbrev-threshold)
             disabled?          (deref-or-value disabled?)
             unselect-buttons?  (deref-or-value unselect-buttons?)
 
@@ -184,7 +185,8 @@
                                      n))
                                  0
                                  choices)
-            abbrev?            (and (>= choices-num-chars abbrev-characters)
+            abbrev?            (and (>= choices-num-chars abbrev-threshold)
+                                    (number? abbrev-threshold)
                                     (fn? abbrev-fn))
 
             placeholder-tag [tag-comp
@@ -213,49 +215,50 @@
                              :on-change     #(on-change %)
                              :multi-select? true]
             tag-main        [h-box
-                             :width    width
-                             :height   height
-                             :align    :center
-                             :padding  "0px 6px"
-                             :class    (str "rc-tag-dropdown " (get-in parts [:main :class]))
-                             :style    (merge {:background-color "white"
-                                               :border           "1px solid lightgrey"
-                                               :border-radius    "2px"
-                                               :overflow         "hidden"
-                                               :cursor           (if disabled? "default" "pointer")}
-                                              (get-in parts [:main :style]))
-                             :attr     (merge {}
-                                              (when (not disabled?) {:on-click (handler-fn (reset! showing? true))})
-                                              (get-in parts [:main :attr]))
-                             :children [(if (zero? (count model)) placeholder "")
-                                        [h-box
-                                         :class    (str "rc-tag-dropdown-tags " (get-in parts [:tags :class]))
-                                         :size     "1" ;; This line will align the tag placeholder to the right
-                                         :style    {:overflow "hidden"}
-                                         :children (conj
-                                                     (mapv (fn [tag]
-                                                             (when (contains? model (:id tag))
-                                                               [tag-comp
-                                                                :label-fn    (if abbrev? abbrev-fn label-fn)
-                                                                :tag-data    tag
-                                                                :tooltip     (:label tag)
-                                                                :disabled?   disabled?
-                                                                :on-click    (if on-tag-click
-                                                                               #(on-tag-click (:id tag))
-                                                                               #(reset! showing? true))      ;; Show dropdown
+                             :min-width min-width
+                             :max-width max-width
+                             :height    height
+                             :align     :center
+                             :padding   "0px 6px"
+                             :class     (str "rc-tag-dropdown " (get-in parts [:main :class]))
+                             :style     (merge {:background-color "white"
+                                                :border           "1px solid lightgrey"
+                                                :border-radius    "2px"
+                                                :overflow         "hidden"
+                                                :cursor           (if disabled? "default" "pointer")}
+                                               (get-in parts [:main :style]))
+                             :attr      (merge {}
+                                               (when (not disabled?) {:on-click (handler-fn (reset! showing? true))})
+                                               (get-in parts [:main :attr]))
+                             :children  [(if (zero? (count model)) placeholder "")
+                                         [h-box
+                                          :class    (str "rc-tag-dropdown-tags " (get-in parts [:tags :class]))
+                                          :size     "1" ;; This line will align the tag placeholder to the right
+                                          :style    {:overflow "hidden"}
+                                          :children (conj
+                                                      (mapv (fn [tag]
+                                                              (when (contains? model (:id tag))
+                                                                [tag-comp
+                                                                 :label-fn    (if abbrev? abbrev-fn label-fn)
+                                                                 :tag-data    tag
+                                                                 :tooltip     (:label tag)
+                                                                 :disabled?   disabled?
+                                                                 :on-click    (if on-tag-click
+                                                                                #(on-tag-click (:id tag))
+                                                                                #(reset! showing? true))      ;; Show dropdown
 
-                                                                :on-unselect (when unselect-buttons? #(on-change (disj model %)))
-                                                                :width       tag-width
-                                                                :height      tag-height
-                                                                :hover-style {:opacity "0.8"}
-                                                                :style       style]))
-                                                           choices)
-                                                     (when (not disabled?)
-                                                       placeholder-tag))]
-                                        [gap :size "6px"]
-                                        (when (and (not-empty model) (not disabled?))
-                                          [close-button
-                                           :on-click  #(on-change #{})])]]]
+                                                                 :on-unselect (when unselect-buttons? #(on-change (disj model %)))
+                                                                 :width       tag-width
+                                                                 :height      tag-height
+                                                                 :hover-style {:opacity "0.8"}
+                                                                 :style       style]))
+                                                            choices)
+                                                      (when (not disabled?)
+                                                        placeholder-tag)
+                                                      [gap :size "20px"])]
+                                         (when (and (not-empty model) (not disabled?))
+                                           [close-button
+                                            :on-click  #(on-change #{})])]]]
         [popover-anchor-wrapper
          :class    (str "rc-tag-dropdown-popover-anchor-wrapper " (get-in parts [:popover-anchor-wrapper :class]))
          :showing? showing?
