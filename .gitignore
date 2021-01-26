@@ -14,3 +14,5 @@ misc/
 /node_modules/
 /.shadow-cljs/
 /shadow-cljs.edn
+/.clj-kondo/
+/.lsp/
