@@ -193,9 +193,9 @@
                             :children [[title2 "Notes"]
                                        [status-text "Alpha" {:color "red" :font-weight "bold"}]
                                        [p "A multi-select component. Useful when the list of choices is small and (optionally) colour coded, and where those selected need to all be visible to the user."]
-                                       [p "If the user selects many of the choices, then displaying them horizontally can take more than the " [:code ":width"] ". In this case, the programmer has two strategies:" 
+                                       [p "If the user selects many of the choices, then displaying them horizontally can take more than " [:code ":width"] ". In this case, the programmer has two strategies:" 
                                         [:ol
-                                         [:li  "allow the Component to grow horizontally by providing " [:code ":max-width"]]
+                                         [:li  "allow the Component to grow horizontally to some limit by providing " [:code ":max-width"]]
                                          [:li  "allow the Component to switch from using \"name\" to using \"abrreviations\", see " [:code ":abbrev-fn"] " and  "[:code ":abbrev-threshold"]] ]]
                                        [args-table tag-dropdown-args-desc]]]
                           [demo]]]
