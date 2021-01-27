@@ -308,7 +308,7 @@
                [p "This Component will allow you to have a million rows in your table because it will render only those few which are currently viewable, but it does not virtualise the horizontal extent of the row - each visible row will be fully rendered to DOM."]
                [p "So, it might be a good framework for representing complicated spreadsheet with many rows, but not too many columns. Or perhaps a Gannt Chart (although rendering lines up and down across rows involves swimming slightly against the tide abstractions-wise).  But, anyway, that sort of thing."]
                [p "BTW, all rows must have the same fixed height."]
-               [p "While it certainly isn't required, it will be felicitous if the 9 (optional0 )section renderers you supply return flexbox-friendly hiccup, including " [:code "v-box"] " and " [:code "h-box"] "."]
+               [p "While it certainly isn't required, it will be felicitous if the 9 (mostly optional) section renderers you supply return flexbox-friendly hiccup, including " [:code "v-box"] " and " [:code "h-box"] "."]
               ]])
 
 
