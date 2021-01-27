@@ -184,6 +184,7 @@
                    :showing? showing-popover?
                    :position :left-center
                    :popover  [popover-content-wrapper
+                              :width "450px"
                               :body [p (case @current-period
                                          1 "The first period contains fewer elements than any other, with only two, hydrogen and helium."
                                          2 "Period 2 elements involve the 2s and 2p orbitals. They include the biologically most essential elements besides hydrogen: carbon, nitrogen, and oxygen."
@@ -199,7 +200,8 @@
                               :row-height                80
                               :on-enter-row              (fn [index]
                                                            (reset! current-period (inc index))
-                                                           (reset! showing-popover? true))
+                                                           (when (< index 7)
+                                                             (reset! showing-popover? true)))
                               :on-leave-row              #(reset! showing-popover? false)
                               :cell-style                (fn [row column]
                                                            (when (not (zero? (:id column)))
