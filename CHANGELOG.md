@@ -1,5 +1,9 @@
 ## Unreleased
 
+#### Changed
+
+- **Breaking**: Rename `:max-table-width` arg of `v-table` and `simple-v-table` to `:max-width`.
+
 ## 2.12.0 (2012-01-23)
 
 #### Fixed

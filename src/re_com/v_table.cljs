@@ -476,13 +476,12 @@
    {:name :column-header-height       :required false                :type "integer"                  :validate-fn number?              :description "px height of the column header. Impacts the upper sections 1, 4 and 7. If not provided, defaults to 0, meaning these three sections will not be visible."}
    {:name :column-footer-height       :required false                :type "integer"                  :validate-fn number?              :description "px height of the column footer. Impacts the lower sections 3, 6 and 9. If not provided, defaults to 0, meaning these three sections will not be visible."}
    {:name :row-content-width          :required true                 :type "integer"                  :validate-fn number?              :description [:span "px width of sections 4, 5, 6. The renderers for these sections are expected to return hiccup to fill these spaces."]}
-   {:name :max-table-width            :required false                :type "string"                   :validate-fn string?              :description "Standard CSS max-width setting of the entire table. If not provided, table will fill available space"}
-   
+   {:name :max-width                  :required false                :type "string"                   :validate-fn string?              :description "Standard CSS max-width setting of the entire table. If not provided, table will fill available space"}
    {:name :top-left-renderer          :required false                :type "-> hiccup"                :validate-fn fn?                  :description [:span "A function taking no args which returns the hiccup for the top left (section 1). The hiccup should fill the height specified via "  [:code ":column-header-height"] ". The width of the three left sections is self-determined as the maximum of their own content."]}
    {:name :row-header-renderer        :required false                :type "row-index, row -> hiccup" :validate-fn fn?                  :description [:span "A function. Given the 0-based row-index and an element of " [:code ":model"] ", it will return the hiccup for the row header (section 2)."]}
    {:name :bottom-left-renderer       :required false                :type "-> hiccup"                :validate-fn fn?                  :description "A function taking no args which returns the hiccup for the bottom left (section 3)"}
    {:name :column-header-renderer     :required false                :type "-> hiccup"                :validate-fn fn?                  :description "A function taking no args which returns the hiccup for the column header (section 4)."}
-   {:name :row-renderer               :required true                 :type "row-index, row -> hiccup" :validate-fn fn?                  :description [:span "A function. Given the 0-based row-index and an element of " [:code ":model"] ", it will return the hiccup for a single content row (section 5). This renderer is called once for each displayed row. As vertical scrolling occurs, more calls will be made."] }
+   {:name :row-renderer               :required true                 :type "row-index, row -> hiccup" :validate-fn fn?                  :description [:span "A function. Given the 0-based row-index and an element of " [:code ":model"] ", it will return the hiccup for a single content row (section 5). This renderer is called once for each displayed row. As vertical scrolling occurs, more calls will be made."]}
    {:name :column-footer-renderer     :required false                :type "-> hiccup"                :validate-fn fn?                  :description "A function taking no args which returns the hiccup for the entire column footer (section 6)."}
    {:name :top-right-renderer         :required false                :type "-> hiccup"                :validate-fn fn?                  :description "A function taking no args which returns the hiccup for the top right (section 7)"}
    {:name :row-footer-renderer        :required false                :type "row-index, row -> hiccup" :validate-fn fn?                  :description [:span "A function. Given the 0-based row-index and an element of " [:code ":model"] ", it will return the hiccup for the row footer (section 8)."]}
@@ -578,7 +577,7 @@
                               This will cause the horizontal scrollbar section to be nestled against the last row, and whatever is
                               underneath the v-table to be brought up with it
 
-   - max-table-width          [optional string, default = nil (table will fill available space)]
+   - max-width          [optional string, default = nil (table will fill available space)]
                               MAXIMUM width of the entire v-table
                               NOTE: This is specified as a normal CSS value, e.g. \"1024px\" or \"90%\"
 
@@ -1009,7 +1008,7 @@
 
          :reagent-render
                         (fn v-table-renderer
-                          [& {:keys [virtual? remove-empty-row-space? id-fn max-table-width
+                          [& {:keys [virtual? remove-empty-row-space? id-fn max-width
                                      ;; Section 1
                                      top-left-renderer
                                      ;; Section 2
@@ -1081,7 +1080,7 @@
                           [box/h-box
                            :class    (str "rc-v-table " class " " (get-in parts [:wrapper :class]))
                            :style    (merge
-                                       {:max-width  max-table-width ;; TODO: Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
+                                       {:max-width  max-width ;; TODO: Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
                                         :max-height (when remove-empty-row-space?
                                                       (+
                                                         (or column-header-height 0)

@@ -79,7 +79,7 @@
    {:name :fixed-column-count        :required false :default 0         :type "integer"                  :validate-fn number?                      :description "the number of fixed (non-scrolling) columns on the left."}
    {:name :fixed-column-border-color :required false :default "#BBBEC0" :type "string"                   :validate-fn string?                      :description [:span "The CSS color of the horizontal border between the fixed columns on the left, and the other columns on the right. " [:code ":fixed-column-count"] " must be > 0 to be visible."]}
    {:name :column-header-height      :required false :default 31        :type "integer"                  :validate-fn number?                      :description [:span "px height of the column header section. Typically, equals " [:code ":row-height"] " * number-of-column-header-rows."]}
-   {:name :max-table-width           :required false                    :type "string"                   :validate-fn string?                      :description "standard CSS max-width setting of the entire table. Literally constrains the table to the given width so that if the table is wider than this it will add scrollbars. Ignored if value is larger than the combined width of all the columns and table padding."}
+   {:name :max-width                 :required false                    :type "string"                   :validate-fn string?                      :description "standard CSS max-width setting of the entire table. Literally constrains the table to the given width so that if the table is wider than this it will add scrollbars. Ignored if value is larger than the combined width of all the columns and table padding."}
    {:name :max-rows                  :required false                    :type "integer"                  :validate-fn number?                      :description "The maximum number of rows to display in the table without scrolling. If not provided will take up all available vertical space."}
    {:name :table-row-line-color      :required false :default "#EAEEF1" :type "string"                   :validate-fn string?                      :description "The CSS color of the lines between rows."}
    {:name :on-click-row              :required false                    :type "function"                 :validate-fn ifn?                         :description "This function is called when the user clicks a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
@@ -103,12 +103,12 @@
   where row is the data for that row and col is the definition map for that column
   "
   [& {:keys [model columns fixed-column-count on-click-row on-enter-row on-leave-row column-header-height row-height max-rows
-             table-padding table-row-line-color fixed-column-border-color max-table-width
+             table-padding table-row-line-color fixed-column-border-color max-width
              header-renderer row-style cell-style class parts]
-      :or   {fixed-column-count      0
+      :or   {fixed-column-count        0
              table-padding             19               ;; Based on g/s-19
              row-height                31               ;; Based on g/s-31
-             column-header-height         31               ;; Based on g/s-31
+             column-header-height      31               ;; Based on g/s-31
              table-row-line-color      "#EAEEF1"
              fixed-column-border-color "#BBBEC0"
              header-renderer           render-header}
@@ -131,7 +131,7 @@
      :class (str "simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
      :style (merge {:background-color "white"
                     :padding          (px table-padding)
-                    :max-width        (px (or max-table-width actual-table-width)) ;; Removing actual-table-width would make the table stretch to the end of the page
+                    :max-width        (or max-width  (px actual-table-width)) ;; Removing actual-table-width would make the table stretch to the end of the page
                     :border           table-border-style
                     :border-radius    "3px"}
                    (get-in parts [:simple-wrapper :style]))
@@ -151,7 +151,7 @@
              ;; Only for non-fixed columns:
              :column-header-renderer  (partial header-renderer content-cols parts)
 
-             ;:max-table-width         (px (or max-table-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick)))
+             ;:max-width         (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick)))
 
              :max-row-viewport-height (when max-rows (* max-rows row-height))
 
