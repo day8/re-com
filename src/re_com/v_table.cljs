@@ -7,7 +7,7 @@
     [reagent.core       :as    reagent]
     [re-com.box         :as    box]
     [re-com.util        :refer [deref-or-value]]
-    [re-com.validate    :refer [vector-or-atom? map-or-atom? parts?]]
+    [re-com.validate    :refer [vector-atom? map-atom? parts?]]
     [re-com.dmm-tracker :refer [make-dmm-tracker captureMouseMoves]]))
 
 ;; The public API for this component is called table (see last component in this file)
@@ -468,38 +468,38 @@
     :v-scroll-section :v-scroll})
 
 (def v-table-args-desc
-  [{:name :model                      :required true                 :type "vector of maps (atom)"    :validate-fn vector-or-atom?      :description [:span "One element for each row displayed in the table. Must be an atom. Typically, a vector of maps, but can be a seq of anything, with your functions like " [:code ":id-fn"] " extracting values."]}
-   {:name :id-fn                      :required false :default :id   :type "map -> anything"          :validate-fn ifn?                 :description [:span "A function. Given an element of " [:code ":model"] ", it will return its unique identifier."]}
-   {:name :virtual?                   :required false :default true  :type "boolean"                                                    :description [:span "when true, only those rows that are visible are rendered to the DOM. Otherwise DOM will be generated for all rows, which might be prohibitive if there are a large number of rows."]}
+  [{:name :model                      :required true                 :type "atom containing vec of maps" :validate-fn vector-atom?           :description [:span "One element for each row displayed in the table. Typically, a vector of maps, but can be a seq of anything, with your functions like " [:code ":id-fn"] " extracting values."]}
+   {:name :id-fn                      :required false :default :id   :type "map -> anything"             :validate-fn ifn?                   :description [:span "A function (or keyword). Given an element of " [:code ":model"] ", it will return its unique identifier."]}
+   {:name :virtual?                   :required false :default true  :type "boolean"                                                         :description [:span "when true, only those rows that are visible are rendered to the DOM. Otherwise DOM will be generated for all rows, which might be prohibitive if there are a large number of rows."]}
 
-   {:name :row-height                 :required true                 :type "integer"                  :validate-fn number?              :description "px height of each row, in sections 2, 5 and 8."}
-   {:name :column-header-height       :required false                :type "integer"                  :validate-fn number?              :description "px height of the column header. Impacts the upper sections 1, 4 and 7. If not provided, defaults to 0, meaning these three sections will not be visible."}
-   {:name :column-footer-height       :required false                :type "integer"                  :validate-fn number?              :description "px height of the column footer. Impacts the lower sections 3, 6 and 9. If not provided, defaults to 0, meaning these three sections will not be visible."}
-   {:name :row-content-width          :required true                 :type "integer"                  :validate-fn number?              :description [:span "px width of sections 4, 5, 6. The renderers for these sections are expected to return hiccup to fill these spaces."]}
-   {:name :max-width                  :required false                :type "string"                   :validate-fn string?              :description "Standard CSS max-width setting of the entire table. If not provided, table will fill available space"}
+   {:name :row-height                 :required true                 :type "integer"                     :validate-fn number?                :description "px height of each row, in sections 2, 5 and 8."}
+   {:name :column-header-height       :required false                :type "integer"                     :validate-fn number?                :description "px height of the column header. Impacts the upper sections 1, 4 and 7. If not provided, defaults to 0, meaning these three sections will not be visible."}
+   {:name :column-footer-height       :required false                :type "integer"                     :validate-fn number?                :description "px height of the column footer. Impacts the lower sections 3, 6 and 9. If not provided, defaults to 0, meaning these three sections will not be visible."}
+   {:name :row-content-width          :required true                 :type "integer"                     :validate-fn number?                :description [:span "px width of sections 4, 5, 6. The renderers for these sections are expected to return hiccup to fill these spaces."]}
+   {:name :max-width                  :required false                :type "string"                      :validate-fn string?                :description "Standard CSS max-width setting of the entire table. If not provided, table will fill available space"}
 
-   {:name :top-left-renderer          :required false                :type "-> hiccup"                :validate-fn fn?                  :description [:span "A function taking no args which returns the hiccup for the top left (section 1). The hiccup should fill the height specified via "  [:code ":column-header-height"] ". The width of the three left sections is self-determined as the maximum of their own content."]}
-   {:name :row-header-renderer        :required false                :type "row-index, row -> hiccup" :validate-fn fn?                  :description [:span "A function. Given the 0-based row-index and an element of " [:code ":model"] ", it will return the hiccup for the row header (section 2)."]}
-   {:name :bottom-left-renderer       :required false                :type "-> hiccup"                :validate-fn fn?                  :description "A function taking no args which returns the hiccup for the bottom left (section 3)"}
-   {:name :column-header-renderer     :required false                :type "-> hiccup"                :validate-fn fn?                  :description "A function taking no args which returns the hiccup for the column header (section 4)."}
-   {:name :row-renderer               :required true                 :type "row-index, row -> hiccup" :validate-fn fn?                  :description [:span "A function. Given the 0-based row-index and an element of " [:code ":model"] ", it will return the hiccup for a single content row (section 5). This renderer is called once for each displayed row. As vertical scrolling occurs, more calls will be made."]}
-   {:name :column-footer-renderer     :required false                :type "-> hiccup"                :validate-fn fn?                  :description "A function taking no args which returns the hiccup for the entire column footer (section 6)."}
-   {:name :top-right-renderer         :required false                :type "-> hiccup"                :validate-fn fn?                  :description "A function taking no args which returns the hiccup for the top right (section 7)"}
-   {:name :row-footer-renderer        :required false                :type "row-index, row -> hiccup" :validate-fn fn?                  :description [:span "A function. Given the 0-based row-index and an element of " [:code ":model"] ", it will return the hiccup for the row footer (section 8)."]}
-   {:name :bottom-right-renderer      :required false                :type "-> hiccup"                :validate-fn fn?                  :description "A function taking no args which returns the hiccup for the bottom right (section 9)."}
+   {:name :top-left-renderer          :required false                :type "-> hiccup"                   :validate-fn fn?                    :description [:span "A function taking no args which returns the hiccup for the top left (section 1). The hiccup should fill the height specified via "  [:code ":column-header-height"] ". The width of the three left sections is self-determined as the maximum of their own content."]}
+   {:name :row-header-renderer        :required false                :type "row-index, row -> hiccup"    :validate-fn fn?                    :description [:span "A function. Given the 0-based row-index and an element of " [:code ":model"] ", it will return the hiccup for the row header (section 2)."]}
+   {:name :bottom-left-renderer       :required false                :type "-> hiccup"                   :validate-fn fn?                    :description "A function taking no args which returns the hiccup for the bottom left (section 3)"}
+   {:name :column-header-renderer     :required false                :type "-> hiccup"                   :validate-fn fn?                    :description "A function taking no args which returns the hiccup for the column header (section 4)."}
+   {:name :row-renderer               :required true                 :type "row-index, row -> hiccup"    :validate-fn fn?                    :description [:span "A function. Given the 0-based row-index and an element of " [:code ":model"] ", it will return the hiccup for a single content row (section 5). This renderer is called once for each displayed row. As vertical scrolling occurs, more calls will be made."]}
+   {:name :column-footer-renderer     :required false                :type "-> hiccup"                   :validate-fn fn?                    :description "A function taking no args which returns the hiccup for the entire column footer (section 6)."}
+   {:name :top-right-renderer         :required false                :type "-> hiccup"                   :validate-fn fn?                    :description "A function taking no args which returns the hiccup for the top right (section 7)"}
+   {:name :row-footer-renderer        :required false                :type "row-index, row -> hiccup"    :validate-fn fn?                    :description [:span "A function. Given the 0-based row-index and an element of " [:code ":model"] ", it will return the hiccup for the row footer (section 8)."]}
+   {:name :bottom-right-renderer      :required false                :type "-> hiccup"                   :validate-fn fn?                    :description "A function taking no args which returns the hiccup for the bottom right (section 9)."}
 
-   {:name :row-header-selection-fn    :required false                :type "selection-event etc. -> " :validate-fn fn?                  :description "If present, this function will be called on mouse-down, mouse-move and mouse-up events, allowing you to capture user selection of cells, columns or rows in section 2."}
-   {:name :column-header-selection-fn :required false                :type "selection-event etc. -> " :validate-fn fn?                  :description "If present, this function will be called on mouse-down, mouse-move and mouse-up events, allowing you to capture user selection of cells, columns or rows in section 4."}
-   {:name :row-selection-fn           :required false                :type "selection-event etc. -> " :validate-fn fn?                  :description "If present, this function will be called on mouse-down, mouse-move and mouse-up events, allowing you to capture user selection of cells, columns or rows in section 5."}
+   {:name :row-header-selection-fn    :required false                :type "(5 args) -> "                :validate-fn fn?                    :description "See v-table docstring for arg details. If present, this function will be called on mouse-down, mouse-move and mouse-up events, allowing you to capture user selection of cells, columns or rows in section 2."}
+   {:name :column-header-selection-fn :required false                :type "(5 args) -> "                :validate-fn fn?                    :description "See v-table docstring for arg details. If present, this function will be called on mouse-down, mouse-move and mouse-up events, allowing you to capture user selection of cells, columns or rows in section 4."}
+   {:name :row-selection-fn           :required false                :type "(5 args) -> "                :validate-fn fn?                    :description "See v-table docstring for arg details. If present, this function will be called on mouse-down, mouse-move and mouse-up events, allowing you to capture user selection of cells, columns or rows in section 5."}
 
-   {:name :row-viewport-width         :required false                :type "integer"                  :validate-fn number?              :description "px width of the row viewport area. If not specified, the component takes all the horizontal space available."}
-   {:name :row-viewport-height        :required false                :type "integer"                  :validate-fn number?              :description "px height of the row viewport area. If not specified,the component takes all the vertical space available."}
-   {:name :max-row-viewport-height    :required false                :type "integer"                  :validate-fn number?              :description [:span "The " [:b [:i "maximum"]] " px height of the row viewport area (section 5), excluding height of sections 4 and 6 (plus any scrollbars). If not specified, value determined by parent height and number of rows"]}
-   {:name :scroll-rows-into-view      :required false                :type "map (atom)"               :validate-fn map-or-atom?         :description [:span "Scrolls the table to a particular row range. Must be an atom. The map contains the keys " [:code ":start-row"] " and " [:code ":end-row"] " (row indexes)."]}
-   {:name :scroll-columns-into-view   :required false                :type "map (atom)"               :validate-fn map-or-atom?         :description [:span "Scrolls the table of a particular column range. Must be an atom. Map that contains the keys " [:code ":start-col"] " and " [:code ":end-col"]  " in pixel units."]}
-   {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                    :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
-   {:name :class                      :required false                :type "string"                   :validate-fn string?              :description "CSS class names, space separated (these are applied to the table's outer container)"}
-   {:name :parts                      :required false                :type "map"                      :validate-fn (parts? v-table-parts) :description "See Parts section below."}])
+   {:name :row-viewport-width         :required false                :type "integer"                     :validate-fn number?                :description "px width of the row viewport area. If not specified, the component takes all the horizontal space available."}
+   {:name :row-viewport-height        :required false                :type "integer"                     :validate-fn number?                :description "px height of the row viewport area. If not specified,the component takes all the vertical space available."}
+   {:name :max-row-viewport-height    :required false                :type "integer"                     :validate-fn number?                :description [:span "The " [:b [:i "maximum"]] " px height of the row viewport area (section 5), excluding height of sections 4 and 6 (plus any scrollbars). If not specified, value determined by parent height and number of rows"]}
+   {:name :scroll-rows-into-view      :required false                :type "atom containing map"         :validate-fn map-atom?              :description [:span "Scrolls the table to a particular row range. Must be an atom. The map contains the keys " [:code ":start-row"] " and " [:code ":end-row"] " (row indexes)."]}
+   {:name :scroll-columns-into-view   :required false                :type "atom containing map"         :validate-fn map-atom?              :description [:span "Scrolls the table of a particular column range. Must be an atom. Map that contains the keys " [:code ":start-col"] " and " [:code ":end-col"]  " in pixel units."]}
+   {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                         :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
+   {:name :class                      :required false                :type "string"                      :validate-fn string?                :description "CSS class names, space separated (these are applied to the table's outer container)"}
+   {:name :parts                      :required false                :type "map"                         :validate-fn (parts? v-table-parts) :description "See Parts section below."}])
 
 (defn v-table
   "Renders a scrollable table with optional fixed column and row headers and footers, totalling nine addressable sections
@@ -774,7 +774,7 @@
                                - :column-header-selection-rect Override the default style for the COL-HEADER rectangle used for click+drag selection of column headers
    "
   ;; TODO: Ideally make the component work out row-content-width so it doesn't need to be passed (and column-header-height/column-footer-height if possible)
-  ;; TODO: [STU] Suggest we allow model to be passed as a value like other re-com components (DJ agrees)
+  ;; TODO: Remove now? >>> [STU] Suggest we allow model to be passed as a value like other re-com components (DJ agrees)
 
   [& {:keys [model virtual? row-height row-viewport-width row-viewport-height max-row-viewport-height]
       :or   {virtual? true}
@@ -998,12 +998,14 @@
          :component-did-mount
                         (fn v-table-component-did-mount
                           []
+                          ;(println "v-table-component-did-mount") ;; TODO: REMOVE
                           (reset! row-viewport-element (.getElementById js/document row-viewport-id)) ;; TODO: [MT] Use refs?
                           (.addResizeListener js/window @row-viewport-element on-viewport-resize))
 
          :component-will-unmount
                         (fn v-table-component-will-unmount
                           []
+                          ;(println "v-table-component-will-unmount") ;; TODO: REMOVE
                           (.removeResizeListener js/window @row-viewport-element on-viewport-resize)
                           (reset! row-viewport-element nil))
 
@@ -1033,6 +1035,7 @@
                                      class parts]
                               :or   {virtual? true remove-empty-row-space? true id-fn :id}
                               :as   args}]
+                          ;(println "v-table-renderer") ;; TODO: REMOVE
                           {:pre [(validate-args-macro v-table-args-desc args "v-table")]}
                           (reset! content-rows-width row-content-width)
                           (reset! content-rows-height (* @m-size row-height))

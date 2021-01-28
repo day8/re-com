@@ -98,7 +98,7 @@
                               [slider
                                :model     fixed-column-count
                                :on-change #(reset! fixed-column-count %)
-                               :min       1
+                               :min       0
                                :max       3
                                :step      1
                                :width     "200px"]

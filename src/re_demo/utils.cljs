@@ -106,12 +106,12 @@
                               (:description arg)]]]]]))
 
 (defn args-table
-  "I render component arguements in an easy to read format"
+  "I render component arguments in an easy to read format"
   [args  {:keys [total-width name-column-width] 
           :or   {name-column-width "130px" }}]
   (fn
     []
-    (println total-width)
+    ;(println total-width)
     [v-box
      :width    total-width
      :children (concat

@@ -1,6 +1,8 @@
 (ns re-demo.v-table-sections-demo
-  (:require [re-com.core    :refer [h-box gap v-box box v-table hyperlink-href p label]]
-            [re-demo.utils  :refer [panel-title title2 title3 args-table github-hyperlink status-text]]))
+  (:require [re-com.core   :refer [h-box gap v-box box v-table hyperlink-href p label]]
+            [re-demo.utils :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
+            [re-com.validate    :refer [vector-atom? vector-or-atom? map-atom? parts?]]
+            [reagent.core  :as reagent]))
 
 
 
@@ -16,46 +18,46 @@
 
 (defn sections-demo 
   []
-  (let [light-blue "#DBEFF9"
-        medium-blue "#5B9BD5"
-        blue "#0F6FC6"
-        num_rows 6
-        dummy-rows (reduce  #(conj %1 {:id %2}) [] (range num_rows))
-        row-height 20
+  (let [light-blue                "#DBEFF9"
+        medium-blue               "#5B9BD5"
+        blue                      "#0F6FC6"
+        num_rows                  6
+        dummy-rows                (reagent/atom (vec (reduce #(conj %1 {:id %2}) [] (range num_rows)))) ;; TODO: Changed to atom for testing validation-fn, can change back when we successfully allow atom OR value
+        row-height                20
         width-of-main-row-content 250
-        header-footer-style  {:style {:color "white" :background-color medium-blue}}]
+        header-footer-style       {:style {:color "white" :background-color medium-blue}}]
     (fn []
-    [v-box
-     :gap      "10px"
-     :children [[title2 "Sections Demo"]
-                [:p {:style {:width "450px"}} "There are nine sections in a v-table, of which only #5 is mandatory. This table has 6 rows of data. "]
+      [v-box
+       :gap      "10px"
+       :children [[title2 "Sections Demo"]
+                  [:p {:style {:width "450px"}} "There are nine sections in a v-table, of which only #5 is mandatory. This table has 6 rows of data. "]
 
-                [v-table
-                 :model              dummy-rows
-                 :row-height         row-height
-                 :row-content-width  width-of-main-row-content
+                  [v-table
+                   :model              dummy-rows
+                   :row-height         row-height
+                   :row-content-width  width-of-main-row-content
 
-               ;; :remove-empty-row-space? false
+                   ;; :remove-empty-row-space? false
 
-               ;; section 2
-                 :row-header-renderer    (fn [row-index] [:div header-footer-style (str row-index (when (= row-index 2) "   row header") (when (= row-index 3) "   (section 2)"))])
-                 :row-footer-renderer    (fn [row-index] [:div header-footer-style (str "row footer: " row-index)])
+                   ;; section 2
+                   :row-header-renderer    (fn [row-index] [:div header-footer-style (str row-index (when (= row-index 2) "   row header") (when (= row-index 3) "   (section 2)"))])
+                   :row-footer-renderer    (fn [row-index] [:div header-footer-style (str "row footer: " row-index)])
 
-               ;; column header - section 4
-                 :column-header-height   (* 2 row-height)
-                 :column-header-renderer (fn [] [render-two-lines "column headers" "(section 4)" medium-blue])
+                   ;; column header - section 4
+                   :column-header-height   (* 2 row-height)
+                   :column-header-renderer (fn [] [render-two-lines "column headers" "(section 4)" medium-blue])
 
-               ;; column footer - section 5
-                 :column-footer-height   (* 2 row-height)
-                 :column-footer-renderer (fn [] [render-two-lines "column footers" "(section 6)" medium-blue])
+                   ;; column footer - section 5
+                   :column-footer-height   (* 2 row-height)
+                   :column-footer-renderer (fn [] [render-two-lines "column footers" "(section 6)" medium-blue])
 
-               ;; corners 
-                 :top-left-renderer     (fn [] [render-two-lines "top left"     "(section 1)" blue])
-                 :bottom-left-renderer  (fn [] [render-two-lines "bottom left"  "(section 3)" blue])
-                 :bottom-right-renderer (fn [] [render-two-lines "bottom right" "(section 9)" blue])
-                 :top-right-renderer    (fn [] [render-two-lines "top right"    "(section 7)" blue])
+                   ;; corners
+                   :top-left-renderer     (fn [] [render-two-lines "top left"     "(section 1)" blue])
+                   :bottom-left-renderer  (fn [] [render-two-lines "bottom left"  "(section 3)" blue])
+                   :bottom-right-renderer (fn [] [render-two-lines "bottom right" "(section 9)" blue])
+                   :top-right-renderer    (fn [] [render-two-lines "top right"    "(section 7)" blue])
 
-                 :row-renderer           (fn [row-index] [:div  {:style {:flex "auto" :background-color light-blue}} (str  row-index)])]]])))
+                   :row-renderer           (fn [row-index] [:div  {:style {:flex "auto" :background-color light-blue}} (str  row-index)])]]])))
 
 
 ;; MT's Notes: 

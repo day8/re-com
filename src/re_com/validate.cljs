@@ -410,6 +410,8 @@
         arg))))
 
 
+;; Test for specific data types
+
 (defn date-like?
   "Returns true if arg satisfies cljs-time.core/DateTimeProtocol typically goog.date.UtcDateTime or goog.date.Date,
    otherwise false/error."
@@ -427,6 +429,33 @@
   [arg]
   (let [arg (deref-or-value-peek arg)]
     (or (number? arg) (string? arg))))
+
+
+;; Test for atoms or atoms containing specific data types
+
+(defn atom?
+  "Returns true if the passed argument is an atom"
+  [arg]
+  (satisfies? IDeref arg))
+
+(defn vector-atom?
+  "Returns true if the passed argument is an atom containing a vector"
+  [arg]
+  true ;; TODO: REMOVE
+  #_(if (atom? arg)
+    (vector? (deref-or-value-peek arg))
+    false))
+
+(defn map-atom?
+  "Returns true if the passed argument is an atom containing a map"
+  [arg]
+  true ;; TODO: REMOVE
+  #_(if (atom? arg)
+    (map? (deref-or-value-peek arg))
+    false))
+
+
+;; Test for specific data types either as values or contained in atoms, but WITHOUT derefing the atoms
 
 (defn string-or-atom?
   "Returns true if the passed argument is a string (or a string within an atom), otherwise false/error"
