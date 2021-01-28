@@ -222,6 +222,7 @@
                              :padding   "0px 6px"
                              :class     (str "rc-tag-dropdown " (get-in parts [:main :class]))
                              :style     (merge {:background-color "white"
+                                                :color            "#BBB"
                                                 :border           "1px solid lightgrey"
                                                 :border-radius    "2px"
                                                 :overflow         "hidden"
@@ -230,8 +231,7 @@
                              :attr      (merge {}
                                                (when (not disabled?) {:on-click (handler-fn (reset! showing? true))})
                                                (get-in parts [:main :attr]))
-                             :children  [(if (zero? (count model)) placeholder "")
-                                         [h-box
+                             :children  [[h-box
                                           :class    (str "rc-tag-dropdown-tags " (get-in parts [:tags :class]))
                                           :size     "1" ;; This line will align the tag placeholder to the right
                                           :style    {:overflow "hidden"}
@@ -256,6 +256,7 @@
                                                       (when (not disabled?)
                                                         placeholder-tag)
                                                       [gap :size "20px"])]
+                                         (if (zero? (count model)) placeholder "")
                                          (when (and (not-empty model) (not disabled?))
                                            [close-button
                                             :on-click  #(on-change #{})])]]]

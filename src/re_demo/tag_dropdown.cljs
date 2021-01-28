@@ -116,26 +116,27 @@
                               [checkbox
                                :label     [box
                                            :align :start
-                                           :child [:code ":placeholder"]]
+                                           :child [:span "Use the string \"placeholder message\" for the " [:code ":placeholder"] " parameter"]]
                                :model     placeholder?
                                :on-change #(reset! placeholder? %)]
-                              [checkbox
-                               :label     [box
-                                           :align :start
-                                           :child [:code ":abbrev?"]]
-                               :model     abbrev?
-                               :on-change #(reset! abbrev? %)]
-                              (when @abbrev?
-                                [h-box
-                                 :children [[label :label [:code ":abbrev-threshold"]]
-                                            [slider
-                                             :model     abbrev-threshold
-                                             :on-change #(reset! abbrev-threshold %)
-                                             :min       10
-                                             :max       50
-                                             :step      1
-                                             :width     "160px"]
-                                            [label :label @abbrev-threshold]]])
+                              [h-box
+                               :children [[checkbox
+                                           :label     [box
+                                                       :align :start
+                                                       :child [:code ":abbrev?"]]
+                                           :model     abbrev?
+                                           :on-change #(reset! abbrev? %)]
+                                          (when @abbrev?
+                                            [:<>
+                                             [label :label [:code ":abbrev-threshold"]]
+                                             [slider
+                                              :model     abbrev-threshold
+                                              :on-change #(reset! abbrev-threshold %)
+                                              :min       10
+                                              :max       50
+                                              :step      1
+                                              :width     "160px"]
+                                             [label :label @abbrev-threshold]])]]
                               [h-box
                                :children [[label :label [:code ":min-width"]]
                                           [slider
@@ -168,7 +169,7 @@
                     :min-width         (str @min-width "px")
                     :max-width         (str @max-width "px")
                     :disabled?         disabled?
-                    :placeholder       (when @placeholder? "Select some tags!")
+                    :placeholder       (when @placeholder? "placeholder message")
                     :unselect-buttons? unselect-buttons?
                     :choices           choices
                     :model             model
@@ -196,7 +197,7 @@
                                        [p "If the user selects many of the choices, then displaying them horizontally can take more than " [:code ":width"] ". In this case, the programmer has two strategies:" 
                                         [:ol
                                          [:li  "allow the Component to grow horizontally to some limit by providing " [:code ":max-width"]]
-                                         [:li  "allow the Component to switch from using \"name\" to using \"abrreviations\", see " [:code ":abbrev-fn"] " and  "[:code ":abbrev-threshold"]] ]]
+                                         [:li  "allow the Component to switch from using \"name\" to using \"abrreviations\", see " [:code ":abbrev-fn"] " and  "[:code ":abbrev-threshold"]]]]
                                        [args-table tag-dropdown-args-desc]]]
                           [demo]]]
 
