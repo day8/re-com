@@ -7,15 +7,6 @@
     [re-demo.simple-v-table-sales :as simple-v-table-sales]
     [re-demo.simple-v-table-periodic-table :as simple-v-table-periodic-table]))
 
-
-
-
-#_{:symbol "LANTHANIDES" :element "⬇" :group 3 :period 6 :block :f}
-#_{:symbol "ACTINIDES" :element "⬇" :group 3 :period 7 :block :f}
-
-
-
-
 (defn panel
   []
   [v-box

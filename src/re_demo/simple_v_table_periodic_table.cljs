@@ -138,44 +138,82 @@
      {:symbol "Ts" :element "Tennessine"    :group 17 :period 7 :atomic-weight "[294]" :block :p}
      {:symbol "Og" :element "Oganesson"     :group 18 :period 7 :atomic-weight "[294]" :block :p}]))
 
+(defn down-arrow
+  []
+  [:svg {:height "24" :viewBox "0 0 24 24" :width "24"}
+   [:path {:d "M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"}]])
+
 (defn demo
   []
-  (let [model (mapv
-                (fn [period]
-                  (reduce
-                    (fn [ret element]
-                      (assoc ret
-                        :0                               (:period element)
-                        :id                              (keyword (:period element)) ;; TODO broken wtf ?
-                        (keyword (str (:group element))) element))
-                    {}
-                    period))
-                (partition-by :period (sort-by :period elements)))
-        columns (mapv (fn [n]
-                        {:id           n
-                         :header-label (if (= n 0) "" (str n))
-                         :row-label-fn (if (zero? n)
-                                         (fn [row]
-                                           (let [v (:0 row)]
-                                             ;; Hide period labels for 8 and 9 (as these are extensions of periods 6 and 7)
-                                             (if (or (= v 8) (= v 9))
-                                               ""
-                                               v)))
-                                         (fn [row]
-                                           (let [element (get row (keyword (str n)))
-                                                 {:keys [atomic-number symbol element atomic-weight]} element]
-                                             [v-box
-                                              :children [[:span atomic-number]
-                                                         [:span
-                                                          {:style {:font-weight "bold"}}
-                                                          symbol]
-                                                         [:span element]
-                                                         [:span atomic-weight]]])))
-                         :width        80
-                         :align        "middle"})
-                      (range 19))
-        current-period (reagent/atom 1)
-        showing-popover? (reagent/atom false)]
+  (let [;; rows are generated from the raw data of elements. Each row represents a period (1-7, plus two broken out rows
+        ;; for 6 and 7).
+        model            (mapv
+                           (fn [elements-in-period]
+                             (reduce
+                               (fn [row {:keys [period group] :as element}]
+                                 (assoc row
+                                   :0                    period
+                                   :id                   (keyword (str period))
+                                   (keyword (str group)) element))
+                               {}
+                               elements-in-period))
+                           (partition-by :period (sort-by :period elements)))
+
+        ;; column specifications are generated from a sequence of 0 to 18 (inclusive) representing the row header (0)
+        ;; and all the groups (1-18).
+        columns          (mapv (fn [group]
+                                 {:id           group
+                                  :header-label (if (= group 0) "" (str group))
+                                  :row-label-fn (if (zero? group)
+                                                  (fn [{:keys [id] :as row}]
+                                                    ;; Hide period labels for 8 and 9 (as these are extensions of periods 6 and 7)
+                                                    (if (or (= id :8) (= id :9))
+                                                      ""
+                                                      (:0 row)))
+                                                  (fn [{:keys [id] :as row}]
+                                                    (let [element (get row (keyword (str group)))
+                                                          {:keys [atomic-number symbol element atomic-weight]} element]
+                                                      (if (and (or (= id :6) (= id :7))
+                                                               (= group 3))
+                                                        [v-box
+                                                         :align    :center
+                                                         :justify  :center
+                                                         :height   "72px"
+                                                         :style    {:background-color "#2ECC40"}
+                                                         :children [[down-arrow]]]
+                                                        [v-box
+                                                         :children [[:span atomic-number]
+                                                                    [:span
+                                                                     {:style {:font-weight "bold"}}
+                                                                     symbol]
+                                                                    [:span element]
+                                                                    [:span atomic-weight]]]))))
+                                  :width        80
+                                  :align        "middle"})
+                               (range 19))
+
+        ;; cell-style is used to change the colour of the cell background according to the block of the element:
+        cell-style-fn    (fn [row {:keys [id] :as column}]
+                           (when (not (zero? id))
+                             (let [k     (keyword (str id))
+                                   block (get-in row [k :block])]
+                               {:background-color
+                                (case block
+                                  :s "#FF4136"
+                                  :f "#2ECC40"
+                                  :d "#7FDBFF"
+                                  :p "#FFDC00"
+                                  "white")})))
+
+        ;; on-enter-row and on-leave-row events are used to display the period description popover:
+        current-period   (reagent/atom 1)
+        showing-popover? (reagent/atom false)
+        on-enter-row     (fn [index]
+                           (let [period (inc index)]
+                             (reset! current-period period)
+                             (when (< period 8)
+                               (reset! showing-popover? true))))
+        on-leave-row      #(reset! showing-popover? false)]
     (fn []
       [v-box
        :gap      "10px"
@@ -198,21 +236,8 @@
                               :fixed-column-count        1
                               :fixed-column-border-color "#333"
                               :row-height                80
-                              :on-enter-row              (fn [index]
-                                                           (reset! current-period (inc index))
-                                                           (when (< index 7)
-                                                             (reset! showing-popover? true)))
-                              :on-leave-row              #(reset! showing-popover? false)
-                              :cell-style                (fn [row column]
-                                                           (when (not (zero? (:id column)))
-                                                             (let [k     (keyword (str (:id column)))
-                                                                   block (get-in row [k :block])]
-                                                               {:background-color
-                                                                (case block
-                                                                  :s "#FF4136"
-                                                                  :f "#2ECC40"
-                                                                  :d "#7FDBFF"
-                                                                  :p "#FFDC00"
-                                                                  "white")})))
+                              :on-enter-row              on-enter-row
+                              :on-leave-row              on-leave-row
+                              :cell-style                cell-style-fn
                               :columns                   columns
                               :model                     model]]]])))
