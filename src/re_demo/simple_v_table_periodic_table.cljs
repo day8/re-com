@@ -188,8 +188,7 @@
                                                                      symbol]
                                                                     [:span element]
                                                                     [:span atomic-weight]]]))))
-                                  :width        80
-                                  :align        "middle"})
+                                  :width        80})
                                (range 19))
 
         ;; cell-style is used to change the colour of the cell background according to the block of the element:

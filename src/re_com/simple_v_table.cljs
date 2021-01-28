@@ -26,7 +26,7 @@
                                  :height         (px (:height col))
                                  :font-weight    "bold"
                                  :text-align     (:align col)
-                                 :vertical-align (:valign col)
+                                 :vertical-align (:vertical-align col)
                                  :white-space    "nowrap"
                                  :overflow       "hidden"
                                  :text-overflow  "ellipsis"}
@@ -59,7 +59,7 @@
                                  :width          (px (:width col))
                                  :height         (px (:height col))
                                  :text-align     (:align col)
-                                 :vertical-align (:valign col)
+                                 :vertical-align (:vertical-align col)
                                  :white-space    "nowrap"
                                  :overflow       "hidden"
                                  :text-overflow  "ellipsis"}
@@ -75,7 +75,7 @@
 
 (def simple-v-table-args-desc
   [{:name :model                     :required true                     :type "atom containing vec of maps"  :validate-fn vector-atom?                   :description "one element for each row in the table."}
-   {:name :columns                   :required true                     :type "vector of maps"               :validate-fn vector-of-maps?                :description [:span "one element for each column in the table. Must contain " [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"] "," [:code ":width"] ", and " [:code ":height"] ". Optionally contains " [:code ":align"] " and " [:code ":v-align"] "."]}
+   {:name :columns                   :required true                     :type "vector of maps"               :validate-fn vector-of-maps?                :description [:span "one element for each column in the table. Must contain " [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"] "," [:code ":width"] ", and " [:code ":height"] ". Optionally contains " [:code ":align"] " and " [:code ":vertical-align"] "."]}
    {:name :fixed-column-count        :required false :default 0         :type "integer"                      :validate-fn number?                        :description "the number of fixed (non-scrolling) columns on the left."}
    {:name :fixed-column-border-color :required false :default "#BBBEC0" :type "string"                       :validate-fn string?                        :description [:span "The CSS color of the horizontal border between the fixed columns on the left, and the other columns on the right. " [:code ":fixed-column-count"] " must be > 0 to be visible."]}
    {:name :column-header-height      :required false :default 31        :type "integer"                      :validate-fn number?                        :description [:span "px height of the column header section. Typically, equals " [:code ":row-height"] " * number-of-column-header-rows."]}

@@ -3,6 +3,8 @@
 #### Changed
 
 - **Breaking**: Rename `:max-table-width` arg of `v-table` and `simple-v-table` to `:max-width`.
+- **Breaking**: Rename `:valign` in `simple-v-table` `:columns` specification to `:vertical-align` to
+match the associated CSS property. Fix the documentation and demos of the same.
 
 ## 2.12.0 (2012-01-23)
 

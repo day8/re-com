@@ -47,11 +47,13 @@
 
 (defn demo
   []
-  (let [max-rows?          (reagent/atom true)
-        max-rows           (reagent/atom 8)
-        max-width?         (reagent/atom false)
-        max-width          (reagent/atom 630)
-        fixed-column-count (reagent/atom 1)]
+  (let [max-rows?           (reagent/atom true)
+        max-rows            (reagent/atom 8)
+        max-width?          (reagent/atom false)
+        max-width           (reagent/atom 630)
+        fixed-column-count  (reagent/atom 1)
+        email-row-label-fn  (fn [row] [hyperlink-href :label (:email row) :href (str "mailto:" (:email row))])
+        method-row-label-fn (fn [row] (case (:method row) :online [devices-icon] [store-icon]))]
     (fn []
       [v-box
        :gap      "10px"
@@ -117,11 +119,11 @@
                                                                        (> 5000 sales 2000) "#FFDC00"
                                                                        (> 7500 sales 5000) "#01FF70"
                                                                        (> sales 7500)      "#2ECC40")}))
-                   :columns                   [{:id :id     :header-label ""       :row-label-fn :id :width 60 :align "left"}
-                                               {:id :region :header-label "Region" :row-label-fn :region :width 100 :align "left"}
-                                               {:id :name   :header-label "Name"   :row-label-fn :person :width 100 :align "left"}
-                                               {:id :email  :header-label "Email"  :row-label-fn (fn [row] [hyperlink-href :label (:email row) :href (str "mailto:" (:email row))]) :width 200 :align "left"}
-                                               {:id :method :header-label "Method" :row-label-fn (fn [row] (case (:method row) :online [devices-icon] [store-icon])) :width 100 :align "right"}
-                                               {:id :sales  :header-label "Sales"  :row-label-fn :sales :width 100 :align "right"}
-                                               {:id :units  :header-label "Units"  :row-label-fn :units :width 100 :align "right"}]
+                   :columns                   [{:id :id     :header-label ""       :row-label-fn :id                 :width 60  :align "left"  :vertical-align "middle"}
+                                               {:id :region :header-label "Region" :row-label-fn :region             :width 100 :align "left"  :vertical-align "middle"}
+                                               {:id :name   :header-label "Name"   :row-label-fn :person             :width 100 :align "left"  :vertical-align "middle"}
+                                               {:id :email  :header-label "Email"  :row-label-fn email-row-label-fn  :width 200 :align "left"  :vertical-align "middle"}
+                                               {:id :method :header-label "Method" :row-label-fn method-row-label-fn :width 100 :align "right" :vertical-align "middle"}
+                                               {:id :sales  :header-label "Sales"  :row-label-fn :sales              :width 100 :align "right" :vertical-align "middle"}
+                                               {:id :units  :header-label "Units"  :row-label-fn :units              :width 100 :align "right" :vertical-align "middle"}]
                    :model                     sales]]])))
