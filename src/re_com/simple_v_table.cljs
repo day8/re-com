@@ -5,7 +5,7 @@
   (:require
     [re-com.box     :as box]
     [re-com.util    :refer [px]]
-    [re-com.validate :refer [vector-of-maps? parts?]]
+    [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
     [re-com.v-table :as v-table]))
 
 
