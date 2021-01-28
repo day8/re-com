@@ -577,14 +577,14 @@
                               This will cause the horizontal scrollbar section to be nestled against the last row, and whatever is
                               underneath the v-table to be brought up with it
 
-   - max-width          [optional string, default = nil (table will fill available space)]
+   - max-width                [optional string, default = nil (table will fill available space)]
                               MAXIMUM width of the entire v-table
                               NOTE: This is specified as a normal CSS value, e.g. \"1024px\" or \"90%\"
 
 
      ========== SECTION 1 - top-left
 
-   - top-left-renderer        [optional fn]
+   - top-left-renderer        [optional (fn [])]
                               Render the top left section
                               Height is determined by the :column-header-height arg
                               Width is determined by the component itself
@@ -593,13 +593,13 @@
 
      ========== SECTION 2 - row-headers
 
-   - row-header-renderer      [optional fn]
+   - row-header-renderer      [optional (fn [row-index row])]
                               Render a single row header
                               Height is determined by the row-height arg
                               Width is determined by the component itself
-                              Passed args: row-index (0-based), row (a map from model)
+                              Passed args: row-index (0-based), row (a map, or other data structure from model)
 
-   - row-header-selection-fn  [optional fn]
+   - row-header-selection-fn  [optional (fn [selection-event coords ctrlKey shiftKey event])]
                               If provided, indicates that the row header section is selectable via click+drag
                               Passed args: see row-selection-fn below for details
                               Use the :row-header-selection-rect style-part to style the selection rectangle
@@ -607,7 +607,7 @@
 
      ========== SECTION 3 - bottom-left
 
-   - bottom-left-renderer     [optional fn]
+   - bottom-left-renderer     [optional (fn [])]
                               Render the bottom left section
                               Height is determined by the column-footer-height arg
                               Width is determined by the component itself
@@ -619,7 +619,7 @@
 
      ========== SECTION 4 - column-headers
 
-   - column-header-renderer   [optional fn]
+   - column-header-renderer   [optional (fn [])]
                               Render the entire column header
                               Height is determined by the column-header-height arg
                               Width is determined by the width available to the v-table OR the row-viewport-width arg if specified
@@ -628,7 +628,7 @@
    - column-header-height     [optional number, default = 0]
                               px height of the column header section
 
-   - column-header-selection-fn  [optional fn]
+   - column-header-selection-fn  [optional (fn [selection-event coords ctrlKey shiftKey event])]
                               if provided, indicates that the column header section is selectable via click+drag
                               Passed args: see row-selection-fn below for details
                               Use the :column-header-selection-rect style-part to style the selection rectangle
@@ -636,12 +636,12 @@
 
      ========== SECTION 5 - rows (main content area)
 
-   - row-renderer             [mandatory fn]
+   - row-renderer             [mandatory (fn [row-index row])]
                               Render a single content row
                               [DJ] Wants to state that columns are not virtual and all horizontal content is rendered
                               Height is determined by the row-height arg
                               Width is determined by the width available to the v-table OR the row-viewport-width arg if specified
-                              Passed args: row-index (0-based), row (a map from model)
+                              Passed args: row-index (0-based), row (a map, or other data structure from model)
 
    - row-height               [mandatory number]
                               px height of each row
@@ -662,7 +662,7 @@
                               Conveniently excludes height of col header and footer and horizontal scrollbar
                               For this to be effective, the parent of the v-table component should have ':size none'
 
-   - row-selection-fn         [optional fn]
+   - row-selection-fn         [optional (fn [selection-event coords ctrlKey shiftKey event])]
                               If provided, indicates that the row section is selectable via click+drag
                               The fn will be called (on mouse-down, mouse-move and mouse-up) with four positional args
                               Passed args:
@@ -679,7 +679,7 @@
 
      ========== SECTION 6 - column-footers
 
-   - column-footer-renderer   [optional fn]
+   - column-footer-renderer   [optional (fn [])]
                               Render the entire column footer
                               Height is determined by the column-footer-height arg
                               Width is determined by the width available to the v-table OR the row-viewport-width arg if specified
@@ -691,7 +691,7 @@
 
      ========== SECTION 7 - top right
 
-   - top-right-renderer       [optional fn]
+   - top-right-renderer       [optional (fn [])]
                               Render the top right section
                               Height is determined by the column-header-height arg
                               Width is determined by the component itself
@@ -700,16 +700,16 @@
 
      ========== SECTION 8 - row-footers
 
-   - row-footer-renderer      [optional fn]
+   - row-footer-renderer      [optional (fn [row-index row])]
                               Render a single row footer
                               Height is determined by the row-height arg
                               Width is determined by the component itself
-                              Passed args: row-index (0-based), row (a map from model)
+                              Passed args: row-index (0-based), row (a map, or other data structure from model)
 
 
      ========== SECTION 9 - bottom-right
 
-   - bottom-right-renderer    [optional fn]
+   - bottom-right-renderer    [optional (fn [])]
                               Render the bottom right section
                               Height is determined by the column-footer-height arg
                               Width is determined by the component itself

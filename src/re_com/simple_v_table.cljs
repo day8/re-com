@@ -151,7 +151,7 @@
              ;; Only for non-fixed columns:
              :column-header-renderer  (partial header-renderer content-cols parts)
 
-             ;:max-width         (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick)))
+             ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick)))
 
              :max-row-viewport-height (when max-rows (* max-rows row-height))
 
