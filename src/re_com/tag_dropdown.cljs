@@ -186,7 +186,7 @@
                              :tag-data    {:id               :$placeholder$
                                            :label            ""
                                            :background-color "white"
-                                           :width            (if abbrev? "20px" "40px")} ;; change this and you need to adjust :position-offset below
+                                           :width            (if abbrev? "20px" "40px")} 
                              :on-click    #(reset! showing? true)
                              :tooltip     "Click to select tags"
                              :hover-style {:background-color "#eee"}]
@@ -249,10 +249,9 @@
         [popover-anchor-wrapper
          :class    (str "rc-tag-dropdown-popover-anchor-wrapper " (get-in parts [:popover-anchor-wrapper :class]))
          :showing? showing?
-         :position :below-left
+         :position :below-center
          :anchor   tag-main
          :popover  [popover-content-wrapper
-                    :position-offset (if abbrev? -10 -20)
                     :arrow-length    0
                     :arrow-width     0
                     :arrow-gap       1
