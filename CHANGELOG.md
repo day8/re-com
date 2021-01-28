@@ -6,6 +6,10 @@
 - **Breaking**: Rename `:valign` in `simple-v-table` `:columns` specification to `:vertical-align` to
 match the associated CSS property. Fix the documentation and demos of the same.
 
+#### Removed
+
+- Remove the `tag-dropdown` arguments `:tag-width`, `:tag-height`, `:tag-comp` and `:on-tag-click`.
+
 ## 2.12.0 (2012-01-23)
 
 #### Fixed
