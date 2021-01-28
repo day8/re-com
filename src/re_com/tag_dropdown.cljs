@@ -186,7 +186,7 @@
                              :tag-data    {:id               :$placeholder$
                                            :label            ""
                                            :background-color "white"
-                                           :width            (if abbrev? "20px" "40px")} 
+                                           :width            (if abbrev? "20px" "40px")}
                              :on-click    #(reset! showing? true)
                              :tooltip     "Click to select tags"
                              :hover-style {:background-color "#eee"}]
@@ -212,7 +212,7 @@
                              :align     :center
                              :padding   "0px 6px"
                              :class     (str "rc-tag-dropdown " (get-in parts [:main :class]))
-                             :style     (merge {:background-color "white"
+                             :style     (merge {:background-color (if disabled? "#EEE" "white")
                                                 :color            "#BBB"
                                                 :border           "1px solid lightgrey"
                                                 :border-radius    "2px"
