@@ -55,6 +55,8 @@
 
 (enable-console-print!)
 
+(goog-define version "")
+
 (def tabs-definition
   [{:id :introduction           :level :major :label "Introduction"       :panel introduction/panel}
 
@@ -149,8 +151,13 @@
   [v-box
    :class    "noselect"
    :style    {:background-color "#fcfcfc"}
-   :children (for [tab tabs-definition]
-               [nav-item tab selected-tab-id on-select-tab])])
+   :children (conj (into []
+                         (for [tab tabs-definition]
+                           [nav-item tab selected-tab-id on-select-tab]))
+                   [gap :size "50px"]
+                   [box
+                    :style {:padding-left "24px"}
+                    :child [label :label version]])])
 
 
 (defn re-com-title-box
@@ -203,7 +210,7 @@
        ;; width does not need to be set.
        :height   "100%"
        ;:gap      "60px"
-       :initial-split 9
+       :initial-split 15
        :margin "0px"
        :panel-1 [scroller
                  ;:size  "none"
