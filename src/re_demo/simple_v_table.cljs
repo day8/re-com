@@ -29,11 +29,19 @@
                                       [:ul
                                        [:li "Unlimited columns with fixed column header at the top"]
                                        [:li "Unlimited (virtualised) rows with fixed row header at the left by simply specifying the number of columns to fix"]
-                                       [:li "Width will shrink and grow with available space"]
-                                       [:li "Height will shrink and grow with available space, or you can specify max number of rows to display"]
                                        [:li "Every part of the table is stylable using the " [:code ":parts"] " argument that can set " [:code ":class"] " or " [:code ":style"] " attributes"]
                                        [:li "Individual rows can be dynamically styled based on row data"]
                                        [:li "Individual cells can be dynamically styled based on row data"]]
+                                      [p "Understanding table sizing:"]
+                                      [:ul
+                                       [:li "Sometimes we want a table's dimensions to grow and shrink, subject to the available space provided by the parental context. When those dimensions are not enough to show all of the table, scrollbars will automatically appear"]
+                                       [:li "Other times, we would like the table to impose its dimensions and for the context to adjust"]
+                                       [:li "The full horizontal extent of the table is determined by the accumulated width of all the specified columns"]
+                                       [:li "If the width provided by the table's parent container is less than this extent, then horizontal scrollbars will appear"]
+                                       [:li "Where you wish to be explicit about the table's viewable width, use the " [:code ":max-width"] " arg"]
+                                       [:li "The full vertical extent of the table is determined by the accumulated height of all the rows"]
+                                       [:li "If the height provided by the table's parent container is less than this extent, then vertical scrollbars will appear"]
+                                       [:li "Where you wish to be explicit about the table's viewable height, use the " [:code ":max-rows"] " arg"]]
                                       [args-table simple-v-table-args-desc]]]
                           [v-box
                            :gap      "30px"
