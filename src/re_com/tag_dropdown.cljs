@@ -244,7 +244,7 @@
                                                       [gap :size "20px"]
                                                       (when (zero? (count model))
                                                         [box
-                                                         :child placeholder]))]
+                                                         :child (if placeholder placeholder "")]))]
                                          (when (and (not-empty model) (not disabled?))
                                            [close-button
                                             :on-click  #(on-change #{})])]]]
