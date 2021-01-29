@@ -138,4 +138,4 @@
                                                              :closeable? closeable?
                                                              :on-close   on-close
                                                              :class      alert-class
-                                                             :style      alert-style]))]]]]]))
+                                                             :style      (merge alert-style (:style alert))]))]]]]]))
