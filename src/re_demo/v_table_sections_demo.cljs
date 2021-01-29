@@ -5,15 +5,18 @@
             [reagent.core  :as reagent]))
 
 
+(def big-font 18)
+(def small-font 10)
 
 (defn render-two-lines
   [name section background]
   [v-box
+   ; :height "40px"
    :size  "1 0 auto"
    :style {:color "white" :background-color background} 
    :align :center 
-   :children [[label :label name] 
-              [label :label section :style {:font-size 11}]]])
+   :children [[label :label section :style {:font-size big-font}]
+              [label :label name :style {:font-size small-font}]]])
 
 
 (defn sections-demo 
@@ -22,10 +25,10 @@
         medium-blue               "#5B9BD5"
         blue                      "#0F6FC6"
         num_rows                  6
-        dummy-rows                (reagent/atom (vec (reduce #(conj %1 {:id %2}) [] (range num_rows)))) ;; TODO: Changed to atom for testing validation-fn, can change back when we successfully allow atom OR value
-        row-height                20
+        dummy-rows                (reagent/atom (mapv #(assoc nil :id %1) (range num_rows))) ;; TODO: Changed to atom for testing validation-fn, can change back when we successfully allow atom OR value
+        row-height                40
         width-of-main-row-content 250
-        header-footer-style       {:style {:color "white" :background-color medium-blue}}]
+        header-footer-style       {:style {:flex "1 0 auto" :color "white" :background-color medium-blue}}]
     (fn []
       [v-box
        :gap      "10px"
@@ -37,34 +40,29 @@
                    :row-height         row-height
                    :row-content-width  width-of-main-row-content
 
-                   ;; :remove-empty-row-space? false
-
                    ;; section 2
-                   :row-header-renderer    (fn [row-index] [:div header-footer-style (str row-index (when (= row-index 2) "   row header") (when (= row-index 3) "   (section 2)"))])
-                   :row-footer-renderer    (fn [row-index] [:div header-footer-style (str "row footer: " row-index)])
+                   :row-header-renderer    (fn [row-index, row] [:span header-footer-style (str row-index (when (= row-index 2) " ") (when (= row-index 3) " "))])
+                   :row-footer-renderer    (fn [row-index, row] [:span header-footer-style (str row-index)])
 
                    ;; column header - section 4
-                   :column-header-height   (* 2 row-height)
-                   :column-header-renderer (fn [] [render-two-lines "column headers" "(section 4)" medium-blue])
+                   :column-header-height   40
+                   :column-header-renderer (fn [] [render-two-lines "column headers" #_"" "4" medium-blue])
 
                    ;; column footer - section 5
-                   :column-footer-height   (* 2 row-height)
-                   :column-footer-renderer (fn [] [render-two-lines "column footers" "(section 6)" medium-blue])
+                   :column-footer-height   40
+                   :column-footer-renderer (fn [] [render-two-lines "column footers" "6" medium-blue])
 
                    ;; corners
-                   :top-left-renderer     (fn [] [render-two-lines "top left"     "(section 1)" blue])
-                   :bottom-left-renderer  (fn [] [render-two-lines "bottom left"  "(section 3)" blue])
-                   :bottom-right-renderer (fn [] [render-two-lines "bottom right" "(section 9)" blue])
-                   :top-right-renderer    (fn [] [render-two-lines "top right"    "(section 7)" blue])
+                   :top-left-renderer     (fn [] [render-two-lines "top left"     "1" blue])
+                   :bottom-left-renderer  (fn [] [render-two-lines "bottom left"  "3" blue])
+                   :bottom-right-renderer (fn [] [render-two-lines "bottom right" "9" blue])
+                   :top-right-renderer    (fn [] [render-two-lines "top right"    "7" blue])
 
-                   :row-renderer           (fn [row-index] [:div  {:style {:flex "auto" :background-color light-blue}} (str  row-index)])]]])))
+                   :row-renderer           (fn [row-index, row] [:div  {:style { :width width-of-main-row-content :background-color light-blue}} " xxx"])]]])))
 
 
 ;; MT's Notes: 
 ;; 
-;; If we put in a few demos, we should probably split them off to other namespaces, otherwise this one might get a bit complex
-;; 
-;; There is a lot of good information across in the v-table docstring which should be transfered into parameter docs. Because of text volume, perhaps make "Parameters" section wider. 
 ;; 
 ;; On section width:
 ;;   - the width of left sections 1,2,3 is determined by the widest hiccup returned by the 3 renderers for these sections. 
@@ -79,13 +77,10 @@
 ;; 
 ;; I have to provide `:column-header-height`. Could the height of top sections 1, 4, 7 should provide the height. 
 ;; 
-;; I'm surprised that row renderers don't get BOTH the `row-index` and the `row map` itself. That's to help with subscriptions I guess. Check.
-;; 
 ;; Mention in docs that you are likely to use h-box and v-box in renderers.
 ;; 
 ;; Discuss with Gregg and Isaac:
 ;;   - the idea of variable row heights. 
 ;;   - performance: we have to reduce the amount of inline styles
-;;   - is it really row_index that is passed into renderers? Or is it row id?  Clarify. Document. 
 ;;   - How do I create "CSS classes" in a namespace
 
