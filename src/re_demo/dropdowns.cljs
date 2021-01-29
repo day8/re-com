@@ -607,7 +607,8 @@
 
 (defn free-text-demo
   []
-  (let [selected-city  (reagent/atom nil)
+  (let [disabled?      (reagent/atom false)
+        selected-city  (reagent/atom nil)
         selected-city2 (reagent/atom nil)
         auto-complete? (reagent/atom false)
         capitalize?    (reagent/atom false)
@@ -616,6 +617,7 @@
                           :free-text?      true
                           :auto-complete?  @auto-complete?
                           :capitalize?     @capitalize?
+                          :disabled?       @disabled?
                           :choices         (->> cities (mapv :label) sort)
                           :model           a
                           :placeholder     (str "Choose/type a city" (when @auto-complete? " or enter a first few letters"))
@@ -626,6 +628,16 @@
        :gap "10px"
        :children [[p "Allow user a free text input by setting the " [:code ":free-text?"] " attribute."]
                   [p "Additional options:"]
+                  [h-box
+                   :align    :center
+                   :children [[checkbox
+                               :label [box :align :start :child [:code ":disabled?"]]
+                               :model disabled?
+                               :label-style {:width "165px"}
+                               :on-change #(reset! disabled? %)]
+                              [:span (str @disabled? " - " (if @disabled?
+                                                             "the dropdown is locked and cannot be changed."
+                                                             "the dropdown is enabled and a choice can be selected."))]]]
                   [checkbox
                    :label [box :align :start :child [:code ":auto-complete?"]]
                    :model auto-complete?
