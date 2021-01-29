@@ -241,8 +241,10 @@
                                                             choices)
                                                       (when (not disabled?)
                                                         placeholder-tag)
-                                                      [gap :size "20px"])]
-                                         (if (zero? (count model)) placeholder "")
+                                                      [gap :size "20px"]
+                                                      (when (zero? (count model))
+                                                        [box
+                                                         :child placeholder]))]
                                          (when (and (not-empty model) (not disabled?))
                                            [close-button
                                             :on-click  #(on-change #{})])]]]
