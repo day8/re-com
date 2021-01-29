@@ -247,6 +247,7 @@
                                                          :child (if placeholder placeholder "")]))]
                                          (when (and (not-empty model) (not disabled?))
                                            [close-button
+                                            :parts     {:wrapper {:style {:margin-left "5px"}}}
                                             :on-click  #(on-change #{})])]]]
         [popover-anchor-wrapper
          :class    (str "rc-tag-dropdown-popover-anchor-wrapper " (get-in parts [:popover-anchor-wrapper :class]))
