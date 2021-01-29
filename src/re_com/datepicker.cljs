@@ -119,7 +119,7 @@
 (defn- table-thead
   "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
   [display-month {show-weeks? :show-weeks? minimum :minimum maximum :maximum start-of-week :start-of-week
-                  {:keys [days months]} :i18n} parts]
+                  {:keys [days months]} :i18n} disabled? parts]
   (let [prev-date     (dec-month @display-month)
         minimum       (deref-or-value minimum)
         maximum       (deref-or-value maximum)
@@ -139,12 +139,13 @@
                                   (get-in parts [:prev :style]))
                    :on-click (handler-fn (when prev-enabled? (reset! display-month prev-date)))}
                   (get-in parts [:prev :attr]))
-            [:i
-             (merge
-               {:class (str "zmdi zmdi-chevron-left rc-datepicker-prev-icon " (get-in parts [:prev-icon :class]))
-                :style (merge {:font-size "24px"}
-                              (get-in parts [:prev-icon :style]))}
-               (get-in parts [:prev-icon :attr]))]]
+            (when (not disabled?)
+              [:i
+               (merge
+                 {:class (str "zmdi zmdi-chevron-left rc-datepicker-prev-icon " (get-in parts [:prev-icon :class]))
+                  :style (merge {:font-size "24px"}
+                                (get-in parts [:prev-icon :style]))}
+                 (get-in parts [:prev-icon :attr]))])]
            [:th
             (merge
               {:class    (str "month rc-datepicker-month " (get-in parts [:month :class]))
@@ -159,12 +160,13 @@
                                 (get-in parts [:next :style]))
                :on-click (handler-fn (when next-enabled? (reset! display-month next-date)))}
               (get-in parts [:next :attr]))
-            [:i
-             (merge
-               {:class (str "zmdi zmdi-chevron-right rc-datepicker-next-icon " (get-in parts [:next-icon :class]))
-                :style (merge {:font-size "24px"}
-                              (get-in parts [:next-icon :style]))}
-               (get-in parts [:next-icon :attr]))]])
+            (when (not disabled?)
+              [:i
+               (merge
+                 {:class (str "zmdi zmdi-chevron-right rc-datepicker-next-icon " (get-in parts [:next-icon :class]))
+                  :style (merge {:font-size "24px"}
+                                (get-in parts [:next-icon :style]))}
+                 (get-in parts [:next-icon :attr]))])])
      (conj template-row
            (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
              ^{:key (:key day)}
@@ -196,14 +198,15 @@
                             disabled-day?                "off"
                             (= focus-month (month date)) "available"
                             :else                        "available off")
-        classes       (cond (and selected (=date selected date)) (str classes " active start-date end-date ")
-                            (and today (=date date today))       (str classes " today ")
-                            :else                                (str classes " "))
+        classes       (cond (and selected (=date selected date))           (str classes " active start-date end-date ")
+                            (and today (=date date today) (not disabled?)) (str classes " today ")
+                            :else                                          (str classes " "))
         on-click      #(when-not (or disabled? disabled-day?) (selection-changed date on-change))]
     [:td
      (merge
        {:class    (str classes "rc-datepicker-date " (get-in parts [:date :class]))
-        :style    (get-in parts [:date :style] {})
+        :style
+                  (get-in parts [:date :style] {})
         :on-click (handler-fn (on-click))}
        (get-in parts [:date :attr]))
      (day date)]))
@@ -289,7 +292,7 @@
             {:class (str "table-condensed rc-datepicker-table " (get-in parts [:table :class]))
              :style (get-in parts [:table :style] {})}
             (get-in parts [:table :attr]))
-          [table-thead display-month configuration parts]
+          [table-thead display-month configuration disabled? parts]
           [table-tbody @display-month @internal-model configuration disabled? on-change parts]]
          hide-border?
          class
