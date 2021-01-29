@@ -142,6 +142,7 @@
    {:name :placeholder        :required false                     :type "string"                   :validate-fn string?                     :description "Background text shown when there's no selection."}
    {:name :on-change          :required true                      :type "id -> nil"                :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. Called with one argument, the set of selected ids. See " [:code ":model"] "."]}
    {:name :disabled?          :required false :default false      :type "boolean"                                                           :description "if true, no user selection is allowed"}
+   {:name :required?          :required false :default false      :type "boolean | atom"                                                    :description "when true, at least one item must be selected."}
    {:name :unselect-buttons?  :required false :default false      :type "boolean"                                                           :description "When true, \"X\" buttons will be added to the display of selected tags (on the right), allowing the user to directly unselect them."}
    {:name :label-fn           :required false :default ":label"   :type "map -> hiccup"            :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
    {:name :description-fn     :required false :default ":description" :type "map -> hiccup"        :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable description. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
@@ -158,7 +159,7 @@
   {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
   (let [showing?      (reagent/atom false)]
     (fn tag-dropdown-render
-      [& {:keys [choices model placeholder on-change unselect-buttons? abbrev-fn abbrev-threshold label-fn
+      [& {:keys [choices model placeholder on-change unselect-buttons? required? abbrev-fn abbrev-threshold label-fn
                  description-fn min-width max-width height style disabled? parts]
           :or   {label-fn          :label
                  description-fn    :description
@@ -168,6 +169,7 @@
       (let [choices            (deref-or-value choices)
             model              (deref-or-value model)
             abbrev-threshold   (deref-or-value abbrev-threshold)
+            required?          (deref-or-value required?)
             disabled?          (deref-or-value disabled?)
             unselect-buttons?  (deref-or-value unselect-buttons?)
 
@@ -192,6 +194,7 @@
                              :hover-style {:background-color "#eee"}]
             tag-list-body   [selection-list
                              :disabled?     disabled?
+                             :required?     required?
                              :parts         {:list-group-item {:style {:background-color "#F3F6F7"}}}
                              :choices       choices
                              :hide-border?  true
@@ -235,7 +238,7 @@
                                                                  :tooltip     (:label tag)
                                                                  :disabled?   disabled?
                                                                  :on-click    #(reset! showing? true)      ;; Show dropdown
-                                                                 :on-unselect (when unselect-buttons? #(on-change (disj model %)))
+                                                                 :on-unselect (when (and unselect-buttons? (not (and (= 1 (count model)) required?))) #(on-change (disj model %)))
                                                                  :hover-style {:opacity "0.8"}
                                                                  :style       style]))
                                                             choices)
@@ -245,7 +248,8 @@
                                                       (when (zero? (count model))
                                                         [box
                                                          :child (if placeholder placeholder "")]))]
-                                         (when (and (not-empty model) (not disabled?))
+                                         (when (and (not-empty model) (not disabled?)
+                                                    (not required?))
                                            [close-button
                                             :parts     {:wrapper {:style {:margin-left "5px"}}}
                                             :on-click  #(on-change #{})])]]]

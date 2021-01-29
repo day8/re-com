@@ -86,6 +86,7 @@
   []
   (let [model             (reagent/atom #{:documentation})
         disabled?         (reagent/atom false)
+        required?         (reagent/atom false)
         unselect-buttons? (reagent/atom false)
         placeholder?      (reagent/atom false)
         abbrev-fn?        (reagent/atom false)
@@ -110,6 +111,12 @@
                                            :child [:code ":disabled?"]]
                                :model     disabled?
                                :on-change #(reset! disabled? %)]
+                              [checkbox
+                               :label     [box
+                                           :align :start
+                                           :child [:code ":required?"]]
+                               :model     required?
+                               :on-change #(reset! required? %)]
                               [checkbox
                                :label     [box
                                            :align :start
@@ -204,6 +211,7 @@
                     :min-width         (when @min-width? (str @min-width "px"))
                     :max-width         (when @max-width? (str @max-width "px"))
                     :disabled?         disabled?
+                    :required?         required?
                     :placeholder       (when @placeholder? "placeholder message")
                     :unselect-buttons? unselect-buttons?
                     :choices           choices
