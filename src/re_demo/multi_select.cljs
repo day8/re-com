@@ -215,7 +215,7 @@
               {:id :mini-electric          :label "Electric"       :group "Mini"}
               {:id :mustang                :label "Mustang Mach-E" :group "Ford"}
               {:id :ford-phev              :label "Escape PHEV"    :group "Ford"}
-              {:id :volvo-xc40             :label "XC40 Recharge"  :group "Volvo"}] )
+              {:id :volvo-xc40             :label "XC40 Recharge"  :group "Volvo"}])
 
 (defn panel
   []
@@ -258,21 +258,21 @@
                                                                            :child [:code ":required?"]]
                                                                :model     required?
                                                                :on-change #(reset! required? %)]]]
-                                                   [v-box
-                                                    :gap "3px"
-                                                    :children [[checkbox
-                                                                :label     [box
-                                                                            :align :start
-                                                                            :child [:code ":filter-box?"]]
-                                                                :model     filter-box?
-                                                                :on-change #(reset! filter-box? %)]
-                                                               (when @filter-box?
-                                                                 [checkbox
-                                                                  :label     [box
-                                                                              :align :start
-                                                                              :child [:code ":regex-filter?"]]
-                                                                  :model     regex-filter?
-                                                                  :on-change #(reset! regex-filter? %)])]]]]
+                                                  [v-box
+                                                   :gap "3px"
+                                                   :children [[checkbox
+                                                               :label     [box
+                                                                           :align :start
+                                                                           :child [:code ":filter-box?"]]
+                                                               :model     filter-box?
+                                                               :on-change #(reset! filter-box? %)]
+                                                              (when @filter-box?
+                                                                [checkbox
+                                                                 :label     [box
+                                                                             :align :start
+                                                                             :child [:code ":regex-filter?"]]
+                                                                 :model     regex-filter?
+                                                                 :on-change #(reset! regex-filter? %)])]]]]
 
                                       [v-box
                                        :size "initial"
@@ -281,10 +281,14 @@
                                                   [:pre (with-out-str (pprint/pprint choices))]]]
                                       [h-box
                                        :height "90px"      ;; means the Compontent (which is underneath) doesn't move up and down as the model changes
-                                       :gap "5px"
+                                       :gap    "5px"
+                                       :width  "100%"
                                        :children [[label :label [:code ":model"]]
                                                   [label :label " is currently"]
-                                                  [:code (with-out-str (pprint/pprint @model))]]]
+                                                  [:code
+                                                   {:class "display-flex"
+                                                    :style {:flex "1"}}
+                                                   (with-out-str (pprint/pprint @model))]]]
                                       
                                       [gap :size "20px"]
                                       [multi-select
