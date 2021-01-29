@@ -151,13 +151,16 @@
   [v-box
    :class    "noselect"
    :style    {:background-color "#fcfcfc"}
+   :size     "1"
    :children (conj (into []
                          (for [tab tabs-definition]
                            [nav-item tab selected-tab-id on-select-tab]))
-                   [gap :size "50px"]
+                   [gap :size "1"]
                    [box
                     :style {:padding-left "24px"}
-                    :child [label :label version]])])
+                    :child [label
+                            :style {:font-size "10px"}
+                            :label version]])])
 
 
 (defn re-com-title-box
