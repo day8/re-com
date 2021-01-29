@@ -59,6 +59,7 @@
        :gap      "10px"
        :children [[title2 "Demo - Sales Table"]
                   [h-box
+                   :align    :center
                    :children [[label :label [:code ":max-rows"]]
                               [gap :size "11px"]
                               [checkbox
@@ -77,6 +78,7 @@
                                  [gap :size "11px"]
                                  [label :label @max-rows]])]]
                   [h-box
+                   :align    :center
                    :children [[label :label [:code ":max-width"]]
                               [gap :size "11px"]
                               [checkbox
@@ -95,6 +97,7 @@
                                  [gap :size "11px"]
                                  [label :label @max-width]])]]
                   [h-box
+                   :align    :center
                    :children [[label :label [:code ":fixed-column-count"]]
                               [gap :size "11px"]
                               [slider
