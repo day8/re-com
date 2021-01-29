@@ -148,19 +148,23 @@
 
 (defn left-side-nav-bar
   [selected-tab-id on-select-tab]
-  [v-box
-   :class    "noselect"
-   :style    {:background-color "#fcfcfc"}
-   :size     "1"
-   :children (conj (into []
-                         (for [tab tabs-definition]
-                           [nav-item tab selected-tab-id on-select-tab]))
-                   [gap :size "1"]
-                   [box
-                    :style {:padding-left "24px"}
-                    :child [label
-                            :style {:font-size "10px"}
-                            :label version]])])
+  (let [background-col "#fcfcfc"]
+    [v-box
+     :size     "1"
+     :style    {:background-color background-col}
+     :children [[v-box
+                 :class    "noselect"
+                 :style    {:background-color background-col}
+                 :children (conj (into []
+                                       (for [tab tabs-definition]
+                                         [nav-item tab selected-tab-id on-select-tab])))]
+                [gap :size "1"]
+                [box
+                 :style {:padding "8px 24px"
+                         :background-color background-col}
+                 :child [label
+                         :style {:font-size "10px"}
+                         :label version]]]]))
 
 
 (defn re-com-title-box
