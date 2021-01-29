@@ -36,5 +36,6 @@
                                        [:li "Individual cells can be dynamically styled based on row data"]]
                                       [args-table simple-v-table-args-desc]]]
                           [v-box
+                           :gap      "30px"
                            :children [[simple-v-table-sales/demo]
                                       [simple-v-table-periodic-table/demo]]]]]]])
