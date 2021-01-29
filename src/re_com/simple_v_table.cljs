@@ -162,4 +162,4 @@
                                              (when (pos? fixed-column-count)
                                                {:top-left    {:style {:border-right fixed-col-border-style}}
                                                 :row-headers {:style {:border-right fixed-col-border-style}}})
-                                             parts)]]))
+                                             #_parts)]]))   ;; TODO: [GR] Should add this capability back in
