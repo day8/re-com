@@ -441,18 +441,14 @@
 (defn vector-atom?
   "Returns true if the passed argument is an atom containing a vector"
   [arg]
-  true ;; TODO: REMOVE
-  #_(if (atom? arg)
-    (vector? (deref-or-value-peek arg))
-    false))
+  (vector? (deref-or-value-peek arg))
+  #_(and (atom? arg) (vector? (deref-or-value-peek arg)))) ;; TODO: [GR] The version than makes sure it's also an atom
 
 (defn map-atom?
   "Returns true if the passed argument is an atom containing a map"
   [arg]
-  true ;; TODO: REMOVE
-  #_(if (atom? arg)
-    (map? (deref-or-value-peek arg))
-    false))
+  (map? (deref-or-value-peek arg))
+  #_(and (atom? arg) (map? (deref-or-value-peek arg)))) ;; TODO: [GR] The version than makes sure it's also an atom
 
 
 ;; Test for specific data types either as values or contained in atoms, but WITHOUT derefing the atoms
