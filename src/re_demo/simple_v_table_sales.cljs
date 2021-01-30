@@ -71,15 +71,15 @@
                                            [:li "At other times, we want the table to impose certain dimensions. For example, we might want the table to always show 10 rows, and to have the parent dimensions change to accomodate."]
                                            [:li "Width"
                                             [:ul
-                                             [:li "The full horizontal extent of the table is determined by the accumulated width of all the specified columns"]
-                                             [:li "If the width provided by the table's parent container is less than this extent, then horizontal scrollbars will appear"]
+                                             [:li "The full horizontal extent of the table is determined by the accumulated width of the columns"]
+                                             [:li "If the width provided by the table's parent container is less than this extent, then horizontal scrollbars will appear for the unfixed columns"]
                                              [:li "Where you wish to be explicit about the table's viewable width, use the " [:code ":max-width"] " arg"]]]
                                            [:li "Height"
                                             [:ul
                                              [:li "The full vertical extent of the table is determined by the accumulated height of all the rows"]
                                              [:li "If the height provided by the table's parent container is less than this extent, then vertical scrollbars will appear"]
                                              [:li "Where you wish to be explicit about the table's viewable height, use the " [:code ":max-rows"] " arg"]]]
-                                           [:li "The parent's dimensions will always dominate, if they are set"]]]]
+                                           [:li "Even if you are explicit via " [:code ":max-width"]  " or " [:code ":max-rows"] ", the parent's dimensions will always dominate, if they are set"]]]]
                               [v-box
                                :gap      (px 5)
                                :children [[h-box
@@ -136,7 +136,9 @@
                                                           :step      1
                                                           :width     (px 200)]
                                                          [gap :size spacing]
-                                                         [label :label @max-rows]]
+                                                         [label :label @max-rows]
+                                                         [gap :size spacing]
+                                                         [label :label  "(this demo has 100 rows of data)"]]
                                                         [label
                                                          :style {:background-color parent-color}
                                                          :label (str "when unset, the table's height is the parent's explicit height, or if that's unset, the number of rows of data (100)")])]]
@@ -186,7 +188,7 @@
                                                                       :width     (px 200)]
                                                                      [gap :size spacing]
                                                                      [label :label (px @parent-height)]]
-                                                                    [label :label "when not set, parent groes to table's natural extent (100 rows of data) or :max-rows setting"])]]
+                                                                    [label :label "when not set, parent growes to table's natural extent (100 rows of data) or :max-rows setting"])]]
                                                       [simple-v-table
                                                        :fixed-column-count        @fixed-column-count
                                                        :fixed-column-border-color "#333"
