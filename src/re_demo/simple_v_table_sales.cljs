@@ -4,17 +4,11 @@
     [goog.string           :as gstring]
     [goog.string.format]
     [reagent.core          :as reagent]
-    [re-com.text           :refer [label]]
-    [re-com.slider         :refer [slider]]
-    [re-com.checkbox       :refer [checkbox]]
-    [re-com.buttons        :refer [hyperlink-href]]
-    [re-com.box            :refer [h-box v-box gap]]
-    [re-com.simple-v-table :refer [simple-v-table]]
-    [re-demo.utils         :refer [title2]]
+    [re-com.core           :refer [label p slider hyperlink-href h-box v-box gap simple-v-table checkbox]]
+    [re-demo.utils         :refer [title3]]
     [re-com.util           :refer [px]]))
 
-;; 50 randomly sampled names from most popular baby names in 2019. More efficient to just statically define some than
-;; store a probability matrix for a Markov chain.
+;; 50 randomly sampled names from most popular baby names in 2019. 
 (def names
   ["Harris" "Jake" "Reece" "Aston" "Barry" "Oran" "Ritchie" "Crawford" "Raphael" "Clayton" "Johan" "Rhylen" "Caelin"
    "Calen" "Cassius" "Dakota" "Fabien" "Fraser-Lee" "Jonathin" "Khabat" "Lyotard" "Manpreet" "Mousa" "Rajvir" "Shadan"
@@ -22,8 +16,8 @@
    "Sylvia" "Abbigale" "Allissa" "Alona" "Asira" "Aurora-Leigh" "Brea" "Chiarra" "Elouisa" "Emme-Leigh" "Frea" "Geena"
    "Hanifa"])
 
-;; Generates many random 'sales' rows.
-(def sales
+;; Generate 100 random rows.
+(def sales-rows
   (mapv
     (fn [n]
       (let [person (rand-nth names)]
@@ -59,135 +53,159 @@
         parent-width        (reagent/atom 600)
         parent-height?      (reagent/atom false)
         parent-height       (reagent/atom 600)
-        spacing             "12px"
+        spacing             (px 12)
         email-row-label-fn  (fn [row] [hyperlink-href :label (:email row) :href (str "mailto:" (:email row))])
         method-row-label-fn (fn [row] (case (:method row) :online [devices-icon] [store-icon]))]
     (fn []
       [v-box
-       :gap      "10px"
-       :children [[title2 "Demo - Sales Table"]
+       :children [[title3 "Sales Table"]
+                  [gap :size (px 5) ]
                   [h-box
-                   :gap      spacing
-                   :align    :center
-                   :children [[checkbox
-                               :model     fixed-column-count?
-                               :on-change #(do (reset! fixed-column-count? %)
-                                               (reset! fixed-column-count (if @fixed-column-count? 1 0)))]
-                              [label :label [:code ":fixed-column-count"]]
-                              (when @fixed-column-count?
-                                [:<>
-                                 [slider
-                                  :model     fixed-column-count
-                                  :on-change #(reset! fixed-column-count %)
-                                  :min       0
-                                  :max       3
-                                  :step      1
-                                  :width     "200px"]
-                                 [gap :size spacing]
-                                 [label :label @fixed-column-count]])]]
-                  [h-box
-                   :gap      spacing
-                   :align    :center
-                   :children [[checkbox
-                               :model     max-width?
-                               :on-change #(reset! max-width? %)]
-                              [label :label [:code ":max-width"]]
-                              (when @max-width?
-                                [:<>
-                                 [slider
-                                  :model     max-width
-                                  :on-change #(reset! max-width %)
-                                  :min       200
-                                  :max       820
-                                  :step      1
-                                  :width     "200px"]
-                                 [gap :size spacing]
-                                 [label :label (str @max-width "px")]])]]
-                  [h-box
-                   :gap      spacing
-                   :align    :center
-                   :children [[checkbox
-                               :model     max-rows?
-                               :on-change #(reset! max-rows? %)]
-                              [label :label [:code ":max-rows"]]
-                              (if @max-rows?
-                                [:<>
-                                 [slider
-                                  :model     max-rows
-                                  :on-change #(reset! max-rows %)
-                                  :min       0
-                                  :max       50
-                                  :step      1
-                                  :width     "200px"]
-                                 [gap :size spacing]
-                                 [label :label @max-rows]]
-                                [label
-                                 :style {:background-color parent-color}
-                                 :label (str "table dimensions now constrained by its parent (the blue box)")])]]
-                  [gap :size "0px"]
-                  [v-box
-                   :class    "parent-for-simple-v-table"
-                   :width    (when @parent-width?  (px @parent-width))
-                   :height   (when @parent-height? (px @parent-height))
-                   :style    {:padding          "8px"
-                              :background-color parent-color}
-                   :gap      spacing
-                   :children [[label :label "The table below is wrapped in this blue box. It is the table's parent"]
-                              [h-box
-                               :gap      spacing
-                               :align    :center
-                               :children [[checkbox
-                                           :model     parent-width?
-                                           :on-change #(reset! parent-width? %)]
-                                          [label :label [:code "Parent width"]]
-                                          (when @parent-width?
-                                            [:<>
-                                             [slider
-                                              :model     parent-width
-                                              :on-change #(reset! parent-width %)
-                                              :min       500
-                                              :max       1200
-                                              :step      1
-                                              :width     "200px"]
-                                             [gap :size spacing]
-                                             [label :label (str @parent-width "px")]])]]
-                              [h-box
-                               :gap      spacing
-                               :align    :center
-                               :children [[checkbox
-                                           :model     parent-height?
-                                           :on-change #(reset! parent-height? %)]
-                                          [label :label [:code "Parent height"]]
-                                          (if @parent-height?
-                                            [:<>
-                                             [slider
-                                              :model     parent-height
-                                              :on-change #(reset! parent-height %)
-                                              :min       500
-                                              :max       1200
-                                              :step      1
-                                              :width     "200px"]
-                                             [gap :size spacing]
-                                             [label :label (str @parent-height "px")]])]]
-                              [simple-v-table
-                               :fixed-column-count        @fixed-column-count
-                               :fixed-column-border-color "#333"
-                               :row-height                35
-                               :max-rows                  (when @max-rows? @max-rows)
-                               :max-width                 (when @max-width? (str @max-width "px"))
-                               :cell-style                (fn [{:keys [sales] :as row} {:keys [id] :as column}]
-                                                            (when (= :sales id)
-                                                              {:background-color (cond
-                                                                                   (> 2000 sales)      "#FF4136"
-                                                                                   (> 5000 sales 2000) "#FFDC00"
-                                                                                   (> 7500 sales 5000) "#01FF70"
-                                                                                   (> sales 7500)      "#2ECC40")}))
-                               :parts                     {:simple-wrapper {:style {:flex "1 1 auto"}}} ;; TODO: [GR] Required to make simple-v-table height be constrained by it's parent - possibly make this the default behaviour
-                               :columns                   [{:id :id     :header-label "Code"   :row-label-fn :id                 :width 60  :align "left"  :vertical-align "middle"}
-                                                           {:id :region :header-label "Region" :row-label-fn :region             :width 100 :align "left"  :vertical-align "middle"}
-                                                           {:id :name   :header-label "Name"   :row-label-fn :person             :width 100 :align "left"  :vertical-align "middle"}
-                                                           {:id :email  :header-label "Email"  :row-label-fn email-row-label-fn  :width 200 :align "left"  :vertical-align "middle"}
-                                                           {:id :method :header-label "Method" :row-label-fn method-row-label-fn :width 100 :align "right" :vertical-align "middle"}
-                                                           {:id :sales  :header-label "Sales"  :row-label-fn :sales              :width 100 :align "right" :vertical-align "middle"}
-                                                           {:id :units  :header-label "Units"  :row-label-fn :units              :width 100 :align "right" :vertical-align "middle"}]
-                               :model                     sales]]]]])))
+                   :gap      (px 65)
+                   :children [[v-box
+                               :width    "450px"
+                               :children [[:p "This demo shows the common usecase - a simple, vanilla table displaying entities in rows, and attributes in columns."]
+                                          [:p  "Experiment with how the dimensions of a " [:code "simple-v-table"]" interact with those of its parent (the blue box). Some notes:"]
+                                          [:ul
+                                           [:li "A table's dimensions grow and shrink, subject to the space provided by the parent. When the parent imposes dimensions that are insufficient to show all of the table, scrollbars will appear"]
+                                           [:li "At other times, we want the table to impose certain dimensions. For example, we might want the table to always show 10 rows, and to have the parent dimensions change to accomodate."]
+                                           [:li "Width"
+                                            [:ul
+                                             [:li "The full horizontal extent of the table is determined by the accumulated width of all the specified columns"]
+                                             [:li "If the width provided by the table's parent container is less than this extent, then horizontal scrollbars will appear"]
+                                             [:li "Where you wish to be explicit about the table's viewable width, use the " [:code ":max-width"] " arg"]]]
+                                           [:li "Height"
+                                            [:ul
+                                             [:li "The full vertical extent of the table is determined by the accumulated height of all the rows"]
+                                             [:li "If the height provided by the table's parent container is less than this extent, then vertical scrollbars will appear"]
+                                             [:li "Where you wish to be explicit about the table's viewable height, use the " [:code ":max-rows"] " arg"]]]
+                                           [:li "The parent's dimensions will always dominate, if they are set"]]]]
+                              [v-box
+                               :gap      (px 5)
+                               :children [[h-box
+                                           :gap      spacing
+                                           :align    :center
+                                           :children [[checkbox
+                                                       :model     fixed-column-count?
+                                                       :on-change #(do (reset! fixed-column-count? %)
+                                                                       (reset! fixed-column-count (if @fixed-column-count? 1 0)))]
+                                                      [label :label [:code ":fixed-column-count"]]
+                                                      (when @fixed-column-count?
+                                                        [:<>
+                                                         [slider
+                                                          :model     fixed-column-count
+                                                          :on-change #(reset! fixed-column-count %)
+                                                          :min       0
+                                                          :max       3
+                                                          :step      1
+                                                          :width     (px 200)]
+                                                         [gap :size spacing]
+                                                         [label :label @fixed-column-count]])]]
+                                          [h-box
+                                           :gap      spacing
+                                           :align    :center
+                                           :children [[checkbox
+                                                       :model     max-width?
+                                                       :on-change #(reset! max-width? %)]
+                                                      [label :label [:code ":max-width"]]
+                                                      (when @max-width?
+                                                        [:<>
+                                                         [slider
+                                                          :model     max-width
+                                                          :on-change #(reset! max-width %)
+                                                          :min       200
+                                                          :max       820
+                                                          :step      1
+                                                          :width     (px 200)]
+                                                         [gap :size spacing]
+                                                         [label :label (px @max-width)]])]]
+                                          [h-box
+                                           :gap      spacing
+                                           :align    :center
+                                           :children [[checkbox
+                                                       :model     max-rows?
+                                                       :on-change #(reset! max-rows? %)]
+                                                      [label :label [:code ":max-rows"]]
+                                                      (if @max-rows?
+                                                        [:<>
+                                                         [slider
+                                                          :model     max-rows
+                                                          :on-change #(reset! max-rows %)
+                                                          :min       0
+                                                          :max       50
+                                                          :step      1
+                                                          :width     (px 200)]
+                                                         [gap :size spacing]
+                                                         [label :label @max-rows]]
+                                                        [label
+                                                         :style {:background-color parent-color}
+                                                         :label (str "when unset, the table's height is the parent's explicit height, or if that's unset, the number of rows of data (100)")])]]
+                                          [gap :size "0px"]
+                                          [v-box
+                                           :class    "parent-for-simple-v-table"
+                                           :width    (when @parent-width?  (px @parent-width))
+                                           :height   (when @parent-height? (px @parent-height))
+                                           :style    {:padding          (px 8)
+                                                      :background-color parent-color}
+                                           :gap      spacing
+                                           :children [[label :label "This blue box is the table's (v-box) parent."]
+                                                      [h-box
+                                                       :gap      spacing
+                                                       :align    :center
+                                                       :children [[checkbox
+                                                                   :model     parent-width?
+                                                                   :on-change #(reset! parent-width? %)]
+                                                                  [label :label [:code "set parent width"]]
+                                                                  (if @parent-width?
+                                                                    [:<>
+                                                                     [slider
+                                                                      :model     parent-width
+                                                                      :on-change #(reset! parent-width %)
+                                                                      :min       500
+                                                                      :max       1200
+                                                                      :step      1
+                                                                      :width     (px 200)]
+                                                                     [gap :size spacing]
+                                                                     [label :label (px @parent-width)]]
+                                                                    [label :label "when not set, parent will grow to table's natural extent (or any :max-width override)"])]]
+                                                      [h-box
+                                                       :gap      spacing
+                                                       :align    :center
+                                                       :children [[checkbox
+                                                                   :model     parent-height?
+                                                                   :on-change #(reset! parent-height? %)]
+                                                                  [label :label [:code "set parent height"]]
+                                                                  (if @parent-height?
+                                                                    [:<>
+                                                                     [slider
+                                                                      :model     parent-height
+                                                                      :on-change #(reset! parent-height %)
+                                                                      :min       500
+                                                                      :max       1200
+                                                                      :step      1
+                                                                      :width     (px 200)]
+                                                                     [gap :size spacing]
+                                                                     [label :label (px @parent-height)]]
+                                                                    [label :label "when not set, parent groes to table's natural extent (100 rows of data) or :max-rows setting"])]]
+                                                      [simple-v-table
+                                                       :fixed-column-count        @fixed-column-count
+                                                       :fixed-column-border-color "#333"
+                                                       :row-height                35
+                                                       :max-rows                  (when @max-rows? @max-rows)
+                                                       :max-width                 (when @max-width? (px @max-width))
+                                                       :cell-style                (fn [{:keys [sales] :as row} {:keys [id] :as column}]
+                                                                                    (when (= :sales id)
+                                                                                      {:background-color (cond
+                                                                                                           (> 2000 sales)      "#FF4136"
+                                                                                                           (> 5000 sales 2000) "#FFDC00"
+                                                                                                           (> 7500 sales 5000) "#01FF70"
+                                                                                                           (> sales 7500)      "#2ECC40")}))
+                                                       :parts                     {:simple-wrapper {:style {:flex "1 1 auto"}}} ;; TODO: [GR] Required to make simple-v-table height be constrained by it's parent - possibly make this the default behaviour
+                                                       :columns                   [{:id :id     :header-label "Code"   :row-label-fn :id                 :width 60  :align "left"  :vertical-align "middle"}
+                                                                                   {:id :region :header-label "Region" :row-label-fn :region             :width 100 :align "left"  :vertical-align "middle"}
+                                                                                   {:id :name   :header-label "Name"   :row-label-fn :person             :width 100 :align "left"  :vertical-align "middle"}
+                                                                                   {:id :email  :header-label "Email"  :row-label-fn email-row-label-fn  :width 200 :align "left"  :vertical-align "middle"}
+                                                                                   {:id :method :header-label "Method" :row-label-fn method-row-label-fn :width 100 :align "right" :vertical-align "middle"}
+                                                                                   {:id :sales  :header-label "Sales"  :row-label-fn :sales              :width 100 :align "right" :vertical-align "middle"}
+                                                                                   {:id :units  :header-label "Units"  :row-label-fn :units              :width 100 :align "right" :vertical-align "middle"}]
+                                                       :model                     sales-rows]]]]]]]]])))

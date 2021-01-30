@@ -5,7 +5,7 @@
     [re-com.box            :refer [v-box]]
     [re-com.popover        :refer [popover-anchor-wrapper popover-content-wrapper]]
     [re-com.simple-v-table :refer [simple-v-table]]
-    [re-demo.utils         :refer [title2]]))
+    [re-demo.utils         :refer [title3]]))
 
 (def elements
   (map-indexed
@@ -216,7 +216,7 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[title2 "Demo - Periodic Table"]
+       :children [[title3 "Periodic Table"]
                   [popover-anchor-wrapper
                    :showing? showing-popover?
                    :position :left-center
