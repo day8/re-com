@@ -54,6 +54,7 @@
         parent-height?      (reagent/atom false)
         parent-height       (reagent/atom 600)
         spacing             (px 12)
+        spacing7           (px 7)
         email-row-label-fn  (fn [row] [hyperlink-href :label (:email row) :href (str "mailto:" (:email row))])
         method-row-label-fn (fn [row] (case (:method row) :online [devices-icon] [store-icon]))]
     (fn []
@@ -64,7 +65,7 @@
                    :gap      (px 65)
                    :children [[v-box
                                :width    "450px"
-                               :children [[:p "This demo shows the common usecase - a simple, vanilla table displaying entities in rows, and attributes in columns."]
+                               :children [[:p "This demo shows the common usecase - a simple, vanilla table displaying entities in rows, and their attributes in columns."]
                                           [:p  "Experiment with how the dimensions of a " [:code "simple-v-table"]" interact with those of its parent (the blue box). Some notes:"]
                                           [:ul
                                            [:li "A table's dimensions grow and shrink, subject to the space provided by the parent. When the parent imposes dimensions that are insufficient to show all of the table, scrollbars will appear"]
@@ -83,7 +84,7 @@
                               [v-box
                                :gap      (px 5)
                                :children [[h-box
-                                           :gap      spacing
+                                           :gap      spacing7
                                            :align    :center
                                            :children [[checkbox
                                                        :model     fixed-column-count?
@@ -99,10 +100,10 @@
                                                           :max       3
                                                           :step      1
                                                           :width     (px 200)]
-                                                         [gap :size spacing]
+                                                         [gap :size spacing7]
                                                          [label :label @fixed-column-count]])]]
                                           [h-box
-                                           :gap      spacing
+                                           :gap      spacing7
                                            :align    :center
                                            :children [[checkbox
                                                        :model     max-width?
@@ -117,10 +118,10 @@
                                                           :max       820
                                                           :step      1
                                                           :width     (px 200)]
-                                                         [gap :size spacing]
+                                                         [gap :size spacing7]
                                                          [label :label (px @max-width)]])]]
                                           [h-box
-                                           :gap      spacing
+                                           :gap      spacing7
                                            :align    :center
                                            :children [[checkbox
                                                        :model     max-rows?
@@ -137,7 +138,7 @@
                                                           :width     (px 200)]
                                                          [gap :size spacing]
                                                          [label :label @max-rows]
-                                                         [gap :size spacing]
+                                                         [gap :size spacing7]
                                                          [label :label  "(this demo has 100 rows of data)"]]
                                                         [label
                                                          :style {:background-color parent-color}
@@ -152,12 +153,12 @@
                                            :gap      spacing
                                            :children [[label :label "This blue box is the table's (v-box) parent."]
                                                       [h-box
-                                                       :gap      spacing
+                                                       :gap      spacing7
                                                        :align    :center
                                                        :children [[checkbox
                                                                    :model     parent-width?
                                                                    :on-change #(reset! parent-width? %)]
-                                                                  [label :label [:code "set parent width"]]
+                                                                  [label :label [:code "parent width"]]
                                                                   (if @parent-width?
                                                                     [:<>
                                                                      [slider
@@ -167,16 +168,16 @@
                                                                       :max       1200
                                                                       :step      1
                                                                       :width     (px 200)]
-                                                                     [gap :size spacing]
+                                                                     [gap :size spacing7]
                                                                      [label :label (px @parent-width)]]
-                                                                    [label :label "when not set, parent will grow to table's natural extent (or any :max-width override)"])]]
+                                                                    [label :label "unset: grows to table's natural extent (or the :max-width override)"])]]
                                                       [h-box
-                                                       :gap      spacing
+                                                       :gap      spacing7
                                                        :align    :center
                                                        :children [[checkbox
                                                                    :model     parent-height?
                                                                    :on-change #(reset! parent-height? %)]
-                                                                  [label :label [:code "set parent height"]]
+                                                                  [label :label [:code "parent height"]]
                                                                   (if @parent-height?
                                                                     [:<>
                                                                      [slider
@@ -186,9 +187,12 @@
                                                                       :max       1200
                                                                       :step      1
                                                                       :width     (px 200)]
-                                                                     [gap :size spacing]
+                                                                     [gap :size spacing7]
                                                                      [label :label (px @parent-height)]]
-                                                                    [label :label "when not set, parent growes to table's natural extent (100 rows of data) or :max-rows setting"])]]
+                                                                    [label :label "unset: grows to table's natural extent (100 rows of data) or the :max-rows override"])]]
+                                                      
+                                                      ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+                                                      ;; The simple-v-table demo starts here
                                                       [simple-v-table
                                                        :fixed-column-count        @fixed-column-count
                                                        :fixed-column-border-color "#333"

@@ -1,9 +1,9 @@
 (ns re-demo.simple-v-table
   (:require
     [reagent.core          :as reagent]
-    [re-com.core           :refer [h-box gap v-box v-table hyperlink-href p line]]
-    [re-com.simple-v-table :refer [simple-v-table simple-v-table-args-desc]]
-    [re-demo.utils         :refer [panel-title title2 args-table github-hyperlink status-text]]
+    [re-com.core           :refer [h-box gap v-box p line]]
+    [re-com.simple-v-table :refer [simple-v-table-args-desc]]
+    [re-demo.utils         :refer [panel-title title2 args-table status-text]]
     [re-demo.simple-v-table-sales :as simple-v-table-sales]
     [re-demo.simple-v-table-periodic-table :as simple-v-table-periodic-table]
     [re-com.util           :refer [px]]))
@@ -30,6 +30,7 @@
                                       [p [:code "simple-v-table"] " is built on " [:code "v-table"] " and it exists because " [:code "v-table"] " is too low level and complicated for everyday use."]
                                       [p "Features:"]
                                       [:ul
+                                       [:li "Primary usecase involves showing a rectangular visual structure, with entities in rows and attributes of those entities in columns. Typically, read-only."]
                                        [:li "Unlimited columns with a fixed column header at the top"]
                                        [:li "Unlimited (virtualised) rows with an ()optional) fixed row header at the left by simply specifying the number of columns to fix"]
                                        [:li "Most aspects of the table are stylable using the " [:code ":parts"] " argument that can set " [:code ":class"] " or " [:code ":style"] " attributes"]
