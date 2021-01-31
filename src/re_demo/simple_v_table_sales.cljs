@@ -61,15 +61,15 @@
       [v-box
        :children [[title3 "Sales Table"]
                   [gap :size (px 5) ]
-                  [h-box
+                  [v-box
                    :gap      (px 65)
                    :children [[v-box
                                :width    "450px"
-                               :children [[:p "This demo shows the common usecase - a simple, vanilla table displaying entities in rows, and their attributes in columns."]
-                                          [:p  "Experiment with how the dimensions of a " [:code "simple-v-table"]" interact with those of its parent (the blue box). Some notes:"]
+                               :children [[:p "This demo shows the primary usecase - a table displaying entities in rows, and their attributes in columns. See it below in the blue box."]
+                                          [:p  "The demo allows you to experiment with how the dimensions of a " [:code "simple-v-table"]" interact with those of its parent. Some notes:"]
                                           [:ul
-                                           [:li "A table's dimensions grow and shrink, subject to the space provided by the parent. When the parent imposes dimensions that are insufficient to show all of the table, scrollbars will appear"]
-                                           [:li "At other times, we want the table to impose certain dimensions. For example, we might want the table to always show 10 rows, and to have the parent dimensions change to accomodate."]
+                                           [:li "A table's dimensions will grow and shrink, to fit the space provided by its parent. When the parent imposes dimensions that are insufficient to show all of the table, scrollbars will appear."]
+                                           [:li "Other times, we want a table to impose certain dimensions. Eg, it should always show 10 rows, and have no horizontal scrollbar, and we want the parent dimensions to change to accomodate."]
                                            [:li "Width"
                                             [:ul
                                              [:li "The full horizontal extent of the table is determined by the accumulated width of the columns"]
