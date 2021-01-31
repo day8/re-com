@@ -59,28 +59,15 @@
         method-row-label-fn (fn [row] (case (:method row) :online [devices-icon] [store-icon]))]
     (fn []
       [v-box
-       :children [[title3 "Sales Table"]
+       :children [[title3 "Sales Table Demo"]
                   [gap :size (px 5) ]
                   [v-box
-                   :gap      (px 65)
+                   :gap      (px 10)
                    :children [[v-box
                                :width    "450px"
                                :children [[:p "This demo shows the primary usecase - a table displaying entities in rows, and their attributes in columns. See it below in the blue box."]
-                                          [:p  "The demo allows you to experiment with how the dimensions of a " [:code "simple-v-table"]" interact with those of its parent. Some notes:"]
-                                          [:ul
-                                           [:li "A table's dimensions will grow and shrink, to fit the space provided by its parent. When the parent imposes dimensions that are insufficient to show all of the table, scrollbars will appear."]
-                                           [:li "Other times, we want a table to impose certain dimensions. Eg, it should always show 10 rows, and have no horizontal scrollbar, and we want the parent dimensions to change to accomodate."]
-                                           [:li "Width"
-                                            [:ul
-                                             [:li "The full horizontal extent of the table is determined by the accumulated width of the columns"]
-                                             [:li "If the width provided by the table's parent container is less than this extent, then horizontal scrollbars will appear for the unfixed columns"]
-                                             [:li "Where you wish to be explicit about the table's viewable width, use the " [:code ":max-width"] " arg"]]]
-                                           [:li "Height"
-                                            [:ul
-                                             [:li "The full vertical extent of the table is determined by the accumulated height of all the rows"]
-                                             [:li "If the height provided by the table's parent container is less than this extent, then vertical scrollbars will appear"]
-                                             [:li "Where you wish to be explicit about the table's viewable height, use the " [:code ":max-rows"] " arg"]]]
-                                           [:li "Even if you are explicit via " [:code ":max-width"]  " or " [:code ":max-rows"] ", the parent's dimensions will always dominate, if they are set"]]]]
+                                          #_[:p  "This demo allows you to experiment with how the dimensions of a " [:code "simple-v-table"]" interact with those of its parent. "]
+                                          ]]
                               [v-box
                                :gap      (px 5)
                                :children [[h-box
