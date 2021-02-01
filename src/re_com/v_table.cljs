@@ -307,8 +307,8 @@
    - id-fn         keyword or function that returns the id out of the row map
    - top-row-index the 0-based index of the row that is currently at the top of the viewport (for virtual mode)
    - rows          a vector of row maps to render
-   - scroll-x      current horizonal scrollbar position in px
-   - scroll-y      current horizonal scrollbar position in px
+   - scroll-x      current horizontal scrollbar position in px
+   - scroll-y      current horizontal scrollbar position in px
   "
   [row-renderer id-fn top-row-index rows scroll-x scroll-y class style attr]
   [box/v-box
@@ -359,7 +359,7 @@
 
   Arguments:
    - column-footer-renderer function that knows how to render column-footers
-   - scroll-x            current horizonal scrollbar position in px
+   - scroll-x            current horizontal scrollbar position in px
   "
   [column-footer-renderer scroll-x class style attr]
   [box/box
@@ -412,7 +412,7 @@
    - id-fn               keyword or function that returns the id out of the row map
    - top-row-index       the 0-based index of the row that is currently at the top of the viewport (for virtual mode)
    - rows                a vector of row maps to render the row-footers from
-   - scroll-y            current horizonal scrollbar position in px
+   - scroll-y            current horizontal scrollbar position in px
   "
   [row-footer-renderer id-fn top-row-index rows scroll-y class style attr]
   [box/v-box
@@ -758,7 +758,7 @@
                                   - :column-headers    Column header section (4)
                                   - :rows           Main rows section (5)
                                   - :column-footers    Column footer section (6)
-                                  - :h-scroll               The horizonal scrollbar
+                                  - :h-scroll               The horizontal scrollbar
 
                                - :vright-section     The right container section v-box of the table, containing:
                                   - :top-right      Rop right section (7)
