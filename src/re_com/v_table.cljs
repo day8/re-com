@@ -1090,7 +1090,17 @@
                                                         (or column-header-height 0)
                                                         (or max-row-viewport-height (inc @content-rows-height)) ;; TODO: The inc prevents content scrollbar. Need to inc more if more than 1px borders specified
                                                         (or column-footer-height 0)
-                                                        scrollbar-tot-thick))}
+                                                        scrollbar-tot-thick))
+
+                                        ;; TODO: Currently, scrolling a v-table also scrolls parent scrollbars (usually the one on the <body>)
+                                        ;; The solution seems to to use CSS overscroll-behavior
+                                        ;; https://developers.google.com/web/updates/2017/11/overscroll-behavior
+                                        ;; The following should be in the right place but it makes no difference (also tried the block version)
+                                        ;; More research required to solve this
+
+                                        ;:overscroll-behavior "contain"
+                                        ;:overscroll-behavior-block "none"
+                                        }
                                        (get-in parts [:wrapper :style]))
                            :attr     (merge {:on-wheel (handler-fn (on-wheel event))}
                                             (get-in parts [:wrapper :attr]))
