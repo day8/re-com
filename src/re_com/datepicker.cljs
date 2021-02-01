@@ -2,7 +2,7 @@
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
     [reagent.core :as reagent]
-    [cljs-time.core :refer [now today minus plus months days year month day day-of-week first-day-of-the-month before? after?]]
+    [cljs-time.core :as cljs-time]
     [re-com.validate :refer [date-like? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format :refer [parse unparse formatters formatter]]
@@ -31,14 +31,14 @@
 
 (defn- month-label [date months]
   (if months
-    (str (nth months (dec (month date))) " " (unparse (formatter "yyyy") date))
+    (str (nth months (dec (cljs-time/month date))) " " (unparse (formatter "yyyy") date))
     (unparse month-format date)))
 
-(defn- dec-month [date] (minus date (months 1)))
+(defn- dec-month [date] (cljs-time/minus date (cljs-time/months 1)))
 
-(defn- inc-month [date] (plus date (months 1)))
+(defn- inc-month [date] (cljs-time/plus date (cljs-time/months 1)))
 
-(defn- inc-date [date n] (plus date (days n)))
+(defn- inc-date [date n] (cljs-time/plus date (cljs-time/days n)))
 
 (defn previous
   "If date fails pred, subtract period until true, otherwise answer date"
@@ -51,24 +51,88 @@
   ([pred]
    (previous pred (now->utc)))
   ([pred date]
-   (previous pred date (days 1)))
+   (previous pred date (cljs-time/days 1)))
   ([pred date period]
    (if (pred date)
-    date
-   (recur pred (minus date period) period))))
+     date
+     (recur pred (cljs-time/minus date period) period))))
 
 (defn- =date [date1 date2]
   (and
-    (= (year date1)  (year date2))
-    (= (month date1) (month date2))
-    (= (day date1)   (day date2))))
+    (= (cljs-time/year date1)  (cljs-time/year date2))
+    (= (cljs-time/month date1) (cljs-time/month date2))
+    (= (cljs-time/day date1)   (cljs-time/day date2))))
 
 (defn- <=date [date1 date2]
-  (or (=date date1 date2) (before? date1 date2)))
+  (or (=date date1 date2) (cljs-time/before? date1 date2)))
 
 (defn- >=date [date1 date2]
-  (or (=date date1 date2) (after? date1 date2)))
+  (or (=date date1 date2) (cljs-time/after? date1 date2)))
 
+(def log-formatter (formatter "E dd MMM Y HH:mm:ss"))
+
+(defn leap-year?
+  [year]
+  ;; A year is a leap year if it is...
+  (not
+    (or
+      ;; Divisible by 4 (bitwise and 3), OR
+      (pos? (bit-and year 3))
+      ;; Divisible by 16 (bitwise and 15) AND
+      ;; not divisible by 25.
+      (and
+        (pos? (bit-and year 15))
+        (not (mod 25 year))))))
+
+(defn first-weekday-of-year
+  [week-day-at-start-of-week year]
+  {:pre [(number? start-of-week)
+         (number? year)]}
+  (let [;; First, we find jan-1-date-time for the year.
+        jan-1-date-time   (cljs-time/at-midnight (cljs-time/date-time year 1 1))
+        ;; Second, we find the week-day number (0-6 re-com numbering, not 1-6 cljs-time numbering) of jan-1-date-time.
+        jan-1-day-of-week (dec (cljs-time/day-of-week jan-1-date-time))
+        ;; Third, we find the delta between the week-day-at-start-of-week that we are searching for, and the week-day of
+        ;; jan-1-date-time.
+        week-day-delta    (- jan-1-day-of-week week-day-at-start-of-week)
+        ;; Forth, we use the delta to find the number of days-to-add to jan-1-date-time to reach the date-time of the
+        ;; first week-day in that year matching week-day-at-start-of-week. The calculation is different depending on if
+        ;; the delta is positive (week-day in that week is after Jan 1) or not (week day in that week is before, or on,
+        ;; Jan 1).
+        days-to-add (if (pos? week-day-delta)
+                      (- 7 week-day-delta)
+                      (js/Math.abs week-day-delta))]
+      (cljs-time/plus jan-1-date-time (cljs-time/days days-to-add))))
+
+(defn week-of-year
+  [week-day-at-start-of-week start-of-week-date-time]
+  (let [;; First, we must find the year at the end of the week. For example, the first row in January 2021 with Sunday
+        ;; as the week-day-at-start-of-week is Sun 27 Dec 2020 to Sat 2 Jan 2021. The value for state-of-week-date-time
+        ;; will be Sun 27 Dec 2020. Therefore, we would otherwise incorrectly calculate year as 2020 if we used the year
+        ;; at the start of the week when we should be using 2021.
+        end-of-week-date-time       (cljs-time/at-midnight (cljs-time/plus start-of-week-date-time (cljs-time/days 6)))
+        year-at-end-of-week         (cljs-time/year end-of-week-date-time)
+        ;; Second, we find the first weekday (e.g. Sun 3 January 2021) in the year-at-end-of-week that matches
+        ;; week-day-at-start-of-week (e.g. Sun/6).
+        -first-weekday-of-year      (first-weekday-of-year week-day-at-start-of-week year-at-end-of-week)
+        ;; Third, if the start-of-week-date-time comes before the first-weekday-of-year, then we need to display the
+        ;; week number as the final week of the previous year. It will be either 53 where the previous year is a leap
+        ;; year (as 366 days make 52.29 weeks), or 52 where the previous year is a normal year. E.g. continuing the 2021
+        ;; example it would be 53 as 2020 was a leap year.
+        last-week-of-previous-year? (cljs-time/before? start-of-week-date-time -first-weekday-of-year)]
+    (if last-week-of-previous-year?
+      (let [previous-year               (dec year-at-end-of-week)
+            previous-year-is-leap-year? (leap-year? previous-year)]
+        (if previous-year-is-leap-year?
+          53
+          52))
+      ;; Otherwise, calculate the difference in weeks between the ordinal day of the first-weekday-of-year and the
+      ;; start-of-week-date-time, round it up to the nearest integer and add one.
+      (let [ordinal-day               (.getDayOfYear ^js/goog.date.UtcDateTime start-of-week-date-time)
+            first-weekday-ordinal-day (.getDayOfYear ^js/goog.date.UtcDateTime -first-weekday-of-year)
+            difference-in-days        (- ordinal-day first-weekday-ordinal-day)
+            difference-in-weeks       (js/Math.ceil (/ difference-in-days 7))]
+        (inc difference-in-weeks)))))
 
 (def ^:private days-vector
   [{:key :Mo :short-name "M" :name "MON"}
@@ -87,7 +151,7 @@
     (take c (drop (mod n c) (cycle coll)))))
 
 (defn- is-day-pred [d]
-  #(= (day-of-week %) (inc d)))
+  #(= (cljs-time/day-of-week %) (inc d)))
 
 ;; ----------------------------------------------------------------------------
 
@@ -123,9 +187,9 @@
   (let [prev-date     (dec-month @display-month)
         minimum       (deref-or-value minimum)
         maximum       (deref-or-value maximum)
-        prev-enabled? (if minimum (after? prev-date (dec-month minimum)) true)
+        prev-enabled? (if minimum (cljs-time/after? prev-date (dec-month minimum)) true)
         next-date     (inc-month @display-month)
-        next-enabled? (if maximum (before? next-date maximum) true)
+        next-enabled? (if maximum (cljs-time/before? next-date maximum) true)
         template-row  (if show-weeks? [:tr [:th]] [:tr])]
     [:thead
      (merge
@@ -196,7 +260,7 @@
                         true)
         classes       (cond disabled?                    "off"
                             disabled-day?                "off"
-                            (= focus-month (month date)) "available"
+                            (= focus-month (cljs-time/month date)) "available"
                             :else                        "available off")
         classes       (cond (and selected (=date selected date))           (str classes " active start-date end-date ")
                             (and today (=date date today) (not disabled?)) (str classes " today ")
@@ -209,18 +273,18 @@
                   (get-in parts [:date :style] {})
         :on-click (handler-fn (on-click))}
        (get-in parts [:date :attr]))
-     (day date)]))
+     (cljs-time/day date)]))
 
 
-(defn- week-td [date]
-  [:td {:class "week"} (unparse week-format date)])
+(defn- week-td [start-of-week date]
+  [:td {:class "week"} (week-of-year start-of-week date)])
 
 
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive"
-  [date focus-month selected attributes disabled? on-change parts]
+  [date start-of-week focus-month selected attributes disabled? on-change parts]
 ;  {:pre [(sunday? date)]}
-  (let [table-row (if (:show-weeks? attributes) [:tr (week-td date)] [:tr])
+  (let [table-row (if (:show-weeks? attributes) [:tr (week-td start-of-week date)] [:tr])
         row-dates (map #(inc-date date %) (range 7))
         today     (when (:show-today? attributes) (now->utc))]
     (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change parts) row-dates))))
@@ -231,14 +295,14 @@
   [display-month selected attributes disabled? on-change parts]
   (let [start-of-week   (:start-of-week attributes)
         current-start   (previous (is-day-pred start-of-week) display-month)
-        focus-month     (month display-month)
+        focus-month     (cljs-time/month display-month)
         row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
     (into [:tbody
            (merge
              {:class (str "rc-datepicker-dates " (get-in parts [:dates :class]))
               :style (get-in parts [:dates :style])}
              (get-in parts [:dates :attr]))]
-          (map #(table-tr % focus-month selected attributes disabled? on-change parts) row-start-dates))))
+          (map #(table-tr % start-of-week focus-month selected attributes disabled? on-change parts) row-start-dates))))
 
 
 (defn- configure
@@ -272,7 +336,7 @@
   {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
   (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
         internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
-        display-month  (reagent/atom (first-day-of-the-month (or @internal-model (now->utc))))]
+        display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))]
     (fn datepicker-component
       [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts]
           :or   {start-of-week 6} ;; Default to Sunday
@@ -285,7 +349,7 @@
         (when (not= @external-model latest-ext-model) ;; Has model changed externally?
           (reset! external-model latest-ext-model)
           (reset! internal-model latest-ext-model)
-          (reset! display-month  (first-day-of-the-month (or @internal-model (now->utc)))))
+          (reset! display-month  (cljs-time/first-day-of-the-month (or @internal-model (now->utc)))))
         [main-div-with
          [:table
           (merge
