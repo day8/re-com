@@ -41,8 +41,8 @@
 
        :max-row-viewport-height  (- total-row-height row-height)    ;; force a vertical scrollbar
 
-       :row-header-renderer    (fn [row-index, row] [box-with-border {:name ":row-header-renderer " :background green :height unit-31 :width unit-121}])
-       :row-footer-renderer    (fn [row-index, row] [box-with-border {:name ":row-footer-renderer"  :background green :height unit-31 :width unit-121}])
+       :row-header-renderer    (fn [_row-index, _row] [box-with-border {:name ":row-header-renderer " :background green :height unit-31 :width unit-121}])
+       :row-footer-renderer    (fn [_row-index, _row] [box-with-border {:name ":row-footer-renderer"  :background green :height unit-31 :width unit-121}])
 
         ;; column header - section 4
        :column-header-height   unit-50
@@ -58,7 +58,7 @@
        :bottom-right-renderer (fn [] [box-with-border {:name ":bottom-right-renderer" :background blue  :height unit-50 :width unit-121}])
        :top-right-renderer    (fn [] [box-with-border {:name ":top-right-renderer"    :background blue  :height unit-50 :width unit-121}])
 
-       :row-renderer          (fn [row_index, row] [box-with-border {:name ":row-renderer" :background light-blue :height row-height :width width-of-main-row-content}])])))
+       :row-renderer          (fn [_row_index, _row] [box-with-border {:name ":row-renderer" :background light-blue :height row-height :width width-of-main-row-content}])])))
 
 
 ;; MT's Notes: 

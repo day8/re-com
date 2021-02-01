@@ -1,7 +1,7 @@
 (ns re-demo.v-table
   (:require [re-com.core    :refer [h-box gap v-box box p]]
             [re-com.v-table :refer [v-table-args-desc]]
-            [re-demo.utils  :refer [source-reference panel-title title2 title3 args-table status-text]]
+            [re-demo.utils  :refer [source-reference panel-title title2 title3 args-table status-text github-hyperlink]]
             [re-com.util    :refer [px]]
             [re-demo.v-table-sections  :refer [sections-render]]
             [re-demo.v-table-demo      :refer [demo]]
@@ -231,8 +231,8 @@
 
               [p [:code "v-table"] " creates a virtual, scrolling canvas which has " [:b [:i "nine sections"]] ":"]
               [sections-render]
-              [source-reference "for above v-table" "src/re_demo/v_table_sections.cljs"]
-              [p "Move the scrollbars to see the entire canvas. Sections 4, 5 and 6 will scroll horizontally in sync.  Likewise sections 2, 5 and 6 will scroll vertically in sync. The four corners are fixed."]
+
+              [p "Use the scrollbars to view the entire canvas. Sections 4, 5 and 6 will scroll horizontally in sync.  Likewise sections 2, 5 and 6 will scroll vertically in sync. The four corners are fixed. "]
 
               [title3 "A Row Oriented Canvas"]
               [p [:code "v-table"] " delivers a row oriented canvas:"]
@@ -249,12 +249,16 @@
               [:p "In the following table, which has 5 data rows, colours and labels are used to identify where renderers are used so you can see how they are combined into a whole."]
 
               [table-showing-renderers]
-              [source-reference "for above v-table" "src/re_demo/v_table_renderers.cljs"]
+              [p "Notes:"]
               [:ul
                [:li "each of the 5 data rows are rendered across 3 sections (2, 5 and 8). One renderer does the row's header, one the footer, and another does everything in between."]
                [:li "v-table doesn't do any grid lines. If you want them, your renderers must draw them."]
-               [:li "the column header section and column footer section do not have any concept of rows. If they contain more than one row, you'll need to render them all at once."]
-               ]]])
+               [:li "the column header section and column footer section do not have any concept of rows. If they contain more than one row, you'll need to render them all at once."]]
+
+              [title3 "Performance"]
+              [p "For performance reasons, " [:code "v-table"] " virtualises rows but even so, with wide tables, or tables showing a lot of rows at once, there can be a lot of DOM being thrown around, and so efficiency and performance can be a consideration. "]
+              [p "You should pay attention to the three renderers for data rows (sections 2,5,8). " [:code "v-table"] " must call them a lot as the user scrolls vertically. The other 6 renderers are called very little (once?) and it is unlikely they could impact performance too much. "]
+              [p "If you do run into performance issues, you may need to move away from using \"flex\" layouts in your data row renderers and instead switch to relative positioning or some other less computationally intensive scheme. "]]])
 
 
 (defn panel
