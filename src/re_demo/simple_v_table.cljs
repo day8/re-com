@@ -3,7 +3,7 @@
     [reagent.core          :as reagent]
     [re-com.core           :refer [h-box gap v-box p line]]
     [re-com.simple-v-table :refer [simple-v-table-args-desc]]
-    [re-demo.utils         :refer [panel-title title2 title3 args-table status-text]]
+    [re-demo.utils         :refer [source-reference panel-title title2 title3 args-table status-text]]
     [re-demo.simple-v-table-sales :as simple-v-table-sales]
     [re-demo.simple-v-table-periodic-table :as simple-v-table-periodic-table]
     [re-com.util           :refer [px]]))
@@ -60,6 +60,8 @@
                                       [line]
                                       [gap :size (px 15)]
                                       [simple-v-table-sales/demo]
+                                      [source-reference "for above simple-v-table" "src/re_demo/simple_v_table_sales.cljs"]
                                       [gap :size "40px"]
                                       [line]
-                                      [simple-v-table-periodic-table/demo]]]]]]])
+                                      [simple-v-table-periodic-table/demo]
+                                      [source-reference "for above simple-v-table" "src/re_demo/simple_v_table_periodic_table.cljs"]]]]]]])
