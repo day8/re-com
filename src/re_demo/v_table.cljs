@@ -1,7 +1,7 @@
 (ns re-demo.v-table
   (:require [re-com.core    :refer [h-box gap v-box box p]]
             [re-com.v-table :refer [v-table-args-desc]]
-            [re-demo.utils  :refer [panel-title title2 title3 args-table status-text]]
+            [re-demo.utils  :refer [source-reference panel-title title2 title3 args-table status-text]]
             [re-com.util    :refer [px]]
             [re-demo.v-table-sections  :refer [sections-render]]
             [re-demo.v-table-demo      :refer [demo]]
@@ -221,7 +221,7 @@
               [status-text "Alpha" {:color "red" :font-weight "bold"}]
               [p "This Component provides a framework for creating table-ish visual structures. It is low level and abstract and, "
                "while it is very flexible in some ways, it is rigid in others, which means it could be a perfect fit your usecase. Or it might be useless. "
-               "We use it to create components best described as \"pivot tables except they are writable\", and \"Gannt-chart-looking planning tools with complex editting and totalling\"."]
+               "We use it to create components best described as \"pivot tables except they are writable\", and \"Gannt-chart-looking planning tools with complex editing and totalling\"."]
               [p "Imagine an Excel workbook. It is a large \"canvas\" (of rows and columns), too big to be viewed all at once - you must use scrollbars to explore it. "
                "Now imagine that you \"lock/freeze\" a few rows at the top because they contain " [:b [:i "column headings"]]  " and also a few rows at the bottom "
                "which contain say, totals - call them " [:b [:i "column footers"]]  ". Likewise, in the horizontal, we want to lock/freeze a few left-most columns - let's call this area " [:b [:i "row headers"]]  ", "
@@ -231,7 +231,8 @@
 
               [p [:code "v-table"] " creates a virtual, scrolling canvas which has " [:b [:i "nine sections"]] ":"]
               [sections-render]
-              [p "Move the scrollbars to see the entire canvas. Sections 4, 5 and 6 will scroll horizonotally in sync.  Likewise sections 2, 5 and 6 will scroll vertically in sync. The four corners are fixed."]
+              [source-reference "for above v-table" "src/re_demo/v_table_sections.cljs"]
+              [p "Move the scrollbars to see the entire canvas. Sections 4, 5 and 6 will scroll horizontally in sync.  Likewise sections 2, 5 and 6 will scroll vertically in sync. The four corners are fixed."]
 
               [title3 "A Row Oriented Canvas"]
               [p [:code "v-table"] " delivers a row oriented canvas:"]
@@ -248,11 +249,12 @@
               [:p "In the following table, which has 5 data rows, colours and labels are used to identify where renderers are used so you can see how they are combined into a whole."]
 
               [table-showing-renderers]
+              [source-reference "for above v-table" "src/re_demo/v_table_renderers.cljs"]
               [:ul
-               [:li "Each of the 5 data rows are rendered across 3 sections (2, 5 and 8). One renderer does the row's header, one the footer, and another does everything in between."]
+               [:li "each of the 5 data rows are rendered across 3 sections (2, 5 and 8). One renderer does the row's header, one the footer, and another does everything in between."]
                [:li "v-table doesn't do any grid lines. If you want them, your renderers must draw them."]
-               [:li "there is only one renderer for the entire column header and column footer. If they contain more than one row, you'll need to render them all at once."]
-               [:li "there is only one renderer for the entire column headers. If it contains multiple sub-rows, then return hiccup for them all."]]]])
+               [:li "the column header section and column footer section do not have any concept of rows. If they contain more than one row, you'll need to render them all at once."]
+               ]]])
 
 
 (defn panel

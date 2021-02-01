@@ -11,6 +11,16 @@
      :href   (str base-url src-path)
      :target "_blank"]))
 
+(defn source-reference
+  [description src]
+  [h-box
+   :class "all-small-caps"
+   :gap    "7px"
+   :align  :center
+   :children [[label :label "source:"]
+              [github-hyperlink description src]]])
+
+
 (defn panel-title
   "Shown across the top of each page"
   [panel-name src1 src2]
@@ -29,11 +39,9 @@
                                       :class "all-small-caps"
                                       :gap    "7px"
                                       :align  :center
-                                      :children [
-                                                 [label :label "source:"]
+                                      :children [[label :label "source:"]
                                                  [github-hyperlink "component" src1]
                                                  [label :label "|"  :style {:font-size "12px"}]
-                                                 ;[line]
                                                  [github-hyperlink "page" src2]]])]]
               [line]]])
 

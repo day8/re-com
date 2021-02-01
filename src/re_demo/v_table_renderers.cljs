@@ -26,7 +26,7 @@
         green                     "#60d898"
 
 
-        fib-ratio          0.618             ;; fibonachi ratios to make the visuals look pretty
+        fib-ratio          0.618             ;; fibonacci ratios to make the visuals look pretty
         unit-50            50
         unit-81           (js/Math.round (/ unit-50 fib-ratio))
         unit-121          (js/Math.round (/ unit-50 fib-ratio fib-ratio))
