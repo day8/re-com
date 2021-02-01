@@ -86,7 +86,7 @@
 
 (defn first-weekday-of-year
   [week-day-at-start-of-week year]
-  {:pre [(number? start-of-week)
+  {:pre [(number? week-day-at-start-of-week)
          (number? year)]}
   (let [;; First, we find jan-1-date-time for the year.
         jan-1-date-time   (cljs-time/at-midnight (cljs-time/date-time year 1 1))
