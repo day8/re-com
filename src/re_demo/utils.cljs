@@ -1,5 +1,5 @@
 (ns re-demo.utils
-  (:require [re-com.core :refer [h-box v-box box gap title line label hyperlink-href align-style]]))
+  (:require [re-com.core :refer [h-box v-box gap title line label hyperlink-href align-style]]))
 
 (defn github-hyperlink
   "given a label and a relative path, return a component which hyperlinks to the GitHub URL in a new tab"
