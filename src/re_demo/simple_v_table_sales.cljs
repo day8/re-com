@@ -48,7 +48,7 @@
         max-width           (reagent/atom 630)
         fixed-column-count? (reagent/atom true)
         fixed-column-count  (reagent/atom 1)
-        parent-color        "lightblue"
+        parent-color        "#BEEDFF"
         parent-width?       (reagent/atom false)
         parent-width        (reagent/atom 600)
         parent-height?      (reagent/atom false)
