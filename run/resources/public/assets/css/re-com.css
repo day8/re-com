@@ -675,7 +675,8 @@ fieldset[disabled] .btn {
     color: #999;
 }
 
-.datepicker td.available:hover, .datepicker th.available:hover {
+.datepicker td.available:hover, .datepicker th.available:hover,
+.datepicker .rc-box.available:hover {
     background: #eee;
     cursor: pointer;
 }
@@ -725,7 +726,8 @@ fieldset[disabled] .btn {
     color: #333;
 }
 
-.datepicker th.selectable {
+.datepicker th.selectable,
+.datepicker .rc-box.selectable {
     font-weight: normal;
     color: #357ebd;
 }

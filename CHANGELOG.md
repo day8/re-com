@@ -1,5 +1,24 @@
 ## Unreleased
 
+**IMPORTANT:** You must upgrade your copy of `re-com.css` when upgrading to this release.
+
+#### Added
+
+- Add `datepicker` year navigation. **Breaking** changes to `datepicker` navigation layout including:
+  - Rename of the following `:parts`:
+    - `:prev` to `:prev-month`
+    - `:prev-icon` to `:prev-month-icon`
+    - `:next` to `:next-month`
+    - `:next-icon` to `:next-month-icon`
+  - New `:parts`:
+    - `:prev` is now the container for both the previous year and month navigation (not just month).
+    - `:next` is now the container for both the next month and year navigation (not just month).
+    - `:prev-year`
+    - `:prev-year-icon`
+    - `:next-year`
+    - `:next-year-icon`
+  - Renames of classes and some new classes. See 'Parts' section of https://re-com.day8.com.au/#/date
+
 #### Changed
 
 - **Breaking**: Rename `:max-table-width` arg of `v-table` and `simple-v-table` to `:max-width`.
