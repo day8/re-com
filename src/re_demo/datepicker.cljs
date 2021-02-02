@@ -40,7 +40,7 @@
 
 (defn- parameters-with
   "Toggle controls for some parameters."
-  [content enabled-days disabled? show-today? show-weeks?]
+  [content enabled-days as-days disabled? show-today? show-weeks?]
   [v-box
    :gap      "15px"
    :align    :start
@@ -72,8 +72,13 @@
                           [checkbox-for-day :Fr enabled-days]
                           [checkbox-for-day :Sa enabled-days]
                           [gap :size "5px"]
-                          [box :align :start :child [:code ":selectable-fn"]]]]
-              [:span [:code "e.g. (fn [date] (#{1 2 3 4 5 6 7} (day-of-week date)))"]]
+                          [box :align :start :child [:code ":selectable-fn"]]
+                          [gap :size "5px"]
+                          [:span
+                           [:pre
+                            {:style {:width "300px"}}
+                            [:code
+                             (str "(fn [^js/goog.date.UtcDateTime date]\n (" @as-days " (.getDay date)))")]]]]]
               content]])
 
 
@@ -103,7 +108,7 @@
                                {:id 5 :label "Saturday"}
                                {:id 6 :label "Sunday"}]
         enabled-days          (reagent/atom (-> days-map keys set))
-        as-days               (reaction (-> (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}) @enabled-days) set))
+        as-days               (reaction (-> (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}) @enabled-days) sort set))
         selectable-pred       (fn [date] (@as-days (day-of-week date)))] ; Simply allow selection based on day of week.
     (case variation
       :inline [(fn inline-fn
@@ -120,7 +125,6 @@
                                            :on-change #(reset! start-of-week %)
                                            :width     "110px"]
                                           [:span " as " [:code ":start-of-week"]]]]
-                              [label :label [:span [:code ":model"] " is " (date->string @model1)]]
                               [datepicker
                                :model         model1
                                :disabled?     disabled?
@@ -129,6 +133,7 @@
                                :selectable-fn selectable-pred
                                :start-of-week @start-of-week
                                :on-change     #(do #_(js/console.log "model1:" %) (reset! model1 %))]
+                              [label :label [:span [:code ":model"] " is " (date->string @model1)]]
                               #_[h-box
                                  :gap      "6px"
                                  :margin   "10px 0px 0px 0px"
@@ -155,6 +160,7 @@
                                              :style    {:padding  "1px 4px"}
                                              :on-click #(reset! model1 nil)]]]]]
                   enabled-days
+                  as-days
                   disabled?
                   show-today?
                   show-weeks?])]
@@ -359,8 +365,10 @@
                                              :placeholder   "Select a date"
                                              :format        "dd MMM, yyyy"
                                              :disabled?     disabled?
-                                             :on-change     #(reset! model3 %)]]]]]
+                                             :on-change     #(reset! model3 %)]]]
+                                [label :label [:span [:code ":model"] " is " (date->string @model3)]]]]
                     enabled-days
+                    as-days
                     disabled?
                     show-today?
                     show-weeks?])]
@@ -369,6 +377,7 @@
                (set! (.-DateTimeSymbols goog.i18n) DateTimeSymbols_pl)
                [parameters-with
                 [v-box
+                 :gap      "15px"
                  :children [[h-box
                              :gap      "5px"
                              :align    :center
@@ -378,35 +387,36 @@
                                          :on-change #(reset! start-of-week %)
                                          :width     "110px"]
                                         [:span " as " [:code ":start-of-week"]]]]
-                            [box
-                             :margin     "30px 0 0 0"
+                            [h-box
+                             ;:margin     "30px 0 0 0"
                              :align-self :start
-                             :child      [datepicker-dropdown
-                                          :model           model4
-                                          :show-today?     @show-today?
-                                          :show-weeks?     @show-weeks?
-                                          :selectable-fn   selectable-pred
-                                          :start-of-week   @start-of-week
-                                          :placeholder     "Wybierz datę"
-                                          :format          "d MMMM yyyy"
-                                          :disabled?       disabled?
-                                          :goog?           true
-                                          :i18n            {:days   ["PON" "WT" "ŚR" "CZW" "PT" "SOB" "ND"]
-                                                            :months ["Styczeń" "Luty" "Marzec" "Kwiecień" "Maj" "Czerwiec" "Lipiec" "Sierpień" "Wrzesień" "Październik" "Listopad" "Grudzień"]}
-                                          :width           "190px"
-                                          :position-offset 25
-                                          :on-change       #(reset! model4 %)]]]]
+                             :children      [[gap :size "120px"]
+                                             [datepicker-dropdown
+                                              :model           model4
+                                              :show-today?     @show-today?
+                                              :show-weeks?     @show-weeks?
+                                              :selectable-fn   selectable-pred
+                                              :start-of-week   @start-of-week
+                                              :placeholder     "Wybierz datę"
+                                              :format          "d MMMM yyyy"
+                                              :disabled?       disabled?
+                                              :goog?           true
+                                              :i18n            {:days   ["PON" "WT" "ŚR" "CZW" "PT" "SOB" "ND"]
+                                                                :months ["Styczeń" "Luty" "Marzec" "Kwiecień" "Maj" "Czerwiec" "Lipiec" "Sierpień" "Wrzesień" "Październik" "Listopad" "Grudzień"]}
+                                              :width           "190px"
+                                              :position-offset 25
+                                              :on-change       #(reset! model4 %)]]]
+                            [label :label [:span [:code ":model"] " is " (date->string @model4)]]]]
                 enabled-days
+                as-days
                 disabled?
                 show-today?
-                show-weeks?
-                start-of-week
-                start-of-week-choices])])))
+                show-weeks?])])))
 
 
 (def variations ^:private
   [{:id :inline       :label "Inline"}
-   {:id :inline-range :label "Inline Range"}
+   #_{:id :inline-range :label "Inline Range"}
    {:id :dropdown     :label "Dropdown"}
    {:id :i18n         :label "I18n"}])
 
