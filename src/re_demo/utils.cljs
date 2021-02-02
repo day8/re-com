@@ -1,5 +1,9 @@
 (ns re-demo.utils
-  (:require [re-com.core :refer [h-box v-box gap title line label hyperlink-href align-style]]))
+  (:require
+    [re-com.core           :refer [title line label hyperlink-href align-style]]
+    [re-com.box            :refer [box gap h-box v-box]]
+    [re-com.text           :refer [p]]
+    [re-com.util           :refer [px]]))
 
 (defn github-hyperlink
   "given a label and a relative path, return a component which hyperlinks to the GitHub URL in a new tab"
@@ -127,6 +131,77 @@
                  [gap :size "10px"]]
                 (map (partial arg-row name-column-width)  args (cycle [true false])))]))
 
+(defn parts-header
+  []
+  [h-box
+   :style {:background "#e8e8e8"}
+   :children [[box
+               :width "212px"
+               :style {:padding "5px 12px"
+                       :font-weight "bold"}
+               :child [:span "Part"]]
+              [line]
+              [box
+               :width "343px"
+               :style {:padding "5px 12px"
+                       :font-weight "bold"}
+               :child [:span "CSS Class"]]
+              [line]
+              [box
+               :width "212px"
+               :style {:padding "5px 12px"
+                       :font-weight "bold"}
+               :child [:span "Implementation"]]
+              [box
+               :style {:padding "5px 12px"
+                       :font-weight "bold"}
+               :child [:span "Notes"]]]])
+
+(defn parts-row
+  [{:keys [name level class impl notes]} odd-row?]
+  [h-box
+   :style    {:background (if odd-row? "#F4F4F4" "#FCFCFC")
+              :border-left (when (not odd-row?) "1px solid #f4f4f4")
+              :border-right (when (not odd-row?) "1px solid #f4f4f4")}
+   :children [[h-box
+               :width    "212px"
+               :style {:padding "5px 12px"}
+               :children [[gap :size (px (* level 19))]
+                          [:code (str name)]]]
+              [line :color (if odd-row? "white" "#f4f4f4")]
+              [box
+               :width "343px"
+               :style {:padding "5px 12px"}
+               :child [:code class]]
+              [line :color (if odd-row? "white" "#f4f4f4")]
+              [box
+               :width "212px"
+               :style {:padding "5px 12px"}
+               :child [:code impl]]
+              [line :color (if odd-row? "white" "#f4f4f4")]
+              [box
+               :style {:padding "5px 12px"}
+               :child [:span notes]]]])
+
+(defn parts-table
+  [component-name parts]
+  (let [name-of-first-part  (str (:name (first parts)))
+        code-example-spaces (reduce #(str % " ") "" (range (+ (count name-of-first-part) 13)))]
+    [v-box
+     :children (concat
+                 [[title2 "Parts"]
+                  [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
+                  [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
+                        Also, each part is identified by a keyword for use in " [:code ":parts"] " like this:" [:br]]
+                  [:pre "[" component-name "\n"
+                   "   ...\n"
+                   "   :parts {" name-of-first-part " {:class \"blah\"\n"
+                   code-example-spaces ":style { ... }\n"
+                   code-example-spaces ":attr  { ... }}}]"]
+                  [title3 "Part Hierarchy"]
+                  [gap :size "10px"]
+                  [parts-header]]
+                 (map parts-row parts (cycle [true false])))]))
 
 (defn scroll-to-top
   [element]

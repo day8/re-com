@@ -4,75 +4,9 @@
             [reagent.core         :as reagent]
             [re-com.core          :refer [h-box box checkbox gap v-box tag-dropdown hyperlink-href p label line]]
             [re-com.slider        :refer [slider]]
-            [re-com.tag-dropdown  :refer [tag-dropdown-args-desc]]
-            [re-demo.utils        :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
+            [re-com.tag-dropdown  :refer [tag-dropdown-parts-desc tag-dropdown-args-desc]]
+            [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
             [re-com.util          :refer [px]]))
-
-(defn tag-dropdown-component-hierarchy
-  []
-  (let [indent          20
-        table-style     {:style {:border "2px solid lightgrey" :margin-right "10px"}}
-        border          {:border "1px solid lightgrey" :padding "6px 12px"}
-        border-style    {:style border}
-        border-style-nw {:style (merge border {:white-space "nowrap"})}
-        valign          {:vertical-align "top"}
-        valign-style    {:style valign}
-        valign-style-hd {:style (merge valign {:background-color "#e8e8e8"})}
-        indent-text     (fn [level text] [:span {:style {:padding-left (px (* level indent))}} text])
-        highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
-        code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
-    [v-box
-     :gap     "10px"
-     :children [[title2 "Parts"]
-                [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
-                [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
-                    Also, each part is identified by a keyword for use in " [:code ":parts"] " like this:" [:br]]
-                [:pre "[tag-dropdown\n"
-                      "   ...\n"
-                      "   :parts {:left {:class \"blah\"\n"
-                      "                  :style { ... }\n"
-                      "                  :attr  { ... }}}]"]
-                [title3 "Part Hierarchy"]
-                [:table table-style
-                 [:thead valign-style-hd
-                  [:tr
-                   [:th border-style-nw "Part"]
-                   [:th border-style-nw "CSS Class"]
-                   [:th border-style-nw "Keyword"]
-                   [:th border-style "Notes"]]]
-                 [:tbody valign-style
-                  [:tr
-                   [:td border-style-nw (indent-text 0 "[popover-anchor-wrapper]")]
-                   [:td border-style-nw "rc-tag-dropdown-popover-anchor-wrapper"]
-                   [:td border-style-nw (code-text ":popover-anchor-wrapper")]
-                   #_[:td border-style-nw "Use " (code-text ":class") ", " (code-text ":style") " or " (code-text ":attr") " arguments instead."]
-                   [:td border-style ""]]
-                  [:tr
-                   [:td border-style-nw (indent-text 1 "[h-box]")]
-                   [:td border-style-nw "rc-tag-dropdown"]
-                   [:td border-style-nw (code-text ":main")]
-                   [:td border-style ""]]
-                  [:tr
-                   [:td border-style-nw (indent-text 2 "[h-box]")]
-                   [:td border-style-nw "rc-tag-dropdown-tags"]
-                   [:td border-style-nw (code-text ":tags")]
-                   [:td border-style ""]]
-                  [:tr
-                   [:td border-style-nw (indent-text 3 "[h-box]")]
-                   [:td border-style-nw "rc-text-tag"]
-                   [:td border-style-nw (code-text ":...")]
-                   [:td border-style ""]]
-                  [:tr
-                   [:td border-style-nw (indent-text 1 "[popover-content-wrapper]")]
-                   [:td border-style-nw "rc-tag-dropdown-popover-content-wrapper"]
-                   [:td border-style-nw (code-text ":popover-content-wrapper")]
-                   [:td border-style ""]]
-                  [:tr
-                   [:td border-style-nw (indent-text 2 "[selection-list]")]
-                   [:td border-style-nw "rc-tag-dropdown-selection-list"]
-                   [:td border-style-nw (code-text ":selection-list")]
-                   [:td border-style ""]]]]]]))
-
 
 (def choices [{:id :bug           :description "Something isn't working"                    :label "bug"           :background-color "#fc2a29"}
               {:id :documentation :description "Improvements or additions to documentation" :label "documentation" :background-color "#0052cc"}
@@ -243,7 +177,6 @@
                                         [:li  "allow the Component to switch from using \"name\" to using \"abrreviations\", see " [:code ":abbrev-fn"] " and  "[:code ":abbrev-threshold"]]]
                                        [args-table tag-dropdown-args-desc]]]
                           [demo]]]
-
-              [tag-dropdown-component-hierarchy]]])
+              [parts-table "tag-dropdown" tag-dropdown-parts-desc]]])
 
 

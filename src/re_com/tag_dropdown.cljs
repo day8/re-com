@@ -64,15 +64,21 @@
   []
   (let [over? (reagent/atom false)]
     (fn text-tag-render
-      [& {:keys [tag-data on-click on-unselect tooltip label-fn description-fn hover-style disabled? class style attr]
-          :or   {label-fn       :label}}]
-      (let [clickable?    (and (some? on-click) (not disabled?))
+      [& {:keys [tag-data on-click on-unselect tooltip id-fn label-fn description-fn hover-style disabled? class style attr parts]
+          :or   {id-fn          :id
+                 label-fn       :label}}]
+      (let [tag-id        (id-fn tag-data)
+            tag-id-kw     (keyword tag-id)
+            clickable?    (and (some? on-click) (not disabled?))
             unselectable? (and (some? on-unselect) (not disabled?))
             placeholder?  (= (:id tag-data) :$placeholder$)
             border        (when placeholder? "1px dashed #828282")
             tag-label     (label-fn tag-data)
             tag-description (when description-fn (description-fn tag-data))]
         [v-box
+         :class    (str "rc-tag-dropdown-tag " (get-in parts [:tag :class]) " " (get-in parts [tag-id-kw :class]))
+         :style    (merge (get-in parts [:tag :style]) (get-in parts [tag-id-kw :style]))
+         :attr     (merge (get-in parts [:tag :attr]) (get-in parts [tag-id-kw :attr]))
          :align :start
          :children [[h-box
                      :align-self :start
@@ -132,9 +138,15 @@
                        {:style {:color "#586069"}}
                        tag-description])]]))))
 
+(def tag-dropdown-parts-desc
+  [{:name :popover-anchor-wrapper :level 0 :class "rc-tag-dropdown-popover-anchor-wrapper" :impl "[popover-anchor-wrapper]"}
+   {:name :main                   :level 1 :class "rc-tag-dropdown"                        :impl "[h-box]"}
+   {:name :tags                   :level 2 :class "rc-tag-dropdown-tags"                   :impl "[h-box]"}
+   {:name :tag                    :level 3 :class "rc-tag-dropdown-tag"                    :impl "[h-box]" :notes [:span "Each individual tag can be independently targeted with the keyword of its " [:code ":id"]]}
+   {:name :selection-list         :level 2 :class "rc-tag-dropdown-selection-list"         :impl "[selection-list]"}])
 
 (def tag-dropdown-parts
-  #{:popover-anchor-wrapper})
+  (-> (map :name tag-dropdown-parts-desc) set))
 
 (def tag-dropdown-args-desc
   [{:name :choices            :required true                      :type "vector of maps | atom"    :validate-fn validate/vector-of-maps?    :description [:span "Each map represents a choice. Values corresponding to id, label, short label and tag background color are extracted by the functions " [:code ":id"] ", " [:code ":label-fn"] " & " [:code ":short-label-fn"]  " & " [:code ":background-color"] ". See below."]}
@@ -240,7 +252,8 @@
                                                                  :on-click    #(reset! showing? true)      ;; Show dropdown
                                                                  :on-unselect (when (and unselect-buttons? (not (and (= 1 (count model)) required?))) #(on-change (disj model %)))
                                                                  :hover-style {:opacity "0.8"}
-                                                                 :style       style]))
+                                                                 :style       style
+                                                                 :parts       parts]))
                                                             choices)
                                                       (when (not disabled?)
                                                         placeholder-tag)
