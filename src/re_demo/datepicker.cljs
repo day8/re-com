@@ -89,6 +89,8 @@
     "no date"))
 
 
+
+
 (defn- show-variant
   [variation]
   (let [model1                (reagent/atom #_nil  #_(today)                    (now->utc))                      ;; Test 3 valid data types

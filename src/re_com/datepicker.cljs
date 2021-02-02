@@ -6,7 +6,7 @@
     [re-com.validate :refer [date-like? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format :refer [parse unparse formatters formatter]]
-    [re-com.box :refer [border gap box h-box flex-child-style]]
+    [re-com.box :refer [border gap box line h-box flex-child-style]]
     [re-com.util :refer [deref-or-value now->utc]]
     [re-com.popover :refer [popover-anchor-wrapper popover-content-wrapper]]
     [clojure.string :as string])
@@ -29,7 +29,7 @@
   (when (seq iso8601)
     (parse (formatters :basic-date) iso8601)))
 
-(defn- month-label [date-time months]
+(defn- month-label [date-time {:keys [months] :as i18n}]
   (if months
     (str (nth months (dec (cljs-time/month date-time))) " " (unparse (formatter "yyyy") date-time))
     (unparse month-format date-time)))
@@ -183,125 +183,210 @@
                           attr)
                         table-div]]]])
 
+(defn- prev-year-icon
+  [& {:keys [fill parts]}]
+  [:svg
+   (merge {:class   (str "rc-datepicker-prev-year-icon " (get-in parts [:prev-year-icon :class]))
+           :style   (get-in parts [:prev-year-icon :style])
+           :height  "24"
+           :viewBox "0 0 24 24"
+           :width   "24"}
+          (get-in parts [:prev-year-icon :attr]))
+   [:path {:fill fill
+           :d    "M14 7l-5 5 5 5V7z"}]])
+
+(defn- prev-month-icon
+  [& {:keys [fill parts]}]
+  [:svg
+   (merge {:class   (str "rc-datepicker-prev-month-icon " (get-in parts [:prev-month-icon :class]))
+           :style   (get-in parts [:prev-month-icon :style])
+           :height  "24"
+           :viewBox "0 0 24 24"
+           :width   "24"}
+          (get-in parts [:prev-month-icon :attr]))
+   [:path {:fill fill
+           :d    "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"}]])
+
+(defn- next-month-icon
+  [& {:keys [fill parts]}]
+  [:svg
+   (merge {:class   (str "rc-datepicker-next-month-icon " (get-in parts [:next-month-icon :class]))
+           :style   (get-in parts [:next-month-icon :style])
+           :height  "24"
+           :viewBox "0 0 24 24"
+           :width   "24"}
+          (get-in parts [:next-month-icon :attr]))
+   [:path {:fill fill
+           :d    "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"}]])
+
+(defn- next-year-icon
+  [& {:keys [fill parts]}]
+  [:svg
+   (merge {:class   (str "rc-datepicker-next-year-icon " (get-in parts [:next-year-icon :class]))
+           :style   (get-in parts [:next-year-icon :style])
+           :height  "24"
+           :viewBox "0 0 24 24"
+           :width   "24"}
+          (get-in parts [:next-year-icon :attr]))
+   [:path {:fill fill
+           :d    "M10 17l5-5-5-5v10z"}]])
+
+(defn- prev-year-nav
+  [& {:keys [display-month minimum disabled? parts]}]
+  (let [prev-year-date-time (dec-year @display-month)
+        prev-year-enabled?  (if minimum (cljs-time/after? prev-year-date-time (dec-month minimum)) true)]
+    (when (not disabled?)
+      [:<>
+       [box
+        :class   (str (if prev-year-enabled? "available " "disabled ") "rc-datepicker-prev-year " (get-in parts [:prev-year :class]))
+        :style   (get-in parts [:prev-year :style])
+        :attr    (merge
+                   {:on-click (handler-fn (when prev-year-enabled? (reset! display-month prev-year-date-time)))}
+                   (get-in parts [:prev-year :attr]))
+        :width   "20px"
+        :align   :center
+        :justify :center
+        :child  [prev-year-icon
+                 :fill  (if prev-year-enabled? "#357ebd" "#999")
+                 :parts parts]]
+       [line]])))
+
+(defn- prev-month-nav
+  [& {:keys [display-month minimum disabled? parts]}]
+  (let [prev-month-date-time (dec-month @display-month)
+        prev-month-enabled?  (if minimum (cljs-time/after? prev-month-date-time (dec-month minimum)) true)]
+    (when (not disabled?)
+      [:<>
+       [box
+        :class   (str (if prev-month-enabled? "available " "disabled ") "rc-datepicker-prev-month " (get-in parts [:prev-month :class]))
+        :style   (get-in parts [:prev-month :style])
+        :attr    (merge
+                   {:on-click (handler-fn (when prev-month-enabled? (reset! display-month prev-month-date-time)))}
+                   (get-in parts [:prev-month :attr]))
+        :width   "20px"
+        :align   :center
+        :justify :center
+        :child   [prev-month-icon
+                  :fill  (if prev-month-enabled? "#357ebd" "#999")
+                  :parts parts]]
+       [line]])))
+
+(defn- next-month-nav
+  [& {:keys [display-month maximum disabled? parts]}]
+  (let [next-month-date-time (inc-month @display-month)
+        next-month-enabled?  (if maximum (cljs-time/before? next-month-date-time maximum) true)]
+    (when (not disabled?)
+      [:<>
+       [line]
+       [box
+        :class   (str (if next-month-enabled? "available " "disabled ") "rc-datepicker-next-month " (get-in parts [:next-month :class]))
+        :style   (get-in parts [:next-month :style])
+        :attr    (merge
+                   {:on-click (handler-fn (when next-month-enabled? (reset! display-month next-month-date-time)))}
+                   (get-in parts [:next-month :attr]))
+        :align   :center
+        :justify :center
+        :width   "20px"
+        :child   [next-month-icon
+                  :fill  (if next-month-enabled? "#357ebd" "#999")
+                  :parts parts]]])))
+
+(defn- next-year-nav
+  [& {:keys [display-month maximum disabled? parts]}]
+  (let [next-year-date-time  (inc-year @display-month)
+        next-year-enabled?   (if maximum (cljs-time/before? next-year-date-time maximum) true)]
+    (when (not disabled?)
+      [:<>
+       [line]
+       [box
+        :class   (str (if next-year-enabled? "available " "disabled ") "rc-datepicker-next-year " (get-in parts [:next-year :class]))
+        :style   (get-in parts [:next-year :style])
+        :attr    (merge
+                   {:on-click (handler-fn (when next-year-enabled? (reset! display-month next-year-date-time)))}
+                   (get-in parts [:next-year :attr]))
+        :align   :center
+        :justify :center
+        :width   "20px"
+        :child   [next-year-icon
+                  :fill  (if next-year-enabled? "#357ebd" "#999")
+                  :parts parts]]])))
+
+(defn- nav
+  [& {:keys [display-month minimum maximum disabled? i18n parts]}]
+  (let [minimum (deref-or-value minimum)
+        maximum (deref-or-value maximum)]
+    [:th
+     (merge
+       {:col-span "7"
+        :class    (str "rc-datepicker-nav " (get-in parts [:nav :class]))
+        :style    (merge {:padding "0px"} (get-in parts [:nav :style]))}
+       (get-in parts [:nav :attr]))
+     [h-box
+      :height   "100%"
+      :children [[prev-year-nav
+                  :display-month display-month
+                  :minimum       minimum
+                  :disabled?     disabled?
+                  :parts         parts]
+                 [prev-month-nav
+                  :display-month display-month
+                  :minimum       minimum
+                  :disabled?     disabled?
+                  :parts         parts]
+                 [box
+                  :class   (str "rc-datepicker-month " (get-in parts [:month :class]))
+                  :style   (get-in parts [:month :style])
+                  :attr    (get-in parts [:month :attr])
+                  :size    "1"
+                  :align   :center
+                  :justify :center
+                  :child   (month-label @display-month i18n)]
+                 [next-month-nav
+                  :display-month display-month
+                  :maximum       maximum
+                  :disabled?     disabled?
+                  :parts         parts]
+                 [next-year-nav
+                  :display-month display-month
+                  :maximum       maximum
+                  :disabled?     disabled?
+                  :parts         parts]]]]))
+
+(defn- week-days
+  [& {:keys [start-of-week i18n parts]}]
+  (let [{:keys [days]} i18n]
+    (into
+      [:<>]
+      (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
+        [:th
+         (merge
+           {:class (str "day-enabled rc-datepicker-day rc-datepicker-day-" (string/lower-case (:name day)) " " (get-in parts [:day :class]))
+            :style (get-in parts [:day :style] {})}
+           (get-in parts [:day :attr]))
+         (str (:name day))]))))
 
 (defn- table-thead
-  "Answer 2 x rows showing month with nav buttons and days NOTE: not internationalized"
-  [display-month {show-weeks? :show-weeks? minimum :minimum maximum :maximum start-of-week :start-of-week
-                  {:keys [days months]} :i18n} disabled? parts]
-  (let [minimum              (deref-or-value minimum)
-        maximum              (deref-or-value maximum)
-        prev-month-date-time (dec-month @display-month)
-        prev-year-date-time  (dec-year @display-month)
-        prev-month-enabled?  (if minimum (cljs-time/after? prev-month-date-time (dec-month minimum)) true)
-        prev-year-enabled?   (if minimum (cljs-time/after? prev-year-date-time (dec-month minimum)) true)
-        next-month-date-time (inc-month @display-month)
-        next-year-date-time  (inc-year @display-month)
-        next-month-enabled?  (if maximum (cljs-time/before? next-month-date-time maximum) true)
-        next-year-enabled?   (if maximum (cljs-time/before? next-year-date-time maximum) true)
-        template-row         (if show-weeks? [:tr [:th]] [:tr])]
+  "Answer 2 x rows showing month with nav buttons and days"
+  [display-month {:keys [show-weeks? minimum maximum start-of-week i18n]} disabled? parts]
+  (let [template-row (if show-weeks? [:tr [:th]] [:tr])]
     [:thead
      (merge
        {:class (str "rc-datepicker-header " (get-in parts [:header :class]))
         :style (get-in parts [:header :style] {})}
        (get-in parts [:header :attr]))
      (conj template-row
-           [:th
-            (merge
-              {:class (str "prev rc-datepicker-prev " (get-in parts [:prev :class]))
-               :style (merge {:padding "0px"} (get-in parts [:prev :style]))}
-              (get-in parts [:prev :attr]))
-            (when (not disabled?)
-              [h-box
-               :height   "100%"
-               :children [[box
-                           :class   (str (if prev-year-enabled? "available selectable " "disabled ") "rc-datepicker-prev-year " (get-in parts [:prev-year :class]))
-                           :style   (get-in parts [:prev-year :style])
-                           :attr    (merge
-                                      {:on-click (handler-fn (when prev-year-enabled? (reset! display-month prev-year-date-time)))}
-                                      (get-in parts [:prev-year :attr]))
-                           :width   "17px"
-                           :height  "100%"
-                           :align   :center
-                           :justify :center
-                           :child   [:i
-                                     (merge
-                                       {:class    (str "zmdi zmdi-fast-rewind rc-datepicker-prev-year-icon " (get-in parts [:prev-year-icon :class]))
-                                        :style    (merge {:font-size "15px"} (get-in parts [:prev-year-icon :style]))}
-                                       (get-in parts [:prev-year-icon :attr]))]]
-                          [box
-                           :class   (str (if prev-month-enabled? "available selectable " "disabled ") "rc-datepicker-prev-month " (get-in parts [:prev-month :class]))
-                           :style   (get-in parts [:prev-month :style])
-                           :attr    (merge
-                                      {:on-click (handler-fn (when prev-month-enabled? (reset! display-month prev-month-date-time)))}
-                                      (get-in parts [:prev-month :attr]))
-                           :width   "10px"
-                           :height  "100%"
-                           :align   :center
-                           :justify :center
-                           :child   [:i
-                                     (merge
-                                       {:class (str "zmdi zmdi-chevron-left rc-datepicker-prev-month-icon " (get-in parts [:prev-month-icon :class]))
-                                        :style (merge {:font-size "15px"}
-                                                      (get-in parts [:prev-month-icon :style]))}
-                                       (get-in parts [:prev-month-icon :attr]))]]]])]
-           [:th
-            (merge
-              {:class    (str "month rc-datepicker-month " (get-in parts [:month :class]))
-               :style    (get-in parts [:month :style] {})
-               :col-span "5"}
-              (get-in parts [:month :attr]))
-            (month-label @display-month months)]
-           [:th
-            (merge
-              {:class    (str "next rc-datepicker-next " (get-in parts [:next :class]))
-               :style    (merge {:padding "0px"} (get-in parts [:next :style]))}
-              (get-in parts [:next :attr]))
-            (when (not disabled?)
-              [h-box
-               ;:gap      "3px"
-               :height   "100%"
-               :children [[box
-                           :class   (str (if next-month-enabled? "available selectable " "disabled ") "rc-datepicker-next-month " (get-in parts [:next-month :class]))
-                           :style   (get-in parts [:next-month :style])
-                           :attr    (merge
-                                      {:on-click (handler-fn (when next-month-enabled? (reset! display-month next-month-date-time)))}
-                                      (get-in parts [:next-month :attr]))
-                           :align   :center
-                           :justify :center
-                           :width   "10px"
-                           :height  "100%"
-                           :child   [:i
-                                     (merge
-                                       {:class (str "zmdi zmdi-chevron-right rc-datepicker-next-month-icon " (get-in parts [:next-month-icon :class]))
-                                        :style (merge {:font-size "15px"}
-                                                      (get-in parts [:next-month-icon :style]))}
-                                       (get-in parts [:next-month-icon :attr]))]]
-                          [box
-                           :class   (str (if next-year-enabled? "available selectable " "disabled ") "rc-datepicker-next-year " (get-in parts [:next-year :class]))
-                           :style   (get-in parts [:next-year :style])
-                           :attr    (merge
-                                      {:on-click (handler-fn (when next-year-enabled? (reset! display-month next-year-date-time)))}
-                                      (get-in parts [:next-year :attr]))
-                           :align   :center
-                           :justify :center
-                           :width   "17px"
-                           :height  "100%"
-                           :child   [:i
-                                     (merge
-                                       {:class (str "zmdi zmdi-fast-forward rc-datepicker-next-year-icon " (get-in parts [:next-year-icon :class]))
-                                        :style (merge {:font-size "15px"}
-                                                      (get-in parts [:next-year-icon :style]))}
-                                       (get-in parts [:next-year-icon :attr]))]]]])])
+           [nav
+            :display-month display-month
+            :minimum       minimum
+            :maximum       maximum
+            :disabled?     disabled?
+            :i18n          i18n
+            :parts         parts])
      (conj template-row
-           (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
-             ^{:key (:key day)}
-             [:th
-              (merge
-                {:class (str "day-enabled rc-datepicker-day rc-datepicker-day-" (string/lower-case (:name day)) " " (get-in parts [:day :class]))
-                 :style (get-in parts [:day :style] {})}
-                (get-in parts [:day :attr]))
-              (str (:name day))]))]))
-
+           [week-days
+            :start-of-week start-of-week
+            :i18n          i18n
+            :parts         parts])]))
 
 (defn- selection-changed
   [selection change-callback]

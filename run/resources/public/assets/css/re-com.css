@@ -726,12 +726,6 @@ fieldset[disabled] .btn {
     color: #333;
 }
 
-.datepicker th.selectable,
-.datepicker .rc-box.selectable {
-    font-weight: normal;
-    color: #357ebd;
-}
-
 .datepicker th.day-disabled {
     font-weight: normal;
     font-size: 10px;
@@ -743,32 +737,14 @@ fieldset[disabled] .btn {
   color: #ccc;
 }
 
-
-.datepicker th.prev {
+.rc-datepicker-nav {
     border: 1px solid #ccc;
-    border-right-style: none;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
     background-color: #F7F7F7;
 }
 
-.datepicker th.next {
-    border: 1px solid #ccc;
-    border-left-style: none;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    background-color: #F7F7F7;
-}
-
-.datepicker th.month {
-    width: auto;
-    font-size: 14px;
+.rc-datepicker-month {
+    font-size: 12px;
     color: #777;
-    border-radius: 0;
-    border: 1px solid #CCC;
-    border-right-style: none;
-    border-left-style: none;
-    background-color: #F7F7F7;
 }
 
 .dropdown-button {
