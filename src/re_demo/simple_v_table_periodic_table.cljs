@@ -178,17 +178,22 @@
                                                         [v-box
                                                          :align    :center
                                                          :justify  :center
-                                                         :height   "72px"
+                                                         :height   "50px"
                                                          :style    {:background-color "#2ECC40"}
                                                          :children [[down-arrow]]]
                                                         [v-box
-                                                         :children [[:span atomic-number]
+                                                         :height   "50px"
+                                                         :children [[:span
+                                                                     {:style {:font-size "10px"}}
+                                                                     atomic-number]
                                                                     [:span
                                                                      {:style {:font-weight "bold"}}
                                                                      symbol]
-                                                                    [:span element]
-                                                                    [:span atomic-weight]]]))))
-                                  :width        80})
+                                                                    [:span
+                                                                     {:style {:font-size "8px"}}
+                                                                     element]
+                                                                    #_[:span atomic-weight]]]))))
+                                  :width        50})
                                (range 19))
 
         ;; cell-style is used to change the colour of the cell background according to the block of the element:
@@ -234,7 +239,7 @@
                    :anchor   [simple-v-table
                               :fixed-column-count        1
                               :fixed-column-border-color "#333"
-                              :row-height                80
+                              :row-height                50
                               :on-enter-row              on-enter-row
                               :on-leave-row              on-leave-row
                               :cell-style                cell-style-fn
