@@ -63,8 +63,10 @@
                            :on-change #(reset! show-weeks? %)]]]
               [h-box
                :gap      "2px"
-               :align    :center
-               :children [[checkbox-for-day :Su enabled-days]
+               :align    :end
+               :children [[box :align :end :child [:code ":selectable-fn"]]
+                          [gap :size "5px"]
+                          [checkbox-for-day :Su enabled-days]
                           [checkbox-for-day :Mo enabled-days]
                           [checkbox-for-day :Tu enabled-days]
                           [checkbox-for-day :We enabled-days]
@@ -72,13 +74,8 @@
                           [checkbox-for-day :Fr enabled-days]
                           [checkbox-for-day :Sa enabled-days]
                           [gap :size "5px"]
-                          [box :align :start :child [:code ":selectable-fn"]]
-                          [gap :size "5px"]
-                          [:span
-                           [:pre
-                            {:style {:width "300px"}}
-                            [:code
-                             (str "(fn [^js/goog.date.UtcDateTime date]\n (" @as-days " (.getDay date)))")]]]]]
+                          [box :align :end :child [:code (str "(fn [d]\n (" @as-days " (.getDay d)))")]]]]
+
               content]])
 
 
@@ -110,8 +107,8 @@
                                {:id 5 :label "Saturday"}
                                {:id 6 :label "Sunday"}]
         enabled-days          (reagent/atom (-> days-map keys set))
-        as-days               (reaction (-> (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}) @enabled-days) sort set))
-        selectable-pred       (fn [date] (@as-days (day-of-week date)))] ; Simply allow selection based on day of week.
+        as-days               (reaction (->> (map #(% {:Su 7 :Sa 6 :Fr 5 :Th 4 :We 3 :Tu 2 :Mo 1}) @enabled-days) (map #(if (= 7 %) 0 %)) sort set))
+        selectable-pred       (fn [^js/goog.date.UtcDateTime date] (@as-days (.getDay date)))] ; Simply allow selection based on day of week.
     (case variation
       :inline [(fn inline-fn
                  []
@@ -120,13 +117,13 @@
                    :gap      "15px"
                    :children [[h-box
                                :gap      "5px"
-                               :align    :center
-                               :children [[single-dropdown
+                               :align    :end
+                               :children [[:code ":start-of-week"]
+                                          [single-dropdown
                                            :choices   start-of-week-choices
                                            :model     start-of-week
                                            :on-change #(reset! start-of-week %)
-                                           :width     "110px"]
-                                          [:span " as " [:code ":start-of-week"]]]]
+                                           :width     "110px"]]]
                               [datepicker
                                :model         model1
                                :disabled?     disabled?
@@ -179,12 +176,12 @@
                                      :children [[h-box
                                                  :gap      "5px"
                                                  :align    :center
-                                                 :children [[single-dropdown
+                                                 :children [[:code ":start-of-week"]
+                                                            [single-dropdown
                                                              :choices   start-of-week-choices
                                                              :model     start-of-week
                                                              :on-change #(reset! start-of-week %)
-                                                             :width     "110px"]
-                                                            [:span " as " [:code ":start-of-week"]]]]
+                                                             :width     "110px"]]]
                                                 [h-box
                                                  :gap      "5px"
                                                  :width    "241px"
@@ -311,12 +308,12 @@
                                      :children [[h-box
                                                  :gap      "5px"
                                                  :align    :center
-                                                 :children [[single-dropdown
+                                                 :children [[:code ":start-of-week"]
+                                                            [single-dropdown
                                                              :choices   start-of-week-choices
                                                              :model     start-of-week-right
                                                              :on-change #(reset! start-of-week-right %)
-                                                             :width     "110px"]
-                                                            [:span " as " [:code ":start-of-week"]]]]
+                                                             :width     "110px"]]]
                                                 [h-box
                                                  :gap "5px"
                                                  :children [[:code ":minimum"]
@@ -348,12 +345,12 @@
                      :children [[h-box
                                  :gap      "5px"
                                  :align    :center
-                                 :children [[single-dropdown
+                                 :children [[:code ":start-of-week"]
+                                            [single-dropdown
                                              :choices   start-of-week-choices
                                              :model     start-of-week
                                              :on-change #(reset! start-of-week %)
-                                             :width     "110px"]
-                                            [:span " as " [:code ":start-of-week"]]]]
+                                             :width     "110px"]]]
                                 [h-box
                                  :align    :start
                                  ;:style    {:background-color "#beedff"}
@@ -383,12 +380,12 @@
                  :children [[h-box
                              :gap      "5px"
                              :align    :center
-                             :children [[single-dropdown
+                             :children [[:code ":start-of-week"]
+                                        [single-dropdown
                                          :choices   start-of-week-choices
                                          :model     start-of-week
                                          :on-change #(reset! start-of-week %)
-                                         :width     "110px"]
-                                        [:span " as " [:code ":start-of-week"]]]]
+                                         :width     "110px"]]]
                             [h-box
                              ;:margin     "30px 0 0 0"
                              :align-self :start
