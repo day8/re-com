@@ -14,7 +14,8 @@
    :gap      "10px"
    :children [[panel-title "[simple-v-table ... ]"
                             "src/re_com/simple_v_table.cljs"
-                            "src/re_demo/simple_v_table.cljs"]
+                            "src/re_demo/simple_v_table.cljs"
+                            "v2.12.0"]
               [h-box
                :gap      "106px"
                :children [[v-box

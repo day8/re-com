@@ -27,7 +27,7 @@
 
 (defn panel-title
   "Shown across the top of each page"
-  [panel-name src1 src2]
+  [panel-name src1 src2 since-version]
   [v-box
    :children [[h-box
                :margin "0px 0px 9px 0px"
@@ -46,7 +46,12 @@
                                       :children [[label :label "source:"]
                                                  [github-hyperlink "component" src1]
                                                  [label :label "|"  :style {:font-size "12px"}]
-                                                 [github-hyperlink "page" src2]]])]]
+                                                 [github-hyperlink "page" src2]
+                                                 (when since-version
+                                                   [:<>
+                                                    [label :label "| new in version: "  :style {:font-size "12px"}]
+                                                    [gap :size "3px"]
+                                                    [label :label  since-version :style {:font-weight "600" :font-size "12px"}]])]])]]
               [line]]])
 
 (defn title2

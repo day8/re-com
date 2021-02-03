@@ -92,14 +92,14 @@
    {:id :selection              :level :major :label "Selection"}
    {:id :dropdown               :level :minor :label "Dropdown"           :panel dropdowns/panel}
    {:id :lists                  :level :minor :label "Selection List"     :panel selection-list/panel}
-   {:id :multi-select           :level :minor :label [tab-label-with-version :label "Multi-select List" :version "v2.12.0"] :panel multi-select/panel}
-   {:id :tag-dropdown           :level :minor :label [tab-label-with-version :label "Tag Dropdown" :version "v2.12.0"]      :panel tag-dropdown/panel}
+   {:id :multi-select           :level :minor :label "Multi-select List"  :panel multi-select/panel}
+   {:id :tag-dropdown           :level :minor :label "Tag Dropdown"       :panel tag-dropdown/panel}
    {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
 
    {:id :tables                 :level :major :label "Tables"}
-   {:id :simple-v-table         :level :minor :label [tab-label-with-version :label "Simple V-table" :version "v2.12.0"]     :panel simple-v-table/panel}
-   {:id :v-table                :level :minor :label [tab-label-with-version :label "V-table" :version "v2.12.0"]            :panel v-table/panel}
+   {:id :simple-v-table         :level :minor :label "Simple V-table"     :panel simple-v-table/panel}
+   {:id :v-table                :level :minor :label "V-table"            :panel v-table/panel}
 
 
    {:id :layers                 :level :major :label "Layers"}
