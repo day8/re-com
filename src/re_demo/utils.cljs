@@ -136,7 +136,7 @@
   [h-box
    :style {:background "#e8e8e8"}
    :children [[box
-               :width "212px"
+               :width "343px"
                :style {:padding "5px 12px"
                        :font-weight "bold"}
                :child [:span "Part"]]
@@ -158,21 +158,26 @@
                :child [:span "Notes"]]]])
 
 (defn parts-row
-  [{:keys [name level class impl notes]} odd-row?]
+  [{:keys [type name-label name level class impl notes]} odd-row?]
   [h-box
+   :align    :start
    :style    {:background (if odd-row? "#F4F4F4" "#FCFCFC")
               :border-left (when (not odd-row?) "1px solid #f4f4f4")
               :border-right (when (not odd-row?) "1px solid #f4f4f4")}
    :children [[h-box
-               :width    "212px"
+               :width    "343px"
                :style {:padding "5px 12px"}
                :children [[gap :size (px (* level 19))]
-                          [:code (str name)]]]
+                          (if (= :legacy type)
+                            (if name-label
+                              name-label
+                              [:span "Use " [:code ":class"], [:code ":style"] " or " [:code ":attr"] " arguments instead."])
+                            [:code (str name)])]]
               [line :color (if odd-row? "white" "#f4f4f4")]
               [box
                :width "343px"
                :style {:padding "5px 12px"}
-               :child [:code class]]
+               :child (if class [:code class] "")]
               [line :color (if odd-row? "white" "#f4f4f4")]
               [box
                :width "212px"
@@ -185,7 +190,7 @@
 
 (defn parts-table
   [component-name parts]
-  (let [name-of-first-part  (str (:name (first parts)))
+  (let [name-of-first-part  (str (first (remove nil? (map :name parts))))
         code-example-spaces (reduce #(str % " ") "" (range (+ (count name-of-first-part) 13)))]
     [v-box
      :children (concat

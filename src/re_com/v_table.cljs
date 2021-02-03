@@ -461,11 +461,35 @@
 
 ;;============================ PUBLIC API ===================================
 
+(def v-table-parts-desc
+  [{:name :wrapper      :level 0 :class "rc-v-table-wrapper"      :impl "[v-table]" :notes "Outer wrapper of the v-table."}
+   {:name :left-section :level 1 :class "rc-v-table-left-section" :impl "[v-box]"}
+   {:name :top-left     :level 2 :class "rc-v-table-top-left rc-v-table-content" :impl "[box]"}
+   {:name :row-headers  :level 2 :class "rc-v-table-row-headers rc-v-table-viewport" :impl "[v-box]"}
+   {:name :row-header-selection-rect :level 3 :class "rc-v-table-selection" :impl "[:div]"}
+   {:name :row-header-content :level 3 :class "rc-v-table-row-header-content rc-v-table-content" :impl "[v-box]"}
+   {:name :bottom-left :level 2 :class "rc-v-table-bottom-left rc-v-table-content" :impl "[box]"}
+   {:name :middle-section :level 1 :class "rc-v-table-middle-section" :impl "[v-box]"}
+   {:name :column-headers :level 2 :class "rc-v-table-column-headers rc-v-table-viewport" :impl "[v-box]"}
+   {:name :column-header-selection-rect :level 3 :class "rc-v-table-selection" :impl "[:div]"}
+   {:name :column-header-content :level 3 :class "rc-v-table-column-header-content rc-v-table-content" :impl "[box]"}
+   {:name :rows :level 2 :class "rc-v-table-rows rc-v-table-viewport" :impl "[v-box]"}
+   {:name :row-selection-rect :level 3 :class "rc-v-table-selection" :impl "[:div]"}
+   {:name :row-content :level 3 :class "rc-v-table-row-content rc-v-table-content" :impl "[v-box]"}
+   {:name :column-footers :level 2 :class "rc-v-table-column-footers rc-v-table-viewport" :impl "[box]"}
+   {:name :column-footer-content :level 3 :class "rc-v-table-column-footer-content rc-v-table-content" :impl "[box]"}
+   {:name :h-scroll :level 2 :class "rc-v-table-h-scroll" :impl "[box]"}
+   {:name :right-section :level 1 :class "rc-v-table-right-section" :impl "[v-box]"}
+   {:name :top-right :level 2 :class "rc-v-table-top-right rc-v-table-content" :impl "[box]"}
+   {:name :row-footers :level 2 :class "rc-v-table-row-footers rc-v-table-viewport" :impl "[box]"}
+   {:name :row-footer-content :level 3 :class "rc-v-table-row-footer-content rc-v-table-content" :impl "[v-box]"}
+   {:name :bottom-right :level 2 :class "rc-v-table-bottom-right rc-v-table-content" :impl "[box]"}
+   {:name :v-scroll-section :level 1 :class "rc-v-table-v-scroll-section" :impl "[v-box]"}
+   {:type :legacy :name-label "-" :impl "[box]" :level 2}
+   {:name :v-scroll :level 3 :class "rc-v-table-v-scroll" :impl "[box]"}])
+
 (def v-table-parts
-  #{:wrapper :left-section :top-left :row-headers :row-header-selection-rect :row-header-content :bottom-left
-    :middle-section :column-headers :column-header-selection-rect :column-header-content :rows :row-selection-rect :row-content
-    :column-footers :column-footer-content :h-scroll :right-section :top-right :row-footers :row-footer-content :bottom-right
-    :v-scroll-section :v-scroll})
+  (-> (map :name v-table-parts-desc) set))
 
 (def v-table-args-desc
   [{:name :model                      :required true                 :type "atom containing vec of maps" :validate-fn vector-atom?           :description [:span "One element for each row displayed in the table. Typically, a vector of maps, but can be a seq of anything, with your functions like " [:code ":id-fn"] " extracting values."]}
@@ -1090,7 +1114,7 @@
                                                         (or column-header-height 0)
                                                         (or max-row-viewport-height (inc @content-rows-height)) ;; TODO: The inc prevents content scrollbar. Need to inc more if more than 1px borders specified
                                                         (or column-footer-height 0)
-                                                        scrollbar-tot-thick))
+                                                        scrollbar-tot-thick))}
 
                                         ;; TODO: Currently, scrolling a v-table also scrolls parent scrollbars (usually the one on the <body>)
                                         ;; The solution seems to to use CSS overscroll-behavior
@@ -1100,7 +1124,7 @@
 
                                         ;:overscroll-behavior "contain"
                                         ;:overscroll-behavior-block "none"
-                                        }
+                                        
                                        (get-in parts [:wrapper :style]))
                            :attr     (merge {:on-wheel (handler-fn (on-wheel event))}
                                             (get-in parts [:wrapper :attr]))

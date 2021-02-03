@@ -103,6 +103,15 @@
    :margin-top     "0px"
    :margin-bottom  "0px"})
 
+(def selection-list-parts-desc
+  [{:type :legacy     :level 0 :class "rc-selection-list"         :impl "[selection-list]" :notes "Outer wrapper for the selection list."}
+   {:name :list-group :level 1 :class "rc-selection-list-group" :impl "[:div]" :notes "Container for the selection list items."}
+   {:name :list-group-item :level 2 :class "rc-selection-list-group-item" :impl "[box]"}
+   {:name :checkbox :level 3 :class "rc-selection-list-checkbox" :impl "[checkbox]"}
+   {:name :radio-button :level 3 :class "rc-selection-list-radio-button" :impl "[radio-button]"}])
+
+(def selection-list-parts
+  (-> (map :name selection-list-parts-desc) set))
 
 (def selection-list-args-desc
   [{:name :choices        :required true                  :type "vector of choices | atom"           :validate-fn vector-of-maps? :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below (list of maps also allowed)"]}
@@ -122,7 +131,7 @@
    {:name :class          :required false                 :type "string"                             :validate-fn string?         :description "CSS class names, space separated (applies to the outer container)"}
    {:name :style          :required false                 :type "CSS style map"                      :validate-fn css-style?      :description "CSS styles to add or override (applies to the outer container)"}
    {:name :attr           :required false                 :type "HTML attr map"                      :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
-   {:name :parts          :required false                 :type "map"                                :validate-fn (parts? #{:list-group :list-group-item :checkbox :radio-button}) :description "See Parts section below."}])
+   {:name :parts          :required false                 :type "map"                                :validate-fn (parts? selection-list-parts) :description "See Parts section below."}])
 
 (defn- list-container
   [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr parts]

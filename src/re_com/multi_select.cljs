@@ -192,12 +192,39 @@
 ;; LHS: set of candidates with selected id set removed, sorted/grouped by fn
 ;; RHS: set of candidates selecting on id, sorted/grouped by fn
 
+(def multi-select-parts-desc
+  [{:type :legacy                    :level 0 :class "rc-multi-select"           :impl "[multi-select]"}
+   {:name :container                 :level 1 :class "rc-multi-select-container" :impl "[h-box]"}
+   {:name :left                      :level 2 :class "rc-multi-select-left"      :impl "[v-box]"}
+   {:name :left-label-container      :level 3 :class "rc-multi-select-left-label-container" :impl "[h-box]"}
+   {:name :left-label                :level 4 :class "rc-multi-select-left-label" :impl "[:span]"}
+   {:name :left-label-item-count     :level 4 :class "rc-multi-select-left-label-item-count" :impl "[:span]"}
+   {:name :left-list-box             :level 3 :class "rc-multi-select-left-list-box" :impl "[list-box]"}
+   {:name :filter-text-box           :level 3 :class "rc-multi-select-filter-text-box" :impl "[h-box]"}
+   {:name :filter-input-text         :level 4 :class "rc-multi-select-filter-input-text" :impl "[input-text]"}
+   {:name :filter-reset-button       :level 4 :class "rc-multi-select-filter-reset-button" :impl "[close-button]"}
+   {:name :left-filter-result-count  :level 3 :class "rc-multi-select-left-filter-result-count" :impl "[label]"}
+   {:name :middle-container          :level 2 :class "rc-multi-select-middle-container" :impl "[v-box]"}
+   {:name :middle-top-spacer         :level 3 :class "rc-multi-select-middle-top-spacer" :impl "[box]"}
+   {:name :middle                    :level 3 :class "rc-multi-select-middle" :impl "[v-box]"}
+   {:name :include-all-button        :level 4 :class "rc-multi-select-include-all-button" :impl "[button]"}
+   {:name :include-selected-button   :level 4 :class "rc-multi-select-include-selected-button" :impl "[button]"}
+   {:name :exclude-selected-button   :level 4 :class "rc-multi-select-exclude-selected-button" :impl "[button]"}
+   {:name :exclude-all-button        :level 4 :class "rc-multi-select-exclude-all-button" :impl "[button]"}
+   {:name :middle-bottom-spacer      :level 3 :class "rc-multi-select-middle-bottom-spacer" :impl "[box]"}
+   {:name :right                     :level 2 :class "rc-multi-select-right" :impl "[v-box]"}
+   {:name :warning-message           :level 3 :class "rc-multi-select-warning-message" :impl "[label]"}
+   {:name :right-label-container     :level 3 :class "rc-multi-select-right-label-container" :impl "[h-box]"}
+   {:name :right-label               :level 4 :class "rc-multi-select-right-label" :impl "[:span]"}
+   {:name :right-label-item-count    :level 4 :class "rc-multi-select-right-label-item-count" :impl "[:span]"}
+   {:name :right-list-box            :level 3 :class "rc-multi-select-right-list-box" :impl "[list-box]"}
+   {:name :filter-text-box           :level 3 :class "rc-multi-select-filter-text-box" :impl "[h-box]"}
+   {:name :filter-input-text         :level 4 :class "rc-multi-select-filter-input-text" :impl "[input-text]"}
+   {:name :filter-reset-button       :level 4 :class "rc-multi-select-filter-reset-button" :impl "[close-button]"}
+   {:name :right-filter-result-count :level 3 :class "rc-multi-select-right-filter-result-count" :impl "[label]"}])
+
 (def multi-select-parts
-  #{:container :left :left-label-container :left-label :left-label-item-count :left-list-box :filter-text-box
-    :filter-input-text :filter-reset-button :left-filter-result-count :middle-container :middle-top-spacer :middle
-    :include-all-button :include-selected-button :exclude-selected-button :exclude-all-button :middle-bottom-spacer
-    :right :warning-message :right-label-container :right-label :right-label-item-count :right-list-box
-    :right-filter-result-count})
+  (-> (map :name multi-select-parts-desc) set))
 
 (def multi-select-args-desc
   [{:name :choices            :required true                      :type "vector of maps | atom"    :validate-fn validate/vector-of-maps?   :description [:span "Each map represents a choice. Values corresponding to id, label and, optionally, a group, are extracted by the functions " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]  ". See below."]}

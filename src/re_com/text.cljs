@@ -9,6 +9,13 @@
 ;;  Component: label
 ;; ------------------------------------------------------------------------------------
 
+(def label-parts-desc
+  [{:name :wrapper   :level 0 :class "rc-label-wrapper"   :impl "[label]" :notes "Outer wrapper of the label."}
+   {:type :legacy    :level 1 :class "rc-label"           :impl "[:span]"}])
+
+(def label-parts
+  (-> (map :name label-parts-desc) set))
+
 (def label-args-desc
   [{:name :label    :required true  :type "anything"                              :description "text or hiccup or whatever to display"}
    {:name :on-click :required false :type "-> nil"        :validate-fn fn?        :description "a function which takes no params and returns nothing. Called when the label is clicked"}
@@ -16,7 +23,7 @@
    {:name :class    :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated (applies to the label, not the wrapping div)"}
    {:name :style    :required false :type "CSS style map" :validate-fn css-style? :description "additional CSS styles (applies to the label, not the wrapping div)"}
    {:name :attr     :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the label, not the wrapping div)"]}
-   {:name :parts    :required false :type "map"           :validate-fn (parts? #{:wrapper}) :description "See Parts section below."}])
+   {:name :parts    :required false :type "map"           :validate-fn (parts? label-parts) :description "See Parts section below."}])
 
 (defn label
   "Returns markup for a basic label"
@@ -44,6 +51,14 @@
 ;;  Component: title
 ;; ------------------------------------------------------------------------------------
 
+(def title-parts-desc
+  [{:name :wrapper   :level 0 :class "rc-title-wrapper"   :impl "[title]" :notes "Outer wrapper of the title."}
+   {:type :legacy    :level 1 :class "rc-title"           :impl "[:span]"}
+   {:name :underline :level 2 :class "rc-title-underline" :impl "[line]"}])
+
+(def title-parts
+  (-> (map :name title-parts-desc) set))
+
 (def title-args-desc
   [{:name :label         :required true                    :type "anything"                                       :description "title or hiccup or anything to display"}
    {:name :level         :required false                   :type "keyword"         :validate-fn title-level-type? :description [:span "one of " title-levels-list ". If not provided then style the title using " [:code ":class"] " or " [:code ":style"]]}
@@ -53,7 +68,7 @@
    {:name :class         :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the title, not the wrapping div)"}
    {:name :style         :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the title, not the wrapping div)"}
    {:name :attr          :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the title, not the wrapping div)"]}
-   {:name :parts         :required false                   :type "map"             :validate-fn (parts? #{:wrapper :underline}) :description "See Parts section below."}])
+   {:name :parts         :required false                   :type "map"             :validate-fn (parts? title-parts) :description "See Parts section below."}])
 
 (defn title
   "A title with four preset levels"

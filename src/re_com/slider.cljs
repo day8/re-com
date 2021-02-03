@@ -13,6 +13,13 @@
 ;;  Component: slider
 ;; ------------------------------------------------------------------------------------
 
+(def slider-parts-desc
+  [{:name :wrapper :level 0 :class "rc-slider-wrapper" :impl "[slider]" :notes "Outer wrapper of the slider."}
+   {:type :legacy  :level 1 :class "rc-slider"         :impl "[:input]" :notes "The actual input field."}])
+
+(def slider-parts
+  (-> (map :name slider-parts-desc) set))
+
 (def slider-args-desc
   [{:name :model     :required true                   :type "double | string | atom" :validate-fn number-or-string? :description "current value of the slider"}
    {:name :on-change :required true                   :type "double -> nil"          :validate-fn fn?               :description "called when the slider is moved. Passed the new value of the slider"}
@@ -24,7 +31,7 @@
    {:name :class     :required false                  :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the slider, not the wrapping div)"}
    {:name :style     :required false                  :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the slider, not the wrapping div)"}
    {:name :attr      :required false                  :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the slider, not the wrapping div)"]}
-   {:name :parts     :required false                  :type "map"                    :validate-fn (parts? #{:wrapper}) :description "See Parts section below."}])
+   {:name :parts     :required false                  :type "map"                    :validate-fn (parts? slider-parts) :description "See Parts section below."}])
 
 (defn slider
   "Returns markup for an HTML5 slider input"

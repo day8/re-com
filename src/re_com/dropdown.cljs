@@ -356,6 +356,18 @@
 ;; Component: single-dropdown
 ;;--------------------------------------------------------------------------------------------------
 
+(def single-dropdown-parts-desc
+  [{:name :tooltip :level 0 :class "rc-dropdown-tooltip" :impl "[popover-tooltip]" :notes "Tooltip for the dropdown, if enabled."}
+   {:type :legacy  :level 1 :class "rc-dropdown"         :impl "[:div]" :notes "The container for the rest of the dropdown."}
+   {:name :chosen-drop :level 2 :class "rc-dropdown-chosen-drop" :impl "[:div]"}
+   {:name :chosen-results :level 3 :class "rc-dropdown-chosen-results" :impl "[:ul]"}
+   {:name :choices-loading :level 4 :class "rc-dropdown-choices-loading" :impl "[:li]"}
+   {:name :choices-error :level 4 :class "rc-dropdown-choices-error" :impl "[:li]"}
+   {:name :choices-no-results :level 4 :class "rc-dropdown-choices-no-results" :impl "[:li]"}])
+
+(def single-dropdown-parts
+  (-> (map :name single-dropdown-parts-desc) set))
+
 (def single-dropdown-args-desc
   [{:name :choices            :required true                         :type "vector of choices | atom | (opts, done, fail) -> nil" :validate-fn fn-or-vector-of-maps-or-strings? :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"] ". May also be a callback " [:code "(opts, done, fail)"] " where opts is map of " [:code ":filter-text"] " and " [:code ":regex-filter?."]]}
    {:name :model              :required true                         :type "the id of a choice | atom"                                    :description [:span "the id of the selected choice. If nil, " [:code ":placeholder"] " text is shown"]}
@@ -391,7 +403,7 @@
    {:name :class              :required false                        :type "string"                        :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
    {:name :style              :required false                        :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
    {:name :attr               :required false                        :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
-   {:name :parts              :required false                        :type "map"                           :validate-fn (parts? #{:tooltip :chosen-drop :chosen-results :choices-loading :choices-error :choices-no-results})        :description "See Parts section below."}])
+   {:name :parts              :required false                        :type "map"                           :validate-fn (parts? single-dropdown-parts)        :description "See Parts section below."}])
 
 (defn single-dropdown
   "Render a single dropdown component which emulates the bootstrap-choosen style. Sample choices object:

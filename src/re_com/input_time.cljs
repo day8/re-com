@@ -124,6 +124,15 @@
     (when (and callback (not= time previous-val))
       (callback time))))
 
+(def input-time-parts-desc
+  [{:name :wrapper :level 0 :class "rc-input-time " :impl "[input-time]" :notes "Outer wrapper of the time input."}
+   {:type :legacy  :level 1 :class "rc-time-entry"         :impl "[:input]" :notes "The actual input field."}
+   {:name :time-icon-container :level 1 :class "rc-time-icon-container" :impl "[:div]" :notes "The time icon container."}
+   {:name :time-icon :level 2 :class "rc-time-icon" :impl "[:i]" :notes "The time icon."}])
+
+(def input-time-parts
+  (-> (map :name input-time-parts-desc) set))
+
 (def input-time-args-desc
   [{:name :model        :required true                   :type "integer | string | atom" :validate-fn number-or-string? :description "a time in integer form. e.g. '09:30am' is 930"}
    {:name :on-change    :required true                   :type "integer -> nil"          :validate-fn fn?               :description "called when user entry completes and value is new. Passed new value as integer"}
@@ -137,7 +146,7 @@
    {:name :class        :required false                  :type "string"                  :validate-fn string?           :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
    {:name :style        :required false                  :type "CSS style map"           :validate-fn css-style?        :description "CSS style. e.g. {:color \"red\" :width \"50px\"} (applies to the textbox, not the wrapping div)"}
    {:name :attr         :required false                  :type "HTML attr map"           :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
-   {:name :parts        :required false                  :type "map"                     :validate-fn (parts? #{:wrapper :time-icon-container :time-icon}) :description "See Parts section below."}])
+   {:name :parts        :required false                  :type "map"                     :validate-fn (parts? input-time-parts) :description "See Parts section below."}])
 
 (defn input-time
   "I return the markup for an input box which will accept and validate times.

@@ -13,6 +13,14 @@
 ;;  Component: checkbox
 ;; ------------------------------------------------------------------------------------
 
+(def checkbox-parts-desc
+  [{:name :wrapper   :level 0 :class "rc-checkbox-wrapper"   :impl "[checkbox]"       :notes "Outer wrapper of the checkbox, label, everything."}
+   {:type :legacy   :level 1 :class "rc-checkbox"   :impl "[:input]" :notes "The actual checkbox."}
+   {:type :legacy :name-label [:span "Use " [:code ":label-class"] " or " [:code ":label-style"] " instead."] :level 1 :class "rc-checkbox-label" :impl "[:span]"}])
+
+(def checkbox-parts
+  (-> (map :name checkbox-parts-desc) set))
+
 (def checkbox-args-desc
   [{:name :model       :required true                 :type "boolean | atom"                                  :description "holds state of the checkbox when it is called"}
    {:name :on-change   :required true                 :type "boolean -> nil"   :validate-fn fn?               :description "called when the checkbox is clicked. Passed the new value of the checkbox"}
@@ -23,7 +31,7 @@
    {:name :class       :required false                :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the checkbox, not the wrapping div)"}
    {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the checkbox, not the wrapping div)"}
    {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the checkbox, not the wrapping div)"]}
-   {:name :parts       :required false                :type "map"              :validate-fn (parts? #{:wrapper}) :description "See Parts section below."}])
+   {:name :parts       :required false                :type "map"              :validate-fn (parts? checkbox-parts) :description "See Parts section below."}])
 
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox

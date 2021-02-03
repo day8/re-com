@@ -1,8 +1,8 @@
 (ns re-demo.dropdowns
   (:require [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
-            [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-args-desc]]
+            [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
             [re-com.util     :refer [item-for-id]]
-            [re-demo.utils   :refer [panel-title title2 title3 args-table github-hyperlink status-text]]
+            [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
             [re-com.util     :refer [px]]
             [reagent.core    :as    reagent]))
 
@@ -677,75 +677,6 @@
 
 (defonce selected-demo-id (reagent/atom 1))
 
-(defn dropdown-component-hierarchy
-  []
-  (let [indent          20
-        table-style     {:style {:border "2px solid lightgrey" :margin-right "10px"}}
-        border          {:border "1px solid lightgrey" :padding "6px 12px"}
-        border-style    {:style border}
-        border-style-nw {:style (merge border {:white-space "nowrap"})}
-        valign          {:vertical-align "top"}
-        valign-style    {:style valign}
-        valign-style-hd {:style (merge valign {:background-color "#e8e8e8"})}
-        indent-text     (fn [level text] [:span {:style {:padding-left (px (* level indent))}} text])
-        highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
-        code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
-    [v-box
-     :gap      "10px"
-     :children [[title2 "Parts"]
-                [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
-                [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
-                    Also, each part is identified by a keyword for use in " [:code ":parts"] " like this:" [:br]]
-                [:pre "[dropdown\n"
-                      "   ...\n"
-                      "   :parts {:tooltip {:class \"blah\"\n"
-                      "                     :style { ... }\n"
-                      "                     :attr  { ... }}}]"]
-                [title3 "Part Hierarchy"]
-                [:table table-style
-                 [:thead valign-style-hd
-                  [:tr
-                   [:th border-style-nw "Part"]
-                   [:th border-style-nw "CSS Class"]
-                   [:th border-style-nw "Keyword"]
-                   [:th border-style "Notes"]]]
-                 [:tbody valign-style
-                  [:tr
-                   [:td border-style-nw (indent-text 0 "[popover-tooltip]")]
-                   [:td border-style-nw "rc-dropdown-tooltip"]
-                   [:td border-style-nw (code-text ":tooltip")]
-                   [:td border-style "Tooltip for the dropdown, if enabled."]]
-                  [:tr
-                   [:td border-style-nw (indent-text 1 "[:div]")]
-                   [:td border-style-nw "rc-dropdown"]
-                   [:td border-style-nw "Use " (code-text ":class") ", " (code-text ":style") " or " (code-text ":attr") " arguments instead."]
-                   [:td border-style "The container for the rest of the dropdown."]]
-                  [:tr
-                   [:td border-style-nw (indent-text 2 "[:div]")]
-                   [:td border-style-nw "rc-dropdown-chosen-drop"]
-                   [:td border-style-nw (code-text ":chosen-drop")]
-                   [:td border-style ""]]
-                  [:tr
-                   [:td border-style-nw (indent-text 3 "[:ul]")]
-                   [:td border-style-nw "rc-dropdown-chosen-results"]
-                   [:td border-style-nw (code-text ":chosen-results")]
-                   [:td border-style ""]]
-                  [:tr
-                   [:td border-style-nw (indent-text 4 "[:li]")]
-                   [:td border-style-nw "rc-dropdown-choices-loading"]
-                   [:td border-style-nw (code-text ":choices-loading")]
-                   [:td border-style ""]]
-                  [:tr
-                   [:td border-style-nw (indent-text 4 "[:li]")]
-                   [:td border-style-nw "rc-dropdown-choices-error"]
-                   [:td border-style-nw (code-text ":choices-error")]
-                   [:td border-style ""]]
-                  [:tr
-                   [:td border-style-nw (indent-text 4 "[:li]")]
-                   [:td border-style-nw "rc-dropdown-choices-no-results"]
-                   [:td border-style-nw (code-text ":choices-no-results")]
-                   [:td border-style ""]]]]]]))
-
 (defn panel2
   []
   (fn []
@@ -803,7 +734,7 @@
                                            9  [async-load-demo]
                                            10 [drop-above-demo]
                                            11 [free-text-demo])]]]]
-                [dropdown-component-hierarchy]]]))
+                [parts-table "single-dropdown" single-dropdown-parts-desc]]]))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

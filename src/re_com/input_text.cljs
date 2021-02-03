@@ -15,6 +15,14 @@
 ;;  Component: input-text
 ;; ------------------------------------------------------------------------------------
 
+(def input-text-parts-desc
+  [{:name :wrapper   :level 0 :class "rc-input-text"   :impl "[input-text]"       :notes "Outer wrapper of the text input."}
+   {:name :inner   :level 1 :class "rc-input-text-inner"   :impl "[:div]" :notes "The container for the text input."}
+   {:type :legacy  :level 2 :class "rc-input-text-field" :impl "[:input]" :notes "The actual input field."}])
+
+(def input-text-parts
+  (-> (map :name input-text-parts-desc) set))
+
 (def input-text-args-desc
   [{:name :model            :required true                   :type "string/nil | atom"        :validate-fn nillable-string-or-atom? :description "text of the input (can be atom or value/nil)"}
    {:name :on-change        :required true                   :type "string[, done-fn] -> nil" :validate-fn fn?                      :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string, and optionally a function to call (with no args) to signal that " [:code ":model"] " has reached a steady state to avoid displaying a prior value while processing."]}
@@ -32,7 +40,7 @@
    {:name :class            :required false                  :type "string"                   :validate-fn string?                  :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
    {:name :style            :required false                  :type "CSS style map"            :validate-fn css-style?               :description "CSS styles to add or override (applies to the textbox, not the wrapping div)"}
    {:name :attr             :required false                  :type "HTML attr map"            :validate-fn html-attr?               :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
-   {:name :parts            :required false                  :type "map"                      :validate-fn (parts? #{:wrapper :inner}) :description "See Parts section below."}
+   {:name :parts            :required false                  :type "map"                      :validate-fn (parts? input-text-parts) :description "See Parts section below."}
    {:name :input-type       :required false                  :type "keyword"                  :validate-fn keyword?                 :description [:span "ONLY applies to super function 'base-input-text': either " [:code ":input"] ", " [:code ":password"] " or " [:code ":textarea"]]}])
 
 ;; Sample regex's:
@@ -101,7 +109,7 @@
                        (get-in parts [:inner :attr]))
                      [(if (= input-type :password) :input input-type)
                       (merge
-                        {:class       (str "form-control " class)
+                        {:class       (str "form-control rc-input-text-field " class)
                          :type        (case input-type
                                         :input "text"
                                         :password "password"

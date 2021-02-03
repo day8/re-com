@@ -13,6 +13,14 @@
 ;;  Component: radio-button
 ;; ------------------------------------------------------------------------------------
 
+(def radio-button-parts-desc
+  [{:name :wrapper   :level 0 :class "rc-radio-button-wrapper"   :impl "[radio-button]"       :notes "Outer wrapper of the radio-button, label, everything."}
+   {:type :legacy   :level 1 :class "rc-radio-button"   :impl "[:input]" :notes "The actual input field."}
+   {:type :legacy :name-label [:span "Use " [:code ":label-class"] " or " [:code ":label-style"] " instead."] :level 1 :class "rc-radio-button-label" :impl "[:span]" :notes "The label of the radio button."}])
+
+(def radio-button-parts
+  (-> (map :name radio-button-parts-desc) set))
+
 (def radio-button-args-desc
   [{:name :model       :required true                 :type "anything | atom"                                 :description [:span "selected value of the radio button group. See also " [:code ":value"]]}
    {:name :value       :required false                :type "anything"                                        :description [:span "if " [:code ":model"]  " equals " [:code ":value"] " then this radio button is selected"]}
@@ -24,7 +32,7 @@
    {:name :class       :required false                :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the radio-button, not the wrapping div)"}
    {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the radio-button, not the wrapping div)"}
    {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the radio-button, not the wrapping div)"]}
-   {:name :parts       :required false                :type "map"              :validate-fn (parts? #{:wrapper}) :description "See Parts section below."}])
+   {:name :parts       :required false                :type "map"              :validate-fn (parts? radio-button-parts) :description "See Parts section below."}])
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label"

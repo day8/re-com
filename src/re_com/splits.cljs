@@ -52,6 +52,25 @@
 ;;  Component: h-split
 ;; ------------------------------------------------------------------------------------
 
+(def hv-split-parts-desc
+  [{:type :legacy       :level 0 :class "rc-h-split"              :impl "[h-split]" :notes "Outer wrapper of the split."}
+   {:name :left         :level 1 :class "rc-h-split-left"         :impl "[:div]"    :notes "First (i.e. left) panel of the split."}
+   {:name :splitter     :level 1 :class "rc-h-split-splitter"     :impl "[:div]"    :notes "The splitter between panels."}
+   {:name :handle       :level 2 :class "rc-h-split-handle"       :impl "[:div]"    :notes "The splitter handle."}
+   {:name :handle-bar-1 :level 3 :class "rc-h-split-handle-bar-1" :impl "[:div]"    :notes "The splitter handle's first bar."}
+   {:name :handle-bar-2 :level 3 :class "rc-h-split-handle-bar-2" :impl "[:div]"    :notes "The splitter handle's second bar."}
+   {:name :right        :level 1 :class "rc-h-split-right"        :impl "[:div]"    :notes "Second (i.e right) panel of the split."}
+   {:type :legacy       :level 0 :class "rc-v-split"              :impl "[v-split]" :notes "Outer wrapper of the split."}
+   {:name :top          :level 1 :class "rc-v-split-top"          :impl "[:div]"    :notes "First (i.e. top) panel of the split."}
+   {:name :splitter     :level 1 :class "rc-v-split-splitter"     :impl "[:div]"    :notes "The splitter between panels."}
+   {:name :handle       :level 2 :class "rc-v-split-handle"       :impl "[:div]"    :notes "The splitter handle."}
+   {:name :handle-bar-1 :level 3 :class "rc-v-split-handle-bar-1" :impl "[:div]"    :notes "The splitter handle's first bar."}
+   {:name :handle-bar-2 :level 3 :class "rc-v-split-handle-bar-2" :impl "[:div]"    :notes "The splitter handle's second bar."}
+   {:name :bottom       :level 1 :class "rc-v-split-bottom"       :impl "[:div]"    :notes "Second (i.e bottom) panel of the split."}])
+
+(def hv-split-parts
+  (-> (map :name hv-split-parts-desc) set))
+
 (def hv-split-args-desc
   [{:name :panel-1         :required true                  :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the left (or top) panel"}
    {:name :panel-2         :required true                  :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the right (or bottom) panel"}
@@ -65,7 +84,7 @@
    {:name :class           :required false                 :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
    {:name :style           :required false                 :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
    {:name :attr            :required false                 :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
-   {:name :parts           :required false                 :type "map"             :validate-fn (parts? #{:left :top :splitter :handle :handle-bar-1 :handle-bar-2 :right :bottom})         :description "See Parts section below."}])
+   {:name :parts           :required false                 :type "map"             :validate-fn (parts? hv-split-parts) :description "See Parts section below."}])
 
 (defn h-split
   "Returns markup for a horizontal layout component"

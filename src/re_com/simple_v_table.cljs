@@ -68,10 +68,14 @@
                                   cell-style))}
             ((:row-label-fn col) row)]))))
 
+(def simple-v-table-parts-desc
+  (into
+    [{:name :simple-wrapper      :level 0 :class "rc-simple-v-table-wrapper"      :impl "[simple-v-table]" :notes "Outer wrapper of the simple-v-table."}
+     {:name :simple-header       :level 4 :impl "[:div]"}]
+    (map #(update % :level inc) v-table/v-table-parts-desc)))
+
 (def simple-v-table-parts
-  (conj v-table/v-table-parts
-        :simple-wrapper
-        :simple-header))
+  (-> (map :name simple-v-table-parts-desc) set))
 
 (def simple-v-table-args-desc
   [{:name :model                     :required true                     :type "atom containing vec of maps"  :validate-fn vector-atom?                   :description "one element for each row in the table."}
@@ -128,7 +132,7 @@
                                   (* 2 table-padding)
                                   2)]                   ;; 2 border widths
     [box/box
-     :class (str "simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
+     :class (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
      :style (merge {:background-color "white"
                     :padding          (px table-padding)
                     :max-width        (or max-width  (px actual-table-width)) ;; Removing actual-table-width would make the table stretch to the end of the page
