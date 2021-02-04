@@ -1,9 +1,12 @@
 (ns re-com.splits
-  (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util        :refer [get-element-by-id sum-scroll-offsets]]
-            [re-com.box         :refer [flex-child-style flex-flow-style]]
-            [re-com.validate    :refer [string-or-hiccup? number-or-string? html-attr? css-style? parts?] :refer-macros [validate-args-macro]]
-            [reagent.core       :as    reagent]))
+  (:require-macros
+    [re-com.core :refer [handler-fn]])
+  (:require
+    [re-com.config      :refer [include-args-desc?]]
+    [re-com.util        :refer [get-element-by-id sum-scroll-offsets]]
+    [re-com.box         :refer [flex-child-style flex-flow-style]]
+    [re-com.validate    :refer [string-or-hiccup? number-or-string? html-attr? css-style? parts?] :refer-macros [validate-args-macro]]
+    [reagent.core       :as    reagent]))
 
 
 (defn drag-handle
@@ -53,38 +56,41 @@
 ;; ------------------------------------------------------------------------------------
 
 (def hv-split-parts-desc
-  [{:type :legacy       :level 0 :class "rc-h-split"              :impl "[h-split]" :notes "Outer wrapper of the split."}
-   {:name :left         :level 1 :class "rc-h-split-left"         :impl "[:div]"    :notes "First (i.e. left) panel of the split."}
-   {:name :splitter     :level 1 :class "rc-h-split-splitter"     :impl "[:div]"    :notes "The splitter between panels."}
-   {:name :handle       :level 2 :class "rc-h-split-handle"       :impl "[:div]"    :notes "The splitter handle."}
-   {:name :handle-bar-1 :level 3 :class "rc-h-split-handle-bar-1" :impl "[:div]"    :notes "The splitter handle's first bar."}
-   {:name :handle-bar-2 :level 3 :class "rc-h-split-handle-bar-2" :impl "[:div]"    :notes "The splitter handle's second bar."}
-   {:name :right        :level 1 :class "rc-h-split-right"        :impl "[:div]"    :notes "Second (i.e right) panel of the split."}
-   {:type :legacy       :level 0 :class "rc-v-split"              :impl "[v-split]" :notes "Outer wrapper of the split."}
-   {:name :top          :level 1 :class "rc-v-split-top"          :impl "[:div]"    :notes "First (i.e. top) panel of the split."}
-   {:name :splitter     :level 1 :class "rc-v-split-splitter"     :impl "[:div]"    :notes "The splitter between panels."}
-   {:name :handle       :level 2 :class "rc-v-split-handle"       :impl "[:div]"    :notes "The splitter handle."}
-   {:name :handle-bar-1 :level 3 :class "rc-v-split-handle-bar-1" :impl "[:div]"    :notes "The splitter handle's first bar."}
-   {:name :handle-bar-2 :level 3 :class "rc-v-split-handle-bar-2" :impl "[:div]"    :notes "The splitter handle's second bar."}
-   {:name :bottom       :level 1 :class "rc-v-split-bottom"       :impl "[:div]"    :notes "Second (i.e bottom) panel of the split."}])
+  (when include-args-desc?
+    [{:type :legacy       :level 0 :class "rc-h-split"              :impl "[h-split]" :notes "Outer wrapper of the split."}
+     {:name :left         :level 1 :class "rc-h-split-left"         :impl "[:div]"    :notes "First (i.e. left) panel of the split."}
+     {:name :splitter     :level 1 :class "rc-h-split-splitter"     :impl "[:div]"    :notes "The splitter between panels."}
+     {:name :handle       :level 2 :class "rc-h-split-handle"       :impl "[:div]"    :notes "The splitter handle."}
+     {:name :handle-bar-1 :level 3 :class "rc-h-split-handle-bar-1" :impl "[:div]"    :notes "The splitter handle's first bar."}
+     {:name :handle-bar-2 :level 3 :class "rc-h-split-handle-bar-2" :impl "[:div]"    :notes "The splitter handle's second bar."}
+     {:name :right        :level 1 :class "rc-h-split-right"        :impl "[:div]"    :notes "Second (i.e right) panel of the split."}
+     {:type :legacy       :level 0 :class "rc-v-split"              :impl "[v-split]" :notes "Outer wrapper of the split."}
+     {:name :top          :level 1 :class "rc-v-split-top"          :impl "[:div]"    :notes "First (i.e. top) panel of the split."}
+     {:name :splitter     :level 1 :class "rc-v-split-splitter"     :impl "[:div]"    :notes "The splitter between panels."}
+     {:name :handle       :level 2 :class "rc-v-split-handle"       :impl "[:div]"    :notes "The splitter handle."}
+     {:name :handle-bar-1 :level 3 :class "rc-v-split-handle-bar-1" :impl "[:div]"    :notes "The splitter handle's first bar."}
+     {:name :handle-bar-2 :level 3 :class "rc-v-split-handle-bar-2" :impl "[:div]"    :notes "The splitter handle's second bar."}
+     {:name :bottom       :level 1 :class "rc-v-split-bottom"       :impl "[:div]"    :notes "Second (i.e bottom) panel of the split."}]))
 
 (def hv-split-parts
-  (-> (map :name hv-split-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name hv-split-parts-desc) set)))
 
 (def hv-split-args-desc
-  [{:name :panel-1         :required true                  :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the left (or top) panel"}
-   {:name :panel-2         :required true                  :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the right (or bottom) panel"}
-   {:name :size            :required false :default "auto" :type "string"          :validate-fn string?           :description [:span "applied to the outer container of the two panels. Equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
-   {:name :width           :required false                 :type "string"          :validate-fn string?           :description "width of the outer container of the two panels. A CSS width style"}
-   {:name :height          :required false                 :type "string"          :validate-fn string?           :description "height of the outer container of the two panels. A CSS height style"}
-   {:name :on-split-change :required false                 :type "double -> nil"   :validate-fn fn?               :description [:span "called when the user moves the splitter bar (on mouse up, not on each mouse move). Given the new " [:code ":panel-1"] " percentage split"]}
-   {:name :initial-split   :required false :default 50     :type "double | string" :validate-fn number-or-string? :description [:span "initial split percentage for " [:code ":panel-1"] ". Can be double value or string (with/without percentage sign)"]}
-   {:name :splitter-size   :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the splitter"}
-   {:name :margin          :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}
-   {:name :class           :required false                 :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
-   {:name :style           :required false                 :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
-   {:name :attr            :required false                 :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
-   {:name :parts           :required false                 :type "map"             :validate-fn (parts? hv-split-parts) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :panel-1         :required true                  :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the left (or top) panel"}
+     {:name :panel-2         :required true                  :type "hiccup"          :validate-fn string-or-hiccup? :description "markup to go in the right (or bottom) panel"}
+     {:name :size            :required false :default "auto" :type "string"          :validate-fn string?           :description [:span "applied to the outer container of the two panels. Equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :width           :required false                 :type "string"          :validate-fn string?           :description "width of the outer container of the two panels. A CSS width style"}
+     {:name :height          :required false                 :type "string"          :validate-fn string?           :description "height of the outer container of the two panels. A CSS height style"}
+     {:name :on-split-change :required false                 :type "double -> nil"   :validate-fn fn?               :description [:span "called when the user moves the splitter bar (on mouse up, not on each mouse move). Given the new " [:code ":panel-1"] " percentage split"]}
+     {:name :initial-split   :required false :default 50     :type "double | string" :validate-fn number-or-string? :description [:span "initial split percentage for " [:code ":panel-1"] ". Can be double value or string (with/without percentage sign)"]}
+     {:name :splitter-size   :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the splitter"}
+     {:name :margin          :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}
+     {:name :class           :required false                 :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :style           :required false                 :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
+     {:name :attr            :required false                 :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+     {:name :parts           :required false                 :type "map"             :validate-fn (parts? hv-split-parts) :description "See Parts section below."}]))
 
 (defn h-split
   "Returns markup for a horizontal layout component"

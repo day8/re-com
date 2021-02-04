@@ -1,8 +1,10 @@
 (ns re-com.tour
-  (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [reagent.core   :as    reagent]
-            [re-com.box     :refer [flex-child-style]]
-            [re-com.buttons :refer [button]]))
+  (:require-macros
+    [re-com.core    :refer [handler-fn]])
+  (:require
+    [reagent.core   :as    reagent]
+    [re-com.box     :refer [flex-child-style]]
+    [re-com.buttons :refer [button]]))
 
 
 ;;--------------------------------------------------------------------------------------------------

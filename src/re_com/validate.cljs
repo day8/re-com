@@ -2,6 +2,7 @@
   (:require
     [cljs-time.core         :as    time.core]
     [clojure.set            :refer [superset?]]
+    [re-com.config          :refer [debug?]]
     [re-com.util            :refer [deref-or-value-peek]]
     [reagent.core           :as    reagent]
     [reagent.impl.component :as    component]
@@ -109,7 +110,7 @@
    If they all pass, returns true.
    Normally used for a call to the {:pre...} at the beginning of a function"
   [arg-defs passed-args & component-name]
-  (if-not ^boolean js/goog.DEBUG
+  (if-not debug?
     true
     (let [passed-arg-keys (set (keys passed-args))]
       (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys)
@@ -328,7 +329,7 @@
   "Returns true if the passed argument is a valid CSS style.
    Otherwise returns a warning map"
   [arg]
-  (if-not ^boolean js/goog.DEBUG
+  (if-not debug?
     true
     (let [arg (deref-or-value-peek arg)]
       (and (map? arg)
@@ -358,7 +359,7 @@
    Notes:
     - Prevents :class and :style attributes"
   [arg]
-  (if-not ^boolean js/goog.DEBUG
+  (if-not debug?
     true
     (let [arg (deref-or-value-peek arg)]
       (and (map? arg)
@@ -380,7 +381,7 @@
   [keys]
   {:pre [(set? keys)]}
   (fn [arg]
-    (if-not ^boolean js/goog.DEBUG
+    (if-not debug?
       true
       (reduce-kv
         (fn [_ k v]

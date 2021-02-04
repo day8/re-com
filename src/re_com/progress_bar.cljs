@@ -2,34 +2,38 @@
   (:require-macros
     [re-com.core :refer [handler-fn]]
     [re-com.validate :refer [validate-args-macro]])
-  (:require [re-com.util     :refer [deref-or-value px]]
-            [re-com.popover  :refer [popover-tooltip]]
-            [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-            [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                                     number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]
-            [reagent.core    :as    reagent]))
+  (:require
+    [re-com.config   :refer [include-args-desc?]]
+    [re-com.util     :refer [deref-or-value px]]
+    [re-com.popover  :refer [popover-tooltip]]
+    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
+    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
+                                     number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: progress-bar
 ;; ------------------------------------------------------------------------------------
 
 (def progress-bar-parts-desc
-  [{:name :wrapper :level 0 :class "rc-progress-bar-wrapper" :impl "[progress-bar]" :notes "Outer wrapper of the progress bar."}
-   {:type :legacy  :level 1 :class "rc-progress-bar"         :impl "[:div]"         :notes "The container for the progress bar."}
-   {:type :legacy :name-label [:span "Use " [:code ":bar-class"] " instead."] :level 2 :class "rc-progress-bar-portion" :impl "[:div]" :notes "The portion of the progress bar complete so far."}])
+  (when include-args-desc?
+    [{:name :wrapper :level 0 :class "rc-progress-bar-wrapper" :impl "[progress-bar]" :notes "Outer wrapper of the progress bar."}
+     {:type :legacy  :level 1 :class "rc-progress-bar"         :impl "[:div]"         :notes "The container for the progress bar."}
+     {:type :legacy :name-label [:span "Use " [:code ":bar-class"] " instead."] :level 2 :class "rc-progress-bar-portion" :impl "[:div]" :notes "The portion of the progress bar complete so far."}]))
 
 (def progress-bar-parts
-  (-> (map :name progress-bar-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name progress-bar-parts-desc) set)))
 
 (def progress-bar-args-desc
-  [{:name :model     :required true                  :type "double | string | atom" :validate-fn number-or-string? :description "current value of the slider. A number between 0 and 100"}
-   {:name :width     :required false :default "100%" :type "string"                 :validate-fn string?           :description "a CSS width"}
-   {:name :striped?  :required false :default false  :type "boolean"                                               :description "when true, the progress section is a set of animated stripes"}
-   {:name :bar-class :required false                 :type "string"                 :validate-fn string?           :description "CSS class name(s) for the actual progress bar itself, space separated"}
-   {:name :class     :required false                 :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the progress-bar, not the wrapping div)"}
-   {:name :style     :required false                 :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the progress-bar, not the wrapping div)"}
-   {:name :attr      :required false                 :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the progress-bar, not the wrapping div)"]}
-   {:name :parts     :required false                 :type "map"                    :validate-fn (parts? progress-bar-parts) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :model     :required true                  :type "double | string | atom" :validate-fn number-or-string? :description "current value of the slider. A number between 0 and 100"}
+     {:name :width     :required false :default "100%" :type "string"                 :validate-fn string?           :description "a CSS width"}
+     {:name :striped?  :required false :default false  :type "boolean"                                               :description "when true, the progress section is a set of animated stripes"}
+     {:name :bar-class :required false                 :type "string"                 :validate-fn string?           :description "CSS class name(s) for the actual progress bar itself, space separated"}
+     {:name :class     :required false                 :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the progress-bar, not the wrapping div)"}
+     {:name :style     :required false                 :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the progress-bar, not the wrapping div)"}
+     {:name :attr      :required false                 :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the progress-bar, not the wrapping div)"]}
+     {:name :parts     :required false                 :type "map"                    :validate-fn (parts? progress-bar-parts) :description "See Parts section below."}]))
 
 (defn progress-bar
   "Render a bootstrap styled progress bar"

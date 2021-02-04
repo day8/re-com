@@ -1,11 +1,13 @@
 (ns re-demo.v-table
-  (:require [re-com.core    :refer [h-box gap v-box box p]]
-            [re-com.v-table :refer [v-table-parts-desc v-table-args-desc]]
-            [re-demo.utils  :refer [source-reference panel-title title2 title3 parts-table args-table status-text github-hyperlink]]
-            [re-com.util    :refer [px]]
-            [re-demo.v-table-sections  :refer [sections-render]]
-            [re-demo.v-table-demo      :refer [demo]]
-            [re-demo.v-table-renderers :refer [table-showing-renderers]]))
+  (:require
+    [re-com.text               :refer [p]]
+    [re-com.box                :refer [h-box v-box box gap]]
+    [re-com.v-table            :refer [v-table-parts-desc v-table-args-desc]]
+    [re-demo.utils             :refer [source-reference panel-title title2 title3 parts-table args-table status-text github-hyperlink]]
+    [re-com.util               :refer [px]]
+    [re-demo.v-table-sections  :refer [sections-render]]
+    [re-demo.v-table-demo      :refer [demo]]
+    [re-demo.v-table-renderers :refer [table-showing-renderers]]))
 
 (defn notes-column
   []

@@ -7,6 +7,7 @@
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
             [re-com.core                   :refer [h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
+            [re-com.config                 :refer [version]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]
             [re-demo.introduction          :as    introduction]
@@ -54,8 +55,6 @@
   (:import [goog History]))
 
 (enable-console-print!)
-
-(goog-define version "")
 
 (defn- tab-label-with-version
   [& {:keys [label version]}]

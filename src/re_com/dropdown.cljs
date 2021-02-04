@@ -1,15 +1,17 @@
 (ns re-com.dropdown
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util     :refer [deref-or-value position-for-id item-for-id]]
-            [re-com.box      :refer [align-style flex-child-style]]
-            [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
-                                     string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
-            [re-com.popover  :refer [popover-tooltip]]
-            [clojure.string  :as    string]
-            [reagent.core    :as    reagent]
-            [goog.string     :as    gstring]
-            [goog.string.format]
-            [reagent.dom     :as    rdom]))
+  (:require
+    [re-com.config   :refer [include-args-desc?]]
+    [re-com.util     :refer [deref-or-value position-for-id item-for-id]]
+    [re-com.box      :refer [align-style flex-child-style]]
+    [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
+                             string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
+    [re-com.popover  :refer [popover-tooltip]]
+    [clojure.string  :as    string]
+    [reagent.core    :as    reagent]
+    [goog.string     :as    gstring]
+    [goog.string.format]
+    [reagent.dom     :as    rdom]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
@@ -357,53 +359,56 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def single-dropdown-parts-desc
-  [{:name :tooltip :level 0 :class "rc-dropdown-tooltip" :impl "[popover-tooltip]" :notes "Tooltip for the dropdown, if enabled."}
-   {:type :legacy  :level 1 :class "rc-dropdown"         :impl "[:div]" :notes "The container for the rest of the dropdown."}
-   {:name :chosen-drop :level 2 :class "rc-dropdown-chosen-drop" :impl "[:div]"}
-   {:name :chosen-results :level 3 :class "rc-dropdown-chosen-results" :impl "[:ul]"}
-   {:name :choices-loading :level 4 :class "rc-dropdown-choices-loading" :impl "[:li]"}
-   {:name :choices-error :level 4 :class "rc-dropdown-choices-error" :impl "[:li]"}
-   {:name :choices-no-results :level 4 :class "rc-dropdown-choices-no-results" :impl "[:li]"}])
+  (when include-args-desc?
+    [{:name :tooltip            :level 0 :class "rc-dropdown-tooltip"            :impl "[popover-tooltip]" :notes "Tooltip for the dropdown, if enabled."}
+     {:type :legacy             :level 1 :class "rc-dropdown"                    :impl "[:div]"            :notes "The container for the rest of the dropdown."}
+     {:name :chosen-drop        :level 2 :class "rc-dropdown-chosen-drop"        :impl "[:div]"}
+     {:name :chosen-results     :level 3 :class "rc-dropdown-chosen-results"     :impl "[:ul]"}
+     {:name :choices-loading    :level 4 :class "rc-dropdown-choices-loading"    :impl "[:li]"}
+     {:name :choices-error      :level 4 :class "rc-dropdown-choices-error"      :impl "[:li]"}
+     {:name :choices-no-results :level 4 :class "rc-dropdown-choices-no-results" :impl "[:li]"}]))
 
 (def single-dropdown-parts
-  (-> (map :name single-dropdown-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name single-dropdown-parts-desc) set)))
 
 (def single-dropdown-args-desc
-  [{:name :choices            :required true                         :type "vector of choices | atom | (opts, done, fail) -> nil" :validate-fn fn-or-vector-of-maps-or-strings? :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"] ". May also be a callback " [:code "(opts, done, fail)"] " where opts is map of " [:code ":filter-text"] " and " [:code ":regex-filter?."]]}
-   {:name :model              :required true                         :type "the id of a choice | atom"                                    :description [:span "the id of the selected choice. If nil, " [:code ":placeholder"] " text is shown"]}
-   {:name :on-change          :required true                         :type "id -> nil"                     :validate-fn fn?               :description [:span "called when a new choice is selected. Passed the id of new choice"]}
-   {:name :id-fn              :required false :default :id           :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
-   {:name :label-fn           :required false :default :label        :type "choice -> string"              :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its displayable label."]}
-   {:name :group-fn           :required false :default :group        :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its group identifier"]}
-   {:name :render-fn          :required false                        :type "choice -> string | hiccup"     :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the markup that will be rendered for that choice. Defaults to the label if no custom markup is required."]}
-   {:name :disabled?          :required false :default false         :type "boolean | atom"                                               :description "if true, no user selection is allowed"}
-   {:name :filter-box?        :required false :default false         :type "boolean"                                                      :description "if true, a filter text field is placed at the top of the dropdown"}
-   {:name :regex-filter?      :required false :default false         :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
-   {:name :placeholder        :required false                        :type "string"                        :validate-fn string?           :description "background text when no selection"}
-   {:name :title?             :required false :default false         :type "boolean"                                                      :description "if true, allows the title for the selected dropdown to be displayed via a mouse over. Handy when dropdown width is small and text is truncated"}
-   {:name :width              :required false :default "100%"        :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
-   {:name :max-height         :required false :default "240px"       :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
-   {:name :tab-index          :required false :default 0             :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
-   {:name :debounce-delay     :required false                        :type "integer"                       :validate-fn number?           :description [:span "delay to debounce loading requests when using callback " [:code ":choices"]]}
-   {:name :tooltip            :required false                        :type "string | hiccup"               :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-   {:name :tooltip-position   :required false :default :below-center :type "keyword"                       :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :free-text?         :required false :default false         :type "boolean"                                                      :description [:span "is the text freely editable? If true then " [:code ":chocies"] " is a vector of strings, " [:code ":model"] " is a string (atom) and " [:code ":on-change"] " is called with a string"]}
-   {:name :auto-complete?     :required false :default false         :type "boolean"                                                      :description [:span "auto-complete text while typing using dropdown choices. Has no effect if " [:code ":free-text?"] " is not turned on"]}
-   {:name :capitalize?        :required false :default false         :type "boolean"                                                      :description [:span "capitalize the first letter. Has no effect if " [:code ":free-text?"] " is not turned on"]}
-   {:name :enter-drop?        :required false :default true          :type "boolean"                                                      :description "should pressing Enter display the dropdown part?"}
-   {:name :cancelable?        :required false :default true          :type "boolean"                                                      :description "should pressing Esc or clicking outside the dropdown part cancel selection made with arrow keys?"}
-   {:name :set-to-filter      :required false :default #{}           :type "set"                           :validate-fn set?              :description [:span "when " [:code ":filter-box?"] " and " [:code ":free-text?"] " are turned on and there are no results, current text can be set to filter text " [:code ":on-enter-press"] " and/or " [:code ":on-no-results-match-click"]]}
-   {:name :filter-placeholder :required false                        :type "string"                        :validate-fn string?           :description "background text in filter box when no filter"}
-   {:name :can-drop-above?    :required false :default false         :type "boolean"                                                      :description "should the dropdown part be displayed above if it does not fit below the top part?"}
-   {:name :est-item-height    :required false :default 30            :type "integer"                       :validate-fn number?           :description [:span "estimated dropdown item height (for " [:code ":can-drop-above?"] "). used only *before* the dropdown part is displayed to guess whether it fits below the top part or not which is later verified when the dropdown is displayed"]}
-   {:name :just-drop?         :required false :default false         :type "boolean"                                                      :description "display just the dropdown part"}
-   {:name :repeat-change?     :required false :default false         :type "boolean"                                                      :description [:span "repeat " [:code ":on-change"] " events if an already selected item is selected again"]}
-   {:name :i18n               :required false                        :type "map"                                                          :description [:span "internationalization map with optional keys " [:code ":loading"] ", " [:code ":no-results"] " and " [:code ":no-results-match"]]}
-   {:name :on-drop            :required false                        :type "() -> nil"                     :validate-fn fn?               :description "called when the dropdown part is displayed"}
-   {:name :class              :required false                        :type "string"                        :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
-   {:name :style              :required false                        :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
-   {:name :attr               :required false                        :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
-   {:name :parts              :required false                        :type "map"                           :validate-fn (parts? single-dropdown-parts)        :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :choices            :required true                         :type "vector of choices | atom | (opts, done, fail) -> nil" :validate-fn fn-or-vector-of-maps-or-strings? :description [:span "Each is expected to have an id, label and, optionally, a group, provided by " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"] ". May also be a callback " [:code "(opts, done, fail)"] " where opts is map of " [:code ":filter-text"] " and " [:code ":regex-filter?."]]}
+     {:name :model              :required true                         :type "the id of a choice | atom"                                    :description [:span "the id of the selected choice. If nil, " [:code ":placeholder"] " text is shown"]}
+     {:name :on-change          :required true                         :type "id -> nil"                     :validate-fn fn?               :description [:span "called when a new choice is selected. Passed the id of new choice"]}
+     {:name :id-fn              :required false :default :id           :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
+     {:name :label-fn           :required false :default :label        :type "choice -> string"              :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its displayable label."]}
+     {:name :group-fn           :required false :default :group        :type "choice -> anything"            :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns its group identifier"]}
+     {:name :render-fn          :required false                        :type "choice -> string | hiccup"     :validate-fn ifn?              :description [:span "given an element of " [:code ":choices"] ", returns the markup that will be rendered for that choice. Defaults to the label if no custom markup is required."]}
+     {:name :disabled?          :required false :default false         :type "boolean | atom"                                               :description "if true, no user selection is allowed"}
+     {:name :filter-box?        :required false :default false         :type "boolean"                                                      :description "if true, a filter text field is placed at the top of the dropdown"}
+     {:name :regex-filter?      :required false :default false         :type "boolean | atom"                                               :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
+     {:name :placeholder        :required false                        :type "string"                        :validate-fn string?           :description "background text when no selection"}
+     {:name :title?             :required false :default false         :type "boolean"                                                      :description "if true, allows the title for the selected dropdown to be displayed via a mouse over. Handy when dropdown width is small and text is truncated"}
+     {:name :width              :required false :default "100%"        :type "string"                        :validate-fn string?           :description "the CSS width. e.g.: \"500px\" or \"20em\""}
+     {:name :max-height         :required false :default "240px"       :type "string"                        :validate-fn string?           :description "the maximum height of the dropdown part"}
+     {:name :tab-index          :required false :default 0             :type "integer | string"              :validate-fn number-or-string? :description "component's tabindex. A value of -1 removes from order"}
+     {:name :debounce-delay     :required false                        :type "integer"                       :validate-fn number?           :description [:span "delay to debounce loading requests when using callback " [:code ":choices"]]}
+     {:name :tooltip            :required false                        :type "string | hiccup"               :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+     {:name :tooltip-position   :required false :default :below-center :type "keyword"                       :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :free-text?         :required false :default false         :type "boolean"                                                      :description [:span "is the text freely editable? If true then " [:code ":chocies"] " is a vector of strings, " [:code ":model"] " is a string (atom) and " [:code ":on-change"] " is called with a string"]}
+     {:name :auto-complete?     :required false :default false         :type "boolean"                                                      :description [:span "auto-complete text while typing using dropdown choices. Has no effect if " [:code ":free-text?"] " is not turned on"]}
+     {:name :capitalize?        :required false :default false         :type "boolean"                                                      :description [:span "capitalize the first letter. Has no effect if " [:code ":free-text?"] " is not turned on"]}
+     {:name :enter-drop?        :required false :default true          :type "boolean"                                                      :description "should pressing Enter display the dropdown part?"}
+     {:name :cancelable?        :required false :default true          :type "boolean"                                                      :description "should pressing Esc or clicking outside the dropdown part cancel selection made with arrow keys?"}
+     {:name :set-to-filter      :required false :default #{}           :type "set"                           :validate-fn set?              :description [:span "when " [:code ":filter-box?"] " and " [:code ":free-text?"] " are turned on and there are no results, current text can be set to filter text " [:code ":on-enter-press"] " and/or " [:code ":on-no-results-match-click"]]}
+     {:name :filter-placeholder :required false                        :type "string"                        :validate-fn string?           :description "background text in filter box when no filter"}
+     {:name :can-drop-above?    :required false :default false         :type "boolean"                                                      :description "should the dropdown part be displayed above if it does not fit below the top part?"}
+     {:name :est-item-height    :required false :default 30            :type "integer"                       :validate-fn number?           :description [:span "estimated dropdown item height (for " [:code ":can-drop-above?"] "). used only *before* the dropdown part is displayed to guess whether it fits below the top part or not which is later verified when the dropdown is displayed"]}
+     {:name :just-drop?         :required false :default false         :type "boolean"                                                      :description "display just the dropdown part"}
+     {:name :repeat-change?     :required false :default false         :type "boolean"                                                      :description [:span "repeat " [:code ":on-change"] " events if an already selected item is selected again"]}
+     {:name :i18n               :required false                        :type "map"                                                          :description [:span "internationalization map with optional keys " [:code ":loading"] ", " [:code ":no-results"] " and " [:code ":no-results-match"]]}
+     {:name :on-drop            :required false                        :type "() -> nil"                     :validate-fn fn?               :description "called when the dropdown part is displayed"}
+     {:name :class              :required false                        :type "string"                        :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :style              :required false                        :type "CSS style map"                 :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
+     {:name :attr               :required false                        :type "HTML attr map"                 :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+     {:name :parts              :required false                        :type "map"                           :validate-fn (parts? single-dropdown-parts)        :description "See Parts section below."}]))
 
 (defn single-dropdown
   "Render a single dropdown component which emulates the bootstrap-choosen style. Sample choices object:

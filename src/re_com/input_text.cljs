@@ -3,6 +3,7 @@
     [re-com.core :refer [handler-fn]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
+    [re-com.config   :refer [include-args-desc?]]
     [re-com.util     :refer [deref-or-value px]]
     [re-com.popover  :refer [popover-tooltip]]
     [re-com.throbber :refer [throbber]]
@@ -16,32 +17,35 @@
 ;; ------------------------------------------------------------------------------------
 
 (def input-text-parts-desc
-  [{:name :wrapper   :level 0 :class "rc-input-text"   :impl "[input-text]"       :notes "Outer wrapper of the text input."}
-   {:name :inner   :level 1 :class "rc-input-text-inner"   :impl "[:div]" :notes "The container for the text input."}
-   {:type :legacy  :level 2 :class "rc-input-text-field" :impl "[:input]" :notes "The actual input field."}])
+  (when include-args-desc?
+    [{:name :wrapper :level 0 :class "rc-input-text"       :impl "[input-text]" :notes "Outer wrapper of the text input."}
+     {:name :inner   :level 1 :class "rc-input-text-inner" :impl "[:div]"       :notes "The container for the text input."}
+     {:type :legacy  :level 2 :class "rc-input-text-field" :impl "[:input]"     :notes "The actual input field."}]))
 
 (def input-text-parts
-  (-> (map :name input-text-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name input-text-parts-desc) set)))
 
 (def input-text-args-desc
-  [{:name :model            :required true                   :type "string/nil | atom"        :validate-fn nillable-string-or-atom? :description "text of the input (can be atom or value/nil)"}
-   {:name :on-change        :required true                   :type "string[, done-fn] -> nil" :validate-fn fn?                      :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string, and optionally a function to call (with no args) to signal that " [:code ":model"] " has reached a steady state to avoid displaying a prior value while processing."]}
-   {:name :status           :required false                  :type "keyword"                  :validate-fn input-status-type?       :description [:span "validation status. " [:code "nil/omitted"] " for normal status or one of: " input-status-types-list]}
-   {:name :status-icon?     :required false :default false   :type "boolean"                                                        :description [:span "when true, display an icon to match " [:code ":status"] " (no icon for nil)"]}
-   {:name :status-tooltip   :required false                  :type "string"                   :validate-fn string?                  :description "displayed in status icon's tooltip"}
-   {:name :placeholder      :required false                  :type "string"                   :validate-fn string?                  :description "background text shown when empty"}
-   {:name :width            :required false :default "250px" :type "string"                   :validate-fn string?                  :description "standard CSS width setting for this input"}
-   {:name :height           :required false                  :type "string"                   :validate-fn string?                  :description "standard CSS height setting for this input"}
-   {:name :rows             :required false :default 3       :type "integer | string"         :validate-fn number-or-string?        :description "ONLY applies to 'input-textarea': the number of rows of text to show"}
-   {:name :change-on-blur?  :required false :default true    :type "boolean | atom"                                                 :description [:span "when true, invoke " [:code ":on-change"] " function on blur, otherwise on every change (character by character)"]}
-   {:name :on-alter         :required false                  :type "string -> string"         :validate-fn fn?                      :description "called with the new value to alter it immediately"}
-   {:name :validation-regex :required false                  :type "regex"                    :validate-fn regex?                   :description "user input is only accepted if it would result in a string that matches this regular expression"}
-   {:name :disabled?        :required false :default false   :type "boolean | atom"                                                 :description "if true, the user can't interact (input anything)"}
-   {:name :class            :required false                  :type "string"                   :validate-fn string?                  :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
-   {:name :style            :required false                  :type "CSS style map"            :validate-fn css-style?               :description "CSS styles to add or override (applies to the textbox, not the wrapping div)"}
-   {:name :attr             :required false                  :type "HTML attr map"            :validate-fn html-attr?               :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
-   {:name :parts            :required false                  :type "map"                      :validate-fn (parts? input-text-parts) :description "See Parts section below."}
-   {:name :input-type       :required false                  :type "keyword"                  :validate-fn keyword?                 :description [:span "ONLY applies to super function 'base-input-text': either " [:code ":input"] ", " [:code ":password"] " or " [:code ":textarea"]]}])
+  (when include-args-desc?
+    [{:name :model            :required true                   :type "string/nil | atom"        :validate-fn nillable-string-or-atom? :description "text of the input (can be atom or value/nil)"}
+     {:name :on-change        :required true                   :type "string[, done-fn] -> nil" :validate-fn fn?                      :description [:span [:code ":change-on-blur?"] " controls when it is called. Passed the current input string, and optionally a function to call (with no args) to signal that " [:code ":model"] " has reached a steady state to avoid displaying a prior value while processing."]}
+     {:name :status           :required false                  :type "keyword"                  :validate-fn input-status-type?       :description [:span "validation status. " [:code "nil/omitted"] " for normal status or one of: " input-status-types-list]}
+     {:name :status-icon?     :required false :default false   :type "boolean"                                                        :description [:span "when true, display an icon to match " [:code ":status"] " (no icon for nil)"]}
+     {:name :status-tooltip   :required false                  :type "string"                   :validate-fn string?                  :description "displayed in status icon's tooltip"}
+     {:name :placeholder      :required false                  :type "string"                   :validate-fn string?                  :description "background text shown when empty"}
+     {:name :width            :required false :default "250px" :type "string"                   :validate-fn string?                  :description "standard CSS width setting for this input"}
+     {:name :height           :required false                  :type "string"                   :validate-fn string?                  :description "standard CSS height setting for this input"}
+     {:name :rows             :required false :default 3       :type "integer | string"         :validate-fn number-or-string?        :description "ONLY applies to 'input-textarea': the number of rows of text to show"}
+     {:name :change-on-blur?  :required false :default true    :type "boolean | atom"                                                 :description [:span "when true, invoke " [:code ":on-change"] " function on blur, otherwise on every change (character by character)"]}
+     {:name :on-alter         :required false                  :type "string -> string"         :validate-fn fn?                      :description "called with the new value to alter it immediately"}
+     {:name :validation-regex :required false                  :type "regex"                    :validate-fn regex?                   :description "user input is only accepted if it would result in a string that matches this regular expression"}
+     {:name :disabled?        :required false :default false   :type "boolean | atom"                                                 :description "if true, the user can't interact (input anything)"}
+     {:name :class            :required false                  :type "string"                   :validate-fn string?                  :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
+     {:name :style            :required false                  :type "CSS style map"            :validate-fn css-style?               :description "CSS styles to add or override (applies to the textbox, not the wrapping div)"}
+     {:name :attr             :required false                  :type "HTML attr map"            :validate-fn html-attr?               :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
+     {:name :parts            :required false                  :type "map"                      :validate-fn (parts? input-text-parts) :description "See Parts section below."}
+     {:name :input-type       :required false                  :type "keyword"                  :validate-fn keyword?                 :description [:span "ONLY applies to super function 'base-input-text': either " [:code ":input"] ", " [:code ":password"] " or " [:code ":textarea"]]}]))
 
 ;; Sample regex's:
 ;;  - #"^(-{0,1})(\d*)$"                   ;; Signed integer

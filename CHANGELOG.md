@@ -6,6 +6,12 @@
 
 - Add `datepicker` year navigation. **Breaking** changes to `datepicker` navigation layout. See 'Parts' section of
   https://re-com.day8.com.au/#/date
+- Add `re-com.config` ns
+- Add `re-com.config/debug?` as an alias for the closure define `js/GOOG.debug`
+- Add `re-com.config/force-include-args-desc?` as a way to force inclusion of arg description data structures in
+  release builds for the demo site documentation generation
+- Add `re-com.config/include-args-desc?` and use it to elide arg description data structures. This should lead to
+  smaller production builds for user's of re-com, and faster app startup.
 
 #### Changed
 

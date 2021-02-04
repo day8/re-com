@@ -1,12 +1,13 @@
 (ns re-com.simple-v-table
   (:require-macros
-    [re-com.core :refer [handler-fn]]
+    [re-com.core     :refer [handler-fn]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.box     :as box]
-    [re-com.util    :refer [px]]
+    [re-com.config   :refer [include-args-desc?]]
+    [re-com.box      :as box]
+    [re-com.util     :refer [px]]
     [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
-    [re-com.v-table :as v-table]))
+    [re-com.v-table  :as v-table]))
 
 
 (defn render-header
@@ -69,39 +70,44 @@
             ((:row-label-fn col) row)]))))
 
 (def simple-v-table-exclusive-parts-desc
-  [{:name :simple-wrapper      :level 0 :class "rc-simple-v-table-wrapper"      :impl "[simple-v-table]" :notes "Outer wrapper of the simple-v-table."}
-   {:name :simple-header       :level 4 :impl "[:div]"}])
+  (when include-args-desc?
+    [{:name :simple-wrapper :level 0 :class "rc-simple-v-table-wrapper"      :impl "[simple-v-table]" :notes "Outer wrapper of the simple-v-table."}
+     {:name :simple-header  :level 4 :impl "[:div]"}]))
 
 (def simple-v-table-exclusive-parts
-  (-> (map :name simple-v-table-exclusive-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name simple-v-table-exclusive-parts-desc) set)))
 
 (def simple-v-table-parts-desc
-  (into
-    simple-v-table-exclusive-parts-desc
-    (map #(update % :level inc) v-table/v-table-parts-desc)))
+  (when
+    (into
+      simple-v-table-exclusive-parts-desc
+      (map #(update % :level inc) v-table/v-table-parts-desc))))
 
 (def simple-v-table-parts
-  (-> (map :name simple-v-table-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name simple-v-table-parts-desc) set)))
 
 (def simple-v-table-args-desc
-  [{:name :model                     :required true                     :type "atom containing vec of maps"  :validate-fn vector-atom?                   :description "one element for each row in the table."}
-   {:name :columns                   :required true                     :type "vector of maps"               :validate-fn vector-of-maps?                :description [:span "one element for each column in the table. Must contain " [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"] "," [:code ":width"] ", and " [:code ":height"] ". Optionally contains " [:code ":align"] " and " [:code ":vertical-align"] "."]}
-   {:name :fixed-column-count        :required false :default 0         :type "integer"                      :validate-fn number?                        :description "the number of fixed (non-scrolling) columns on the left."}
-   {:name :fixed-column-border-color :required false :default "#BBBEC0" :type "string"                       :validate-fn string?                        :description [:span "The CSS color of the horizontal border between the fixed columns on the left, and the other columns on the right. " [:code ":fixed-column-count"] " must be > 0 to be visible."]}
-   {:name :column-header-height      :required false :default 31        :type "integer"                      :validate-fn number?                        :description [:span "px height of the column header section. Typically, equals " [:code ":row-height"] " * number-of-column-header-rows."]}
-   {:name :max-width                 :required false                    :type "string"                       :validate-fn string?                        :description "standard CSS max-width setting of the entire table. Literally constrains the table to the given width so that if the table is wider than this it will add scrollbars. Ignored if value is larger than the combined width of all the columns and table padding."}
-   {:name :max-rows                  :required false                    :type "integer"                      :validate-fn number?                        :description "The maximum number of rows to display in the table without scrolling. If not provided will take up all available vertical space."}
-   {:name :table-row-line-color      :required false :default "#EAEEF1" :type "string"                       :validate-fn string?                        :description "The CSS color of the lines between rows."}
-   {:name :on-click-row              :required false                    :type "function"                     :validate-fn ifn?                           :description "This function is called when the user clicks a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
-   {:name :on-enter-row              :required false                    :type "function"                     :validate-fn ifn?                           :description "This function is called when the user's mouse pointer enters a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
-   {:name :on-leave-row              :required false                    :type "function"                     :validate-fn ifn?                           :description "This function is called when the user's mouse pointer leaves a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
-   {:name :row-height                :required false :default 31        :type "integer"                      :validate-fn number?                        :description "px height of each row."}
-   {:name :table-padding             :required false :default 19        :type "integer"                      :validate-fn number?                        :description "Padding in pixels for the entire table."}
-   {:name :header-renderer           :required false                    :type "columns -> hiccup"            :validate-fn ifn?                           :description "This function returns the hiccup to render the column headings."}
-   {:name :row-style                 :required false                    :type "map | function"               :validate-fn #(or (ifn? %) (map? %))        :description "CSS styles to add or override on each row."}
-   {:name :cell-style                :required false                    :type "map | function"               :validate-fn #(or (ifn? %) (map? %))        :description "CSS styles to add or override on each cell."}
-   {:name :class                     :required false                    :type "string"                       :validate-fn string?                        :description "CSS class names, space separated (applies to the outer container)."}
-   {:name :parts                     :required false                    :type "map"                          :validate-fn (parts? simple-v-table-parts)  :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :model                     :required true                     :type "atom containing vec of maps"  :validate-fn vector-atom?                   :description "one element for each row in the table."}
+     {:name :columns                   :required true                     :type "vector of maps"               :validate-fn vector-of-maps?                :description [:span "one element for each column in the table. Must contain " [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"] "," [:code ":width"] ", and " [:code ":height"] ". Optionally contains " [:code ":align"] " and " [:code ":vertical-align"] "."]}
+     {:name :fixed-column-count        :required false :default 0         :type "integer"                      :validate-fn number?                        :description "the number of fixed (non-scrolling) columns on the left."}
+     {:name :fixed-column-border-color :required false :default "#BBBEC0" :type "string"                       :validate-fn string?                        :description [:span "The CSS color of the horizontal border between the fixed columns on the left, and the other columns on the right. " [:code ":fixed-column-count"] " must be > 0 to be visible."]}
+     {:name :column-header-height      :required false :default 31        :type "integer"                      :validate-fn number?                        :description [:span "px height of the column header section. Typically, equals " [:code ":row-height"] " * number-of-column-header-rows."]}
+     {:name :max-width                 :required false                    :type "string"                       :validate-fn string?                        :description "standard CSS max-width setting of the entire table. Literally constrains the table to the given width so that if the table is wider than this it will add scrollbars. Ignored if value is larger than the combined width of all the columns and table padding."}
+     {:name :max-rows                  :required false                    :type "integer"                      :validate-fn number?                        :description "The maximum number of rows to display in the table without scrolling. If not provided will take up all available vertical space."}
+     {:name :table-row-line-color      :required false :default "#EAEEF1" :type "string"                       :validate-fn string?                        :description "The CSS color of the lines between rows."}
+     {:name :on-click-row              :required false                    :type "function"                     :validate-fn ifn?                           :description "This function is called when the user clicks a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
+     {:name :on-enter-row              :required false                    :type "function"                     :validate-fn ifn?                           :description "This function is called when the user's mouse pointer enters a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
+     {:name :on-leave-row              :required false                    :type "function"                     :validate-fn ifn?                           :description "This function is called when the user's mouse pointer leaves a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
+     {:name :row-height                :required false :default 31        :type "integer"                      :validate-fn number?                        :description "px height of each row."}
+     {:name :table-padding             :required false :default 19        :type "integer"                      :validate-fn number?                        :description "Padding in pixels for the entire table."}
+     {:name :header-renderer           :required false                    :type "columns -> hiccup"            :validate-fn ifn?                           :description "This function returns the hiccup to render the column headings."}
+     {:name :row-style                 :required false                    :type "map | function"               :validate-fn #(or (ifn? %) (map? %))        :description "CSS styles to add or override on each row."}
+     {:name :cell-style                :required false                    :type "map | function"               :validate-fn #(or (ifn? %) (map? %))        :description "CSS styles to add or override on each cell."}
+     {:name :class                     :required false                    :type "string"                       :validate-fn string?                        :description "CSS class names, space separated (applies to the outer container)."}
+     {:name :parts                     :required false                    :type "map"                          :validate-fn (parts? simple-v-table-parts)  :description "See Parts section below."}]))
 
 (defn simple-v-table
   "Render a v-table and introduce the concept of columns (provide a spec for each).

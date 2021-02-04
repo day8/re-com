@@ -1,11 +1,14 @@
 (ns re-com.selection-list
-  (:require-macros [re-com.core :refer [handler-fn]])
+  (:require-macros
+    [re-com.core     :refer [handler-fn]]
+    [re-com.validate :refer [validate-args-macro]])
   (:require
+    [re-com.config       :refer [include-args-desc?]]
     [re-com.text         :refer [label]]
     [re-com.checkbox     :refer [checkbox]]
     [re-com.radio-button :refer [radio-button]]
     [re-com.box          :refer [box border h-box v-box]]
-    [re-com.validate     :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
+    [re-com.validate     :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?]]
     [re-com.util         :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
@@ -104,34 +107,37 @@
    :margin-bottom  "0px"})
 
 (def selection-list-parts-desc
-  [{:type :legacy     :level 0 :class "rc-selection-list"         :impl "[selection-list]" :notes "Outer wrapper for the selection list."}
-   {:name :list-group :level 1 :class "rc-selection-list-group" :impl "[:div]" :notes "Container for the selection list items."}
-   {:name :list-group-item :level 2 :class "rc-selection-list-group-item" :impl "[box]"}
-   {:name :checkbox :level 3 :class "rc-selection-list-checkbox" :impl "[checkbox]"}
-   {:name :radio-button :level 3 :class "rc-selection-list-radio-button" :impl "[radio-button]"}])
+  (when include-args-desc?
+    [{:type :legacy     :level 0 :class "rc-selection-list"         :impl "[selection-list]" :notes "Outer wrapper for the selection list."}
+     {:name :list-group :level 1 :class "rc-selection-list-group" :impl "[:div]" :notes "Container for the selection list items."}
+     {:name :list-group-item :level 2 :class "rc-selection-list-group-item" :impl "[box]"}
+     {:name :checkbox :level 3 :class "rc-selection-list-checkbox" :impl "[checkbox]"}
+     {:name :radio-button :level 3 :class "rc-selection-list-radio-button" :impl "[radio-button]"}]))
 
 (def selection-list-parts
-  (-> (map :name selection-list-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name selection-list-parts-desc) set)))
 
 (def selection-list-args-desc
-  [{:name :choices        :required true                  :type "vector of choices | atom"           :validate-fn vector-of-maps? :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below (list of maps also allowed)"]}
-   {:name :model          :required true                  :type "set of :ids within :choices | atom" :validate-fn set-or-atom?    :description "the currently selected items. Note: items are considered distinct"}
-   {:name :on-change      :required true                  :type "set of :ids -> nil | atom"          :validate-fn fn?             :description [:span "a callback which will be passed set of the ids (as defined by " [:code ":id-fn"] ") of the selected items"]}
-   {:name :id-fn          :required false :default :id    :type "choice -> anything"                 :validate-fn ifn?            :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
-   {:name :label-fn       :required false :default :label :type "choice -> anything"                 :validate-fn ifn?            :description [:span "given an element of " [:code ":choices"] ", returns its displayable label"]}
-   {:name :multi-select?  :required false :default true   :type "boolean | atom"                                                  :description "when true, use check boxes, otherwise radio buttons"}
-   {:name :as-exclusions? :required false :default false  :type "boolean | atom"                                                  :description "when true, selected items are shown with struck-out labels"}
-   {:name :required?      :required false :default false  :type "boolean | atom"                                                  :description "when true, at least one item must be selected. Note: being able to un-select a radio button is not a common use case, so this should probably be set to true when in single select mode"}
-   {:name :width          :required false                 :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"250px\". When specified, item labels may be clipped. Otherwise based on widest label"}
-   {:name :height         :required false                 :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"150px\". Size beyond which items will scroll"}
-   {:name :max-height     :required false                 :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll"}
-   {:name :disabled?      :required false :default false  :type "boolean | atom"                                                  :description "when true, the time input will be disabled. Can be atom or value"}
-   {:name :hide-border?   :required false :default false  :type "boolean | atom"                                                  :description "when true, the list will be displayed without a border"}
-   {:name :item-renderer  :required false                 :type "-> nil | atom"                      :validate-fn fn?             :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
-   {:name :class          :required false                 :type "string"                             :validate-fn string?         :description "CSS class names, space separated (applies to the outer container)"}
-   {:name :style          :required false                 :type "CSS style map"                      :validate-fn css-style?      :description "CSS styles to add or override (applies to the outer container)"}
-   {:name :attr           :required false                 :type "HTML attr map"                      :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
-   {:name :parts          :required false                 :type "map"                                :validate-fn (parts? selection-list-parts) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :choices        :required true                  :type "vector of choices | atom"           :validate-fn vector-of-maps? :description [:span "the selectable items. Elements can be strings or more interesting data items like {:label \"some name\" :sort 5}. Also see " [:code ":label-fn"] " below (list of maps also allowed)"]}
+     {:name :model          :required true                  :type "set of :ids within :choices | atom" :validate-fn set-or-atom?    :description "the currently selected items. Note: items are considered distinct"}
+     {:name :on-change      :required true                  :type "set of :ids -> nil | atom"          :validate-fn fn?             :description [:span "a callback which will be passed set of the ids (as defined by " [:code ":id-fn"] ") of the selected items"]}
+     {:name :id-fn          :required false :default :id    :type "choice -> anything"                 :validate-fn ifn?            :description [:span "given an element of " [:code ":choices"] ", returns its unique identifier (aka id)"]}
+     {:name :label-fn       :required false :default :label :type "choice -> anything"                 :validate-fn ifn?            :description [:span "given an element of " [:code ":choices"] ", returns its displayable label"]}
+     {:name :multi-select?  :required false :default true   :type "boolean | atom"                                                  :description "when true, use check boxes, otherwise radio buttons"}
+     {:name :as-exclusions? :required false :default false  :type "boolean | atom"                                                  :description "when true, selected items are shown with struck-out labels"}
+     {:name :required?      :required false :default false  :type "boolean | atom"                                                  :description "when true, at least one item must be selected. Note: being able to un-select a radio button is not a common use case, so this should probably be set to true when in single select mode"}
+     {:name :width          :required false                 :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"250px\". When specified, item labels may be clipped. Otherwise based on widest label"}
+     {:name :height         :required false                 :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"150px\". Size beyond which items will scroll"}
+     {:name :max-height     :required false                 :type "string | atom"                      :validate-fn string-or-atom? :description "a CSS style e.g. \"150px\". If there are less items then this height, box will shrink. If there are more, items will scroll"}
+     {:name :disabled?      :required false :default false  :type "boolean | atom"                                                  :description "when true, the time input will be disabled. Can be atom or value"}
+     {:name :hide-border?   :required false :default false  :type "boolean | atom"                                                  :description "when true, the list will be displayed without a border"}
+     {:name :item-renderer  :required false                 :type "-> nil | atom"                      :validate-fn fn?             :description "a function which takes no params and returns nothing. Called for each element during setup, the returned component renders the element, responds to clicks etc."}
+     {:name :class          :required false                 :type "string"                             :validate-fn string?         :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :style          :required false                 :type "CSS style map"                      :validate-fn css-style?      :description "CSS styles to add or override (applies to the outer container)"}
+     {:name :attr           :required false                 :type "HTML attr map"                      :validate-fn html-attr?      :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+     {:name :parts          :required false                 :type "map"                                :validate-fn (parts? selection-list-parts) :description "See Parts section below."}]))
 
 (defn- list-container
   [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr parts]

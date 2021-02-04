@@ -1,34 +1,39 @@
 (ns re-com.buttons
   (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.util     :refer [deref-or-value px]]
-            [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
-                                     string-or-hiccup? css-style? html-attr? string-or-atom? parts?] :refer-macros [validate-args-macro]]
-            [re-com.popover  :refer [popover-tooltip]]
-            [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
-            [reagent.core    :as    reagent]))
+  (:require
+    [re-com.util     :refer [deref-or-value px]]
+    [re-com.config   :refer [include-args-desc?]]
+    [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
+                             string-or-hiccup? css-style? html-attr? string-or-atom? parts?] :refer-macros [validate-args-macro]]
+    [re-com.popover  :refer [popover-tooltip]]
+    [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
+    [reagent.core    :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: button
 ;; ------------------------------------------------------------------------------------
 
 (def button-parts-desc
-  [{:name :wrapper :level 0 :class "rc-button-wrapper" :impl "[button]"          :notes "Outer wrapper of the button, tooltip (if any), everything."}
-   {:name :tooltip :level 1 :class "rc-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
-   {:type :legacy  :level 1 :class "rc-button"         :impl "[:button]"         :notes "The actual button."}])
+  (when include-args-desc?
+    [{:name :wrapper :level 0 :class "rc-button-wrapper" :impl "[button]"          :notes "Outer wrapper of the button, tooltip (if any), everything."}
+     {:name :tooltip :level 1 :class "rc-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
+     {:type :legacy  :level 1 :class "rc-button"         :impl "[:button]"         :notes "The actual button."}]))
 
 (def button-parts
-  (-> (map :name button-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name button-parts-desc) set)))
 
 (def button-args-desc
-  [{:name :label            :required true                         :type "string | hiccup" :validate-fn string-or-hiccup? :description "label for the button"}
-   {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-   {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-   {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :disabled?        :required false :default false         :type "boolean | atom"                                 :description "if true, the user can't click the button"}
-   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
-   {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles (applies to the button, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
-   {:name :parts            :required false                        :type "map"             :validate-fn (parts? button-parts) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :label            :required true                         :type "string | hiccup" :validate-fn string-or-hiccup? :description "label for the button"}
+     {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+     {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+     {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :disabled?        :required false :default false         :type "boolean | atom"                                 :description "if true, the user can't click the button"}
+     {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+     {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles (applies to the button, not the wrapping div)"}
+     {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+     {:name :parts            :required false                        :type "map"             :validate-fn (parts? button-parts) :description "See Parts section below."}]))
 
 (defn button
   "Returns the markup for a basic button"
@@ -80,26 +85,29 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-circle-icon-button-parts-desc
-  [{:name :wrapper :level 0 :class "rc-md-circle-icon-button-wrapper" :impl "[md-circle-icon-button]" :notes "Outer wrapper of the button, tooltip (if any), everything."}
-   {:name :tooltip :level 1 :class "rc-md-circle-icon-button-tooltip" :impl "[popover-tooltip]"       :notes "Tooltip, if enabled."}
-   {:type :legacy  :level 1 :class "rc-md-circle-icon-button"         :impl "[:div]"                  :notes "The actual button."}
-   {:name :icon    :level 2 :class "rc-md-circle-icon-button-icon"    :impl "[:i]"                    :notes "The button icon."}])
+  (when include-args-desc?
+    [{:name :wrapper :level 0 :class "rc-md-circle-icon-button-wrapper" :impl "[md-circle-icon-button]" :notes "Outer wrapper of the button, tooltip (if any), everything."}
+     {:name :tooltip :level 1 :class "rc-md-circle-icon-button-tooltip" :impl "[popover-tooltip]"       :notes "Tooltip, if enabled."}
+     {:type :legacy  :level 1 :class "rc-md-circle-icon-button"         :impl "[:div]"                  :notes "The actual button."}
+     {:name :icon    :level 2 :class "rc-md-circle-icon-button-icon"    :impl "[:i]"                    :notes "The button icon."}]))
 
 (def md-circle-icon-button-parts
-  (-> (map :name md-circle-icon-button-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name md-circle-icon-button-parts-desc) set)))
 
 (def md-circle-icon-button-args-desc
-  [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
-   {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-   {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
-   {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-   {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :emphasise?       :required false :default false         :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out"}
-   {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
-   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
-   {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
-   {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-circle-icon-button-parts) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
+     {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+     {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
+     {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+     {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :emphasise?       :required false :default false         :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out"}
+     {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
+     {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+     {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
+     {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+     {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-circle-icon-button-parts) :description "See Parts section below."}]))
 
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
@@ -159,26 +167,29 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def md-icon-button-parts-desc
-  [{:name :wrapper :level 0 :class "rc-md-icon-button-wrapper" :impl "[md-icon-button]" :notes "Outer wrapper of the button, tooltip (if any), everything."}
-   {:name :tooltip :level 1 :class "rc-md-icon-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
-   {:type :legacy  :level 1 :class "rc-md-icon-button"         :impl "[:div]"                  :notes "The actual button."}
-   {:name :icon    :level 2 :class "rc-md-icon-button-icon"    :impl "[:i]"                    :notes "The button icon."}])
+  (when include-args-desc?
+    [{:name :wrapper :level 0 :class "rc-md-icon-button-wrapper" :impl "[md-icon-button]" :notes "Outer wrapper of the button, tooltip (if any), everything."}
+     {:name :tooltip :level 1 :class "rc-md-icon-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
+     {:type :legacy  :level 1 :class "rc-md-icon-button"         :impl "[:div]"                  :notes "The actual button."}
+     {:name :icon    :level 2 :class "rc-md-icon-button-icon"    :impl "[:i]"                    :notes "The button icon."}]))
 
 (def md-icon-button-parts
-  (-> (map :name md-icon-button-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name md-icon-button-parts-desc) set)))
 
 (def md-icon-button-args-desc
-  [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
-   {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-   {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
-   {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-   {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :emphasise?       :required false :default false         :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out"}
-   {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
-   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
-   {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
-   {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-icon-button-parts) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
+     {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+     {:name :size             :required false :default :regular      :type "keyword"         :validate-fn button-size?      :description [:span "one of " button-sizes-list]}
+     {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+     {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :emphasise?       :required false :default false         :type "boolean"                                        :description "if true, use emphasised styling so the button really stands out"}
+     {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
+     {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+     {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
+     {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+     {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-icon-button-parts) :description "See Parts section below."}]))
 
 (defn md-icon-button
   "a square button containing a material design icon"
@@ -238,22 +249,25 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def info-button-parts-desc
-  [{:name :tooltip :level 0 :class "rc-info-button-popover-anchor-wrapper" :impl "[popover-tooltip]" :notes "Outer wrapper of the button, tooltip (if any), everything."}
-   {:type :legacy  :level 1 :class "rc-info-button"                        :impl "[:div]"                  :notes "The actual button."}
-   {:name :icon    :level 2 :class "rc-info-button-icon"                   :impl "[:svg]"                    :notes "The button icon."}])
+  (when include-args-desc?
+    [{:name :tooltip :level 0 :class "rc-info-button-popover-anchor-wrapper" :impl "[popover-tooltip]" :notes "Outer wrapper of the button, tooltip (if any), everything."}
+     {:type :legacy  :level 1 :class "rc-info-button"                        :impl "[:div]"                  :notes "The actual button."}
+     {:name :icon    :level 2 :class "rc-info-button-icon"                   :impl "[:svg]"                    :notes "The button icon."}]))
 
 (def info-button-parts
-  (-> (map :name info-button-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name info-button-parts-desc) set)))
 
 (def info-button-args-desc
-  [{:name :info     :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what's shown in the popover"}
-   {:name :position :required false :default :right-below :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :width    :required false :default "250px"      :type "string"          :validate-fn string?           :description "width in px"}
-   {:name :disabled? :required false :default false       :type "boolean"                                        :description "if true, the user can't click the button"}
-   {:name :class    :required false                       :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the popover wrapper)"}
-   {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the popover wrapper)"}
-   {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the popover wrapper)"]}
-   {:name :parts    :required false                       :type "map"             :validate-fn (parts? info-button-parts)        :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :info     :required true                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what's shown in the popover"}
+     {:name :position :required false :default :right-below :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :width    :required false :default "250px"      :type "string"          :validate-fn string?           :description "width in px"}
+     {:name :disabled? :required false :default false       :type "boolean"                                        :description "if true, the user can't click the button"}
+     {:name :class    :required false                       :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the popover wrapper)"}
+     {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the popover wrapper)"}
+     {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the popover wrapper)"]}
+     {:name :parts    :required false                       :type "map"             :validate-fn (parts? info-button-parts)        :description "See Parts section below."}]))
 
 (defn info-button
   "A tiny light grey button, with an 'i' in it. Meant to be unobtrusive.
@@ -304,25 +318,28 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def row-button-parts-desc
-  [{:name :wrapper :level 0 :class "rc-row-button-wrapper" :impl "[row-button]" :notes "Outer wrapper of the row button, tooltip (if any), everything."}
-   {:name :tooltip :level 1 :class "rc-row-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
-   {:type :legacy  :level 1 :class "rc-row-button"         :impl "[:div]"                  :notes "The actual button."}
-   {:name :icon    :level 2 :class "rc-row-button-icon"    :impl "[:i]"                    :notes "The button icon."}])
+  (when include-args-desc?
+    [{:name :wrapper :level 0 :class "rc-row-button-wrapper" :impl "[row-button]" :notes "Outer wrapper of the row button, tooltip (if any), everything."}
+     {:name :tooltip :level 1 :class "rc-row-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
+     {:type :legacy  :level 1 :class "rc-row-button"         :impl "[:div]"                  :notes "The actual button."}
+     {:name :icon    :level 2 :class "rc-row-button-icon"    :impl "[:i]"                    :notes "The button icon."}]))
 
 (def row-button-parts
-  (-> (map :name row-button-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name row-button-parts-desc) set)))
 
 (def row-button-args-desc
-  [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
-   {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-   {:name :mouse-over-row?  :required false :default false         :type "boolean"                                        :description "true if the mouse is hovering over the row"}
-   {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-   {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
-   {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
-   {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
-   {:name :parts            :required false                        :type "map"             :validate-fn (parts? row-button-parts) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :md-icon-name     :required true  :default "zmdi-plus"   :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"zmdi-plus\""] " or " [:code "\"zmdi-undo\""]]}
+     {:name :on-click         :required false                        :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+     {:name :mouse-over-row?  :required false :default false         :type "boolean"                                        :description "true if the mouse is hovering over the row"}
+     {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+     {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :disabled?        :required false :default false         :type "boolean"                                        :description "if true, the user can't click the button"}
+     {:name :class            :required false                        :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+     {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
+     {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
+     {:name :parts            :required false                        :type "map"             :validate-fn (parts? row-button-parts) :description "See Parts section below."}]))
 
 (defn row-button
   "a small button containing a material design icon"
@@ -376,24 +393,27 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def hyperlink-parts-desc
-  [{:name :wrapper   :level 0 :class "rc-hyperlink-wrapper"   :impl "[hyperlink]"       :notes "Outer wrapper of the hyperlink, tooltip (if any), everything."}
-   {:name :tooltip   :level 1 :class "rc-hyperlink-tooltip"   :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
-   {:name :container :level 1 :class "rc-hyperlink-container" :impl "[box]"}
-   {:type :legacy    :level 2 :class "rc-hyperlink"           :impl "[:a]"              :notes "The anchor."}])
+  (when include-args-desc?
+    [{:name :wrapper   :level 0 :class "rc-hyperlink-wrapper"   :impl "[hyperlink]"       :notes "Outer wrapper of the hyperlink, tooltip (if any), everything."}
+     {:name :tooltip   :level 1 :class "rc-hyperlink-tooltip"   :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
+     {:name :container :level 1 :class "rc-hyperlink-container" :impl "[box]"}
+     {:type :legacy    :level 2 :class "rc-hyperlink"           :impl "[:a]"              :notes "The anchor."}]))
 
 (def hyperlink-parts
-  (-> (map :name hyperlink-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name hyperlink-parts-desc) set)))
 
 (def hyperlink-args-desc
-  [{:name :label            :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup? :description "label/hiccup for the button"}
-   {:name :on-click         :required false                        :type "-> nil"                 :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-   {:name :tooltip          :required false                        :type "string | hiccup"        :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-   {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}
-   {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
-   {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
-   {:name :parts            :required false                        :type "map"                    :validate-fn (parts? hyperlink-parts) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :label            :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup? :description "label/hiccup for the button"}
+     {:name :on-click         :required false                        :type "-> nil"                 :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+     {:name :tooltip          :required false                        :type "string | hiccup"        :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+     {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}
+     {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
+     {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
+     {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
+     {:name :parts            :required false                        :type "map"                    :validate-fn (parts? hyperlink-parts) :description "See Parts section below."}]))
 
 (defn hyperlink
   "Renders an underlined text hyperlink component.
@@ -449,24 +469,27 @@
 ;;--------------------------------------------------------------------------------------------------
 
 (def hyperlink-href-parts-desc
-  [{:name :wrapper   :level 0 :class "rc-hyperlink-href-wrapper"   :impl "[hyperlink-href]"       :notes "Outer wrapper of the hyperlink-href, tooltip (if any), everything."}
-   {:name :tooltip   :level 1 :class "rc-hyperlink-href-tooltip"   :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
-   {:type :legacy    :level 2 :class "rc-hyperlink-href"           :impl "[:a]"              :notes "The anchor."}])
+  (when include-args-desc?
+    [{:name :wrapper   :level 0 :class "rc-hyperlink-href-wrapper"   :impl "[hyperlink-href]"       :notes "Outer wrapper of the hyperlink-href, tooltip (if any), everything."}
+     {:name :tooltip   :level 1 :class "rc-hyperlink-href-tooltip"   :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
+     {:type :legacy    :level 2 :class "rc-hyperlink-href"           :impl "[:a]"              :notes "The anchor."}]))
 
 (def hyperlink-href-parts
-  (-> (map :name hyperlink-href-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name hyperlink-href-parts-desc) set)))
 
 (def hyperlink-href-args-desc
-  [{:name :label            :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup? :description "label/hiccup for the button"}
-   {:name :href             :required true                         :type "string | atom"          :validate-fn string-or-atom?   :description "if specified, the link target URL"}
-   {:name :target           :required false :default "_self"       :type "string | atom"          :validate-fn string-or-atom?   :description "one of \"_self\" or \"_blank\""}
-   {:name :tooltip          :required false                        :type "string | hiccup"        :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-   {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-   {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}
-   {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
-   {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
-   {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
-   {:name :parts            :required false                        :type "map"                    :validate-fn (parts? #{:wrapper :tooltip}) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :label            :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup? :description "label/hiccup for the button"}
+     {:name :href             :required true                         :type "string | atom"          :validate-fn string-or-atom?   :description "if specified, the link target URL"}
+     {:name :target           :required false :default "_self"       :type "string | atom"          :validate-fn string-or-atom?   :description "one of \"_self\" or \"_blank\""}
+     {:name :tooltip          :required false                        :type "string | hiccup"        :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+     {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}
+     {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
+     {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
+     {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
+     {:name :parts            :required false                        :type "map"                    :validate-fn (parts? #{:wrapper :tooltip}) :description "See Parts section below."}]))
 
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.

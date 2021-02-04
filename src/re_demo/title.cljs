@@ -10,8 +10,7 @@
   (let [underline? (reagent/atom false)]
     (fn
       []
-      (let [base-url  (str "https://github.com/day8/re-com/tree/" (if ^boolean js/goog.DEBUG "develop" "master") "/")
-            para-text [p "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quod si ita est, sequitur id ipsum, quod te velle video, omnes semper beatos esse sapientes. Tamen a proposito, inquam, aberramus. "]]
+      (let [para-text [p "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quod si ita est, sequitur id ipsum, quod te velle video, omnes semper beatos esse sapientes. Tamen a proposito, inquam, aberramus. "]]
         [v-box
          :size "auto"
          :gap "10px"
@@ -47,7 +46,7 @@
                                              " font. See "
                                              [hyperlink-href
                                               :label  "re-com.css"
-                                              :href   (str base-url "run/resources/public/assets/css/re-com.css")
+                                              :href   "https://github.com/day8/re-com/tree/master/run/resources/public/assets/css/re-com.css"
                                               :target "_blank"]
                                              "."]
                                             [args-table title-args-desc]]]

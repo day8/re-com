@@ -1,29 +1,36 @@
 (ns re-com.modal-panel
-  (:require-macros [re-com.core :refer [handler-fn]])
-  (:require [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]))
+  (:require-macros
+    [re-com.core     :refer [handler-fn]]
+    [re-com.validate :refer [validate-args-macro]])
+  (:require
+    [re-com.config   :refer [include-args-desc?]]
+    [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr? parts?]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  modal-panel
 ;; ------------------------------------------------------------------------------------
 
 (def modal-panel-parts-desc
-  [{:type :legacy  :level 0 :class "rc-modal-panel"         :impl "[modal-panel]" :notes "Outer wrapper of the modal panel, backdrop, everything."}
-   {:name :backdrop :level 1 :class "rc-modal-panel-backdrop" :impl "[:div]" :notes "Semi-transparent backdrop, which prevents other user interaction."}
-   {:name :container :level 1 :class "rc-modal-panel-container" :impl "[:div]" :notes [:span "The container for the " [:code ":child"] "component."]}])
+  (when include-args-desc?
+    [{:type :legacy    :level 0 :class "rc-modal-panel"           :impl "[modal-panel]" :notes "Outer wrapper of the modal panel, backdrop, everything."}
+     {:name :backdrop  :level 1 :class "rc-modal-panel-backdrop"  :impl "[:div]"        :notes "Semi-transparent backdrop, which prevents other user interaction."}
+     {:name :container :level 1 :class "rc-modal-panel-container" :impl "[:div]"        :notes [:span "The container for the " [:code ":child"] "component."]}]))
 
 (def modal-panel-parts
-  (-> (map :name modal-panel-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name modal-panel-parts-desc) set)))
 
 (def modal-panel-args-desc
-  [{:name :child             :required true                   :type "string | hiccup" :validate-fn string-or-hiccup? :description "hiccup to be centered within in the browser window"}
-   {:name :wrap-nicely?      :required false :default true    :type "boolean"                                        :description [:span "if true, wrap " [:code ":child"] " in a white, rounded panel"]}
-   {:name :backdrop-color    :required false :default "black" :type "string"          :validate-fn string?           :description "CSS color of backdrop"}
-   {:name :backdrop-opacity  :required false :default 0.6     :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
-   {:name :backdrop-on-click :required false :default nil     :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}
-   {:name :class             :required false                  :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
-   {:name :style             :required false                  :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
-   {:name :attr              :required false                  :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
-   {:name :parts             :required false                  :type "map"             :validate-fn (parts? modal-panel-parts) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :child             :required true                   :type "string | hiccup" :validate-fn string-or-hiccup? :description "hiccup to be centered within in the browser window"}
+     {:name :wrap-nicely?      :required false :default true    :type "boolean"                                        :description [:span "if true, wrap " [:code ":child"] " in a white, rounded panel"]}
+     {:name :backdrop-color    :required false :default "black" :type "string"          :validate-fn string?           :description "CSS color of backdrop"}
+     {:name :backdrop-opacity  :required false :default 0.6     :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
+     {:name :backdrop-on-click :required false :default nil     :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}
+     {:name :class             :required false                  :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :style             :required false                  :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override (applies to the outer container)"}
+     {:name :attr              :required false                  :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+     {:name :parts             :required false                  :type "map"             :validate-fn (parts? modal-panel-parts) :description "See Parts section below."}]))
 
 
 (defn modal-panel

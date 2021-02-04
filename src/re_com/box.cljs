@@ -1,6 +1,8 @@
 (ns re-com.box
-  (:require [clojure.string  :as    string]
-            [re-com.validate :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
+  (:require
+    [clojure.string  :as    string]
+    [re-com.config   :refer [include-args-desc?]]
+    [re-com.validate :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
                                      scroll-options-list string-or-hiccup? css-style? html-attr?] :refer-macros [validate-args-macro]]))
 
 (def debug false)
@@ -155,12 +157,13 @@
 ;; ------------------------------------------------------------------------------------
 
 (def gap-args-desc
-  [{:name :size   :required true  :type "string"        :validate-fn string?    :description "the length of the whitespace.  Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
-   {:name :width  :required false :type "string"        :validate-fn string?    :description "a CSS width style"}
-   {:name :height :required false :type "string"        :validate-fn string?    :description "a CSS height style"}
-   {:name :class  :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style  :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr   :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  (when include-args-desc?
+    [{:name :size   :required true  :type "string"        :validate-fn string?    :description "the length of the whitespace.  Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
+     {:name :width  :required false :type "string"        :validate-fn string?    :description "a CSS width style"}
+     {:name :height :required false :type "string"        :validate-fn string?    :description "a CSS height style"}
+     {:name :class  :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
+     {:name :style  :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
+     {:name :attr   :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
 (defn gap
   "Returns a component which produces a gap between children in a v-box/h-box along the main axis"
@@ -184,11 +187,12 @@
 ;; ------------------------------------------------------------------------------------
 
 (def line-args-desc
-  [{:name :size  :required false :default "1px"       :type "string"        :validate-fn string?    :description "a CSS style for the thickness of the line. Usually px, % or em"}
-   {:name :color :required false :default "lightgray" :type "string"        :validate-fn string?    :description "a CSS color"}
-   {:name :class :required false                      :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
-   {:name :style :required false                      :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
-   {:name :attr  :required false                      :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  (when include-args-desc?
+    [{:name :size  :required false :default "1px"       :type "string"        :validate-fn string?    :description "a CSS style for the thickness of the line. Usually px, % or em"}
+     {:name :color :required false :default "lightgray" :type "string"        :validate-fn string?    :description "a CSS color"}
+     {:name :class :required false                      :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
+     {:name :style :required false                      :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
+     {:name :attr  :required false                      :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
@@ -212,23 +216,24 @@
 ;; ------------------------------------------------------------------------------------
 
 (def h-box-args-desc
-  [{:name :children   :required true                    :type "vector"        :validate-fn sequential?    :description "a vector (or list) of components"}
-   {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
-   {:name :width      :required false                   :type "string"        :validate-fn string?        :description "a CSS width style"}
-   {:name :height     :required false                   :type "string"        :validate-fn string?        :description "a CSS height style"}
-   {:name :min-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
-   {:name :min-height :required false                   :type "string"        :validate-fn string?        :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :max-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The maximum width to which the box can grow"}
-   {:name :max-height :required false                   :type "string"        :validate-fn string?        :description "a CSS height style. The maximum height to which the box can grow"}
-   {:name :justify    :required false :default :start   :type "keyword"       :validate-fn justify-style? :description [:span "equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
-   {:name :align      :required false :default :stretch :type "keyword"       :validate-fn align-style?   :description [:span "equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
-   {:name :align-self :required false                   :type "keyword"       :validate-fn align-style?   :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
-   {:name :margin     :required false                   :type "string"        :validate-fn string?        :description "a CSS margin style"}
-   {:name :padding    :required false                   :type "string"        :validate-fn string?        :description "a CSS padding style"}
-   {:name :gap        :required false                   :type "string"        :validate-fn string?        :description "the amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
-   {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
-   {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
-   {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  (when
+    [{:name :children   :required true                    :type "vector"        :validate-fn sequential?    :description "a vector (or list) of components"}
+     {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :width      :required false                   :type "string"        :validate-fn string?        :description "a CSS width style"}
+     {:name :height     :required false                   :type "string"        :validate-fn string?        :description "a CSS height style"}
+     {:name :min-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
+     {:name :min-height :required false                   :type "string"        :validate-fn string?        :description "a CSS height style. The minimum height to which the box can shrink"}
+     {:name :max-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The maximum width to which the box can grow"}
+     {:name :max-height :required false                   :type "string"        :validate-fn string?        :description "a CSS height style. The maximum height to which the box can grow"}
+     {:name :justify    :required false :default :start   :type "keyword"       :validate-fn justify-style? :description [:span "equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
+     {:name :align      :required false :default :stretch :type "keyword"       :validate-fn align-style?   :description [:span "equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
+     {:name :align-self :required false                   :type "keyword"       :validate-fn align-style?   :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
+     {:name :margin     :required false                   :type "string"        :validate-fn string?        :description "a CSS margin style"}
+     {:name :padding    :required false                   :type "string"        :validate-fn string?        :description "a CSS padding style"}
+     {:name :gap        :required false                   :type "string"        :validate-fn string?        :description "the amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
+     {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
+     {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
+     {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
 (defn h-box
   "Returns hiccup which produces a horizontal box.
@@ -272,23 +277,24 @@
 ;; ------------------------------------------------------------------------------------
 
 (def v-box-args-desc
-  [{:name :children   :required true                    :type "vector"        :validate-fn sequential?    :description "a vector (or list) of components"}
-   {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
-   {:name :width      :required false                   :type "string"        :validate-fn string?        :description "a CSS width style"}
-   {:name :height     :required false                   :type "string"        :validate-fn string?        :description "a CSS height style"}
-   {:name :min-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
-   {:name :min-height :required false                   :type "string"        :validate-fn string?        :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :max-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The maximum width to which the box can grow"}
-   {:name :max-height :required false                   :type "string"        :validate-fn string?        :description "a CSS height style. The maximum height to which the box can grow"}
-   {:name :justify    :required false :default :start   :type "keyword"       :validate-fn justify-style? :description [:span "equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
-   {:name :align      :required false :default :stretch :type "keyword"       :validate-fn align-style?   :description [:span "equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
-   {:name :align-self :required false                   :type "keyword"       :validate-fn align-style?   :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
-   {:name :margin     :required false                   :type "string"        :validate-fn string?        :description "a CSS margin style"}
-   {:name :padding    :required false                   :type "string"        :validate-fn string?        :description "a CSS padding style"}
-   {:name :gap        :required false                   :type "string"        :validate-fn string?        :description "the amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
-   {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
-   {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
-   {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  (when include-args-desc?
+    [{:name :children   :required true                    :type "vector"        :validate-fn sequential?    :description "a vector (or list) of components"}
+     {:name :size       :required false :default "none"   :type "string"        :validate-fn string?        :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :width      :required false                   :type "string"        :validate-fn string?        :description "a CSS width style"}
+     {:name :height     :required false                   :type "string"        :validate-fn string?        :description "a CSS height style"}
+     {:name :min-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The minimum width to which the box can shrink"}
+     {:name :min-height :required false                   :type "string"        :validate-fn string?        :description "a CSS height style. The minimum height to which the box can shrink"}
+     {:name :max-width  :required false                   :type "string"        :validate-fn string?        :description "a CSS width style. The maximum width to which the box can grow"}
+     {:name :max-height :required false                   :type "string"        :validate-fn string?        :description "a CSS height style. The maximum height to which the box can grow"}
+     {:name :justify    :required false :default :start   :type "keyword"       :validate-fn justify-style? :description [:span "equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
+     {:name :align      :required false :default :stretch :type "keyword"       :validate-fn align-style?   :description [:span "equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
+     {:name :align-self :required false                   :type "keyword"       :validate-fn align-style?   :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
+     {:name :margin     :required false                   :type "string"        :validate-fn string?        :description "a CSS margin style"}
+     {:name :padding    :required false                   :type "string"        :validate-fn string?        :description "a CSS padding style"}
+     {:name :gap        :required false                   :type "string"        :validate-fn string?        :description "the amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
+     {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
+     {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
+     {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
 (defn v-box
   "Returns hiccup which produces a vertical box.
@@ -332,22 +338,23 @@
 ;; ------------------------------------------------------------------------------------
 
 (def box-args-desc
-  [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
-   {:name :size       :required false :default "none"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
-   {:name :width      :required false                   :type "string"          :validate-fn string?           :description "a CSS width style"}
-   {:name :height     :required false                   :type "string"          :validate-fn string?           :description "a CSS height style"}
-   {:name :min-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
-   {:name :min-height :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :max-width  :required false                   :type "string"          :validate-fn string?          :description "a CSS width style. The maximum width to which the box can grow"}
-   {:name :max-height :required false                   :type "string"          :validate-fn string?          :description "a CSS height style. The maximum height to which the box can grow"}
-   {:name :justify    :required false :default :start   :type "keyword"         :validate-fn justify-style?    :description [:span "equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
-   {:name :align      :required false :default :stretch :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
-   {:name :align-self :required false                   :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
-   {:name :margin     :required false                   :type "string"          :validate-fn string?           :description "a CSS margin style"}
-   {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
-   {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  (when include-args-desc?
+    [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
+     {:name :size       :required false :default "none"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :width      :required false                   :type "string"          :validate-fn string?           :description "a CSS width style"}
+     {:name :height     :required false                   :type "string"          :validate-fn string?           :description "a CSS height style"}
+     {:name :min-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
+     {:name :min-height :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The minimum height to which the box can shrink"}
+     {:name :max-width  :required false                   :type "string"          :validate-fn string?          :description "a CSS width style. The maximum width to which the box can grow"}
+     {:name :max-height :required false                   :type "string"          :validate-fn string?          :description "a CSS height style. The maximum height to which the box can grow"}
+     {:name :justify    :required false :default :start   :type "keyword"         :validate-fn justify-style?    :description [:span "equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
+     {:name :align      :required false :default :stretch :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
+     {:name :align-self :required false                   :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
+     {:name :margin     :required false                   :type "string"          :validate-fn string?           :description "a CSS margin style"}
+     {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
+     {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+     {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
+     {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
 (defn box
   "Returns hiccup which produces a box, which is generally used as a child of a v-box or an h-box.
@@ -380,29 +387,30 @@
 ;; ------------------------------------------------------------------------------------
 
 (def scroller-args-desc
-  [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
-   {:name :size       :required false :default "auto"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
-   {:name :scroll     :required false :default "auto"   :type "keyword"         :validate-fn scroll-style?     :description [:span "Sets both h-scroll and v-scroll at once: " [:br]
-                                                                                                                             [:code ":auto"] ": only show scroll bar(s) if the content is larger than the scroller" [:br]
-                                                                                                                             [:code ":on"] ": always show scroll bars" [:br]
-                                                                                                                             [:code ":off"] ": never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen" [:br]
-                                                                                                                             [:code ":spill"] ": never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place"]}
-   {:name :h-scroll   :required false                   :type "keyword"         :validate-fn scroll-style?     :description [:span "see " [:code ":scroll"] ". Overrides that setting"]}
-   {:name :v-scroll   :required false                   :type "keyword"         :validate-fn scroll-style?     :description [:span "see " [:code ":scroll"] ". Overrides that setting"]}
-   {:name :width      :required false                   :type "string"          :validate-fn string?           :description "initial width"}
-   {:name :height     :required false                   :type "string"          :validate-fn string?           :description "initial height"}
-   {:name :min-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
-   {:name :min-height :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :max-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The maximum width to which the box can grow"}
-   {:name :max-height :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The maximum height to which the box can grow"}
-   {:name :justify    :required false :default :start   :type "keyword"         :validate-fn justify-style?    :description [:span "equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
-   {:name :align      :required false :default :stretch :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
-   {:name :align-self :required false                   :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
-   {:name :margin     :required false                   :type "string"          :validate-fn string?           :description "a CSS margin style"}
-   {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
-   {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  (when include-args-desc?
+    [{:name :child      :required true                    :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
+     {:name :size       :required false :default "auto"   :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :scroll     :required false :default "auto"   :type "keyword"         :validate-fn scroll-style?     :description [:span "Sets both h-scroll and v-scroll at once: " [:br]
+                                                                                                                               [:code ":auto"] ": only show scroll bar(s) if the content is larger than the scroller" [:br]
+                                                                                                                               [:code ":on"] ": always show scroll bars" [:br]
+                                                                                                                               [:code ":off"] ": never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen" [:br]
+                                                                                                                               [:code ":spill"] ": never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place"]}
+     {:name :h-scroll   :required false                   :type "keyword"         :validate-fn scroll-style?     :description [:span "see " [:code ":scroll"] ". Overrides that setting"]}
+     {:name :v-scroll   :required false                   :type "keyword"         :validate-fn scroll-style?     :description [:span "see " [:code ":scroll"] ". Overrides that setting"]}
+     {:name :width      :required false                   :type "string"          :validate-fn string?           :description "initial width"}
+     {:name :height     :required false                   :type "string"          :validate-fn string?           :description "initial height"}
+     {:name :min-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
+     {:name :min-height :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The minimum height to which the box can shrink"}
+     {:name :max-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The maximum width to which the box can grow"}
+     {:name :max-height :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The maximum height to which the box can grow"}
+     {:name :justify    :required false :default :start   :type "keyword"         :validate-fn justify-style?    :description [:span "equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
+     {:name :align      :required false :default :stretch :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
+     {:name :align-self :required false                   :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
+     {:name :margin     :required false                   :type "string"          :validate-fn string?           :description "a CSS margin style"}
+     {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
+     {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+     {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
+     {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
 (defn scroller
   "Returns hiccup which produces a scoller component.
@@ -450,25 +458,26 @@
 ;; ------------------------------------------------------------------------------------
 
 (def border-args-desc
-  [{:name :child      :required true                                 :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
-   {:name :border     :required false :default "1px solid lightgrey" :type "string"          :validate-fn string?           :description "a CSS border style. A convenience to describe all borders in one parameter"}
-   {:name :l-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the left border. Overrides " [:code ":border"]]}
-   {:name :r-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the right border. Overrides " [:code ":border"]]}
-   {:name :t-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the top border. Overrides " [:code ":border"]]}
-   {:name :b-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the bottom. Overrides " [:code ":border"]]}
-   {:name :radius     :required false                                :type "string"          :validate-fn string?           :description "a CSS radius style eg.\"2px\""}
-   {:name :size       :required false :default "none"                :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
-   {:name :width      :required false                                :type "string"          :validate-fn string?           :description "a CSS style describing the initial width"}
-   {:name :height     :required false                                :type "string"          :validate-fn string?           :description "a CSS style describing the initial height"}
-   {:name :min-width  :required false                                :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
-   {:name :min-height :required false                                :type "string"          :validate-fn string?           :description "a CSS height style. The minimum height to which the box can shrink"}
-   {:name :max-width  :required false                                :type "string"          :validate-fn string?           :description "a CSS width style. The maximum width to which the box can grow"}
-   {:name :max-height :required false                                :type "string"          :validate-fn string?           :description "a CSS height style. The maximum height to which the box can grow"}
-   {:name :margin     :required false                                :type "string"          :validate-fn string?           :description "a CSS margin style"}
-   {:name :padding    :required false                                :type "string"          :validate-fn string?           :description "a CSS padding style"}
-   {:name :class      :required false                                :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
-   {:name :style      :required false                                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
-   {:name :attr       :required false                                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}])
+  (when include-args-desc?
+    [{:name :child      :required true                                 :type "string | hiccup" :validate-fn string-or-hiccup? :description "a component (or string)"}
+     {:name :border     :required false :default "1px solid lightgrey" :type "string"          :validate-fn string?           :description "a CSS border style. A convenience to describe all borders in one parameter"}
+     {:name :l-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the left border. Overrides " [:code ":border"]]}
+     {:name :r-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the right border. Overrides " [:code ":border"]]}
+     {:name :t-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the top border. Overrides " [:code ":border"]]}
+     {:name :b-border   :required false                                :type "string"          :validate-fn string?           :description [:span "a CSS border style for the bottom. Overrides " [:code ":border"]]}
+     {:name :radius     :required false                                :type "string"          :validate-fn string?           :description "a CSS radius style eg.\"2px\""}
+     {:name :size       :required false :default "none"                :type "string"          :validate-fn string?           :description [:span "equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
+     {:name :width      :required false                                :type "string"          :validate-fn string?           :description "a CSS style describing the initial width"}
+     {:name :height     :required false                                :type "string"          :validate-fn string?           :description "a CSS style describing the initial height"}
+     {:name :min-width  :required false                                :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
+     {:name :min-height :required false                                :type "string"          :validate-fn string?           :description "a CSS height style. The minimum height to which the box can shrink"}
+     {:name :max-width  :required false                                :type "string"          :validate-fn string?           :description "a CSS width style. The maximum width to which the box can grow"}
+     {:name :max-height :required false                                :type "string"          :validate-fn string?           :description "a CSS height style. The maximum height to which the box can grow"}
+     {:name :margin     :required false                                :type "string"          :validate-fn string?           :description "a CSS margin style"}
+     {:name :padding    :required false                                :type "string"          :validate-fn string?           :description "a CSS padding style"}
+     {:name :class      :required false                                :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+     {:name :style      :required false                                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
+     {:name :attr       :required false                                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
 
 (defn border
   "Returns hiccup which produces a border component.

@@ -1,15 +1,16 @@
 (ns re-com.datepicker
   (:require-macros [re-com.core :refer [handler-fn]])
   (:require
-    [reagent.core :as reagent]
-    [cljs-time.core :as cljs-time]
-    [re-com.validate :refer [date-like? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
+    [reagent.core         :as reagent]
+    [cljs-time.core       :as cljs-time]
+    [re-com.config        :refer [include-args-desc?]]
+    [re-com.validate      :refer [date-like? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
-    [cljs-time.format :refer [parse unparse formatters formatter]]
-    [re-com.box :refer [border gap box line h-box flex-child-style]]
-    [re-com.util :refer [deref-or-value now->utc]]
-    [re-com.popover :refer [popover-anchor-wrapper popover-content-wrapper]]
-    [clojure.string :as string])
+    [cljs-time.format     :refer [parse unparse formatters formatter]]
+    [re-com.box           :refer [border gap box line h-box flex-child-style]]
+    [re-com.util          :refer [deref-or-value now->utc]]
+    [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
+    [clojure.string       :as string])
   (:import
     [goog.i18n DateTimeFormat]))
 
@@ -460,55 +461,58 @@
     (merge attributes {:selectable-fn selectable-fn})))
 
 (def datepicker-parts-desc
-  [{:name :wrapper :level 0 :class "rc-datepicker-wrapper" :impl "[datepicker]" :notes "Outer wrapper of the datepicker."}
-   {:name :border  :level 1 :class "rc-datepicker-border"  :impl "[border]"     :notes "The datepicker border."}
-   {:type :legacy  :level 2 :class "rc-datepicker"         :impl "[:div]"       :notes "The datepicker container."}
-   {:name :table   :level 3 :class "rc-datepicker-table"   :impl "[:table]"     :notes "The datepicker table."}
-   {:name :header  :level 4 :class "rc-datepicker-header"  :impl "[:thead]"     :notes "The datepicker header."}
-   {:type :legacy  :name-label "-" :level 5                 :impl "[:tr]"        :notes "The datepicker month row."}
-   {:name :nav    :level 6  :class "rc-datepicker-nav"     :impl "[:th]"        :notes "The datepicker navigation."}
-   {:type :legacy :name-label "-" :level 7 :impl "[h-box]"}
-   {:name :prev-year :level 8 :class "rc-datepicker-prev-year" :impl "[box]" :notes "The datepicker previous year button."}
-   {:name :prev-year-icon :level 9 :class "rc-datepicker-prev-year-icon" :impl "[:svg]" :notes "The datepicker previous year button icon."}
-   {:name :prev-month :level 8 :class "rc-datepicker-prev-month" :impl "[box]" :notes "The datepicker previous month button."}
-   {:name :prev-month-icon :level 9 :class "rc-datepicker-prev-month-icon" :impl "[:svg]" :notes "The datepicker previous month button icon."}
-   {:name :month :level 8 :class "rc-datepicker-month" :impl "[box]" :notes "The datepicker month label."}
-   {:name :next-month :level 8 :class "rc-datepicker-next-month" :impl "[box]" :notes "The datepicker next month button."}
-   {:name :next-month-icon :level 9 :class "rc-datepicker-next-month-icon" :impl "[:svg]" :notes "The datepicker next month button icon."}
-   {:name :next-year :level 8 :class "rc-datepicker-next-year" :impl "[box]" :notes "The datepicker next year button."}
-   {:name :next-year-icon :level 9 :class "rc-datepicker-next-year-icon" :impl "[:svg]" :notes "The datepicker next year button icon."}
-   {:type :legacy :name-label "-" :level 5 :impl "[:tr]" :notes "The datepicker weekday row."}
-   {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-mon" :notes "Monday. WARNING: First weekday of week depends on arguments."}
-   {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-tue" :notes "Tuesday."}
-   {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-wed" :notes "Wednesday."}
-   {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-thu" :notes "Thursday."}
-   {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-fri" :notes "Friday."}
-   {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-sat" :notes "Saturday."}
-   {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-sun" :notes "Sunday."}
-   {:name :dates :level 4 :impl "[:tbody]" :class "rc-datepicker-dates" :notes "The table body containing the dates."}
-   {:type :legacy :level 5 :name-label "-" :impl "[:tr]" :notes "A date row. Repeats 6 times."}
-   {:name :date :level 6 :impl "[:td]" :class "rc-datepicker-date" :notes "A date cell. Repeats 7 times per date row."}])
+  (when include-args-desc?
+    [{:name :wrapper :level 0 :class "rc-datepicker-wrapper" :impl "[datepicker]" :notes "Outer wrapper of the datepicker."}
+     {:name :border  :level 1 :class "rc-datepicker-border"  :impl "[border]"     :notes "The datepicker border."}
+     {:type :legacy  :level 2 :class "rc-datepicker"         :impl "[:div]"       :notes "The datepicker container."}
+     {:name :table   :level 3 :class "rc-datepicker-table"   :impl "[:table]"     :notes "The datepicker table."}
+     {:name :header  :level 4 :class "rc-datepicker-header"  :impl "[:thead]"     :notes "The datepicker header."}
+     {:type :legacy  :name-label "-" :level 5                 :impl "[:tr]"        :notes "The datepicker month row."}
+     {:name :nav    :level 6  :class "rc-datepicker-nav"     :impl "[:th]"        :notes "The datepicker navigation."}
+     {:type :legacy :name-label "-" :level 7 :impl "[h-box]"}
+     {:name :prev-year :level 8 :class "rc-datepicker-prev-year" :impl "[box]" :notes "The datepicker previous year button."}
+     {:name :prev-year-icon :level 9 :class "rc-datepicker-prev-year-icon" :impl "[:svg]" :notes "The datepicker previous year button icon."}
+     {:name :prev-month :level 8 :class "rc-datepicker-prev-month" :impl "[box]" :notes "The datepicker previous month button."}
+     {:name :prev-month-icon :level 9 :class "rc-datepicker-prev-month-icon" :impl "[:svg]" :notes "The datepicker previous month button icon."}
+     {:name :month :level 8 :class "rc-datepicker-month" :impl "[box]" :notes "The datepicker month label."}
+     {:name :next-month :level 8 :class "rc-datepicker-next-month" :impl "[box]" :notes "The datepicker next month button."}
+     {:name :next-month-icon :level 9 :class "rc-datepicker-next-month-icon" :impl "[:svg]" :notes "The datepicker next month button icon."}
+     {:name :next-year :level 8 :class "rc-datepicker-next-year" :impl "[box]" :notes "The datepicker next year button."}
+     {:name :next-year-icon :level 9 :class "rc-datepicker-next-year-icon" :impl "[:svg]" :notes "The datepicker next year button icon."}
+     {:type :legacy :name-label "-" :level 5 :impl "[:tr]" :notes "The datepicker weekday row."}
+     {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-mon" :notes "Monday. WARNING: First weekday of week depends on arguments."}
+     {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-tue" :notes "Tuesday."}
+     {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-wed" :notes "Wednesday."}
+     {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-thu" :notes "Thursday."}
+     {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-fri" :notes "Friday."}
+     {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-sat" :notes "Saturday."}
+     {:name :day :level 6 :impl "[:th]" :class "rc-datepicker-day-sun" :notes "Sunday."}
+     {:name :dates :level 4 :impl "[:tbody]" :class "rc-datepicker-dates" :notes "The table body containing the dates."}
+     {:type :legacy :level 5 :name-label "-" :impl "[:tr]" :notes "A date row. Repeats 6 times."}
+     {:name :date :level 6 :impl "[:td]" :class "rc-datepicker-date" :notes "A date cell. Repeats 7 times per date row."}]))
    
 
 (def datepicker-parts
-  (-> (map :name datepicker-parts-desc) set))
+  (when include-args-desc?
+    (-> (map :name datepicker-parts-desc) set)))
 
 (def datepicker-args-desc
-  [{:name :model          :required false                               :type "satisfies DateTimeProtocol | atom"  :validate-fn date-like?  :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now->utc) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
-   {:name :on-change      :required true                                :type "satisfies DateTimeProtocol -> nil"  :validate-fn fn?         :description [:span "called when a new selection is made. Returned type is the same as model (unless model is nil, in which case it will be " [:code "goog.date.UtcDateTime"] ")"]}
-   {:name :disabled?      :required false  :default false               :type "boolean | atom"                                              :description "when true, the user can't select dates but can navigate"}
-   {:name :selectable-fn  :required false  :default "(fn [date] true)"  :type "pred"                               :validate-fn fn?         :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
-   {:name :show-weeks?    :required false  :default false               :type "boolean"                                                     :description "when true, week numbers are shown to the left"}
-   {:name :show-today?    :required false  :default false               :type "boolean"                                                     :description "when true, today's date is highlighted"}
-   {:name :minimum        :required false                               :type "satisfies DateTimeProtocol | atom"  :validate-fn date-like?  :description "no selection or navigation before this date"}
-   {:name :maximum        :required false                               :type "satisfies DateTimeProtocol | atom"  :validate-fn date-like?  :description "no selection or navigation after this date"}
-   {:name :start-of-week  :required false  :default 6                   :type "int"                                                         :description "first day of week (Monday = 0 ... Sunday = 6)"}
-   {:name :hide-border?   :required false  :default false               :type "boolean"                                                     :description "when true, the border is not displayed"}
-   {:name :i18n           :required false                               :type "map"                                                         :description [:span "internationalization map with optional keys " [:code ":days"] " and " [:code ":months"] " (both vectors of strings)"]}
-   {:name :class          :required false                               :type "string"                             :validate-fn string?     :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
-   {:name :style          :required false                               :type "CSS style map"                      :validate-fn css-style?  :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
-   {:name :attr           :required false                               :type "HTML attr map"                      :validate-fn html-attr?  :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] " allowed (applies to the outer border div, not the wrapping div)"]}
-   {:name :parts          :required false                               :type "map"                                :validate-fn (parts? datepicker-parts) :description "See Parts section below."}])
+  (when include-args-desc?
+    [{:name :model          :required false                               :type "satisfies DateTimeProtocol | atom"  :validate-fn date-like?  :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now->utc) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
+     {:name :on-change      :required true                                :type "satisfies DateTimeProtocol -> nil"  :validate-fn fn?         :description [:span "called when a new selection is made. Returned type is the same as model (unless model is nil, in which case it will be " [:code "goog.date.UtcDateTime"] ")"]}
+     {:name :disabled?      :required false  :default false               :type "boolean | atom"                                              :description "when true, the user can't select dates but can navigate"}
+     {:name :selectable-fn  :required false  :default "(fn [date] true)"  :type "pred"                               :validate-fn fn?         :description "Predicate is passed a date. If it answers false, day will be shown disabled and can't be selected."}
+     {:name :show-weeks?    :required false  :default false               :type "boolean"                                                     :description "when true, week numbers are shown to the left"}
+     {:name :show-today?    :required false  :default false               :type "boolean"                                                     :description "when true, today's date is highlighted"}
+     {:name :minimum        :required false                               :type "satisfies DateTimeProtocol | atom"  :validate-fn date-like?  :description "no selection or navigation before this date"}
+     {:name :maximum        :required false                               :type "satisfies DateTimeProtocol | atom"  :validate-fn date-like?  :description "no selection or navigation after this date"}
+     {:name :start-of-week  :required false  :default 6                   :type "int"                                                         :description "first day of week (Monday = 0 ... Sunday = 6)"}
+     {:name :hide-border?   :required false  :default false               :type "boolean"                                                     :description "when true, the border is not displayed"}
+     {:name :i18n           :required false                               :type "map"                                                         :description [:span "internationalization map with optional keys " [:code ":days"] " and " [:code ":months"] " (both vectors of strings)"]}
+     {:name :class          :required false                               :type "string"                             :validate-fn string?     :description "CSS class names, space separated (applies to the outer border div, not the wrapping div)"}
+     {:name :style          :required false                               :type "CSS style map"                      :validate-fn css-style?  :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
+     {:name :attr           :required false                               :type "HTML attr map"                      :validate-fn html-attr?  :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] " allowed (applies to the outer border div, not the wrapping div)"]}
+     {:name :parts          :required false                               :type "map"                                :validate-fn (parts? datepicker-parts) :description "See Parts section below."}]))
 
 (defn datepicker
   [& {:keys [model] :as args}]
@@ -569,13 +573,14 @@
                  [:i.zmdi.zmdi-apps {:style {:font-size "24px"}}]]]]])
 
 (def datepicker-dropdown-args-desc
-  (conj datepicker-args-desc
-        {:name :format          :required false  :default "yyyy MMM dd"  :type "string"   :description "[datepicker-dropdown only] a representation of a date format. See cljs_time.format"}
-        {:name :goog?           :required false  :default false          :type "boolean"  :description [:span "[datepicker-dropdown only] use " [:code "goog.i18n.DateTimeFormat"] " instead of " [:code "cljs_time.format"] " for applying " [:code ":format"]]}
-        {:name :no-clip?        :required false  :default true           :type "boolean"  :description "[datepicker-dropdown only] when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
-        {:name :placeholder     :required false                          :type "string"   :description "[datepicker-dropdown only] placeholder text for when a date is not selected."}
-        {:name :width           :required false  :validate-fn string?    :type "string"   :description "[datepicker-dropdown only] a CSS width style"}
-        {:name :position-offset :required false  :validate-fn number?    :type "integer"  :description "[datepicker-dropdown only] px horizontal offset of the popup"}))
+  (when include-args-desc?
+    (conj datepicker-args-desc
+          {:name :format          :required false  :default "yyyy MMM dd"  :type "string"   :description "[datepicker-dropdown only] a representation of a date format. See cljs_time.format"}
+          {:name :goog?           :required false  :default false          :type "boolean"  :description [:span "[datepicker-dropdown only] use " [:code "goog.i18n.DateTimeFormat"] " instead of " [:code "cljs_time.format"] " for applying " [:code ":format"]]}
+          {:name :no-clip?        :required false  :default true           :type "boolean"  :description "[datepicker-dropdown only] when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
+          {:name :placeholder     :required false                          :type "string"   :description "[datepicker-dropdown only] placeholder text for when a date is not selected."}
+          {:name :width           :required false  :validate-fn string?    :type "string"   :description "[datepicker-dropdown only] a CSS width style"}
+          {:name :position-offset :required false  :validate-fn number?    :type "integer"  :description "[datepicker-dropdown only] px horizontal offset of the popup"})))
 
 (defn datepicker-dropdown
   [& {:as args}]

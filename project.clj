@@ -61,8 +61,9 @@
                 :builds {:demo         {:target           :browser
                                         :modules          {:demo {:init-fn  re-demo.core/mount-demo
                                                                   :preloads [day8.app.dev-preload]}}
-                                        :compiler-options {:externs ["externs/detect-element-resize-externs.js"]
-                                                           :closure-defines {re-demo.core/version "lein-git-inject/version"}}
+                                        :compiler-options {:closure-defines {re-com.config/version                 "lein-git-inject/version"
+                                                                             re-com.config/force-include-args-desc true}
+                                                           :externs ["externs/detect-element-resize-externs.js"]}
                                         :dev              {:asset-path       "/compiled_dev/demo"
                                                            :output-dir       "run/resources/public/compiled_dev/demo"
                                                            :compiler-options {:external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}
@@ -74,7 +75,8 @@
                          :browser-test {:target           :browser-test
                                         :ns-regexp        "-test$"
                                         :test-dir         "run/resources/public/compiled_test/demo"
-                                        :compiler-options {:externs         ["externs/detect-element-resize-externs.js"]
+                                        :compiler-options {:closure-defines {re-com.config/version "lein-git-inject/version"}
+                                                           :externs         ["externs/detect-element-resize-externs.js"]
                                                            :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}
                                         :devtools         {:http-port 8021
                                                            :http-root "run/resources/public/compiled_test/demo"
@@ -82,8 +84,9 @@
                          :karma-test   {:target           :karma
                                         :ns-regexp        ".*-test$"
                                         :output-to        "target/karma/test.js"
-                                        :compiler-options {:externs      ["externs/detect-element-resize-externs.js"]
-                                                           :pretty-print true}}}}
+                                        :compiler-options {:pretty-print true
+                                                           :closure-defines {re-com.config/version "lein-git-inject/version"}
+                                                           :externs         ["externs/detect-element-resize-externs.js"]}}}}
 
   :release-tasks [["deploy" "clojars"]]
 
