@@ -9,9 +9,42 @@
 
 #### Changed
 
+The following `v-table` and `simple-v-table` breaking changes are only relevant to the Day8 team...
+
 - **Breaking**: Rename `:max-table-width` arg of `v-table` and `simple-v-table` to `:max-width`.
 - **Breaking**: Rename `:valign` in `simple-v-table` `:columns` specification to `:vertical-align` to
 match the associated CSS property. Fix the documentation and demos of the same.
+- **Breaking**: Rename `:scroll-cols-into-view` arg of `v-table`  to `:scroll-cols-into-view`.
+- **Breaking**: Rename `:col-header-renderer` arg of `v-table`  to `:column-header-renderer`.
+- **Breaking**: Rename `:col-header-height` arg of `v-table`  to `:column-header-height`.
+- **Breaking**: Rename `:col-header-selection-fn` arg of `v-table`  to `:column-header-selection-fn`.
+- **Breaking**: Rename `:style-parts` arg of `v-table`  to `:parts`.
+   - Then wrap any style maps in a map with a key of `:style` 
+   - For example: 
+```clojure
+:style-parts {:v-table {:background-color "lightgrey"}}
+
+;; becomes...
+
+:parts {:wrapper {:style {:background-color "lightgrey"}}}
+
+;; notice, the above also included a :v-table => :wrapper conversion 
+```
+- **Breaking**: `:attr-parts` arg of `v-table` has been removed.
+   - You need to incorporate it into the `:parts` arg
+   - For example:
+```clojure
+:attr-parts {:v-table-top-left {:on-click (handler-fn ...)}}
+
+;; becomes...
+
+:parts {:top-left {:attr {:on-click (handler-fn ...)}}}
+
+;; notice, the above also included a :v-table-top-left => :top-left conversion 
+```
+- **Breaking**: Rename any `:parts` args that match  `:v-table-*` to `:*` (in other words, remove `v-table-`).
+- **Breaking**: Rename any `:parts` args that match  `:*-col-*` to `:*-column-*`.
+
 
 #### Removed
 
