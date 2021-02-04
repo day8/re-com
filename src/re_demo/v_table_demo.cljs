@@ -26,7 +26,6 @@
 (def sel-must-enclose?  false)  ;; When true, selected items only become selected when they are fully enclosed by the selection box
 
 (def row-height  19)
-(def px-per-day-fixed {:days 20 :weeks 9 :months 3}) ;; TODO: Remove
 (def demo-table-font-size "12px")
 
 ;; Date formatting
@@ -223,13 +222,13 @@
 ;; ========== XXX ==========
 
 (defn px-width
-  [num-days px-per-day]
-  (px (* num-days px-per-day)))
+  [num-days day-width]
+  (px (* num-days day-width)))
 
 (defn px-width-activity
-  [num-days px-per-day]
+  [num-days day-width]
   ; we allow for borders and gap
-  (px (- (* num-days px-per-day) 2)))
+  (px (- (* num-days day-width) 2)))
 
 (defn translate-x
   [x-offset]
@@ -237,7 +236,7 @@
 
 
 (defn timeline-activities
-  "Based on the resolution, return seq of activities with :start-date & :num-days"
+  "Based on the resolution passed in, return seq of activities with :start-date & :num-days"
   [date-start date-end resolution]
   (case resolution
     :days
@@ -286,7 +285,7 @@
 
 
 (defn render-dates-row
-  [timeline-start px-per-day activities]
+  [timeline-start day-width activities]
   ; activities - vector of maps each :start-date :num-days :label
   (into
     [:div {:class "table-date-header-label"
@@ -294,11 +293,11 @@
     (map-indexed
       (fn [index {:keys [start-date num-days label]}]
         (let [x-offset (-> (time.core/in-days (time.core/interval timeline-start start-date))
-                           (* px-per-day))]
+                           (* day-width))]
           ^{:key (str index)}
           [:span {:class "trans-date" ; TODO: def CSS to transition date x + width
                   :style {:position      "absolute"
-                          :width         (px-width num-days px-per-day)
+                          :width         (px-width num-days day-width)
                           :height        (px row-height)
                           :border-right  "1px solid lightgrey"
                           :border-bottom "1px solid lightgrey"
@@ -313,45 +312,45 @@
 
 
 (defn render-dates-dow
-  [timeline-start timeline-end px-per-day]
-  (let [show-content? (>= px-per-day 14) ; any smaller and don't render date label
+  [timeline-start timeline-end day-width]
+  (let [show-content? (>= day-width 14) ; any smaller and don't render date label
         activities    (map #(assoc % :label (when show-content? (-> % :start-date time.core/day-of-week dow-character)))
                            (timeline-activities timeline-start timeline-end :days))]
-    [render-dates-row timeline-start px-per-day activities]))
+    [render-dates-row timeline-start day-width activities]))
 
 
 (defn render-dates-dd
-  [timeline-start timeline-end px-per-day]
-  (let [show-content? (>= px-per-day 14) ; any smaller and don't render date label
+  [timeline-start timeline-end day-width]
+  (let [show-content? (>= day-width 14) ; any smaller and don't render date label
         activities    (map #(assoc % :label (when show-content? (time.format/unparse format-date-dd (:start-date %))))
                            (timeline-activities timeline-start timeline-end :days))]
-    [render-dates-row timeline-start px-per-day activities]))
+    [render-dates-row timeline-start day-width activities]))
 
 
 (defn render-dates-wc
-  [timeline-start timeline-end px-per-day]
+  [timeline-start timeline-end day-width]
   (let [activities (map #(assoc % :label (time.format/unparse format-date-dd-mmm (:start-date %)))
                         (timeline-activities timeline-start timeline-end :weeks))]
-    [render-dates-row timeline-start px-per-day activities]))
+    [render-dates-row timeline-start day-width activities]))
 
 
 (defn render-dates-month
-  [timeline-start timeline-end px-per-day]
-  (let [activities (map #(assoc % :label (when (>= (* (:num-days %) px-per-day) 40) (time.format/unparse format-date-mmm-yyyy (:start-date %))))
+  [timeline-start timeline-end day-width]
+  (let [activities (map #(assoc % :label (when (>= (* (:num-days %) day-width) 40) (time.format/unparse format-date-mmm-yyyy (:start-date %))))
                         (timeline-activities timeline-start timeline-end :months))]
-    [render-dates-row timeline-start px-per-day activities]))
+    [render-dates-row timeline-start day-width activities]))
 
 
 (defn render-table-dates
   "RENDERER: column-header-renderer - Output the detailed 4-row column header of the specified date range"
-  [px-per-day]
+  [day-width]
   (fn table-dates-renderer
     []
     [v-box
-     :children [[render-dates-month timeline-start-date timeline-end-date px-per-day]
-                [render-dates-wc    timeline-start-date timeline-end-date px-per-day]
-                [render-dates-dow   timeline-start-date timeline-end-date px-per-day]
-                [render-dates-dd    timeline-start-date timeline-end-date px-per-day]]]))
+     :children [[render-dates-month timeline-start-date timeline-end-date day-width]
+                [render-dates-wc    timeline-start-date timeline-end-date day-width]
+                [render-dates-dow   timeline-start-date timeline-end-date day-width]
+                [render-dates-dd    timeline-start-date timeline-end-date day-width]]]))
 
 ;; ---- TABLE ROW PARTS --------------------------------------------------------
 
@@ -417,15 +416,14 @@
 
 
 (defn render-activity
-  [_px-per-day editor-on row activity _sel-start-col _sel-end-col]
+  [_day-width editor-on row activity _sel-start-col _sel-end-col]
   (let [show-editor? (reaction (= [(:id row) (:id activity)] @editor-on))]
-    ;(debug "border" background-color :lightness (:lightness border-color) "->" border-color)
     (fn activity-renderer
-      [px-per-day editor-on row activity sel-start-col sel-end-col]
+      [day-width editor-on row activity sel-start-col sel-end-col]
       ;; To keep things light, only wrap the currently edited activity (if any) with the open popover.
       (let [num-days  (time.core/in-days (time.core/interval (:from-date activity) (:to-date activity)))
-            x-offset  (-> (time.core/in-days (time.core/interval timeline-start-date (:from-date activity))) (* px-per-day))
-            x-end     (+ x-offset (- (* num-days px-per-day) 2))
+            x-offset  (-> (time.core/in-days (time.core/interval timeline-start-date (:from-date activity))) (* day-width))
+            x-end     (+ x-offset (- (* num-days day-width) 2))
             selected? (when sel-start-col
                         (if sel-must-enclose?
                           (and (>= x-offset sel-start-col) (<= x-end sel-end-col))
@@ -436,7 +434,7 @@
             border-color (border-color background-color)
             anchor [:span
                     {:style    {:position         "absolute"
-                                :width            (px-width-activity num-days px-per-day)
+                                :width            (px-width-activity num-days day-width)
                                 :height           (px (- row-height 1)) ;; If we decide to support wider activities, gridlines overlap on following rows
                                 :border-radius    "4px"
                                 :border           (if selected? sel-border (str "1px solid " border-color #_(color-util/as-hex border-color)))
@@ -455,11 +453,10 @@
           [popover-midpoint-wrapper
            :showing?      show-editor?
            :position      :below-center
-           :anchor-width  (* num-days px-per-day)
+           :anchor-width  (* num-days day-width)
            :anchor-height row-height
            :anchor        anchor
            :popover       [popover-content-wrapper
-                           ;:title      "Activity Editor"
                            :body       [label :label "Popup to edit this item"]
                            :no-clip?   true
                            :style      {:margin-left (px x-offset)}
@@ -469,7 +466,7 @@
 
 (defn render-activity-row-body
   "RENDERER: :row-renderer - Output a full row of activity items"
-  [px-per-day editor-on total-resolution row-selections _row]
+  [day-width editor-on total-resolution row-selections _row]
   (let [totals-dates (reaction (timeline-activities timeline-start-date timeline-end-date total-resolution))]
     (fn activity-row-body-renderer
       [row-index row] ;; The row, row-header and row-footer renderers are pass the zero-based row index and the data object for that row
@@ -491,7 +488,7 @@
                     ; Calc offset based on how many days this date is from timeline start.
                     (let [glx-offset (-> (time.core/interval timeline-start-date start-date)
                                          (time.core/in-days)
-                                         (* px-per-day))]
+                                         (* day-width))]
                       ;; draw vertical grid lines using <hr> which is a no-content
                       ;; element so it is lighter weight then e.g. div/span as we do
                       ;; not need to include non-breaking-space and in turn width.
@@ -504,7 +501,7 @@
             ;; Row layer 3 - activities
             (into
               (map
-                #(identity ^{:key (:id %)} [render-activity px-per-day editor-on row % sel-start-col sel-end-col]) ;; Create a render-activity component to represent a single activity
+                #(identity ^{:key (:id %)} [render-activity day-width editor-on row % sel-start-col sel-end-col]) ;; Create a render-activity component to represent a single activity
                 (:activities row)))
             (with-meta {:key (:id row)}))))))
 
@@ -515,7 +512,6 @@
         total-resolution      :days
         timeline              (reagent/atom timeline-data)
         days-in-timeline      (reaction (time.core/in-days (time.core/interval timeline-start-date timeline-end-date)))
-        ;;
         row-selections        (reagent/atom nil)
         row-header-selections (reagent/atom nil)
         col-header-selections (reagent/atom nil)
@@ -524,8 +520,8 @@
         editor-on             (reagent/atom nil)]
     (fn gantt-chart-demo-render
       []
-      (let [content-width     (* @days-in-timeline (get px-per-day-fixed resolution))
-            px-per-day        (get px-per-day-fixed resolution)]
+      (let [day-width        20
+            content-width     (* @days-in-timeline day-width)]
         [v-box
          :size     "1"
          :class    "v-table-wrapper noselect"
@@ -533,7 +529,7 @@
                      :virtual?                   true
                      :model                      timeline
 
-                     :row-renderer               (partial render-activity-row-body px-per-day editor-on total-resolution row-selections)
+                     :row-renderer               (partial render-activity-row-body day-width editor-on total-resolution row-selections)
                      :row-selection-fn           (when-not @editor-on
                                                    (fn [selection-event coords ctrlKey shiftKey _event]
                                                      (if sel-on-mouse-up?
@@ -556,7 +552,7 @@
                      :top-left-renderer          render-top-left-header
 
                      :column-header-height       (* row-height (case resolution :days 4 2)) ; date header rows
-                     :column-header-renderer     (partial render-table-dates px-per-day)
+                     :column-header-renderer     (partial render-table-dates day-width)
                      :column-header-selection-fn (fn [_selection-event coords ctrlKey shiftKey _event]
                                                    (reset! col-header-selections coords)
                                                    (reset! ctrlKey-down? ctrlKey)
