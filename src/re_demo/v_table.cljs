@@ -63,8 +63,10 @@
    :gap      "10px"
    :children [[panel-title "[v-table ... ]" "src/re_com/v_table.cljs" "src/re_demo/v_table.cljs" "v2.12.0"]
               [h-box
-               :gap      "100px"
-               :children [[notes-column]
-                          [args-table v-table-args-desc {:total-width "550px" :name-column-width "180px"}]
+               :gap      "40px"
+               :children [[v-box
+                           :children [[notes-column]
+                                      [args-table v-table-args-desc {:total-width       "550px"
+                                                                     :name-column-width "180px"}]]]
                           [demo]]]
               [parts-table "v-table" v-table-parts-desc]]])
