@@ -241,9 +241,8 @@
   [date-start date-end resolution]
   (case resolution
     :days
-    (map
-      #(hash-map :start-date % :num-days 1)
-      (time.periodic/periodic-seq date-start date-end (time.core/period resolution 1)))
+    (map #(hash-map :start-date % :num-days 1)
+         (time.periodic/periodic-seq date-start date-end (time.core/period resolution 1)))
     :weeks
     (let [extended-end (if-not (= :weeks resolution)
                          date-end ; no need to extend
@@ -253,9 +252,8 @@
                            (if (zero? mod-week)
                              date-end ; already a multiple, no extension
                              (time.core/plus date-end (time.core/days (- 7 mod-week))))))]
-      (map
-        #(hash-map :start-date % :num-days 7)
-        (time.periodic/periodic-seq date-start extended-end (time.core/period resolution 1))))
+      (map #(hash-map :start-date % :num-days 7)
+           (time.periodic/periodic-seq date-start extended-end (time.core/period resolution 1))))
     :months
     (->> (time.periodic/periodic-seq date-start date-end (time.core/period :days 1))
          (partition-by time.core/month)
@@ -279,6 +277,7 @@
 
 
 (defn render-top-left-header
+  "RENDERER: :top-left-renderer - Output the row-header column headings (Market and Dur)"
   []
   [h-box
    :size     "1"
@@ -343,21 +342,21 @@
     [render-dates-row timeline-start px-per-day activities]))
 
 
-(defn render-table-dates ;; :column-header-renderer
-  [{:keys [resolution px-per-day]}]
+(defn render-table-dates
+  "RENDERER: column-header-renderer - Output the detailed 4-row column header of the specified date range"
+  [px-per-day]
   (fn table-dates-renderer
     []
     [v-box
      :children [[render-dates-month timeline-start-date timeline-end-date px-per-day]
                 [render-dates-wc    timeline-start-date timeline-end-date px-per-day]
-                (when (= :days resolution)
-                  [render-dates-dow timeline-start-date timeline-end-date px-per-day])
-                (when (= :days resolution)
-                  [render-dates-dd  timeline-start-date timeline-end-date px-per-day])]]))
+                [render-dates-dow   timeline-start-date timeline-end-date px-per-day]
+                [render-dates-dd    timeline-start-date timeline-end-date px-per-day]]]))
 
 ;; ---- TABLE ROW PARTS --------------------------------------------------------
 
 (defn render-activity-row-header
+  "RENDERER: :row-header-renderer - Output the Market and Dur values in the row header on the left"
   [row-header-selections _row]
   (let []
     (fn activity-row-header-renderer ;; TODO: Remove the inner fn
@@ -418,11 +417,11 @@
 
 
 (defn render-activity
-  [{:keys [editor-on]} row activity _sel-start-col _sel-end-col]
+  [_px-per-day editor-on row activity _sel-start-col _sel-end-col]
   (let [show-editor? (reaction (= [(:id row) (:id activity)] @editor-on))]
     ;(debug "border" background-color :lightness (:lightness border-color) "->" border-color)
     (fn activity-renderer
-      [{:keys [px-per-day editor-on]} row activity sel-start-col sel-end-col]
+      [px-per-day editor-on row activity sel-start-col sel-end-col]
       ;; To keep things light, only wrap the currently edited activity (if any) with the open popover.
       (let [num-days  (time.core/in-days (time.core/interval (:from-date activity) (:to-date activity)))
             x-offset  (-> (time.core/in-days (time.core/interval timeline-start-date (:from-date activity))) (* px-per-day))
@@ -469,9 +468,8 @@
 
 
 (defn render-activity-row-body
-  ":row-renderer function - render a full row of activity items"
-  [{:keys [px-per-day total-resolution]
-    :or   {total-resolution :week} :as render-options} row-selections _row]
+  "RENDERER: :row-renderer - Output a full row of activity items"
+  [px-per-day editor-on total-resolution row-selections _row]
   (let [totals-dates (reaction (timeline-activities timeline-start-date timeline-end-date total-resolution))]
     (fn activity-row-body-renderer
       [row-index row] ;; The row, row-header and row-footer renderers are pass the zero-based row index and the data object for that row
@@ -482,7 +480,7 @@
               ;; Row layer 1 - the outer div
               [:div {:class    "activity-row"
                      :style    (merge activity-row-style
-                                      #_(when selected? {:background-color "rgba(253, 71, 1, 0.1)"}))
+                                      #_(when selected? {:background-color "rgba(253, 71, 1, 0.1)"})) ;; Uncomment to also highlight in orange, entire selected rows
                      :on-click (handler-fn (show-row-data-on-alt-click row row-index event))}]
 
               ;; Row layer 2 - vertical grid lines based on totals-dates
@@ -506,22 +504,15 @@
             ;; Row layer 3 - activities
             (into
               (map
-                #(identity ^{:key (:id %)} [render-activity render-options row % sel-start-col sel-end-col]) ;; Create a render-activity component to represent a single activity
+                #(identity ^{:key (:id %)} [render-activity px-per-day editor-on row % sel-start-col sel-end-col]) ;; Create a render-activity component to represent a single activity
                 (:activities row)))
             (with-meta {:key (:id row)}))))))
 
 
 (defn gantt-chart-demo
   []
-  (let [margin                "0px"
-        max-content-width     (- (gob/get js/window "innerWidth") 24 16 18) ; - left/right padding + v-scroll. TODO: consider win resize
-        resolution            :days ;; TODO: Create a dropdown for this. Can be :days, :weeks, :months
+  (let [resolution            :days ;; TODO: Create a dropdown for this. Can be :days, :weeks, :months
         total-resolution      :days
-        max-rows              100
-        options               {:max-content-width max-content-width
-                               :resolution        resolution
-                               :total-resolution  total-resolution
-                               :max-rows          max-rows}
         timeline              (reagent/atom timeline-data)
         days-in-timeline      (reaction (time.core/in-days (time.core/interval timeline-start-date timeline-end-date)))
         ;;
@@ -534,23 +525,15 @@
     (fn gantt-chart-demo-render
       []
       (let [content-width     (* @days-in-timeline (get px-per-day-fixed resolution))
-            px-per-day        (get px-per-day-fixed resolution)
-            rendering-options (assoc options
-                                :editor-on        editor-on
-                                :content-width    content-width
-                                :timeline         @timeline
-                                :days-in-timeline @days-in-timeline
-                                :px-per-day       px-per-day)
-            ]
+            px-per-day        (get px-per-day-fixed resolution)]
         [v-box
          :size     "1"
          :class    "v-table-wrapper noselect"
-         :margin   margin
          :children [[v-table
                      :virtual?                   true
                      :model                      timeline
 
-                     :row-renderer               (partial render-activity-row-body rendering-options row-selections)
+                     :row-renderer               (partial render-activity-row-body px-per-day editor-on total-resolution row-selections)
                      :row-selection-fn           (when-not @editor-on
                                                    (fn [selection-event coords ctrlKey shiftKey _event]
                                                      (if sel-on-mouse-up?
@@ -565,7 +548,7 @@
                      :max-row-viewport-height    (* 16 row-height) ;; Note: The v-table :wrapper must have :size "none" to use this
                      :row-content-width          content-width
 
-                     :row-header-renderer        (partial render-activity-row-header #_rendering-options row-header-selections)
+                     :row-header-renderer        (partial render-activity-row-header row-header-selections)
                      :row-header-selection-fn    (fn [_selection-event coords ctrlKey shiftKey _event]
                                                    (reset! row-header-selections coords)
                                                    (reset! ctrlKey-down? ctrlKey)
@@ -573,7 +556,7 @@
                      :top-left-renderer          render-top-left-header
 
                      :column-header-height       (* row-height (case resolution :days 4 2)) ; date header rows
-                     :column-header-renderer     (partial render-table-dates rendering-options)
+                     :column-header-renderer     (partial render-table-dates px-per-day)
                      :column-header-selection-fn (fn [_selection-event coords ctrlKey shiftKey _event]
                                                    (reset! col-header-selections coords)
                                                    (reset! ctrlKey-down? ctrlKey)
@@ -637,7 +620,7 @@
                        [:li "The column header section contains four rows of independently sized content (a date range)"]
                        [:li "Alt+Click on a row in the table to see the data object for that row in DevTools"]
                        [:li "Row rendering is automatically virtualised"]
-                       [:li "Note: This table only uses row and column headers but no footer sections"]
+                       [:li "Note: This table only uses 4 of 9 possible sections - row and column headers but no footer sections"]
                        [:li [source-reference "for this v-table" "src/re_demo/v_table_demo.cljs"]]]]
               [gantt-chart-demo]
               [gap :size "1"]]])
