@@ -361,21 +361,17 @@
 
 (defn render-activity-row-header
   "RENDERER: :row-header-renderer - Output the Market and Dur values in the row header on the left"
-  [row-header-selections _row]
-  (let []
-    (fn activity-row-header-renderer ;; TODO: Remove the inner fn
-      [row-index row] ;; The row, row-header and row-footer renderers are pass the zero-based row index and the data object for that row
-      (let [selected? (and (>= row-index (:start-row @row-header-selections)) (<= row-index (:end-row @row-header-selections)))]
-        [:div {:class "table-row-header"
-               :style (merge activity-row-style
-                             (when selected?
-                               {:color            sel-color
-                                :background-color sel-bg-color}))}
-         (let [split-label (clojure.string/split (:label row) ",")
-               market   (or (first split-label) non-breaking-space)
-               duration (or (second split-label) non-breaking-space)]
-           [create-row-header-line market duration])
-         ]))))
+  [row-header-selections row-index row] ;; The row, row-header and row-footer renderers are passed the zero-based row index and the data object for that row
+  (let [selected? (and (>= row-index (:start-row @row-header-selections)) (<= row-index (:end-row @row-header-selections)))]
+    [:div {:class "table-row-header"
+           :style (merge activity-row-style
+                         (when selected?
+                           {:color            sel-color
+                            :background-color sel-bg-color}))}
+     (let [split-label (clojure.string/split (:label row) ",")
+           market   (or (first split-label) non-breaking-space)
+           duration (or (second split-label) non-breaking-space)]
+       [create-row-header-line market duration])]))
 
 
 ;; ========== Row Renderer functions ==========
@@ -457,44 +453,42 @@
 
 (defn render-activity-row
   "RENDERER: :row-renderer - Output a full row of activity items"
-  [editor-on row-selections _row]
-  (let [totals-dates (timeline-activities timeline-start-date timeline-end-date :days)]
-    (fn activity-row-body-renderer
-      [row-index row] ;; The row, row-header and row-footer renderers are pass the zero-based row index and the data object for that row
-      (let [selected?     (and (>= row-index (:start-row @row-selections)) (<= row-index (:end-row @row-selections)))
-            sel-start-col (when selected? (:start-col @row-selections))
-            sel-end-col   (when selected? (:end-col   @row-selections))]
-        (-> (into
-              ;; Row layer 1 - the outer div
-              [:div {:class    "activity-row"
-                     :style    (merge activity-row-style
-                                      #_(when selected? {:background-color "rgba(253, 71, 1, 0.1)"})) ;; Uncomment to also highlight in orange, entire selected rows
-                     :on-click (handler-fn (show-row-data-on-alt-click row row-index event))}]
+  [editor-on row-selections row-index row] ;; The row, row-header and row-footer renderers are passed the zero-based row index and the data object for that row
+  (let [totals-dates (timeline-activities timeline-start-date timeline-end-date :days)
+        selected?     (and (>= row-index (:start-row @row-selections)) (<= row-index (:end-row @row-selections)))
+        sel-start-col (when selected? (:start-col @row-selections))
+        sel-end-col   (when selected? (:end-col   @row-selections))]
+    (-> (into
+          ;; Row layer 1 - the outer div
+          [:div {:class    "activity-row"
+                 :style    (merge activity-row-style
+                                  #_(when selected? {:background-color "rgba(253, 71, 1, 0.1)"})) ;; Uncomment to also highlight in orange, entire selected rows
+                 :on-click (handler-fn (show-row-data-on-alt-click row row-index event))}]
 
-              ;; Row layer 2 - vertical grid lines based on totals-dates
-              (map-indexed
-                (fn
-                  [index {:keys [start-date]}]
-                  (when (pos? index)
-                    ; Calc offset based on how many days this date is from timeline start.
-                    (let [glx-offset (-> (time.core/interval timeline-start-date start-date)
-                                         (time.core/in-days)
-                                         (* day-width))]
-                      ;; draw vertical grid lines using <hr> which is a no-content
-                      ;; element so it is lighter weight then e.g. div/span as we do
-                      ;; not need to include non-breaking-space and in turn width.
-                      ^{:key (str "vr:" index)}
-                      [:hr {:class "activity-row-v-grid-line"
-                            :style (assoc activity-row-v-grid-line-style
-                                     :transform (translate-x glx-offset))}])))
-                totals-dates))
+          ;; Row layer 2 - vertical grid lines based on totals-dates
+          (map-indexed
+            (fn
+              [index {:keys [start-date]}]
+              (when (pos? index)
+                ; Calc offset based on how many days this date is from timeline start.
+                (let [glx-offset (-> (time.core/interval timeline-start-date start-date)
+                                     (time.core/in-days)
+                                     (* day-width))]
+                  ;; draw vertical grid lines using <hr> which is a no-content
+                  ;; element so it is lighter weight then e.g. div/span as we do
+                  ;; not need to include non-breaking-space and in turn width.
+                  ^{:key (str "vr:" index)}
+                  [:hr {:class "activity-row-v-grid-line"
+                        :style (assoc activity-row-v-grid-line-style
+                                 :transform (translate-x glx-offset))}])))
+            totals-dates))
 
-            ;; Row layer 3 - activities
-            (into
-              (map
-                #(identity ^{:key (:id %)} [render-activity-item editor-on row % sel-start-col sel-end-col]) ;; Create a render-activity component to represent a single activity
-                (:activities row)))
-            (with-meta {:key (:id row)}))))))
+        ;; Row layer 3 - activities
+        (into
+          (map
+            #(identity ^{:key (:id %)} [render-activity-item editor-on row % sel-start-col sel-end-col]) ;; Create a render-activity component to represent a single activity
+            (:activities row)))
+        (with-meta {:key (:id row)}))))
 
 
 (defn gantt-chart-demo
@@ -597,7 +591,7 @@
                        [:li "when you click on a horizontal bar, with a data row, you'll see a fake edit popup"]
                        [:li "the column header has four rows of independently sized content (a date range)"]
                        [:li "you can click and drag to select in both the row header and data rows. If necessary, content will scroll while dragging. The selection rectangle can be hidden or styled. There are flags in the code to 1) specify that selections should only be confirmed on mouse-up and 2) specify that an item must be wholly enclosed before it is considered to be selected"]
-                       [:li "Alt+Click on a row in the table to see the data object for that row in DevTools"]
+                       [:li "Alt+Click on a row in the table to see the data object for that row in DevTools (works best in dev mode with cljs-devtools)"]
                        [:li "row rendering is automatically virtualised"]
                        [:li "this particular table only uses row and column headers, but no footer sections. And only one corner section."]
                        [:li [source-reference "for this v-table" "src/re_demo/v_table_demo.cljs"]]]]
