@@ -7,9 +7,9 @@
             [cljs-time.format   :as time.format]
             [cljs-time.periodic :as time.periodic]
             [reagent.core       :as reagent]
-            [reagent.ratom      :refer-macros [reaction]]
-            [goog.object        :as gob]
             [goog.string        :as gstring]))
+
+;; ========== Fundamental values and styling ==========
 
 (def non-breaking-space (gstring/unescapeEntities "&nbsp;"))
 
@@ -21,20 +21,14 @@
 (def sel-color          "hsl(263, 86%, 50%)")
 (def sel-bg-color       "hsl(263, 86%, 94%)")
 (def sel-border         "1px dotted hsl(263, 86%, 70%)")
-;; TODO: these two options should be turned into checkboxes
-(def sel-on-mouse-up?   false)  ;; When true, selected items only become selected when the mouse is released
-(def sel-must-enclose?  false)  ;; When true, selected items only become selected when they are fully enclosed by the selection box
+;; TODO: These two options should be turned into checkboxes
+(def sel-on-mouse-up?   false)      ;; When true, selected items only become selected when the mouse is released
+(def sel-must-enclose?  false)      ;; When true, selected items only become selected when they are fully enclosed by the selection box
 
-(def row-height  20)
-(def day-width   20)
-(def demo-table-font-size "12px")
-
-;; Date formatting
-(def format-date-dd       (time.format/formatter "dd"))
-(def format-date-dd-mmm   (time.format/formatter "dd-MMM"))
-(def format-date-mmm-yyyy (time.format/formatter "MMM yyyy"))
-(def dow-character        {1 "M" 2 "T" 3 "W" 4 "T" 5 "F" 6 "S" 7 "S"})
-
+;; TODO: These three options should be turned into sliders
+(def row-height  20)                ;; Height in px of each row/row header
+(def day-width   20)                ;; Width in px of each day column
+(def demo-table-font-size "12px")   ;; Font size of all text
 
 (def activity-row-style
   {:position      "relative"
@@ -48,6 +42,12 @@
    :height      (str row-height "px")
    :margin      "0px 0px 0px -1px"
    :border-left "1px solid rgba(0, 0, 0, 0.05)"})
+
+;; Date formatting
+(def format-date-dd       (time.format/formatter "dd"))
+(def format-date-dd-mmm   (time.format/formatter "dd-MMM"))
+(def format-date-mmm-yyyy (time.format/formatter "MMM yyyy"))
+(def dow-character        {1 "M" 2 "T" 3 "W" 4 "T" 5 "F" 6 "S" 7 "S"})
 
 
 ;; ========== Data for the :model arg ==========
@@ -220,21 +220,25 @@
                   :style     {:background-color "#A00000" :color "#ffffff"}}]}])
 
 
-;; ========== XXX ==========
+;; ========== Helper functions ==========
 
 (defn px-width
+  "Return grid cells CSS width for the number of days specified"
   [num-days]
   (px (* num-days day-width)))
 
 (defn px-width-activity
+  "Return activity item CSS width for the number of days specified (allowing for borders and gap)"
   [num-days]
-  ; we allow for borders and gap
   (px (- (* num-days day-width) 2)))
 
 (defn translate-x
+  "Return the translateX CSS for a specified offset"
   [x-offset]
   (str "translateX(" x-offset "px)"))
 
+
+;; ========== Column Header Renderer functions ==========
 
 (defn timeline-activities
   "Based on the resolution passed in, return seq of activities with :start-date & :num-days"
@@ -264,27 +268,6 @@
                    :num-days   counted-days}))))))
 
 
-(defn create-row-header-line
-  [description duration]
-  (let [desc-width 90
-        dur-width  55]
-    [h-box
-     :width    (px (+ desc-width dur-width))
-     :height   (px row-height)
-     :padding  "0 0 0 10px"
-     :children [[box :width (px desc-width) :child description]
-                [box :width (px dur-width) :child duration]]]))
-
-
-(defn render-top-left-header
-  "RENDERER: :top-left-renderer - Output the row-header column headings (Market and Dur)"
-  []
-  [h-box
-   :size     "1"
-   :align    :end ;; Send text to the bottom
-   :children [[create-row-header-line "Market" "Dur"]]])
-
-
 (defn render-dates-row
   [timeline-start activities]
   ; activities - vector of maps each :start-date :num-days :label
@@ -296,8 +279,7 @@
         (let [x-offset (-> (time.core/in-days (time.core/interval timeline-start start-date))
                            (* day-width))]
           ^{:key (str index)}
-          [:span {:class "trans-date" ; TODO: def CSS to transition date x + width
-                  :style {:position      "absolute"
+          [:span {:style {:position      "absolute"
                           :width         (px-width num-days)
                           :height        (px row-height)
                           :border-right  "1px solid lightgrey"
@@ -353,7 +335,29 @@
                 [render-dates-dow   timeline-start-date timeline-end-date]
                 [render-dates-dd    timeline-start-date timeline-end-date]]]))
 
-;; ---- TABLE ROW PARTS --------------------------------------------------------
+
+;; ========== Row Header Renderer functions (including top-left) ==========
+
+(defn create-row-header-line
+  [description duration]
+  (let [desc-width 90
+        dur-width  55]
+    [h-box
+     :width    (px (+ desc-width dur-width))
+     :height   (px row-height)
+     :padding  "0 0 0 10px"
+     :children [[box :width (px desc-width) :child description]
+                [box :width (px dur-width) :child duration]]]))
+
+
+(defn render-top-left-header
+  "RENDERER: :top-left-renderer - Output the row-header column headings (Market and Dur)"
+  []
+  [h-box
+   :size     "1"
+   :align    :end ;; Send text to the bottom
+   :children [[create-row-header-line "Market" "Dur"]]])
+
 
 (defn render-activity-row-header
   "RENDERER: :row-header-renderer - Output the Market and Dur values in the row header on the left"
@@ -373,30 +377,17 @@
            [create-row-header-line market duration])
          ]))))
 
-(defn border-color
-  [color]
-  ;; Return a CSSColor suitable for border based on passed color.
-  ;; Either darken | lighten original color based on HSL lightness.
-  ;; - color can be existing instance of garden/CSSColor or hex color string.
-  (let [color     (if (string? color) color #_(color-util/hex->hsl color) color) ;; TODO: Implement this?
-        lightness (:lightness color)]
-    (cond
-      ;(<= lightness 20) (color-util/lighten  color 80)
-      ;(<= lightness 60) (color-util/lighten  color 40)
-      ;(> lightness 60)  (color-util/darken color 13)
-      :else color)))
 
+;; ========== Row Renderer functions ==========
 
 (defn popover-midpoint-wrapper
   "Renders a component along with a Bootstrap popover - the popover points to the mid point of the 'anchor'
   Based on popover-anchor-wrapper"
-  [& {:keys [showing? position]}]
+  [& {:keys [position]}]
   (let [external-position (reagent/atom position)
-        internal-position (reagent/atom @external-position)
-        reset-on-hide     (reaction (when-not @showing? (reset! internal-position @external-position)))]
+        internal-position (reagent/atom @external-position)]
     (fn
       [& {:keys [showing? position anchor popover anchor-width anchor-height style]}]
-      @reset-on-hide ;; TODO: Need to dereference this reaction, otherwise it will never update (probably a better way to do this)
       (when (not= @external-position position) ;; Has position changed externally?
         (reset! external-position position)
         (reset! internal-position @external-position))
@@ -416,9 +407,9 @@
           (into popover [:showing-injected? showing? :position-injected internal-position])])]))) ;; NOTE: Inject showing? and position to the popover
 
 
-(defn render-activity
+(defn render-activity-item
   [editor-on row activity _sel-start-col _sel-end-col]
-  (let [show-editor? (reaction (= [(:id row) (:id activity)] @editor-on))]
+  (let [show-editor? (reagent/atom (= [(:id row) (:id activity)] @editor-on))]
     (fn activity-renderer
       [editor-on row activity sel-start-col sel-end-col]
       ;; To keep things light, only wrap the currently edited activity (if any) with the open popover.
@@ -432,13 +423,12 @@
             {:keys [background-color color]
              :or   {background-color "#fffff0" color "#000000"}}  (:style activity)
             ;; given the activity background color, use same color darken | lighten for border
-            border-color (border-color background-color)
             anchor [:span
                     {:style    {:position         "absolute"
                                 :width            (px-width-activity num-days)
                                 :height           (px (- row-height 1)) ;; If we decide to support wider activities, gridlines overlap on following rows
                                 :border-radius    "4px"
-                                :border           (if selected? sel-border (str "1px solid " border-color #_(color-util/as-hex border-color)))
+                                :border           (if selected? sel-border (str "1px solid " background-color)) ;; Could specify a different border colour here
                                 :background-color (if selected? sel-bg-color background-color)
                                 :color            (if selected? sel-color color)
                                 :transform        (translate-x x-offset)
@@ -465,10 +455,10 @@
           anchor)))))
 
 
-(defn render-activity-row-body
+(defn render-activity-row
   "RENDERER: :row-renderer - Output a full row of activity items"
-  [editor-on total-resolution row-selections _row]
-  (let [totals-dates (reaction (timeline-activities timeline-start-date timeline-end-date total-resolution))]
+  [editor-on row-selections _row]
+  (let [totals-dates (timeline-activities timeline-start-date timeline-end-date :days)]
     (fn activity-row-body-renderer
       [row-index row] ;; The row, row-header and row-footer renderers are pass the zero-based row index and the data object for that row
       (let [selected?     (and (>= row-index (:start-row @row-selections)) (<= row-index (:end-row @row-selections)))
@@ -497,71 +487,62 @@
                       [:hr {:class "activity-row-v-grid-line"
                             :style (assoc activity-row-v-grid-line-style
                                      :transform (translate-x glx-offset))}])))
-                @totals-dates))
+                totals-dates))
 
             ;; Row layer 3 - activities
             (into
               (map
-                #(identity ^{:key (:id %)} [render-activity editor-on row % sel-start-col sel-end-col]) ;; Create a render-activity component to represent a single activity
+                #(identity ^{:key (:id %)} [render-activity-item editor-on row % sel-start-col sel-end-col]) ;; Create a render-activity component to represent a single activity
                 (:activities row)))
             (with-meta {:key (:id row)}))))))
 
 
 (defn gantt-chart-demo
   []
-  (let [resolution            :days ;; TODO: Create a dropdown for this. Can be :days, :weeks, :months
-        total-resolution      :days
-        timeline              (reagent/atom timeline-data)
-        days-in-timeline      (reaction (time.core/in-days (time.core/interval timeline-start-date timeline-end-date)))
+  (let [days-in-timeline      (time.core/in-days (time.core/interval timeline-start-date timeline-end-date))
         row-selections        (reagent/atom nil)
         row-header-selections (reagent/atom nil)
         col-header-selections (reagent/atom nil)
-        ctrlKey-down?         (reagent/atom false)
-        shiftKey-down?        (reagent/atom false)
         editor-on             (reagent/atom nil)]
     (fn gantt-chart-demo-render
       []
-      (let [content-width (* @days-in-timeline day-width)]
+      (let [content-width (* days-in-timeline day-width)]
         [v-box
          :size     "1"
          :class    "v-table-wrapper noselect"
          :children [[v-table
-                     :virtual?                   true
-                     :model                      timeline
+                     :model                      timeline-data
 
-                     :row-renderer               (partial render-activity-row-body editor-on total-resolution row-selections)
+                     ;; ===== Column headers
+                     :column-header-renderer     render-table-dates
+                     :column-header-selection-fn (fn [_selection-event coords _ctrlKey _shiftKey _event]
+                                                   (reset! col-header-selections coords))
+                     :column-header-height       (* row-height 4)
+
+                     ;; ===== Row headers
+                     :row-header-renderer        (partial render-activity-row-header row-header-selections)
+                     :row-header-selection-fn    (fn [_selection-event coords _ctrlKey _shiftKey _event]
+                                                   (reset! row-header-selections coords))
+                     :top-left-renderer          render-top-left-header
+
+                     ;; ===== Rows
+                     :row-renderer               (partial render-activity-row editor-on row-selections)
                      :row-selection-fn           (when-not @editor-on
-                                                   (fn [selection-event coords ctrlKey shiftKey _event]
+                                                   (fn [selection-event coords _ctrlKey _shiftKey _event]
                                                      (if sel-on-mouse-up?
                                                        (when (= selection-event :selection-end)
-                                                         (reset! row-selections coords)
-                                                         (reset! ctrlKey-down? ctrlKey)
-                                                         (reset! shiftKey-down? shiftKey))
-                                                       (do (reset! row-selections coords)
-                                                           (reset! ctrlKey-down? ctrlKey)
-                                                           (reset! shiftKey-down? shiftKey)))))
+                                                         (reset! row-selections coords))
+                                                       (reset! row-selections coords))))
                      :row-height                 row-height
                      :max-row-viewport-height    (* 16 row-height) ;; Note: The v-table :wrapper must have :size "none" to use this
                      :row-content-width          content-width
 
-                     :row-header-renderer        (partial render-activity-row-header row-header-selections)
-                     :row-header-selection-fn    (fn [_selection-event coords ctrlKey shiftKey _event]
-                                                   (reset! row-header-selections coords)
-                                                   (reset! ctrlKey-down? ctrlKey)
-                                                   (reset! shiftKey-down? shiftKey))
-                     :top-left-renderer          render-top-left-header
-
-                     :column-header-height       (* row-height (case resolution :days 4 2)) ; date header rows
-                     :column-header-renderer     render-table-dates
-                     :column-header-selection-fn (fn [_selection-event coords ctrlKey shiftKey _event]
-                                                   (reset! col-header-selections coords)
-                                                   (reset! ctrlKey-down? ctrlKey)
-                                                   (reset! shiftKey-down? shiftKey))
-                     :parts {; Style the outer table wrapper
+                     ;; ===== Styling
+                     :parts {;; ===== Style the outer table wrapper
                              :wrapper                      {:style {:margin-bottom "20px"
                                                                     :margin-right  "20px"}}
 
-                             ; Section styles
+                             ;; ===== Section styles
                              ; 1
                              :top-left                     {:style {:border-right  table-border-style
                                                                     :border-bottom table-border-style}}
@@ -583,7 +564,7 @@
                              ; 8
                              :row-footers                  {:style {:border-right     table-border-style}}
 
-                             ; Selection styles
+                             ;; ===== Selection styles
                              :row-selection-rect           {:style {:z-index 0
                                                                     ;:background-color "rgba(0,152,12,0.1)"
                                                                     ;:border           "1px solid rgba(0,152,12,0.4)"
