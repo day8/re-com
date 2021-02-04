@@ -124,7 +124,7 @@
 
 (defn args-table
   "I render component arguments in an easy to read format"
-  [args  {:keys [total-width name-column-width] 
+  [args  {:keys [total-width name-column-width title]
           :or   {name-column-width "130px" }}]
   (fn
     []
@@ -132,7 +132,7 @@
     [v-box
      :width    total-width
      :children (concat
-                [[title2 "Parameters"]
+                [[title2 (if title title "Parameters")]
                  [gap :size "10px"]]
                 (map (partial arg-row name-column-width)  args (cycle [true false])))]))
 

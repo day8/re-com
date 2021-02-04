@@ -61,8 +61,8 @@
                 :builds {:demo         {:target           :browser
                                         :modules          {:demo {:init-fn  re-demo.core/mount-demo
                                                                   :preloads [day8.app.dev-preload]}}
-                                        :compiler-options {:closure-defines {re-com.config/version                 "lein-git-inject/version"
-                                                                             re-com.config/force-include-args-desc true}
+                                        :compiler-options {:closure-defines {re-com.config/version                  "lein-git-inject/version"
+                                                                             re-com.config/force-include-args-desc? true}
                                                            :externs ["externs/detect-element-resize-externs.js"]}
                                         :dev              {:asset-path       "/compiled_dev/demo"
                                                            :output-dir       "run/resources/public/compiled_dev/demo"
