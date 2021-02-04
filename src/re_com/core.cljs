@@ -47,6 +47,7 @@
 (def border                     box/border)
 
 (def v-table                    v-table/v-table)
+(def show-row-data-on-alt-click v-table/show-row-data-on-alt-click)
 (def simple-v-table             simple-v-table/simple-v-table)
 
 (def button                     buttons/button)
