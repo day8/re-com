@@ -534,7 +534,7 @@
                                                          (reset! row-selections coords))
                                                        (reset! row-selections coords))))
                      :row-height                 row-height
-                     :max-row-viewport-height    (* 16 row-height) ;; Note: The v-table :wrapper must have :size "none" to use this
+                     :max-row-viewport-height    (* 24 row-height) ;; Note: The v-table :wrapper must have :size "none" to use this
                      :row-content-width          content-width
 
                      ;; ===== Styling
@@ -583,21 +583,24 @@
   [v-box
    :size "1"
    :children [[title2 "Demo"]
-              ;; TODO: This [:p] has links which have [:div]s and that causes red warnings in DvTools - fix
-              [p [:b [:i "First,"]] " the " [:b "Notes"] " part of this page contains two diagrams built using the " [:code "v-table"] " component. Start by looking at the "  [github-hyperlink "source code" "src/re_demo/v_table_sections.cljs"]
-               " for "     [github-hyperlink "both of them" "src/re_demo/v_table_renderers.cljs"]
+              ;; TODO: This [:p] has links which have [:div]s and that causes red warnings in DevTools - fix
+              [p [:b [:i "First,"]] " the " [:i "Notes"] " part of this page contains two diagrams describing " [:code "v-table"] " which are built using the " [:code "v-table"] " component. Start by looking at the " [github-hyperlink "source code" "src/re_demo/v_table_sections.cljs"]
+               " for " [github-hyperlink "both of them" "src/re_demo/v_table_renderers.cljs"]
                ". They provide a bare bones introduction."]
-              [p [:b [:i "Next,"]] " at some point look at " [:code "simple-v-table"]  " to understand what is possible."]
-              [p [:b [:i "Finally,"]] " here is a demo showing some of the more powerful capabilities of " [:code "v-table"]  ", including:"]
+              [p [:b [:i "Next,"]] " look at " [:code "simple-v-table"] " (see LHS navigation) to understand what is possible if you want rectangular data displays."]
+              [p [:b [:i "Finally,"]] " below is a demo showing some of the capabilities of " [:code "v-table"] ", including:"]
               [box
-               :width "700px"
+               :width "450px"
+               ;:width "750px"
                :child [:ul
-                       [:li "Clicking on the horizontal bars show an edit popup"]
-                       [:li "Click and drag selection of items available in the row header (section 2) and rows (section 5). Content will scroll while selecting, if necessary. The selection rectangle can be hidden or styled. There are flags in the code to 1) specify that selections should only be confirmed on mouse-up and 2) specify that an object must be wholly enclosed before it is considered to be selected "]
-                       [:li "The column header section contains four rows of independently sized content (a date range)"]
+                       [:li "this table will take all available horizontal space to the right - to the edge of the browser window. If you make the browser window wider or narrower, it will adjust to the new width available. The same can be done in the vertical direction (not demonstrated here)."]
+                       [:li "when you click on a horizontal bar, with a data row, you'll see a fake edit popup"]
+                       [:li "the column header has four rows of independently sized content (a date range)"]
+                       [:li "you can click and drag to select in both the row header and data rows. If necessary, content will scroll while dragging. The selection rectangle can be hidden or styled. There are flags in the code to 1) specify that selections should only be confirmed on mouse-up and 2) specify that an item must be wholly enclosed before it is considered to be selected"]
                        [:li "Alt+Click on a row in the table to see the data object for that row in DevTools"]
-                       [:li "Row rendering is automatically virtualised"]
-                       [:li "Note: This table only uses 4 of 9 possible sections - row and column headers but no footer sections"]
+                       [:li "row rendering is automatically virtualised"]
+                       [:li "this particular table only uses row and column headers, but no footer sections. And only one corner section."]
                        [:li [source-reference "for this v-table" "src/re_demo/v_table_demo.cljs"]]]]
+              [gap :size "10px"]
               [gantt-chart-demo]
               [gap :size "1"]]])
