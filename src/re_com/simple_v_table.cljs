@@ -68,10 +68,16 @@
                                   cell-style))}
             ((:row-label-fn col) row)]))))
 
+(def simple-v-table-exclusive-parts-desc
+  [{:name :simple-wrapper      :level 0 :class "rc-simple-v-table-wrapper"      :impl "[simple-v-table]" :notes "Outer wrapper of the simple-v-table."}
+   {:name :simple-header       :level 4 :impl "[:div]"}])
+
+(def simple-v-table-exclusive-parts
+  (-> (map :name simple-v-table-exclusive-parts-desc) set))
+
 (def simple-v-table-parts-desc
   (into
-    [{:name :simple-wrapper      :level 0 :class "rc-simple-v-table-wrapper"      :impl "[simple-v-table]" :notes "Outer wrapper of the simple-v-table."}
-     {:name :simple-header       :level 4 :impl "[:div]"}]
+    simple-v-table-exclusive-parts-desc
     (map #(update % :level inc) v-table/v-table-parts-desc)))
 
 (def simple-v-table-parts
@@ -160,10 +166,17 @@
              :max-row-viewport-height (when max-rows (* max-rows row-height))
 
              :class                   class
-             ;; TODO do we need to fix nested merging w/ [:parts :name :style] etc ?
-             :parts                   (merge {:wrapper {:style {:font-size "13px"
-                                                                :cursor    "default"}}}
-                                             (when (pos? fixed-column-count)
-                                               {:top-left    {:style {:border-right fixed-col-border-style}}
-                                                :row-headers {:style {:border-right fixed-col-border-style}}})
-                                             #_parts)]]))   ;; TODO: [GR] Should add this capability back in
+
+             :parts                   (cond-> (->
+                                                ;; Remove the parts that are exclusive to simple-v-table, or v-table part
+                                                ;; validation will fail:
+                                                (apply dissoc (into [parts] simple-v-table-exclusive-parts))
+                                                ;; Inject styles, if not set already, into parts. merge is not safe as it is not
+                                                ;; recursive so e.g. simply setting :attr would delete :style map.
+                                                (assoc-in [:wrapper :style :font-size] (get-in parts [:wrapper :style :font-size] "13px"))
+                                                (assoc-in [:wrapper :style :cursor] (get-in parts [:wrapper :style :cursor] "default")))
+
+                                              (pos? fixed-column-count)
+                                              (->
+                                                (assoc-in [:top-left :style :border-right] (get-in parts [:top-left :style :border-right] fixed-col-border-style))
+                                                (assoc-in [:row-headers :style :border-right] (get-in parts [:row-headers :style :border-right] fixed-col-border-style))))]]))
