@@ -32,40 +32,34 @@
                               [v-box
                                :gap      "10px"
                                :children [[title2 "Demo"]
-                                          [h-box
-                                           :gap "40px"
-                                           :children [[box
-                                                       :width "200px"
-                                                       :align :start
-                                                       :child [hyperlink-href
-                                                               :label     "Launch Google"
-                                                               :tooltip   "You're about to launch Google"
-                                                               :href      (when href? "http://google.com")
-                                                               :target    (when href? target)
-                                                               :disabled?        disabled?]]
-                                                      [v-box
-                                                       :gap "15px"
-                                                       :children [[title :level :level3 :label "Parameters"]
-                                                                  (when @href?
-                                                                    [v-box
-                                                                     :children [[box :align :start :child [:code ":target"]]
-                                                                                [radio-button
-                                                                                 :label "_self - load link into same tab"
-                                                                                 :value "_self"
-                                                                                 :model @target
-                                                                                 :on-change #(reset! target %)
-                                                                                 :style {:margin-left "20px"}]
-                                                                                [radio-button
-                                                                                 :label "_blank - load link into new tab"
-                                                                                 :value "_blank"
-                                                                                 :model @target
-                                                                                 :on-change #(reset! target %)
-                                                                                 :style {:margin-left "20px"}]
-                                                                                [checkbox
-                                                                                 :label [:code ":disabled?"]
-                                                                                 :model disabled?
-                                                                                 :on-change (fn [val]
-                                                                                              (reset! disabled? val))]]])]]]]]]]]
+                                          [hyperlink-href
+                                           :label     "Launch Google"
+                                           :tooltip   "You're about to launch Google"
+                                           :href      (when href? "http://google.com")
+                                           :target    (when href? target)
+                                           :disabled?        disabled?]
+                                          [title :level :level3 :label "Parameters"]
+                                          (when @href?
+                                            [v-box
+                                             :gap      "15px"
+                                             :children [[box :align :start :child [:code ":target"]]
+                                                        [radio-button
+                                                         :label "_self - load link into same tab"
+                                                         :value "_self"
+                                                         :model @target
+                                                         :on-change #(reset! target %)
+                                                         :style {:margin-left "20px"}]
+                                                        [radio-button
+                                                         :label "_blank - load link into new tab"
+                                                         :value "_blank"
+                                                         :model @target
+                                                         :on-change #(reset! target %)
+                                                         :style {:margin-left "20px"}]
+                                                        [checkbox
+                                                         :label [:code ":disabled?"]
+                                                         :model disabled?
+                                                         :on-change (fn [val]
+                                                                      (reset! disabled? val))]]])]]]]
                   [parts-table "hyperlink-href" hyperlink-href-parts-desc]]])))
 
 
