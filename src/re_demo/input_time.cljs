@@ -45,7 +45,7 @@
                   [:p "The first one is the default size."]
                   [:p "The second one specifies " [:code ":style {:font-size \"11px\"}"] " to make a smaller version."]
                   [gap :size "20px"]
-                  [h-box
+                  [v-box
                    :children [[v-box
                                :width    "140px"
                                :gap      "30px"
@@ -66,6 +66,7 @@
                                            :hide-border? @hide-border?
                                            :show-icon?   @show-icon?
                                            :style        {:font-size "11px"}]]]
+                              [gap :size "30px"]
                               [v-box
                                :gap      "10px"
                                :children [[title :level :level3 :label "Parameters"]
