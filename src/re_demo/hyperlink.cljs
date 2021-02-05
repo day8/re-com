@@ -31,27 +31,19 @@
                               [v-box
                                :gap      "10px"
                                :children [[title2 "Demo"]
-                                          [h-box
-                                           :gap "30px"
-                                           :children [[v-box
-                                                       :width    "200px"
-                                                       :gap      "10px"
-                                                       :align    :start
-                                                       :children [[hyperlink
-                                                                   :label            "Click me"
-                                                                   :tooltip          "Click here to increase the click count"
-                                                                   :tooltip-position :left-center
-                                                                   :on-click         #(swap! click-count inc)
-                                                                   :disabled?        disabled?]
-                                                                  [label :label (str "click count = " @click-count)]]]
-                                                      [v-box
-                                                       :gap "15px"
-                                                       :children [[title :level :level3 :label "Parameters"]
-                                                                  [checkbox
-                                                                   :label [:code ":disabled?"]
-                                                                   :model disabled?
-                                                                   :on-change (fn [val]
-                                                                                (reset! disabled? val))]]]]]]]]]
+                                          [hyperlink
+                                           :label            "Click me"
+                                           :tooltip          "Click here to increase the click count"
+                                           :tooltip-position :left-center
+                                           :on-click         #(swap! click-count inc)
+                                           :disabled?        disabled?]
+                                          [label :label (str "click count = " @click-count)]
+                                          [title :level :level3 :label "Parameters"]
+                                          [checkbox
+                                           :label [:code ":disabled?"]
+                                           :model disabled?
+                                           :on-change (fn [val]
+                                                        (reset! disabled? val))]]]]]
                   [parts-table "hyperlink" hyperlink-parts-desc]]])))
 
 
