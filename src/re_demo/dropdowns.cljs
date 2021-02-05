@@ -1,10 +1,11 @@
 (ns re-demo.dropdowns
-  (:require [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
-            [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
-            [re-com.util     :refer [item-for-id]]
-            [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
-            [re-com.util     :refer [px]]
-            [reagent.core    :as    reagent]))
+  (:require
+    [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
+    [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
+    [re-com.util     :refer [item-for-id]]
+    [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
+    [re-com.util     :refer [px]]
+    [reagent.core    :as    reagent]))
 
 
 (def demos [{:id 1  :label "Simple dropdown"}
@@ -123,11 +124,7 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[p "The dropdown below shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'EN COUNTRIES'."]
-                  [p "This feature is triggered if any choice has a " [:code ":group"] " attribute. Typically all choices will have a " [:code ":group"] " or none will. It's up to you to ensure that choices with the same " [:code ":group"] " are adjacent in the vector."]
-                  [p "Because :model is initially nil, the " [:code ":placeholder"] " text is initially displayed."]
-                  [p [:code ":max-width"] " is set here to make the dropdown taller."]
-                  [h-box
+       :children [[h-box
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
@@ -143,7 +140,12 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
+                  [p "The dropdown above shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'EN COUNTRIES'."]
+                  [p "This feature is triggered if any choice has a " [:code ":group"] " attribute. Typically all choices will have a " [:code ":group"] " or none will. It's up to you to ensure that choices with the same " [:code ":group"] " are adjacent in the vector."]
+                  [p "Because :model is initially nil, the " [:code ":placeholder"] " text is initially displayed."]
+                  [p [:code ":max-width"] " is set here to make the dropdown taller."]]])))
+
 
 
 (defn filtering-demo
@@ -152,11 +154,7 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[p "The dropdown below adds a filter text box to the dropdown section which is convenient for when there are many choices."]
-                  [p "The filter text is searched for in both the :group and the :label values. If the text matches the " [:code ":group"] ", then all
-                      choices under that group are considered to be 'matched'."]
-                  [p "The initial model value has been set to 'US'."]
-                  [h-box
+       :children [[h-box
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
@@ -170,7 +168,12 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
+                  [p "The dropdown above adds a filter text box to the dropdown section which is convenient for when there are many choices."]
+                  [p "The filter text is searched for in both the :group and the :label values. If the text matches the " [:code ":group"] ", then all
+                      choices under that group are considered to be 'matched'."]
+                  [p "The initial model value has been set to 'US'."]]])))
+
 
 
 (defn id-fn-demo
@@ -300,7 +303,36 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[p "Experiment with the checkboxes below to understand the effect of other parameters."]
+       :children [[h-box
+                   :gap      "10px"
+                   :align    :center
+                   :children [^{:key (str @just-drop? @on-drop?)}
+                              [single-dropdown
+                               :choices            grouped-countries
+                               :model              selected-country-id
+                               :disabled?          @disabled?
+                               :filter-box?        true
+                               :regex-filter?      @regex?
+                               :width              (when @width? dropdown-width)
+                               :tooltip            (when @tooltip? "An example tooltip")
+                               :tooltip-position   (when @tooltip-position? :right-center)
+                               :enter-drop?        @enter-drop?
+                               :cancelable?        @cancelable?
+                               :filter-placeholder (when @filter-placeholder? "An example filter placeholder")
+                               :just-drop?         @just-drop?
+                               :repeat-change?     @repeat-change?
+                               :i18n               (when @i18n? {:no-results-match "Brak wyników odpowiadających \"%s\""})
+                               :on-change          #(do
+                                                      (swap! change-count inc)
+                                                      (reset! selected-country-id %))
+                               :on-drop            (when @on-drop?
+                                                     #(swap! drop-count inc))]
+                              [:div
+                               [:strong "Selected country: "]
+                               (if (nil? @selected-country-id)
+                                 "None"
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
+                  [p "Experiment with the checkboxes below to understand the effect of other parameters."]
                   [h-box
                    :align    :center
                    :children [[checkbox
@@ -423,36 +455,8 @@
                               [:span (str @on-drop? " - " (if @on-drop?
                                                             (str "the drop count of " @drop-count " will increase on the dropdown part display.")
                                                             (str "the drop count of " @drop-count " will not increase on the dropdown part display.")))]]]
-                  [gap :size "10px"]
-                  [h-box
-                   :gap      "10px"
-                   :align    :center
-                   :children [^{:key (str @just-drop? @on-drop?)}
-                              [single-dropdown
-                               :choices            grouped-countries
-                               :model              selected-country-id
-                               :disabled?          @disabled?
-                               :filter-box?        true
-                               :regex-filter?      @regex?
-                               :width              (when @width? dropdown-width)
-                               :tooltip            (when @tooltip? "An example tooltip")
-                               :tooltip-position   (when @tooltip-position? :right-center)
-                               :enter-drop?        @enter-drop?
-                               :cancelable?        @cancelable?
-                               :filter-placeholder (when @filter-placeholder? "An example filter placeholder")
-                               :just-drop?         @just-drop?
-                               :repeat-change?     @repeat-change?
-                               :i18n               (when @i18n? {:no-results-match "Brak wyników odpowiadających \"%s\""})
-                               :on-change          #(do
-                                                     (swap! change-count inc)
-                                                     (reset! selected-country-id %))
-                               :on-drop            (when @on-drop?
-                                                     #(swap! drop-count inc))]
-                              [:div
-                               [:strong "Selected country: "]
-                               (if (nil? @selected-country-id)
-                                 "None"
-                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+                  [gap :size "10px"]]])))
+
 
 
 (defn two-dependent-demo
@@ -501,8 +505,7 @@
     (fn []
       [v-box
        :gap      "10px"
-       :children [[p "Dropdowns choices can be built with arbitrary markup using the " [:code ":render-fn"] " attribute. When filtering, only the text from the label will be considered."]
-                  [h-box
+       :children [[h-box
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
@@ -519,7 +522,8 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
+                  [p "Dropdowns choices can be built with arbitrary markup using the " [:code ":render-fn"] " attribute. When filtering, only the text from the label will be considered."]]])))
 
 (defn async-load-demo
   []
@@ -586,9 +590,7 @@
     (fn []
       [v-box
        :gap      "100px"
-       :children [[p "When the " [:code ":can-drop-above?"] " attribute is set the dropdown part will be displayed above the top part if the space below it is too small."]
-                  [p "If items have non-standard height, the " [:code ":est-item-height"] "can be set to help guess where to display the dropdown part. This guess will be verified on the actual render so it is non-essential but can help eliminate an unnecessary redraw."]
-                  [h-box
+       :children [[h-box
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
@@ -603,7 +605,10 @@
                                [:strong "Selected city: "]
                                (if (nil? @selected-city-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-city-id cities)) " [" @selected-city-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-city-id cities)) " [" @selected-city-id "]"))]]]
+                  [p "When the " [:code ":can-drop-above?"] " attribute is set the dropdown part will be displayed above the top part if the space below it is too small."]
+                  [p "If items have non-standard height, the " [:code ":est-item-height"] "can be set to help guess where to display the dropdown part. This guess will be verified on the actual render so it is non-essential but can help eliminate an unnecessary redraw."]]])))
+
 
 (defn free-text-demo
   []
