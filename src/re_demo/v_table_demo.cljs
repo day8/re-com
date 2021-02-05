@@ -423,7 +423,7 @@
                     {:style    {:position         "absolute"
                                 :width            (px-width-activity num-days)
                                 :height           (px (- row-height 1)) ;; If we decide to support wider activities, gridlines overlap on following rows
-                                :border-radius    "4px"
+                                :border-radius    "2px"
                                 :border           (if selected? sel-border (str "1px solid " background-color)) ;; Could specify a different border colour here
                                 :background-color (if selected? sel-bg-color background-color)
                                 :color            (if selected? sel-color color)
@@ -502,7 +502,6 @@
       []
       (let [content-width (* days-in-timeline day-width)]
         [v-box
-         :size     "1"
          :class    "v-table-wrapper noselect"
          :children [[v-table
                      :model                      timeline-data
@@ -528,7 +527,7 @@
                                                          (reset! row-selections coords))
                                                        (reset! row-selections coords))))
                      :row-height                 row-height
-                     :max-row-viewport-height    (* 24 row-height) ;; Note: The v-table :wrapper must have :size "none" to use this
+                     :max-row-viewport-height    (* 20 row-height) ;; Note: The v-table :wrapper must have :size "none" to use this
                      :row-content-width          content-width
 
                      ;; ===== Styling
@@ -582,10 +581,13 @@
                " for " [github-hyperlink "both of them" "src/re_demo/v_table_renderers.cljs"]
                ". They provide a bare bones introduction."]
               [p [:b [:i "Next,"]] " look at " [:code "simple-v-table"] " (see LHS navigation) to understand what is possible if you want rectangular data displays."]
-              [p [:b [:i "Finally,"]] " below is a demo showing some of the capabilities of " [:code "v-table"] ", including:"]
+              [p [:b [:i "Finally,"]] " below is a demo showing some of the capabilities of " [:code "v-table"] ":"]
+              [gap :size "10px"]
+              [gantt-chart-demo]
+              [gap :size "10px"]
+              [p "Notes:"]
               [box
                :width "450px"
-               ;:width "750px"
                :child [:ul
                        [:li "this table will take all available horizontal space to the right - to the edge of the browser window. If you make the browser window wider or narrower, it will adjust to the new width available. The same can be done in the vertical direction (not demonstrated here)."]
                        [:li "when you click on a horizontal bar, with a data row, you'll see a fake edit popup"]
@@ -594,7 +596,4 @@
                        [:li "Alt+Click on a row in the table to see the data object for that row in DevTools (works best in dev mode with cljs-devtools)"]
                        [:li "row rendering is automatically virtualised"]
                        [:li "this particular table only uses row and column headers, but no footer sections. And only one corner section."]
-                       [:li [source-reference "for this v-table" "src/re_demo/v_table_demo.cljs"]]]]
-              [gap :size "10px"]
-              [gantt-chart-demo]
-              [gap :size "1"]]])
+                       [:li [source-reference "for this v-table" "src/re_demo/v_table_demo.cljs"]]]]]])
