@@ -30,9 +30,9 @@
                                       [p [:code "simple-v-table"] " is built on " [:code "v-table"] " and it exists because " [:code "v-table"] " is too low level and complicated for everyday use."]
                                       [title3 "Features"]
                                       [:ul
-                                       [:li "Primary usecase involves showing a rectangular visual structure, with entities in rows and attributes of those entities in columns. Typically, read-only."]
+                                       [:li "Primary use case involves showing a rectangular visual structure, with entities in rows and attributes of those entities in columns. Typically, read-only."]
                                        [:li "Unlimited columns with a fixed column header at the top"]
-                                       [:li "Unlimited (virtualised) rows with an ()optional) fixed row header at the left by simply specifying the number of columns to fix"]
+                                       [:li "Unlimited (virtualised) rows with an (optional) fixed row header at the left by simply specifying the number of columns to fix"]
                                        [:li "Most aspects of the table are stylable using the " [:code ":parts"] " argument that can set " [:code ":class"] " or " [:code ":style"] " attributes"]
                                        [:li "Individual rows can be dynamically styled based on row data"]
                                        [:li "Individual cells can be dynamically styled based on row data"]
@@ -41,7 +41,7 @@
                                       [title3 "Sizing"]
                                       [:ul
                                        [:li "A table's dimensions will grow and shrink, to fit the space provided by its parent. When the parent imposes dimensions that are insufficient to show all of the table, scrollbars will appear."]
-                                       [:li "Other times, we want a table to impose certain dimensions. Eg, it should always show 10 rows, and have no horizontal scrollbar, and we want the parent dimensions to change to accomodate."]
+                                       [:li "Other times, we want a table to impose certain dimensions. Eg, it should always show 10 rows, and have no horizontal scrollbar, and we want the parent dimensions to change to accommodate."]
                                        [:li "Width"
                                         [:ul
                                          [:li "The full horizontal extent of the table is determined by the accumulated width of the columns"]
