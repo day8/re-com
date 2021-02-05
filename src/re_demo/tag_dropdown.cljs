@@ -36,9 +36,31 @@
        :width    "450px"
        :align    :start
        :children [[title2 "Demo"]
+                  [tag-dropdown
+                   :min-width         (when @min-width? (str @min-width "px"))
+                   :max-width         (when @max-width? (str @max-width "px"))
+                   :disabled?         disabled?
+                   :required?         required?
+                   :placeholder       (when @placeholder? "placeholder message")
+                   :unselect-buttons? unselect-buttons?
+                   :choices           choices
+                   :model             model
+                   :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
+                   :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
+                   :on-change         #(reset! model %)]
+                  [h-box
+                   :height   "45px"
+                   :gap      "5px"
+                   :width    "100%"
+                   :children [[label :label [:code ":model"]]
+                              [label :label " is currently"]
+                              [:code
+                               {:class "display-flex"
+                                :style {:flex "1"}}
+                               (with-out-str (pprint/pprint @model))]]]
                   [title3 "Parameters"]
                   [v-box
-                   :gap "11px"
+                   :gap "20px"
                    :children [[checkbox
                                :label     [box
                                            :align :start
@@ -130,29 +152,9 @@
                                              [gap :size "5px"]
                                              [label :label (str @max-width "px")]])]]]]
                   #_[gap :size "5px"]
-                  [h-box
-                   :height   "45px"      ;; means the Compontent (which is underneath) doesn't move up and down as the model changes
-                   :gap      "5px"
-                   :width    "100%"
-                   :children [[label :label [:code ":model"]]
-                              [label :label " is currently"]
-                              [:code
-                               {:class "display-flex"
-                                :style {:flex "1"}}
-                               (with-out-str (pprint/pprint @model))]]]
-                  [gap :size "10px"]
-                  [tag-dropdown
-                    :min-width         (when @min-width? (str @min-width "px"))
-                    :max-width         (when @max-width? (str @max-width "px"))
-                    :disabled?         disabled?
-                    :required?         required?
-                    :placeholder       (when @placeholder? "placeholder message")
-                    :unselect-buttons? unselect-buttons?
-                    :choices           choices
-                    :model             model
-                    :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
-                    :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
-                    :on-change         #(reset! model %)]]])))
+
+                  [gap :size "10px"]]])))
+
 
 (defn panel
   []
