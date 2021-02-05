@@ -165,7 +165,11 @@
 
 (defn panel2
   []
-  (let [selected-demo-id (reagent/atom 1)]
+  (let [selected-demo-id (reagent/atom 1)
+        selected-tag-type (reagent/atom :horizontal)
+        tag-types         [{:id :horizontal :label "Horizontal"}
+                           {:id :bar        :label "Bar"}
+                           {:id :pill       :label "Pill"}]]
     (fn []
       [v-box
        :size     "auto"
@@ -186,12 +190,23 @@
                                             using Bootstrap."]
                                           [p "It is quite straight formward to roll your own tab components. The left
                                            side navigation in this demo is effectively a hand-rolled tab component."]
-                                          [args-table horizontal-tabs-args-desc {:title "Horizontal Tabs Parameters"}]
-                                          [parts-table "horizontal-tabs" horizontal-tabs-parts-desc]
-                                          [args-table bar-tabs-args-desc {:title "Bar Tabs Parameters"}]
-                                          [parts-table "horizontal-bar-tabs" bar-tabs-parts-desc]
-                                          [args-table pill-tabs-args-desc {:title "Pill Tabs Parameters"}]
-                                          [parts-table "horizontal-pill-tabs" pill-tabs-parts-desc]]]
+                                          [v-box
+                                           :children [[horizontal-pill-tabs
+                                                       :model     selected-tag-type
+                                                       :tabs      tag-types
+                                                       :on-change #(reset! selected-tag-type %)]
+                                                      (when (= :horizontal @selected-tag-type)
+                                                        [:<>
+                                                         [args-table horizontal-tabs-args-desc {:title "Horizontal Tabs Parameters"}]
+                                                         [parts-table "horizontal-tabs" horizontal-tabs-parts-desc]])
+                                                      (when (= :bar @selected-tag-type)
+                                                        [:<>
+                                                         [args-table bar-tabs-args-desc {:title "Bar Tabs Parameters"}]
+                                                         [parts-table "horizontal-bar-tabs" bar-tabs-parts-desc]])
+                                                      (when (= :pill @selected-tag-type)
+                                                        [:<>
+                                                         [args-table pill-tabs-args-desc {:title "Pill Tabs Parameters"}]
+                                                         [parts-table "horizontal-pill-tabs" pill-tabs-parts-desc]])]]]]
                               [v-box
                                :width    "600px"
                                :gap      "10px"
