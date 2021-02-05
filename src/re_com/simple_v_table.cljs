@@ -79,7 +79,7 @@
     (-> (map :name simple-v-table-exclusive-parts-desc) set)))
 
 (def simple-v-table-parts-desc
-  (when
+  (when include-args-desc?
     (into
       simple-v-table-exclusive-parts-desc
       (map #(update % :level inc) v-table/v-table-parts-desc))))
