@@ -48,9 +48,33 @@
                                        [p "Takes up a lot of screen real estate but can be placed in a popup."]
                                        [args-table multi-select-args-desc]]]
                           [v-box
-                           :gap      "10px"
+                           :gap      "20px"
                            :width    "450px"
                            :children [[title2 "Demo"]
+                                      [multi-select
+                                       :width         "450px"
+                                       :left-label    "Car Choices"
+                                       :right-label   "Cars Selected"
+                                       :placeholder   "Select some cars."
+                                       :disabled?     disabled?
+                                       :required?     required?
+                                       :filter-box?   filter-box?
+                                       :regex-filter? regex-filter?
+                                       :choices       choices
+                                       :model         model
+                                       :sort-fn       :group
+                                       :on-change     #(reset! model %)]
+                                      [h-box
+                                       :height "90px"      ;; means the Compontent (which is underneath) doesn't move up and down as the model changes
+                                       :gap    "5px"
+                                       :width  "100%"
+                                       :children [[label :label [:code ":model"]]
+                                                  [label :label " is currently"]
+                                                  [:code
+                                                   {:class "display-flex"
+                                                    :style {:flex "1"}}
+                                                   (with-out-str (pprint/pprint @model))]]]
+                                      [gap :size "0px"]
                                       [title3 "Parameters"]
                                       [h-box
                                        :gap "30px"
@@ -88,32 +112,8 @@
                                        :size "initial"
                                        :gap "5px"
                                        :children [[label :label [:code ":choices"]]
-                                                  [:pre (with-out-str (pprint/pprint choices))]]]
-                                      [h-box
-                                       :height "90px"      ;; means the Compontent (which is underneath) doesn't move up and down as the model changes
-                                       :gap    "5px"
-                                       :width  "100%"
-                                       :children [[label :label [:code ":model"]]
-                                                  [label :label " is currently"]
-                                                  [:code
-                                                   {:class "display-flex"
-                                                    :style {:flex "1"}}
-                                                   (with-out-str (pprint/pprint @model))]]]
-                                      
-                                      [gap :size "20px"]
-                                      [multi-select
-                                       :width         "450px"
-                                       :left-label    "Car Choices"
-                                       :right-label   "Cars Selected"
-                                       :placeholder   "Select some cars."
-                                       :disabled?     disabled?
-                                       :required?     required?
-                                       :filter-box?   filter-box?
-                                       :regex-filter? regex-filter?
-                                       :choices       choices
-                                       :model         model
-                                       :sort-fn       :group
-                                       :on-change     #(reset! model %)]]]]]
+                                                  [:pre (with-out-str (pprint/pprint choices))]]]]]]]
+
               [parts-table "multi-select" multi-select-parts-desc]]])
 
 
