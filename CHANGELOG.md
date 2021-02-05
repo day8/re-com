@@ -12,10 +12,15 @@
   release builds for the demo site documentation generation
 - Add `re-com.config/include-args-desc?` and use it to elide arg description data structures. This should lead to
   smaller production builds for user's of re-com, and faster app startup.
+- Add `:split-is-px?` arg to the splitter components.
 
 #### Changed
 
-The following `v-table` and `simple-v-table` breaking changes are only relevant to the Day8 team...
+- TBA
+
+#### v-table
+
+The following `v-table` and `simple-v-table` breaking changes are only relevant to Alpha testers...
 
 - **Breaking**: Rename `:max-table-width` arg of `v-table` and `simple-v-table` to `:max-width`.
 - **Breaking**: Rename `:valign` in `simple-v-table` `:columns` specification to `:vertical-align` to

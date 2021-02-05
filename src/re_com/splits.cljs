@@ -11,7 +11,7 @@
 
 (defn drag-handle
   "Return a drag handle to go into a vertical or horizontal splitter bar:
-    orientation: Can be :horizonal or :vertical
+    orientation: Can be :horizontal or :vertical
     over?:       When true, the mouse is assumed to be over the splitter so show a bolder color"
   [orientation over? parts]
   (let [vertical? (= orientation :vertical)
@@ -63,14 +63,14 @@
      {:name :handle       :level 2 :class "rc-h-split-handle"       :impl "[:div]"    :notes "The splitter handle."}
      {:name :handle-bar-1 :level 3 :class "rc-h-split-handle-bar-1" :impl "[:div]"    :notes "The splitter handle's first bar."}
      {:name :handle-bar-2 :level 3 :class "rc-h-split-handle-bar-2" :impl "[:div]"    :notes "The splitter handle's second bar."}
-     {:name :right        :level 1 :class "rc-h-split-right"        :impl "[:div]"    :notes "Second (i.e right) panel of the split."}
+     {:name :right        :level 1 :class "rc-h-split-right"        :impl "[:div]"    :notes "Second (i.e. right) panel of the split."}
      {:type :legacy       :level 0 :class "rc-v-split"              :impl "[v-split]" :notes "Outer wrapper of the split."}
      {:name :top          :level 1 :class "rc-v-split-top"          :impl "[:div]"    :notes "First (i.e. top) panel of the split."}
      {:name :splitter     :level 1 :class "rc-v-split-splitter"     :impl "[:div]"    :notes "The splitter between panels."}
      {:name :handle       :level 2 :class "rc-v-split-handle"       :impl "[:div]"    :notes "The splitter handle."}
      {:name :handle-bar-1 :level 3 :class "rc-v-split-handle-bar-1" :impl "[:div]"    :notes "The splitter handle's first bar."}
      {:name :handle-bar-2 :level 3 :class "rc-v-split-handle-bar-2" :impl "[:div]"    :notes "The splitter handle's second bar."}
-     {:name :bottom       :level 1 :class "rc-v-split-bottom"       :impl "[:div]"    :notes "Second (i.e bottom) panel of the split."}]))
+     {:name :bottom       :level 1 :class "rc-v-split-bottom"       :impl "[:div]"    :notes "Second (i.e. bottom) panel of the split."}]))
 
 (def hv-split-parts
   (when include-args-desc?
@@ -83,8 +83,9 @@
      {:name :size            :required false :default "auto" :type "string"          :validate-fn string?           :description [:span "applied to the outer container of the two panels. Equivalent to CSS style " [:span.bold "flex"] "." [:br]  "Examples: " [:code "initial"] ", " [:code "auto"] ", " [:code "none"]", " [:code "100px"] ", " [:code "2"] " or a generic triple of " [:code "grow shrink basis"]]}
      {:name :width           :required false                 :type "string"          :validate-fn string?           :description "width of the outer container of the two panels. A CSS width style"}
      {:name :height          :required false                 :type "string"          :validate-fn string?           :description "height of the outer container of the two panels. A CSS height style"}
+     {:name :split-is-px?    :required false :default false  :type "boolean"                                        :description [:span "when true, " [:code ":initial-split"] " is interpreted to be a fixed px value, otherwise a percentage value"]}
+     {:name :initial-split   :required false :default 50     :type "double | string" :validate-fn number-or-string? :description [:span "the initial size of " [:code ":panel-1"] ". Subject to " [:code ":split-is-px?"] ", it is either the initial split percentage for " [:code ":panel-1"] " (can be double value or string with/without percentage sign) or a fixed px value"]}
      {:name :on-split-change :required false                 :type "double -> nil"   :validate-fn fn?               :description [:span "called when the user moves the splitter bar (on mouse up, not on each mouse move). Given the new " [:code ":panel-1"] " percentage split"]}
-     {:name :initial-split   :required false :default 50     :type "double | string" :validate-fn number-or-string? :description [:span "initial split percentage for " [:code ":panel-1"] ". Can be double value or string (with/without percentage sign)"]}
      {:name :splitter-size   :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the splitter"}
      {:name :margin          :required false :default "8px"  :type "string"          :validate-fn string?           :description "thickness of the margin around the panels"}
      {:name :class           :required false                 :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
@@ -94,7 +95,7 @@
 
 (defn h-split
   "Returns markup for a horizontal layout component"
-  [& {:keys [size width height on-split-change initial-split splitter-size margin]
+  [& {:keys [size width height split-is-px? on-split-change initial-split splitter-size margin]
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   {:pre [(validate-args-macro hv-split-args-desc args "h-split")]}
@@ -113,7 +114,9 @@
                                      c-width    (.-clientWidth container)                  ;; the container's width
                                      c-left-x   (.-offsetLeft container)                   ;; the container's left X
                                      relative-x (+ (- mouse-x c-left-x) (:left offsets))]  ;; the X of the mouse, relative to container
-                                 (* 100.0 (/ relative-x c-width))))                        ;; do the percentage calculation
+                                 (if split-is-px?
+                                   relative-x                                              ;; return the left offset in px
+                                   (* 100.0 (/ relative-x c-width)))))                     ;; return the percentage panel-1 width against container width
 
         <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
 
@@ -132,7 +135,7 @@
         mouseout-split       #(reset! over? false)
 
         make-container-attrs (fn [class style attr in-drag?]
-                               (merge {:class (str "display-flex rc-h-split " class)
+                               (merge {:class (str "rc-h-split display-flex " class)
                                        :id    container-id
                                        :style (merge (flex-child-style size)
                                                      (flex-flow-style "row nowrap")
@@ -149,7 +152,11 @@
         make-panel-attrs     (fn [class style attr in-drag? percentage]
                                (merge
                                  {:class (str "display-flex " class)
-                                  :style (merge (flex-child-style (str percentage " 1 0px"))
+                                  :style (merge (flex-child-style (if split-is-px?
+                                                                    (if (pos? percentage)
+                                                                      (str "0 0 " percentage "px") ;; flex for panel-1
+                                                                      (str "1 1 0px"))             ;; flex for panel-2
+                                                                    (str percentage " 1 0px")))
                                                 {:overflow "hidden"} ;; TODO: Shouldn't have this...test removing it
                                                 (when in-drag? {:pointer-events "none"})
                                                 style)}
@@ -187,7 +194,9 @@
                (str "rc-h-split-bottom rc-h-split-right " (get-in parts [:right :class]))
                (get-in parts [:bottom :style])
                (get-in parts [:bottom :attr])
-               @dragging? (- 100 @split-perc))
+               @dragging? (if split-is-px?
+                            (- @split-perc) ;; Negative value indicates this is for panel-2
+                            (- 100 @split-perc)))
         panel-2]])))
 
 
@@ -197,7 +206,7 @@
 
 (defn v-split
   "Returns markup for a vertical layout component"
-  [& {:keys [size width height on-split-change initial-split splitter-size margin]
+  [& {:keys [size width height split-is-px? on-split-change initial-split splitter-size margin]
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   {:pre [(validate-args-macro hv-split-args-desc args "v-split")]}
@@ -216,7 +225,9 @@
                                      c-height   (.-clientHeight container)                 ;; the container's height
                                      c-top-y    (.-offsetTop container)                    ;; the container's top Y
                                      relative-y (+ (- mouse-y c-top-y) (:top offsets))]    ;; the Y of the mouse, relative to container
-                                 (* 100.0 (/ relative-y c-height))))                       ;; do the percentage calculation
+                                 (if split-is-px?
+                                   relative-y                                              ;; return the top offset in px
+                                   (* 100.0 (/ relative-y c-height)))))                    ;; return the percentage panel-1 height against container width
 
         <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
 
@@ -252,7 +263,11 @@
         make-panel-attrs     (fn [class style attr in-drag? percentage]
                                (merge
                                  {:class (str "display-flex " class)
-                                  :style (merge (flex-child-style (str percentage " 1 0px"))
+                                  :style (merge (flex-child-style (if split-is-px?
+                                                                    (if (pos? percentage)
+                                                                      (str "0 0 " percentage "px") ;; flex for panel-1
+                                                                      (str "1 1 0px"))             ;; flex for panel-2
+                                                                    (str percentage " 1 0px")))
                                                 {:overflow "hidden"} ;; TODO: Shouldn't have this...test removing it
                                                 (when in-drag? {:pointer-events "none"})
                                                 style)}
@@ -290,5 +305,7 @@
                (get-in parts [:bottom :style])
                (get-in parts [:bottom :attr])
                @dragging?
-               (- 100 @split-perc))
+               (if split-is-px?
+                 (- @split-perc) ;; Negative value indicates this is for panel-2
+                 (- 100 @split-perc)))
         panel-2]])))

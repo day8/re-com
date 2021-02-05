@@ -50,7 +50,7 @@
             [re-demo.tag-dropdown          :as    tag-dropdown]
             [re-demo.typeahead             :as    typeahead]
             [re-demo.v-table               :as    v-table]
-            [re-demo.simple-v-table         :as   simple-v-table]
+            [re-demo.simple-v-table        :as   simple-v-table]
             [goog.history.EventType        :as    EventType])
   (:import [goog History]))
 
@@ -224,26 +224,26 @@
        ;; Outer-most box height must be 100% to fill the entrie client height.
        ;; This assumes that height of <body> is itself also set to 100%.
        ;; width does not need to be set.
-       :height   "100%"
-       ;:gap      "60px"
-       :initial-split 15
-       :margin "0px"
-       :panel-1 [scroller
-                 ;:size  "none"
-                 :v-scroll :auto
-                 :h-scroll :off
-                 :child [v-box
-                         :size "1"
-                         :children [[re-com-title-box]
-                                    [left-side-nav-bar selected-tab-id on-select-tab]]]]
-       :panel-2 [scroller
-                 :attr  {:id "right-panel"}
-                 :child [v-box
-                         :size  "1"
-                         :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
-                                    [box
-                                     :padding "0px 0px 0px 50px"
-                                     :child [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
+       :height        "100%"
+       :split-is-px?  true
+       :initial-split 180
+       :margin        "0px"
+       :panel-1       [scroller
+                       ;:size  "none"
+                       :v-scroll :auto
+                       :h-scroll :off
+                       :child [v-box
+                               :size "1"
+                               :children [[re-com-title-box]
+                                          [left-side-nav-bar selected-tab-id on-select-tab]]]]
+       :panel-2       [scroller
+                       :attr  {:id "right-panel"}
+                       :child [v-box
+                               :size  "1"
+                               :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
+                                          [box
+                                           :padding "0px 0px 0px 50px"
+                                           :child [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
 (defn ^:dev/after-load mount-root
   []
@@ -252,4 +252,3 @@
 (defn ^:export mount-demo
   []
   (mount-root))
-
