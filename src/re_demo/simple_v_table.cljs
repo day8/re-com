@@ -35,7 +35,8 @@
                                        [:li "Unlimited (virtualised) rows with an ()optional) fixed row header at the left by simply specifying the number of columns to fix"]
                                        [:li "Most aspects of the table are stylable using the " [:code ":parts"] " argument that can set " [:code ":class"] " or " [:code ":style"] " attributes"]
                                        [:li "Individual rows can be dynamically styled based on row data"]
-                                       [:li "Individual cells can be dynamically styled based on row data"]]
+                                       [:li "Individual cells can be dynamically styled based on row data"]
+                                       [:li "Alt+Click on a row in the table to see the data object for that row in DevTools (works best in dev mode with cljs-devtools)"]]
                                       
                                       [title3 "Sizing"]
                                       [:ul
