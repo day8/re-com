@@ -69,7 +69,11 @@
                               [gap :size "30px"]
                               [v-box
                                :gap      "10px"
-                               :children [[title :level :level3 :label "Parameters"]
+                               :style {:min-width        "550px"
+                                       :padding          "15px"
+                                       :border-top       "1px solid #DDD"
+                                       :background-color "#f7f7f7"}
+                               :children [[title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
                                           [simulated-bools disabled? hide-border? show-icon?]
                                           [gap :size "20px"]
                                           [title :level :level3 :label "Model resets"]

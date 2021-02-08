@@ -51,23 +51,29 @@
                                            {:class "display-flex"
                                             :style {:flex "1"}}
                                            (with-out-str (pprint/pprint @selections))]]]]]
-                  [title :level :level3 :label "Parameters"]
-                  [checkbox
-                   :label       [box :align :start :child [:code ":disabled?"]]
-                   :model       disabled?
-                   :on-change   #(reset! disabled? %)]
-                  [checkbox
-                   :label       [box :align :start :child [:code ":multi-select?"]]
-                   :model       multi-select?
-                   :on-change   #(reset! multi-select? %)]
-                  [checkbox
-                   :label       [box :align :start :child [:code ":required?"]]
-                   :model       required?
-                   :on-change   #(reset! required? %)]
-                  [checkbox
-                   :label       [box :align :start :child [:code ":as-exclusions?"]]
-                   :model       as-exclusions?
-                   :on-change   #(reset! as-exclusions? %)]]])))
+                  [v-box
+                   :gap  "10px"
+                   :style {:min-width        "550px"
+                           :padding          "15px"
+                           :border-top       "1px solid #DDD"
+                           :background-color "#f7f7f7"}
+                   :children [[title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                              [checkbox
+                               :label       [box :align :start :child [:code ":disabled?"]]
+                               :model       disabled?
+                               :on-change   #(reset! disabled? %)]
+                              [checkbox
+                               :label       [box :align :start :child [:code ":multi-select?"]]
+                               :model       multi-select?
+                               :on-change   #(reset! multi-select? %)]
+                              [checkbox
+                               :label       [box :align :start :child [:code ":required?"]]
+                               :model       required?
+                               :on-change   #(reset! required? %)]
+                              [checkbox
+                               :label       [box :align :start :child [:code ":as-exclusions?"]]
+                               :model       as-exclusions?
+                               :on-change   #(reset! as-exclusions? %)]]]]])))
 
 (defn panel2
   []

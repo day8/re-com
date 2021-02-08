@@ -75,44 +75,50 @@
                                                     :style {:flex "1"}}
                                                    (with-out-str (pprint/pprint @model))]]]
                                       [gap :size "0px"]
-                                      [title3 "Parameters"]
-                                      [h-box
-                                       :gap "30px"
-                                       :children [[v-box
-                                                   :gap "3px"
-                                                   :children [[checkbox
-                                                               :label     [box
-                                                                           :align :start
-                                                                           :child [:code ":disabled?"]]
-                                                               :model     disabled?
-                                                               :on-change #(reset! disabled? %)]
-                                                              [checkbox
-                                                               :label     [box
-                                                                           :align :start
-                                                                           :child [:code ":required?"]]
-                                                               :model     required?
-                                                               :on-change #(reset! required? %)]]]
-                                                  [v-box
-                                                   :gap "3px"
-                                                   :children [[checkbox
-                                                               :label     [box
-                                                                           :align :start
-                                                                           :child [:code ":filter-box?"]]
-                                                               :model     filter-box?
-                                                               :on-change #(reset! filter-box? %)]
-                                                              (when @filter-box?
-                                                                [checkbox
-                                                                 :label     [box
-                                                                             :align :start
-                                                                             :child [:code ":regex-filter?"]]
-                                                                 :model     regex-filter?
-                                                                 :on-change #(reset! regex-filter? %)])]]]]
-
                                       [v-box
-                                       :size "initial"
-                                       :gap "5px"
-                                       :children [[label :label [:code ":choices"]]
-                                                  [:pre (with-out-str (pprint/pprint choices))]]]]]]]
+                                       :gap "10px"
+                                       :style {:min-width        "550px"
+                                               :padding          "15px"
+                                               :border-top       "1px solid #DDD"
+                                               :background-color "#f7f7f7"}
+                                       :children [[title3 "Interactive Parameters" {:margin-top "0"}]
+                                                  [h-box
+                                                   :gap "30px"
+                                                   :children [[v-box
+                                                               :gap "3px"
+                                                               :children [[checkbox
+                                                                           :label     [box
+                                                                                       :align :start
+                                                                                       :child [:code ":disabled?"]]
+                                                                           :model     disabled?
+                                                                           :on-change #(reset! disabled? %)]
+                                                                          [checkbox
+                                                                           :label     [box
+                                                                                       :align :start
+                                                                                       :child [:code ":required?"]]
+                                                                           :model     required?
+                                                                           :on-change #(reset! required? %)]]]
+                                                              [v-box
+                                                               :gap "3px"
+                                                               :children [[checkbox
+                                                                           :label     [box
+                                                                                       :align :start
+                                                                                       :child [:code ":filter-box?"]]
+                                                                           :model     filter-box?
+                                                                           :on-change #(reset! filter-box? %)]
+                                                                          (when @filter-box?
+                                                                            [checkbox
+                                                                             :label     [box
+                                                                                         :align :start
+                                                                                         :child [:code ":regex-filter?"]]
+                                                                             :model     regex-filter?
+                                                                             :on-change #(reset! regex-filter? %)])]]]]
+
+                                                  [v-box
+                                                   :size "initial"
+                                                   :gap "5px"
+                                                   :children [[label :label [:code ":choices"]]
+                                                              [:pre (with-out-str (pprint/pprint choices))]]]]]]]]]
 
               [parts-table "multi-select" multi-select-parts-desc]]])
 

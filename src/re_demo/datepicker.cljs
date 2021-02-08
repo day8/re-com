@@ -45,43 +45,50 @@
    :gap      "15px"
    :align    :start
    :children [content
-              [gap :size "20px"]
-              [title :level :level3 :label "Parameters"]
-              [checkbox
-               :label     [box :align :start :child [:code ":disabled?"]]
-               :model     disabled?
-               :on-change #(reset! disabled? %)]
-              [checkbox
-               :label     [box :align :start :child [:code ":show-today?"]]
-               :model     show-today?
-               :on-change #(reset! show-today? %)]
-              [checkbox
-               :label     [box :align :start :child [:code ":show-weeks?"]]
-               :model     show-weeks?
-               :on-change #(reset! show-weeks? %)]
-              [h-box
-               :gap      "5px"
-               :align    :end
-               :children [[:code ":start-of-week"]
-                          [single-dropdown
-                           :choices   start-of-week-choices
-                           :model     start-of-week
-                           :on-change #(reset! start-of-week %)
-                           :width     "110px"]]]
-              [h-box
-               :gap      "2px"
-               :align    :end
-               :children [[box :align :end :child [:code ":selectable-fn"]]
-                          [gap :size "5px"]
-                          [checkbox-for-day :Su enabled-days]
-                          [checkbox-for-day :Mo enabled-days]
-                          [checkbox-for-day :Tu enabled-days]
-                          [checkbox-for-day :We enabled-days]
-                          [checkbox-for-day :Th enabled-days]
-                          [checkbox-for-day :Fr enabled-days]
-                          [checkbox-for-day :Sa enabled-days]
-                          [gap :size "5px"]
-                          [box :align :end :child [:code (str "(fn [d]\n (" @as-days " (.getDay d)))")]]]]]])
+              [v-box
+               :gap   "10px"
+               :style {:min-width        "550px"
+                       :padding          "15px"
+                       :border-top       "1px solid #DDD"
+                       :background-color "#f7f7f7"}
+               :children [[title
+                           :style {:margin-top "0"}
+                           :level :level3 :label "Interactive Parameters"]
+                          [checkbox
+                           :label     [box :align :start :child [:code ":disabled?"]]
+                           :model     disabled?
+                           :on-change #(reset! disabled? %)]
+                          [checkbox
+                           :label     [box :align :start :child [:code ":show-today?"]]
+                           :model     show-today?
+                           :on-change #(reset! show-today? %)]
+                          [checkbox
+                           :label     [box :align :start :child [:code ":show-weeks?"]]
+                           :model     show-weeks?
+                           :on-change #(reset! show-weeks? %)]
+                          [h-box
+                           :gap      "5px"
+                           :align    :end
+                           :children [[:code ":start-of-week"]
+                                      [single-dropdown
+                                       :choices   start-of-week-choices
+                                       :model     start-of-week
+                                       :on-change #(reset! start-of-week %)
+                                       :width     "110px"]]]
+                          [h-box
+                           :gap      "2px"
+                           :align    :end
+                           :children [[box :align :end :child [:code ":selectable-fn"]]
+                                      [gap :size "5px"]
+                                      [checkbox-for-day :Su enabled-days]
+                                      [checkbox-for-day :Mo enabled-days]
+                                      [checkbox-for-day :Tu enabled-days]
+                                      [checkbox-for-day :We enabled-days]
+                                      [checkbox-for-day :Th enabled-days]
+                                      [checkbox-for-day :Fr enabled-days]
+                                      [checkbox-for-day :Sa enabled-days]
+                                      [gap :size "5px"]
+                                      [box :align :end :child [:code (str "(fn [d]\n (" @as-days " (.getDay d)))")]]]]]]]])
 
 
 
@@ -122,16 +129,14 @@
                  [parameters-with
                   [v-box
                    :gap      "15px"
-                   :children [[h-box
-                               :children [[gap :size "120px"]
-                                          [datepicker
-                                           :model         model1
-                                           :disabled?     disabled?
-                                           :show-today?   @show-today?
-                                           :show-weeks?   @show-weeks?
-                                           :selectable-fn selectable-pred
-                                           :start-of-week @start-of-week
-                                           :on-change     #(do #_(js/console.log "model1:" %) (reset! model1 %))]]]
+                   :children [[datepicker
+                               :model         model1
+                               :disabled?     disabled?
+                               :show-today?   @show-today?
+                               :show-weeks?   @show-weeks?
+                               :selectable-fn selectable-pred
+                               :start-of-week @start-of-week
+                               :on-change     #(do #_(js/console.log "model1:" %) (reset! model1 %))]
                               [label :label [:span [:code ":model"] " is " (date->string @model1)]]
                               #_[h-box
                                  :gap      "6px"
@@ -171,20 +176,16 @@
                    [parameters-with
                     [v-box
                      :gap      "15px"
-                     :children [[h-box
-                                 :align    :start
-                                 ;:style    {:background-color "#beedff"}
-                                 :children [[gap :size "120px"]
-                                            [datepicker-dropdown
-                                             :model         model3
-                                             :show-today?   @show-today?
-                                             :show-weeks?   @show-weeks?
-                                             :selectable-fn selectable-pred
-                                             :start-of-week @start-of-week
-                                             :placeholder   "Select a date"
-                                             :format        "dd MMM, yyyy"
-                                             :disabled?     disabled?
-                                             :on-change     #(reset! model3 %)]]]
+                     :children [[datepicker-dropdown
+                                 :model         model3
+                                 :show-today?   @show-today?
+                                 :show-weeks?   @show-weeks?
+                                 :selectable-fn selectable-pred
+                                 :start-of-week @start-of-week
+                                 :placeholder   "Select a date"
+                                 :format        "dd MMM, yyyy"
+                                 :disabled?     disabled?
+                                 :on-change     #(reset! model3 %)]
                                 [label :label [:span [:code ":model"] " is " (date->string @model3)]]]]
                     enabled-days
                     as-days
@@ -199,25 +200,21 @@
                [parameters-with
                 [v-box
                  :gap      "15px"
-                 :children [[h-box
-                             ;:margin     "30px 0 0 0"
-                             :align-self :start
-                             :children      [[gap :size "120px"]
-                                             [datepicker-dropdown
-                                              :model           model4
-                                              :show-today?     @show-today?
-                                              :show-weeks?     @show-weeks?
-                                              :selectable-fn   selectable-pred
-                                              :start-of-week   @start-of-week
-                                              :placeholder     "Wybierz datę"
-                                              :format          "d MMMM yyyy"
-                                              :disabled?       disabled?
-                                              :goog?           true
-                                              :i18n            {:days   ["PON" "WT" "ŚR" "CZW" "PT" "SOB" "ND"]
-                                                                :months ["Styczeń" "Luty" "Marzec" "Kwiecień" "Maj" "Czerwiec" "Lipiec" "Sierpień" "Wrzesień" "Październik" "Listopad" "Grudzień"]}
-                                              :width           "190px"
-                                              :position-offset 25
-                                              :on-change       #(reset! model4 %)]]]
+                 :children [[datepicker-dropdown
+                             :model           model4
+                             :show-today?     @show-today?
+                             :show-weeks?     @show-weeks?
+                             :selectable-fn   selectable-pred
+                             :start-of-week   @start-of-week
+                             :placeholder     "Wybierz datę"
+                             :format          "d MMMM yyyy"
+                             :disabled?       disabled?
+                             :goog?           true
+                             :i18n            {:days   ["PON" "WT" "ŚR" "CZW" "PT" "SOB" "ND"]
+                                               :months ["Styczeń" "Luty" "Marzec" "Kwiecień" "Maj" "Czerwiec" "Lipiec" "Sierpień" "Wrzesień" "Październik" "Listopad" "Grudzień"]}
+                             :width           "190px"
+                             :position-offset 25
+                             :on-change       #(reset! model4 %)]
                             [label :label [:span [:code ":model"] " is " (date->string @model4)]]]]
                 enabled-days
                 as-days
