@@ -493,7 +493,8 @@
 
 (defn gantt-chart-demo
   []
-  (let [days-in-timeline      (time.core/in-days (time.core/interval timeline-start-date timeline-end-date))
+  (let [timeline-data         (reagent/atom timeline-data)
+        days-in-timeline      (time.core/in-days (time.core/interval timeline-start-date timeline-end-date))
         row-selections        (reagent/atom nil)
         row-header-selections (reagent/atom nil)
         col-header-selections (reagent/atom nil)

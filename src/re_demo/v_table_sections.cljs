@@ -24,11 +24,11 @@
         blue                      "#0070C4"
         
         ;; only one fat row in this table
-        single-dummy-row          (reagent/atom [{:id 1}])    ;; TODO: Changed to atom for testing validation-fn, can change back when we successfully allow atom OR value
+        single-dummy-row          (reagent/atom [{:id 1}])
         row-height                200
 
-        width-of-main-row-content (int (/ row-height 0.618 0.618))    ;; fibonachi ratios to make it look pretty
-        size2                     (int (* row-height 0.618 0.618))]   ;; fibonachi ratios to make it look pretty
+        width-of-main-row-content (int (/ row-height 0.618 0.618))    ;; fibonacci ratios to make it look pretty
+        size2                     (int (* row-height 0.618 0.618))]   ;; fibonacci ratios to make it look pretty
     (fn []
       [v-table
         :model              single-dummy-row

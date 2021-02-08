@@ -17,22 +17,22 @@
 
 (defn table-showing-renderers
   []
-  (let [light-blue                "#d860a0"
-        blue                      "#60A0D8"
-        gold                      "#d89860"
-        green                     "#60d898"
+  (let [light-blue        "#d860a0"
+        blue              "#60A0D8"
+        gold              "#d89860"
+        green             "#60d898"
 
-        fib-ratio          0.618             ;; fibonachi ratios to make the visuals look pretty
-        unit-50            50                ;; base for fibonachi calulations
+        fib-ratio         0.618             ;; fibonacci ratios to make the visuals look pretty
+        unit-50           50                ;; base for fibonacci calulations
         unit-121          (js/Math.round (/ unit-50 fib-ratio fib-ratio))
         unit-31           (js/Math.round (* unit-50 fib-ratio))
 
-        num-rows           5
-        row-height         unit-31
-        total-row-height   (* num-rows row-height)
+        num-rows          5
+        row-height        unit-31
+        total-row-height  (* num-rows row-height)
 
         width-of-main-row-content (js/Math.round (/ total-row-height fib-ratio))
-        dummy-rows                (reagent/atom (mapv #(hash-map :id %1) (range num-rows)))] ;; TODO: Changed to atom for testing validation-fn, can change back when we successfully allow atom OR value
+        dummy-rows                (reagent/atom (mapv #(hash-map :id %1) (range num-rows)))]
     (fn []
       [v-table
        :model              dummy-rows
@@ -41,24 +41,24 @@
 
        :max-row-viewport-height  (- total-row-height row-height)    ;; force a vertical scrollbar
 
-       :row-header-renderer    (fn [_row-index, _row] [box-with-border {:name ":row-header-renderer " :background green :height unit-31 :width unit-121}])
-       :row-footer-renderer    (fn [_row-index, _row] [box-with-border {:name ":row-footer-renderer"  :background green :height unit-31 :width unit-121}])
+       :row-header-renderer      (fn [_row-index, _row] [box-with-border {:name ":row-header-renderer " :background green :height unit-31 :width unit-121}])
+       :row-footer-renderer      (fn [_row-index, _row] [box-with-border {:name ":row-footer-renderer"  :background green :height unit-31 :width unit-121}])
 
         ;; column header - section 4
-       :column-header-height   unit-50
-       :column-header-renderer (fn [] [box-with-border {:name ":column-header-renderer" :background gold :height unit-50 :width width-of-main-row-content}])
+       :column-header-height     unit-50
+       :column-header-renderer   (fn [] [box-with-border {:name ":column-header-renderer" :background gold :height unit-50 :width width-of-main-row-content}])
 
         ;; column footer - section 5
-       :column-footer-height   unit-50
-       :column-footer-renderer (fn [] [box-with-border {:name ":column-footer-renderer" :background "#d8d460" :height unit-50 :width width-of-main-row-content}])
+       :column-footer-height     unit-50
+       :column-footer-renderer   (fn [] [box-with-border {:name ":column-footer-renderer" :background "#d8d460" :height unit-50 :width width-of-main-row-content}])
 
         ;; 4 corners
-       :top-left-renderer     (fn [] [box-with-border {:name ":top-left-renderer"     :background blue  :height unit-50 :width unit-121}])
-       :bottom-left-renderer  (fn [] [box-with-border {:name ":bottom-left-renderer"  :background blue  :height unit-50 :width unit-121}])
-       :bottom-right-renderer (fn [] [box-with-border {:name ":bottom-right-renderer" :background blue  :height unit-50 :width unit-121}])
-       :top-right-renderer    (fn [] [box-with-border {:name ":top-right-renderer"    :background blue  :height unit-50 :width unit-121}])
+       :top-left-renderer        (fn [] [box-with-border {:name ":top-left-renderer"     :background blue  :height unit-50 :width unit-121}])
+       :bottom-left-renderer     (fn [] [box-with-border {:name ":bottom-left-renderer"  :background blue  :height unit-50 :width unit-121}])
+       :bottom-right-renderer    (fn [] [box-with-border {:name ":bottom-right-renderer" :background blue  :height unit-50 :width unit-121}])
+       :top-right-renderer       (fn [] [box-with-border {:name ":top-right-renderer"    :background blue  :height unit-50 :width unit-121}])
 
-       :row-renderer          (fn [_row_index, _row] [box-with-border {:name ":row-renderer" :background light-blue :height row-height :width width-of-main-row-content}])])))
+       :row-renderer             (fn [_row_index, _row] [box-with-border {:name ":row-renderer" :background light-blue :height row-height :width width-of-main-row-content}])])))
 
 
 ;; MT's Notes: 

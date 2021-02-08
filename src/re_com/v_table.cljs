@@ -191,9 +191,9 @@
 
   Arguments:
    - row-header-renderer function that knows how to render row-headers (will be passed the 0-based row-index and row to get the data from)
-   - id-fn               keyword or function that returns the id out of the row map
+   - id-fn               keyword or function that returns the id out of the row map/object
    - top-row-index       the 0-based index of the row that is currently at the top of the viewport (for virtual mode)
-   - rows                a vector of row maps to render the row-headers from
+   - rows                a vector of row maps (or objects) to render the row-headers from
    - scroll-y            current horizontal scrollbar position in px
   "
   [row-header-renderer id-fn top-row-index rows scroll-y class style attr]
@@ -303,9 +303,9 @@
 
   Arguments:
    - row-renderer  function that knows how to render rows (will be passed the 0-based row-index and row to render)
-   - id-fn         keyword or function that returns the id out of the row map
+   - id-fn         keyword or function that returns the id out of the row map/object
    - top-row-index the 0-based index of the row that is currently at the top of the viewport (for virtual mode)
-   - rows          a vector of row maps to render
+   - rows          a vector of row maps (or objects) to render
    - scroll-x      current horizontal scrollbar position in px
    - scroll-y      current horizontal scrollbar position in px
   "
@@ -408,9 +408,9 @@
 
   Arguments:
    - row-footer-renderer function that knows how to render row-footers (will be passed the 0-based row-index and row to get the data from)
-   - id-fn               keyword or function that returns the id out of the row map
+   - id-fn               keyword or function that returns the id out of the row map/objects
    - top-row-index       the 0-based index of the row that is currently at the top of the viewport (for virtual mode)
-   - rows                a vector of row maps to render the row-footers from
+   - rows                a vector of row maps (or objects) to render the row-footers from
    - scroll-y            current horizontal scrollbar position in px
   "
   [row-footer-renderer id-fn top-row-index rows scroll-y class style attr]
@@ -806,8 +806,7 @@
       :or   {virtual? true}
       :as   args}]
   {:pre [(validate-args-macro v-table-args-desc args "v-table")]}
-  (let [model                 (deref-or-value model)
-        scroll-x              (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
+  (let [scroll-x              (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
         scroll-y              (reagent/atom 0)              ;; px offset from top of header/content/footer sections (note: this value remains the same when virtual-mode? is both true and false)
         ;wheel-row-increment   (* 10 row-height)             ;; Could be an argument
         ;wheel-col-increment   (* 4 102)                     ;; Could be an argument - can't calculate this in here, needs to be passed
@@ -816,10 +815,10 @@
         row-viewport-id       (gensym "row-viewport-")      ;; The resize listener will listen to this element's (the row-viewport component) resize behaviour
         row-viewport-element  (reagent/atom nil)            ;; This contains a js reference to the row-viewport component (being listened to for resize changes)
         rl-row-viewport-width (reagent/atom 0)              ;; The current width of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-width arg)
-        rl-row-viewport-height (reagent/atom (min (* row-height (count model)) max-row-viewport-height)) ;; The current height of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-height arg). Initialise to prevent that annoying cascading render effect
+        rl-row-viewport-height (reagent/atom (min (* row-height (count @model)) max-row-viewport-height)) ;; The current height of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-height arg). Initialise to prevent that annoying cascading render effect
         internal-scroll-rows-into-view (reagent/atom nil)   ;; Internal state for scrolling a particular row number (or range or rows) into view
         internal-scroll-columns-into-view (reagent/atom nil)   ;; Internal state for scrolling a px range of columns into view
-        m-size                (reaction (count model))     ;; TODO/NOTE: This reaction was not always fired at the required time when creating virtual-rows after deleting a constraint. Could be an FRP glitch?
+        m-size                (reaction (count @model))     ;; TODO/NOTE: This reaction was not always fired at the required time when creating virtual-rows after deleting a constraint. Could be an FRP glitch?
         rows-per-viewport     (reaction (.round js/Math (/ @rl-row-viewport-height row-height)))          ;; The number of rows that can currently be displayed in the row-viewport component
         max-scroll-x          (reaction (- @content-rows-width  @rl-row-viewport-width))                  ;; The maximum number of pixels the content can be scrolled vertically so it stops at the very bottom of the content section
         max-scroll-y          (reaction (- @content-rows-height @rl-row-viewport-height))                 ;; The maximum number of pixels the content can be scrolled horizontally so it stops at the far right of the content section
@@ -827,7 +826,7 @@
         bot-row-index         (reaction (min (+ @top-row-index (dec @rows-per-viewport)) @m-size))        ;; The row number of the row currently rendered at the bottom of the table
         virtual-scroll-y      (reaction (mod @scroll-y row-height))                                       ;; Virtual version of scroll-y but this is a very small number (between 0 and the row-height)
         virtual-rows          (reaction (when (pos? @m-size)
-                                          (subvec model
+                                          (subvec @model
                                                   (min @top-row-index @m-size)
                                                   (min (+ @top-row-index @rows-per-viewport 2) @m-size))))
 
@@ -935,7 +934,7 @@
                                   {}))
 
         dragging?             (reagent/atom false)          ;; true when the mouse is down in a selectable section
-        dragging-outside?     (reagent/atom false)          ;; true when the mouse is down in a selectable section BUT is ouside the section (causes scrolling and selection extension)
+        dragging-outside?     (reagent/atom false)          ;; true when the mouse is down in a selectable section BUT is outside the section (causes scrolling and selection extension)
 
         ;; Whenever a mouse move is detected while dragging a selection, this handler is called by the dmm-tracker
         on-drag-change        (fn on-drag-change
@@ -1156,7 +1155,7 @@
                                                    row-header-renderer
                                                    id-fn
                                                    @top-row-index
-                                                   (if virtual? @virtual-rows model)           ;; rows
+                                                   (if virtual? @virtual-rows @model)           ;; rows
                                                    (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
                                                    ;-----------------
                                                    row-header-selection-fn
@@ -1228,7 +1227,7 @@
                                                    row-renderer
                                                    id-fn
                                                    @top-row-index
-                                                   (if virtual? @virtual-rows model)           ;; rows
+                                                   (if virtual? @virtual-rows @model)           ;; rows
                                                    @scroll-x
                                                    (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
                                                    ;-----------------
@@ -1306,7 +1305,7 @@
                                                    row-footer-renderer
                                                    id-fn
                                                    @top-row-index
-                                                   (if virtual? @virtual-rows model)           ;; rows
+                                                   (if virtual? @virtual-rows @model)            ;; rows
                                                    (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
                                                    ;-----------------
                                                    row-viewport-height

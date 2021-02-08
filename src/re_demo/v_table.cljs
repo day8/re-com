@@ -18,8 +18,8 @@
               [status-text "Alpha" {:color "red" :font-weight "bold"}]
               [new-in-version "v2.13.0"]
               [p [:code "v-table"] " provides a framework for creating table-ish visual structures. It is low level and abstract and, "
-               "while it is very flexible in some ways, it is rigid in others, which means it could either be a perfect fit your usecase, or it might be useless. "]
-              [p "We use it as a base to create a number of components: one best described as \"pivot tables except they are writable\", and another a \"Gannt-chart-looking planning tool with complex editing and totalling\"."]
+               "while it is very flexible in some ways, it is rigid in others, which means it could either be a perfect fit your use case, or it might be useless. "]
+              [p "We use it as a base to create a number of components: one best described as \"pivot tables except they are writable\", and another a \"Gantt-chart-looking planning tool with complex editing and totalling\"."]
               
               [p "Imagine an Excel workbook. It is a large \"canvas\" (of rows and columns), too big to be viewed all at once - you must use scrollbars to explore it. "
                "Now imagine that you \"lock/freeze\" a few rows at the top because they contain " [:b [:i "column headings"]]  " and also a few rows at the bottom "

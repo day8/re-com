@@ -65,7 +65,7 @@
                    :gap      (px 10)
                    :children [[v-box
                                :width    "450px"
-                               :children [[:p "This demo shows the primary usecase - a table displaying entities in rows, and their attributes in columns. See it below in the blue box."]
+                               :children [[:p "This demo shows the primary use case - a table displaying entities in rows, and their attributes in columns. See it below in the blue box."]
                                           #_[:p  "This demo allows you to experiment with how the dimensions of a " [:code "simple-v-table"]" interact with those of its parent. "]]]
 
                               [v-box
