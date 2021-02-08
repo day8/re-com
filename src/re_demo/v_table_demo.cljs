@@ -559,25 +559,24 @@
                              :row-footers                  {:style {:border-right     table-border-style}}
 
                              ;; ===== Selection styles
-                             :row-selection-rect           {:style {:z-index 0
+                             :row-selection-rect           {:style {:z-index 0}}
                                                                     ;:background-color "rgba(0,152,12,0.1)"
                                                                     ;:border           "1px solid rgba(0,152,12,0.4)"
-                                                                    }}
+
                              :column-header-selection-rect {:style {:z-index          0 ;; Behind rows
                                                                     :background-color "rgba(0,152,12,0.1)" ;; Green
-                                                                    :border           "1px solid rgba(0,152,12,0.4)"
-                                                                    }}
+                                                                    :border           "1px solid rgba(0,152,12,0.4)"}}}]]]))))
+
                              ;:row-header-selection-rect    {:style {:background-color "rgba(0,0,0,0.02)" ;; Very transparent black
                              ;                                       :border           "1px solid transparent" ;; Disable border
                              ;                                       }}
-                             }]]]))))
+
 
 (defn demo
   []
   [v-box
    :size "1"
    :children [[title2 "Demo"]
-              ;; TODO: This [:p] has links which have [:div]s and that causes red warnings in DevTools - fix
               [p [:b [:i "First,"]] " the " [:i "Notes"] " part of this page contains two diagrams describing " [:code "v-table"] " which are built using the " [:code "v-table"] " component. Start by looking at the " [github-hyperlink "source code" "src/re_demo/v_table_sections.cljs"]
                " for " [github-hyperlink "both of them" "src/re_demo/v_table_renderers.cljs"]
                ". They provide a bare bones introduction."]
