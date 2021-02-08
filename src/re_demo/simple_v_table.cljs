@@ -2,7 +2,7 @@
   (:require
     [re-com.core           :refer [h-box gap v-box p line]]
     [re-com.simple-v-table :refer [simple-v-table-parts-desc simple-v-table-args-desc]]
-    [re-demo.utils         :refer [source-reference panel-title title2 title3 parts-table args-table status-text]]
+    [re-demo.utils         :refer [source-reference panel-title title2 title3 parts-table args-table status-text new-in-version]]
     [re-com.util           :refer [px]]
     [re-demo.simple-v-table-sales :as simple-v-table-sales]
     [re-demo.simple-v-table-periodic-table :as simple-v-table-periodic-table]))
@@ -14,8 +14,7 @@
    :gap      "10px"
    :children [[panel-title "[simple-v-table ... ]"
                             "src/re_com/simple_v_table.cljs"
-                            "src/re_demo/simple_v_table.cljs"
-                            "v2.12.0"]
+                            "src/re_demo/simple_v_table.cljs"]
               [h-box
                :gap      "106px"
                :children [[v-box
@@ -25,6 +24,8 @@
                                       [line]
                                       [gap :size (px 15)]
                                       [status-text "Alpha" {:color "red" :font-weight "bold"}]
+                                      [gap :size "10px"]
+                                      [new-in-version "v2.13.0"]
                                       [gap :size (px 15)]
                                       [p "This component provides a table which virtualises row rendering. You can have 1M rows but only those currently viewable will be in the DOM."]
                                       [p [:code "simple-v-table"] " is built on " [:code "v-table"] " and it exists because " [:code "v-table"] " is too low level and complicated for everyday use."]

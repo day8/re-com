@@ -3,7 +3,7 @@
     [re-com.text               :refer [p]]
     [re-com.box                :refer [h-box v-box box gap]]
     [re-com.v-table            :refer [v-table-parts-desc v-table-args-desc]]
-    [re-demo.utils             :refer [source-reference panel-title title2 title3 parts-table args-table status-text github-hyperlink]]
+    [re-demo.utils             :refer [source-reference panel-title title2 title3 parts-table args-table status-text new-in-version github-hyperlink]]
     [re-com.util               :refer [px]]
     [re-demo.v-table-sections  :refer [sections-render]]
     [re-demo.v-table-demo      :refer [demo]]
@@ -16,6 +16,7 @@
    :width    "450px"
    :children [[title2 "Notes"]
               [status-text "Alpha" {:color "red" :font-weight "bold"}]
+              [new-in-version "v2.13.0"]
               [p [:code "v-table"] " provides a framework for creating table-ish visual structures. It is low level and abstract and, "
                "while it is very flexible in some ways, it is rigid in others, which means it could either be a perfect fit your usecase, or it might be useless. "]
               [p "We use it as a base to create a number of components: one best described as \"pivot tables except they are writable\", and another a \"Gannt-chart-looking planning tool with complex editing and totalling\"."]
@@ -64,7 +65,7 @@
   [v-box
    :size     "auto"
    :gap      "10px"
-   :children [[panel-title "[v-table ... ]" "src/re_com/v_table.cljs" "src/re_demo/v_table.cljs" "v2.12.0"]
+   :children [[panel-title "[v-table ... ]" "src/re_com/v_table.cljs" "src/re_demo/v_table.cljs"]
               [h-box
                :gap      "40px"
                :children [[v-box

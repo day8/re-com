@@ -5,7 +5,7 @@
             [re-com.core          :refer [h-box box checkbox gap v-box tag-dropdown hyperlink-href p label line]]
             [re-com.slider        :refer [slider]]
             [re-com.tag-dropdown  :refer [tag-dropdown-parts-desc tag-dropdown-args-desc]]
-            [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
+            [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text new-in-version]]
             [re-com.util          :refer [px]]))
 
 (def choices [{:id :bug           :description "Something isn't working"                    :label "bug"           :background-color "#fc2a29"}
@@ -163,8 +163,7 @@
    :gap      "10px"
    :children [[panel-title "[tag-dropdown ... ]"
                             "src/re_com/tag_dropdown.cljs"
-                            "src/re_demo/tag_dropdown.cljs"
-                            "v2.12.0"]
+                            "src/re_demo/tag_dropdown.cljs"]
 
               [h-box
                :gap      "100px"
@@ -173,6 +172,7 @@
                             :width    "450px"
                             :children [[title2 "Notes"]
                                        [status-text "Alpha" {:color "red" :font-weight "bold"}]
+                                       [new-in-version "v2.13.0"]
                                        [p "A multi-select component. Useful when the list of choices is small and (optionally) colour coded, and where those selected need to all be visible to the user."]
                                        [p "If the user selects many of the choices, then displaying them horizontally can take more than " [:code ":width"] ". In this case, the programmer has two strategies:"]
                                        [:ol

@@ -3,7 +3,7 @@
             [reagent.core         :as reagent]
             [re-com.core          :refer [h-box box checkbox gap v-box multi-select hyperlink-href p label]]
             [re-com.multi-select  :refer [multi-select-parts-desc multi-select-args-desc]]
-            [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
+            [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text new-in-version]]
             [re-com.util          :refer [px]]
             [clojure.string]))
 
@@ -33,8 +33,7 @@
    :gap      "10px"
    :children [[panel-title "[multi-select ... ]"
                             "src/re_com/multi_select.cljs"
-                            "src/re_demo/multi_select.cljs"
-                            "v2.12.0"]
+                            "src/re_demo/multi_select.cljs"]
 
               [h-box
                :gap      "100px"
@@ -43,6 +42,7 @@
                             :width    "450px"
                             :children [[title2 "Notes"]
                                        [status-text "Stable"]
+                                       [new-in-version "v2.12.0"]
                                        [p "A compound component that allows the user to incrementally build up a selection from a list of choices, often a big list."]
                                        [p "Choices and selections can optionally be grouped. Filtering is available for big lists."]
                                        [p "Takes up a lot of screen real estate but can be placed in a popup."]
