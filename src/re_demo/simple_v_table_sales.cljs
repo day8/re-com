@@ -42,7 +42,8 @@
 
 (defn demo
   []
-  (let [max-rows?           (reagent/atom true)
+  (let [sales-rows          (reagent/atom sales-rows)
+        max-rows?           (reagent/atom true)
         max-rows            (reagent/atom 8)
         max-width?          (reagent/atom false)
         max-width           (reagent/atom 630)

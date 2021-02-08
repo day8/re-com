@@ -147,17 +147,18 @@
   []
   (let [;; rows are generated from the raw data of elements. Each row represents a period (1-7, plus two broken out rows
         ;; for 6 and 7).
-        model            (mapv
-                           (fn [elements-in-period]
-                             (reduce
-                               (fn [row {:keys [period group] :as element}]
-                                 (assoc row
-                                   :0                    period
-                                   :id                   (keyword (str period))
-                                   (keyword (str group)) element))
-                               {}
-                               elements-in-period))
-                           (partition-by :period (sort-by :period elements)))
+        model            (reagent/atom
+                           (mapv
+                             (fn [elements-in-period]
+                               (reduce
+                                 (fn [row {:keys [period group] :as element}]
+                                   (assoc row
+                                     :0                    period
+                                     :id                   (keyword (str period))
+                                     (keyword (str group)) element))
+                                 {}
+                                 elements-in-period))
+                             (partition-by :period (sort-by :period elements))))
 
         ;; column specifications are generated from a sequence of 0 to 18 (inclusive) representing the row header (0)
         ;; and all the groups (1-18).
