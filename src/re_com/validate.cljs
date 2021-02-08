@@ -71,7 +71,10 @@
   "Gathers together a list of args that have a validator and...
    returns true if all argument values are valid OR are just warnings (log warning to the console).
    Otherwise log an error to the console and return false.
-   Validation functions can return:
+   Validation function args (2 arities supported):
+         - Arg 1:  The arg to be validated (note that this is stripped from it's enclosing atom if required, this is always a value)
+         - Arg 2:  (optional) true if the arg is wrapped in an atom, otherwise false
+   Validation function return:
          - true:   validation success
          - false:  validation failed - use standard error message
          - map:    validation failed - includes two keys:
@@ -80,14 +83,17 @@
                                          :message - use this string in the message of the warning/error"
   [args-with-validators passed-args component-name]
   (let [validate-arg (fn [[_ v-arg-def]]
-                       (let [arg-name        (:name v-arg-def)
-                             arg-val         (deref-or-value-peek (arg-name passed-args)) ;; Automatically extract value if it's in an atom
-                             required?       (:required v-arg-def)
-                             validate-result ((:validate-fn v-arg-def) arg-val)
-                             log-msg-base    (str "Validation failed for argument '" arg-name "' in component '" component-name "': ")
-                             comp-name       (str " at " (component/component-name (reagent/current-component)))
-                             warning?        (= (:status validate-result) :warning)]
-                         ;(println (str "[" component-name "] " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 200)) "' => " validate-result))
+                       (let [arg-name          (:name v-arg-def)
+                             arg-val           (deref-or-value-peek (arg-name passed-args)) ;; Automatically extract value if it's in an atom
+                             validate-fn       (:validate-fn v-arg-def)
+                             validate-result   (if (= 1 (.-length validate-fn))
+                                                 (validate-fn arg-val) ;; Standard call, just pass the arg
+                                                 (validate-fn arg-val (satisfies? IDeref (arg-name passed-args)))) ;; Extended call, also wants to know if arg-val is an atom
+                             required?         (:required v-arg-def)
+                             log-msg-base      (str "Validation failed for argument '" arg-name "' in component '" component-name "': ")
+                             comp-name         (str " at " (component/component-name (reagent/current-component)))
+                             warning?          (= (:status validate-result) :warning)]
+                         ;(println (str "[" component-name "] v-arity(" (.-length validate-fn) ") " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 200)) "' => " validate-result))
                          (cond
                            (or (true? validate-result)
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
@@ -106,7 +112,7 @@
   "Calls three validation tests:
     - Are arg names valid?
     - Have all required args been passed?
-    - Specific valiadation function calls to check arg values if specified
+    - Specific validation function calls to check arg values if specified
    If they all pass, returns true.
    Normally used for a call to the {:pre...} at the beginning of a function"
   [arg-defs passed-args & component-name]
@@ -432,24 +438,20 @@
     (or (number? arg) (string? arg))))
 
 
-;; Test for atoms or atoms containing specific data types
-
-(defn atom?
-  "Returns true if the passed argument is an atom"
-  [arg]
-  (satisfies? IDeref arg))
+;; Test for atoms containing specific data types
+;; NOTE: These "test for atom" validation functions use the 2-arity option where the validation mechanism passes the value
+;;       of the arg as with the 1-arity version (derefed with peek) but also a boolean (arg-is-atom?) showing whether
+;;       the arg was passed inside an atom or not
 
 (defn vector-atom?
   "Returns true if the passed argument is an atom containing a vector"
-  [arg]
-  (vector? (deref-or-value-peek arg))
-  #_(and (atom? arg) (vector? (deref-or-value-peek arg)))) ;; TODO: [GR] The version than makes sure it's also an atom
+  [arg arg-is-atom?]
+  (and arg-is-atom? (vector? (deref-or-value-peek arg))))
 
 (defn map-atom?
   "Returns true if the passed argument is an atom containing a map"
-  [arg]
-  (map? (deref-or-value-peek arg))
-  #_(and (atom? arg) (map? (deref-or-value-peek arg)))) ;; TODO: [GR] The version than makes sure it's also an atom
+  [arg arg-is-atom?]
+  (and arg-is-atom? (map? (deref-or-value-peek arg))))
 
 
 ;; Test for specific data types either as values or contained in atoms, but WITHOUT derefing the atoms
