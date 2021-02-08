@@ -16,7 +16,9 @@
 
 #### Changed
 
-- TBA
+- `text/p` is now the same as `text/p-span` in that it uses a `[:span]` instead of `[:p]` element in its implementation.
+**Breaking** This will break any custom CSS selectors that target the `p` element, instead of classes etc. To fix, change
+  the CSS selector to target `span.rc-p`. The CSS class has not changed.
 
 #### v-table
 
