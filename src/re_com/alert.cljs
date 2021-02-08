@@ -109,7 +109,7 @@
 
 (def alert-list-args-desc
   (when include-args-desc?
-    [{:name :alerts       :required true                                 :type "vector of maps | atom" :validate-fn vector-of-maps? :description "alerts to render (in the order supplied). Can also be a list of maps"}
+    [{:name :alerts       :required true                                 :type "vector of maps | r/atom" :validate-fn vector-of-maps? :description "alerts to render (in the order supplied). Can also be a list of maps"}
      {:name :on-close     :required true                                 :type ":id -> nil"            :validate-fn fn?             :description [:span "called when the user clicks the close 'X' button. Passed the alert's " [:code ":id"]]}
      {:name :max-height   :required false                                :type "string"                :validate-fn string?         :description "CSS style for maximum list height. By default, it grows forever"}
      {:name :padding      :required false :default "4px"                 :type "string"                :validate-fn string?         :description "CSS padding within the alert"}

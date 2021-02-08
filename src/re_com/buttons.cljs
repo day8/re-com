@@ -405,15 +405,15 @@
 
 (def hyperlink-args-desc
   (when include-args-desc?
-    [{:name :label            :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup? :description "label/hiccup for the button"}
-     {:name :on-click         :required false                        :type "-> nil"                 :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
-     {:name :tooltip          :required false                        :type "string | hiccup"        :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-     {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-     {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
-     {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
-     {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
-     {:name :parts            :required false                        :type "map"                    :validate-fn (parts? hyperlink-parts) :description "See Parts section below."}]))
+    [{:name :label            :required true                         :type "string | hiccup | r/atom" :validate-fn string-or-hiccup? :description "label/hiccup for the button"}
+     {:name :on-click         :required false                        :type "-> nil"                   :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+     {:name :tooltip          :required false                        :type "string | hiccup"          :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+     {:name :tooltip-position :required false :default :below-center :type "keyword"                  :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :disabled?        :required false :default false         :type "boolean | r/atom"                                        :description "if true, the user can't click the button"}
+     {:name :class            :required false                        :type "string"                   :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
+     {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
+     {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
+     {:name :parts            :required false                        :type "map"                      :validate-fn (parts? hyperlink-parts) :description "See Parts section below."}]))
 
 (defn hyperlink
   "Renders an underlined text hyperlink component.
@@ -470,7 +470,7 @@
 
 (def hyperlink-href-parts-desc
   (when include-args-desc?
-    [{:name :wrapper   :level 0 :class "rc-hyperlink-href-wrapper"   :impl "[hyperlink-href]"       :notes "Outer wrapper of the hyperlink-href, tooltip (if any), everything."}
+    [{:name :wrapper   :level 0 :class "rc-hyperlink-href-wrapper"   :impl "[hyperlink-href]"  :notes "Outer wrapper of the hyperlink-href, tooltip (if any), everything."}
      {:name :tooltip   :level 1 :class "rc-hyperlink-href-tooltip"   :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
      {:type :legacy    :level 2 :class "rc-hyperlink-href"           :impl "[:a]"              :notes "The anchor."}]))
 
@@ -480,16 +480,16 @@
 
 (def hyperlink-href-args-desc
   (when include-args-desc?
-    [{:name :label            :required true                         :type "string | hiccup | atom" :validate-fn string-or-hiccup? :description "label/hiccup for the button"}
-     {:name :href             :required true                         :type "string | atom"          :validate-fn string-or-atom?   :description "if specified, the link target URL"}
-     {:name :target           :required false :default "_self"       :type "string | atom"          :validate-fn string-or-atom?   :description "one of \"_self\" or \"_blank\""}
-     {:name :tooltip          :required false                        :type "string | hiccup"        :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
-     {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-     {:name :disabled?        :required false :default false         :type "boolean | atom"                                        :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"                 :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
-     {:name :style            :required false                        :type "CSS style map"          :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
-     {:name :attr             :required false                        :type "HTML attr map"          :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
-     {:name :parts            :required false                        :type "map"                    :validate-fn (parts? hyperlink-href-parts) :description "See Parts section below."}]))
+    [{:name :label            :required true                         :type "string | hiccup | r/atom" :validate-fn string-or-hiccup? :description "label/hiccup for the button"}
+     {:name :href             :required true                         :type "string | r/atom"          :validate-fn string-or-atom?   :description "if specified, the link target URL"}
+     {:name :target           :required false :default "_self"       :type "string | r/atom"          :validate-fn string-or-atom?   :description "one of \"_self\" or \"_blank\""}
+     {:name :tooltip          :required false                        :type "string | hiccup"          :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
+     {:name :tooltip-position :required false :default :below-center :type "keyword"                  :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :disabled?        :required false :default false         :type "boolean | r/atom"                                        :description "if true, the user can't click the button"}
+     {:name :class            :required false                        :type "string"                   :validate-fn string?           :description "CSS class names, space separated (applies to the hyperlink, not the wrapping div)"}
+     {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?        :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
+     {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
+     {:name :parts            :required false                        :type "map"                      :validate-fn (parts? hyperlink-href-parts) :description "See Parts section below."}]))
 
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.

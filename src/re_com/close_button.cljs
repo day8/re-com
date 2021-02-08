@@ -27,7 +27,7 @@
      {:name :tooltip      :required false                   :type "string | hiccup"  :validate-fn string-or-hiccup?  :description "what to show in the tooltip"}
      {:name :top-offset   :required false                   :type "number"           :validate-fn number?            :description "offset the 'x' button text up or down from it's default position in the containing div (can be positive or negative)"}
      {:name :left-offset  :required false                   :type "number"           :validate-fn number?            :description "offset the 'x' button text left or right from it's default position in the containing div (can be positive or negative)"}
-     {:name :disabled?    :required false  :default false   :type "boolean | atom"                                   :description "if true, the user can't click the button"}
+     {:name :disabled?    :required false  :default false   :type "boolean | r/atom"                                 :description "if true, the user can't click the button"}
      {:name :class        :required false                   :type "string"           :validate-fn string?            :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
      {:name :style        :required false                   :type "CSS style map"    :validate-fn css-style?         :description "CSS styles (applies to the button, not the wrapping div)"}
      {:name :attr         :required false                   :type "HTML attr map"    :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}

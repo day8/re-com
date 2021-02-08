@@ -17,9 +17,9 @@
 
 (def checkbox-parts-desc
   (when include-args-desc?
-    [{:name :wrapper   :level 0 :class "rc-checkbox-wrapper"   :impl "[checkbox]"       :notes "Outer wrapper of the checkbox, label, everything."}
-     {:type :legacy   :level 1 :class "rc-checkbox"   :impl "[:input]" :notes "The actual checkbox."}
-     {:type :legacy :name-label [:span "Use " [:code ":label-class"] " or " [:code ":label-style"] " instead."] :level 1 :class "rc-checkbox-label" :impl "[:span]"}]))
+    [{:name :wrapper :level 0 :class "rc-checkbox-wrapper" :impl "[checkbox]" :notes "Outer wrapper of the checkbox, label, everything."}
+     {:type :legacy  :level 1 :class "rc-checkbox"         :impl "[:input]"   :notes "The actual checkbox."}
+     {:type :legacy  :level 1 :class "rc-checkbox-label"   :impl "[:span]"    :name-label [:span "Use " [:code ":label-class"] " or " [:code ":label-style"] " instead."]}]))
 
 (def checkbox-parts
   (when include-args-desc?
@@ -27,10 +27,10 @@
 
 (def checkbox-args-desc
   (when include-args-desc?
-    [{:name :model       :required true                 :type "boolean | atom"                                  :description "holds state of the checkbox when it is called"}
+    [{:name :model       :required true                 :type "boolean | r/atom"                                :description "holds state of the checkbox when it is called"}
      {:name :on-change   :required true                 :type "boolean -> nil"   :validate-fn fn?               :description "called when the checkbox is clicked. Passed the new value of the checkbox"}
      {:name :label       :required false                :type "string | hiccup"  :validate-fn string-or-hiccup? :description "the label shown to the right"}
-     {:name :disabled?   :required false :default false :type "boolean | atom"                                  :description "if true, user interaction is disabled"}
+     {:name :disabled?   :required false :default false :type "boolean | r/atom"                                :description "if true, user interaction is disabled"}
      {:name :label-class :required false                :type "string"           :validate-fn string?           :description "CSS class names (applies to the label)"}
      {:name :label-style :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the label)"}
      {:name :class       :required false                :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the checkbox, not the wrapping div)"}

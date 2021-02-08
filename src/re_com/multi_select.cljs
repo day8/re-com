@@ -197,34 +197,34 @@
 
 (def multi-select-parts-desc
   (when include-args-desc?
-    [{:type :legacy                    :level 0 :class "rc-multi-select"           :impl "[multi-select]"}
-     {:name :container                 :level 1 :class "rc-multi-select-container" :impl "[h-box]"}
-     {:name :left                      :level 2 :class "rc-multi-select-left"      :impl "[v-box]"}
-     {:name :left-label-container      :level 3 :class "rc-multi-select-left-label-container" :impl "[h-box]"}
-     {:name :left-label                :level 4 :class "rc-multi-select-left-label" :impl "[:span]"}
-     {:name :left-label-item-count     :level 4 :class "rc-multi-select-left-label-item-count" :impl "[:span]"}
-     {:name :left-list-box             :level 3 :class "rc-multi-select-left-list-box" :impl "[list-box]"}
-     {:name :filter-text-box           :level 3 :class "rc-multi-select-filter-text-box" :impl "[h-box]"}
-     {:name :filter-input-text         :level 4 :class "rc-multi-select-filter-input-text" :impl "[input-text]"}
-     {:name :filter-reset-button       :level 4 :class "rc-multi-select-filter-reset-button" :impl "[close-button]"}
-     {:name :left-filter-result-count  :level 3 :class "rc-multi-select-left-filter-result-count" :impl "[label]"}
-     {:name :middle-container          :level 2 :class "rc-multi-select-middle-container" :impl "[v-box]"}
-     {:name :middle-top-spacer         :level 3 :class "rc-multi-select-middle-top-spacer" :impl "[box]"}
-     {:name :middle                    :level 3 :class "rc-multi-select-middle" :impl "[v-box]"}
-     {:name :include-all-button        :level 4 :class "rc-multi-select-include-all-button" :impl "[button]"}
-     {:name :include-selected-button   :level 4 :class "rc-multi-select-include-selected-button" :impl "[button]"}
-     {:name :exclude-selected-button   :level 4 :class "rc-multi-select-exclude-selected-button" :impl "[button]"}
-     {:name :exclude-all-button        :level 4 :class "rc-multi-select-exclude-all-button" :impl "[button]"}
-     {:name :middle-bottom-spacer      :level 3 :class "rc-multi-select-middle-bottom-spacer" :impl "[box]"}
-     {:name :right                     :level 2 :class "rc-multi-select-right" :impl "[v-box]"}
-     {:name :warning-message           :level 3 :class "rc-multi-select-warning-message" :impl "[label]"}
-     {:name :right-label-container     :level 3 :class "rc-multi-select-right-label-container" :impl "[h-box]"}
-     {:name :right-label               :level 4 :class "rc-multi-select-right-label" :impl "[:span]"}
-     {:name :right-label-item-count    :level 4 :class "rc-multi-select-right-label-item-count" :impl "[:span]"}
-     {:name :right-list-box            :level 3 :class "rc-multi-select-right-list-box" :impl "[list-box]"}
-     {:name :filter-text-box           :level 3 :class "rc-multi-select-filter-text-box" :impl "[h-box]"}
-     {:name :filter-input-text         :level 4 :class "rc-multi-select-filter-input-text" :impl "[input-text]"}
-     {:name :filter-reset-button       :level 4 :class "rc-multi-select-filter-reset-button" :impl "[close-button]"}
+    [{:type :legacy                    :level 0 :class "rc-multi-select"                           :impl "[multi-select]"}
+     {:name :container                 :level 1 :class "rc-multi-select-container"                 :impl "[h-box]"}
+     {:name :left                      :level 2 :class "rc-multi-select-left"                      :impl "[v-box]"}
+     {:name :left-label-container      :level 3 :class "rc-multi-select-left-label-container"      :impl "[h-box]"}
+     {:name :left-label                :level 4 :class "rc-multi-select-left-label"                :impl "[:span]"}
+     {:name :left-label-item-count     :level 4 :class "rc-multi-select-left-label-item-count"     :impl "[:span]"}
+     {:name :left-list-box             :level 3 :class "rc-multi-select-left-list-box"             :impl "[list-box]"}
+     {:name :filter-text-box           :level 3 :class "rc-multi-select-filter-text-box"           :impl "[h-box]"}
+     {:name :filter-input-text         :level 4 :class "rc-multi-select-filter-input-text"         :impl "[input-text]"}
+     {:name :filter-reset-button       :level 4 :class "rc-multi-select-filter-reset-button"       :impl "[close-button]"}
+     {:name :left-filter-result-count  :level 3 :class "rc-multi-select-left-filter-result-count"  :impl "[label]"}
+     {:name :middle-container          :level 2 :class "rc-multi-select-middle-container"          :impl "[v-box]"}
+     {:name :middle-top-spacer         :level 3 :class "rc-multi-select-middle-top-spacer"         :impl "[box]"}
+     {:name :middle                    :level 3 :class "rc-multi-select-middle"                    :impl "[v-box]"}
+     {:name :include-all-button        :level 4 :class "rc-multi-select-include-all-button"        :impl "[button]"}
+     {:name :include-selected-button   :level 4 :class "rc-multi-select-include-selected-button"   :impl "[button]"}
+     {:name :exclude-selected-button   :level 4 :class "rc-multi-select-exclude-selected-button"   :impl "[button]"}
+     {:name :exclude-all-button        :level 4 :class "rc-multi-select-exclude-all-button"        :impl "[button]"}
+     {:name :middle-bottom-spacer      :level 3 :class "rc-multi-select-middle-bottom-spacer"      :impl "[box]"}
+     {:name :right                     :level 2 :class "rc-multi-select-right"                     :impl "[v-box]"}
+     {:name :warning-message           :level 3 :class "rc-multi-select-warning-message"           :impl "[label]"}
+     {:name :right-label-container     :level 3 :class "rc-multi-select-right-label-container"     :impl "[h-box]"}
+     {:name :right-label               :level 4 :class "rc-multi-select-right-label"               :impl "[:span]"}
+     {:name :right-label-item-count    :level 4 :class "rc-multi-select-right-label-item-count"    :impl "[:span]"}
+     {:name :right-list-box            :level 3 :class "rc-multi-select-right-list-box"            :impl "[list-box]"}
+     {:name :filter-text-box           :level 3 :class "rc-multi-select-filter-text-box"           :impl "[h-box]"}
+     {:name :filter-input-text         :level 4 :class "rc-multi-select-filter-input-text"         :impl "[input-text]"}
+     {:name :filter-reset-button       :level 4 :class "rc-multi-select-filter-reset-button"       :impl "[close-button]"}
      {:name :right-filter-result-count :level 3 :class "rc-multi-select-right-filter-result-count" :impl "[label]"}]))
 
 (def multi-select-parts
@@ -233,20 +233,20 @@
 
 (def multi-select-args-desc
   (when include-args-desc?
-    [{:name :choices            :required true                      :type "vector of maps | atom"    :validate-fn validate/vector-of-maps?   :description [:span "Each map represents a choice. Values corresponding to id, label and, optionally, a group, are extracted by the functions " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]  ". See below."]}
+    [{:name :choices            :required true                      :type "vector of maps | r/atom"  :validate-fn validate/vector-of-maps?   :description [:span "Each map represents a choice. Values corresponding to id, label and, optionally, a group, are extracted by the functions " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]  ". See below."]}
      {:name :id-fn              :required false :default :id        :type "map -> anything"          :validate-fn ifn?                       :description [:span "a function taking one argument (a map) and returns the unique identifier for that map. Called for each element in " [:code ":choices"]]}
      {:name :label-fn           :required false :default :label     :type "map -> string | hiccup"   :validate-fn ifn?                       :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
      {:name :group-fn           :required false :default :group     :type "map -> string | hiccup"   :validate-fn ifn?                       :description [:span "a function taking one argument (a map) and returns the group identifier for that map. Called for each element in " [:code ":choices"]]}
      {:name :sort-fn            :required false :default " compare"  :type "map, map -> integer"     :validate-fn ifn?                       :description [:span "The comparator function used with " [:code "cljs.core/sort-by"] " to sort choices."]}
-     {:name :model              :required true                      :type "a set of ids | atom"                                              :description [:span "a set of the ids for currently selected choices. If nil, see " [:code ":placeholder"] "."]}
-     {:name :required?          :required false :default false      :type "boolean | atom"                                                   :description "when true, at least one item must be selected"}
+     {:name :model              :required true                      :type "a set of ids | r/atom"                                            :description [:span "a set of the ids for currently selected choices. If nil, see " [:code ":placeholder"] "."]}
+     {:name :required?          :required false :default false      :type "boolean | r/atom"                                                 :description "when true, at least one item must be selected"}
      {:name :max-selected-items :required false :default nil        :type "integer"                                                          :description "maximum number of items that can be selected"}
      {:name :left-label         :required false                     :type "string | hiccup"          :validate-fn string-or-hiccup?          :description "label displayed above the left list"}
      {:name :right-label        :required false                     :type "string | hiccup"          :validate-fn string-or-hiccup?          :description "label displayed above the right list"}
      {:name :on-change          :required true                      :type "id -> nil"                :validate-fn fn?                        :description [:span "a function that will be called when the selection changes. Passed the set of selected ids. See " [:code ":model"] "."]}
-     {:name :disabled?          :required false :default false      :type "boolean | atom"                                                   :description "if true, no user selection is allowed"}
-     {:name :filter-box?        :required false :default false      :type "boolean | atom"                                                   :description "if true, a filter text field is placed at the bottom of the component"}
-     {:name :regex-filter?      :required false :default false      :type "boolean | atom"                                                   :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
+     {:name :disabled?          :required false :default false      :type "boolean | r/atom"                                                 :description "if true, no user selection is allowed"}
+     {:name :filter-box?        :required false :default false      :type "boolean | r/atom"                                                 :description "if true, a filter text field is placed at the bottom of the component"}
+     {:name :regex-filter?      :required false :default false      :type "boolean | r/atom"                                                 :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
      {:name :placeholder        :required false                     :type "string"                   :validate-fn string?                    :description "background text when no selection"} ;; TODO this is actually broken, does not display background text
      {:name :width              :required false :default "100%"     :type "string"                   :validate-fn string?                    :description "the CSS width. e.g.: \"500px\" or \"20em\""}
      {:name :height             :required false                     :type "string"                   :validate-fn string?                    :description "the specific height of the component"}
