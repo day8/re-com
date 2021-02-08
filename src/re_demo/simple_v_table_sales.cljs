@@ -193,12 +193,13 @@
                                                                                                            (> 5000 sales 2000) "#FFDC00"
                                                                                                            (> 7500 sales 5000) "#01FF70"
                                                                                                            (> sales 7500)      "#2ECC40")}))
+
                                                        :parts                     {:simple-wrapper {:style {:flex "1 1 auto"}}} ;; TODO: [GR] Required to make simple-v-table height be constrained by it's parent - possibly make this the default behaviour
-                                                       :columns                   [{:id :id     :header-label "Code"   :row-label-fn :id                 :width 60  :align "left"  :vertical-align "middle"}
-                                                                                   {:id :region :header-label "Region" :row-label-fn :region             :width 100 :align "left"  :vertical-align "middle"}
-                                                                                   {:id :name   :header-label "Name"   :row-label-fn :person             :width 100 :align "left"  :vertical-align "middle"}
-                                                                                   {:id :email  :header-label "Email"  :row-label-fn email-row-label-fn  :width 200 :align "left"  :vertical-align "middle"}
-                                                                                   {:id :method :header-label "Method" :row-label-fn method-row-label-fn :width 100 :align "right" :vertical-align "middle"}
-                                                                                   {:id :sales  :header-label "Sales"  :row-label-fn :sales              :width 100 :align "right" :vertical-align "middle"}
-                                                                                   {:id :units  :header-label "Units"  :row-label-fn :units              :width 100 :align "right" :vertical-align "middle"}]
+                                                       :columns                   [{:id :id     :header-label "Code"   :row-label-fn :id                   :width 60  :align "left"  :vertical-align "middle"}
+                                                                                   {:id :region :header-label "Region" :row-label-fn :region               :width 100 :align "left"  :vertical-align "middle"}
+                                                                                   {:id :name   :header-label "Name"   :row-label-fn :person               :width 100 :align "left"  :vertical-align "middle" :sort-by {}}
+                                                                                   {:id :email  :header-label "Email"  :row-label-fn email-row-label-fn    :width 200 :align "left"  :vertical-align "middle"}
+                                                                                   {:id :method :header-label "Method" :row-label-fn method-row-label-fn   :width 100 :align "right" :vertical-align "middle"}
+                                                                                   {:id :sales  :header-label "Sales"  :row-label-fn #(str "$" (:sales %)) :width 100 :align "right" :vertical-align "middle" :sort-by {:key-fn :sales}}
+                                                                                   {:id :units  :header-label "Units"  :row-label-fn :units                :width 100 :align "right" :vertical-align "middle" :sort-by true}]
                                                        :model                     sales-rows]]]]]]]]])))
