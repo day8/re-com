@@ -75,7 +75,9 @@
                    (get-in parts [:list-group-item :attr]))
      :child [radio-button
              :class       (str "rc-selection-list-radio-button " (get-in parts [:radio-button :class]))
-             :style       (get-in parts [:radio-button :style] {})
+             :style       (merge (get-in parts [:radio-button :style] {})
+                                 (when disabled?
+                                       {:pointer-events "none"}))
              :attr        (get-in parts [:radio-button :attr] {})
              :model       (first selections)
              :value       item-id
@@ -159,10 +161,7 @@
      :class  (str "rc-selection-list "
                   (when (deref-or-value disabled?) "rc-disabled")
                   class)
-     :style (merge
-              (when (deref-or-value disabled?)
-                {:pointer-events "none"})
-              style)
+     :style  style
      :attr   attr
      :radius "4px"
      :border (when hide-border? "none")

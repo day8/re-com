@@ -107,9 +107,11 @@
                         (when @*mouse-over? "mouseover"))]
         [:li.group-result
          {:class           class
-          :style           {:padding-left "6px"
-                            :cursor       (when-not disabled? "pointer")
-                            :color        (if selected? "white" "#444")}
+          :style           (merge {:padding-left "6px"
+                                   :cursor       (when-not disabled? "pointer")
+                                   :color        (if selected? "white" "#444")}
+                                  (when disabled?
+                                    {:pointer-events "none"}))
           :on-mouse-over   (handler-fn (reset! *mouse-over? true))
           :on-mouse-out    (handler-fn (reset! *mouse-over? false))
           :on-click        (when-not disabled? (handler-fn (click-callback id true))) ;; true = group-heading item selected
@@ -131,7 +133,8 @@
         [:li
          {:class           (str "active-result group-option " class)
           :style           (merge (when group-selected? {:background-color "hsl(208, 56%, 92%)"})
-                                  (when disabled? {:cursor "default"}))
+                                  (when disabled? {:cursor         "default"
+                                                   :pointer-events "none"}))
           :on-mouse-over   (handler-fn (reset! *mouse-over? true))
           :on-mouse-out    (handler-fn (reset! *mouse-over? false))
           :on-click        (when-not disabled? (handler-fn (click-callback id false))) ;; false = group-heading item NOT selected
@@ -169,11 +172,9 @@
     [box/box
      :size  "1"
      :class (if disabled? "bm-multi-select-list-disabled" "bm-multi-select-list")
-     :style (merge {:background-color "#fafafa"
-                    :border           "1px solid #ccc"
-                    :border-radius    "4px"}
-                   (when disabled?
-                     {:pointer-events "none"}))
+     :style {:background-color "#fafafa"
+             :border           "1px solid #ccc"
+             :border-radius    "4px"}
      :child [:ul.chosen-results
              {:style {:max-height "none"}} ;; Override the 240px in the class
              (if (-> items count pos?)
