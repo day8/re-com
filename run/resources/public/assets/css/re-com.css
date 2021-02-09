@@ -670,6 +670,14 @@ fieldset[disabled] .btn {
     cursor: pointer;
 }
 
+.rc-datepicker-selectable path {
+    fill: #357ebd;
+}
+
+.rc-datepicker-disabled path {
+    fill: #999;
+}
+
 .rc-datepicker-selectable:hover path {
     fill: #FFF;
 }

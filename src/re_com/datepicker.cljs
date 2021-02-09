@@ -185,7 +185,7 @@
                         table-div]]]])
 
 (defn- prev-year-icon
-  [& {:keys [fill parts]}]
+  [& {:keys [parts]}]
   [:svg
    (merge {:class   (str "rc-datepicker-prev-year-icon " (get-in parts [:prev-year-icon :class]))
            :style   (get-in parts [:prev-year-icon :style])
@@ -193,11 +193,13 @@
            :viewBox "0 0 24 24"
            :width   "24"}
           (get-in parts [:prev-year-icon :attr]))
-   [:path {:fill fill
-           :d    "M14 7l-5 5 5 5V7z"}]])
+   [:g
+    {:transform "translate(1.5)"}
+    [:path {:d "m 16.793529,7.4382353 -1.41,-1.41 -5.9999996,5.9999997 5.9999996,6 1.41,-1.41 -4.58,-4.59 z"}]
+    [:path {:d "m 10.862647,7.4429412 -1.4100003,-1.41 -6,5.9999998 6,6 1.4100003,-1.41 -4.5800003,-4.59 z"}]]])
 
 (defn- prev-month-icon
-  [& {:keys [fill parts]}]
+  [& {:keys [parts]}]
   [:svg
    (merge {:class   (str "rc-datepicker-prev-month-icon " (get-in parts [:prev-month-icon :class]))
            :style   (get-in parts [:prev-month-icon :style])
@@ -205,11 +207,10 @@
            :viewBox "0 0 24 24"
            :width   "24"}
           (get-in parts [:prev-month-icon :attr]))
-   [:path {:fill fill
-           :d    "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"}]])
+   [:path {:d    "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"}]])
 
 (defn- next-month-icon
-  [& {:keys [fill parts]}]
+  [& {:keys [parts]}]
   [:svg
    (merge {:class   (str "rc-datepicker-next-month-icon " (get-in parts [:next-month-icon :class]))
            :style   (get-in parts [:next-month-icon :style])
@@ -217,11 +218,10 @@
            :viewBox "0 0 24 24"
            :width   "24"}
           (get-in parts [:next-month-icon :attr]))
-   [:path {:fill fill
-           :d    "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"}]])
+   [:path {:d    "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"}]])
 
 (defn- next-year-icon
-  [& {:keys [fill parts]}]
+  [& {:keys [parts]}]
   [:svg
    (merge {:class   (str "rc-datepicker-next-year-icon " (get-in parts [:next-year-icon :class]))
            :style   (get-in parts [:next-year-icon :style])
@@ -229,8 +229,10 @@
            :viewBox "0 0 24 24"
            :width   "24"}
           (get-in parts [:next-year-icon :attr]))
-   [:path {:fill fill
-           :d    "M10 17l5-5-5-5v10z"}]])
+   [:g
+    {:transform "translate(-1.5)"}
+    [:path {:d "m 8.5882353,6 -1.41,1.41 4.5799997,4.59 -4.5799997,4.59 1.41,1.41 5.9999997,-6 z"}]
+    [:path {:d "m 14.547353,5.9623529 -1.41,1.41 4.58,4.5900001 -4.58,4.59 1.41,1.41 6,-6 z"}]]])
 
 (defn- prev-year-nav
   [& {:keys [display-month minimum disabled? parts]}]
@@ -248,7 +250,6 @@
         :align   :center
         :justify :center
         :child  [prev-year-icon
-                 :fill  (if prev-year-enabled? "#357ebd" "#999")
                  :parts parts]]
        [line]])))
 
@@ -268,7 +269,6 @@
         :align   :center
         :justify :center
         :child   [prev-month-icon
-                  :fill  (if prev-month-enabled? "#357ebd" "#999")
                   :parts parts]]
        [line]])))
 
@@ -289,7 +289,6 @@
         :justify :center
         :width   "20px"
         :child   [next-month-icon
-                  :fill  (if next-month-enabled? "#357ebd" "#999")
                   :parts parts]]])))
 
 (defn- next-year-nav
@@ -309,7 +308,6 @@
         :justify :center
         :width   "20px"
         :child   [next-year-icon
-                  :fill  (if next-year-enabled? "#357ebd" "#999")
                   :parts parts]]])))
 
 (defn- nav
