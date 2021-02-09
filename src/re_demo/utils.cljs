@@ -76,7 +76,7 @@
   "given some version text, return a component that displays 'new in version...'"
   [version style]
   [:span
-   [:span.bold "New in Version: "]
+   [:span.bold "New in "]
    [:span {:style style} version]])
 
 (defn material-design-hyperlink
