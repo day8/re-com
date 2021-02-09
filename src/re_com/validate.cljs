@@ -437,6 +437,11 @@
   (let [arg (deref-or-value-peek arg)]
     (or (number? arg) (string? arg))))
 
+(defn ifn-or-nil?
+  "Returns true if the passed argument is a function, keyword or nil, otherwise false/error"
+  [arg]
+  (or (nil? arg) (ifn? arg) ))
+
 
 ;; Test for atoms containing specific data types
 ;; NOTE: These "test for atom" validation functions use the 2-arity option where the validation mechanism passes the value

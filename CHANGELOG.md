@@ -57,6 +57,7 @@ match the associated CSS property. Fix the documentation and demos of the same.
 ```
 - **Breaking**: Rename any `:parts` args that match  `:v-table-*` to `:*` (in other words, remove `v-table-`).
 - **Breaking**: Rename any `:parts` args that match  `:*-col-*` to `:*-column-*`.
+- **Breaking**: `:id-fn` has been renamed `:key-fn` and its default has been changed from `:id` to `nil`. If you leave it blank or pass nil, it will use the row's internally generated 0-based row-index instead of :key-fn
 
 
 #### Removed

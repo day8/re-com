@@ -8,7 +8,7 @@
     [re-com.config      :refer [debug? include-args-desc?]]
     [re-com.box         :as    box]
     [re-com.util        :refer [deref-or-value]]
-    [re-com.validate    :refer [vector-atom? map-atom? parts?]]
+    [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]
     [re-com.dmm-tracker :refer [make-dmm-tracker captureMouseMoves]]))
 
 ;; The public API for this component is called table (see last component in this file)
@@ -191,12 +191,12 @@
 
   Arguments:
    - row-header-renderer function that knows how to render row-headers (will be passed the 0-based row-index and row to get the data from)
-   - id-fn               keyword or function that returns the id out of the row map/object
+   - key-fn              function/keyword that returns a unique id out of the row map/object, or nil to use the row's 0-based row-index
    - top-row-index       the 0-based index of the row that is currently at the top of the viewport (for virtual mode)
    - rows                a vector of row maps (or objects) to render the row-headers from
    - scroll-y            current horizontal scrollbar position in px
   "
-  [row-header-renderer id-fn top-row-index rows scroll-y class style attr]
+  [row-header-renderer key-fn top-row-index rows scroll-y class style attr]
   [box/v-box
    :class    (str "rc-v-table-row-header-content rc-v-table-content " class)
    :style    (merge {:margin-top (px scroll-y :negative)}
@@ -204,14 +204,17 @@
    :attr     attr
    :children (map
                (fn [index row]
-                 ^{:key (id-fn row)} [row-header-renderer index row])
+                 ^{:key (if key-fn
+                          (key-fn row)
+                          index)}
+                 [row-header-renderer index row])
                (iterate inc top-row-index)
                rows)])
 
 
 (defn row-header-viewport
   "Render section 2 - the viewport component (which renders the content component as its child)"
-  [row-header-renderer id-fn top-row-index rows scroll-y
+  [row-header-renderer key-fn top-row-index rows scroll-y
    row-header-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-height content-rows-height
    class style attr sel-class sel-style sel-attr content-class content-style content-attr]
@@ -231,7 +234,7 @@
    :children [(when selection-allowed?
                 [selection-renderer sel-class sel-style sel-attr]) ;; selection rectangle component
               (if row-header-renderer
-                [row-header-content row-header-renderer id-fn top-row-index rows scroll-y content-class content-style content-attr] ;; content component
+                [row-header-content row-header-renderer key-fn top-row-index rows scroll-y content-class content-style content-attr] ;; content component
                 "")]])
 
 
@@ -303,13 +306,13 @@
 
   Arguments:
    - row-renderer  function that knows how to render rows (will be passed the 0-based row-index and row to render)
-   - id-fn         keyword or function that returns the id out of the row map/object
+   - key-fn        function/keyword that returns a unique id out of the row map/object, or nil to use the row's 0-based row-index
    - top-row-index the 0-based index of the row that is currently at the top of the viewport (for virtual mode)
    - rows          a vector of row maps (or objects) to render
    - scroll-x      current horizontal scrollbar position in px
    - scroll-y      current horizontal scrollbar position in px
   "
-  [row-renderer id-fn top-row-index rows scroll-x scroll-y class style attr]
+  [row-renderer key-fn top-row-index rows scroll-x scroll-y class style attr]
   [box/v-box
    :class    (str "rc-v-table-row-content rc-v-table-content " class)
    :style    (merge {:margin-left (px scroll-x :negative)
@@ -318,14 +321,17 @@
    :attr     attr
    :children (map
                (fn [index row]
-                 ^{:key (id-fn row)} [row-renderer index row])
+                 ^{:key (if key-fn
+                          (key-fn row)
+                          index)}
+                 [row-renderer index row])
                (iterate inc top-row-index)
                rows)])
 
 
 (defn row-viewport
   "Render section 5 - the viewport component (which renders the content component as its child)"
-  [row-renderer id-fn top-row-index rows scroll-x scroll-y
+  [row-renderer key-fn top-row-index rows scroll-x scroll-y
    row-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-height row-viewport-width row-viewport-id content-rows-height content-rows-width
    class style attr sel-class sel-style sel-attr content-class content-style content-attr]
@@ -346,7 +352,7 @@
    :height   (when row-viewport-height (px row-viewport-height))
    :children [(when selection-allowed?
                 [selection-renderer sel-class sel-style sel-attr]) ;; selection rectangle component
-              [row-content row-renderer id-fn top-row-index rows scroll-x scroll-y content-class content-style content-attr]]]) ;; content component
+              [row-content row-renderer key-fn top-row-index rows scroll-x scroll-y content-class content-style content-attr]]]) ;; content component
 
 
 ;; ================================================================================== SECTION 6 - column-footers
@@ -408,12 +414,12 @@
 
   Arguments:
    - row-footer-renderer function that knows how to render row-footers (will be passed the 0-based row-index and row to get the data from)
-   - id-fn               keyword or function that returns the id out of the row map/objects
+   - key-fn              function/keyword that returns a unique id out of the row map/object, or nil to use the row's 0-based row-index
    - top-row-index       the 0-based index of the row that is currently at the top of the viewport (for virtual mode)
    - rows                a vector of row maps (or objects) to render the row-footers from
    - scroll-y            current horizontal scrollbar position in px
   "
-  [row-footer-renderer id-fn top-row-index rows scroll-y class style attr]
+  [row-footer-renderer key-fn top-row-index rows scroll-y class style attr]
   [box/v-box
    :class    (str "rc-v-table-row-footer-content rc-v-table-content " class)
    :style    (merge {:margin-top (px scroll-y :negative)}
@@ -421,14 +427,17 @@
    :attr     attr
    :children (map
                (fn [index row]
-                 ^{:key (id-fn row)} [row-footer-renderer index row])
+                 ^{:key (if key-fn
+                          (key-fn row)
+                          index)}
+                 [row-footer-renderer index row])
                (iterate inc top-row-index)
                rows)])
 
 
 (defn row-footer-viewport
   "Render section 8 - the viewport component (which renders the content component as its child)"
-  [row-footer-renderer id-fn top-row-index rows scroll-y
+  [row-footer-renderer key-fn top-row-index rows scroll-y
    row-viewport-height content-rows-height
    class style attr content-class content-style content-attr]
   [box/box ;; viewport component
@@ -440,7 +449,7 @@
    :size   (if row-viewport-height "none" "auto")
    :height (when row-viewport-height (px row-viewport-height))
    :child  (if row-footer-renderer
-             [row-footer-content row-footer-renderer id-fn top-row-index rows scroll-y content-class content-style content-attr] ;; content component
+             [row-footer-content row-footer-renderer key-fn top-row-index rows scroll-y content-class content-style content-attr] ;; content component
              "")])
 
 
@@ -494,8 +503,8 @@
 
 (def v-table-args-desc
   (when include-args-desc?
-    [{:name :model                      :required true                 :type "atom containing vec of maps" :validate-fn vector-atom?           :description [:span "One element for each row displayed in the table. Typically, a vector of maps, but can be a seq of anything, with your functions like " [:code ":id-fn"] " extracting values."]}
-     {:name :id-fn                      :required false :default :id   :type "map -> anything"             :validate-fn ifn?                   :description [:span "A function (or keyword). Given an element of " [:code ":model"] ", it will return its unique identifier."]}
+    [{:name :model                      :required true                 :type "atom containing vec of maps" :validate-fn vector-atom?           :description [:span "One element for each row displayed in the table. Typically, a vector of maps, but can be a seq of anything, with your functions like " [:code ":key-fn"] " extracting values."]}
+     {:name :key-fn                     :required false :default "nil" :type "map -> anything"             :validate-fn ifn-or-nil?            :description [:span "A function/keyword or nil. Given an element of " [:code ":model"] ", it should return its unique identifier which is used by Reagent as a unique id. If not specified or nil passed, the element's 0-based row-index will be used"]}
      {:name :virtual?                   :required false :default true  :type "boolean"                                                         :description [:span "when true, only those rows that are visible are rendered to the DOM. Otherwise DOM will be generated for all rows, which might be prohibitive if there are a large number of rows."]}
 
      {:name :row-height                 :required true                 :type "integer"                     :validate-fn number?                :description "px height of each row, in sections 2, 5 and 8."}
@@ -584,14 +593,15 @@
 
   Arguments:
 
-   - model                    [mandatory atom vector of maps]
-                              The data to be displayed, consisting of rows. Each row is a map
-                              Rows MUST contain a unique id (specified via :id-fn arg)
+   - model                    [mandatory atom containing vector of maps (or other data structures)]
+                              The data to be displayed, consisting of rows. Each row is normally a map but could be anything)
+                              Rows MUST contain a unique id (specified via :key-fn arg)
                               They are passed to the row-renderer (section 5), row-header-renderer (section 2) and row-footer-renderer (section 8)
                               NOTE: data for sections 1, 3, 4, 6, 7 and 9 are not included in model
 
-   - id-fn                    [optional fn or keyword, default = :id]
-                              A row is passed to id-fn and it returns the unique identifier for that row
+   - key-fn                   [optional fn or keyword to extract a unique id from the row data, or not specified/nil to indicate
+                              that v-table should use the internally generated 0-based row-id]
+                              A row is passed to key-fn and it returns the unique identifier for that row
 
    - virtual?                 [optional bool, default = true]
                               When true, use virtual feature where only a screen-full (viewport) of rows are rendered at any one time
@@ -1036,7 +1046,7 @@
 
          :reagent-render
                         (fn v-table-renderer
-                          [& {:keys [virtual? remove-empty-row-space? id-fn max-width
+                          [& {:keys [virtual? remove-empty-row-space? key-fn max-width
                                      ;; Section 1
                                      top-left-renderer
                                      ;; Section 2
@@ -1058,7 +1068,7 @@
                                      ;; Others
                                      scroll-rows-into-view scroll-columns-into-view
                                      class parts]
-                              :or   {virtual? true remove-empty-row-space? true id-fn :id}
+                              :or   {virtual? true remove-empty-row-space? true key-fn nil}
                               :as   args}]
                           ;(println "v-table-renderer") ;; TODO: REMOVE
                           {:pre [(validate-args-macro v-table-args-desc args "v-table")]}
@@ -1153,7 +1163,7 @@
 
                                                   [row-header-viewport
                                                    row-header-renderer
-                                                   id-fn
+                                                   key-fn
                                                    @top-row-index
                                                    (if virtual? @virtual-rows @model)           ;; rows
                                                    (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
@@ -1225,7 +1235,7 @@
 
                                                   [row-viewport
                                                    row-renderer
-                                                   id-fn
+                                                   key-fn
                                                    @top-row-index
                                                    (if virtual? @virtual-rows @model)           ;; rows
                                                    @scroll-x
@@ -1303,7 +1313,7 @@
 
                                                   [row-footer-viewport
                                                    row-footer-renderer
-                                                   id-fn
+                                                   key-fn
                                                    @top-row-index
                                                    (if virtual? @virtual-rows @model)            ;; rows
                                                    (if virtual? @virtual-scroll-y @scroll-y)    ;; scroll-y
