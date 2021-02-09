@@ -1,5 +1,5 @@
 (ns re-demo.v-table-demo
-  (:require [re-com.core        :refer [h-box gap v-box box v-table show-row-data-on-alt-click
+  (:require [re-com.core        :refer [h-box gap v-box box v-table show-row-data-on-alt-click line
                                         p label popover-content-wrapper] :refer-macros [handler-fn]]
             [re-com.util        :refer [px]]
             [re-demo.utils      :refer [title2 github-hyperlink source-reference]]
@@ -13,17 +13,18 @@
 
 (def non-breaking-space (gstring/unescapeEntities "&nbsp;"))
 
-(def table-border-style (str "1px solid " "rgb(204,204,204)"))
-(def header-bg-color    "white")
-(def footer-bg-color    "rgb(248,248,248)")
+(def headers-background-color  "#60A0D8")   ;; mid-blue
+(def headers-color             "white")
+
+(def table-border-style (str "1px solid " "#E8ECF0"))
 
 ;; Selections
-(def sel-color          "hsl(263, 86%, 50%)")
-(def sel-bg-color       "hsl(263, 86%, 94%)")
-(def sel-border         "1px dotted hsl(263, 86%, 70%)")
+(def selection-color          "hsl(263, 86%, 50%)")
+(def selection-bg-color       "hsl(263, 86%, 94%)")
+(def selection-border         "1px dotted hsl(263, 86%, 70%)")
 ;; TODO: These two options should be turned into checkboxes
-(def sel-on-mouse-up?   false)      ;; When true, selected items only become selected when the mouse is released
-(def sel-must-enclose?  false)      ;; When true, selected items only become selected when they are fully enclosed by the selection box
+(def selection-on-mouse-up?   false)      ;; When true, selected items only become selected when the mouse is released
+(def selection-must-enclose?  false)      ;; When true, selected items only become selected when they are fully enclosed by the selection box
 
 ;; TODO: These three options should be turned into sliders
 (def row-height  20)                ;; Height in px of each row/row header
@@ -34,14 +35,14 @@
   {:position      "relative"
    :height        (str row-height "px")
    :font-size     demo-table-font-size
-   :border-bottom "1px solid rgba(0, 0, 0, 0.05)"})
+   :border-bottom "1px solid  #F0F4F8"})
 
 (def activity-row-v-grid-line-style
   {:position    "absolute"
    :width       "0px"
    :height      (str row-height "px")
    :margin      "0px 0px 0px -1px"
-   :border-left "1px solid rgba(0, 0, 0, 0.05)"})
+   :border-left "1px solid #F0F4F8"})
 
 ;; Date formatting
 (def format-date-dd       (time.format/formatter "dd"))
@@ -56,73 +57,113 @@
   [date-str]
   (time.format/parse date-str))
 
+(def grey-stripe-style {:background "repeating-linear-gradient(45deg, #BBB, #BBB 12px, #AAA 12px, #AAA 21px"})
 (def timeline-start-date (yyyymmdd->date "20160731"))
 (def timeline-end-date   (time.core/plus timeline-start-date (time.core/weeks 11)))
 (def timeline-data
   [{}
    {:id         (random-uuid)
+    :label      "School Holidays"
+    :row-type   :holidays
+    :activities [{:id        1
+                  :label      ""
+                  :from-date (yyyymmdd->date "20160814")
+                  :to-date   (yyyymmdd->date "20160821")
+                  :style     grey-stripe-style}
+                 {:id        2
+                  :label      ""
+                  :from-date (yyyymmdd->date "20160821")
+                  :to-date   (yyyymmdd->date "20160828")
+                  :style     grey-stripe-style}
+                 {:id        3
+                  :label      ""
+                  :from-date (yyyymmdd->date "20160828")
+                  :to-date   (yyyymmdd->date "20160904")
+                  :style     grey-stripe-style}]}
+      {:id         (random-uuid)
+       :label      "Public Holidays"
+       :activities [{:id        1
+                     :label      ""
+                     :from-date (yyyymmdd->date "20160822")
+                     :to-date   (yyyymmdd->date "20160823")
+                     :style     grey-stripe-style}]}
+   {}
+   {:id         (random-uuid)
+    :row-type   :column-header
+    :label      "Market,Duration"}
+      
+   {:id         (random-uuid)
     :label      "Sydney,30 sec"
-    :activities [{:id        1 :label "500"
-                  :from-date (yyyymmdd->date "20160805")
-                  :to-date   (yyyymmdd->date "20160812")
-                  :style     {:background-color "#fff8dc"}}
-                 {:id        2 :label "625"
-                  :from-date (yyyymmdd->date "20160812")
-                  :to-date   (yyyymmdd->date "20160819")
-                  :style     {:background-color "#ffb3af"}}
-                 {:id        3 :label "Do not book!"
+    :activities [{:id        1 
+                  :label "500"
+                  :from-date (yyyymmdd->date "20160807")
+                  :to-date   (yyyymmdd->date "20160814")
+                  :style     {:background-color "#C7AFE7AA"}}
+                 {:id        2 
+                  :label "625"
+                  :from-date (yyyymmdd->date "20160814")
+                  :to-date   (yyyymmdd->date "20160821")
+                  :style     {:background-color "#C7AFE7"}}
+                 #_{:id        3 
+                  :label "Do not book!"
                   :from-date (yyyymmdd->date "20160819")
                   :to-date   (yyyymmdd->date "20160826")
-                  :style     {:background-color "#fffff0" :color "#ff0000"}}
-                 {:id        4 :label "Sneaky hidden one"
+                  :style     {:background-color "#D8CCE8" :color "#7C31E0"}}
+                 {:id        4 
+                  :label "Sneaky hidden one"
                   :from-date (yyyymmdd->date "20161009")
                   :to-date   (yyyymmdd->date "20161016")
-                  :style     {:background-color "#A00000" :color "#ffffff"}}]}
+                  :style     {:background-color "#A00000" :color "#444"}}]}
    {:id         (random-uuid)
     :label      "Sydney,15 sec"
-    :activities [{:id        1 :label "250"
-                  :from-date (yyyymmdd->date "20160801")
-                  :to-date   (yyyymmdd->date "20160817")
-                  :style     {:background-color "#fff8dc"}}
-                 {:id        2 :label "100"
-                  :from-date (yyyymmdd->date "20160818")
-                  :to-date   (yyyymmdd->date "20160825")
+    :activities [{:id        1 
+                  :label "250"
+                  :from-date (yyyymmdd->date "20160731")
+                  :to-date   (yyyymmdd->date "20160814")
+                  :style     {:background-color "#c6f08a"}}
+                 {:id        2 
+                  :label "100"
+                  :from-date (yyyymmdd->date "20160821")
+                  :to-date   (yyyymmdd->date "20160828")
                   :style     {:background-color "#c6f08a"}}]}
    {:id         (random-uuid)
     :label      "Melbourne,30 sec"
-    :activities [{:id        1 :label "999"
+    :activities [{:id        1 
+                  :label "999"
                   :from-date (yyyymmdd->date "20160806")
                   :to-date   (yyyymmdd->date "20160830")
-                  :style     {:background-color "#5ba9b8" :color "#ffffff"}}]}
+                  :style     {:background-color "#C7AFE7AA" :color "#444"}}]}
    {:id    (random-uuid)
     :label "Brisbane,30 sec"}
    {:id         (random-uuid)
     :label      "Adelaide,60 sec"
-    :activities [{:id        1 :label "Comment only"
+    :activities [{:id        1 
+                  :label "Comment only"
                   :from-date (yyyymmdd->date "20160809")
                   :to-date   (yyyymmdd->date "20160817")
-                  :style     {:background-color "#000000" :color "#ffffff"}}]}
+                  :style     {:background-color "#000000" :color "#444"}}]}
    {:id    (random-uuid)
     :label "Adelaide,60 sec"}
    {:id    (random-uuid)
     :label "Perth,60 sec"}
    {}
-   {}
    {:id         (random-uuid)
     :label      "Albury,30 sec"
-    :activities [{:id        1 :label "123"
+    :activities [{:id        1 
+                  :label "123"
                   :from-date (yyyymmdd->date "20160805")
                   :to-date   (yyyymmdd->date "20160810")
                   :style     {:background-color "#fff8dc"}}
-                 {:id        2 :label "456"
+                 {:id        2 
+                  :label "456"
                   :from-date (yyyymmdd->date "20160812")
                   :to-date   (yyyymmdd->date "20160815")
                   :style     {:background-color "#ffb300"}}
-                 {:id        3 :label "Definitely book!"
+                 {:id        3 
+                  :label "Definitely book!"
                   :from-date (yyyymmdd->date "20160819")
                   :to-date   (yyyymmdd->date "20160904")
                   :style     {:background-color "#fffff0" :color "#ff0000"}}]}
-   {}
    {}
    {:id         (random-uuid)
     :label      "Dubbo,15 sec"
@@ -136,29 +177,31 @@
                   :style     {:background-color "#c6f08a"}}]}
    {:id         (random-uuid)
     :label      "Dubbo,30 sec"
-    :activities [{:id        1 :label "777"
+    :activities [{:id        1 
+                  :label "777"
                   :from-date (yyyymmdd->date "20160814")
                   :to-date   (yyyymmdd->date "20160821")
                   :style     {:background-color "#fff8dc"}}
-                 {:id        2 :label "888"
+                 {:id        2 
+                  :label "888"
                   :from-date (yyyymmdd->date "20160828")
                   :to-date   (yyyymmdd->date "20160903")
                   :style     {:background-color "#c6f08a"}}]}
    {}
-   {}
    {:id         (random-uuid)
     :label      "Wodonga,15 sec"
-    :activities [{:id        1 :label "300"
+    :activities [{:id        1 
+                  :label "300"
                   :from-date (yyyymmdd->date "20160806")
                   :to-date   (yyyymmdd->date "20160830")
-                  :style     {:background-color "#5ba9b8" :color "#ffffff"}}]}
+                  :style     {:background-color "#5ba9b8" :color "#444"}}]}
    {:id         (random-uuid)
     :label      "Wodonga,30 sec"
-    :activities [{:id        1 :label "305"
+    :activities [{:id        1 
+                  :label "305"
                   :from-date (yyyymmdd->date "20160810")
                   :to-date   (yyyymmdd->date "20160903")
-                  :style     {:background-color "#5ba9b8" :color "#ffffff"}}]}
-   {}
+                  :style     {:background-color "#5ba9b8" :color "#444"}}]}
    {}
    {:id    (random-uuid)
     :label "Brisbane,30 sec"}
@@ -169,26 +212,27 @@
     :activities [{:id        1 :label "Another comment"
                   :from-date (yyyymmdd->date "20160809")
                   :to-date   (yyyymmdd->date "20160817")
-                  :style     {:background-color "#000000" :color "#ffffff"}}]}
-   {}
+                  :style     {:background-color "#000000" :color "#444"}}]}
    {}
    {:id         (random-uuid)
     :label      "Newcastle,15 sec"
-    :activities [{:id        1 :label "310"
+    :activities [{:id        1 
+                  :label "310"
                   :from-date (yyyymmdd->date "20160806")
                   :to-date   (yyyymmdd->date "20160830")
-                  :style     {:background-color "#5ba9ff" :color "#ffffff"}}]}
+                  :style     {:background-color "#5ba9ff" :color "#444"}}]}
    {:id         (random-uuid)
     :label      "Newcastle,30 sec"
-    :activities [{:id        1 :label "315"
+    :activities [{:id        1 
+                  :label "315"
                   :from-date (yyyymmdd->date "20160810")
                   :to-date   (yyyymmdd->date "20160903")
-                  :style     {:background-color "#5ba9ff" :color "#ffffff"}}]}
-   {}
+                  :style     {:background-color "#5ba9ff" :color "#444"}}]}
    {}
    {:id         (random-uuid)
     :label      "Wollongong,15 sec"
-    :activities [{:id        1 :label "999"
+    :activities [{:id        1 
+                  :label "999"
                   :from-date (yyyymmdd->date "20160807")
                   :to-date   (yyyymmdd->date "20160814")
                   :style     {:background-color "#fff8ff"}}
@@ -198,26 +242,29 @@
                   :style     {:background-color "#c6f0ff"}}]}
    {:id         (random-uuid)
     :label      "Wollongong,30 sec"
-    :activities [{:id        1 :label "bbb"
+    :activities [{:id        1 
+                  :label "bbb"
                   :from-date (yyyymmdd->date "20160814")
                   :to-date   (yyyymmdd->date "20160821")
                   :style     {:background-color "#fff8ff"}}
-                 {:id        2 :label "ccc"
+                 {:id        2 
+                  :label "ccc"
                   :from-date (yyyymmdd->date "20160828")
                   :to-date   (yyyymmdd->date "20160903")
                   :style     {:background-color "#c6f0ff"}}]}
    {}
-   {}
    {:id         (random-uuid)
     :label      "Final row"
-    :activities [{:id        1 :label "The End"
+    :activities [{:id        1 
+                  :label "The End"
                   :from-date (yyyymmdd->date "20160809")
                   :to-date   (yyyymmdd->date "20160817")
-                  :style     {:background-color "#A00000" :color "#ffffff"}}
-                 {:id        2 :label "The VERY End"
+                  :style     {:background-color "#A00000" :color "#444"}}
+                 {:id        2 
+                  :label "The VERY End"
                   :from-date (yyyymmdd->date "20161009")
                   :to-date   (yyyymmdd->date "20161016")
-                  :style     {:background-color "#A00000" :color "#ffffff"}}]}])
+                  :style     {:background-color "#A00000" :color "#444"}}]}])
 
 
 ;; ========== Helper functions ==========
@@ -232,6 +279,11 @@
   [num-days]
   (px (- (* num-days day-width) 2)))
 
+
+(defn translate 
+  [x-offset y-offset]
+  (str "translate(" x-offset "px,  " y-offset "px)"))
+                                      
 (defn translate-x
   "Return the translateX CSS for a specified offset"
   [x-offset]
@@ -339,15 +391,19 @@
 ;; ========== Row Header Renderer functions (including top-left) ==========
 
 (defn create-row-header-line
-  [description duration]
-  (let [desc-width 90
-        dur-width  55]
+  [description duration style]
+  (let [desc-width 80
+        dur-width  65]
     [h-box
      :width    (px (+ desc-width dur-width))
      :height   (px row-height)
      :padding  "0 0 0 10px"
-     :children [[box :width (px desc-width) :child description]
-                [box :width (px dur-width) :child duration]]]))
+     :children [[box :size "1" :child description]
+                (when (not= duration non-breaking-space)
+                  [:<>
+                   [line]
+                   [gap :size "5px"]
+                   [box :width (px dur-width) :child duration]])]]))
 
 
 (defn render-top-left-header
@@ -356,22 +412,29 @@
   [h-box
    :size     "1"
    :align    :end ;; Send text to the bottom
-   :children [[create-row-header-line "Market" "Dur"]]])
+   :children [[gap :size "1"]]])
 
 
 (defn render-activity-row-header
   "RENDERER: :row-header-renderer - Output the Market and Dur values in the row header on the left"
   [row-header-selections row-index row] ;; The row, row-header and row-footer renderers are passed the zero-based row index and the data object for that row
-  (let [selected? (and (>= row-index (:start-row @row-header-selections)) (<= row-index (:end-row @row-header-selections)))]
-    [:div {:class "table-row-header"
-           :style (merge activity-row-style
-                         (when selected?
-                           {:color            sel-color
-                            :background-color sel-bg-color}))}
-     (let [split-label (clojure.string/split (:label row) ",")
-           market   (or (first split-label) non-breaking-space)
-           duration (or (second split-label) non-breaking-space)]
-       [create-row-header-line market duration])]))
+  (let [[market duration] (clojure.string/split (:label row) ",")
+        market   (or market non-breaking-space)
+        duration (or duration non-breaking-space)
+        row-type (:row-type row)]
+  (cond row-type
+        
+        :holidays
+        [create-row-header-line market duration {:background-color "#0070C4"}]
+
+        (let [selected? (and @row-header-selections (and (>= row-index (:start-row @row-header-selections)) (<= row-index (:end-row @row-header-selections))))]
+          [:div {:class "table-row-header"
+                 :style (merge activity-row-style
+                               (when selected?
+                                 {:color            selection-color
+                                  :background-color selection-bg-color}))}
+
+             [create-row-header-line market duration]]))))
 
 
 ;; ========== Row Renderer functions ==========
@@ -404,36 +467,41 @@
 
 
 (defn render-activity-item
-  [editor-on row activity _sel-start-col _sel-end-col]
+  [editor-on row activity _selection-start-col _selection-end-col]
   (let [show-editor? (reagent/atom (= [(:id row) (:id activity)] @editor-on))]
     (fn activity-renderer
-      [editor-on row activity sel-start-col sel-end-col]
+      [editor-on row activity selection-start-col selection-end-col]
       ;; To keep things light, only wrap the currently edited activity (if any) with the open popover.
       (let [num-days  (time.core/in-days (time.core/interval (:from-date activity) (:to-date activity)))
             x-offset  (-> (time.core/in-days (time.core/interval timeline-start-date (:from-date activity))) (* day-width))
             x-end     (+ x-offset (- (* num-days day-width) 2))
-            selected? (when sel-start-col
-                        (if sel-must-enclose?
-                          (and (>= x-offset sel-start-col) (<= x-end sel-end-col))
-                          (not (or (> x-offset sel-end-col) (< x-end sel-start-col)))))
-            {:keys [background-color color]
-             :or   {background-color "#fffff0" color "#000000"}}  (:style activity)
-            ;; given the activity background color, use same color darken | lighten for border
+            selected? (when selection-start-col
+                        (if selection-must-enclose?
+                          (and (>= x-offset selection-start-col) (<= x-end selection-end-col))
+                          (not (or (> x-offset selection-end-col) (< x-end selection-start-col)))))
+
             anchor [:span
-                    {:style    {:position         "absolute"
-                                :width            (px-width-activity num-days)
-                                :height           (px (- row-height 1)) ;; If we decide to support wider activities, gridlines overlap on following rows
-                                :border-radius    "2px"
-                                :border           (if selected? sel-border (str "1px solid " background-color)) ;; Could specify a different border colour here
-                                :background-color (if selected? sel-bg-color background-color)
-                                :color            (if selected? sel-color color)
-                                :transform        (translate-x x-offset)
-                                :text-align       "center"
-                                :white-space      "nowrap"
-                                :overflow         "hidden"
-                                :text-overflow    "ellipsis"
-                                :font-size        demo-table-font-size
-                                :cursor           "pointer"}
+                    {:style    (merge {:position         "absolute"
+                                       :width            (px-width-activity num-days)
+                                       :height           (px (- row-height 2)) ;; If we decide to support wider activities, gridlines overlap on following rows
+                                       :border-radius    "2px"
+                                     ; :border           (str "1px solid " background-color)) ;; Could specify a different border colour here
+                                       :background-color "lightgrey"
+                                       :color            "#444"
+                                       :transform        (translate x-offset 1)   ;; offset by one vertical pixel to center within the row
+                                       :text-align       "center"
+                                       :white-space      "nowrap"
+                                       :overflow         "hidden"
+                                       :text-overflow    "ellipsis"
+                                       :font-size        demo-table-font-size
+                                       :cursor           "pointer"}
+
+                                      (:style activity)
+
+                                      (when selected?
+                                        {:border           selection-border
+                                         :background-color selection-bg-color
+                                         :color            selection-color}))
                      :on-click (handler-fn (reset! editor-on [(:id row) (:id activity)]))}
                     (:label activity)]]
         (if @show-editor?
@@ -456,8 +524,8 @@
   [editor-on row-selections row-index row] ;; The row, row-header and row-footer renderers are passed the zero-based row index and the data object for that row
   (let [totals-dates (timeline-activities timeline-start-date timeline-end-date :days)
         selected?     (and (>= row-index (:start-row @row-selections)) (<= row-index (:end-row @row-selections)))
-        sel-start-col (when selected? (:start-col @row-selections))
-        sel-end-col   (when selected? (:end-col   @row-selections))]
+        selection-start-col (when selected? (:start-col @row-selections))
+        selection-end-col   (when selected? (:end-col   @row-selections))]
     (-> (into
           ;; Row layer 1 - the outer div
           [:div {:class    "activity-row"
@@ -486,7 +554,7 @@
         ;; Row layer 3 - activities
         (into
           (map
-            #(identity ^{:key (:id %)} [render-activity-item editor-on row % sel-start-col sel-end-col]) ;; Create a render-activity component to represent a single activity
+            #(identity ^{:key (:id %)} [render-activity-item editor-on row % selection-start-col selection-end-col]) ;; Create a render-activity component to represent a single activity
             (:activities row)))
         (with-meta {:key (:id row)}))))
 
@@ -523,7 +591,7 @@
                      :row-renderer               (partial render-activity-row editor-on row-selections)
                      :row-selection-fn           (when-not @editor-on
                                                    (fn [selection-event coords _ctrlKey _shiftKey _event]
-                                                     (if sel-on-mouse-up?
+                                                     (if selection-on-mouse-up?
                                                        (when (= selection-event :selection-end)
                                                          (reset! row-selections coords))
                                                        (reset! row-selections coords))))
@@ -534,21 +602,24 @@
                      ;; ===== Styling
                      :parts {;; ===== Style the outer table wrapper
                              :wrapper                      {:style {:margin-bottom "20px"
-                                                                    :margin-right  "20px"}}
+                                                                    :margin-right  "20px"
+                                                                    
+                                                                    }}
 
                              ;; ===== Section styles
                              ; 1
                              :top-left                     {:style {:border-right  table-border-style
                                                                     :border-bottom table-border-style}}
                              ; 2
-                             :row-headers                  {:style {:background-color header-bg-color
+                             :row-headers                  {:style {:background-color headers-background-color
+                                                                    :color            headers-color                
                                                                     :border-left      table-border-style
                                                                     :border-right     table-border-style}}
                              ; 3
                              :bottom-left                  {:style {:border-top       table-border-style}}
                              ; 4
-                             :column-headers               {:style {:background-color "#999"
-                                                                    :color            "white"
+                             :column-headers               {:style {:background-color headers-background-color
+                                                                    :color            headers-color
                                                                     :border-top       table-border-style
                                                                     :border-bottom    table-border-style}}
                              ; 6
@@ -596,3 +667,31 @@
                        [:li "row rendering is automatically virtualised - only the ones visible are rendered"]
 
                        [:li [source-reference "for this v-table" "src/re_demo/v_table_demo.cljs"]]]]]])
+
+
+
+;; MT Notes
+;; 
+;; - for a given MediaType there's a set of attributes for each activity 
+;; - a row is a "container" for multiple activities
+;; - and a row captures a set of attrinutes which all the activities within it have in common.  
+;; - Rows are organised hierarchily 
+;; - parent rows capture attrinutes shared by child-rows. 
+;; - the row header (for a given media type) has a number of attributes
+;; - the user may want to default some of those attributes - eg. 15 sec
+;; - or they may want to enter them
+;; - Groups: so user can create a " group header"  (eg "Metro - 15 se")"
+;; - for all the rows under that, the user has to enter one or two 
+;; - some row-groups capture derived attributes, like "Metro". This are not strictly speaking attrinutes. They are derivative of real attributes, but they constrain the set of possible values. 
+;;  
+;;  BUT there are different MediaType rows, I guess TV rows is different to tv POST cost rows.
+;;  
+;;  multiple row-group 
+;;    multiple Row 
+;;      multiple attrinutes
+;;      
+;;  Later, when importing a 
+;; 
+;; 
+
+
