@@ -559,17 +559,15 @@
                              :row-footers                  {:style {:border-right     table-border-style}}
 
                              ;; ===== Selection styles
-                             :row-selection-rect           {:style {:z-index 0}}
-                                                                    ;:background-color "rgba(0,152,12,0.1)"
-                                                                    ;:border           "1px solid rgba(0,152,12,0.4)"
-
+                             :row-selection-rect           {:style {:z-index 0
+                                                                #_#_:background-color "rgba(0,152,12,0.1)"
+                                                                #_#_:border           "1px solid rgba(0,152,12,0.4)"}}
                              :column-header-selection-rect {:style {:z-index          0 ;; Behind rows
                                                                     :background-color "rgba(0,152,12,0.1)" ;; Green
-                                                                    :border           "1px solid rgba(0,152,12,0.4)"}}}]]]))))
+                                                                    :border           "1px solid rgba(0,152,12,0.4)"}}
+                         #_#_:row-header-selection-rect    {:style {:background-color "rgba(0,0,0,0.02)"                ;; Very transparent black
+                                                                    :border           "1px solid transparent"}}}]]])))) ;; Disable border
 
-                             ;:row-header-selection-rect    {:style {:background-color "rgba(0,0,0,0.02)" ;; Very transparent black
-                             ;                                       :border           "1px solid transparent" ;; Disable border
-                             ;                                       }}
 
 
 (defn demo
@@ -581,7 +579,7 @@
                " for " [github-hyperlink "both of them" "src/re_demo/v_table_renderers.cljs"]
                ". They provide a bare bones introduction."]
               [p [:b [:i "Next,"]] " look at " [:code "simple-v-table"] " (see LHS navigation) to understand what is possible if you want rectangular data displays."]
-              [p [:b [:i "Finally,"]] " the demo below showing various more advaned capabilities: "]
+              [p [:b [:i "Finally,"]] " the demo below showing various more advanced capabilities: "]
               [gap :size "10px"]
               [gantt-chart-demo]
               [gap :size "10px"]
