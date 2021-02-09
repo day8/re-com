@@ -61,7 +61,7 @@
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)]
     (fn
-      [& {:keys [model ^js/Function on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts]
+      [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts]
           :or   {change-on-blur? true, on-alter identity}
           :as   args}]
       {:pre [(validate-args-macro input-text-args-desc args "input-text")]}
@@ -82,7 +82,7 @@
             ;; can be done thus avoiding the flicker.
             on-change-handler (fn []
                                 (when (fn? on-change)
-                                  (let [has-done-fn? (= 2 (.-length on-change))
+                                  (let [has-done-fn? (= 2 (.-length ^js/Function on-change))
                                         reset-fn     #(reset! external-model @internal-model)]
                                     (if has-done-fn?
                                       (on-change @internal-model reset-fn)
