@@ -19,6 +19,11 @@
 - `text/p` is now the same as `text/p-span` in that it uses a `[:span]` instead of `[:p]` element in its implementation.
 **Breaking** This will break any custom CSS selectors that target the `p` element, instead of classes etc. To fix, change
   the CSS selector to target `span.rc-p`. The CSS class has not changed.
+- `datepicker` styling of disabled/unselectable vs days out of the current month improved. **Breaking** Changed `available`
+CSS class to `rc-datepicker-selectable`, `disabled` to `rc-datepicker-disabled`, `off` to `rc-datepicker-unselectable`
+  (for unselectable days) or `rc-datepicker-out-of-focus` (for days not in the current month), `selected` to `rc-datepicker-selected`,
+  and `today` to `rc-datepicker-today`.
+  
 
 #### v-table
 

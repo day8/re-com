@@ -239,7 +239,7 @@
     (when (not disabled?)
       [:<>
        [box
-        :class   (str (if prev-year-enabled? "available " "disabled ") "rc-datepicker-prev-year " (get-in parts [:prev-year :class]))
+        :class   (str (if prev-year-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-prev-year " (get-in parts [:prev-year :class]))
         :style   (get-in parts [:prev-year :style])
         :attr    (merge
                    {:on-click (handler-fn (when prev-year-enabled? (reset! display-month prev-year-date-time)))}
@@ -259,7 +259,7 @@
     (when (not disabled?)
       [:<>
        [box
-        :class   (str (if prev-month-enabled? "available " "disabled ") "rc-datepicker-prev-month " (get-in parts [:prev-month :class]))
+        :class   (str (if prev-month-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-prev-month " (get-in parts [:prev-month :class]))
         :style   (get-in parts [:prev-month :style])
         :attr    (merge
                    {:on-click (handler-fn (when prev-month-enabled? (reset! display-month prev-month-date-time)))}
@@ -280,7 +280,7 @@
       [:<>
        [line]
        [box
-        :class   (str (if next-month-enabled? "available " "disabled ") "rc-datepicker-next-month " (get-in parts [:next-month :class]))
+        :class   (str (if next-month-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-next-month " (get-in parts [:next-month :class]))
         :style   (get-in parts [:next-month :style])
         :attr    (merge
                    {:on-click (handler-fn (when next-month-enabled? (reset! display-month next-month-date-time)))}
@@ -300,7 +300,7 @@
       [:<>
        [line]
        [box
-        :class   (str (if next-year-enabled? "available " "disabled ") "rc-datepicker-next-year " (get-in parts [:next-year :class]))
+        :class   (str (if next-year-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-next-year " (get-in parts [:next-year :class]))
         :style   (get-in parts [:next-year :style])
         :attr    (merge
                    {:on-click (handler-fn (when next-year-enabled? (reset! display-month next-year-date-time)))}
@@ -361,7 +361,7 @@
       (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
         [:th
          (merge
-           {:class (str "day-enabled rc-datepicker-day rc-datepicker-day-" (string/lower-case (:name day)) " " (get-in parts [:day :class]))
+           {:class (str "rc-datepicker-day rc-datepicker-day-" (string/lower-case (:name day)) " " (get-in parts [:day :class]))
             :style (get-in parts [:day :style] {})}
            (get-in parts [:day :attr]))
          (str (:name day))]))))
@@ -395,29 +395,28 @@
 
 
 (defn- table-td
-  [date focus-month selected today {minimum :minimum maximum :maximum :as attributes} disabled? on-change parts]
+  [date focus-month selected today {minimum :minimum maximum :maximum selectable-fn :selectable-fn :as attributes} disabled? on-change parts]
   ;;following can be simplified and terse
   (let [minimum       (deref-or-value minimum)
         maximum       (deref-or-value maximum)
         enabled-min   (if minimum (>=date date minimum) true)
         enabled-max   (if maximum (<=date date maximum) true)
         enabled-day   (and enabled-min enabled-max)
-        disabled-day? (if enabled-day
-                        (not ((:selectable-fn attributes) date))
-                        true)
-        classes       (cond disabled?                    "off"
-                            disabled-day?                "off"
-                            (= focus-month (cljs-time/month date)) "available"
-                            :else                        "available off")
-        classes       (cond (and selected (=date selected date))           (str classes " active start-date end-date ")
-                            (and today (=date date today) (not disabled?)) (str classes " today ")
+        unselectable-day? (if enabled-day
+                            (not (selectable-fn date))
+                            true)
+        classes       (cond disabled?                              "rc-datepicker-disabled"
+                            unselectable-day?                      "rc-datepicker-unselectable"
+                            (= focus-month (cljs-time/month date)) "rc-datepicker-selectable"
+                            :else                                  "rc-datepicker-selectable rc-datepicker-out-of-focus")
+        classes       (cond (and selected (=date selected date))           (str classes " rc-datepicker-selected start-date end-date ")
+                            (and today (=date date today) (not disabled?)) (str classes " rc-datepicker-today ")
                             :else                                          (str classes " "))
-        on-click      #(when-not (or disabled? disabled-day?) (selection-changed date on-change))]
+        on-click      #(when-not (or disabled? unselectable-day?) (selection-changed date on-change))]
     [:td
      (merge
        {:class    (str classes "rc-datepicker-date " (get-in parts [:date :class]))
-        :style
-                  (get-in parts [:date :style] {})
+        :style    (get-in parts [:date :style])
         :on-click (handler-fn (on-click))}
        (get-in parts [:date :attr]))
      (cljs-time/day date)]))
