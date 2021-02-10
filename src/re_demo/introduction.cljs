@@ -52,7 +52,7 @@
                                        [:li "a test harness"]]]]
                           [v-box
                            :children [[p RHS-column-style [:br] [:br] [:br]
-                                       "Most pages of this app have hyperlinks which take you
+                                       "Most pages of this app have hyperlinks (to the right of the page title) which take you
                                         directly to the associated source code (in github)."]]]]]]])
 
 
@@ -64,7 +64,7 @@
               [gap :size "10px"]
 
               [p "Now, our sausage fingers sometimes type onmouseover instead of on-mouse-over,
-                                     or centre rather than center, and sometimes we pass in a string where  there should be keyword."]
+                                     or centre rather than center, and sometimes we pass in a string where there should be keyword."]
               [h-box
                :gap center-gap-px
                :children [[v-box
@@ -187,7 +187,7 @@
 (defn panel2
   []
   [v-box
-   :children [[panel-title "Introduction"]
+   :children [[panel-title "Introduction" "src/re_com/core.cljs" "src/re_demo/introduction.cljs"]
               [gap :size "15px"]
               [welecome]
               [this-app]
@@ -210,3 +210,4 @@
 (defn panel
   []
   [panel2])
+
