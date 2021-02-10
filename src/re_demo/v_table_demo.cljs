@@ -11,36 +11,39 @@
 
 ;; ========== Fundamental values and styling ==========
 
+
 (def non-breaking-space (gstring/unescapeEntities "&nbsp;"))
 
-(def headers-background-color  "#60A0D8")   ;; mid-blue
-(def headers-color             "white")
+(def headers-background-color  "#60A0D8")   ;; used for row and column headers
+(def headers-color             "white")     ;; text colour 
 
-(def table-border-style (str "1px solid " "#E8ECF0"))
+(def table-outside-border-style "1px solid #E8ECF0)")
 
 ;; Selections
 (def selection-color          "hsl(263, 86%, 50%)")
 (def selection-bg-color       "hsl(263, 86%, 94%)")
 (def selection-border         "1px dotted hsl(263, 86%, 70%)")
+
 ;; TODO: These two options should be turned into checkboxes
 (def selection-on-mouse-up?   false)      ;; When true, selected items only become selected when the mouse is released
 (def selection-must-enclose?  false)      ;; When true, selected items only become selected when they are fully enclosed by the selection box
 
 ;; TODO: These three options should be turned into sliders
 (def row-height  20)                ;; Height in px of each row/row header
+(def row-height-px (px row-height))
 (def day-width   20)                ;; Width in px of each day column
 (def demo-table-font-size "12px")   ;; Font size of all text
 
 (def activity-row-style
   {:position      "relative"
-   :height        (str row-height "px")
-   :font-size     demo-table-font-size
+   :height        row-height-px
+   ; :font-size     demo-table-font-size
    :border-bottom "1px solid  #F0F4F8"})
 
-(def activity-row-v-grid-line-style
+(def vertical-gridline-style
   {:position    "absolute"
    :width       "0px"
-   :height      (str row-height "px")
+   :height      row-height-px
    :margin      "0px 0px 0px -1px"
    :border-left "1px solid #F0F4F8"})
 
@@ -51,7 +54,7 @@
 (def dow-character        {1 "M" 2 "T" 3 "W" 4 "T" 5 "F" 6 "S" 7 "S"})
 
 
-;; ========== Data for the :model arg ==========
+;; ========== :model ==========
 
 (defn yyyymmdd->date
   [date-str]
@@ -293,14 +296,16 @@
 ;; ========== Column Header Renderer functions ==========
 
 (defn timeline-activities
-  "Based on the resolution passed in, return seq of activities with :start-date & :num-days"
+  "Given a `resolution` of `:days` `:weeks` or `:months`, 
+   returns a sequence of maps for activities covering the range from `date-start` to `date-end`.
+   Each map contains `:start-date` & `:num-days`"
   [date-start date-end resolution]
   (case resolution
     :days
     (map #(hash-map :start-date % :num-days 1)
          (time.periodic/periodic-seq date-start date-end (time.core/period resolution 1)))
     :weeks
-    (let [extended-end (if-not (= :weeks resolution)
+    (let [extended-end (if-not (= :weeks resolution)     ;; TODO: Given the `case` context, test will always be true 
                          date-end ; no need to extend
                          (let [mod-week (-> (time.core/interval date-start date-end)
                                             (time.core/in-days)
@@ -313,11 +318,8 @@
     :months
     (->> (time.periodic/periodic-seq date-start date-end (time.core/period :days 1))
          (partition-by time.core/month)
-         (map (fn [all-days-in-month]
-                (let [start-of-month (first all-days-in-month)
-                      counted-days   (count all-days-in-month)]
-                  {:start-date start-of-month
-                   :num-days   counted-days}))))))
+         (map #(hash-map :start-date (first %) :num-days (count %))))))
+
 
 
 (defn render-dates-row
@@ -326,23 +328,21 @@
   (into
     [:div {:class "table-date-header-label"
            :style {:height (px row-height) :position "relative" :font-size demo-table-font-size}}]
-    (map-indexed
-      (fn [index {:keys [start-date num-days label]}]
+    (map
+      (fn [{:keys [start-date num-days label]}]
         (let [x-offset (-> (time.core/in-days (time.core/interval timeline-start start-date))
                            (* day-width))]
-          ^{:key (str index)}
           [:span {:style {:position      "absolute"
                           :width         (px-width num-days)
-                          :height        (px row-height)
+                          :height        row-height-px
                           :border-right  "1px solid lightgrey"
                           :border-bottom "1px solid lightgrey"
                           :transform     (translate-x x-offset)
                           :text-align    "center"
                           :white-space   "nowrap"
                           :overflow      "hidden"
-                          :text-overflow "ellipsis"
-                          :font-size     demo-table-font-size}}
-           (if label label non-breaking-space)]))
+                          :text-overflow "ellipsis"}}
+           (or label non-breaking-space)]))
       activities)))
 
 
@@ -379,24 +379,22 @@
 (defn render-table-dates
   "RENDERER: column-header-renderer - Output the detailed 4-row column header of the specified date range"
   []
-  (fn table-dates-renderer
-    []
-    [v-box
-     :children [[render-dates-month timeline-start-date timeline-end-date]
-                [render-dates-wc    timeline-start-date timeline-end-date]
-                [render-dates-dow   timeline-start-date timeline-end-date]
-                [render-dates-dd    timeline-start-date timeline-end-date]]]))
+  [v-box
+   :children [[render-dates-month timeline-start-date timeline-end-date]
+              [render-dates-wc    timeline-start-date timeline-end-date]
+              [render-dates-dow   timeline-start-date timeline-end-date]
+              [render-dates-dd    timeline-start-date timeline-end-date]]])
 
 
 ;; ========== Row Header Renderer functions (including top-left) ==========
 
 (defn create-row-header-line
-  [description duration style]
+  [description duration]
   (let [desc-width 80
         dur-width  65]
     [h-box
      :width    (px (+ desc-width dur-width))
-     :height   (px row-height)
+     :height   row-height-px
      :padding  "0 0 0 10px"
      :children [[box :size "1" :child description]
                 (when (not= duration non-breaking-space)
@@ -406,8 +404,9 @@
                    [box :width (px dur-width) :child duration]])]]))
 
 
+;; TODO - its a bit empty right now
 (defn render-top-left-header
-  "RENDERER: :top-left-renderer - Output the row-header column headings (Market and Dur)"
+  "compute the row-header column headings (Market and Dur)"
   []
   [h-box
    :size     "1"
@@ -416,7 +415,7 @@
 
 
 (defn render-activity-row-header
-  "RENDERER: :row-header-renderer - Output the Market and Dur values in the row header on the left"
+  "compute hiccup for the Market and Dur values in the row header"
   [row-header-selections row-index row] ;; The row, row-header and row-footer renderers are passed the zero-based row index and the data object for that row
   (let [[market duration] (clojure.string/split (:label row) ",")
         market   (or market non-breaking-space)
@@ -528,27 +527,25 @@
                  :on-click (handler-fn (show-row-data-on-alt-click row row-index event))}]
 
           ;; Row layer 2 - vertical grid lines based on totals-dates
-          (map-indexed
+          (map
             (fn
-              [index {:keys [start-date]}]
-              (when (pos? index)
+              [{:keys [start-date]}]
                 ; Calc offset based on how many days this date is from timeline start.
-                (let [glx-offset (-> (time.core/interval timeline-start-date start-date)
-                                     (time.core/in-days)
-                                     (* day-width))]
+              (let [glx-offset (-> (time.core/interval timeline-start-date start-date)
+                                   (time.core/in-days)
+                                   (* day-width))]
                   ;; draw vertical grid lines using <hr> which is a no-content
                   ;; element so it is lighter weight then e.g. div/span as we do
                   ;; not need to include non-breaking-space and in turn width.
-                  ^{:key (str "vr:" index)}
-                  [:hr {:class "activity-row-v-grid-line"
-                        :style (assoc activity-row-v-grid-line-style
-                                 :transform (translate-x glx-offset))}])))
+                [:hr {:class "activity-row-v-grid-line"
+                      :style (assoc vertical-gridline-style
+                                    :transform (translate-x glx-offset))}]))
             totals-dates))
 
         ;; Row layer 3 - activities
         (into
           (map
-            #(identity ^{:key (:id %)} [render-activity-item editor-on row % selection-start-col selection-end-col]) ;; Create a render-activity component to represent a single activity
+            #(vector render-activity-item editor-on row % selection-start-col selection-end-col) ;; Create a render-activity component to represent a single activity
             (:activities row)))
         (with-meta {:key (:id row)}))))
 
@@ -602,26 +599,26 @@
 
                              ;; ===== Section styles
                              ; 1
-                             :top-left                     {:style {:border-right  table-border-style
-                                                                    :border-bottom table-border-style}}
+                             :top-left                     {:style {:border-right  table-outside-border-style
+                                                                    :border-bottom table-outside-border-style}}
                              ; 2
                              :row-headers                  {:style {:background-color headers-background-color
                                                                     :color            headers-color                
-                                                                    :border-left      table-border-style
-                                                                    :border-right     table-border-style}}
+                                                                    :border-left      table-outside-border-style
+                                                                    :border-right     table-outside-border-style}}
                              ; 3
-                             :bottom-left                  {:style {:border-top       table-border-style}}
+                             :bottom-left                  {:style {:border-top       table-outside-border-style}}
                              ; 4
                              :column-headers               {:style {:background-color headers-background-color
                                                                     :color            headers-color
-                                                                    :border-top       table-border-style
-                                                                    :border-bottom    table-border-style}}
+                                                                    :border-top       table-outside-border-style
+                                                                    :border-bottom    table-outside-border-style}}
                              ; 6
-                             :column-footers               {:style {:border-top       table-border-style}}
+                             :column-footers               {:style {:border-top       table-outside-border-style}}
                              ; 7
-                             :top-right                    {:style {:border-right     table-border-style}}
+                             :top-right                    {:style {:border-right     table-outside-border-style}}
                              ; 8
-                             :row-footers                  {:style {:border-right     table-border-style}}
+                             :row-footers                  {:style {:border-right     table-outside-border-style}}
 
                              ;; ===== Selection styles
                              :row-selection-rect           {:style {:z-index 0
