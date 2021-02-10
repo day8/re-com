@@ -7,7 +7,7 @@
     [goog.string           :as gstring]
     [reagent.core          :as reagent]
     [re-com.config         :refer [include-args-desc?]]
-    [re-com.util           :refer [deref-or-value]]
+    [re-com.util           :refer [deref-or-value px-n]]
     [re-com.validate       :as validate :refer [parts?]]
     [re-com.box            :refer [box h-box v-box gap]]
     [re-com.checkbox       :refer [checkbox]]
@@ -90,7 +90,7 @@
                      :min-width (when placeholder? (:width tag-data))
 
                      :padding "0px 4px"
-                     :margin (str "2px " (if placeholder? 0 6) "px 2px 0px")
+                     :margin  (px-n 2 (if placeholder? 0 6) 2 0)
                      :class (str "noselect rc-text-tag " class)
                      :style (merge
                               {:color            "white"

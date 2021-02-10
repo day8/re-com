@@ -7,7 +7,7 @@
     [reagent.core       :as    reagent]
     [re-com.config      :refer [debug? include-args-desc?]]
     [re-com.box         :as    box]
-    [re-com.util        :as    util :refer [deref-or-value]]
+    [re-com.util        :as    util :refer [deref-or-value px-n]]
     [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]
     [re-com.dmm-tracker :refer [make-dmm-tracker captureMouseMoves]]))
 
@@ -1113,7 +1113,7 @@
 
                                         ;:overscroll-behavior "contain"
                                         ;:overscroll-behavior-block "none"
-                                        
+
                                        (get-in parts [:wrapper :style]))
                            :attr     (merge {:on-wheel (handler-fn (on-wheel event))}
                                             (get-in parts [:wrapper :attr]))
@@ -1265,7 +1265,7 @@
                                                    :content-length @content-rows-width
                                                    :scroll-pos     @scroll-x
                                                    :on-change      on-h-scroll-change
-                                                   :style          (merge {:margin (str (px scrollbar-margin) " 0px")}
+                                                   :style          (merge {:margin (px-n scrollbar-margin 0)}
                                                                           (get-in parts [:h-scroll :style]))
                                                    :attr           (get-in parts [:h-scroll :attr])]]]
 
@@ -1336,7 +1336,7 @@
                                                            :content-length @content-rows-height
                                                            :scroll-pos     @scroll-y
                                                            :on-change      on-v-scroll-change
-                                                           :style          (merge {:margin (str "0px " (px scrollbar-margin))}
+                                                           :style          (merge {:margin (px-n 0 scrollbar-margin)}
                                                                                   (get-in parts [:v-scroll :style]))
                                                            :attr           (get-in parts [:v-scroll :attr])]]
                                                   [box/gap :size (px (or column-footer-height 0))]

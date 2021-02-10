@@ -136,7 +136,7 @@
                                            :class    "parent-for-simple-v-table"
                                            :width    (when @parent-width?  (px @parent-width))
                                            :height   (when @parent-height? (px @parent-height))
-                                           :style    {:padding          (px 8)
+                                           :style    {:padding          "8px"
                                                       :background-color parent-color}
                                            :gap      spacing
                                            :children [[label :label "This blue box is the table's (v-box) parent."]

@@ -41,7 +41,7 @@
       (merge
         {:class (str "rc-simple-v-table-column-header " (get-in parts [:simple-column-header :class]))
          :style (merge {:display        "inline-block"
-                        :padding        (str "0px " "12px")
+                        :padding        "0px 12px"
                         :width          (px (if sort-by (- width 24) width))
                         :min-height     (px 24)
                         :height         (px height)

@@ -550,7 +550,7 @@
                            :gap      "10px"
                            :width    "450px"
                            :margin   "20px 0px 0px 0px"
-                           :children [[p "Popovers can be arbitrarilary complex."]
+                           :children [[p "Popovers can be arbitrarily complex."]
                                       [p [:code "popover-content-wrapper"] " is friendly to dialog coding patterns."]]]
                           [v-box
                            :gap      "30px"
