@@ -28,23 +28,22 @@ Re-com provides:
 
 In short, re-com attempts to provide the kind of UI basics you'd need to build a desktop-class SPA app.
 
-## Warning #1: Uses Flexbox
+## It Uses Flexbox
 
-The entire layout side of this library plus a few of the widgets rely on 
+The entire layout side of this library relies on 
 [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
 
-Pretty much every modern browser that you probably care about 
+Now, pretty much every modern browser  
 [has support for Flexbox](http://caniuse.com/#feat=flexbox) so 
 this is probably a non-issue these days, unless you need to 
-support old versions of IE. 
+support old versions of IE.
 
 We build desktop-class apps to run in controlled browser environments
 like [Electron](https://electron.atom.io).  So, we know we're dealing with Chrome.
 
 ## Warning: No Mobile Focus
 
-We can also confirm that none of the components have been designed with mobile in mind, and
-that there's no attempt to handle media queries.  We said we had a desktop app focus, right?
+None of the components have been designed with mobile in mind. We said we had a desktop app focus, right?
 
 Neither have we been worried too much about code size because other design goals have
 taken precedence. To give you some idea, our main demo app which includes every component, plus all demo
@@ -58,8 +57,8 @@ Start by [looking at the demo](https://re-com.day8.com.au).
 
 ## Navigating The Source
 
-When you are running the demo app, you'll see hyperlinks, to the right of page titles, which
-take you to the associated source code.  That's a convenient way to navigate to either
+When you are running the demo app, look to the the right of each page's titles, and you'll see hyperlinks
+which will take you to the associated source code.  That's a convenient way to navigate to either
 the components themselves or the demo code.
 
 When browsing more generally, look in the `src` directory or this repo, you'll notice
