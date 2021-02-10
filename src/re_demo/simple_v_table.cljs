@@ -45,6 +45,7 @@
                                        [:li "Resizable columns; e.g. drag to resize columns"]
                                        [:li "Re-orderable columns; e.g. drag to re-order columns"]
                                        [:li "Hide/show columns"]
+                                       [:li "Selection of rows, columns and cells (as supported by v-table)"]
                                        [:li "Pagination (virtualised instead)"]
                                        [:li "Group by columns"]
                                        [:li "Filtering, instead just pre-filter " [:code ":model"] " externally using other widgets."]]
