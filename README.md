@@ -180,10 +180,10 @@ See [re-frame-template](https://github.com/day8/re-frame-template).
 * menus - there's a dropdown, but no cascading menus
 * accordion
 * maybe a dockable LHS navbar
-* virtual grid. Straight v-box is good enough at small grids, so no problem there. But when the number of
+* <s> virtual grid. Straight v-box is good enough at small grids, so no problem there. But when the number of
 rows gets huge, you need a widget which does virtual rows, otherwise there's just too much DOM
 and there's performance problems.
-Can we use [Fixed Data Tables for React](https://github.com/facebookarchive/fixed-data-table)?
+Can we use [Fixed Data Tables for React](https://github.com/facebookarchive/fixed-data-table)?  </s>
 * drag and drop.
 * animations / transitions.  We have ideas.  They seem clunky.
 * Focus management - When the user presses tab, to which field does focus move?
