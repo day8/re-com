@@ -39,21 +39,21 @@
   []
   [v-box
    :children [
-              [title :level :level2 :label "This app"]
+              ; [title :level :level2 :label "This app"]
 
               [h-box
                :gap center-gap-px
                :children [[v-box
-                           :children [[p "The demo app is an SPA, built using re-com. It serves as:"]
+                           :children [[p "This demo app is an SPA (single page application), built using re-com. It serves as:"]
                                       [:ul
                                        [:li "a visual showcase of the components"]
                                        [:li "documentation for the components (parameters etc.)"]
                                        [:li "shows, via its own code, how to use the components"]
-                                       [:li "a test harness"]]]]
+                                       [:li "something of a test harness"]]]]
                           [v-box
                            :children [[p RHS-column-style [:br] [:br] [:br]
                                        "Most pages of this app have hyperlinks (to the right of the page title) which take you
-                                        directly to the associated source code (in github)."]]]]]]])
+                                        directly to the associated source code (within github)."]]]]]]])
 
 
 (defn params-validation
