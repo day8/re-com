@@ -10,20 +10,126 @@
     [re-com.box           :refer [border gap box line h-box flex-child-style]]
     [re-com.util          :refer [deref-or-value now->utc]]
     [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
-    #_[re-com.stylesheet    :as stylesheet]
+    [re-com.stylesheet    :as stylesheet]
+    [garden.selectors     :as s]
     [clojure.string       :as string])
   (:import
     [goog.i18n DateTimeFormat]))
 
 ;; Loosely based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
 
-;; --- cljs-time facades ------------------------------------------------------
 
-#_(stylesheet/inject-garden-stylesheet!
-    [
-     [:.rc-datepicker
-      {:background-color "red"}]]
-    "datepicker")
+;; Stylesheet for re-com.date Date Picker variants inline-picker & dropdown-picker
+;; Day8 variation loosely based on:
+;; Copyright 2013 Dan Grossman ( http://www.dangrossman.info )
+;; Licensed under the Apache License v2.0
+;; http://www.apache.org/licenses/LICENSE-2.0
+;; Built for http://www.improvely.com
+;; http://eternicode.github.io/bootstrap-datepicker
+
+(stylesheet/inject-garden-stylesheet!
+  [[:.datepicker
+    {:position      "absolute"
+     :background    "#FFF"
+     :top           "100px"
+     :left          "20px"
+     :padding       "10px 10px 5px"
+     :margin-top    "1px"
+     :border-radius "4px"
+     :line-height   "16px"}
+    [:table
+     {:width           "100%"
+      :margin          "0"
+      :border-collapse "separate"}]
+    [:th.week :td.week
+     {:font-size "80%"
+      :color     "#CCC"}]
+    [:th :td
+     {:text-align  "center"
+      :width       "27px"
+      :height      "26px"
+      :max-width   "27px"
+      :max-height  "26px"
+      :min-width   "27px"
+      :min-height  "26px"
+      :padding     "4px"
+      :cursor      "default"
+      :white-space "nowrap"
+      :font-weight "normal"}]
+    [:.datepicker
+     [:.calendar.single
+      [:.calendar-date
+       {:border "none"}]]]
+    [:.calendar
+     {:display   "none"
+      :max-width "200px"}
+     [:th :td
+      {:white-space "nowrap"
+       :text-align  "center"
+       :min-width   "32px"}]]
+    [:.calendar-date
+     {:border     "1px solid #DDD"
+      :padding    "4px"
+      :background "#FFF"}]
+    [:.calendar-time
+     {:text-align  "center"
+      :margin      "8px auto 0 auto"
+      :line-height "30px"}]
+    [:.rc-datepicker-disabled
+     :.rc-datepicker-unselectable
+     {:padding "4px"
+      :color   "#CCC"}]
+    [:.rc-datepicker-selectable:hover
+     {:background "#357ebd"
+      :color      "#FFF"
+      :cursor     "pointer"}]
+    [:.rc-datepicker-selectable
+     [:path
+      {:fill "#357ebd"}]]
+    [:.rc-datepicker-disabled
+     [:path
+      {:fill "#999"}]]
+    [:.rc-datepicker-selectable:hover
+     [:path
+      {:fill "#FFF"}]]
+    [:.rc-datepicker-out-of-focus
+     {:background-color "#EEE"
+      :color            "#333"}]
+    [:.rc-datepicker-selected
+     :.rc-datepicker-selected:hover
+     {:background-color "#357ebd"
+      :border-color     "#3071a9"
+      :color            "#FFF"}]
+    [:.rc-datepicker-day
+     {:font-size "10px"}]
+    [:.rc-datepicker-today
+     {:background-color "#FFCD70"
+      :border-color     "#F59E00"
+      :border-radius    "18px"
+      :color            "#FFF"}]
+    [:.rc-datepicker-nav
+     {:border           "1px solid #CCC"
+      :border-radius    "4px"
+      :background-color "#F7F7F7"}]
+    [:.rc-datepicker-month
+     {:font-size "12px"
+      :color     "#777"}]
+    [:.dropdown-button
+     {:cursor      "pointer"
+      :height      "32px"
+      :font-size   "13px"
+      :font-weight "normal"}]
+    [:.dropdown-button-disabled
+     {:cursor "default !important"}]
+    [:.dropdown-button.activator
+     {:width            "40px"
+      :color            "#777"
+      :background-color "#F7F7F7"}]]
+   [(s/descendant :.rc-datepicker.single :.calendar)
+    {:float "none"}]]
+  "datepicker")
+
+;; --- cljs-time facades ------------------------------------------------------
 
 (def month-format (formatter "MMMM yyyy"))
 
