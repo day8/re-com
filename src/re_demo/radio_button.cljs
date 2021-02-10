@@ -30,27 +30,29 @@
                               [v-box
                                :gap      "10px"
                                :children [[title2 "Demo"]
-                                          [h-box
-                                           :gap "30px"
-                                           :children [[v-box
-                                                       :children [(doall (for [c ["red" "green" "blue"]]    ;; Notice the ugly "doall"
-                                                                           ^{:key c}                        ;; key should be unique among siblings
-                                                                           [radio-button
-                                                                            :disabled? disabled?
-                                                                            :label       c
-                                                                            :value       c
-                                                                            :model       color
-                                                                            :label-style (if (= c @color) {:color       c
-                                                                                                            :font-weight "bold"})
-                                                                            :on-change   #(reset! color %)]))]]
-                                                      [v-box
-                                                       :gap "15px"
-                                                       :children [[title :level :level3 :label "Parameters"]
-                                                                  [checkbox
-                                                                   :label [:code ":disabled?"]
-                                                                   :model disabled?
-                                                                   :on-change (fn [val]
-                                                                                (reset! disabled? val))]]]]]]]]]
+                                          (doall (for [c ["red" "green" "blue"]]    ;; Notice the ugly "doall"
+                                                   ^{:key c}                        ;; key should be unique among siblings
+                                                   [radio-button
+                                                    :disabled? disabled?
+                                                    :label       c
+                                                    :value       c
+                                                    :model       color
+                                                    :label-style (if (= c @color) {:color       c
+                                                                                   :font-weight "bold"})
+                                                    :on-change   #(reset! color %)]))
+                                          [v-box
+                                           :gap "10px"
+                                           :style {:min-width        "150px"
+                                                   :padding          "15px"
+                                                   :border-top       "1px solid #DDD"
+                                                   :background-color "#f7f7f7"}
+                                           :children [[title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                                                      [checkbox
+                                                       :label [:code ":disabled?"]
+                                                       :model disabled?
+                                                       :on-change (fn [val]
+                                                                    (reset! disabled? val))]]]]]]]
+
                   [parts-table "radio-button" radio-button-parts-desc]]])))
 
 

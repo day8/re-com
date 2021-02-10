@@ -42,191 +42,193 @@
                               [v-box
                                :gap      "10px"
                                :children [[title2 "Demo"]
+                                          [label :label "[input-text ... ]"]
+                                          [gap :size "5px"]
+                                          [input-text
+                                           :model            text-val
+                                           :status           @status
+                                           :status-icon?     @status-icon?
+                                           :status-tooltip   @status-tooltip
+                                           :width            "300px"
+                                           :placeholder      (if @regex "enter number (99.9)" "placeholder message")
+                                           :on-change        #(reset! text-val %)
+                                           :validation-regex @regex
+                                           :on-alter         (if @on-alter? string/upper-case identity)
+                                           :change-on-blur?  change-on-blur?
+                                           :disabled?        disabled?]
+                                          [gap :size "20px"]
+                                          [label :label "[input-password ... ]"]
+                                          [gap :size "5px"]
+                                          [input-password
+                                           :model            text-val
+                                           :status           @status
+                                           :status-icon?     @status-icon?
+                                           :status-tooltip   @status-tooltip
+                                           :width            "300px"
+                                           :placeholder      (if @regex "enter number (99.9)" "placeholder message")
+                                           :on-change        #(reset! text-val %)
+                                           :validation-regex @regex
+                                           :on-alter         (if @on-alter? string/upper-case identity)
+                                           :change-on-blur?  change-on-blur?
+                                           :disabled?        disabled?]
+                                          [gap :size "20px"]
+                                          [label :label "[input-textarea ... ]"]
+                                          [gap :size "5px"]
+                                          [input-textarea
+                                           :model            text-val
+                                           :status           @status
+                                           :status-icon?     @status-icon?
+                                           :status-tooltip   @status-tooltip
+                                           :width            "300px"
+                                           :rows             @slider-val
+                                           :placeholder      (if @regex "enter number (99.9)" "placeholder message")
+                                           :on-change        #(reset! text-val %)
+                                           :validation-regex @regex
+                                           :on-alter         (if @on-alter? string/upper-case identity)
+                                           :change-on-blur?  change-on-blur?
+                                           :disabled?        disabled?]
+                                          [gap :size "20px"]
+                                          [label :label "[input-text w/ alpha filter in on-change ... ]"]
+                                          [gap :size "5px"]
+                                          [input-text
+                                           :model            text-val
+                                           :status           @status
+                                           :status-icon?     @status-icon?
+                                           :status-tooltip   @status-tooltip
+                                           :width            "300px"
+                                           :placeholder      (if @regex "enter number (99.9)" "placeholder message")
+                                           :on-change        (fn [v resolve-fn]
+                                                               (let [v (string/replace v #"[^a-zA-Z]" "")]
+                                                                 (reset! text-val v)
+                                                                 (resolve-fn)))
+                                           :validation-regex @regex
+                                           :on-alter         (if @on-alter? string/upper-case identity)
+                                           :change-on-blur?  change-on-blur?
+                                           :disabled?        disabled?]
+                                          [title :level :level3 :label "Callbacks"]
                                           [h-box
-                                           :gap "40px"
-                                           :children [[v-box
-                                                       :children [[label :label "[input-text ... ]"]
-                                                                  [gap :size "5px"]
-                                                                  [input-text
-                                                                   :model            text-val
-                                                                   :status           @status
-                                                                   :status-icon?     @status-icon?
-                                                                   :status-tooltip   @status-tooltip
-                                                                   :width            "300px"
-                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
-                                                                   :on-change        #(reset! text-val %)
-                                                                   :validation-regex @regex
-                                                                   :on-alter         (if @on-alter? string/upper-case identity)
-                                                                   :change-on-blur?  change-on-blur?
-                                                                   :disabled?        disabled?]
-                                                                  [gap :size "20px"]
-                                                                  [label :label "[input-password ... ]"]
-                                                                  [gap :size "5px"]
-                                                                  [input-password
-                                                                   :model            text-val
-                                                                   :status           @status
-                                                                   :status-icon?     @status-icon?
-                                                                   :status-tooltip   @status-tooltip
-                                                                   :width            "300px"
-                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
-                                                                   :on-change        #(reset! text-val %)
-                                                                   :validation-regex @regex
-                                                                   :on-alter         (if @on-alter? string/upper-case identity)
-                                                                   :change-on-blur?  change-on-blur?
-                                                                   :disabled?        disabled?]
-                                                                  [gap :size "20px"]
-                                                                  [label :label "[input-textarea ... ]"]
-                                                                  [gap :size "5px"]
-                                                                  [input-textarea
-                                                                   :model            text-val
-                                                                   :status           @status
-                                                                   :status-icon?     @status-icon?
-                                                                   :status-tooltip   @status-tooltip
-                                                                   :width            "300px"
-                                                                   :rows             @slider-val
-                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
-                                                                   :on-change        #(reset! text-val %)
-                                                                   :validation-regex @regex
-                                                                   :on-alter         (if @on-alter? string/upper-case identity)
-                                                                   :change-on-blur?  change-on-blur?
-                                                                   :disabled?        disabled?]
-                                                                  [gap :size "20px"]
-                                                                  [label :label "[input-text w/ alpha filter in on-change ... ]"]
-                                                                  [gap :size "5px"]
-                                                                  [input-text
-                                                                   :model            text-val
-                                                                   :status           @status
-                                                                   :status-icon?     @status-icon?
-                                                                   :status-tooltip   @status-tooltip
-                                                                   :width            "300px"
-                                                                   :placeholder      (if @regex "enter number (99.9)" "placeholder message")
-                                                                   :on-change        (fn [v resolve-fn]
-                                                                                       (let [v (string/replace v #"[^a-zA-Z]" "")]
-                                                                                         (reset! text-val v)
-                                                                                         (resolve-fn)))
-                                                                   :validation-regex @regex
-                                                                   :on-alter         (if @on-alter? string/upper-case identity)
-                                                                   :change-on-blur?  change-on-blur?
-                                                                   :disabled?        disabled?]]]
+                                           :align    :center
+                                           :gap      "5px"
+                                           :children [[:code ":on-change"]
+                                                      " last called with this value: "
+                                                      [:span.bold (if @text-val @text-val "nil")]]]
+                                          [v-box
+                                           :gap "15px"
+                                           :style    {:min-width        "150px"
+                                                      :padding          "15px"
+                                                      :border-top       "1px solid #DDD"
+                                                      :background-color "#f7f7f7"}
+                                           :children [
+                                                      [title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
                                                       [v-box
-                                                       :gap      "15px"
-                                                       :children [[title :level :level3 :label "Callbacks"]
-                                                                  [h-box
-                                                                   :align    :center
-                                                                   :gap      "5px"
-                                                                   :children [[:code ":on-change"]
-                                                                              " last called with this value: "
-                                                                              [:span.bold (if @text-val @text-val "nil")]]]
-                                                                  [title :level :level3 :label "Parameters"]
-                                                                  [v-box
-                                                                   :children [[box :align :start :child [:code ":change-on-blur?"]]
-                                                                              [radio-button
-                                                                               :label     "false - Call on-change on every keystroke"
-                                                                               :value     false
-                                                                               :model     @change-on-blur?
-                                                                               :on-change #(reset! change-on-blur? %)
-                                                                               :style     {:margin-left "20px"}]
-                                                                              [radio-button
-                                                                               :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
-                                                                               :value     true
-                                                                               :model     @change-on-blur?
-                                                                               :on-change #(reset! change-on-blur? %)
-                                                                               :style     {:margin-left "20px"}]]]
-                                                                  [v-box
-                                                                   :children [[box :align :start :child [:code ":status"]]
-                                                                              [radio-button
-                                                                               :label     "nil/omitted - normal input state"
-                                                                               :value     nil
-                                                                               :model     @status
-                                                                               :on-change #(do
-                                                                                            (reset! status %)
-                                                                                            (reset! status-tooltip ""))
-                                                                               :style {:margin-left "20px"}]
-                                                                              [radio-button
-                                                                               :label ":validating - set while validating an input value"
-                                                                               :value :validating
-                                                                               :model @status
-                                                                               :on-change #(do
-                                                                                            (reset! status %)
-                                                                                            (reset! status-tooltip "Validating tooltip - this (optionally) appears when an input-text is validating."))
-                                                                               :style {:margin-left "20px"}]
-                                                                              [radio-button
-                                                                               :label ":success - border color becomes green"
-                                                                               :value :success
-                                                                               :model @status
-                                                                               :on-change #(do
-                                                                                            (reset! status %)
-                                                                                            (reset! status-tooltip "Success tooltip - this (optionally) appears when an input-text components has validated successfully."))
-                                                                               :style {:margin-left "20px"}]
-                                                                              [radio-button
-                                                                               :label     ":warning - border color becomes orange"
-                                                                               :value     :warning
-                                                                               :model     @status
-                                                                               :on-change #(do
-                                                                                            (reset! status %)
-                                                                                            (reset! status-tooltip "Warning tooltip - this (optionally) appears when there are warnings on input-text components."))
-                                                                               :style     {:margin-left "20px"}]
-                                                                              [radio-button
-                                                                               :label     ":error - border color becomes red"
-                                                                               :value     :error
-                                                                               :model     @status
-                                                                               :on-change #(do
-                                                                                            (reset! status %)
-                                                                                            (reset! status-tooltip "Error tooltip - this (optionally) appears when there are errors on input-text components."))
-                                                                               :style     {:margin-left "20px"}]]]
-                                                                  [h-box
-                                                                   :align :start
-                                                                   :gap      "5px"
-                                                                   :children [[checkbox
-                                                                               :label     [:code ":status-icon?"]
-                                                                               :model     status-icon?
-                                                                               :on-change (fn [val]
-                                                                                            (reset! status-icon? val))]
-                                                                              [:span " (notice the tooltips on the icons)"]]]
-
-                                                                  [v-box
-                                                                   :children [[box :align :start :child [:code ":validation-regex"]]
-                                                                              [radio-button
-                                                                               :label     "nil/omitted - no character validation"
-                                                                               :value     nil
-                                                                               :model     @regex
-                                                                               :on-change #(do (reset! regex %)
-                                                                                               (reset! text-val ""))
-                                                                               :style     {:margin-left "20px"}]
-                                                                              [radio-button
-                                                                               :label     "only accept input matching '99.9'"
-                                                                               :value     regex999
-                                                                               :model     @regex
-                                                                               :on-change #(do (reset! regex %)
-                                                                                               (reset! text-val ""))
-                                                                               :style     {:margin-left "20px"}]]]
-                                                                  [h-box
-                                                                   :align    :start
-                                                                   :gap      "5px"
-                                                                   :children [[checkbox
-                                                                               :label     [:code ":on-alter"]
-                                                                               :model     on-alter?
-                                                                               :on-change (fn [val]
-                                                                                            (reset! on-alter? val))]
-                                                                              [:span " (set to " [:code "string/upper-case"] ")"]]]
-                                                                  [checkbox
-                                                                   :label     [box :align :start :child [:code ":disabled?"]]
-                                                                   :model     disabled?
+                                                       :children [[box :align :start :child [:code ":change-on-blur?"]]
+                                                                  [radio-button
+                                                                   :label     "false - Call on-change on every keystroke"
+                                                                   :value     false
+                                                                   :model     @change-on-blur?
+                                                                   :on-change #(reset! change-on-blur? %)
+                                                                   :style     {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
+                                                                   :value     true
+                                                                   :model     @change-on-blur?
+                                                                   :on-change #(reset! change-on-blur? %)
+                                                                   :style     {:margin-left "20px"}]]]
+                                                      [v-box
+                                                       :children [[box :align :start :child [:code ":status"]]
+                                                                  [radio-button
+                                                                   :label     "nil/omitted - normal input state"
+                                                                   :value     nil
+                                                                   :model     @status
+                                                                   :on-change #(do
+                                                                                (reset! status %)
+                                                                                (reset! status-tooltip ""))
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label ":validating - set while validating an input value"
+                                                                   :value :validating
+                                                                   :model @status
+                                                                   :on-change #(do
+                                                                                (reset! status %)
+                                                                                (reset! status-tooltip "Validating tooltip - this (optionally) appears when an input-text is validating."))
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label ":success - border color becomes green"
+                                                                   :value :success
+                                                                   :model @status
+                                                                   :on-change #(do
+                                                                                (reset! status %)
+                                                                                (reset! status-tooltip "Success tooltip - this (optionally) appears when an input-text components has validated successfully."))
+                                                                   :style {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     ":warning - border color becomes orange"
+                                                                   :value     :warning
+                                                                   :model     @status
+                                                                   :on-change #(do
+                                                                                (reset! status %)
+                                                                                (reset! status-tooltip "Warning tooltip - this (optionally) appears when there are warnings on input-text components."))
+                                                                   :style     {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     ":error - border color becomes red"
+                                                                   :value     :error
+                                                                   :model     @status
+                                                                   :on-change #(do
+                                                                                (reset! status %)
+                                                                                (reset! status-tooltip "Error tooltip - this (optionally) appears when there are errors on input-text components."))
+                                                                   :style     {:margin-left "20px"}]]]
+                                                      [h-box
+                                                       :align :start
+                                                       :gap      "5px"
+                                                       :children [[checkbox
+                                                                   :label     [:code ":status-icon?"]
+                                                                   :model     status-icon?
                                                                    :on-change (fn [val]
-                                                                                (reset! disabled? val))]
-                                                                  [h-box
-                                                                   :gap "10px"
-                                                                   :children [[h-box
-                                                                               :align    :start
-                                                                               :children [[:code ":rows"]
-                                                                                          "(textarea)"]]
-                                                                              [slider
-                                                                               :model     slider-val
-                                                                               :min       1
-                                                                               :max       10
-                                                                               :width     "200px"
-                                                                               :on-change #(reset! slider-val %)]
-                                                                              [label :label @slider-val]]]]]]]]]]]
+                                                                                (reset! status-icon? val))]
+                                                                  [:span " (notice the tooltips on the icons)"]]]
+
+                                                      [v-box
+                                                       :children [[box :align :start :child [:code ":validation-regex"]]
+                                                                  [radio-button
+                                                                   :label     "nil/omitted - no character validation"
+                                                                   :value     nil
+                                                                   :model     @regex
+                                                                   :on-change #(do (reset! regex %)
+                                                                                   (reset! text-val ""))
+                                                                   :style     {:margin-left "20px"}]
+                                                                  [radio-button
+                                                                   :label     "only accept input matching '99.9'"
+                                                                   :value     regex999
+                                                                   :model     @regex
+                                                                   :on-change #(do (reset! regex %)
+                                                                                   (reset! text-val ""))
+                                                                   :style     {:margin-left "20px"}]]]
+                                                      [h-box
+                                                       :align    :start
+                                                       :gap      "5px"
+                                                       :children [[checkbox
+                                                                   :label     [:code ":on-alter"]
+                                                                   :model     on-alter?
+                                                                   :on-change (fn [val]
+                                                                                (reset! on-alter? val))]
+                                                                  [:span " (set to " [:code "string/upper-case"] ")"]]]
+                                                      [checkbox
+                                                       :label     [box :align :start :child [:code ":disabled?"]]
+                                                       :model     disabled?
+                                                       :on-change (fn [val]
+                                                                    (reset! disabled? val))]
+                                                      [h-box
+                                                       :gap "10px"
+                                                       :children [[h-box
+                                                                   :align    :start
+                                                                   :children [[:code ":rows"]
+                                                                              "(textarea)"]]
+                                                                  [slider
+                                                                   :model     slider-val
+                                                                   :min       1
+                                                                   :max       10
+                                                                   :width     "200px"
+                                                                   :on-change #(reset! slider-val %)]
+                                                                  [label :label @slider-val]]]]]]]]]
                   [parts-table "input-text" input-text-parts-desc]]])))
 
 

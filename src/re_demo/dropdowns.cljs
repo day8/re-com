@@ -332,130 +332,137 @@
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
-                  [p "Experiment with the checkboxes below to understand the effect of other parameters."]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":disabled?"]]
-                               :model disabled?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! disabled? %)]
-                              [:span (str @disabled? " - " (if @disabled?
-                                                             "the dropdown is locked and cannot be changed."
-                                                             "the dropdown is enabled and a choice can be selected."))]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":regex-filter?"]]
-                               :model regex?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! regex? %)]
-                              [:span (str @regex? " - " (if @regex?
-                                                          "the filter text box supports JavaScript regular expressions."
-                                                          "the filter text box supports plain text filtering only."))]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":width"]]
-                               :model width?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! width? %)]
-                              [:span (str (if @width?
-                                            (str "\"" dropdown-width "\" - the dropdown is fixed to this width.")
-                                            "not specified - the dropdown takes up all available width."))]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":tooltip"]]
-                               :model tooltip?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! tooltip? %)]
-                              [:span (if @tooltip?
-                                       "hover over the dropdown to see the tooltip."
-                                       "no tooltip specified.")]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":tooltip-position"]]
-                               :model tooltip-position?
-                               :label-style {:width "165px"}
-                               :disabled? (not @tooltip?)
-                               :on-change #(reset! tooltip-position? %)]
-                              [:span (cond
-                                       (not @tooltip?)    "does not apply."
-                                       @tooltip-position? "the tooltip will appear on the right hand side of the dropdown."
-                                       :else              "not specified - the tooltip will appear below the dropdown.")]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":enter-drop?"]]
-                               :model enter-drop?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! enter-drop? %)]
-                              [:span (str @enter-drop? " - " (if @enter-drop?
-                                                               "pressing Enter (while focused) displays the dropdown part."
-                                                               "pressing Enter (while focused) does not display the dropdown part."))]]]
-                  [h-box
-                   :align    :start
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":cancelable?"]]
-                               :model cancelable?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! cancelable? %)]
-                              [:span (str @cancelable? " - " (if @cancelable?
-                                                               "selection made with arrow keys can be cancelled by pressing Esc or clicking outside the dropdown part."
-                                                               "selection made with arrow keys is immediately applied and thus cannot be cancelled."))]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":filter-placeholder"]]
-                               :model filter-placeholder?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! filter-placeholder? %)]
-                              [:span (str (if @filter-placeholder?
-                                            "a placeholder text will be displayed when the filter is empty."
-                                            "not specified - no placeholder text will be displayed in the filter textbox."))]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":just-drop?"]]
-                               :model just-drop?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! just-drop? %)]
-                              [:span (str @just-drop? " - " (if @just-drop?
-                                                              "just the dropdown part display."
-                                                              "normal display."))]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":repeat-change?"]]
-                               :model repeat-change?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! repeat-change? %)]
-                              [:span (str @repeat-change? " - " (if @repeat-change?
-                                                                  (str "the change count of " @change-count " will increase if an item is re-selected.")
-                                                                  (str "the change count of " @change-count " will not increase if an item is re-selected.")))]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":i18n"]]
-                               :model i18n?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! i18n? %)]
-                              [:span (if @i18n?
-                                       "type e.g. \"1\" in the filter box to see the \"No results match\" message translated."
-                                       "no internationalization applied.")]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":on-drop?"]]
-                               :model on-drop?
-                               :label-style {:width "165px"}
-                               :on-change #(reset! on-drop? %)]
-                              [:span (str @on-drop? " - " (if @on-drop?
-                                                            (str "the drop count of " @drop-count " will increase on the dropdown part display.")
-                                                            (str "the drop count of " @drop-count " will not increase on the dropdown part display.")))]]]
-                  [gap :size "10px"]]])))
+                  [v-box
+                   :gap "10px"
+                   :style    {:min-width        "150px"
+                              :padding          "15px"
+                              :border-top       "1px solid #DDD"
+                              :background-color "#f7f7f7"}
+                   :children [[title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                              [p "Experiment with the checkboxes below to understand the effect of other parameters."]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":disabled?"]]
+                                           :model disabled?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! disabled? %)]
+                                          [:span (str @disabled? " - " (if @disabled?
+                                                                         "the dropdown is locked and cannot be changed."
+                                                                         "the dropdown is enabled and a choice can be selected."))]]]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":regex-filter?"]]
+                                           :model regex?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! regex? %)]
+                                          [:span (str @regex? " - " (if @regex?
+                                                                      "the filter text box supports JavaScript regular expressions."
+                                                                      "the filter text box supports plain text filtering only."))]]]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":width"]]
+                                           :model width?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! width? %)]
+                                          [:span (str (if @width?
+                                                        (str "\"" dropdown-width "\" - the dropdown is fixed to this width.")
+                                                        "not specified - the dropdown takes up all available width."))]]]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":tooltip"]]
+                                           :model tooltip?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! tooltip? %)]
+                                          [:span (if @tooltip?
+                                                   "hover over the dropdown to see the tooltip."
+                                                   "no tooltip specified.")]]]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":tooltip-position"]]
+                                           :model tooltip-position?
+                                           :label-style {:width "165px"}
+                                           :disabled? (not @tooltip?)
+                                           :on-change #(reset! tooltip-position? %)]
+                                          [:span (cond
+                                                   (not @tooltip?)    "does not apply."
+                                                   @tooltip-position? "the tooltip will appear on the right hand side of the dropdown."
+                                                   :else              "not specified - the tooltip will appear below the dropdown.")]]]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":enter-drop?"]]
+                                           :model enter-drop?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! enter-drop? %)]
+                                          [:span (str @enter-drop? " - " (if @enter-drop?
+                                                                           "pressing Enter (while focused) displays the dropdown part."
+                                                                           "pressing Enter (while focused) does not display the dropdown part."))]]]
+                              [h-box
+                               :align    :start
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":cancelable?"]]
+                                           :model cancelable?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! cancelable? %)]
+                                          [:span (str @cancelable? " - " (if @cancelable?
+                                                                           "selection made with arrow keys can be cancelled by pressing Esc or clicking outside the dropdown part."
+                                                                           "selection made with arrow keys is immediately applied and thus cannot be cancelled."))]]]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":filter-placeholder"]]
+                                           :model filter-placeholder?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! filter-placeholder? %)]
+                                          [:span (str (if @filter-placeholder?
+                                                        "a placeholder text will be displayed when the filter is empty."
+                                                        "not specified - no placeholder text will be displayed in the filter textbox."))]]]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":just-drop?"]]
+                                           :model just-drop?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! just-drop? %)]
+                                          [:span (str @just-drop? " - " (if @just-drop?
+                                                                          "just the dropdown part display."
+                                                                          "normal display."))]]]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":repeat-change?"]]
+                                           :model repeat-change?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! repeat-change? %)]
+                                          [:span (str @repeat-change? " - " (if @repeat-change?
+                                                                              (str "the change count of " @change-count " will increase if an item is re-selected.")
+                                                                              (str "the change count of " @change-count " will not increase if an item is re-selected.")))]]]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":i18n"]]
+                                           :model i18n?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! i18n? %)]
+                                          [:span (if @i18n?
+                                                   "type e.g. \"1\" in the filter box to see the \"No results match\" message translated."
+                                                   "no internationalization applied.")]]]
+                              [h-box
+                               :align    :center
+                               :children [[checkbox
+                                           :label [box :align :start :child [:code ":on-drop?"]]
+                                           :model on-drop?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! on-drop? %)]
+                                          [:span (str @on-drop? " - " (if @on-drop?
+                                                                        (str "the drop count of " @drop-count " will increase on the dropdown part display.")
+                                                                        (str "the drop count of " @drop-count " will not increase on the dropdown part display.")))]]]
+                              [gap :size "10px"]]]]])))
 
 
 

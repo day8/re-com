@@ -38,28 +38,34 @@
                                            :href      (when href? "http://google.com")
                                            :target    (when href? target)
                                            :disabled?        disabled?]
-                                          [title :level :level3 :label "Parameters"]
-                                          (when @href?
-                                            [v-box
-                                             :gap      "15px"
-                                             :children [[box :align :start :child [:code ":target"]]
-                                                        [radio-button
-                                                         :label "_self - load link into same tab"
-                                                         :value "_self"
-                                                         :model @target
-                                                         :on-change #(reset! target %)
-                                                         :style {:margin-left "20px"}]
-                                                        [radio-button
-                                                         :label "_blank - load link into new tab"
-                                                         :value "_blank"
-                                                         :model @target
-                                                         :on-change #(reset! target %)
-                                                         :style {:margin-left "20px"}]
-                                                        [checkbox
-                                                         :label [:code ":disabled?"]
-                                                         :model disabled?
-                                                         :on-change (fn [val]
-                                                                      (reset! disabled? val))]]])]]]]
+                                          [v-box
+                                           :gap "10px"
+                                           :style    {:min-width        "150px"
+                                                      :padding          "15px"
+                                                      :border-top       "1px solid #DDD"
+                                                      :background-color "#f7f7f7"}
+                                           :children [[title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                                                      (when @href?
+                                                        [v-box
+                                                         :gap      "15px"
+                                                         :children [[box :align :start :child [:code ":target"]]
+                                                                    [radio-button
+                                                                     :label "_self - load link into same tab"
+                                                                     :value "_self"
+                                                                     :model @target
+                                                                     :on-change #(reset! target %)
+                                                                     :style {:margin-left "20px"}]
+                                                                    [radio-button
+                                                                     :label "_blank - load link into new tab"
+                                                                     :value "_blank"
+                                                                     :model @target
+                                                                     :on-change #(reset! target %)
+                                                                     :style {:margin-left "20px"}]
+                                                                    [checkbox
+                                                                     :label [:code ":disabled?"]
+                                                                     :model disabled?
+                                                                     :on-change (fn [val]
+                                                                                  (reset! disabled? val))]]])]]]]]]
                   [parts-table "hyperlink-href" hyperlink-href-parts-desc]]])))
 
 

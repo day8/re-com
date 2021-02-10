@@ -35,21 +35,28 @@
                                                        :model    progress
                                                        :width    "350px"
                                                        :striped? @striped?]
-                                                      [title :level :level3 :label "Parameters"]
-                                                      [h-box
+                                                      [v-box
                                                        :gap "10px"
-                                                       :children [[box :align :start :child [:code ":model"]]
-                                                                  [slider
-                                                                   :model     progress
-                                                                   :min       0
-                                                                   :max       100
-                                                                   :width     "200px"
-                                                                   :on-change #(reset! progress %)]
-                                                                  [label :label @progress]]]
-                                                      [checkbox
-                                                       :label     [box :align :start :child [:code ":striped?"]]
-                                                       :model     striped?
-                                                       :on-change #(reset! striped? %)]]]]]]]
+                                                       :style    {:min-width        "150px"
+                                                                  :padding          "15px"
+                                                                  :border-top       "1px solid #DDD"
+                                                                  :background-color "#f7f7f7"}
+                                                       :children [
+                                                                  [title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                                                                  [h-box
+                                                                   :gap "10px"
+                                                                   :children [[box :align :start :child [:code ":model"]]
+                                                                              [slider
+                                                                               :model     progress
+                                                                               :min       0
+                                                                               :max       100
+                                                                               :width     "200px"
+                                                                               :on-change #(reset! progress %)]
+                                                                              [label :label @progress]]]
+                                                                  [checkbox
+                                                                   :label     [box :align :start :child [:code ":striped?"]]
+                                                                   :model     striped?
+                                                                   :on-change #(reset! striped? %)]]]]]]]]]
                   [parts-table "progress-bar" progress-bar-parts-desc]]])))
 
 
