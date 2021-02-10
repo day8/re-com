@@ -661,7 +661,7 @@ fieldset[disabled] .btn {
 .rc-datepicker-disabled,
 .rc-datepicker-unselectable {
     padding: 4px;
-    color: #999;
+    color: #CCC;
 }
 
 .rc-datepicker-selectable:hover {
