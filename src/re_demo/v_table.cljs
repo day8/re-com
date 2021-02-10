@@ -20,7 +20,7 @@
               [p [:code "v-table"] " provides a framework for creating table-ish visual structures. It is low level and abstract and, "
                "while it is very flexible in some ways, it is rigid in others, which means it could either be a perfect fit your use case, or it might be useless. "]
               [p "We use it as a base to create a number of components: one best described as \"pivot tables except they are writable\", and another a \"Gantt-chart-looking planning tool with complex editing and totalling\"."]
-              
+
               [p "Imagine an Excel workbook. It is a large \"canvas\" (of rows and columns), too big to be viewed all at once - you must use scrollbars to explore it. "
                "Now imagine that you \"lock/freeze\" a few rows at the top because they contain " [:b [:i "column headings"]]  " and also a few rows at the bottom "
                "which contain say, totals - call them " [:b [:i "column footers"]]  ". Likewise, in the horizontal, we want to lock/freeze a few left-most columns - let's call this area " [:b [:i "row headers"]]  ", "
@@ -31,7 +31,7 @@
               [p [:code "v-table"] " creates a virtual, scrolling canvas which has " [:b [:i "nine sections"]] ":"]
               [sections-render]
 
-              [p "Use the scrollbars to view the entire canvas. Sections 4, 5 and 6 will scroll horizontally in sync.  Likewise sections 2, 5 and 6 will scroll vertically in sync. The four corners are fixed. "]
+              [p "Use the scrollbars to view the entire canvas. Sections 4, 5 and 6 will scroll horizontally in sync.  Likewise sections 2, 5 and 6 will scroll vertically in sync. The four corners are fixed. All sections, other than 5, are optional."]
 
               [title3 "A Row Oriented Canvas"]
               [p [:code "v-table"] " delivers a row oriented canvas:"]
@@ -39,7 +39,7 @@
                [:li "it is sufficiently abstract that it doesn't even have a native concept of columns - "
                 "which is odd for something calling itself \"a table\", right? But the visual contents of each row is up to you. Render columns into them, if you want."]
                [:li "you can have a million rows in your table because it will render only those few which are currently viewable, but it does not virtualise the horizontal extent of the row - each visible row will be fully rendered to DOM."]
-               [:li "all data rows must have the same fixed height. (But column headers/footers can render rows of any height.)"]]
+               [:li "all data rows must have the same fixed height. (But the rows within the column headers/footers can be of any height)"]]
 
 
               [title3 "Your Renderers"]
@@ -57,7 +57,23 @@
               [title3 "Performance"]
               [p "For performance reasons, " [:code "v-table"] " virtualises rendering rows but even so, with wide tables, or tables showing a lot of rows at once, there can be a lot of DOM being thrown around, and so efficiency and performance can be a consideration. "]
               [p "You should pay attention to the three renderers for data rows (sections 2,5,8). " [:code "v-table"] " must call them a lot as the user scrolls vertically. The other 6 renderers are called very little (once?) and it is unlikely they could impact performance too much. "]
-              [p "If you do run into performance issues, you may need to move away from using \"flex\" layouts in your data row renderers and instead switch to relative positioning or some other less computationally intensive scheme. "]]])
+              [p "If you do run into performance issues, you may need to move away from using \"flex\" layouts in your data row renderers and instead switch to relative positioning or some other less computationally intensive scheme. "]
+
+              [title3 "Section Dimensions"]
+              [p "Widths:"]
+              [:ul
+               [:li "the width of the three left-most sections 1,2,3 is determined by the renderers of these sections. The \"widest\" hiccup returned will determine the width of all."]
+               [:li "the overall width of the center sections 4,5,6 is determined by the argument " [:code ":row-content-width"] ". " 
+                    "Of course, because of space constraints, only part of this full width may be visible to the user, and scrollbars may be present. " 
+                     "By default, " [:code " v-table "] "will expand to the greatest width possible but you can explicitly control the horizontal extent visible for these sections via" [:code ":row-viewport-width"] "." ]
+               [:li "the width of the three right-most sections 7,8,0 is determined by the renderers of these sections. The \"widest\" hiccup returned will determine the width of all."]]
+
+
+              [p "Heights:"]
+              [:ul
+               [:li "the height of the three top-most sections 1,4,7 is determined by the argument " [:code ":column-header-height"] "."]
+               [:li "the height of the three middle sections 2,5,8 is determined by the argument " [:code ":row-content-width"] "."]
+               [:li "the height of the three bottom-most sections 3,6,8 is determined by the argument " [:code ":column-footer-height"] "."]]]])
 
 
 (defn panel

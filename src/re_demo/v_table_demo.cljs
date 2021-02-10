@@ -29,7 +29,7 @@
 (def selection-must-enclose?  false)      ;; When true, selected items only become selected when they are fully enclosed by the selection box
 
 ;; TODO: These three options should be turned into sliders
-(def row-height  20)                ;; Height in px of each row/row header
+(def row-height  21)                ;; Height in px of each row/row header
 (def row-height-px (px row-height))
 (def day-width   20)                ;; Width in px of each day column
 (def demo-table-font-size "12px")   ;; Font size of all text
@@ -61,6 +61,7 @@
   (time.format/parse date-str))
 
 (def grey-stripe-style {:background "repeating-linear-gradient(45deg, #BBB, #BBB 12px, #AAA 12px, #AAA 21px"})
+
 (def timeline-start-date (yyyymmdd->date "20160731"))
 (def timeline-end-date   (time.core/plus timeline-start-date (time.core/weeks 11)))
 (def timeline-data
@@ -390,12 +391,12 @@
 
 (defn create-row-header-line
   [description duration]
-  (let [desc-width 80
+  (let [desc-width 85
         dur-width  65]
     [h-box
      :width    (px (+ desc-width dur-width))
      :height   row-height-px
-     :padding  "0 0 0 10px"
+     :padding  "0 0 0 7px"
      :children [[box :size "1" :child description]
                 (when (not= duration non-breaking-space)
                   [:<>
@@ -587,7 +588,7 @@
                                                          (reset! row-selections coords))
                                                        (reset! row-selections coords))))
                      :row-height                 row-height
-                     :max-row-viewport-height    (* 20 row-height) ;; Note: The v-table :wrapper must have :size "none" to use this
+                     :max-row-viewport-height    (* 20 row-height)  ;; Note: The v-table :wrapper must have :size "none" to use this
                      :row-content-width          content-width
 
                      ;; ===== Styling
