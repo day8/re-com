@@ -82,42 +82,40 @@ two sub-directories:
    ```
 
 2. Compiling And Running The Demo
-
-
+   
    ```shell
    lein watch
    ```
-
-  This will run the demo, by doing:
-  - a clean
-  - a compile
-
-  Wait until `[:demo] Build completed.` is displayed in the console indicating
-  the dev HTTP server is ready.
-
-  Now you can open [`http://localhost:3449/`](http://localhost:3449/) in your
-  browser.
+   
+   This will run the demo, by doing:
+     - a clean
+     - a compile
+   
+   Wait until `[:demo] Build completed.` is displayed in the console indicating
+   the dev HTTP server is ready.
+    
+   Now you can open [`http://localhost:3449/`](http://localhost:3449/) in your
+   browser.
 
 4. Run The (erm, modest) Tests
-
+   
    ```shell
    lein ci
    ```
-
-  This will:
-
-  - clean
-  - compile the tests
-  - compile in release mode as a basic optimized build check
+   
+   This will:
+     - clean
+     - compile the tests
+     - compile in release mode as a basic optimized build check
 
 5. Run or Debug the tests:
-
+   
    ```shell
    lein watch
    ```
 
 6. Deploy The Demo App To S3 bucket
-
+   
    This will only work if you have the right credentials in your env:
    ```shell
    lein deploy-aws
