@@ -10,6 +10,7 @@
     [re-com.box           :refer [border gap box line h-box flex-child-style]]
     [re-com.util          :refer [deref-or-value now->utc]]
     [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
+    #_[re-com.stylesheet    :as stylesheet]
     [clojure.string       :as string])
   (:import
     [goog.i18n DateTimeFormat]))
@@ -17,6 +18,12 @@
 ;; Loosely based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
 
 ;; --- cljs-time facades ------------------------------------------------------
+
+#_(stylesheet/inject-garden-stylesheet!
+    [
+     [:.rc-datepicker
+      {:background-color "red"}]]
+    "datepicker")
 
 (def month-format (formatter "MMMM yyyy"))
 
