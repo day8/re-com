@@ -421,20 +421,14 @@
   (let [[market duration] (clojure.string/split (:label row) ",")
         market   (or market non-breaking-space)
         duration (or duration non-breaking-space)
-        row-type (:row-type row)]
-  (cond row-type
-        
-        :holidays
-        [create-row-header-line market duration {:background-color "#0070C4"}]
+        selected? (and @row-header-selections (and (>= row-index (:start-row @row-header-selections)) (<= row-index (:end-row @row-header-selections))))]
+      [:div {:class "table-row-header"
+             :style (merge activity-row-style
+                           (when selected?
+                             {:color            selection-color
+                              :background-color selection-bg-color}))}
 
-        (let [selected? (and @row-header-selections (and (>= row-index (:start-row @row-header-selections)) (<= row-index (:end-row @row-header-selections))))]
-          [:div {:class "table-row-header"
-                 :style (merge activity-row-style
-                               (when selected?
-                                 {:color            selection-color
-                                  :background-color selection-bg-color}))}
-
-             [create-row-header-line market duration]]))))
+       [create-row-header-line market duration]]))
 
 
 ;; ========== Row Renderer functions ==========
