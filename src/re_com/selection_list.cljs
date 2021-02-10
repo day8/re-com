@@ -59,10 +59,8 @@
 
 
 (defn- radio-clicked
-  [selections item-id required?]
-  (if (and required? (selections item-id))
-    selections  ;; prevent unselect of radio
-    (if (selections item-id) #{} #{item-id})))
+  [selections item-id]
+  (if (selections item-id) #{} #{item-id}))
 
 (defn- as-radio
   [item id-fn selections on-change disabled? label-fn required? as-exclusions? parts]
@@ -71,7 +69,10 @@
      :class (str "list-group-item compact rc-selection-list-group-item " (get-in parts [:list-group-item :class]))
      :style (get-in parts [:list-group-item :style] {})
      :attr  (merge {:on-click (handler-fn (when-not disabled?
-                                            (on-change (radio-clicked selections item-id required?))))}
+                                            ;; prevents on-change from firing if unselect is disabled (required?)
+                                            ;; and the item clicked is already selected.
+                                            (when-not (and required? (selections item-id))
+                                              (on-change (radio-clicked selections item-id)))))}
                    (get-in parts [:list-group-item :attr]))
      :child [radio-button
              :class       (str "rc-selection-list-radio-button " (get-in parts [:radio-button :class]))
