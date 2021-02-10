@@ -7,7 +7,7 @@
     [reagent.core       :as    reagent]
     [re-com.config      :refer [debug? include-args-desc?]]
     [re-com.box         :as    box]
-    [re-com.util        :refer [deref-or-value]]
+    [re-com.util        :as    util :refer [deref-or-value]]
     [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]
     [re-com.dmm-tracker :refer [make-dmm-tracker captureMouseMoves]]))
 
@@ -17,17 +17,7 @@
 (def scrollbar-margin    2)
 (def scrollbar-tot-thick (+ scrollbar-thickness (* 2 scrollbar-margin)))
 
-
-;(def call-count (atom 0))
-(defn original-px
-  "takes a number (and optional :negative keyword to indicate a negative value) and returns that number as a string with 'px' at the end"
-  [val & negative]
-  ;(swap! call-count inc)
-  ;(println (str (int (if negative (- val) val)) "px"))
-  (str (int (if negative (- val) val)) "px"))
-
-
-(def px (memoize original-px))
+(def px (memoize util/px))
 
 
 (defn show-row-data-on-alt-click
