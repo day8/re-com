@@ -1,6 +1,5 @@
 (ns re-com.util
   (:require
-    [clojure.set :refer [superset?]]
     [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
     [goog.date.DateTime]
     [goog.date.UtcDateTime]))
@@ -17,6 +16,11 @@
   (if (every? map? vals)
     (apply merge-with deep-merge vals)
     (last vals)))
+
+(defn assoc-in-if-empty
+  "Only assoc-in if no value exists at ks"
+  [m ks v]
+  (assoc-in m ks (get-in m ks v)))
 
 
 (defn deref-or-value

@@ -6,7 +6,7 @@
     [reagent.core    :as reagent]
     [re-com.config   :refer [include-args-desc?]]
     [re-com.box      :as box]
-    [re-com.util     :refer [px deref-or-value]]
+    [re-com.util     :refer [px deref-or-value assoc-in-if-empty]]
     [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
     [re-com.v-table  :as v-table]))
 
@@ -206,7 +206,7 @@
                    header-renderer           column-headers}
             :as   args}]
       {:pre [(validate-args-macro simple-v-table-args-desc args "simple-v-table")]}
-      (let [internal-model (reagent/track
+      (let [internal-model (reagent/track ;; TODO: Test if this works when external model is dynamic
                              (fn []
                                (if-let [{:keys [key-fn comp order] :or {comp compare}} @sort-by-column]
                                  (do
@@ -217,9 +217,10 @@
                                  (deref-or-value model))))]
         [box/box
          :class (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
-         :style (merge {:background-color "white"
+         :style (merge {:flex             (if max-rows "none" "1")
+                        :background-color "white"
                         :padding          (px table-padding)
-                        :max-width        (or max-width  (px actual-table-width)) ;; Removing actual-table-width would make the table stretch to the end of the page
+                        :max-width        (or max-width (px actual-table-width)) ;; Removing actual-table-width would make the table stretch to the end of the page
                         :border           table-border-style
                         :border-radius    "3px"}
                        (get-in parts [:simple-wrapper :style]))
@@ -234,9 +235,7 @@
                  :row-renderer            (partial row-columns content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
 
                  :column-header-height    column-header-height
-                 ;; For fixed columns:
-                 :top-left-renderer       (partial header-renderer fixed-cols   parts sort-by-column)
-                 ;; Only for non-fixed columns:
+                 :top-left-renderer       (partial header-renderer fixed-cols   parts sort-by-column) ;; Used when there are fixed columns
                  :column-header-renderer  (partial header-renderer content-cols parts sort-by-column)
 
                  ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick)))
@@ -251,10 +250,10 @@
                                                     (apply dissoc (into [parts] simple-v-table-exclusive-parts))
                                                     ;; Inject styles, if not set already, into parts. merge is not safe as it is not
                                                     ;; recursive so e.g. simply setting :attr would delete :style map.
-                                                    (assoc-in [:wrapper :style :font-size] (get-in parts [:wrapper :style :font-size] "13px"))
-                                                    (assoc-in [:wrapper :style :cursor] (get-in parts [:wrapper :style :cursor] "default")))
+                                                    (assoc-in-if-empty [:wrapper :style :font-size] "13px")
+                                                    (assoc-in-if-empty [:wrapper :style :cursor] "default"))
 
                                                   (pos? fixed-column-count)
                                                   (->
-                                                    (assoc-in [:top-left :style :border-right] (get-in parts [:top-left :style :border-right] fixed-col-border-style))
-                                                    (assoc-in [:row-headers :style :border-right] (get-in parts [:row-headers :style :border-right] fixed-col-border-style))))]]))))
+                                                    (assoc-in-if-empty [:top-left :style :border-right] fixed-col-border-style)
+                                                    (assoc-in-if-empty [:row-headers :style :border-right] fixed-col-border-style)))]]))))

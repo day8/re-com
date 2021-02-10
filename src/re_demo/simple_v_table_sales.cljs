@@ -178,7 +178,7 @@
                                                                      [gap :size spacing7]
                                                                      [label :label (px @parent-height)]]
                                                                     [label :label "unset: grows to table's natural extent (100 rows of data) or the :max-rows override"])]]
-                                                      
+
                                                       ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
                                                       ;; The simple-v-table demo starts here
                                                       [simple-v-table
@@ -194,8 +194,6 @@
                                                                                                            (> 5000 sales 2000) "#FFDC00"
                                                                                                            (> 7500 sales 5000) "#01FF70"
                                                                                                            (> sales 7500)      "#2ECC40")}))
-
-                                                       :parts                     {:simple-wrapper {:style {:flex "1 1 auto"}}} ;; TODO: [GR] Required to make simple-v-table height be constrained by it's parent - possibly make this the default behaviour
                                                        :columns                   [{:id :id     :header-label "Code"   :row-label-fn :id                   :width 60  :align "left"  :vertical-align "middle"}
                                                                                    {:id :region :header-label "Region" :row-label-fn :region               :width 100 :align "left"  :vertical-align "middle"}
                                                                                    {:id :name   :header-label "Name"   :row-label-fn :person               :width 100 :align "left"  :vertical-align "middle" :sort-by {}}
