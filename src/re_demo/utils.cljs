@@ -200,6 +200,7 @@
   (let [name-of-first-part  (str (first (remove nil? (map :name parts))))
         code-example-spaces (reduce #(str % " ") "" (range (+ (count name-of-first-part) 13)))]
     [v-box
+     :margin   "0px 20px 20px 0px"
      :children (concat
                  [[title2 "Parts"]
                   [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
