@@ -21,8 +21,8 @@
   (i.e. when `js/GOOG.debug` is false).
 - `[datepicker]` week number calculation with arbitrary `:start-of-week` argument. See [#159](https://github.com/day8/re-com/issues/159)
 - `[tag-dropdown]` popover alignment is now centered under the component, rather than off to the left.
-- `[tag-dropdown]` `disabled?` styles
-- `[datepicker]` `disabled?` styles
+- Fix the `disabled? true` state styling of `[tag-dropdown]`
+- Fix the `disabled? true` state styling of `[datepicker]`
 - `[alert-list]` no longer ignores individual alert `:style` argument. See [#83](https://github.com/day8/re-com/issues/83)
 
 #### Changed
