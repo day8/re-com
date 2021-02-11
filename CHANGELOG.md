@@ -4,8 +4,11 @@
 
 #### Added
 
-- Add `datepicker` year navigation. **Breaking** changes to `datepicker` navigation layout. See 'Parts' section of
+- Add `[datepicker]` year navigation. **Breaking** changes to `datepicker` navigation layout. See 'Parts' section of
   https://re-com.day8.com.au/#/date
+- Add `[simple-v-table]` `:sort-by` feature in column specification maps, allowing single column sorts with optional
+  `:key-fn` to extract the value and `:comp` fn (ala `cljs.core/compare`) to compare the values. 
+- Add `[tag-dropdown]` `:required?` ,`:min-width`, `:max-width`, `:abbrev-fn` and `:abbrev-characters` arguments.
 - Add `re-com.config` ns
 - Add `re-com.config/debug?` as an alias for the closure define `js/GOOG.debug`
 - Add `re-com.config/force-include-args-desc?` as a way to force inclusion of arg description data structures in
@@ -16,69 +19,102 @@
 
 #### Changed
 
-- `text/p` is now the same as `text/p-span` in that it uses a `[:span]` instead of `[:p]` element in its implementation.
+##### All Components
+
+- **Breaking**: 
+  - Argument and Parts description data structures are no longer included in production builds (`js/GOOG.debug` is false,
+  which is automatically set by the ClojureScript compiler for most setups). If you were somehow depending on these data
+  structures in your own code, e.g. to implement your own documentation or arg validation, then it is possible that that
+  code will no longer work as expected. To fix, set `re-com.config/force-include-args-desc?` to `true` in Closure defines
+  in your compiler configuration.
+
+##### `[text/p]`
+
+- `[text/p]` is now the same as `[text/p-span]` in that it uses a `[:span]` instead of `[:p]` element in its implementation.
 **Breaking** This will break any custom CSS selectors that target the `p` element, instead of classes etc. To fix, change
   the CSS selector to target `span.rc-p`. The CSS class has not changed.
-- `datepicker` styling of disabled/unselectable vs days out of the current month improved. **Breaking** Changed `available`
-CSS class to `rc-datepicker-selectable`, `disabled` to `rc-datepicker-disabled`, `off` to `rc-datepicker-unselectable`
-  (for unselectable days) or `rc-datepicker-out-of-focus` (for days not in the current month), `selected` to `rc-datepicker-selected`,
-  and `today` to `rc-datepicker-today`.
   
+##### `[datepicker]`
 
-#### v-table
+- **Breaking** CSS class renames. This will break any custom CSS selectors that target the old `[datepicker]` classes.
+  To fix, change the CSS selector to target the new class.
+   - `available` to `rc-datepicker-selectable`
+   - `disabled` to `rc-datepicker-disabled`
+   - `off` to `rc-datepicker-unselectable` (for unselectable days) or `rc-datepicker-out-of-focus` (for days not in the current month)
+   - `selected` to `rc-datepicker-selected`
+   - `today` to `rc-datepicker-today`.
+  
+##### `[v-table]` and `[simple-v-table]`
 
-The following `v-table` and `simple-v-table` breaking changes are only relevant to Alpha testers...
+Only relevant to Alpha testers as these components are not yet marked as stable. Iterative improvements have continued
+causing some breaking changes.
 
-- **Breaking**: Rename `:max-table-width` arg of `v-table` and `simple-v-table` to `:max-width`.
-- **Breaking**: Rename `:valign` in `simple-v-table` `:columns` specification to `:vertical-align` to
+- **Breaking**:
+  - Argument renames. This will break any CLJS code that pass the arguments to the components. To fix, change the arg
+  to use the new name:
+    - `:max-table-width` arg of `v-table` and `simple-v-table` to `:max-width`
+    - `:scroll-cols-into-view` arg of `v-table`  to `:scroll-cols-into-view`
+    - `:col-header-renderer` arg of `v-table`  to `:column-header-renderer`
+    - `:col-header-height` arg of `v-table`  to `:column-header-height`
+    - `:col-header-selection-fn` arg of `v-table`  to `:column-header-selection-fn`
+    - `:parts` args that match  `:v-table-*` to `:*` (in other words, remove `v-table-`)
+    - `:parts` args that match  `:*-col-*` to `:*-column-*`
+    - `:id-fn` arg has been renamed `:key-fn` and its default has been changed from `:id` to `nil`. If you leave it blank or pass nil, it will use the row's internally generated 0-based row-index instead of :key-fn
+    - `:style-parts` arg of `v-table`  to `:parts`
+      - Then wrap any style maps in a map with a key of `:style`. For example:
+        ```clojure
+           :style-parts {:v-table {:background-color "lightgrey"}}
+
+           ;; becomes...
+
+           :parts {:wrapper {:style {:background-color "lightgrey"}}}
+
+           ;; notice, the above also included a :v-table => :wrapper conversion 
+        ```
+
+  - Rename `:valign` in `simple-v-table` `:columns` specification to `:vertical-align` to
 match the associated CSS property. Fix the documentation and demos of the same.
-- **Breaking**: Rename `:scroll-cols-into-view` arg of `v-table`  to `:scroll-cols-into-view`.
-- **Breaking**: Rename `:col-header-renderer` arg of `v-table`  to `:column-header-renderer`.
-- **Breaking**: Rename `:col-header-height` arg of `v-table`  to `:column-header-height`.
-- **Breaking**: Rename `:col-header-selection-fn` arg of `v-table`  to `:column-header-selection-fn`.
-- **Breaking**: Rename `:style-parts` arg of `v-table`  to `:parts`.
-   - Then wrap any style maps in a map with a key of `:style` 
-   - For example: 
-```clojure
-:style-parts {:v-table {:background-color "lightgrey"}}
+  - `:attr-parts` arg of `v-table` has been removed. You need to incorporate it into the `:parts` arg. For example:
+    ```clojure
+    :attr-parts {:v-table-top-left {:on-click (handler-fn ...)}}
+    
+    ;; becomes...
+    
+    :parts {:top-left {:attr {:on-click (handler-fn ...)}}}
+    
+    ;; notice, the above also included a :v-table-top-left => :top-left conversion 
+    ```
+  
+##### `[tag-dropdown]`
 
-;; becomes...
+- **Breaking**
+  - Removed the `tag-dropdown` arguments `:tag-width`, `:tag-height`, `:tag-comp` and `:on-tag-click`. To fix, remove
+  use of these arguments from your code.
+  - Changed default of `:unselect-buttons?` to `false`, if you want to maintain the old behaviour then add
+  `:unselect-buttons? true` to the arguments passed to the component.
 
-:parts {:wrapper {:style {:background-color "lightgrey"}}}
+#### Fixed
 
-;; notice, the above also included a :v-table => :wrapper conversion 
-```
-- **Breaking**: `:attr-parts` arg of `v-table` has been removed.
-   - You need to incorporate it into the `:parts` arg
-   - For example:
-```clojure
-:attr-parts {:v-table-top-left {:on-click (handler-fn ...)}}
-
-;; becomes...
-
-:parts {:top-left {:attr {:on-click (handler-fn ...)}}}
-
-;; notice, the above also included a :v-table-top-left => :top-left conversion 
-```
-- **Breaking**: Rename any `:parts` args that match  `:v-table-*` to `:*` (in other words, remove `v-table-`).
-- **Breaking**: Rename any `:parts` args that match  `:*-col-*` to `:*-column-*`.
-- **Breaking**: `:id-fn` has been renamed `:key-fn` and its default has been changed from `:id` to `nil`. If you leave it blank or pass nil, it will use the row's internally generated 0-based row-index instead of :key-fn
-
-
-#### Removed
-
-- Remove the `tag-dropdown` arguments `:tag-width`, `:tag-height`, `:tag-comp` and `:on-tag-click`.
+- `[datepicker]` week number calculation with arbitrary `:start-of-week` argument. See [#159](https://github.com/day8/re-com/issues/159)
+- `[tag-dropdown]` popover alignment is now centered under the component, rather than off to the left.
+- `[tag-dropdown]` `disabled?` styles
+- `[datepicker]` `disabled?` styles
+- `[alert-list]` no longer ignores individual alert `:style` argument. See [#83](https://github.com/day8/re-com/issues/83)
 
 ## 2.12.0 (2012-01-23)
 
 #### Fixed
 
 - Fix v-table as `:model` deref was broken in last release.
+- Fix `[multi-select]` and `[selection-list]` scrolling when `disabled?` 
+- Fix `[datepicker]` styling of disabled/unselectable vs days out of the current month
 
 #### Removed
 
-- Remove `re-com.misc` ns. Replaced by `re-com.checkbox`, `re-com.input-text`, `re-com.radio-button`, `re-com.slider`,
-  `re-com.progress-bar` and `re-com.slider`.
+- **Breaking**
+  - Remove `re-com.misc` ns. Replaced by `re-com.checkbox`, `re-com.input-text`, `re-com.radio-button`, `re-com.slider`,
+  `re-com.progress-bar` and `re-com.slider`. If you require `re-com.misc` directly in your code, instead of using the
+  aliases in `re-com.core`, then you will need to change that to the appropriate new namespace reference(s).
 
 ## 2.11.0 (2021-01-23)
 
