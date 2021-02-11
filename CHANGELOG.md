@@ -4,29 +4,14 @@
 
 #### Added
 
-- Add `[datepicker]` year navigation. **Breaking** changes to `datepicker` navigation layout. See 'Parts' section of
-  https://re-com.day8.com.au/#/date
+- Add year navigation buttons to `[datepicker]`. **Breaking** changes to the HTML structure of `datepicker` navigation layout.
+  This may effect your custom CSS styles. See 'Parts' section of https://re-com.day8.com.au/#/date
 - Add `[simple-v-table]` `:sort-by` feature in column specification maps, allowing single column sorts with optional
   `:key-fn` to extract the value and `:comp` fn (ala `cljs.core/compare`) to compare the values. 
-- Add `[tag-dropdown]` `:required?` ,`:min-width`, `:max-width`, `:abbrev-fn` and `:abbrev-characters` arguments.
-- Add `re-com.config` ns
-- Add `re-com.config/debug?` as an alias for the closure define `js/GOOG.debug`
-- Add `re-com.config/force-include-args-desc?` as a way to force inclusion of arg description data structures in
-  release builds for the demo site documentation generation
-- Add `re-com.config/include-args-desc?` and use it to elide arg description data structures. This should lead to
-  smaller production builds for user's of re-com, and faster app startup.
-- Add `:split-is-px?` arg to the splitter components. See [#178](https://github.com/day8/re-com/issues/178)
+- Add new arguments to `[tag-dropdown]` including `:required?` ,`:min-width`, `:max-width`, `:abbrev-fn` and `:abbrev-characters`.
+- Add the argument `:split-is-px?` to `[splitter]`.
 
 #### Changed
-
-##### All Components
-
-- **Breaking**: 
-  - Argument and Parts description data structures are no longer included in production builds (`js/GOOG.debug` is false,
-  which is automatically set by the ClojureScript compiler for most setups). If you were somehow depending on these data
-  structures in your own code, e.g. to implement your own documentation or arg validation, then it is possible that that
-  code will no longer work as expected. To fix, set `re-com.config/force-include-args-desc?` to `true` in Closure defines
-  in your compiler configuration.
 
 ##### `[text/p]`
 
@@ -95,6 +80,8 @@ match the associated CSS property. Fix the documentation and demos of the same.
 
 #### Fixed
 
+- Argument and Parts description data structures for all components are no longer included in production builds 
+  (i.e. when `js/GOOG.debug` is false).
 - `[datepicker]` week number calculation with arbitrary `:start-of-week` argument. See [#159](https://github.com/day8/re-com/issues/159)
 - `[tag-dropdown]` popover alignment is now centered under the component, rather than off to the left.
 - `[tag-dropdown]` `disabled?` styles
