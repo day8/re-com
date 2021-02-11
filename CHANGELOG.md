@@ -15,7 +15,7 @@
   release builds for the demo site documentation generation
 - Add `re-com.config/include-args-desc?` and use it to elide arg description data structures. This should lead to
   smaller production builds for user's of re-com, and faster app startup.
-- Add `:split-is-px?` arg to the splitter components.
+- Add `:split-is-px?` arg to the splitter components. See [#178](https://github.com/day8/re-com/issues/178)
 
 #### Changed
 
