@@ -43,7 +43,7 @@
   "I return the markup for a radio button, with an optional RHS label"
   [& {:keys [model value on-change label disabled? label-class label-style class style attr parts]
       :as   args}]
-  {:pre [(validate-args-macro radio-button-args-desc args "radio-button")]}
+  (validate-args-macro radio-button-args-desc args "radio-button")
   (let [cursor      "default"
         model       (deref-or-value model)
         disabled?   (deref-or-value disabled?)

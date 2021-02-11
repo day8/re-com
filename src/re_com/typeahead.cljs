@@ -259,7 +259,7 @@
 (defn typeahead
   "typeahead reagent component"
   [& {:keys [] :as args}]
-  {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
+  (validate-args-macro typeahead-args-desc args "typeahead")
   (let [{:as state :keys [c-search c-input]} (make-typeahead-state args)
         state-atom (reagent/atom state)
         input-text-model (reagent/cursor state-atom [:input-text])]
@@ -269,7 +269,7 @@
           :keys [data-source _on-change _change-on-blur? _immediate-model-update? model _debounce-delay render-suggestion _suggestion-to-string _rigid?
                  ;; forwarded to wrapped `input-text`:
                  status status-icon? status-tooltip placeholder width height disabled? class style attr parts]}]
-      {:pre [(validate-args-macro typeahead-args-desc args "typeahead")]}
+      (validate-args-macro typeahead-args-desc args "typeahead")
       (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
             last-data-source (:data-source state)
             latest-external-model (deref-or-value model)

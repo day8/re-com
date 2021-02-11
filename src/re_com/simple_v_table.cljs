@@ -184,7 +184,7 @@
              table-row-line-color      "#EAEEF1"
              fixed-column-border-color "#BBBEC0"}
       :as   args}]
-  {:pre [(validate-args-macro simple-v-table-args-desc args "simple-v-table")]}
+  (validate-args-macro simple-v-table-args-desc args "simple-v-table")
   (let [fcc-bounded            (min fixed-column-count (count columns))
         fixed-cols             (subvec columns 0 fcc-bounded)
         content-cols           (subvec columns fcc-bounded (count columns))
@@ -205,7 +205,7 @@
                    row-height                31
                    header-renderer           column-headers}
             :as   args}]
-      {:pre [(validate-args-macro simple-v-table-args-desc args "simple-v-table")]}
+      (validate-args-macro simple-v-table-args-desc args "simple-v-table")
       (let [internal-model (reagent/track ;; TODO: Test if this works when external model is dynamic
                              (fn []
                                (if-let [{:keys [key-fn comp order] :or {comp compare}} @sort-by-column]

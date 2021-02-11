@@ -41,7 +41,7 @@
   [& {:keys [model width striped? class bar-class style attr parts]
       :or   {width "100%"}
       :as   args}]
-  {:pre [(validate-args-macro progress-bar-args-desc args "progress-bar")]}
+  (validate-args-macro progress-bar-args-desc args "progress-bar")
   (let [model (deref-or-value model)]
     [box
      :class (str "rc-progress-bar-wrapper " (get-in parts [:wrapper :class]))

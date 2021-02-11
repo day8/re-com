@@ -172,7 +172,7 @@
 
 (defn tag-dropdown
   [& {:keys [] :as args}]
-  {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
+  (validate-args-macro tag-dropdown-args-desc args "tag-dropdown")
   (let [showing?      (reagent/atom false)]
     (fn tag-dropdown-render
       [& {:keys [choices model placeholder on-change unselect-buttons? required? abbrev-fn abbrev-threshold label-fn
@@ -181,7 +181,7 @@
                  description-fn    :description
                  height            "25px"}
           :as   args}]
-      {:pre [(validate-args-macro tag-dropdown-args-desc args "tag-dropdown")]}
+      (validate-args-macro tag-dropdown-args-desc args "tag-dropdown")
       (let [choices            (deref-or-value choices)
             model              (deref-or-value model)
             abbrev-threshold   (deref-or-value abbrev-threshold)

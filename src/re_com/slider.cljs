@@ -42,7 +42,7 @@
   [& {:keys [model min max step width on-change disabled? class style attr parts]
       :or   {min 0 max 100}
       :as   args}]
-  {:pre [(validate-args-macro slider-args-desc args "slider")]}
+  (validate-args-macro slider-args-desc args "slider")
   (let [model     (deref-or-value model)
         min       (deref-or-value min)
         max       (deref-or-value max)

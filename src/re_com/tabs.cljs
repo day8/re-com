@@ -44,7 +44,7 @@
   [& {:keys [model tabs on-change id-fn label-fn class style attr parts]
       :or   {id-fn :id label-fn :label}
       :as   args}]
-  {:pre [(validate-args-macro horizontal-tabs-args-desc args "tabs")]}
+  (validate-args-macro horizontal-tabs-args-desc args "tabs")
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
@@ -145,7 +145,7 @@
   [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position class style attr parts validate?]
       :or   {id-fn :id label-fn :label tooltip-fn :tooltip}
       :as   args}]
-  {:pre [(validate-args-macro bar-tabs-args-desc args "tabs")]}
+  (validate-args-macro bar-tabs-args-desc args "tabs")
   (bar-tabs
     :model            model
     :tabs             tabs
@@ -165,7 +165,7 @@
   [& {:keys [model tabs on-change id-fn label-fn class style attr parts validate?]
       :or   {id-fn :id label-fn :label}
       :as   args}]
-  {:pre [(validate-args-macro bar-tabs-args-desc args "tabs")]}
+  (validate-args-macro bar-tabs-args-desc args "tabs")
   (bar-tabs
     :model     model
     :tabs      tabs
@@ -240,7 +240,7 @@
   [& {:keys [model tabs on-change id-fn label-fn class style attr parts]
       :or   {id-fn :id label-fn :label}
       :as   args}]
-  {:pre [(validate-args-macro pill-tabs-args-desc args "tabs")]}
+  (validate-args-macro pill-tabs-args-desc args "tabs")
   (pill-tabs
     :model     model
     :tabs      tabs
@@ -258,7 +258,7 @@
   [& {:keys [model tabs on-change id-fn label-fn class style attr parts]
       :or   {id-fn :id label-fn :label}
       :as   args}]
-  {:pre [(validate-args-macro pill-tabs-args-desc args "tabs")]}
+  (validate-args-macro pill-tabs-args-desc args "tabs")
   (pill-tabs
     :model     model
     :tabs      tabs

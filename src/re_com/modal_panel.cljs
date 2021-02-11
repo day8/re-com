@@ -41,7 +41,7 @@
   [& {:keys [child wrap-nicely? backdrop-color backdrop-opacity backdrop-on-click class style attr parts]
       :or   {wrap-nicely? true backdrop-color "black" backdrop-opacity 0.6}
       :as   args}]
-  {:pre [(validate-args-macro modal-panel-args-desc args "modal-panel")]}
+  (validate-args-macro modal-panel-args-desc args "modal-panel")
   [:div    ;; Containing div
    (merge {:class  (str "display-flex rc-modal-panel " class)
            :style (merge {:position "fixed"

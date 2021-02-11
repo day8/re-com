@@ -169,7 +169,7 @@
   "Returns a component which produces a gap between children in a v-box/h-box along the main axis"
   [& {:keys [size width height class style attr]
       :as   args}]
-  {:pre [(validate-args-macro gap-args-desc args "gap")]}
+  (validate-args-macro gap-args-desc args "gap")
   (let [s (merge
             (when size   (flex-child-style size))
             (when width  {:width width})
@@ -200,7 +200,7 @@
   [& {:keys [size color class style attr]
       :or   {size "1px" color "lightgray"}
       :as   args}]
-  {:pre [(validate-args-macro line-args-desc args "line")]}
+  (validate-args-macro line-args-desc args "line")
   (let [s (merge
             (flex-child-style (str "0 0 " size))
             {:background-color color}
@@ -242,7 +242,7 @@
   [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
-  {:pre [(validate-args-macro h-box-args-desc args "h-box")]}
+  (validate-args-macro h-box-args-desc args "h-box")
   (let [s        (merge
                    (flex-flow-style "row nowrap")
                    (flex-child-style size)
@@ -303,7 +303,7 @@
   [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
-  {:pre [(validate-args-macro v-box-args-desc args "v-box")]}
+  (validate-args-macro v-box-args-desc args "v-box")
   (let [s        (merge
                    (flex-flow-style  "column nowrap")
                    (flex-child-style size)
@@ -362,7 +362,7 @@
   [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding child class style attr]
       :or   {size "none"}
       :as   args}]
-  {:pre [(validate-args-macro box-args-desc args "box")]}
+  (validate-args-macro box-args-desc args "box")
   (box-base :size        size
             :width       width
             :height      height
@@ -428,7 +428,7 @@
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self margin padding child class style attr]
       :or   {size "auto"}
       :as   args}]
-  {:pre [(validate-args-macro scroller-args-desc args "scroller")]}
+  (validate-args-macro scroller-args-desc args "scroller")
   (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
         scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
     (box-base :size       size
@@ -489,7 +489,7 @@
   [& {:keys [size width height min-width min-height max-width max-height margin padding border l-border r-border t-border b-border radius child class style attr]
       :or   {size "none"}
       :as   args}]
-  {:pre [(validate-args-macro border-args-desc args "border")]}
+  (validate-args-macro border-args-desc args "border")
   (let [no-border      (every? nil? [border l-border r-border t-border b-border])
         default-border "1px solid lightgrey"]
     (box-base :size        size

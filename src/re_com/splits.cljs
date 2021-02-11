@@ -98,7 +98,7 @@
   [& {:keys [size width height split-is-px? on-split-change initial-split splitter-size margin]
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(validate-args-macro hv-split-args-desc args "h-split")]}
+  (validate-args-macro hv-split-args-desc args "h-split")
   (let [container-id         (gensym "h-split-")
         split-perc           (reagent/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
         dragging?            (reagent/atom false)                       ;; is the user dragging the splitter (mouse is down)?
@@ -209,7 +209,7 @@
   [& {:keys [size width height split-is-px? on-split-change initial-split splitter-size margin]
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
-  {:pre [(validate-args-macro hv-split-args-desc args "v-split")]}
+  (validate-args-macro hv-split-args-desc args "v-split")
   (let [container-id         (gensym "v-split-")
         split-perc           (reagent/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height
         dragging?            (reagent/atom false)                        ;; is the user dragging the splitter (mouse is down)?

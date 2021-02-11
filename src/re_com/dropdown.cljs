@@ -419,7 +419,7 @@
   [& {:keys [choices model regex-filter? debounce-delay just-drop?]
       :or {debounce-delay 250}
       :as args}]
-  {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
+  (validate-args-macro single-dropdown-args-desc args "single-dropdown")
   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
         internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
         drop-showing?  (reagent/atom (boolean just-drop?))
@@ -450,7 +450,7 @@
     (fn [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? free-text? auto-complete? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? est-item-height repeat-change? i18n on-drop width max-height tab-index debounce-delay tooltip tooltip-position class style attr parts]
             :or {id-fn :id label-fn :label group-fn :group render-fn label-fn enter-drop? true cancelable? true est-item-height 30}
             :as args}]
-      {:pre [(validate-args-macro single-dropdown-args-desc args "single-dropdown")]}
+      (validate-args-macro single-dropdown-args-desc args "single-dropdown")
       (let [choices          (if choices-fn? (:choices @choices-state) (deref-or-value choices))
             id-fn            (if free-text? identity id-fn)
             label-fn         (if free-text? identity label-fn)

@@ -271,7 +271,7 @@
   LHS - choices    - comes from choices                 - the full list of items to select from
   RHS - selections - comes from model => internal-model - the selected items from choices collection
   "
-  ;{:pre [(validate/validate-args-macro multi-select-args-desc args "multi-select")]}
+  (validate-args-macro multi-select-args-desc args "multi-select")
   (let [*external-model                    (reagent/atom (deref-or-value model)) ;; Holds the last known external value of model, to detect external model changes
         *internal-model                    (reagent/atom @*external-model) ;; Create a new atom from the model to be used internally
         *current-choice-id                 (reagent/atom nil)
@@ -296,7 +296,7 @@
                    sort-fn   compare
                    required? false}
             :as   args}]
-      {:pre [(validate-args-macro multi-select-args-desc args "multi-select")]}
+      (validate-args-macro multi-select-args-desc args "multi-select")
       (let [required?              (deref-or-value required?)
             filter-box?            (deref-or-value filter-box?)
             regex-filter?          (deref-or-value regex-filter?)

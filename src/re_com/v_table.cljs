@@ -796,7 +796,7 @@
   [& {:keys [model virtual? row-height row-viewport-width row-viewport-height max-row-viewport-height]
       :or   {virtual? true}
       :as   args}]
-  {:pre [(validate-args-macro v-table-args-desc args "v-table")]}
+  (validate-args-macro v-table-args-desc args "v-table")
   (let [scroll-x              (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
         scroll-y              (reagent/atom 0)              ;; px offset from top of header/content/footer sections (note: this value remains the same when virtual-mode? is both true and false)
         ;wheel-row-increment   (* 10 row-height)             ;; Could be an argument
@@ -1049,7 +1049,7 @@
                                      class parts]
                               :or   {virtual? true remove-empty-row-space? true key-fn nil}
                               :as   args}]
-                          {:pre [(validate-args-macro v-table-args-desc args "v-table")]}
+                          (validate-args-macro v-table-args-desc args "v-table")
                           (reset! content-rows-width row-content-width)
                           (reset! content-rows-height (* @m-size row-height))
 
