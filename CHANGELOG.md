@@ -4,15 +4,20 @@
 
 #### Added
 
-- Add year navigation buttons to `[datepicker]`. **Breaking** the HTML structure of `datepicker` navigation section was changed and
-  this may break any custom CSS styles targeting this HTML. See 'Parts' section of https://re-com.day8.com.au/#/date
 - Add column sorting feature to `[simple-v-table]`. Column specifications can now, optionally include a `:sort-by` key.
 - Add new arguments to `[tag-dropdown]` including `:required?` ,`:min-width`, `:max-width`, `:abbrev-fn` and `:abbrev-characters`.
 - Add the argument `:split-is-px?` to `[splitter]`.  See [#178](https://github.com/day8/re-com/issues/178)
-
+- Add year navigation buttons to `[datepicker]`. See [#109](https://github.com/day8/re-com/issues/109#issuecomment-770462387) **Breaking** the HTML structure for the `datepicker` navigation section was changed and
+  certain CSS classes have been renamed/changed. If you have custom CSS selectors targeting these parts, you'll need to edit as follows:
+   - `available` to `rc-datepicker-selectable`
+   - `disabled` to `rc-datepicker-disabled`
+   - `off` to `rc-datepicker-unselectable` (for unselectable days) or `rc-datepicker-out-of-focus` (for days not in the current month)
+   - `selected` to `rc-datepicker-selected`
+   - `today` to `rc-datepicker-today`.
+   
 #### Fixed
 
-- Argument and Parts description data structures for all components are no longer included in production builds 
+- Previously, the argument and parts description data structures (for each component) were incorrectly included into production builds. This is now fixed. 
   (i.e. when `js/GOOG.debug` is false).
 - `[datepicker]` week number calculation with arbitrary `:start-of-week` argument. See [#159](https://github.com/day8/re-com/issues/159)
 - `[tag-dropdown]` popover alignment is now centered under the component, rather than off to the left.
@@ -25,15 +30,6 @@
 ##### `[text/p]`
 
 - `[text/p]` is now an alias to `[text/p-span]`.  Externally this means no change. But interally, it is implemented using `[:span]` instead of `[:p]` (allowing you to embed `boxes` etc).  **Breaking** Because of the change in HTML elements used, your custom CSS selectors targetting `p` elements will have to be changed to target `span.rc-p`. 
-  
-##### `[datepicker]`
-
-- **Breaking** Certain CSS classes have been renamed/changed. You will need to re-target any of your custom CSS selectors:
-   - `available` to `rc-datepicker-selectable`
-   - `disabled` to `rc-datepicker-disabled`
-   - `off` to `rc-datepicker-unselectable` (for unselectable days) or `rc-datepicker-out-of-focus` (for days not in the current month)
-   - `selected` to `rc-datepicker-selected`
-   - `today` to `rc-datepicker-today`.
   
 ##### `[tag-dropdown]`
 
