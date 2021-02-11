@@ -1,6 +1,6 @@
 ## Unreleased
 
-**IMPORTANT:** You must upgrade your copy of `re-com.css` when upgrading to this release.
+> **IMPORTANT:** You must upgrade your copy of `re-com.css` when upgrading to this release.
 
 #### Added
 
