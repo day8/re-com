@@ -203,7 +203,7 @@
                                                        :gap      spacing7
                                                        :align    :center
                                                        :children [[label
-                                                                   :width "135px"
+                                                                   :width "145px"
                                                                    :label [:span "Rows in table: " [:span.bold (count @sales-rows)]]]
                                                                   [button
                                                                    :label    (str "Generate " (if @how-many? @how-many "random") " rows")
@@ -222,9 +222,9 @@
                                                                      [slider
                                                                       :model     how-many
                                                                       :on-change #(reset! how-many %)
-                                                                      :min       100
-                                                                      :max       100000
-                                                                      :step      100
+                                                                      :min       1000
+                                                                      :max       1000000
+                                                                      :step      1000
                                                                       :width     (px 200)]
                                                                      [gap :size spacing7]
                                                                      [label :label @how-many]]
@@ -245,7 +245,7 @@
                                                                                                            (> 5000 sales 2000) "#FFDC00"
                                                                                                            (> 7500 sales 5000) "#01FF70"
                                                                                                            (> sales 7500)      "#2ECC40")}))
-                                                       :columns                   [{:id :id     :header-label "Code"   :row-label-fn :id                   :width 60  :align "center" :vertical-align "middle"}
+                                                       :columns                   [{:id :id     :header-label "Code"   :row-label-fn :id                   :width 70  :align "center" :vertical-align "middle"}
                                                                                    {:id :region :header-label "Region" :row-label-fn :region               :width 100 :align "left"   :vertical-align "middle"}
                                                                                    {:id :name   :header-label "Name"   :row-label-fn :person               :width 100 :align "left"   :vertical-align "middle" :sort-by {}}
                                                                                    {:id :email  :header-label "Email"  :row-label-fn email-row-label-fn    :width 200 :align "left"   :vertical-align "middle"}
