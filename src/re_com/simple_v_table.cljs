@@ -217,8 +217,13 @@
                                  (deref-or-value model))))]
         [box/box
          :class (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
-         :style (merge {:flex             (if max-rows "none" "1")
-                        :background-color "white"
+         :style (merge {;; :flex setting
+                        ;; When max-rows is being used:
+                        ;;  - "0 1 auto" allows shrinking within parent but not growing (to prevent vertical spill)
+                        ;; Otherwise:
+                        ;;  - "100%" used instead of 1 to resolve conflicts when simple-v-table is the anchor of a popover (e.g. the periodic table demo)
+                        :flex             (if max-rows "0 1 auto" "100%")
+                        :background-color "white" ;; DEBUG "salmon"
                         :padding          (px table-padding)
                         :max-width        (or max-width (px actual-table-width)) ;; Removing actual-table-width would make the table stretch to the end of the page
                         :border           table-border-style
@@ -250,6 +255,8 @@
                                                     (apply dissoc (into [parts] simple-v-table-exclusive-parts))
                                                     ;; Inject styles, if not set already, into parts. merge is not safe as it is not
                                                     ;; recursive so e.g. simply setting :attr would delete :style map.
+
+                                                    ;(assoc-in-if-empty [:wrapper :style :background-color] "antiquewhite") ;; DEBUG
                                                     (assoc-in-if-empty [:wrapper :style :font-size] "13px")
                                                     (assoc-in-if-empty [:wrapper :style :cursor] "default"))
 
