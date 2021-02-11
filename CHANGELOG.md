@@ -4,34 +4,48 @@
 
 #### Added
 
-- Add year navigation buttons to `[datepicker]`. **Breaking** changes to the HTML structure of `datepicker` navigation layout.
-  This may effect your custom CSS styles. See 'Parts' section of https://re-com.day8.com.au/#/date
-- Add `[simple-v-table]` `:sort-by` feature in column specification maps, allowing single column sorts with optional
-  `:key-fn` to extract the value and `:comp` fn (ala `cljs.core/compare`) to compare the values. 
+- Add year navigation buttons to `[datepicker]`. **Breaking** the HTML structure of `datepicker` navigation section was changed and
+  this may break any custom CSS styles targeting this HTML. See 'Parts' section of https://re-com.day8.com.au/#/date
+- Add column sorting feature to `[simple-v-table]`. Column specifications can now, optionally include a `:sort-by` key.
 - Add new arguments to `[tag-dropdown]` including `:required?` ,`:min-width`, `:max-width`, `:abbrev-fn` and `:abbrev-characters`.
-- Add the argument `:split-is-px?` to `[splitter]`.
+- Add the argument `:split-is-px?` to `[splitter]`.  See [#178](https://github.com/day8/re-com/issues/178)
+
+#### Fixed
+
+- Argument and Parts description data structures for all components are no longer included in production builds 
+  (i.e. when `js/GOOG.debug` is false).
+- `[datepicker]` week number calculation with arbitrary `:start-of-week` argument. See [#159](https://github.com/day8/re-com/issues/159)
+- `[tag-dropdown]` popover alignment is now centered under the component, rather than off to the left.
+- `[tag-dropdown]` `disabled?` styles
+- `[datepicker]` `disabled?` styles
+- `[alert-list]` no longer ignores individual alert `:style` argument. See [#83](https://github.com/day8/re-com/issues/83)
 
 #### Changed
 
 ##### `[text/p]`
 
-- `[text/p]` is now the same as `[text/p-span]` in that it uses a `[:span]` instead of `[:p]` element in its implementation.
-**Breaking** This will break any custom CSS selectors that target the `p` element, instead of classes etc. To fix, change
-  the CSS selector to target `span.rc-p`. The CSS class has not changed.
+- `[text/p]` is now an alias to `[text/p-span]`.  Externally this means no change. But interally, it is implemented using `[:span]` instead of `[:p]` (allowing you to embed `boxes` etc).  **Breaking** Because of the change in HTML elements used, your custom CSS selectors targetting `p` elements will have to be changed to target `span.rc-p`. 
   
 ##### `[datepicker]`
 
-- **Breaking** CSS class renames. This will break any custom CSS selectors that target the old `[datepicker]` classes.
-  To fix, change the CSS selector to target the new class.
+- **Breaking** Certain CSS classes have been renamed/changed. You will need to re-target any of your custom CSS selectors:
    - `available` to `rc-datepicker-selectable`
    - `disabled` to `rc-datepicker-disabled`
    - `off` to `rc-datepicker-unselectable` (for unselectable days) or `rc-datepicker-out-of-focus` (for days not in the current month)
    - `selected` to `rc-datepicker-selected`
    - `today` to `rc-datepicker-today`.
   
+##### `[tag-dropdown]`
+
+- **Breaking**
+  - Removed the `tag-dropdown` arguments `:tag-width`, `:tag-height`, `:tag-comp` and `:on-tag-click`. To fix, remove
+  use of these arguments from your code.
+  - Changed default of `:unselect-buttons?` to `false`, if you want to maintain the old behaviour then add
+  `:unselect-buttons? true` to the arguments passed to the component.
+
 ##### `[v-table]` and `[simple-v-table]`
 
-Only relevant to Alpha testers as these components are not yet marked as stable. Iterative improvements have continued
+This section is only relevant to `Alpha` testers as these components are not yet marked as `Stable`. Iterative improvements have continued
 causing some breaking changes.
 
 - **Breaking**:
@@ -69,24 +83,6 @@ match the associated CSS property. Fix the documentation and demos of the same.
     
     ;; notice, the above also included a :v-table-top-left => :top-left conversion 
     ```
-  
-##### `[tag-dropdown]`
-
-- **Breaking**
-  - Removed the `tag-dropdown` arguments `:tag-width`, `:tag-height`, `:tag-comp` and `:on-tag-click`. To fix, remove
-  use of these arguments from your code.
-  - Changed default of `:unselect-buttons?` to `false`, if you want to maintain the old behaviour then add
-  `:unselect-buttons? true` to the arguments passed to the component.
-
-#### Fixed
-
-- Argument and Parts description data structures for all components are no longer included in production builds 
-  (i.e. when `js/GOOG.debug` is false).
-- `[datepicker]` week number calculation with arbitrary `:start-of-week` argument. See [#159](https://github.com/day8/re-com/issues/159)
-- `[tag-dropdown]` popover alignment is now centered under the component, rather than off to the left.
-- `[tag-dropdown]` `disabled?` styles
-- `[datepicker]` `disabled?` styles
-- `[alert-list]` no longer ignores individual alert `:style` argument. See [#83](https://github.com/day8/re-com/issues/83)
 
 ## 2.12.0 (2012-01-23)
 
