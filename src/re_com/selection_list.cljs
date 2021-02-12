@@ -145,7 +145,7 @@
 (defn- list-container
   [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr parts]
     :as   args}]
-  {:pre [(validate-args-macro selection-list-args-desc args "selection-list")]}
+  (validate-args-macro selection-list-args-desc args "selection-list")
   (let [selected (if multi-select? model (-> model first vector set))
         items    (map (if item-renderer
                         #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
@@ -193,7 +193,7 @@
 (defn selection-list
   "Produce a list box with items arranged vertically"
   [& {:as args}]
-  {:pre [(validate-args-macro selection-list-args-desc args "selection-list")]}
+  (validate-args-macro selection-list-args-desc args "selection-list")
   ;;NOTE: Consumer has complete control over what is selected or not. A current design tradeoff
   ;;      causes all selection changes to trigger a complete list re-render as a result of on-change callback.
   ;;      this approach may be not ideal for very large list choices.

@@ -44,7 +44,7 @@
   [& {:keys [id alert-type heading body padding closeable? on-close class style attr parts]
       :or   {alert-type :info}
       :as   args}]
-  {:pre [(validate-args-macro alert-box-args-desc args "alert-box")]}
+  (validate-args-macro alert-box-args-desc args "alert-box")
   (let [close-alert  [close-button
                       :class     (str "rc-alert-close-button " (get-in parts [:close-button :class]))
                       :style     (get-in parts [:close-button :style])
@@ -136,7 +136,7 @@
   [& {:keys [alerts on-close max-height padding border-style alert-class alert-style class style attr parts]
       :or   {padding "4px"}
       :as   args}]
-  {:pre [(validate-args-macro alert-list-args-desc args "alert-list")]}
+  (validate-args-macro alert-list-args-desc args "alert-list")
   (let [alerts (deref-or-value alerts)]
     [box
      :class (str "rc-alert-list-wrapper " (get-in parts [:wrapper :class]))

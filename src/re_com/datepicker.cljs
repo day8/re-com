@@ -513,7 +513,7 @@
 
 (defn datepicker
   [& {:keys [model] :as args}]
-  {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
+  (validate-args-macro datepicker-args-desc args "datepicker")
   (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
         internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
         display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))]
@@ -521,7 +521,7 @@
       [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts]
           :or   {start-of-week 6} ;; Default to Sunday
           :as   args}]
-      {:pre [(validate-args-macro datepicker-args-desc args "datepicker")]}
+      (validate-args-macro datepicker-args-desc args "datepicker")
       (let [latest-ext-model    (deref-or-value model)
             disabled?           (deref-or-value disabled?)
             props-with-defaults (merge args {:start-of-week start-of-week})
@@ -581,7 +581,7 @@
 
 (defn datepicker-dropdown
   [& {:as args}]
-  {:pre [(validate-args-macro datepicker-dropdown-args-desc args "datepicker-dropdown")]}
+  (validate-args-macro datepicker-dropdown-args-desc args "datepicker-dropdown")
   (let [shown?         (reagent/atom false)
         cancel-popover #(reset! shown? false)
         position       :below-left]

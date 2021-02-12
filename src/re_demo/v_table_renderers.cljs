@@ -35,30 +35,29 @@
         dummy-rows                (reagent/atom (mapv #(hash-map :id %1) (range num-rows)))]
     (fn []
       [v-table
-       :model              dummy-rows
-       :row-height         row-height
-       :row-content-width  width-of-main-row-content
+       :model                   dummy-rows
 
-       :max-row-viewport-height  (- total-row-height row-height)    ;; force a vertical scrollbar
+       ;; ===== Column header/footer (sections 4,6)
+       :column-header-renderer  (fn [] [box-with-border {:name ":column-header-renderer" :background gold :height unit-50 :width width-of-main-row-content}])
+       :column-header-height    unit-50
+       :column-footer-renderer  (fn [] [box-with-border {:name ":column-footer-renderer" :background "#d8d460" :height unit-50 :width width-of-main-row-content}])
+       :column-footer-height    unit-50
 
-       :row-header-renderer      (fn [_row-index, _row] [box-with-border {:name ":row-header-renderer " :background green :height unit-31 :width unit-121}])
-       :row-footer-renderer      (fn [_row-index, _row] [box-with-border {:name ":row-footer-renderer"  :background green :height unit-31 :width unit-121}])
+       ;; ===== Row header/footer (sections 2,8)
+       :row-header-renderer     (fn [_row-index, _row] [box-with-border {:name ":row-header-renderer " :background green :height unit-31 :width unit-121}])
+       :row-footer-renderer     (fn [_row-index, _row] [box-with-border {:name ":row-footer-renderer"  :background green :height unit-31 :width unit-121}])
 
-        ;; column header - section 4
-       :column-header-height     unit-50
-       :column-header-renderer   (fn [] [box-with-border {:name ":column-header-renderer" :background gold :height unit-50 :width width-of-main-row-content}])
+       ;; ===== Rows (section 5)
+       :row-renderer            (fn [_row_index, _row] [box-with-border {:name ":row-renderer" :background light-blue :height row-height :width width-of-main-row-content}])
+       :row-content-width       width-of-main-row-content
+       :row-height              row-height
+       :max-row-viewport-height (- total-row-height row-height)    ;; force a vertical scrollbar
 
-        ;; column footer - section 5
-       :column-footer-height     unit-50
-       :column-footer-renderer   (fn [] [box-with-border {:name ":column-footer-renderer" :background "#d8d460" :height unit-50 :width width-of-main-row-content}])
-
-        ;; 4 corners
-       :top-left-renderer        (fn [] [box-with-border {:name ":top-left-renderer"     :background blue  :height unit-50 :width unit-121}])
-       :bottom-left-renderer     (fn [] [box-with-border {:name ":bottom-left-renderer"  :background blue  :height unit-50 :width unit-121}])
-       :bottom-right-renderer    (fn [] [box-with-border {:name ":bottom-right-renderer" :background blue  :height unit-50 :width unit-121}])
-       :top-right-renderer       (fn [] [box-with-border {:name ":top-right-renderer"    :background blue  :height unit-50 :width unit-121}])
-
-       :row-renderer             (fn [_row_index, _row] [box-with-border {:name ":row-renderer" :background light-blue :height row-height :width width-of-main-row-content}])])))
+       ;; ===== Corners (sections 1,3,7,9)
+       :top-left-renderer       (fn [] [box-with-border {:name ":top-left-renderer"     :background blue  :height unit-50 :width unit-121}])
+       :bottom-left-renderer    (fn [] [box-with-border {:name ":bottom-left-renderer"  :background blue  :height unit-50 :width unit-121}])
+       :top-right-renderer      (fn [] [box-with-border {:name ":top-right-renderer"    :background blue  :height unit-50 :width unit-121}])
+       :bottom-right-renderer   (fn [] [box-with-border {:name ":bottom-right-renderer" :background blue  :height unit-50 :width unit-121}])])))
 
 
 ;; MT's Notes: 

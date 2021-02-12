@@ -32,30 +32,28 @@
     (fn []
       [v-table
         :model              single-dummy-row
-        :row-height         row-height
-        :row-content-width  width-of-main-row-content
-       
-       
-        :max-row-viewport-height (- row-height size2)   ;; deliberately create a vertical scrollbar, by not giving enough vertical space to ender the one row
 
+       ;; ===== Column header/footer (sections 4,6)
+        :column-header-renderer (fn [] [box-with-text {:name "column headers" :section "4" :background medium-blue :height size2 :width width-of-main-row-content}])
+        :column-header-height   size2
+        :column-footer-renderer (fn [] [box-with-text {:name "column footers" :section"6" :background medium-blue :height size2 :width width-of-main-row-content}])
+        :column-footer-height   size2
+
+       ;; ===== Row header/footer (sections 2,8)
         :row-header-renderer    (fn [_row-index, _row] [box-with-text {:name "row header" :section "2" :background medium-blue :height row-height :width size2}])
         :row-footer-renderer    (fn [_row-index, _row] [box-with-text {:name "row footer" :section "8" :background medium-blue :height row-height :width size2}])
 
-        ;; column header - section 4
-        :column-header-height   size2
-        :column-header-renderer (fn [] [box-with-text {:name "column headers" :section "4" :background medium-blue :height size2 :width width-of-main-row-content}])
+       ;; ===== Rows (section 5)
+        :row-renderer          (fn [_row_index, _row] [box-with-text {:name "row section" :section "5" :background light-blue :height row-height :width width-of-main-row-content}])
+        :row-content-width  width-of-main-row-content
+        :row-height         row-height
+        :max-row-viewport-height (- row-height size2)   ;; deliberately create a vertical scrollbar, by not giving enough vertical space to ender the one row
 
-        ;; column footer - section 5
-        :column-footer-height   size2
-        :column-footer-renderer (fn [] [box-with-text {:name "column footers" :section"6" :background medium-blue :height size2 :width width-of-main-row-content}])
-
-        ;; corners
+       ;; ===== Corners (sections 1,3,7,9)
         :top-left-renderer     (fn [] [box-with-text {:name "top left"     :section "1" :background blue :height size2 :width size2}])
         :bottom-left-renderer  (fn [] [box-with-text {:name "bottom left"  :section "3" :background blue :height size2 :width size2}])
-        :bottom-right-renderer (fn [] [box-with-text {:name "bottom right" :section "9" :background blue :height size2 :width size2}])
         :top-right-renderer    (fn [] [box-with-text {:name "top right"    :section "7" :background blue :height size2 :width size2}])
-
-        :row-renderer          (fn [_row_index, _row] [box-with-text {:name "row section" :section "5" :background light-blue :height row-height :width width-of-main-row-content}])])))
+        :bottom-right-renderer (fn [] [box-with-text {:name "bottom right" :section "9" :background blue :height size2 :width size2}])])))
 
 
 ;; MT's Notes: 

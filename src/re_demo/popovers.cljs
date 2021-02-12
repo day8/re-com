@@ -376,7 +376,8 @@
                                                                                  :max-height "600px"
                                                                                  :on-change  (fn [val] (reset! curr-position val))]
                                                                                 [label :label "(applies to all popovers on this page)"]]]
-                                                                    [label :label "* Changing starred items above closes the popover."]]]]]]]]]]]))))
+                                                                    [label :label "* Changing starred items above closes the popover."]]]]]]]]]
+                    [line :style {:margin-top "20px"}]]]))))
 
 
 (defn hyperlink-popover-demo
@@ -405,7 +406,8 @@
                                            :popover  [popover-content-wrapper
                                                       :width    "250px"
                                                       :title    "Popover Title"
-                                                      :body     "popover body"]]]]]]]])))
+                                                      :body     "popover body"]]]]]]
+                  [line :style {:margin-top "20px"}]]])))
 
 
 (defn proximity-popover-demo
@@ -437,7 +439,8 @@
                                                        :on-mouse-out  (handler-fn (reset! showing? false))}
                                                       "hover here for tooltip"]
                                            :popover [popover-content-wrapper
-                                                     :body     "popover body (without a title specified) makes a basic tooltip component"]]]]]]]])))
+                                                     :body     "popover body (without a title specified) makes a basic tooltip component"]]]]]]
+                  [line :style {:margin-top "20px"}]]])))
 
 
 (defn popover-tooltip-demo
@@ -537,7 +540,8 @@
                                                        :label [box :align :start :child [:code ":close-button?"]]
                                                        :model close-button?
                                                        :on-change #(reset! close-button? %)]
-                                                      "Mostly used when :status is set to :info"]]]]]]]])))
+                                                      "Mostly used when :status is set to :info"]]]]]]
+                  [line :style {:margin-top "20px"}]]])))
 
 
 (defn complex-popover-demo
@@ -550,7 +554,7 @@
                            :gap      "10px"
                            :width    "450px"
                            :margin   "20px 0px 0px 0px"
-                           :children [[p "Popovers can be arbitrarilary complex."]
+                           :children [[p "Popovers can be arbitrarily complex."]
                                       [p [:code "popover-content-wrapper"] " is friendly to dialog coding patterns."]]]
                           [v-box
                            :gap      "30px"

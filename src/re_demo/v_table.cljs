@@ -44,7 +44,7 @@
 
               [title3 "Your Renderers"]
 
-              [p [:code "v-table "] " is a framework - you supply various render functions, for the various " [:code "sections"] ", and it will call them as needed, and then orchestrate their (hiccup) output into a scrolling and virtualisation whole."]
+              [p [:code "v-table"] " is a framework - you supply various render functions, for the various " [:code "sections"] ", and it will call them as needed, and then orchestrate their (hiccup) output into a scrolling and virtualisation whole."]
               [:p "In the following table, which has 5 data rows, colours and labels are used to identify where renderers are used so you can see how they are combined into a whole."]
 
               [table-showing-renderers]
@@ -64,16 +64,19 @@
               [:ul
                [:li "the width of the three left-most sections 1,2,3 is determined by the renderers of these sections. The \"widest\" hiccup returned will determine the width of all."]
                [:li "the overall width of the center sections 4,5,6 is determined by the argument " [:code ":row-content-width"] ". " 
-                    "Of course, because of space constraints, only part of this full width may be visible to the user, and scrollbars may be present. " 
-                     "By default, " [:code " v-table "] "will expand to the greatest width possible but you can explicitly control the horizontal extent visible for these sections via" [:code ":row-viewport-width"] "." ]
-               [:li "the width of the three right-most sections 7,8,0 is determined by the renderers of these sections. The \"widest\" hiccup returned will determine the width of all."]]
+                    "Because of space constraints, only part of this full width may be visible to the user, triggering scrollbars. "
+                     "By default, " [:code "v-table"] " will expand to the greatest width possible but you can explicitly control the horizontal extent visible for these sections via " [:code ":row-viewport-width"] "." ]
+               [:li "the width of the three right-most sections 7,8,9 is determined by the renderers of these sections. The \"widest\" hiccup returned will determine the width of all."]
+               [:li "finally, the overall (maximum) width of the table can be set with the " [:code ":max-width"] " argument. All these width settings will logically interact with each other, along with the width constraints of the parent to determine the final shape of the table."]]
 
 
               [p "Heights:"]
               [:ul
                [:li "the height of the three top-most sections 1,4,7 is determined by the argument " [:code ":column-header-height"] "."]
-               [:li "the height of the three middle sections 2,5,8 is determined by the argument " [:code ":row-content-width"] "."]
-               [:li "the height of the three bottom-most sections 3,6,8 is determined by the argument " [:code ":column-footer-height"] "."]]]])
+               [:li "the height of the center sections 2,5,8 is determined by the argument " [:code ":row-viewport-height"] ". "
+                "By default, " [:code "v-table"] " will expand to the greatest height possible but you can explicitly control the vertical extent visible for these sections via " [:code ":max-row-viewport-height"] "." ]
+               [:li "the height of the three bottom-most sections 3,6,9 is determined by the argument " [:code ":column-footer-height"] "."]
+               [:li "regarding the overall height of the table, there is no specific arg equivalent of " [:code ":max-width"] " but as mentioned above, use " [:code ":max-row-viewport-height"] " to specify the maximum height for row sections. All these height settings will logically interact with each other, along with the height constraints of the parent to determine the final shape of the table."]]]])
 
 
 (defn panel

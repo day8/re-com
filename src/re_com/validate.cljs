@@ -54,17 +54,17 @@
 
 (defn arg-names-valid?
   "returns true if every passed-args is value. Otherwise log the problem and return false"
-  [defined-args passed-args]
+  [defined-args passed-args component-name]
   (or (superset? defined-args passed-args)
       (let [missing-args (remove defined-args passed-args)]
-        (log-error "Invalid argument(s): " missing-args)))) ;; Regent will show the component-path
+        (log-error "[" component-name "] Invalid argument(s): " missing-args)))) ;; Regent will show the component-path
 
 (defn required-args-passed?
   "returns true if all the required args are supplied. Otherwise log the error and return false"
-  [required-args passed-args]
+  [required-args passed-args component-name]
   (or (superset? passed-args required-args)
       (let [missing-args (remove passed-args required-args)]
-        (log-error "Missing required argument(s): " missing-args)))) ;; Regent will show the component-path
+        (log-error "[" component-name "] Missing required argument(s): " missing-args)))) ;; Regent will show the component-path
 
 
 (defn validate-fns-pass?
@@ -114,13 +114,15 @@
     - Have all required args been passed?
     - Specific validation function calls to check arg values if specified
    If they all pass, returns true.
-   Normally used for a call to the {:pre...} at the beginning of a function"
+   Normally used as the first function at the beginning of a component render function
+   Used to use {:pre... at the beginning of functions, but stopped doing that as throws and causes long ugly stack traces
+   so we just rely on js/console.error to print a nice error to the console instead."
   [arg-defs passed-args & component-name]
   (if-not debug?
     true
     (let [passed-arg-keys (set (keys passed-args))]
-      (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys)
-           (required-args-passed? (:required-args  arg-defs) passed-arg-keys)
+      (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys (first component-name))
+           (required-args-passed? (:required-args  arg-defs) passed-arg-keys (first component-name))
            (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name))))))
 
 
@@ -440,7 +442,7 @@
 (defn ifn-or-nil?
   "Returns true if the passed argument is a function, keyword or nil, otherwise false/error"
   [arg]
-  (or (nil? arg) (ifn? arg) ))
+  (or (nil? arg) (ifn? arg)))
 
 
 ;; Test for atoms containing specific data types

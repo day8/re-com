@@ -238,11 +238,19 @@
                                          7 "All elements of period 7 are radioactive. This period contains the heaviest element which occurs naturally on Earth, plutonium. All of the subsequent elements in the period have been synthesized artificially. Whilst five of these (from americium to einsteinium) are now available in macroscopic quantities, most are extremely rare, having only been prepared in microgram amounts or less. Some of the later elements have only ever been identified in laboratories in quantities of a few atoms at a time."
                                          "")]]
                    :anchor   [simple-v-table
+                              :model                     model
+
+                              ;; ===== Columns
+                              :columns                   columns
                               :fixed-column-count        1
                               :fixed-column-border-color "#333"
+
+                              ;; ===== Rows
                               :row-height                50
-                              :on-enter-row              on-enter-row
-                              :on-leave-row              on-leave-row
+
+                              ;; ===== Styling
                               :cell-style                cell-style-fn
-                              :columns                   columns
-                              :model                     model]]]])))
+
+                              ;; ===== Events
+                              :on-enter-row              on-enter-row
+                              :on-leave-row              on-leave-row]]]])))

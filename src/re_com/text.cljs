@@ -36,7 +36,7 @@
   "Returns markup for a basic label"
   [& {:keys [label on-click width class style attr parts]
       :as   args}]
-  {:pre [(validate-args-macro label-args-desc args "label")]}
+  (validate-args-macro label-args-desc args "label")
   [box
    :class (str "display-inline-flex rc-label-wrapper " (get-in parts [:wrapper :class]))
    :style (get-in parts [:wrapper :style] {})
@@ -85,7 +85,7 @@
   [& {:keys [label level underline? margin-top margin-bottom class style attr parts]
       :or   {margin-top "0.6em" margin-bottom "0.3em"}
       :as   args}]
-  {:pre [(validate-args-macro title-args-desc args "title")]}
+  (validate-args-macro title-args-desc args "title")
   (let [preset-class (if (nil? level) "" (name level))]
     [v-box
      :class    (str "rc-title-wrapper " preset-class " " (get-in parts [:wrapper :class]))

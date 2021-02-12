@@ -188,25 +188,17 @@
                                           [status-text "Stable"]
                                           [p "A variety of horizontal and vertical tab selection components, styled
                                             using Bootstrap."]
-                                          [p "It is quite straight formward to roll your own tab components. The left
+                                          [p "It is quite straight forward to roll your own tab components. The left
                                            side navigation in this demo is effectively a hand-rolled tab component."]
                                           [v-box
-                                           :children [[horizontal-pill-tabs
+                                           :children [[horizontal-tabs
                                                        :model     selected-tag-type
                                                        :tabs      tag-types
                                                        :on-change #(reset! selected-tag-type %)]
-                                                      (when (= :horizontal @selected-tag-type)
-                                                        [:<>
-                                                         [args-table horizontal-tabs-args-desc {:title "Horizontal Tabs Parameters"}]
-                                                         [parts-table "horizontal-tabs" horizontal-tabs-parts-desc]])
-                                                      (when (= :bar @selected-tag-type)
-                                                        [:<>
-                                                         [args-table bar-tabs-args-desc {:title "Bar Tabs Parameters"}]
-                                                         [parts-table "horizontal-bar-tabs" bar-tabs-parts-desc]])
-                                                      (when (= :pill @selected-tag-type)
-                                                        [:<>
-                                                         [args-table pill-tabs-args-desc {:title "Pill Tabs Parameters"}]
-                                                         [parts-table "horizontal-pill-tabs" pill-tabs-parts-desc]])]]]]
+                                                      (case @selected-tag-type
+                                                        :horizontal [args-table horizontal-tabs-args-desc {:title "Horizontal Tabs Parameters"}]
+                                                        :bar        [args-table bar-tabs-args-desc        {:title "Bar Tabs Parameters"}]
+                                                        :pill       [args-table pill-tabs-args-desc       {:title "Pill Tabs Parameters"}])]]]]
                               [v-box
                                :width    "600px"
                                :gap      "10px"
@@ -226,7 +218,11 @@
                                                         1 [tab-styles-demo]
                                                         2 [remembers-demo]
                                                         3 [adding-tabs-demo]
-                                                        4 [tooltips-demo])]]]]]]]])))
+                                                        4 [tooltips-demo])]]]]]]
+                  (case @selected-tag-type
+                    :horizontal [parts-table "horizontal-tabs" horizontal-tabs-parts-desc]
+                    :bar        [parts-table "horizontal-bar-tabs" bar-tabs-parts-desc]
+                    :pill       [parts-table "horizontal-pill-tabs" pill-tabs-parts-desc])]])))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

@@ -43,7 +43,7 @@
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts]
           :or   {class "btn-default"}
           :as   args}]
-      {:pre [(validate-args-macro button-args-desc args "button")]}
+      (validate-args-macro button-args-desc args "button")
       (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [disabled? (deref-or-value disabled?)
             the-button [:button
@@ -117,7 +117,7 @@
       [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr parts]
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
-      {:pre [(validate-args-macro md-circle-icon-button-args-desc args "md-circle-icon-button")]}
+      (validate-args-macro md-circle-icon-button-args-desc args "md-circle-icon-button")
       (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [the-button [:div
                         (merge
@@ -199,7 +199,7 @@
       [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr parts]
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
-      {:pre [(validate-args-macro md-icon-button-args-desc args "md-icon-button")]}
+      (validate-args-macro md-icon-button-args-desc args "md-icon-button")
       (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [the-button [:div
                         (merge
@@ -278,7 +278,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [info position width disabled? class style attr parts] :as args}]
-      {:pre [(validate-args-macro info-button-args-desc args "info-button")]}
+      (validate-args-macro info-button-args-desc args "info-button")
       [popover-tooltip
        :label     info
        :status    :info
@@ -349,7 +349,7 @@
       [& {:keys [md-icon-name on-click mouse-over-row? tooltip tooltip-position disabled? class style attr parts]
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
-      {:pre [(validate-args-macro row-button-args-desc args "row-button")]}
+      (validate-args-macro row-button-args-desc args "row-button")
       (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [the-button [:div
                         (merge
@@ -423,7 +423,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts] :as args}]
-      {:pre [(validate-args-macro hyperlink-args-desc args "hyperlink")]}
+      (validate-args-macro hyperlink-args-desc args "hyperlink")
       (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [label      (deref-or-value label)
             disabled?  (deref-or-value disabled?)
@@ -499,7 +499,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [label href target tooltip tooltip-position disabled? class style attr parts] :as args}]
-      {:pre [(validate-args-macro hyperlink-href-args-desc args "hyperlink-href")]}
+      (validate-args-macro hyperlink-href-args-desc args "hyperlink-href")
       (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
       (let [label      (deref-or-value label)
             href       (deref-or-value href)

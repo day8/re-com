@@ -160,16 +160,16 @@
    Parameters - refer input-time-args above"
   [& {:keys [model minimum maximum] :as args
       :or   {minimum 0 maximum 2359}}]
-  {:pre [(validate-args-macro input-time-args-desc args "input-time")
-         (validate-arg-times (deref-or-value model) minimum maximum)]}
+  (validate-args-macro input-time-args-desc args "input-time")
+  (validate-arg-times (deref-or-value model) minimum maximum)
   (let [deref-model    (deref-or-value model)
         text-model     (reagent/atom (time->text deref-model))
         previous-model (reagent/atom deref-model)]
     (fn
       [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts] :as args
           :or   {minimum 0 maximum 2359}}]
-      {:pre [(validate-args-macro input-time-args-desc args "input-time")
-             (validate-arg-times (deref-or-value model) minimum maximum)]}
+      (validate-args-macro input-time-args-desc args "input-time")
+      (validate-arg-times (deref-or-value model) minimum maximum)
       (let [style (merge (when hide-border? {:border "none"})
                          style)
             new-val (deref-or-value model)

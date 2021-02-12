@@ -1,13 +1,13 @@
 (ns re-com.v-table
   (:require-macros
-    [reagent.ratom :refer [reaction]]
-    [re-com.core :refer [handler-fn]]
-    [re-com.validate :refer [validate-args-macro]])
+    [reagent.ratom      :refer [reaction]]
+    [re-com.core        :refer [handler-fn]]
+    [re-com.validate    :refer [validate-args-macro]])
   (:require
     [reagent.core       :as    reagent]
     [re-com.config      :refer [debug? include-args-desc?]]
     [re-com.box         :as    box]
-    [re-com.util        :refer [deref-or-value]]
+    [re-com.util        :as    util :refer [deref-or-value px-n]]
     [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]
     [re-com.dmm-tracker :refer [make-dmm-tracker captureMouseMoves]]))
 
@@ -17,17 +17,7 @@
 (def scrollbar-margin    2)
 (def scrollbar-tot-thick (+ scrollbar-thickness (* 2 scrollbar-margin)))
 
-
-;(def call-count (atom 0))
-(defn original-px
-  "takes a number (and optional :negative keyword to indicate a negative value) and returns that number as a string with 'px' at the end"
-  [val & negative]
-  ;(swap! call-count inc)
-  ;(println (str (int (if negative (- val) val)) "px"))
-  (str (int (if negative (- val) val)) "px"))
-
-
-(def px (memoize original-px))
+(def px (memoize util/px))
 
 
 (defn show-row-data-on-alt-click
@@ -204,10 +194,7 @@
    :attr     attr
    :children (map
                (fn [index row]
-                 ^{:key (if key-fn
-                          (key-fn row)
-                          index)}
-                 [row-header-renderer index row])
+                 ^{:key (if key-fn (key-fn row) index)} [row-header-renderer index row])
                (iterate inc top-row-index)
                rows)])
 
@@ -321,10 +308,7 @@
    :attr     attr
    :children (map
                (fn [index row]
-                 ^{:key (if key-fn
-                          (key-fn row)
-                          index)}
-                 [row-renderer index row])
+                 ^{:key (if key-fn (key-fn row) index)} [row-renderer index row])
                (iterate inc top-row-index)
                rows)])
 
@@ -427,10 +411,7 @@
    :attr     attr
    :children (map
                (fn [index row]
-                 ^{:key (if key-fn
-                          (key-fn row)
-                          index)}
-                 [row-footer-renderer index row])
+                 ^{:key (if key-fn (key-fn row) index)} [row-footer-renderer index row])
                (iterate inc top-row-index)
                rows)])
 
@@ -527,9 +508,9 @@
      {:name :column-header-selection-fn :required false                :type "(5 args) -> "                :validate-fn fn?                    :description "See v-table docstring for arg details. If present, this function will be called on mouse-down, mouse-move and mouse-up events, allowing you to capture user selection of cells, columns or rows in section 4."}
      {:name :row-selection-fn           :required false                :type "(5 args) -> "                :validate-fn fn?                    :description "See v-table docstring for arg details. If present, this function will be called on mouse-down, mouse-move and mouse-up events, allowing you to capture user selection of cells, columns or rows in section 5."}
 
-     {:name :row-viewport-width         :required false                :type "integer"                     :validate-fn number?                :description "px width of the row viewport area. If not specified, the component takes all the horizontal space available."}
-     {:name :row-viewport-height        :required false                :type "integer"                     :validate-fn number?                :description "px height of the row viewport area. If not specified,the component takes all the vertical space available."}
-     {:name :max-row-viewport-height    :required false                :type "integer"                     :validate-fn number?                :description [:span "The " [:b [:i "maximum"]] " px height of the row viewport area (section 5), excluding height of sections 4 and 6 (plus any scrollbars). If not specified, value determined by parent height and number of rows"]}
+     {:name :row-viewport-width         :required false                :type "integer"                     :validate-fn number?                :description "px width of the row viewport area (section 5). If not specified, the component takes all the horizontal space available."}
+     {:name :row-viewport-height        :required false                :type "integer"                     :validate-fn number?                :description "px height of the row viewport area (section 5). If not specified,the component takes all the vertical space available."}
+     {:name :max-row-viewport-height    :required false                :type "integer"                     :validate-fn number?                :description [:span "The " [:b [:i "maximum"]] " px height of the row viewport area (section 5), excluding height of sections 4 and 6 (and horizontal scrollbar). If not specified, value determined by parent height and number of rows"]}
      {:name :scroll-rows-into-view      :required false                :type "atom containing map"         :validate-fn map-atom?              :description [:span "Scrolls the table to a particular row range. Must be an atom. The map contains the keys " [:code ":start-row"] " and " [:code ":end-row"] " (row indexes)."]}
      {:name :scroll-columns-into-view   :required false                :type "atom containing map"         :validate-fn map-atom?              :description [:span "Scrolls the table of a particular column range. Must be an atom. Map that contains the keys " [:code ":start-col"] " and " [:code ":end-col"]  " in pixel units."]}
      {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                         :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
@@ -775,47 +756,47 @@
 
    - class                    Add extra class(es) to the outer container
 
-   - parts                    [optional map of maps]
-                              Allows styles and attributes (e.g. custom event handlers) to be specified for each part of the table
-
-                              NOTE: all of the style names below are used as class names in the corresponding components
-                                    so a CSS file can be used for styling
+   - parts                    [optional nested map]
+                              Allows classes, styles and attributes (e.g. custom event handlers) to be specified for each part of the table
 
                               Keys can be:
 
-                               - :wrapper                   The outer container of the table
+                               - :wrapper                             The outer container of the table
 
-                               - :left-section      The left v-box container section of the table, containing:
-                                  - :top-left       Top left section (1)
-                                  - :row-headers    Row header section (2)
-                                  - :bottom-left    Bottom left section (3)
+                               - :left-section                        The left v-box container section of the table, containing:
+                                  - :top-left                         Top left section (1)
+                                  - :row-headers                      Row header section (2)
+                                     - :row-header-selection-rect     The row-header rectangle used for click+drag selection of row headers
+                                     - :row-header-content            The v-box containing one row header (row-header-render renders in here)
+                                  - :bottom-left                      Bottom left section (3)
 
-                               - :v-table-middle-section    The middle v-box container section of the table, containing:
-                                  - :column-headers    Column header section (4)
-                                  - :rows           Main rows section (5)
-                                  - :column-footers    Column footer section (6)
-                                  - :h-scroll               The horizontal scrollbar
-
-                               - :vright-section     The right container section v-box of the table, containing:
-                                  - :top-right      Rop right section (7)
-                                  - :row-footers    Row footer section (8)
-                                  - :bottom-right   Bottom right section (9)
-
-                               - :v-scroll-section  The v-box containing the vertical scrollbar:
-                                  - :v-scroll               The vertical scrollbar
-
-                               - :row-selection-rect        Override the default style for the ROW rectangle used for click+drag selection of rows
-                                                            Defaults to being above the rows (:z-index 1). Set to 0 to place it underneath rows
-                               - :row-header-selection-rect Override the default style for the ROW-HEADER rectangle used for click+drag selection of row headers
-                               - :column-header-selection-rect Override the default style for the COL-HEADER rectangle used for click+drag selection of column headers
+                               - :middle-section                      The middle v-box container section of the table, containing:
+                                  - :column-headers                   Column header section (4)
+                                     - :column-header-selection-rect  The column-header rectangle used for click+drag selection of column headers
+                                     - :column-header-content         The box containing the column header (column-header-render renders in here)
+                                  - :rows                             Main rows section (5)
+                                     - :row-selection-rect            The ROW rectangle used for click+drag selection of rows
+                                                                      Defaults to being above the rows (:z-index 1). Set to 0 to place it underneath rows
+                                     - :row-content                   The v-box containing one row (row-render renders in here)
+                                  - :column-footers                   Column footer section (6)
+                                     - :column-footer-content         The box containing the column footer (column-footer-render renders in here)
+                                  - :h-scroll                         The horizontal scrollbar
+                                                                      
+                               - :right-section                       The right container section v-box of the table, containing:
+                                  - :top-right                        Rop right section (7)
+                                  - :row-footers                      Row footer section (8)
+                                     - :row-footer-content            The v-box containing one row footer (row-footer-render renders in here)
+                                  - :bottom-right                     Bottom right section (9)
+                                                                      
+                               - :v-scroll-section                    The v-box containing the vertical scrollbar:
+                                  - :v-scroll                         The vertical scrollbar
    "
-  ;; TODO: Ideally make the component work out row-content-width so it doesn't need to be passed (and column-header-height/column-footer-height if possible)
-  ;; TODO: Remove now? >>> [STU] Suggest we allow model to be passed as a value like other re-com components (DJ agrees)
+  ;; Suggestion: Ideally make the component work out row-content-width so it doesn't need to be passed (and column-header-height/column-footer-height if possible)
 
   [& {:keys [model virtual? row-height row-viewport-width row-viewport-height max-row-viewport-height]
       :or   {virtual? true}
       :as   args}]
-  {:pre [(validate-args-macro v-table-args-desc args "v-table")]}
+  (validate-args-macro v-table-args-desc args "v-table")
   (let [scroll-x              (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
         scroll-y              (reagent/atom 0)              ;; px offset from top of header/content/footer sections (note: this value remains the same when virtual-mode? is both true and false)
         ;wheel-row-increment   (* 10 row-height)             ;; Could be an argument
@@ -1033,14 +1014,12 @@
          :component-did-mount
                         (fn v-table-component-did-mount
                           []
-                          ;(println "v-table-component-did-mount") ;; TODO: REMOVE
                           (reset! row-viewport-element (.getElementById js/document row-viewport-id)) ;; TODO: [MT] Use refs?
                           (.addResizeListener js/window @row-viewport-element on-viewport-resize))
 
          :component-will-unmount
                         (fn v-table-component-will-unmount
                           []
-                          ;(println "v-table-component-will-unmount") ;; TODO: REMOVE
                           (.removeResizeListener js/window @row-viewport-element on-viewport-resize)
                           (reset! row-viewport-element nil))
 
@@ -1070,8 +1049,7 @@
                                      class parts]
                               :or   {virtual? true remove-empty-row-space? true key-fn nil}
                               :as   args}]
-                          ;(println "v-table-renderer") ;; TODO: REMOVE
-                          {:pre [(validate-args-macro v-table-args-desc args "v-table")]}
+                          (validate-args-macro v-table-args-desc args "v-table")
                           (reset! content-rows-width row-content-width)
                           (reset! content-rows-height (* @m-size row-height))
 
@@ -1119,7 +1097,7 @@
                           [box/h-box
                            :class    (str "rc-v-table " class " " (get-in parts [:wrapper :class]))
                            :style    (merge
-                                       {:max-width  max-width ;; TODO: Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
+                                       {:max-width  max-width ;; Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
                                         :max-height (when remove-empty-row-space?
                                                       (+
                                                         (or column-header-height 0)
@@ -1127,7 +1105,7 @@
                                                         (or column-footer-height 0)
                                                         scrollbar-tot-thick))}
 
-                                        ;; TODO: Currently, scrolling a v-table also scrolls parent scrollbars (usually the one on the <body>)
+                                        ;; TODO: Currently, scrolling a v-table with the mouse wheel also scrolls parent scrollbars (usually the one on the <body>)
                                         ;; The solution seems to to use CSS overscroll-behavior
                                         ;; https://developers.google.com/web/updates/2017/11/overscroll-behavior
                                         ;; The following should be in the right place but it makes no difference (also tried the block version)
@@ -1135,7 +1113,7 @@
 
                                         ;:overscroll-behavior "contain"
                                         ;:overscroll-behavior-block "none"
-                                        
+
                                        (get-in parts [:wrapper :style]))
                            :attr     (merge {:on-wheel (handler-fn (on-wheel event))}
                                             (get-in parts [:wrapper :attr]))
@@ -1287,7 +1265,7 @@
                                                    :content-length @content-rows-width
                                                    :scroll-pos     @scroll-x
                                                    :on-change      on-h-scroll-change
-                                                   :style          (merge {:margin (str (px scrollbar-margin) " 0px")}
+                                                   :style          (merge {:margin (px-n scrollbar-margin 0)}
                                                                           (get-in parts [:h-scroll :style]))
                                                    :attr           (get-in parts [:h-scroll :attr])]]]
 
@@ -1358,7 +1336,7 @@
                                                            :content-length @content-rows-height
                                                            :scroll-pos     @scroll-y
                                                            :on-change      on-v-scroll-change
-                                                           :style          (merge {:margin (str "0px " (px scrollbar-margin))}
+                                                           :style          (merge {:margin (px-n 0 scrollbar-margin)}
                                                                                   (get-in parts [:v-scroll :style]))
                                                            :attr           (get-in parts [:v-scroll :attr])]]
                                                   [box/gap :size (px (or column-footer-height 0))]
@@ -1405,4 +1383,3 @@
                                            "content-rows-wh: "   (str "(" @content-rows-width "," @content-rows-height ")") "\n")]]])}))))
 
                                            ;"call-count: "       @call-count "\n"
-

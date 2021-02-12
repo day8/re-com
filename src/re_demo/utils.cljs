@@ -128,15 +128,12 @@
   "I render component arguments in an easy to read format"
   [args  {:keys [total-width name-column-width title]
           :or   {name-column-width "130px" }}]
-  (fn
-    []
-    ;(println total-width)
-    [v-box
-     :width    total-width
-     :children (concat
-                [[title2 (if title title "Parameters")]
-                 [gap :size "10px"]]
-                (map (partial arg-row name-column-width)  args (cycle [true false])))]))
+  [v-box
+   :width    total-width
+   :children (concat
+               [[title2 (if title title "Parameters")]
+                [gap :size "10px"]]
+               (map (partial arg-row name-column-width) args (cycle [true false])))])
 
 (defn parts-header
   []
@@ -200,6 +197,7 @@
   (let [name-of-first-part  (str (first (remove nil? (map :name parts))))
         code-example-spaces (reduce #(str % " ") "" (range (+ (count name-of-first-part) 13)))]
     [v-box
+     :margin   "0px 20px 20px 0px"
      :children (concat
                  [[title2 "Parts"]
                   [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]

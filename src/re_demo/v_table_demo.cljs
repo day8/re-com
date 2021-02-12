@@ -567,37 +567,36 @@
          :children [[v-table
                      :model                      timeline-data
 
-                     ;; ===== Column headers
+                     ;; ===== Column header (section 4)
                      :column-header-renderer     render-table-dates
+                     :column-header-height       (* row-height 4)
                      :column-header-selection-fn (fn [_selection-event coords _ctrlKey _shiftKey _event]
                                                    (reset! col-header-selections coords))
-                     :column-header-height       (* row-height 4)
 
-                     ;; ===== Row headers
+                     ;; ===== Row header (section 2)
                      :row-header-renderer        (partial render-activity-row-header row-header-selections)
                      :row-header-selection-fn    (fn [_selection-event coords _ctrlKey _shiftKey _event]
                                                    (reset! row-header-selections coords))
-                     :top-left-renderer          render-top-left-header
 
-                     ;; ===== Rows
+                     ;; ===== Rows (section 5)
                      :row-renderer               (partial render-activity-row editor-on row-selections)
+                     :row-content-width          content-width
+                     :row-height                 row-height
+                     :max-row-viewport-height    (* 20 row-height)  ;; Note: The v-table :wrapper must have :size "none" to use this
                      :row-selection-fn           (when-not @editor-on
                                                    (fn [selection-event coords _ctrlKey _shiftKey _event]
                                                      (if selection-on-mouse-up?
                                                        (when (= selection-event :selection-end)
                                                          (reset! row-selections coords))
                                                        (reset! row-selections coords))))
-                     :row-height                 row-height
-                     :max-row-viewport-height    (* 20 row-height)  ;; Note: The v-table :wrapper must have :size "none" to use this
-                     :row-content-width          content-width
+
+                     ;; ===== Corners (section 1)
+                     :top-left-renderer          render-top-left-header
 
                      ;; ===== Styling
                      :parts {;; ===== Style the outer table wrapper
                              :wrapper                      {:style {:margin-bottom "20px"
-                                                                    :margin-right  "20px"
-                                                                    
-                                                                    }}
-
+                                                                    :margin-right  "20px"}}
                              ;; ===== Section styles
                              ; 1
                              :top-left                     {:style {:border-right  table-outside-border-style
@@ -620,7 +619,6 @@
                              :top-right                    {:style {:border-right     table-outside-border-style}}
                              ; 8
                              :row-footers                  {:style {:border-right     table-outside-border-style}}
-
                              ;; ===== Selection styles
                              :row-selection-rect           {:style {:z-index 0
                                                                 #_#_:background-color "rgba(0,152,12,0.1)"
