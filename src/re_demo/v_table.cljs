@@ -3,17 +3,20 @@
     [re-com.text               :refer [p]]
     [re-com.box                :refer [h-box v-box box gap]]
     [re-com.v-table            :refer [v-table-parts-desc v-table-args-desc]]
-    [re-demo.utils             :refer [source-reference panel-title title2 title3 parts-table args-table status-text new-in-version github-hyperlink]]
+    [re-com.tabs               :refer [horizontal-tabs]]
     [re-com.util               :refer [px]]
     [re-demo.v-table-sections  :refer [sections-render]]
     [re-demo.v-table-demo      :refer [demo]]
-    [re-demo.v-table-renderers :refer [table-showing-renderers]]))
+    [re-demo.v-table-renderers :refer [table-showing-renderers]]
+    [re-demo.utils             :refer [source-reference panel-title title2 title3 parts-table args-table status-text new-in-version github-hyperlink]]
+    [reagent.core              :as    reagent]))
 
 (defn notes-column
   []
   [v-box
    :gap      "10px"
-   :width    "450px"
+   :width    "550px"
+   :padding  "0px 100px 0px 0px"
    :children [[title2 "Notes"]
               [status-text "Alpha" {:color "red" :font-weight "bold"}]
               [new-in-version "v2.13.0"]
@@ -81,15 +84,25 @@
 
 (defn panel
   []
-  [v-box
-   :size     "auto"
-   :gap      "10px"
-   :children [[panel-title "[v-table ... ]" "src/re_com/v_table.cljs" "src/re_demo/v_table.cljs"]
-              [h-box
-               :gap      "40px"
-               :children [[v-box
-                           :children [[notes-column]
-                                      [args-table v-table-args-desc {:total-width       "550px"
-                                                                     :name-column-width "180px"}]]]
-                          [demo]]]
-              [parts-table "v-table" v-table-parts-desc]]])
+  (let [tab-defs        [{:id :note       :label "Notes"}
+                         {:id :parameters :label "Parameters"}]
+        selected-tab-id (reagent/atom (:id (first tab-defs)))]
+    (fn []
+      [v-box
+       :size     "auto"
+       :gap      "10px"
+       :children [[panel-title "[v-table ... ]" "src/re_com/v_table.cljs" "src/re_demo/v_table.cljs"]
+                  [h-box
+                   :gap      "50px"
+                   :children [[v-box
+                               :children [[horizontal-tabs
+                                           :model     selected-tab-id
+                                           :tabs      tab-defs
+                                           :style     {:margin-top "12px"}
+                                           :on-change #(reset! selected-tab-id %)]
+                                          (case @selected-tab-id
+                                            :note       [notes-column]
+                                            :parameters [args-table v-table-args-desc {:total-width       "550px"
+                                                                                       :name-column-width "180px"}])]]
+                              [demo]]]
+                  [parts-table "v-table" v-table-parts-desc]]])))
