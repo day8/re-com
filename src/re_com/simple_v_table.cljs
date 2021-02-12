@@ -206,7 +206,7 @@
                    header-renderer           column-headers}
             :as   args}]
       (validate-args-macro simple-v-table-args-desc args "simple-v-table")
-      (let [internal-model (reagent/track ;; TODO: Test if this works when external model is dynamic
+      (let [internal-model (reagent/track
                              (fn []
                                (if-let [{:keys [key-fn comp order] :or {comp compare}} @sort-by-column]
                                  (do

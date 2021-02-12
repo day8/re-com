@@ -508,9 +508,9 @@
      {:name :column-header-selection-fn :required false                :type "(5 args) -> "                :validate-fn fn?                    :description "See v-table docstring for arg details. If present, this function will be called on mouse-down, mouse-move and mouse-up events, allowing you to capture user selection of cells, columns or rows in section 4."}
      {:name :row-selection-fn           :required false                :type "(5 args) -> "                :validate-fn fn?                    :description "See v-table docstring for arg details. If present, this function will be called on mouse-down, mouse-move and mouse-up events, allowing you to capture user selection of cells, columns or rows in section 5."}
 
-     {:name :row-viewport-width         :required false                :type "integer"                     :validate-fn number?                :description "px width of the row viewport area. If not specified, the component takes all the horizontal space available."}
-     {:name :row-viewport-height        :required false                :type "integer"                     :validate-fn number?                :description "px height of the row viewport area. If not specified,the component takes all the vertical space available."}
-     {:name :max-row-viewport-height    :required false                :type "integer"                     :validate-fn number?                :description [:span "The " [:b [:i "maximum"]] " px height of the row viewport area (section 5), excluding height of sections 4 and 6 (plus any scrollbars). If not specified, value determined by parent height and number of rows"]}
+     {:name :row-viewport-width         :required false                :type "integer"                     :validate-fn number?                :description "px width of the row viewport area (section 5). If not specified, the component takes all the horizontal space available."}
+     {:name :row-viewport-height        :required false                :type "integer"                     :validate-fn number?                :description "px height of the row viewport area (section 5). If not specified,the component takes all the vertical space available."}
+     {:name :max-row-viewport-height    :required false                :type "integer"                     :validate-fn number?                :description [:span "The " [:b [:i "maximum"]] " px height of the row viewport area (section 5), excluding height of sections 4 and 6 (and horizontal scrollbar). If not specified, value determined by parent height and number of rows"]}
      {:name :scroll-rows-into-view      :required false                :type "atom containing map"         :validate-fn map-atom?              :description [:span "Scrolls the table to a particular row range. Must be an atom. The map contains the keys " [:code ":start-row"] " and " [:code ":end-row"] " (row indexes)."]}
      {:name :scroll-columns-into-view   :required false                :type "atom containing map"         :validate-fn map-atom?              :description [:span "Scrolls the table of a particular column range. Must be an atom. Map that contains the keys " [:code ":start-col"] " and " [:code ":end-col"]  " in pixel units."]}
      {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                         :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
@@ -1105,7 +1105,7 @@
                                                         (or column-footer-height 0)
                                                         scrollbar-tot-thick))}
 
-                                        ;; TODO: Currently, scrolling a v-table also scrolls parent scrollbars (usually the one on the <body>)
+                                        ;; TODO: Currently, scrolling a v-table with the mouse wheel also scrolls parent scrollbars (usually the one on the <body>)
                                         ;; The solution seems to to use CSS overscroll-behavior
                                         ;; https://developers.google.com/web/updates/2017/11/overscroll-behavior
                                         ;; The following should be in the right place but it makes no difference (also tried the block version)
@@ -1383,4 +1383,3 @@
                                            "content-rows-wh: "   (str "(" @content-rows-width "," @content-rows-height ")") "\n")]]])}))))
 
                                            ;"call-count: "       @call-count "\n"
-
