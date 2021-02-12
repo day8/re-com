@@ -64,7 +64,7 @@
               [:ul
                [:li "the width of the three left-most sections 1,2,3 is determined by the renderers of these sections. The \"widest\" hiccup returned will determine the width of all."]
                [:li "the overall width of the center sections 4,5,6 is determined by the argument " [:code ":row-content-width"] ". " 
-                    "Of course, because of space constraints, only part of this full width may be visible to the user, and scrollbars may be present. " 
+                    "Because of space constraints, only part of this full width may be visible to the user, triggering scrollbars. "
                      "By default, " [:code "v-table"] " will expand to the greatest width possible but you can explicitly control the horizontal extent visible for these sections via " [:code ":row-viewport-width"] "." ]
                [:li "the width of the three right-most sections 7,8,9 is determined by the renderers of these sections. The \"widest\" hiccup returned will determine the width of all."]
                [:li "finally, the overall (maximum) width of the table can be set with the " [:code ":max-width"] " argument. All these width settings will logically interact with each other, along with the width constraints of the parent to determine the final shape of the table."]]
