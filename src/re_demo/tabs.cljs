@@ -188,10 +188,10 @@
                                           [status-text "Stable"]
                                           [p "A variety of horizontal and vertical tab selection components, styled
                                             using Bootstrap."]
-                                          [p "It is quite straight formward to roll your own tab components. The left
+                                          [p "It is quite straight forward to roll your own tab components. The left
                                            side navigation in this demo is effectively a hand-rolled tab component."]
                                           [v-box
-                                           :children [[horizontal-pill-tabs
+                                           :children [[horizontal-tabs
                                                        :model     selected-tag-type
                                                        :tabs      tag-types
                                                        :on-change #(reset! selected-tag-type %)]
