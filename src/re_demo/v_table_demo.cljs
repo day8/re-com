@@ -575,12 +575,12 @@
 
                      ;; ===== Row header (section 2)
                      :row-header-renderer        (partial render-activity-row-header row-header-selections)
-                     :row-content-width          content-width
                      :row-header-selection-fn    (fn [_selection-event coords _ctrlKey _shiftKey _event]
                                                    (reset! row-header-selections coords))
 
                      ;; ===== Rows (section 5)
                      :row-renderer               (partial render-activity-row editor-on row-selections)
+                     :row-content-width          content-width
                      :row-height                 row-height
                      :max-row-viewport-height    (* 20 row-height)  ;; Note: The v-table :wrapper must have :size "none" to use this
                      :row-selection-fn           (when-not @editor-on

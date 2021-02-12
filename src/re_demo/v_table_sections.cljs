@@ -33,7 +33,7 @@
       [v-table
         :model              single-dummy-row
 
-       ;; ===== Column header/footer (section 4,6)
+       ;; ===== Column header/footer (sections 4,6)
         :column-header-renderer (fn [] [box-with-text {:name "column headers" :section "4" :background medium-blue :height size2 :width width-of-main-row-content}])
         :column-header-height   size2
         :column-footer-renderer (fn [] [box-with-text {:name "column footers" :section"6" :background medium-blue :height size2 :width width-of-main-row-content}])
@@ -45,8 +45,8 @@
 
        ;; ===== Rows (section 5)
         :row-renderer          (fn [_row_index, _row] [box-with-text {:name "row section" :section "5" :background light-blue :height row-height :width width-of-main-row-content}])
-        :row-height         row-height
         :row-content-width  width-of-main-row-content
+        :row-height         row-height
         :max-row-viewport-height (- row-height size2)   ;; deliberately create a vertical scrollbar, by not giving enough vertical space to ender the one row
 
        ;; ===== Corners (sections 1,3,7,9)

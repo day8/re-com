@@ -231,24 +231,27 @@
                        (get-in parts [:simple-wrapper :style]))
          :attr  (get-in parts [:simple-wrapper :attr])
          :child [v-table/v-table
-                 :virtual?                true
                  :model                   internal-model
 
-                 :row-height              row-height
-                 :row-content-width       content-width
-                 :row-header-renderer     (partial row-columns fixed-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
-                 :row-renderer            (partial row-columns content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
-
-                 :column-header-height    column-header-height
-                 :top-left-renderer       (partial header-renderer fixed-cols   parts sort-by-column) ;; Used when there are fixed columns
+                 ;; ===== Column header (section 4)
                  :column-header-renderer  (partial header-renderer content-cols parts sort-by-column)
+                 :column-header-height    column-header-height
 
-                 ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick)))
+                 ;; ===== Row header (section 2)
+                 :row-header-renderer     (partial row-columns fixed-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
 
+                 ;; ===== Rows (section 5)
+                 :row-renderer            (partial row-columns content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
+                 :row-content-width       content-width
+                 :row-height              row-height
                  :max-row-viewport-height (when max-rows (* max-rows row-height))
+                 ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
 
+                 ;; ===== Corners (section 1)
+                 :top-left-renderer       (partial header-renderer fixed-cols   parts sort-by-column) ;; Used when there are fixed columns
+
+                 ;; ===== Styling
                  :class                   class
-
                  :parts                   (cond-> (->
                                                     ;; Remove the parts that are exclusive to simple-v-table, or v-table part
                                                     ;; validation will fail:

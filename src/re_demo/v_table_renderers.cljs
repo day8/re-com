@@ -37,7 +37,7 @@
       [v-table
        :model                   dummy-rows
 
-       ;; ===== Column header/footer (section 4,6)
+       ;; ===== Column header/footer (sections 4,6)
        :column-header-renderer  (fn [] [box-with-border {:name ":column-header-renderer" :background gold :height unit-50 :width width-of-main-row-content}])
        :column-header-height    unit-50
        :column-footer-renderer  (fn [] [box-with-border {:name ":column-footer-renderer" :background "#d8d460" :height unit-50 :width width-of-main-row-content}])
@@ -49,8 +49,8 @@
 
        ;; ===== Rows (section 5)
        :row-renderer            (fn [_row_index, _row] [box-with-border {:name ":row-renderer" :background light-blue :height row-height :width width-of-main-row-content}])
-       :row-height              row-height
        :row-content-width       width-of-main-row-content
+       :row-height              row-height
        :max-row-viewport-height (- total-row-height row-height)    ;; force a vertical scrollbar
 
        ;; ===== Corners (sections 1,3,7,9)
