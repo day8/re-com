@@ -233,18 +233,9 @@
                                                       ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
                                                       ;; The simple-v-table demo starts here
                                                       [simple-v-table
-                                                       :fixed-column-count        @fixed-column-count
-                                                       :fixed-column-border-color "#333"
-                                                       :row-height                35
-                                                       :max-rows                  (when @max-rows? @max-rows)
-                                                       :max-width                 (when @max-width? (px @max-width))
-                                                       :cell-style                (fn [{:keys [sales] :as row} {:keys [id] :as column}]
-                                                                                    (when (= :sales id)
-                                                                                      {:background-color (cond
-                                                                                                           (> 2000 sales)      "#FF4136"
-                                                                                                           (> 5000 sales 2000) "#FFDC00"
-                                                                                                           (> 7500 sales 5000) "#01FF70"
-                                                                                                           (> sales 7500)      "#2ECC40")}))
+                                                       :model                     sales-rows
+
+                                                       ;; ===== Columns
                                                        :columns                   [{:id :id     :header-label "Code"   :row-label-fn :id                   :width 70  :align "center" :vertical-align "middle"}
                                                                                    {:id :region :header-label "Region" :row-label-fn :region               :width 100 :align "left"   :vertical-align "middle"}
                                                                                    {:id :name   :header-label "Name"   :row-label-fn :person               :width 100 :align "left"   :vertical-align "middle" :sort-by {}}
@@ -252,4 +243,19 @@
                                                                                    {:id :method :header-label "Method" :row-label-fn method-row-label-fn   :width 100 :align "center" :vertical-align "middle"}
                                                                                    {:id :sales  :header-label "Sales"  :row-label-fn #(str "$" (:sales %)) :width 100 :align "right"  :vertical-align "middle" :sort-by {:key-fn :sales}}
                                                                                    {:id :units  :header-label "Units"  :row-label-fn :units                :width 100 :align "right"  :vertical-align "middle" :sort-by true}]
-                                                       :model                     sales-rows]]]]]]]]])))
+                                                       :fixed-column-count        @fixed-column-count
+                                                       :fixed-column-border-color "#333"
+
+                                                       ;; ===== Rows
+                                                       :row-height                35
+                                                       :max-rows                  (when @max-rows? @max-rows)
+                                                       :max-width                 (when @max-width? (px @max-width))
+
+                                                       ;; ===== Styling
+                                                       :cell-style                (fn [{:keys [sales] :as row} {:keys [id] :as column}]
+                                                                                    (when (= :sales id)
+                                                                                      {:background-color (cond
+                                                                                                           (> 2000 sales)      "#FF4136"
+                                                                                                           (> 5000 sales 2000) "#FFDC00"
+                                                                                                           (> 7500 sales 5000) "#01FF70"
+                                                                                                           (> sales 7500)      "#2ECC40")}))]]]]]]]]])))
