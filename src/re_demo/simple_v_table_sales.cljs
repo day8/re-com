@@ -5,6 +5,7 @@
     [goog.string.format]
     [reagent.core          :as reagent]
     [re-com.core           :refer [label p slider hyperlink-href h-box v-box gap simple-v-table checkbox button]]
+    [re-com.config         :refer [debug?]]
     [re-demo.utils         :refer [title3]]
     [re-com.util           :refer [px]]))
 
@@ -199,36 +200,38 @@
                                                                      [gap :size spacing7]
                                                                      [label :label (px @parent-height)]]
                                                                     [label :label (str "unset: grows to table's natural extent (" (count @sales-rows) " rows of data) or the :max-rows override")])]]
-                                                      [h-box
-                                                       :gap      spacing7
-                                                       :align    :center
-                                                       :children [[label
-                                                                   :width "145px"
-                                                                   :label [:span "Rows in table: " [:span.bold (count @sales-rows)]]]
-                                                                  [button
-                                                                   :label    (str "Generate " (if @how-many? @how-many "random") " rows")
-                                                                   :style    {:width   "170px"
-                                                                              :height  "24px"
-                                                                              :padding "0px"}
-                                                                   :on-click #(do (when (and @how-many? (> @how-many 100) (not @max-rows?) (not @parent-height?))
-                                                                                    (reset! parent-height? true))
-                                                                                  (reset! sales-rows (generate-sales-rows (if @how-many? @how-many (+ 5 (rand 95))))))]
-                                                                  [checkbox
-                                                                   :model     how-many?
-                                                                   :on-change #(reset! how-many? %)]
-                                                                  [label :label [:code "how many?"]]
-                                                                  (if @how-many?
-                                                                    [:<>
-                                                                     [slider
-                                                                      :model     how-many
-                                                                      :on-change #(reset! how-many %)
-                                                                      :min       1000
-                                                                      :max       1000000
-                                                                      :step      1000
-                                                                      :width     (px 200)]
-                                                                     [gap :size spacing7]
-                                                                     [label :label @how-many]]
-                                                                    [label :label "random number between 5 and 99"])]]
+                                                      (when debug?
+                                                        [h-box
+                                                         :gap      spacing7
+                                                         :align    :center
+                                                         :children [[label
+                                                                     :width "145px"
+                                                                     :label [:span "Rows in table: " [:span.bold (count @sales-rows)]]]
+                                                                    [button
+                                                                     :label    (str "Generate " (if @how-many? @how-many "random") " rows")
+                                                                     :style    {:width   "170px"
+                                                                                :height  "24px"
+                                                                                :padding "0px"}
+                                                                     :on-click #(do (when (and @how-many? (> @how-many 100) (not @max-rows?) (not @parent-height?))
+                                                                                      (reset! parent-height? true))
+                                                                                    (reset! sales-rows (generate-sales-rows (if @how-many? @how-many (+ 5 (rand 95))))))]
+                                                                    [checkbox
+                                                                     :model     how-many?
+                                                                     :on-change #(reset! how-many? %)]
+                                                                    [label :label [:code "how many?"]]
+                                                                    (if @how-many?
+                                                                      [:<>
+                                                                       [slider
+                                                                        :model     how-many
+                                                                        :on-change #(reset! how-many %)
+                                                                        :min       1000
+                                                                        :max       1000000
+                                                                        :step      1000
+                                                                        :width     (px 200)]
+                                                                       [gap :size spacing7]
+                                                                       [label :label @how-many]]
+                                                                      [label :label "random number between 5 and 99"])]])
+
 
                                                       ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
                                                       ;; The simple-v-table demo starts here
