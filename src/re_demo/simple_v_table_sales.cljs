@@ -107,7 +107,7 @@
                                                           :model     max-width
                                                           :on-change #(reset! max-width %)
                                                           :min       200
-                                                          :max       820
+                                                          :max       850
                                                           :step      1
                                                           :width     (px 200)]
                                                          [gap :size spacing7]
