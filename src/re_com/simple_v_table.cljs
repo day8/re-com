@@ -187,43 +187,44 @@
    - (cell-style row col)
   where row is the data for that row and col is the definition map for that column
   "
-  [& {:keys [model columns fixed-column-count table-padding table-row-line-color fixed-column-border-color]
-      :or   {fixed-column-count        0
-             table-padding             19
-             table-row-line-color      "#EAEEF1"
-             fixed-column-border-color "#BBBEC0"}
-      :as   args}]
+  [& {:as args}]
   (validate-args-macro simple-v-table-args-desc args "simple-v-table")
-  (let [fcc-bounded            (min fixed-column-count (count columns))
-        fixed-cols             (subvec columns 0 fcc-bounded)
-        content-cols           (subvec columns fcc-bounded (count columns))
-        fixed-content-width    (reduce #(+ %1 (:width %2)) 0 fixed-cols)
-        content-width          (reduce #(+ %1 (:width %2)) 0 content-cols)
-        table-border-style     (str "1px solid " table-row-line-color)
-        fixed-col-border-style (str "1px solid " fixed-column-border-color)
-        actual-table-width     (+ fixed-content-width
-                                  (when (pos? fixed-column-count) 1) ;; 1 border width (for fixed-col-border)
-                                  content-width
-                                  v-table/scrollbar-tot-thick
-                                  (* 2 table-padding)
-                                  2) ;; 2 border widths
-        sort-by-column         (reagent/atom nil)]
-    (fn [& {:keys [on-click-row on-enter-row on-leave-row column-header-renderer max-rows column-header-height row-height max-width
-                   cell-style row-style class parts]
+  (let [sort-by-column         (reagent/atom nil)]
+    (fn [& {:keys [model columns fixed-column-count fixed-column-border-color column-header-height column-header-renderer
+                   max-width max-rows row-height table-padding table-row-line-color on-click-row on-enter-row on-leave-row
+                   row-style cell-style class parts]
+
             :or   {column-header-height      31
                    row-height                31
-                   column-header-renderer           column-headers}
+                   fixed-column-count        0
+                   table-padding             19
+                   table-row-line-color      "#EAEEF1"
+                   fixed-column-border-color "#BBBEC0"
+                   column-header-renderer    column-headers}
             :as   args}]
       (validate-args-macro simple-v-table-args-desc args "simple-v-table")
-      (let [internal-model (reagent/track
-                             (fn []
-                               (if-let [{:keys [key-fn comp order] :or {comp compare}} @sort-by-column]
-                                 (do
-                                   (let [sorted (sort-by key-fn comp (deref-or-value model))]
-                                     (if (= order :desc)
-                                       (vec (reverse sorted))
-                                       (vec sorted))))
-                                 (deref-or-value model))))]
+      (let [fcc-bounded            (min fixed-column-count (count columns))
+            fixed-cols             (subvec columns 0 fcc-bounded)
+            content-cols           (subvec columns fcc-bounded (count columns))
+            fixed-content-width    (reduce #(+ %1 (:width %2)) 0 fixed-cols)
+            content-width          (reduce #(+ %1 (:width %2)) 0 content-cols)
+            table-border-style     (str "1px solid " table-row-line-color)
+            fixed-col-border-style (str "1px solid " fixed-column-border-color)
+            actual-table-width     (+ fixed-content-width
+                                      (when (pos? fixed-column-count) 1) ;; 1 border width (for fixed-col-border)
+                                      content-width
+                                      v-table/scrollbar-tot-thick
+                                      (* 2 table-padding)
+                                      2) ;; 2 border widths
+            internal-model         (reagent/track
+                                     (fn []
+                                       (if-let [{:keys [key-fn comp order] :or {comp compare}} @sort-by-column]
+                                         (do
+                                           (let [sorted (sort-by key-fn comp (deref-or-value model))]
+                                             (if (= order :desc)
+                                               (vec (reverse sorted))
+                                               (vec sorted))))
+                                         (deref-or-value model))))]
         [box/box
          :class (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
          :style (merge {;; :flex setting
