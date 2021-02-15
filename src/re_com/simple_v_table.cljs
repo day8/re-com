@@ -24,13 +24,18 @@
      :order :asc}))
 
 
-(defn arrow-down
+(defn sort-icon
+  []
+  [:svg {:height "24" :viewBox "0 0 24 24" :width "24"}
+   [:path {:d "M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"}]])
+
+(defn arrow-down-icon
   []
   [:svg {:height "24" :viewBox "0 0 24 24" :width "24"}
    [:path {:d "M7 10l5 5 5-5H7z"}]])
 
 
-(defn arrow-up
+(defn arrow-up-icon
   []
   [:svg {:height "24" :viewBox "0 0 24 24" :width "24"}
    [:path {:d "M7 14l5-5 5 5H7z"}]])
@@ -40,39 +45,43 @@
   [{:keys [id row-label-fn width height align vertical-align header-label sort-by] :as column} parts sort-by-column]
   (let [{:keys [key-fn comp] :or {key-fn row-label-fn comp compare}} sort-by
         {current-key-fn :key-fn order :order} @sort-by-column]
-    [:<>
-     [:div
-      (merge
-        {:class (str "rc-simple-v-table-column-header " (get-in parts [:simple-column-header :class]))
-         :style (merge {:display        "inline-block"
-                        :padding        "0px 12px"
-                        :width          (px (if sort-by (- width 24) width))
-                        :min-height     (px 24)
-                        :height         (px height)
-                        :font-weight    "bold"
-                        :text-align     align
-                        :vertical-align vertical-align
-                        :white-space    "nowrap"
-                        :overflow       "hidden"
-                        :text-overflow  "ellipsis"}
-                       (when sort-by
-                         {:cursor "pointer"})
-                       (get-in parts [:simple-column-header :style]))}
-        (when sort-by
-          {:on-click #(swap! sort-by-column swap!-sort-by-column key-fn comp)})
-        (get-in parts [:simple-column-header :attr]))
-      header-label]
-     (when sort-by
+    (let [on-click #(swap! sort-by-column swap!-sort-by-column key-fn comp)]
+      [:<>
        [:div
-        {:style {:display        "inline-block"
-                 :width          (px 24)
-                 :height         (px 24)
-                 :text-align     align
-                 :vertical-align vertical-align}}
-        (when (= current-key-fn key-fn)
-          (if (= order :desc)
-            [arrow-down]
-            [arrow-up]))])]))
+        (merge
+          {:class (str "rc-simple-v-table-column-header " (get-in parts [:simple-column-header :class]))
+           :style (merge {:display        "inline-block"
+                          :padding        "0px 12px"
+                          :width          (px (if sort-by (- width 24) width))
+                          :min-height     (px 24)
+                          :height         (px height)
+                          :font-weight    "bold"
+                          :text-align     align
+                          :vertical-align vertical-align
+                          :white-space    "nowrap"
+                          :overflow       "hidden"
+                          :text-overflow  "ellipsis"}
+                         (when sort-by
+                           {:cursor "pointer"})
+                         (get-in parts [:simple-column-header :style]))}
+          (when sort-by
+            {:on-click on-click})
+          (get-in parts [:simple-column-header :attr]))
+        header-label]
+       (when sort-by
+         [:div
+          {:style {:cursor         "pointer"
+                   :display        "inline-block"
+                   :width          (px 24)
+                   :height         (px 24)
+                   :text-align     align
+                   :vertical-align vertical-align}
+           :on-click on-click}
+          (if-not (= current-key-fn key-fn)
+            [sort-icon]
+            (if (= order :desc)
+              [arrow-down-icon]
+              [arrow-up-icon]))])])))
 
 
 (defn column-headers
