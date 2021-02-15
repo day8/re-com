@@ -206,8 +206,8 @@
       (let [fcc-bounded            (min fixed-column-count (count columns))
             fixed-cols             (subvec columns 0 fcc-bounded)
             content-cols           (subvec columns fcc-bounded (count columns))
-            fixed-content-width    (reduce #(+ %1 (:width %2)) 0 fixed-cols)
-            content-width          (reduce #(+ %1 (:width %2)) 0 content-cols)
+            fixed-content-width    (->> fixed-cols (map :width) (reduce + 0))
+            content-width          (->> content-cols (map :width) (reduce + 0))
             table-border-style     (str "1px solid " table-row-line-color)
             fixed-col-border-style (str "1px solid " fixed-column-border-color)
             actual-table-width     (+ fixed-content-width
