@@ -47,6 +47,7 @@ causing some breaking changes.
 - **Breaking**:
   - Argument renames. This will break any CLJS code that pass the arguments to the components. To fix, change the arg
   to use the new name:
+    - `:header-renderer` arg of `simple-v-table` to `:column-header-renderer`
     - `:max-table-width` arg of `v-table` and `simple-v-table` to `:max-width`
     - `:scroll-cols-into-view` arg of `v-table`  to `:scroll-cols-into-view`
     - `:col-header-renderer` arg of `v-table`  to `:column-header-renderer`

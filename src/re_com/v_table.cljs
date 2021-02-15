@@ -478,9 +478,11 @@
      {:type :legacy                       :level 2 :name-label "-"                                              :impl "[box]"}
      {:name :v-scroll                     :level 3 :class "rc-v-table-v-scroll"                                 :impl "[box]"}]))
 
+
 (def v-table-parts
   (when include-args-desc?
     (-> (map :name v-table-parts-desc) set)))
+
 
 (def v-table-args-desc
   (when include-args-desc?
@@ -516,6 +518,7 @@
      {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                         :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
      {:name :class                      :required false                :type "string"                      :validate-fn string?                :description "CSS class names, space separated (these are applied to the table's outer container)"}
      {:name :parts                      :required false                :type "map"                         :validate-fn (parts? v-table-parts) :description "See Parts section below."}]))
+
 
 (defn v-table
   "Renders a scrollable table with optional fixed column and row headers and footers, totalling nine addressable sections
