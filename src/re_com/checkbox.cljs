@@ -43,7 +43,7 @@
   "I return the markup for a checkbox, with an optional RHS label"
   [& {:keys [model on-change label disabled? label-class label-style class style attr parts]
       :as   args}]
-  (validate-args-macro checkbox-args-desc args "checkbox")
+  {:pre [(validate-args-macro checkbox-args-desc args "checkbox")]}
   (let [cursor      "default"
         model       (deref-or-value model)
         disabled?   (deref-or-value disabled?)

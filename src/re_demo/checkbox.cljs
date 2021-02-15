@@ -88,6 +88,7 @@
                                                       [h-box
                                                        :gap      "1px"
                                                        :children [[checkbox
+                                                                   :bogus    :param
                                                                    :model     something2?
                                                                    :on-change #(reset! something2? %)]
                                                                   [gap :size "50px"]
@@ -101,4 +102,13 @@
 ;; core holds onto references, so need one level of indirection to get figwheel updates
 (defn panel
   []
-  [checkboxes-demo])
+  (reagent/create-class
+    {:display-name "re_demo.checkbox.panel"
+     #_#_:get-derived-state-from-error (fn [this error]
+                                         (.-state (js-this)))
+     :component-did-catch (fn [this error error-info]
+                            (js/console.log "error: " error)
+                            (js/console.log "error-info: " (.-componentStack error-info)))
+     :reagent-render (fn []
+                       [checkboxes-demo])}))
+

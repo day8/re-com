@@ -21,7 +21,7 @@
 (defn log-error
   "Sends a message to the DeV Tools console as an error. Returns false to indicate 'error' condition"
   [& args]
-  (.error js/console (apply str args))
+  #_(.error js/console (apply str args))
   false)
 
 (defn log-warning
