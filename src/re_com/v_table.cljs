@@ -204,7 +204,9 @@
   [row-header-renderer key-fn top-row-index rows scroll-y
    row-header-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-height content-rows-height
-   class style attr sel-class sel-style sel-attr content-class content-style content-attr]
+   class style attr
+   sel-class sel-style sel-attr
+   content-class content-style content-attr]
   [box/v-box ;; viewport component
    :class    (str "rc-v-table-row-headers rc-v-table-viewport " class)
    :style    (merge {:position   "relative"
@@ -264,7 +266,9 @@
   [column-header-renderer scroll-x
    column-header-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-width column-header-height content-rows-width
-   class style attr sel-class sel-style sel-attr content-class content-style content-attr]
+   class style attr
+   sel-class sel-style sel-attr
+   content-class content-style content-attr]
   [box/v-box ;; viewport component
    :class    (str "rc-v-table-column-headers rc-v-table-viewport " class)
    :style    (merge {:overflow "hidden"
@@ -318,7 +322,9 @@
   [row-renderer key-fn top-row-index rows scroll-x scroll-y
    row-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-height row-viewport-width row-viewport-id content-rows-height content-rows-width
-   class style attr sel-class sel-style sel-attr content-class content-style content-attr]
+   class style attr
+   sel-class sel-style sel-attr
+   content-class content-style content-attr]
   [box/v-box ;; viewport component
    :class    (str "rc-v-table-rows rc-v-table-viewport " class)
    :style    (merge {:overflow   "hidden"
@@ -361,7 +367,9 @@
 
 (defn column-footer-viewport
   "Render section 6 - the viewport component (which renders the content component as its child)"
-  [column-footer-renderer scroll-x row-viewport-width column-footer-height class style attr content-class content-style content-attr]
+  [column-footer-renderer scroll-x row-viewport-width column-footer-height
+   class style attr
+   content-class content-style content-attr]
   [box/box ;; viewport component
    :class  (str "rc-v-table-column-footers rc-v-table-viewport " class)
    :style  (merge {:overflow "hidden"}
@@ -420,7 +428,8 @@
   "Render section 8 - the viewport component (which renders the content component as its child)"
   [row-footer-renderer key-fn top-row-index rows scroll-y
    row-viewport-height content-rows-height
-   class style attr content-class content-style content-attr]
+   class style attr
+   content-class content-style content-attr]
   [box/box ;; viewport component
    :class  (str "rc-v-table-row-footers rc-v-table-viewport " class)
    :style  (merge {:overflow   "hidden"
@@ -452,31 +461,32 @@
 
 (def v-table-parts-desc
   (when include-args-desc?
-    [{:name :wrapper                      :level 0 :class "rc-v-table-wrapper"                                  :impl "[v-table]" :notes "Outer wrapper of the v-table."}
-     {:name :left-section                 :level 1 :class "rc-v-table-left-section"                             :impl "[v-box]"}
-     {:name :top-left                     :level 2 :class "rc-v-table-top-left rc-v-table-content"              :impl "[box]"}
-     {:name :row-headers                  :level 2 :class "rc-v-table-row-headers rc-v-table-viewport"          :impl "[v-box]"}
-     {:name :row-header-selection-rect    :level 3 :class "rc-v-table-selection"                                :impl "[:div]"}
-     {:name :row-header-content           :level 3 :class "rc-v-table-row-header-content rc-v-table-content"    :impl "[v-box]"}
-     {:name :bottom-left                  :level 2 :class "rc-v-table-bottom-left rc-v-table-content"           :impl "[box]"}
-     {:name :middle-section               :level 1 :class "rc-v-table-middle-section"                           :impl "[v-box]"}
-     {:name :column-headers               :level 2 :class "rc-v-table-column-headers rc-v-table-viewport"       :impl "[v-box]"}
-     {:name :column-header-selection-rect :level 3 :class "rc-v-table-selection"                                :impl "[:div]"}
-     {:name :column-header-content        :level 3 :class "rc-v-table-column-header-content rc-v-table-content" :impl "[box]"}
-     {:name :rows                         :level 2 :class "rc-v-table-rows rc-v-table-viewport"                 :impl "[v-box]"}
-     {:name :row-selection-rect           :level 3 :class "rc-v-table-selection"                                :impl "[:div]"}
-     {:name :row-content                  :level 3 :class "rc-v-table-row-content rc-v-table-content"           :impl "[v-box]"}
-     {:name :column-footers               :level 2 :class "rc-v-table-column-footers rc-v-table-viewport"       :impl "[box]"}
-     {:name :column-footer-content        :level 3 :class "rc-v-table-column-footer-content rc-v-table-content" :impl "[box]"}
-     {:name :h-scroll                     :level 2 :class "rc-v-table-h-scroll"                                 :impl "[box]"}
-     {:name :right-section                :level 1 :class "rc-v-table-right-section"                            :impl "[v-box]"}
-     {:name :top-right                    :level 2 :class "rc-v-table-top-right rc-v-table-content"             :impl "[box]"}
-     {:name :row-footers                  :level 2 :class "rc-v-table-row-footers rc-v-table-viewport"          :impl "[box]"}
-     {:name :row-footer-content           :level 3 :class "rc-v-table-row-footer-content rc-v-table-content"    :impl "[v-box]"}
-     {:name :bottom-right                 :level 2 :class "rc-v-table-bottom-right rc-v-table-content"          :impl "[box]"}
-     {:name :v-scroll-section             :level 1 :class "rc-v-table-v-scroll-section"                         :impl "[v-box]"}
-     {:type :legacy                       :level 2 :name-label "-"                                              :impl "[box]"}
-     {:name :v-scroll                     :level 3 :class "rc-v-table-v-scroll"                                 :impl "[box]"}]))
+    [{:name :wrapper                      :level 0 :class "rc-v-table-wrapper"                                  :impl "[v-table]" :notes "Outer container of the v-table."}
+     {:name :left-section                 :level 1 :class "rc-v-table-left-section"                             :impl "[v-box]"   :notes "The left v-box container section of the table, containing sections 1,2,3"}
+     {:name :top-left                     :level 2 :class "rc-v-table-top-left rc-v-table-content"              :impl "[box]"     :notes "Top left section (1)"}
+     {:name :row-headers                  :level 2 :class "rc-v-table-row-headers rc-v-table-viewport"          :impl "[v-box]"   :notes "Row header viewport section (2)"}
+     {:name :row-header-selection-rect    :level 3 :class "rc-v-table-selection"                                :impl "[:div]"    :notes "The row-header rectangle used for click+drag selection of row headers"}
+     {:name :row-header-content           :level 3 :class "rc-v-table-row-header-content rc-v-table-content"    :impl "[v-box]"   :notes "The v-box containing one row header (row-header-render renders in here)"}
+     {:name :bottom-left                  :level 2 :class "rc-v-table-bottom-left rc-v-table-content"           :impl "[box]"     :notes "Bottom left section (3)"}
+     {:name :middle-section               :level 1 :class "rc-v-table-middle-section"                           :impl "[v-box]"   :notes "The middle v-box container section of the table, containing sections 4,5,6"}
+     {:name :column-headers               :level 2 :class "rc-v-table-column-headers rc-v-table-viewport"       :impl "[v-box]"   :notes "Column header viewport section (4)"}
+     {:name :column-header-selection-rect :level 3 :class "rc-v-table-selection"                                :impl "[:div]"    :notes "The column-header rectangle used for click+drag selection of column headers"}
+     {:name :column-header-content        :level 3 :class "rc-v-table-column-header-content rc-v-table-content" :impl "[box]"     :notes "The box containing the column header (column-header-render renders in here)"}
+     {:name :rows                         :level 2 :class "rc-v-table-rows rc-v-table-viewport"                 :impl "[v-box]"   :notes "Main row viewport section (5)"}
+     {:name :row-selection-rect           :level 3 :class "rc-v-table-selection"                                :impl "[:div]"    :notes "The ROW rectangle used for click+drag selection of rows"}
+     {:name :row-content                  :level 3 :class "rc-v-table-row-content rc-v-table-content"           :impl "[v-box]"   :notes "The v-box containing one row (row-render renders in here)"}
+     {:name :column-footers               :level 2 :class "rc-v-table-column-footers rc-v-table-viewport"       :impl "[box]"     :notes "Column footer viewport section (6)"}
+     {:name :column-footer-content        :level 3 :class "rc-v-table-column-footer-content rc-v-table-content" :impl "[box]"     :notes "The box containing the column footer (column-footer-render renders in here)"}
+     {:name :h-scroll                     :level 2 :class "rc-v-table-h-scroll"                                 :impl "[box]"     :notes "The horizontal scrollbar"}
+     {:name :right-section                :level 1 :class "rc-v-table-right-section"                            :impl "[v-box]"   :notes "The right container section v-box of the table, containing sections 7,8,9"}
+     {:name :top-right                    :level 2 :class "rc-v-table-top-right rc-v-table-content"             :impl "[box]"     :notes "Top right section (7)"}
+     {:name :row-footers                  :level 2 :class "rc-v-table-row-footers rc-v-table-viewport"          :impl "[box]"     :notes "Row footer viewport section (8)"}
+     {:name :row-footer-content           :level 3 :class "rc-v-table-row-footer-content rc-v-table-content"    :impl "[v-box]"   :notes "The v-box containing one row footer (row-footer-render renders in here)"}
+     {:name :bottom-right                 :level 2 :class "rc-v-table-bottom-right rc-v-table-content"          :impl "[box]"     :notes "Bottom right section (9)"}
+     {:name :v-scroll-section             :level 1 :class "rc-v-table-v-scroll-section"                         :impl "[v-box]"   :notes "The v-box containing the vertical scrollbar:"}
+     {:type :legacy                       :level 2 :name-label "-"                                              :impl "[box]"     :notes "Legacy"}
+     {:name :v-scroll                     :level 3 :class "rc-v-table-v-scroll"                                 :impl "[box]"     :notes "The vertical scrollbar"}
+     ]))
 
 
 (def v-table-parts
@@ -768,26 +778,26 @@
 
                                - :left-section                        The left v-box container section of the table, containing:
                                   - :top-left                         Top left section (1)
-                                  - :row-headers                      Row header section (2)
+                                  - :row-headers                      Row header viewport section (2)
                                      - :row-header-selection-rect     The row-header rectangle used for click+drag selection of row headers
                                      - :row-header-content            The v-box containing one row header (row-header-render renders in here)
                                   - :bottom-left                      Bottom left section (3)
 
                                - :middle-section                      The middle v-box container section of the table, containing:
-                                  - :column-headers                   Column header section (4)
+                                  - :column-headers                   Column header viewport section (4)
                                      - :column-header-selection-rect  The column-header rectangle used for click+drag selection of column headers
                                      - :column-header-content         The box containing the column header (column-header-render renders in here)
-                                  - :rows                             Main rows section (5)
+                                  - :rows                             Main row viewport section (5)
                                      - :row-selection-rect            The ROW rectangle used for click+drag selection of rows
                                                                       Defaults to being above the rows (:z-index 1). Set to 0 to place it underneath rows
                                      - :row-content                   The v-box containing one row (row-render renders in here)
-                                  - :column-footers                   Column footer section (6)
+                                  - :column-footers                   Column footer viewport section (6)
                                      - :column-footer-content         The box containing the column footer (column-footer-render renders in here)
                                   - :h-scroll                         The horizontal scrollbar
                                                                       
                                - :right-section                       The right container section v-box of the table, containing:
-                                  - :top-right                        Rop right section (7)
-                                  - :row-footers                      Row footer section (8)
+                                  - :top-right                        Top right section (7)
+                                  - :row-footers                      Row footer viewport section (8)
                                      - :row-footer-content            The v-box containing one row footer (row-footer-render renders in here)
                                   - :bottom-right                     Bottom right section (9)
                                                                       
