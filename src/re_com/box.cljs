@@ -251,7 +251,13 @@
    By default, it also acts as a child under it's parent"
   [& {:keys [src]}]
   (create-class
-    {:reagent-render (fn h-box-render
+    {#_#_:constructor (fn [this props]
+                        (set! (.. this -props -__source) "abc")
+                        (js/console.log "props" props)
+                        (js/console.log ".props.__source" (.. this -props -__source))
+                        (js/console.log "r/props" (reagent.core/props this)))
+
+     :reagent-render (fn h-box-render
                        [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr src]
                            :or   {size "none" justify :start align :stretch}
                            :as   args}]
@@ -281,8 +287,10 @@
                          (into [:div
                                 (merge
                                   (src->attr src)
-                                  {:__source (src->__source src)
-                                   :class (str "rc-h-box display-flex " class) :style s}
+                                  (when src
+                                    (js/console.log src)
+                                    {#_#_:__source (src->__source src)})
+                                  {:class (str "rc-h-box display-flex " class) :style s}
                                   attr)]
                                children)))}
     src))

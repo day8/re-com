@@ -4,7 +4,7 @@
     [re-com.debug    :refer [src-coordinates]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.debug     :refer [src->attr]]
+    [re-com.debug     :refer [src->attr src->__source]]
     [re-com.component :refer [create-class]]
     [re-com.config    :refer [include-args-desc? debug?]]
     [re-com.util      :refer [deref-or-value px]]
@@ -44,53 +44,51 @@
 
 ;; TODO: when disabled?, should the text appear "disabled".
 
+;; TODO: if __source is nil, it crashes chrome. Guard against this!
+
+(defn err-comp
+  []
+  (js/undefined 1)
+  [:div])
+
 (defn checkbox
-  [& {:keys [src]}]
-  (create-class
-    {:constructor (fn [this props]
-                    (js/console.log "props" props))
-     ;:component-did-catch (fn [this error error-info]
-     ;                       #_(js/console.log "error-info" error-info))
-     :reagent-render
-     (fn checkbox-render
-       [& {:keys [model on-change label disabled? label-class label-style class style attr parts src]
-           :as   args}]
-       (js/console.log "before exception")
-       (js/undefined 1)
-       (js/console.log "after exception")
-       (or
-         (validate-args-macro checkbox-args-desc args "checkbox")
-         (let [cursor      "default"
-               model       (deref-or-value model)
-               disabled?   (deref-or-value disabled?)
-               callback-fn #(when (and on-change (not disabled?))
-                             (on-change (not model)))]  ;; call on-change with either true or false
-           [h-box
-            :src      (src-coordinates)
-            :class    (str "noselect rc-checkbox-wrapper " (get-in parts [:wrapper :class]))
-            :style    (get-in parts [:wrapper :style])
-            :attr     (merge
-                        (src->attr src)
-                        (get-in parts [:wrapper :attr]))
-            :align    :start
-            :children [[:input
-                        (merge
-                          {:class     (str "rc-checkbox " class)
-                           :type      "checkbox"
-                           :style     (merge (flex-child-style "none")
-                                             {:cursor cursor}
-                                             style)
-                           :disabled  disabled?
-                           :checked   (boolean model)
-                           :on-change (handler-fn (callback-fn))}
-                          attr)]
-                       (when label
-                         [:span
-                          {:class    (str "rc-checkbox-label " label-class)
-                           :style    (merge (flex-child-style "none")
-                                            {:padding-left "8px"
-                                             :cursor       cursor}
-                                            label-style)
-                           :on-click (handler-fn (callback-fn))}
-                          label])]])))}
-    src))
+  [& {:keys [model on-change label disabled? label-class label-style class style attr parts src]
+      :as   args}]
+  (or
+    (validate-args-macro checkbox-args-desc args "checkbox")
+    (let [cursor      "default"
+          model       (deref-or-value model)
+          disabled?   (deref-or-value disabled?)
+          callback-fn #(when (and on-change (not disabled?))
+                        (on-change (not model)))]  ;; call on-change with either true or false
+      ^{:__source (src->__source src)}
+      [h-box
+       :src      (src-coordinates)
+       :class    (str "noselect rc-checkbox-wrapper " (get-in parts [:wrapper :class]))
+       :style    (get-in parts [:wrapper :style])
+       :attr     (merge
+                   {}
+                   #_(src->attr src)
+                   (get-in parts [:wrapper :attr]))
+       :align    :start
+       :children [[err-comp]
+                  [:input
+                   (merge
+                     {:class     (str "rc-checkbox " class)
+                      :type      "checkbox"
+                      :style     (merge (flex-child-style "none")
+                                        {:cursor cursor}
+                                        style)
+                      :disabled  disabled?
+                      :checked   (boolean model)
+                      :on-change (handler-fn (callback-fn))}
+                     attr)]
+                  (when label
+                    [:span
+                     {:class    (str "rc-checkbox-label " label-class)
+                      :style    (merge (flex-child-style "none")
+                                       {:padding-left "8px"
+                                        :cursor       cursor}
+                                       label-style)
+                      :on-click (handler-fn (callback-fn))}
+                     label])]])))

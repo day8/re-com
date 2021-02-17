@@ -19,7 +19,7 @@
   [{:keys [file line] :as src}]
   (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
     (if src
-      {:__source (src->__source src)
+      {;;:__source (src->__source src)
        :data-rc-src (str file ":" line)}
       {})
     {}))

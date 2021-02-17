@@ -74,6 +74,7 @@
                                                        :src      (src-coordinates)
                                                        :gap      "1px"
                                                        :children [[checkbox
+                                                                   :invalid true
                                                                    :src         (src-coordinates)
                                                                    :model all-for-one? :on-change #(reset! all-for-one? %)]
                                                                   [checkbox
