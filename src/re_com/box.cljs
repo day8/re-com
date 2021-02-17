@@ -1,10 +1,16 @@
 (ns re-com.box
+  (:require-macros
+    [re-com.debug    :refer [src-coordinates]]
+    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [clojure.string  :as    string]
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.validate :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
-                                     scroll-options-list string-or-hiccup? css-style? html-attr?] :refer-macros [validate-args-macro]]))
+    [clojure.string   :as    string]
+    [re-com.config    :refer [include-args-desc?]]
+    [re-com.debug     :refer [src->attr]]
+    [re-com.validate  :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
+                                      scroll-options-list string-or-hiccup? css-style? html-attr?]]))
 
+;; [IJ] TODO: Can we please rename this as it is too similar to re-com.config/debug?, and afaik it is not the same thing.
+;;            Maybe visualise-flow?...
 (def debug false)
 
 
@@ -117,7 +123,7 @@
 (defn- box-base
   "This should generally NOT be used as it is the basis for the box, scroller and border components"
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self
-             margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr]}]
+             margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr src]}]
   (let [s (merge
             (flex-flow-style "inherit")
             (flex-child-style size)
@@ -147,6 +153,7 @@
             style)]
     [:div
      (merge
+       (src->attr src)
        {:class (str class-name "display-flex " class) :style s}
        attr)
      child]))
@@ -163,23 +170,26 @@
      {:name :height :required false :type "string"        :validate-fn string?    :description "a CSS height style"}
      {:name :class  :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
      {:name :style  :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
-     {:name :attr   :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
+     {:name :attr   :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+     {:name :src    :required false :type "map"           :validate-fn map?       :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn gap
   "Returns a component which produces a gap between children in a v-box/h-box along the main axis"
-  [& {:keys [size width height class style attr]
+  [& {:keys [size width height class style attr src]
       :as   args}]
-  (validate-args-macro gap-args-desc args "gap")
-  (let [s (merge
-            (when size   (flex-child-style size))
-            (when width  {:width width})
-            (when height {:height height})
-            (when debug  {:background-color "chocolate"})
-            style)]
-    [:div
-     (merge
-       {:class (str "rc-gap " class) :style s}
-       attr)]))
+  (or
+    (validate-args-macro gap-args-desc args "gap")
+    (let [s (merge
+              (when size   (flex-child-style size))
+              (when width  {:width width})
+              (when height {:height height})
+              (when debug  {:background-color "chocolate"})
+              style)]
+      [:div
+       (merge
+         (src->attr src)
+         {:class (str "rc-gap " class) :style s}
+         attr)])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -192,23 +202,26 @@
      {:name :color :required false :default "lightgray" :type "string"        :validate-fn string?    :description "a CSS color"}
      {:name :class :required false                      :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
      {:name :style :required false                      :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
-     {:name :attr  :required false                      :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
+     {:name :attr  :required false                      :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+     {:name :src   :required false                      :type "map"           :validate-fn map?       :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
    Specify size in pixels and a stancard CSS color. Defaults to a 1px lightgray line"
-  [& {:keys [size color class style attr]
+  [& {:keys [size color class style attr src]
       :or   {size "1px" color "lightgray"}
       :as   args}]
-  (validate-args-macro line-args-desc args "line")
-  (let [s (merge
-            (flex-child-style (str "0 0 " size))
-            {:background-color color}
-            style)]
-    [:div
-     (merge
-       {:class (str "rc-line " class) :style s}
-       attr)]))
+  (or
+    (validate-args-macro line-args-desc args "line")
+    (let [s (merge
+              (flex-child-style (str "0 0 " size))
+              {:background-color color}
+              style)]
+      [:div
+       (merge
+         (src->attr src)
+         {:class (str "rc-line " class) :style s}
+         attr)])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -233,44 +246,47 @@
      {:name :gap        :required false                   :type "string"        :validate-fn string?        :description "the amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
      {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
-     {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
+     {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+     {:name :src        :required false                   :type "map"           :validate-fn map?           :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn h-box
   "Returns hiccup which produces a horizontal box.
    It's primary role is to act as a container for components and lays it's children from left to right.
    By default, it also acts as a child under it's parent"
-  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr]
+  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr src]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
-  (validate-args-macro h-box-args-desc args "h-box")
-  (let [s        (merge
-                   (flex-flow-style "row nowrap")
-                   (flex-child-style size)
-                   (when width      {:width      width})
-                   (when height     {:height     height})
-                   (when min-width  {:min-width  min-width})
-                   (when min-height {:min-height min-height})
-                   (when max-width  {:max-width  max-width})
-                   (when max-height {:max-height max-height})
-                   (justify-style justify)
-                   (align-style :align-items align)
-                   (when align-self (align-style :align-self align-self))
-                   (when margin     {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
-                   (when padding    {:padding    padding})
-                   (when debug      {:background-color "gold"})
-                   style)
-        gap-form (when gap [re-com.box/gap
-                            :size  gap
-                            :width gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
-        children (if gap
-                   (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
-                   children)]
-    (into [:div
-           (merge
-             {:class (str "rc-h-box display-flex " class) :style s}
-             attr)]
-          children)))
-
+  (or
+    (validate-args-macro h-box-args-desc args "h-box")
+    (let [s        (merge
+                     (flex-flow-style "row nowrap")
+                     (flex-child-style size)
+                     (when width      {:width      width})
+                     (when height     {:height     height})
+                     (when min-width  {:min-width  min-width})
+                     (when min-height {:min-height min-height})
+                     (when max-width  {:max-width  max-width})
+                     (when max-height {:max-height max-height})
+                     (justify-style justify)
+                     (align-style :align-items align)
+                     (when align-self (align-style :align-self align-self))
+                     (when margin     {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
+                     (when padding    {:padding    padding})
+                     (when debug      {:background-color "gold"})
+                     style)
+          gap-form (when gap [re-com.box/gap
+                              :src   (src-coordinates)
+                              :size  gap
+                              :width gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
+          children (if gap
+                     (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
+                     children)]
+      (into [:div
+             (merge
+               (src->attr src)
+               {:class (str "rc-h-box display-flex " class) :style s}
+               attr)]
+            children))))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: v-box (debug color: antiquewhite)
@@ -294,43 +310,47 @@
      {:name :gap        :required false                   :type "string"        :validate-fn string?        :description "the amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
      {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
-     {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
+     {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+     {:name :src        :required false                   :type "map"           :validate-fn map?           :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn v-box
   "Returns hiccup which produces a vertical box.
    It's primary role is to act as a container for components and lays it's children from top to bottom.
    By default, it also acts as a child under it's parent"
-  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr]
+  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr src]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
-  (validate-args-macro v-box-args-desc args "v-box")
-  (let [s        (merge
-                   (flex-flow-style  "column nowrap")
-                   (flex-child-style size)
-                   (when width       {:width      width})
-                   (when height      {:height     height})
-                   (when min-width   {:min-width  min-width})
-                   (when min-height  {:min-height min-height})
-                   (when max-width   {:max-width  max-width})
-                   (when max-height  {:max-height max-height})
-                   (justify-style    justify)
-                   (align-style      :align-items align)
-                   (when align-self  (align-style :align-self align-self))
-                   (when margin      {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
-                   (when padding     {:padding    padding})
-                   (when debug       {:background-color "antiquewhite"})
-                   style)
-        gap-form (when gap [re-com.box/gap
-                            :size   gap
-                            :height gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
-        children (if gap
-                   (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
-                   children)]
-    (into [:div
-           (merge
-             {:class (str "rc-v-box display-flex " class) :style s}
-             attr)]
-          children)))
+  (or
+    (validate-args-macro v-box-args-desc args "v-box")
+    (let [s        (merge
+                     (flex-flow-style  "column nowrap")
+                     (flex-child-style size)
+                     (when width       {:width      width})
+                     (when height      {:height     height})
+                     (when min-width   {:min-width  min-width})
+                     (when min-height  {:min-height min-height})
+                     (when max-width   {:max-width  max-width})
+                     (when max-height  {:max-height max-height})
+                     (justify-style    justify)
+                     (align-style      :align-items align)
+                     (when align-self  (align-style :align-self align-self))
+                     (when margin      {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
+                     (when padding     {:padding    padding})
+                     (when debug       {:background-color "antiquewhite"})
+                     style)
+          gap-form (when gap [re-com.box/gap
+                              :src    (src-coordinates)
+                              :size   gap
+                              :height gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
+          children (if gap
+                     (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
+                     children)]
+      (into [:div
+             (merge
+               (src->attr src)
+               {:class (str "rc-v-box display-flex " class) :style s}
+               attr)]
+            children))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -354,32 +374,35 @@
      {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
      {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
-     {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
+     {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+     {:name :src        :required false                   :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn box
   "Returns hiccup which produces a box, which is generally used as a child of a v-box or an h-box.
    By default, it also acts as a container for further child compenents, or another h-box or v-box"
-  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding child class style attr]
+  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding child class style attr src]
       :or   {size "none"}
       :as   args}]
-  (validate-args-macro box-args-desc args "box")
-  (box-base :size        size
-            :width       width
-            :height      height
-            :min-width   min-width
-            :min-height  min-height
-            :max-width   max-width
-            :max-height  max-height
-            :justify     justify
-            :align       align
-            :align-self  align-self
-            :margin      margin
-            :padding     padding
-            :child       child
-            :class-name  "rc-box "
-            :class       class
-            :style       style
-            :attr        attr))
+  (or
+    (validate-args-macro box-args-desc args "box")
+    (box-base :size        size
+              :width       width
+              :height      height
+              :min-width   min-width
+              :min-height  min-height
+              :max-width   max-width
+              :max-height  max-height
+              :justify     justify
+              :align       align
+              :align-self  align-self
+              :margin      margin
+              :padding     padding
+              :child       child
+              :class-name  "rc-box "
+              :class       class
+              :style       style
+              :attr        attr
+              :src         src)))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -410,7 +433,8 @@
      {:name :padding    :required false                   :type "string"          :validate-fn string?           :description "a CSS padding style"}
      {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
-     {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
+     {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+     {:name :src        :required false                   :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn scroller
   "Returns hiccup which produces a scoller component.
@@ -425,32 +449,34 @@
            :off    Never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen.
            :spill  Never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place.
    Note:   If scroll is set, then setting h-scroll or v-scroll overrides the scroll value"
-  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self margin padding child class style attr]
+  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self margin padding child class style attr src]
       :or   {size "auto"}
       :as   args}]
-  (validate-args-macro scroller-args-desc args "scroller")
-  (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
-        scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
-    (box-base :size       size
-              :scroll     scroll
-              :h-scroll   h-scroll
-              :v-scroll   v-scroll
-              :width      width
-              :height     height
-              :min-width  min-width
-              :min-height min-height
-              :max-width  max-width
-              :max-height max-height
-              :justify    justify
-              :align      align
-              :align-self align-self
-              :margin     margin
-              :padding    padding
-              :child      child
-              :class-name "rc-scroller "
-              :class      class
-              :style      style
-              :attr       attr)))
+  (or
+    (validate-args-macro scroller-args-desc args "scroller")
+    (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
+          scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
+      (box-base :size       size
+                :scroll     scroll
+                :h-scroll   h-scroll
+                :v-scroll   v-scroll
+                :width      width
+                :height     height
+                :min-width  min-width
+                :min-height min-height
+                :max-width  max-width
+                :max-height max-height
+                :justify    justify
+                :align      align
+                :align-self align-self
+                :margin     margin
+                :padding    padding
+                :child      child
+                :class-name "rc-scroller "
+                :class      class
+                :style      style
+                :attr       attr
+                :src        src))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -477,7 +503,8 @@
      {:name :padding    :required false                                :type "string"          :validate-fn string?           :description "a CSS padding style"}
      {:name :class      :required false                                :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :style      :required false                                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
-     {:name :attr       :required false                                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
+     {:name :attr       :required false                                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+     {:name :src        :required false                                :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn border
   "Returns hiccup which produces a border component.
@@ -486,29 +513,31 @@
     - border-width: thin, medium, thick or standard CSS size (e.g. 2px, 0.5em)
     - border-style: none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset
     - color:        standard CSS color (e.g. grey #88ffee)"
-  [& {:keys [size width height min-width min-height max-width max-height margin padding border l-border r-border t-border b-border radius child class style attr]
+  [& {:keys [size width height min-width min-height max-width max-height margin padding border l-border r-border t-border b-border radius child class style attr src]
       :or   {size "none"}
       :as   args}]
-  (validate-args-macro border-args-desc args "border")
-  (let [no-border      (every? nil? [border l-border r-border t-border b-border])
-        default-border "1px solid lightgrey"]
-    (box-base :size        size
-              :width       width
-              :height      height
-              :min-width   min-width
-              :min-height  min-height
-              :max-width   max-width
-              :max-height  max-height
-              :margin      margin
-              :padding     padding
-              :border      (if no-border default-border border)
-              :l-border    l-border
-              :r-border    r-border
-              :t-border    t-border
-              :b-border    b-border
-              :radius      radius
-              :child       child
-              :class-name  "rc-border "
-              :class       class
-              :style       style
-              :attr        attr)))
+  (or
+    (validate-args-macro border-args-desc args "border")
+    (let [no-border      (every? nil? [border l-border r-border t-border b-border])
+          default-border "1px solid lightgrey"]
+      (box-base :size        size
+                :width       width
+                :height      height
+                :min-width   min-width
+                :min-height  min-height
+                :max-width   max-width
+                :max-height  max-height
+                :margin      margin
+                :padding     padding
+                :border      (if no-border default-border border)
+                :l-border    l-border
+                :r-border    r-border
+                :t-border    t-border
+                :b-border    b-border
+                :radius      radius
+                :child       child
+                :class-name  "rc-border "
+                :class       class
+                :style       style
+                :attr        attr
+                :src         src))))

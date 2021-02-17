@@ -1,11 +1,13 @@
 (ns re-com.typeahead
   (:require-macros
-    [re-com.core :refer [handler-fn]]
-    [re-com.validate :refer [validate-args-macro]]
+    [re-com.core            :refer [handler-fn]]
+    [re-com.debug           :refer [src-coordinates]]
+    [re-com.validate        :refer [validate-args-macro]]
     [cljs.core.async.macros :refer [alt! go-loop]])
   (:require
     [cljs.core.async   :refer [chan timeout <! put!]]
     [re-com.config     :refer [include-args-desc?]]
+    [re-com.debug      :refer [src->attr]]
     [re-com.throbber   :refer [throbber]]
     [re-com.input-text :refer [input-text]]
     [re-com.util       :refer [deref-or-value px]]
@@ -254,7 +256,8 @@
      {:name :class                   :required false                  :type "string"               :validate-fn string?            :description "CSS class names, space separated (applies to the textbox)"}
      {:name :style                   :required false                  :type "CSS style map"        :validate-fn css-style?         :description "CSS styles to add or override (applies to the textbox)"}
      {:name :attr                    :required false                  :type "HTML attr map"        :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to " [:span.bold "the outer container"] ", rather than the textbox)"]}
-     {:name :parts                   :required false                  :type "map"                  :validate-fn (parts? #{:suggestions-container :suggestion :throbber}) :description "See Parts section below."}]))
+     {:name :parts                   :required false                  :type "map"                  :validate-fn (parts? #{:suggestions-container :suggestion :throbber}) :description "See Parts section below."}
+     {:name :src                     :required false                  :type "map"                  :validate-fn map?                 :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn typeahead
   "typeahead reagent component"
@@ -268,58 +271,68 @@
       [& {:as   args
           :keys [data-source _on-change _change-on-blur? _immediate-model-update? model _debounce-delay render-suggestion _suggestion-to-string _rigid?
                  ;; forwarded to wrapped `input-text`:
-                 status status-icon? status-tooltip placeholder width height disabled? class style attr parts]}]
-      (validate-args-macro typeahead-args-desc args "typeahead")
-      (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
-            last-data-source (:data-source state)
-            latest-external-model (deref-or-value model)
-            width (or width "250px")]
-        (when (not= last-data-source data-source)
-          (swap! state-atom change-data-source data-source))
-        (when (not= latest-external-model external-model)
-          (swap! state-atom external-model-changed latest-external-model))
-        [v-box
-         :class    "rc-typeahead"
-         :attr     attr
-         :width    width
-         :children [[input-text
-                     :model          input-text-model
-                     :class          class
-                     :style          style
-                     :disabled?      disabled?
-                     :status-icon?   status-icon?
-                     :status         status
-                     :status-tooltip status-tooltip
-                     :width          width
-                     :height         height
-                     :placeholder    placeholder
-                     :on-change      (partial input-text-on-change! state-atom)
-                     :change-on-blur? false
-                     :attr {:on-key-down (partial input-text-on-key-down! state-atom)
-                            :on-focus #()
-                            ;; on-blur should behave the same as tabbing off
-                            :on-blur #(swap! state-atom input-text-will-blur)}]
-                    (if (or (not-empty suggestions) waiting?)
-                      [box
-                       :style {:position "relative"}
-                       :child [v-box
-                               :class (str "rc-typeahead-suggestions-container " (get-in parts [:suggestions-container :class]))
-                               :children [(when waiting?
-                                            [box
-                                             :align :center
-                                             :child [throbber :size :small :class (str "rc-typeahead-throbber " (get-in parts [:throbber :class]))]])
-                                          (for [[i s] (map vector (range) suggestions)
-                                                :let [selected? (= suggestion-active-index i)]]
-                                            ^{:key i}
-                                            [box
-                                             :child (if render-suggestion
-                                                      (render-suggestion s)
-                                                      s)
-                                             :class (str "rc-typeahead-suggestion"
-                                                         (when selected? " active")
-                                                         (get-in parts [:suggestion :class]))
-                                             :attr {:on-mouse-over #(swap! state-atom activate-suggestion-by-index i)
-                                                    :on-mouse-down #(do (.preventDefault %) (swap! state-atom choose-suggestion-by-index i))}])]]])]]))))
+                 status status-icon? status-tooltip placeholder width height disabled? class style attr parts src]}]
+      (or
+        (validate-args-macro typeahead-args-desc args "typeahead")
+        (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
+              last-data-source      (:data-source state)
+              latest-external-model (deref-or-value model)
+              width                 (or width "250px")]
+          (when (not= last-data-source data-source)
+            (swap! state-atom change-data-source data-source))
+          (when (not= latest-external-model external-model)
+            (swap! state-atom external-model-changed latest-external-model))
+          [v-box
+           :src      src
+           :class    "rc-typeahead"
+           :attr     attr
+           :width    width
+           :children [[input-text
+                       :src            (src-coordinates)
+                       :model          input-text-model
+                       :class          class
+                       :style          style
+                       :disabled?      disabled?
+                       :status-icon?   status-icon?
+                       :status         status
+                       :status-tooltip status-tooltip
+                       :width          width
+                       :height         height
+                       :placeholder    placeholder
+                       :on-change      (partial input-text-on-change! state-atom)
+                       :change-on-blur? false
+                       :attr {:on-key-down (partial input-text-on-key-down! state-atom)
+                              :on-focus #()
+                              ;; on-blur should behave the same as tabbing off
+                              :on-blur #(swap! state-atom input-text-will-blur)}]
+                      (if (or (not-empty suggestions) waiting?)
+                        [box
+                         :src   (src-coordinates)
+                         :style {:position "relative"}
+                         :child [v-box
+                                 :src      (src-coordinates)
+                                 :class    (str "rc-typeahead-suggestions-container " (get-in parts [:suggestions-container :class]))
+                                 :children [(when waiting?
+                                              [box
+                                               :src   (src-coordinates)
+                                               :align :center
+                                               :child [throbber
+                                                       :src   (src-coordinates)
+                                                       :size  :small
+                                                       :class (str "rc-typeahead-throbber " (get-in parts [:throbber :class]))]])
+                                            (for [[i s] (map vector (range) suggestions)
+                                                  :let [selected? (= suggestion-active-index i)]]
+                                              ^{:key i}
+                                              [box
+                                               :src   (src-coordinates)
+                                               :child (if render-suggestion
+                                                        (render-suggestion s)
+                                                        s)
+                                               :class (str "rc-typeahead-suggestion"
+                                                           (when selected? " active")
+                                                           (get-in parts [:suggestion :class]))
+                                               :attr {:on-mouse-over #(swap! state-atom activate-suggestion-by-index i)
+                                                      :on-mouse-down #(do (.preventDefault %) (swap! state-atom choose-suggestion-by-index i))}])]]])]])))))
 
 (defn- debounce
   "Return a channel which will receive a value from the `in` channel only

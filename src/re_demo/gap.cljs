@@ -1,7 +1,10 @@
 (ns re-demo.gap
-  (:require [re-com.core   :refer [h-box v-box gap p line box]]
-            [re-com.box    :refer [gap-args-desc]]
-            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
+  (:require-macros
+    [re-com.debug  :refer [src-coordinates]])
+  (:require
+    [re-com.core   :refer [h-box v-box gap p line box]]
+    [re-com.box    :refer [gap-args-desc]]
+    [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
 (def rounded-panel
@@ -13,6 +16,7 @@
 (defn panel
   []
   [v-box
+   :src      (src-coordinates)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[gap ... ]"
@@ -22,6 +26,7 @@
               [h-box
                :gap      "100px"
               :children [[v-box
+                          :src       (src-coordinates)
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Notes"]
@@ -30,8 +35,11 @@
                                       [p "The whitespace added will be in the expected direction (i.e. horizontally for h-box or vertically for v-box)."]
                                       [args-table gap-args-desc]]]
                           [v-box
+                           :src      (src-coordinates)
                            :children [[title2 "Demo #1"]
-                                      [gap :size "10px"]
+                                      [gap
+                                       :src  (src-coordinates)
+                                       :size "10px"]
                                       [p "Example code..."]
                                       [:pre
                                        {:style {:width "40em"}}
@@ -44,22 +52,30 @@
 
                                       [p "Result:"]
                                       [h-box
+                                       :src      (src-coordinates)
                                        :gap      "10px"
                                        :style    {:border "dashed 1px red"}
                                        :children [[box
+                                                   :src   (src-coordinates)
                                                    :style {:background-color "lightgrey"
                                                            :padding          "20px"}
                                                    :child "Box 1"]
                                                   [box
+                                                   :src   (src-coordinates)
                                                    :style {:background-color "lightgrey"
                                                            :padding          "20px"}
                                                    :child "Box 2"]
-                                                  [gap :size "5px"]
+                                                  [gap
+                                                   :src  (src-coordinates)
+                                                   :size "5px"]
                                                   [box
+                                                   :src   (src-coordinates)
                                                    :style {:background-color "lightgrey"
                                                            :padding          "20px"}
                                                    :child "Box 3"]]]
-                                      [gap :size "10px"]
+                                      [gap
+                                       :src  (src-coordinates)
+                                       :size "10px"]
                                       [p "Notes:"]
                                       [:ul {:style {:width "450px"}}
                                        [:li "h-box and v-box have a " [:code ":gap"] " parameter which inserts a
@@ -67,10 +83,14 @@
                                        [:li "For more ad hoc gaps, use the " [:span.bold "[gap ...]"] " component itself."]
                                        [:li "In this example, the gap between components 2 and 3 will be 25px
                                          because the [gap] is a child of the h-box and will have 10px left and right of it."]]
-                                      [gap :size "10px"]
+                                      [gap
+                                       :src  (src-coordinates)
+                                       :size "10px"]
                                       [line]
                                       [title2 "Demo #2"]
-                                      [gap :size "10px"]
+                                      [gap
+                                       :src  (src-coordinates)
+                                       :size "10px"]
                                       [p " "]
                                       [:pre
                                        {:style {:width "40em"}}
@@ -84,25 +104,37 @@
 
                                       [p "Result:"]
                                       [h-box
+                                       :src      (src-coordinates)
                                        :style    {:border "dashed 1px red"}
                                        :children [[box
+                                                   :src   (src-coordinates)
                                                    :style {:background-color "lightgrey"
                                                            :padding          "20px"}
                                                    :child "Box 1"]
-                                                  [gap :size "10px"]
+                                                  [gap
+                                                   :src  (src-coordinates)
+                                                   :size "10px"]
                                                   [box
+                                                   :src  (src-coordinates)
                                                    :style {:background-color "lightgrey"
                                                            :padding          "20px"}
                                                    :child "Box 2"]
-                                                  [gap :size "1"]
+                                                  [gap
+                                                   :src  (src-coordinates)
+                                                   :size "1"]
                                                   [box
+                                                   :src  (src-coordinates)
                                                    :style {:background-color "lightgrey"
                                                            :padding          "20px"}
                                                    :child "Box 3"]]]
-                                      [gap :size "10px"]
+                                      [gap
+                                       :src  (src-coordinates)
+                                       :size "10px"]
                                       [p "Notes:"]
                                       [:ul {:style {:width "450px"}}
                                        [:li "This example has a gap with a " [:span.bold "proportional size"] " of \"1\", not an absolute size. Synonymous to 100%."]
                                        [:li "Because it \"grows\" to fill all available space, it \"pushes\" box2 and box3 as far apart as possible."]
                                        [:li "Imagine the boxes as buttons, to see how this might be useful."]]]]]]
-              [gap :size "30px"]]])
+              [gap
+               :src  (src-coordinates)
+               :size "30px"]]])

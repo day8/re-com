@@ -1,12 +1,16 @@
 (ns re-demo.box
-  (:require [re-com.core   :refer [h-box v-box box gap hyperlink-href p]]
-            [re-com.box    :refer [box-args-desc]]
-            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
+  (:require-macros
+    [re-com.debug  :refer [src-coordinates]])
+  (:require
+    [re-com.core   :refer [h-box v-box box gap hyperlink-href p]]
+    [re-com.box    :refer [box-args-desc]]
+    [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 
 (defn panel
   []
   [v-box
+   :src      (src-coordinates)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[box ... ]"
@@ -14,8 +18,10 @@
                             "src/re_demo/box.cljs"]
 
               [h-box
+               :src      (src-coordinates)
                :gap      "100px"
                :children [[v-box
+                           :src      (src-coordinates)
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Notes"]
@@ -31,7 +37,10 @@
 
                                       [args-table box-args-desc]]]
                           [v-box
+                           :src      (src-coordinates)
                            :gap      "10px"
                            :children [[title2 "Demo"]
                                       [:span.all-small-caps "This space intentionally free of dark pixels."]]]]]
-              [gap :size "30px"]]])
+              [gap
+               :src  (src-coordinates)
+               :size "30px"]]])

@@ -1,4 +1,6 @@
 (ns re-demo.dropdowns
+  (:require-macros
+    [re-com.debug    :refer [src-coordinates]])
   (:require
     [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
     [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
@@ -123,11 +125,14 @@
   (let [selected-country-id (reagent/atom nil)]
     (fn []
       [v-box
+       :src      (src-coordinates)
        :gap      "10px"
        :children [[h-box
+                   :src      (src-coordinates)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src         (src-coordinates)
                                :choices     grouped-countries
                                :model       selected-country-id
                                :title?      true
@@ -153,11 +158,14 @@
   (let [selected-country-id (reagent/atom "US")]
     (fn []
       [v-box
+       :src      (src-coordinates)
        :gap      "10px"
        :children [[h-box
+                   :src      (src-coordinates)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src         (src-coordinates)
                                :choices     grouped-countries
                                :model       selected-country-id
                                :width       "300px"
@@ -184,15 +192,18 @@
         selected-country-id (reagent/atom (id-fn {:code "US"}))]
     (fn []
       [v-box
+       :src      (src-coordinates)
        :gap      "10px"
        :children [[p "This example is the same as the previous one except the list is shorter and the following parameters have been added to use different keywords for the data and transform the values provided:"]
                   [p [:code ":id-fn"] " is set to " [:code "#(str (:code %) \"$\")"]]
                   [p [:code ":label-fn"] " is set to " [:code "#(str (:country %) \"!\")"]]
                   [p [:code ":group-fn"] " is set to " [:code "#(str \"[\" (:region %) \"]\")"]]
                   [h-box
+                   :src      (src-coordinates)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src         (src-coordinates)
                                :choices     grouped-countries-2
                                :model       selected-country-id
                                :width       "300px"
@@ -217,6 +228,7 @@
         selected-country-id-3 (reagent/atom "GB")]
     (fn []
       [v-box
+       :src      (src-coordinates)
        :gap      "10px"
        :children [[p "[single-dropdown ...] supports tab key navigation."]
                   [p "The " [:code ":tab-index"] " parameter specifies position in the tab order (default is 0),
@@ -226,14 +238,19 @@
                   [p "Enter, Tab and Shift+Tab trigger selection of the currently highlighted choice."]
                   [p "Esc closes the dropdown without making a selection."]
                   [h-box
+                   :src      (src-coordinates)
                    :gap      "10px"
                    :align    :center
-                   :children [[label :label "Test tabbing"]
+                   :children [[label
+                               :src   (src-coordinates)
+                               :label "Test tabbing"]
                               [input-text
+                               :src       (src-coordinates)
                                :model     ""
                                :on-change #()
                                :width     "80px"]
                               [single-dropdown
+                               :src         (src-coordinates)
                                :choices     grouped-countries
                                :model       selected-country-id
                                :width       "200px"
@@ -244,14 +261,20 @@
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
-                  [gap :size "10px"]
+                  [gap
+                   :src  (src-coordinates)
+                   :size "10px"]
                   [p "All components on this page have " [:code ":tab-index"] " set to the default (0) except the ones below.
                       Keep pressing the Tab key and note how the focus cycles through the components."]
                   [h-box
-                   :align :center
-                   :gap "10px"
-                   :children [[label :label [:span [:code ":tab-index"] " is set to 3"]]
+                   :src      (src-coordinates)
+                   :align    :center
+                   :gap      "10px"
+                   :children [[label
+                               :src   (src-coordinates)
+                               :label [:span [:code ":tab-index"] " is set to 3"]]
                               [single-dropdown
+                               :src           (src-coordinates)
                                :choices       grouped-countries
                                :model         selected-country-id-1
                                :tab-index     3
@@ -259,10 +282,14 @@
                                :filter-box?   true
                                :on-change     #(reset! selected-country-id-1 %)]]]
                   [h-box
-                   :align :center
-                   :gap "10px"
-                   :children [[label :label [:span [:code ":tab-index"] " is set to 2"]]
+                   :src      (src-coordinates)
+                   :align    :center
+                   :gap      "10px"
+                   :children [[label
+                               :src   (src-coordinates)
+                               :label [:span [:code ":tab-index"] " is set to 2"]]
                               [single-dropdown
+                               :src           (src-coordinates)
                                :choices       grouped-countries
                                :model         selected-country-id-2
                                :tab-index     2
@@ -270,10 +297,14 @@
                                :filter-box?   true
                                :on-change     #(reset! selected-country-id-2 %)]]]
                   [h-box
-                   :align :center
-                   :gap "10px"
-                   :children [[label :label [:span [:code ":tab-index"] " is set to 1"]]
+                   :src      (src-coordinates)
+                   :align    :center
+                   :gap      "10px"
+                   :children [[label
+                               :src   (src-coordinates)
+                               :label [:span [:code ":tab-index"] " is set to 1"]]
                               [single-dropdown
+                               :src           (src-coordinates)
                                :choices       grouped-countries
                                :model         selected-country-id-3
                                :tab-index     1
@@ -302,12 +333,15 @@
         dropdown-width      "300px"]
     (fn []
       [v-box
+       :src      (src-coordinates)
        :gap      "10px"
        :children [[h-box
+                   :src      (src-coordinates)
                    :gap      "10px"
                    :align    :center
                    :children [^{:key (str @just-drop? @on-drop?)}
                               [single-dropdown
+                               :src                (src-coordinates)
                                :choices            grouped-countries
                                :model              selected-country-id
                                :disabled?          @disabled?
@@ -333,7 +367,8 @@
                                  "None"
                                  (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
                   [v-box
-                   :gap "10px"
+                   :src      (src-coordinates)
+                   :gap      "10px"
                    :style    {:min-width        "150px"
                               :padding          "15px"
                               :border-top       "1px solid #DDD"
@@ -341,128 +376,189 @@
                    :children [[title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
                               [p "Experiment with the checkboxes below to understand the effect of other parameters."]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":disabled?"]]
-                                           :model disabled?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":disabled?"]]
+                                           :model       disabled?
                                            :label-style {:width "165px"}
-                                           :on-change #(reset! disabled? %)]
+                                           :on-change   #(reset! disabled? %)]
                                           [:span (str @disabled? " - " (if @disabled?
                                                                          "the dropdown is locked and cannot be changed."
                                                                          "the dropdown is enabled and a choice can be selected."))]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":regex-filter?"]]
-                                           :model regex?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":regex-filter?"]]
+                                           :model       regex?
                                            :label-style {:width "165px"}
-                                           :on-change #(reset! regex? %)]
+                                           :on-change   #(reset! regex? %)]
                                           [:span (str @regex? " - " (if @regex?
                                                                       "the filter text box supports JavaScript regular expressions."
                                                                       "the filter text box supports plain text filtering only."))]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":width"]]
-                                           :model width?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":width"]]
+                                           :model       width?
                                            :label-style {:width "165px"}
-                                           :on-change #(reset! width? %)]
+                                           :on-change   #(reset! width? %)]
                                           [:span (str (if @width?
                                                         (str "\"" dropdown-width "\" - the dropdown is fixed to this width.")
                                                         "not specified - the dropdown takes up all available width."))]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":tooltip"]]
-                                           :model tooltip?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src      (src-coordinates)
+                                                         :align :start :child [:code ":tooltip"]]
+                                           :model       tooltip?
                                            :label-style {:width "165px"}
-                                           :on-change #(reset! tooltip? %)]
+                                           :on-change   #(reset! tooltip? %)]
                                           [:span (if @tooltip?
                                                    "hover over the dropdown to see the tooltip."
                                                    "no tooltip specified.")]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":tooltip-position"]]
-                                           :model tooltip-position?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":tooltip-position"]]
+                                           :model       tooltip-position?
                                            :label-style {:width "165px"}
-                                           :disabled? (not @tooltip?)
-                                           :on-change #(reset! tooltip-position? %)]
+                                           :disabled?   (not @tooltip?)
+                                           :on-change   #(reset! tooltip-position? %)]
                                           [:span (cond
                                                    (not @tooltip?)    "does not apply."
                                                    @tooltip-position? "the tooltip will appear on the right hand side of the dropdown."
                                                    :else              "not specified - the tooltip will appear below the dropdown.")]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":enter-drop?"]]
-                                           :model enter-drop?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":enter-drop?"]]
+                                           :model       enter-drop?
                                            :label-style {:width "165px"}
-                                           :on-change #(reset! enter-drop? %)]
+                                           :on-change   #(reset! enter-drop? %)]
                                           [:span (str @enter-drop? " - " (if @enter-drop?
                                                                            "pressing Enter (while focused) displays the dropdown part."
                                                                            "pressing Enter (while focused) does not display the dropdown part."))]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :start
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":cancelable?"]]
-                                           :model cancelable?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":cancelable?"]]
+                                           :model       cancelable?
                                            :label-style {:width "165px"}
                                            :on-change #(reset! cancelable? %)]
                                           [:span (str @cancelable? " - " (if @cancelable?
                                                                            "selection made with arrow keys can be cancelled by pressing Esc or clicking outside the dropdown part."
                                                                            "selection made with arrow keys is immediately applied and thus cannot be cancelled."))]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":filter-placeholder"]]
-                                           :model filter-placeholder?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":filter-placeholder"]]
+                                           :model       filter-placeholder?
                                            :label-style {:width "165px"}
-                                           :on-change #(reset! filter-placeholder? %)]
+                                           :on-change   #(reset! filter-placeholder? %)]
                                           [:span (str (if @filter-placeholder?
                                                         "a placeholder text will be displayed when the filter is empty."
                                                         "not specified - no placeholder text will be displayed in the filter textbox."))]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":just-drop?"]]
-                                           :model just-drop?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":just-drop?"]]
+                                           :model       just-drop?
                                            :label-style {:width "165px"}
-                                           :on-change #(reset! just-drop? %)]
+                                           :on-change   #(reset! just-drop? %)]
                                           [:span (str @just-drop? " - " (if @just-drop?
                                                                           "just the dropdown part display."
                                                                           "normal display."))]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":repeat-change?"]]
-                                           :model repeat-change?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":repeat-change?"]]
+                                           :model       repeat-change?
                                            :label-style {:width "165px"}
                                            :on-change #(reset! repeat-change? %)]
                                           [:span (str @repeat-change? " - " (if @repeat-change?
                                                                               (str "the change count of " @change-count " will increase if an item is re-selected.")
                                                                               (str "the change count of " @change-count " will not increase if an item is re-selected.")))]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":i18n"]]
-                                           :model i18n?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":i18n"]]
+                                           :model       i18n?
                                            :label-style {:width "165px"}
-                                           :on-change #(reset! i18n? %)]
+                                           :on-change   #(reset! i18n? %)]
                                           [:span (if @i18n?
                                                    "type e.g. \"1\" in the filter box to see the \"No results match\" message translated."
                                                    "no internationalization applied.")]]]
                               [h-box
+                               :src      (src-coordinates)
                                :align    :center
                                :children [[checkbox
-                                           :label [box :align :start :child [:code ":on-drop?"]]
-                                           :model on-drop?
+                                           :src         (src-coordinates)
+                                           :label       [box
+                                                         :src   (src-coordinates)
+                                                         :align :start
+                                                         :child [:code ":on-drop?"]]
+                                           :model       on-drop?
                                            :label-style {:width "165px"}
-                                           :on-change #(reset! on-drop? %)]
+                                           :on-change   #(reset! on-drop? %)]
                                           [:span (str @on-drop? " - " (if @on-drop?
                                                                         (str "the drop count of " @drop-count " will increase on the dropdown part display.")
                                                                         (str "the drop count of " @drop-count " will not increase on the dropdown part display.")))]]]
-                              [gap :size "10px"]]]]])))
+                              [gap
+                               :src  (src-coordinates)
+                               :size "10px"]]]]])))
 
 
 
@@ -473,12 +569,15 @@
         selected-city-id    (reagent/atom nil)]
     (fn []
       [v-box
+       :src      (src-coordinates)
        :gap      "10px"
        :children [[p "Two dropdowns can be tied together in a parent-child relationship. In this case, countries and their cities."]
                   [h-box
+                   :src      (src-coordinates)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src       (src-coordinates)
                                :choices   countries
                                :model     selected-country-id
                                :width     "300px"
@@ -491,11 +590,15 @@
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (item-for-id @selected-country-id countries)) " [" @selected-country-id "]"))]]]
-                  [gap :size "10px"]
+                  [gap
+                   :src  (src-coordinates)
+                   :size "10px"]
                   [h-box
+                   :src      (src-coordinates)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src       (src-coordinates)
                                :choices   filtered-cities
                                :model     selected-city-id
                                :width     "300px"
@@ -511,11 +614,14 @@
   (let [selected-country-id (reagent/atom nil)]
     (fn []
       [v-box
+       :src      (src-coordinates)
        :gap      "10px"
        :children [[h-box
+                   :src      (src-coordinates)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src         (src-coordinates)
                                :choices     countries
                                :render-fn   (fn [choice] [:div [:span (:label choice)]
                                                                [:span {:style {:float "right"}} "\u2691"]])
@@ -544,63 +650,76 @@
                                        (not= -1 (.indexOf (:label %) filter-text))) cities))]
     (fn []
       [v-box
-       :gap "10px"
+       :src      (src-coordinates)
+       :gap      "10px"
        :children [[p "You may pass " [:code "(fn [opts done fail] ...)"] " to :choices attribute to asynchronously load data.
                       When data is loaded callback either (done result) of (fail error) should be called."]
                   [p "Dropdown uses initial callback. This way we don't require managing callbacks and
                       allow passing inline callback. If callback will change (e.g. dependent dropdown) - :key may be used."]
-                  [label :label "Result after a second:"]
+                  [label
+                   :src   (src-coordinates)
+                   :label "Result after a second:"]
                   [single-dropdown
-                   :choices (fn [{:keys [filter-text]} done fail]
-                              (js/setTimeout
-                                (fn []
-                                  (done (filter-countries filter-text)))
-                                1000))
+                   :src         (src-coordinates)
+                   :choices     (fn [{:keys [filter-text]} done fail]
+                                  (js/setTimeout
+                                    (fn []
+                                      (done (filter-countries filter-text)))
+                                    1000))
                    :placeholder "Choose country"
-                   :model selected-country-id
+                   :model       selected-country-id
                    :filter-box? true
-                   :width "300px"
-                   :max-height "400px"
-                   :on-change #(reset! selected-country-id %)]
-                  [label :label "Dependent dropdown:"]
+                   :width       "300px"
+                   :max-height  "400px"
+                   :on-change   #(reset! selected-country-id %)]
+                  [label
+                   :src   (src-coordinates)
+                   :label "Dependent dropdown:"]
                   [:div {:key @selected-country-id}
                    [single-dropdown
-                    :choices (fn [{:keys [filter-text]} done fail]
-                               (js/setTimeout
-                                 (fn []
-                                   (done (filter-citites @selected-country-id filter-text)))
-                                 1000))
+                    :src         (src-coordinates)
+                    :choices     (fn [{:keys [filter-text]} done fail]
+                                   (js/setTimeout
+                                     (fn []
+                                       (done (filter-citites @selected-country-id filter-text)))
+                                     1000))
                     :placeholder "Choose city"
-                    :model selected-city-id
+                    :model       selected-city-id
                     :filter-box? true
-                    :width "300px"
-                    :max-height "400px"
-                    :on-change #(reset! selected-city-id %)]]
-                  [label :label "With error:"]
+                    :width       "300px"
+                    :max-height  "400px"
+                    :on-change   #(reset! selected-city-id %)]]
+                  [label
+                   :src   (src-coordinates)
+                   :label "With error:"]
                   [single-dropdown
-                   :choices (fn [{:keys [filter-text]} done fail]
-                              (js/setTimeout
-                                #(if (= "please" filter-text)
-                                   (done countries)
-                                   (fail "Server error"))
-                                1000))
+                   :src         (src-coordinates)
+                   :choices     (fn [{:keys [filter-text]} done fail]
+                                  (js/setTimeout
+                                    #(if (= "please" filter-text)
+                                       (done countries)
+                                       (fail "Server error"))
+                                    1000))
                    :placeholder "Type 'please' to get results"
-                   :model @selected-country-id2
+                   :model       @selected-country-id2
                    :filter-box? true
-                   :width "300px"
-                   :max-height "400px"
-                   :on-change #(reset! selected-country-id2 %)]]])))
+                   :width       "300px"
+                   :max-height  "400px"
+                   :on-change   #(reset! selected-country-id2 %)]]])))
 
 (defn drop-above-demo
   []
   (let [selected-city-id (reagent/atom nil)]
     (fn []
       [v-box
+       :src      (src-coordinates)
        :gap      "100px"
        :children [[h-box
+                   :src      (src-coordinates)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src             (src-coordinates)
                                :can-drop-above? true
                                :choices         cities
                                :model           selected-city-id
@@ -626,6 +745,7 @@
         capitalize?    (reagent/atom false)
         f              (fn [a]
                          [single-dropdown
+                          :src             (src-coordinates)
                           :free-text?      true
                           :auto-complete?  @auto-complete?
                           :capitalize?     @capitalize?
@@ -637,47 +757,68 @@
                           :on-change       #(reset! a %)])]
     (fn []
       [v-box
-       :gap "10px"
+       :src      (src-coordinates)
+       :gap      "10px"
        :children [[p "Allow user a free text input by setting the " [:code ":free-text?"] " attribute."]
                   [p "Additional options:"]
                   [h-box
+                   :src      (src-coordinates)
                    :align    :center
                    :children [[checkbox
-                               :label [box :align :start :child [:code ":disabled?"]]
-                               :model disabled?
+                               :src         (src-coordinates)
+                               :label       [box
+                                             :src   (src-coordinates)
+                                             :align :start
+                                             :child [:code ":disabled?"]]
+                               :model       disabled?
                                :label-style {:width "165px"}
-                               :on-change #(reset! disabled? %)]
+                               :on-change   #(reset! disabled? %)]
                               [:span (str @disabled? " - " (if @disabled?
                                                              "the dropdown is locked and cannot be changed."
                                                              "the dropdown is enabled and a choice can be selected."))]]]
                   [checkbox
-                   :label [box :align :start :child [:code ":auto-complete?"]]
-                   :model auto-complete?
+                   :src         (src-coordinates)
+                   :label       [box
+                                 :src   (src-coordinates)
+                                 :align :start
+                                 :child [:code ":auto-complete?"]]
+                   :model       auto-complete?
                    :label-style {:width "165px"}
-                   :on-change #(reset! auto-complete? %)]
+                   :on-change   #(reset! auto-complete? %)]
                   [checkbox
-                   :label [box :align :start :child [:code ":capitalize?"]]
-                   :model capitalize?
+                   :src         (src-coordinates)
+                   :label       [box :align :start :child [:code ":capitalize?"]]
+                   :model       capitalize?
                    :label-style {:width "165px"}
-                   :on-change #(reset! capitalize? %)]
-                  [gap :size "10px"]
+                   :on-change   #(reset! capitalize? %)]
+                  [gap
+                   :src  (src-coordinates)
+                   :size "10px"]
                   [h-box
-                   :gap "10px"
-                   :align :center
+                   :src      (src-coordinates)
+                   :gap      "10px"
+                   :align    :center
                    :children [(f selected-city)
                               [:div
                                [:strong "City: "]
                                (if (seq @selected-city)
                                  @selected-city
                                  "None")]]]
-                  [gap :size "50px"]
-                  [line]
+                  [gap
+                   :src  (src-coordinates)
+                   :size "50px"]
+                  [line
+                   :src      (src-coordinates)]
+
                   [p "If the filter box is enabled, the filter text can be reused as the actual text entry. To try this, type e.g. \"1\" in the filter box and press Enter."]
                   [:pre ":filter-box?   true\n:set-to-filter #{:on-enter-press :on-no-results-match-click}"]
-                  [gap :size "10px"]
+                  [gap
+                   :src  (src-coordinates)
+                   :size "10px"]
                   [h-box
-                   :gap "10px"
-                   :align :center
+                   :src      (src-coordinates)
+                   :gap      "10px"
+                   :align    :center
                    :children [(conj (f selected-city2)
                                 :filter-box? true
                                 :set-to-filter #{:on-enter-press :on-no-results-match-click})
@@ -693,14 +834,17 @@
   []
   (fn []
     [v-box
+     :src      (src-coordinates)
      :size     "auto"
      :gap      "10px"
      :children [[panel-title "[single-dropdown ... ]"
                               "src/re_com/dropdown.cljs"
                               "src/re_demo/dropdowns.cljs"]
                 [h-box
+                 :src      (src-coordinates)
                  :gap      "100px"
                  :children [[v-box
+                             :src      (src-coordinates)
                              :gap      "10px"
                              :width    "450px"
                              :children [[title2 "Notes"]
@@ -720,20 +864,27 @@
                                         [p "Note: Single selection only."]
                                         [args-table single-dropdown-args-desc]]]
                             [v-box
+                             :src      (src-coordinates)
                              :width     "700px"
                              :gap       "10px"
                              :children  [[title2 "Demo"]
                                          [h-box
+                                          :src      (src-coordinates)
                                           :gap      "10px"
                                           :align    :center
-                                          :children [[label :label "Select a demo"]
+                                          :children [[label
+                                                      :src   (src-coordinates)
+                                                      :label "Select a demo"]
                                                      [single-dropdown
+                                                      :src        (src-coordinates)
                                                       :choices    demos
                                                       :model      selected-demo-id
                                                       :width      "300px"
                                                       :max-height "300px"
                                                       :on-change  #(reset! selected-demo-id %)]]]
-                                         [gap :size "0px"] ;; Force a bit more space here
+                                         [gap
+                                          :src  (src-coordinates)
+                                          :size "0px"] ;; Force a bit more space here
                                          (case @selected-demo-id
                                            1  [simple-demo]
                                            2  [grouping-demo]

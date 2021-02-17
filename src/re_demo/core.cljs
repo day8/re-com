@@ -1,6 +1,8 @@
 (ns re-demo.core
-  (:require-macros [cljs.core.async.macros :refer [go]]
-                   [secretary.core         :refer [defroute]])
+  (:require-macros
+    [re-com.debug           :refer [src-coordinates]]
+    [cljs.core.async.macros :refer [go]]
+    [secretary.core         :refer [defroute]])
   (:require [goog.events                   :as    events]
             [reagent.core                  :as    reagent]
             [reagent.dom                   :as    rdom]
@@ -59,6 +61,7 @@
 (defn- tab-label-with-version
   [& {:keys [label version]}]
   [v-box
+   :src      (src-coordinates)
    :children [[:span label]
               [:span
                {:style {:padding-left "12px"
@@ -159,19 +162,25 @@
   [selected-tab-id on-select-tab]
   (let [background-col "#fcfcfc"]
     [v-box
+     :src      (src-coordinates)
      :size     "1"
      :style    {:background-color background-col}
      :children [[v-box
+                 :src      (src-coordinates)
                  :class    "noselect"
                  :style    {:background-color background-col}
                  :children (conj (into []
                                        (for [tab tabs-definition]
                                          [nav-item tab selected-tab-id on-select-tab])))]
-                [gap :size "1"]
+                [gap
+                 :src  (src-coordinates)
+                 :size "1"]
                 [box
+                 :src   (src-coordinates)
                  :style {:padding "8px 24px"
                          :background-color background-col}
                  :child [label
+                         :src   (src-coordinates)
                          :style {:font-size "10px"}
                          :label version]]]]))
 
@@ -179,11 +188,13 @@
 (defn re-com-title-box
   []
   [h-box
+   :src     (src-coordinates)
    :justify :center
    :align   :center
    :height  "62px"
    :style   {:background-color "#666"}
    :children [[title
+               :src   (src-coordinates)
                :label "Re-com"
                :level :level1
                :style {:font-size   "32px"
@@ -193,8 +204,10 @@
 (defn browser-alert
   []
   [box
+   :src     (src-coordinates)
    :padding "10px 10px 0px 0px"
    :child   [alert-box
+             :src        (src-coordinates)
              :alert-type :danger
              :heading    "Only Tested On Chrome"
              :body       "re-com should work on all modern browsers, but there might be dragons!"]])
@@ -224,26 +237,32 @@
        ;; Outer-most box height must be 100% to fill the entrie client height.
        ;; This assumes that height of <body> is itself also set to 100%.
        ;; width does not need to be set.
+       :src           (src-coordinates)
        :height        "100%"
        :split-is-px?  true
        :initial-split 180
        :margin        "0px"
        :panel-1       [scroller
+                       :src      (src-coordinates)
                        ;:size  "none"
                        :v-scroll :auto
                        :h-scroll :off
                        :child [v-box
-                               :size "1"
+                               :src      (src-coordinates)
+                               :size     "1"
                                :children [[re-com-title-box]
                                           [left-side-nav-bar selected-tab-id on-select-tab]]]]
        :panel-2       [scroller
+                       :src   (src-coordinates)
                        :attr  {:id "right-panel"}
                        :child [v-box
-                               :size  "1"
+                               :src      (src-coordinates)
+                               :size     "1"
                                :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
                                           [box
+                                           :src     (src-coordinates)
                                            :padding "0px 0px 0px 50px"
-                                           :child [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
+                                           :child   [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
 (defn ^:dev/after-load mount-root
   []

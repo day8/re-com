@@ -43,7 +43,8 @@
     false  (time/valid-text? "a99")
     true   (time/valid-text? "2359")))
 
-(deftest test-input-time
+;; IJ: TODO
+#_(deftest test-input-time
  (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159 :on-change #())) "Expected a function.")
  (let [input-time-fn (time/input-time :model 1530 :on-change #())]
    (is (fn? input-time-fn) "Expected a function.")
@@ -70,8 +71,8 @@
  ;; (is (thrown? js/Error (time/input-time :model 530 :minimum 600 :maximum 2159) "should fail - model is before range start"))
  ;; (is (thrown? js/Error (time/input-time :model 2230 :minimum 600 :maximum 2159) "should fail - model is after range end"))
 
-
-(deftest test-pre-conditions
+;; IJ: TODO
+#_(deftest test-pre-conditions
  (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159 :on-change #())) "Expected a function.")
  (is (thrown? js/Error (time/input-time :model 1530 :minimum 600 :maximum 2159 :fred "test") "Expected an exception due to invalid parameter.")))
 

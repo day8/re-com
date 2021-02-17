@@ -1,8 +1,10 @@
 (ns re-demo.datepicker
+  (:require-macros
+    [reagent.ratom     :refer [reaction]]
+    [re-com.debug      :refer [src-coordinates]])
   (:require
     [goog.date.Date]
     [reagent.core      :as    reagent]
-    [reagent.ratom     :refer-macros [reaction]]
     [cljs-time.core    :refer [today days minus plus day-of-week before?]]
     [cljs-time.coerce  :refer [to-local-date]]
     [cljs-time.format  :refer [formatter unparse]]
@@ -30,11 +32,14 @@
 (defn- checkbox-for-day
   [day enabled-days]
   [v-box
+   :src      (src-coordinates)
    :align    :center
    :children [[label
+               :src   (src-coordinates)
                :style {:font-size "smaller"}
                :label (day days-map)]
               [checkbox
+               :src       (src-coordinates)
                :model     (@enabled-days day)
                :on-change #(toggle-inclusion! enabled-days day)]]])
 
@@ -46,24 +51,38 @@
    :align    :start
    :children [content
               [v-box
+               :src   (src-coordinates)
                :gap   "10px"
                :style {:min-width        "550px"
                        :padding          "15px"
                        :border-top       "1px solid #DDD"
                        :background-color "#f7f7f7"}
                :children [[title
+                           :src   (src-coordinates)
                            :style {:margin-top "0"}
                            :level :level3 :label "Interactive Parameters"]
                           [checkbox
-                           :label     [box :align :start :child [:code ":disabled?"]]
+                           :src       (src-coordinates)
+                           :label     [box
+                                       :src   (src-coordinates)
+                                       :align :start
+                                       :child [:code ":disabled?"]]
                            :model     disabled?
                            :on-change #(reset! disabled? %)]
                           [checkbox
-                           :label     [box :align :start :child [:code ":show-today?"]]
+                           :src       (src-coordinates)
+                           :label     [box
+                                       :src   (src-coordinates)
+                                       :align :start
+                                       :child [:code ":show-today?"]]
                            :model     show-today?
                            :on-change #(reset! show-today? %)]
                           [checkbox
-                           :label     [box :align :start :child [:code ":show-weeks?"]]
+                           :src       (src-coordinates)
+                           :label     [box
+                                       :src   (src-coordinates)
+                                       :align :start
+                                       :child [:code ":show-weeks?"]]
                            :model     show-weeks?
                            :on-change #(reset! show-weeks? %)]
                           [h-box
@@ -71,15 +90,22 @@
                            :align    :end
                            :children [[:code ":start-of-week"]
                                       [single-dropdown
+                                       :src      (src-coordinates)
                                        :choices   start-of-week-choices
                                        :model     start-of-week
                                        :on-change #(reset! start-of-week %)
                                        :width     "110px"]]]
                           [h-box
+                           :src      (src-coordinates)
                            :gap      "2px"
                            :align    :end
-                           :children [[box :align :end :child [:code ":selectable-fn"]]
-                                      [gap :size "5px"]
+                           :children [[box
+                                       :src   (src-coordinates)
+                                       :align :end
+                                       :child [:code ":selectable-fn"]]
+                                      [gap
+                                       :src  (src-coordinates)
+                                       :size "5px"]
                                       [checkbox-for-day :Su enabled-days]
                                       [checkbox-for-day :Mo enabled-days]
                                       [checkbox-for-day :Tu enabled-days]
@@ -87,8 +113,13 @@
                                       [checkbox-for-day :Th enabled-days]
                                       [checkbox-for-day :Fr enabled-days]
                                       [checkbox-for-day :Sa enabled-days]
-                                      [gap :size "5px"]
-                                      [box :align :end :child [:code (str "(fn [d]\n (" @as-days " (.getDay d)))")]]]]]]]])
+                                      [gap
+                                       :src  (src-coordinates)
+                                       :size "5px"]
+                                      [box
+                                       :src   (src-coordinates)
+                                       :align :end
+                                       :child [:code (str "(fn [d]\n (" @as-days " (.getDay d)))")]]]]]]]])
 
 
 
@@ -175,8 +206,10 @@
                    []
                    [parameters-with
                     [v-box
+                     :src      (src-coordinates)
                      :gap      "15px"
                      :children [[datepicker-dropdown
+                                 :src           (src-coordinates)
                                  :model         model3
                                  :show-today?   @show-today?
                                  :show-weeks?   @show-weeks?
@@ -186,7 +219,9 @@
                                  :format        "dd MMM, yyyy"
                                  :disabled?     disabled?
                                  :on-change     #(reset! model3 %)]
-                                [label :label [:span [:code ":model"] " is " (date->string @model3)]]]]
+                                [label
+                                 :src   (src-coordinates)
+                                 :label [:span [:code ":model"] " is " (date->string @model3)]]]]
                     enabled-days
                     as-days
                     disabled?
@@ -199,8 +234,10 @@
                (set! (.-DateTimeSymbols goog.i18n) DateTimeSymbols_pl)
                [parameters-with
                 [v-box
+                 :src      (src-coordinates)
                  :gap      "15px"
                  :children [[datepicker-dropdown
+                             :src             (src-coordinates)
                              :model           model4
                              :show-today?     @show-today?
                              :show-weeks?     @show-weeks?
@@ -215,7 +252,9 @@
                              :width           "190px"
                              :position-offset 25
                              :on-change       #(reset! model4 %)]
-                            [label :label [:span [:code ":model"] " is " (date->string @model4)]]]]
+                            [label
+                             :src   (src-coordinates)
+                             :label [:span [:code ":model"] " is " (date->string @model4)]]]]
                 enabled-days
                 as-days
                 disabled?
@@ -241,8 +280,10 @@
                                "src/re_com/datepicker.cljs"
                                "src/re_demo/datepicker.cljs"]
                   [h-box
+                   :src      (src-coordinates)
                    :gap      "100px"
                    :children [[v-box
+                               :src      (src-coordinates)
                                :gap      "10px"
                                :width    "450px"
                                :children [[title2 "[datepicker ... ] & [datepicker-dropdown ... ]" {:font-size "24px"}]
@@ -250,14 +291,19 @@
                                           [p "An inline or popover date picker component."]
                                           [args-table datepicker-dropdown-args-desc]]]
                               [v-box
+                               :src      (src-coordinates)
                                :gap       "20px"
                                :size      "auto"
                                :children  [[title2 "Demo"]
                                            [h-box
+                                            :src      (src-coordinates)
                                             :gap      "10px"
                                             :align    :center
-                                            :children [[label :label "Select a demo"]
+                                            :children [[label
+                                                        :src   (src-coordinates)
+                                                        :label "Select a demo"]
                                                        [single-dropdown
+                                                        :src      (src-coordinates)
                                                         :choices   variations
                                                         :model     selected-variation
                                                         :width     "200px"

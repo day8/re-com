@@ -1,10 +1,12 @@
 (ns re-com.input-time
   (:require-macros
     [re-com.core     :refer [handler-fn]]
+    [re-com.debug    :refer [src-coordinates]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [reagent.core    :as    reagent]
     [re-com.config   :refer [include-args-desc?]]
+    [re-com.debug    :refer [src->attr]]
     [re-com.validate :refer [css-style? html-attr? parts? number-or-string?]]
     [re-com.text     :refer [label]]
     [re-com.box      :refer [h-box gap]]
@@ -153,63 +155,66 @@
      {:name :class        :required false                  :type "string"                    :validate-fn string?                   :description "CSS class names, space separated (applies to the textbox, not the wrapping div)"}
      {:name :style        :required false                  :type "CSS style map"             :validate-fn css-style?                :description "CSS style. e.g. {:color \"red\" :width \"50px\"} (applies to the textbox, not the wrapping div)"}
      {:name :attr         :required false                  :type "HTML attr map"             :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
-     {:name :parts        :required false                  :type "map"                       :validate-fn (parts? input-time-parts) :description "See Parts section below."}]))
+     {:name :parts        :required false                  :type "map"                       :validate-fn (parts? input-time-parts) :description "See Parts section below."}
+     {:name :src          :required false                  :type "map"                       :validate-fn map?                      :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn input-time
   "I return the markup for an input box which will accept and validate times.
    Parameters - refer input-time-args above"
   [& {:keys [model minimum maximum] :as args
       :or   {minimum 0 maximum 2359}}]
-  (validate-args-macro input-time-args-desc args "input-time")
-  (validate-arg-times (deref-or-value model) minimum maximum)
-  (let [deref-model    (deref-or-value model)
-        text-model     (reagent/atom (time->text deref-model))
-        previous-model (reagent/atom deref-model)]
-    (fn
-      [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts] :as args
-          :or   {minimum 0 maximum 2359}}]
-      (validate-args-macro input-time-args-desc args "input-time")
-      (validate-arg-times (deref-or-value model) minimum maximum)
-      (let [style (merge (when hide-border? {:border "none"})
-                         style)
-            new-val (deref-or-value model)
-            new-val (if (< new-val minimum) minimum new-val)
-            new-val (if (> new-val maximum) maximum new-val)]
-        ;; if the model is different to that currently shown in text, then reset the text to match
-        ;; other than that we want to keep the current text, because the user is probably typing
-        (when (not= @previous-model new-val)
-          (reset! text-model (time->text new-val))
-          (reset! previous-model new-val))
+  (or
+    (validate-args-macro input-time-args-desc args "input-time")
+    (validate-arg-times (deref-or-value model) minimum maximum)
+    (let [deref-model    (deref-or-value model)
+          text-model     (reagent/atom (time->text deref-model))
+          previous-model (reagent/atom deref-model)]
+      (fn
+        [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts src] :as args
+            :or   {minimum 0 maximum 2359}}]
+        (or
+          (validate-args-macro input-time-args-desc args "input-time")
+          (validate-arg-times (deref-or-value model) minimum maximum)
+          (let [style (merge (when hide-border? {:border "none"})
+                             style)
+                new-val (deref-or-value model)
+                new-val (if (< new-val minimum) minimum new-val)
+                new-val (if (> new-val maximum) maximum new-val)]
+            ;; if the model is different to that currently shown in text, then reset the text to match
+            ;; other than that we want to keep the current text, because the user is probably typing
+            (when (not= @previous-model new-val)
+              (reset! text-model (time->text new-val))
+              (reset! previous-model new-val))
 
-        [h-box
-         :class    (str "rc-input-time " (get-in parts [:wrapper :class]))
-         :style    (merge {:height height}
-                          (get-in parts [:wrapper :style]))
-         :attr     (get-in parts [:wrapper :attr] {})
-         :children [[:input
-                     (merge
-                       {:type      "text"
-                        ;; Leaving time-entry class (below) for backwards compatibility only.
-                        :class     (str "time-entry rc-time-entry " class)
-                        :style     (merge {:width width}
-                                          style)
-                        :value     @text-model
-                        :disabled  (deref-or-value disabled?)
-                        :on-change (handler-fn (on-new-keypress event text-model))
-                        :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
-                        :on-key-up (handler-fn (lose-focus-if-enter event))}
-                       attr)]
-                    (when show-icon?
-                      ;; Leaving time-icon class (below) for backwards compatibility only.
-                      [:div
-                       (merge
-                         {:class (str "time-icon rc-time-icon-container " (get-in parts [:time-icon-container :class]))
-                          :style (get-in parts [:time-icon-container :style] {})}
-                         (get-in parts [:time-icon-container :attr]))
-                       [:i
-                        (merge
-                          {:class (str "zmdi zmdi-hc-fw-rc zmdi-time rc-time-icon " (get-in parts [:time-icon :class]))
-                           :style (merge {:position "static"
-                                          :margin   "auto"}
-                                         (get-in parts [:time-icon :style]))}
-                          (get-in parts [:time-icon :attr]))]])]]))))
+            [h-box
+             :src      src
+             :class    (str "rc-input-time " (get-in parts [:wrapper :class]))
+             :style    (merge {:height height} (get-in parts [:wrapper :style]))
+             :attr     (get-in parts [:wrapper :attr])
+             :children [[:input
+                         (merge
+                           {:type      "text"
+                            ;; Leaving time-entry class (below) for backwards compatibility only.
+                            :class     (str "time-entry rc-time-entry " class)
+                            :style     (merge {:width width}
+                                              style)
+                            :value     @text-model
+                            :disabled  (deref-or-value disabled?)
+                            :on-change (handler-fn (on-new-keypress event text-model))
+                            :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
+                            :on-key-up (handler-fn (lose-focus-if-enter event))}
+                           attr)]
+                        (when show-icon?
+                          ;; Leaving time-icon class (below) for backwards compatibility only.
+                          [:div
+                           (merge
+                             {:class (str "time-icon rc-time-icon-container " (get-in parts [:time-icon-container :class]))
+                              :style (get-in parts [:time-icon-container :style] {})}
+                             (get-in parts [:time-icon-container :attr]))
+                           [:i
+                            (merge
+                              {:class (str "zmdi zmdi-hc-fw-rc zmdi-time rc-time-icon " (get-in parts [:time-icon :class]))
+                               :style (merge {:position "static"
+                                              :margin   "auto"}
+                                             (get-in parts [:time-icon :style]))}
+                              (get-in parts [:time-icon :attr]))]])]]))))))

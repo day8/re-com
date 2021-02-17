@@ -1,9 +1,11 @@
 (ns re-com.progress-bar
   (:require-macros
-    [re-com.core :refer [handler-fn]]
+    [re-com.core     :refer [handler-fn]]
+    [re-com.debug    :refer [src-coordinates]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
+    [re-com.debug    :refer [src->attr]]
     [re-com.util     :refer [deref-or-value px]]
     [re-com.popover  :refer [popover-tooltip]]
     [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
@@ -34,30 +36,33 @@
      {:name :class     :required false                 :type "string"                   :validate-fn string?                     :description "CSS class names, space separated (applies to the progress-bar, not the wrapping div)"}
      {:name :style     :required false                 :type "CSS style map"            :validate-fn css-style?                  :description "CSS styles to add or override (applies to the progress-bar, not the wrapping div)"}
      {:name :attr      :required false                 :type "HTML attr map"            :validate-fn html-attr?                  :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the progress-bar, not the wrapping div)"]}
-     {:name :parts     :required false                 :type "map"                      :validate-fn (parts? progress-bar-parts) :description "See Parts section below."}]))
+     {:name :parts     :required false                 :type "map"                      :validate-fn (parts? progress-bar-parts) :description "See Parts section below."}
+     {:name :src       :required false                 :type "map"                      :validate-fn map?                        :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn progress-bar
   "Render a bootstrap styled progress bar"
-  [& {:keys [model width striped? class bar-class style attr parts]
+  [& {:keys [model width striped? class bar-class style attr parts src]
       :or   {width "100%"}
       :as   args}]
-  (validate-args-macro progress-bar-args-desc args "progress-bar")
-  (let [model (deref-or-value model)]
-    [box
-     :class (str "rc-progress-bar-wrapper " (get-in parts [:wrapper :class]))
-     :style (get-in parts [:wrapper :style] {})
-     :attr  (get-in parts [:wrapper :attr] {})
-     :align :start
-     :child [:div
-             (merge
-               {:class (str "progress rc-progress-bar " class)
-                :style (merge (flex-child-style "none")
-                              {:width width}
-                              style)}
-               attr)
-             [:div
-              {:class (str "progress-bar " (when striped? "progress-bar-striped active rc-progress-bar-portion ") bar-class)
-               :role  "progressbar"
-               :style {:width      (str model "%")
-                       :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind
-              (str model "%")]]]))
+  (or
+    (validate-args-macro progress-bar-args-desc args "progress-bar")
+    (let [model (deref-or-value model)]
+      [box
+       :src   src
+       :class (str "rc-progress-bar-wrapper " (get-in parts [:wrapper :class]))
+       :style (get-in parts [:wrapper :style])
+       :attr  (get-in parts [:wrapper :attr])
+       :align :start
+       :child [:div
+               (merge
+                 {:class (str "progress rc-progress-bar " class)
+                  :style (merge (flex-child-style "none")
+                                {:width width}
+                                style)}
+                 attr)
+               [:div
+                {:class (str "progress-bar " (when striped? "progress-bar-striped active rc-progress-bar-portion ") bar-class)
+                 :role  "progressbar"
+                 :style {:width      (str model "%")
+                         :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind
+                (str model "%")]]])))

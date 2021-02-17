@@ -1,9 +1,11 @@
 (ns re-com.text
   (:require-macros
     [re-com.core     :refer [handler-fn]]
+    [re-com.debug    :refer [src-coordinates]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
+    [re-com.debug    :refer [src->attr]]
     [re-com.box      :refer [v-box box line flex-child-style]]
     [re-com.util     :refer [deep-merge]]
     [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup?]]))
@@ -30,28 +32,31 @@
      {:name :class    :required false :type "string"        :validate-fn string?              :description "CSS class names, space separated (applies to the label, not the wrapping div)"}
      {:name :style    :required false :type "CSS style map" :validate-fn css-style?           :description "additional CSS styles (applies to the label, not the wrapping div)"}
      {:name :attr     :required false :type "HTML attr map" :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the label, not the wrapping div)"]}
-     {:name :parts    :required false :type "map"           :validate-fn (parts? label-parts) :description "See Parts section below."}]))
+     {:name :parts    :required false :type "map"           :validate-fn (parts? label-parts) :description "See Parts section below."}
+     {:name :src      :required false :type "map"           :validate-fn map?                 :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn label
   "Returns markup for a basic label"
-  [& {:keys [label on-click width class style attr parts]
+  [& {:keys [label on-click width class style attr parts src]
       :as   args}]
-  (validate-args-macro label-args-desc args "label")
-  [box
-   :class (str "display-inline-flex rc-label-wrapper " (get-in parts [:wrapper :class]))
-   :style (get-in parts [:wrapper :style] {})
-   :attr  (get-in parts [:wrapper :attr] {})
-   :width width
-   :align :start
-   :child [:span
-           (merge
-             {:class (str "rc-label " class)
-              :style (merge (flex-child-style "none")
-                            style)}
-             (when on-click
-               {:on-click (handler-fn (on-click))})
-             attr)
-           label]])
+  (or
+    (validate-args-macro label-args-desc args "label")
+    [box
+     :src   src
+     :class (str "display-inline-flex rc-label-wrapper " (get-in parts [:wrapper :class]))
+     :style (get-in parts [:wrapper :style])
+     :attr  (get-in parts [:wrapper :attr])
+     :width width
+     :align :start
+     :child [:span
+             (merge
+               {:class (str "rc-label " class)
+                :style (merge (flex-child-style "none")
+                              style)}
+               (when on-click
+                 {:on-click (handler-fn (on-click))})
+               attr)
+             label]]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -78,33 +83,36 @@
      {:name :class         :required false                   :type "string"          :validate-fn string?              :description "CSS class names, space separated (applies to the title, not the wrapping div)"}
      {:name :style         :required false                   :type "CSS style map"   :validate-fn css-style?           :description "CSS styles to add or override (applies to the title, not the wrapping div)"}
      {:name :attr          :required false                   :type "HTML attr map"   :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the title, not the wrapping div)"]}
-     {:name :parts         :required false                   :type "map"             :validate-fn (parts? title-parts) :description "See Parts section below."}]))
+     {:name :parts         :required false                   :type "map"             :validate-fn (parts? title-parts) :description "See Parts section below."}
+     {:name :src           :required false                   :type "map"             :validate-fn map?                 :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn title
   "A title with four preset levels"
-  [& {:keys [label level underline? margin-top margin-bottom class style attr parts]
+  [& {:keys [label level underline? margin-top margin-bottom class style attr parts src]
       :or   {margin-top "0.6em" margin-bottom "0.3em"}
       :as   args}]
-  (validate-args-macro title-args-desc args "title")
-  (let [preset-class (if (nil? level) "" (name level))]
-    [v-box
-     :class    (str "rc-title-wrapper " preset-class " " (get-in parts [:wrapper :class]))
-     :style    (get-in parts [:wrapper :style] {})
-     :attr     (get-in parts [:wrapper :attr] {})
-     :children [[:span (merge {:class (str "display-flex rc-title " preset-class " " class)
-                               :style (merge (flex-child-style "none")
-                                             {:margin-top margin-top}
-                                             {:line-height 1}             ;; so that the margins are correct
-                                             (when-not underline? {:margin-bottom margin-bottom})
-                                             style)}
-                              attr)
-                 label]
-                (when underline? [line
-                                  :size "1px"
-                                  :class (str "rc-title-underline " (get-in parts [:underline :class]))
-                                  :style (merge {:margin-bottom margin-bottom}
-                                                (get-in parts [:underline :style]))
-                                  :attr  (get-in parts [:underline :attr] {})])]]))
+  (or
+    (validate-args-macro title-args-desc args "title")
+    (let [preset-class (if (nil? level) "" (name level))]
+      [v-box
+       :src      src
+       :class    (str "rc-title-wrapper " preset-class " " (get-in parts [:wrapper :class]))
+       :style    (get-in parts [:wrapper :style])
+       :attr     (get-in parts [:wrapper :attr])
+       :children [[:span (merge {:class (str "display-flex rc-title " preset-class " " class)
+                                 :style (merge (flex-child-style "none")
+                                               {:margin-top margin-top}
+                                               {:line-height 1}             ;; so that the margins are correct
+                                               (when-not underline? {:margin-bottom margin-bottom})
+                                               style)}
+                                attr)
+                   label]
+                  (when underline? [line
+                                    :src  (src-coordinates)
+                                    :size "1px"
+                                    :class (str "rc-title-underline " (get-in parts [:underline :class]))
+                                    :style (merge {:margin-bottom margin-bottom} (get-in parts [:underline :style]))
+                                    :attr  (get-in parts [:underline :attr])])]])))
 
 
 ;; ------------------------------------------------------------------------------------

@@ -1,13 +1,17 @@
 (ns re-demo.h-box
-  (:require [clojure.string  :as    string]
-            [re-com.core     :refer [p p-span h-box v-box box gap line scroller border label title button close-button checkbox hyperlink-href slider horizontal-bar-tabs info-button
-                                     input-text input-textarea popover-anchor-wrapper popover-content-wrapper popover-tooltip] :refer-macros [handler-fn]]
-            [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc flex-child-style]]
-            [re-com.util     :refer [px]]
-            [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]
-            [re-com.validate :refer [string-or-hiccup? alert-type? vector-of-maps?]]
-            [reagent.core    :as    reagent]
-            [reagent.ratom   :refer-macros [reaction]]))
+  (:require-macros
+    [re-com.core     :refer [handler-fn]]
+    [re-com.debug    :refer [src-coordinates]])
+  (:require
+    [clojure.string  :as    string]
+    [re-com.core     :refer [p p-span h-box v-box box gap line scroller border label title button close-button checkbox hyperlink-href slider horizontal-bar-tabs info-button
+                             input-text input-textarea popover-anchor-wrapper popover-content-wrapper popover-tooltip]]
+    [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc flex-child-style]]
+    [re-com.util     :refer [px]]
+    [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]
+    [re-com.validate :refer [string-or-hiccup? alert-type? vector-of-maps?]]
+    [reagent.core    :as    reagent]
+    [reagent.ratom   :refer-macros [reaction]]))
 
 
 (def h-box-style  {});:background-color "yellow"
@@ -32,6 +36,7 @@
 
 ;(def paragraph-filler "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
 (def paragraph-filler [v-box
+                       :src      (src-coordinates)
                        :children [[:p.bold "Lorem Ipsum"]
                                   [:p "dolor sit amet, consectetur adipiscing elit."]
                                   [:p "Sed do " [:strong "eiusmod"] " tempor incididunt ut labore et dolore magna aliqua."]
@@ -43,12 +48,18 @@
                                    [:li "Excepteur sint occaecat cupidatat non proident."]]]])
 
 (def buttons-filler [h-box
+                     :src      (src-coordinates)
                      :children [[button
+                                 :src      (src-coordinates)
                                  :label    "Blue"
                                  :class    "btn-primary"
                                  :on-click #()]
-                                [gap :size "12px" :width "12px"]
+                                [gap
+                                 :src   (src-coordinates)
+                                 :size  "12px"
+                                 :width "12px"]
                                 [button
+                                 :src      (src-coordinates)
                                  :label    "White"
                                  :on-click #()]]])
 
@@ -192,11 +203,13 @@
                     :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
                     :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
              :desc [v-box
+                    :src      (src-coordinates)
                     :children [[:p.info-subheading "The " [:code ":size"] " parameter"]
                                [p-span "The "
                                 [hyperlink-href
-                                 :label [:span "Layout page"]
-                                 :href "#/layout"
+                                 :src    (src-coordinates)
+                                 :label  [:span "Layout page"]
+                                 :href   "#/layout"
                                  :target "_blank"]
                                 " describes the importance of " [:code ":size"] "."]
                                [:p [:strong "Box1"] " has a " [:code ":size"] " of \"none\" which means it will take up as much width as its content, in this case, the text \"Box1\"."]
@@ -241,6 +254,7 @@
                     :min-width  {:value "50px"      :omit? true  :editing? (atom false) :range [0 200]}
                     :max-width  {:value "50px"      :omit? true  :editing? (atom false) :range [0 200]}}
              :desc [v-box
+                    :src      (src-coordinates)
                     :children [[:p.info-subheading "The " [:code ":size"] " parameter - Advanced GSB"]
                                [:p "This demonstrates a complex example of gsb."]
                                [:p [:strong "Box1"] " has a " [:code ":size"] " fixed to \"100px\"."]
@@ -281,6 +295,7 @@
                     :min-width  {:value "25px"   :omit? true  :editing? (atom false) :range [0 200]}
                     :max-width  {:value "75px"   :omit? false :editing? (atom true ) :range [0 200]}}
              :desc [v-box
+                    :src      (src-coordinates)
                     :children [[:p.info-subheading "The " [:code ":width"] " & " [:code ":min/max-width"] " parameters"]
                                [:p "It's interesting to see how child :min-width and :max-width parameters affect layout."]
                                [:p "All three boxes have " [:code ":size"] " set to :auto so they can grow and shrink as required."]
@@ -320,6 +335,7 @@
                     :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
                     :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
              :desc [v-box
+                    :src      (src-coordinates)
                     :children [[:p.info-subheading "The " [:code ":height"] " parameter"]
                                [:p "It's interesting to see how the child :height parameter affects layout."]
                                [:p "A specific :height has been set for Box1 and Box2, while Box3 has none, so its height is being set by the h-box :align :stretch setting."]
@@ -357,6 +373,7 @@
                     :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
                     :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
              :desc [v-box
+                    :src      (src-coordinates)
                     :children [[:p.info-subheading "The " [:code ":children"] " & " [:code ":child"] " parameters"]
                                [:p "The content of an h-box is specified by the " [:code ":children"] " parameter. It's a vector of n components."]
                                [:p "The content of a box is specified by the " [:code ":child"] " parameter. It is a single component."]
@@ -406,6 +423,7 @@
   "close button used for all the editors"
   [on-close]
   [box
+   :src   (src-coordinates)
    :style {:margin-left "8px"}
    :child [close-button
            :on-click  #(on-close)
@@ -419,8 +437,10 @@
         [min max] (get-in @box-state (conj path :range))]
     (fn [path on-close]
       [h-box
+       :src      (src-coordinates)
        :align    :center
        :children [[slider
+                   :src      (src-coordinates)
                    :model     model
                    :min       min
                    :max       max
@@ -440,8 +460,10 @@
     (fn
       [path on-close]
       [h-box
+       :src      (src-coordinates)
        :align    :center
        :children [[horizontal-bar-tabs
+                   :src       (src-coordinates)
                    :model     model
                    :tabs      opts
                    :style     editor-style
@@ -460,8 +482,10 @@
     (fn
       [path on-close]
       [h-box
+       :src      (src-coordinates)
        :align    :center
        :children [[horizontal-bar-tabs
+                   :src       (src-coordinates)
                    :model     model
                    :tabs      opts
                    :style     editor-style
@@ -485,8 +509,10 @@
     (fn
       [path on-close]
       [h-box
+       :src      (src-coordinates)
        :align    :center
        :children [[horizontal-bar-tabs
+                   :src       (src-coordinates)
                    :model     model
                    :tabs      opts
                    :style     editor-style
@@ -494,6 +520,7 @@
                   (when (= @model :text) [gap :size "8px" :width "8px"])
                   (when (= @model :text)
                     [input-text
+                     :src             (src-coordinates)
                      :model           text-model
                      :change-on-blur? false
                      :style           editor-style
@@ -528,10 +555,13 @@
     (fn
       [path on-close]
       [v-box
+       :src      (src-coordinates)
        :gap      "4px"
        :children [[h-box
+                   :src      (src-coordinates)
                    :align    :center
                    :children [[horizontal-bar-tabs
+                               :src       (src-coordinates)
                                :model     model
                                :tabs      opts
                                :style     editor-style
@@ -541,6 +571,7 @@
                                 [gap :size "8px" :width "8px"])
                               (when (= @model :px)
                                 [slider
+                                 :src       (src-coordinates)
                                  :model     px-model
                                  :min       0
                                  :max       800
@@ -549,6 +580,7 @@
                                  :on-change #(update-model path :px (px %))])
                               (when (= @model :ratio)
                                 [slider
+                                 :src       (src-coordinates)
                                  :model     ratio-model
                                  :min       0
                                  :max       10
@@ -557,6 +589,7 @@
                                  :on-change #(update-model path :ratio (str %))])
                               (when (= @model :gsb)
                                 [input-text
+                                 :src             (src-coordinates)
                                  :model           gsb-model
                                  :change-on-blur? false
                                  :status          @size-status
@@ -657,10 +690,12 @@
                                                    text2]]]]]
         (if editor
           [popover-anchor-wrapper
+           :src      (src-coordinates)
            :showing? editing?
            :position :right-center
            :anchor   arg-hiccup
            :popover  [popover-content-wrapper
+                      :src  (src-coordinates)
                       :body [editor path #(swap! box-state assoc-in editing?-path (atom false))]]]
           arg-hiccup)))))
 
@@ -680,10 +715,12 @@
     (fn
       []
       [h-box
+       :src      (src-coordinates)
        :gap      "8px"
        :align    :center
        :children [[:span.bold "Show me:"]
                   [horizontal-bar-tabs
+                   :src       (src-coordinates)
                    :model     current-demo
                    :tabs      opts
                    :on-change #(do (reset! current-demo %)
@@ -712,9 +749,11 @@
         over-box3  (fn [over?] (swap! box-state assoc-in [:box3 :over?] over?) (swap! box-state assoc-in [:over-group] (when over? :box3)))]
     (fn []
       [h-box
-       :align :start
+       :src      (src-coordinates)
+       :align    :start
        :children [(when (:desc @box-state)
                     [popover-tooltip
+                     :src           (src-coordinates)
                      :showing?      show-desc?
                      :position      :left-below
                      :width         "460px"
@@ -723,13 +762,14 @@
                      :anchor        [:div {:style {:height "42px"}}] ;; Position the popover down the page a little
                      :label         (:desc @box-state)])
                   [v-box
-                   :width "260px"
-                   :style {:font-family      "Consolas, \"Courier New\", monospace"
-                           :font-size        "12px"
-                           :background-color "#f5f5f5"
-                           :border           "1px solid lightgray"
-                           :border-radius    "4px"
-                           :padding          "8px"}
+                   :src      (src-coordinates)
+                   :width    "260px"
+                   :style    {:font-family      "Consolas, \"Courier New\", monospace"
+                              :font-size        "12px"
+                              :background-color "#f5f5f5"
+                              :border           "1px solid lightgray"
+                              :border-radius    "4px"
+                              :padding          "8px"}
                    :children [[code-row false :0 "[h-box"      [:hbox]             ""   over-hbox]
                               [code-row true  :1 ":height"     [:hbox :height]     ""   over-hbox px-editor]
                               [code-row true  :1 ":width"      [:hbox :width]      ""   over-hbox px-editor]
@@ -773,6 +813,7 @@
     []
     @reset-box-state ;; For reset-box-state to fire, we must dereference it in a component
     [v-box
+     :src      (src-coordinates)
      :size     "auto"
      :gap      "10px"
      :children [[panel-title "[h-box ... ]"
@@ -780,8 +821,10 @@
                  "src/re_demo/h_box.cljs"]
 
                 [h-box
+                 :src      (src-coordinates)
                  :gap      "100px"
                  :children [[v-box
+                             :src      (src-coordinates)
                              :gap      "10px"
                              :width    "450px"
                              :children [[title2 "Notes"]
@@ -789,18 +832,24 @@
                                         [p "h-box is a container which lays out its  " [:code ":children"] " in a single horizontal row."]
                                         [p-span "The "
                                          [hyperlink-href
+                                          :src       (src-coordinates)
                                           :label     [:span.bold "Layout page"]
                                           :href      "#/layout"]
                                          " describes the importance of " [:span.bold ":size"] "."]
                                         [args-table h-box-args-desc]]]
                             [v-box
+                             :src      (src-coordinates)
                              :gap      "10px"
                              :width    "650px"
                              :height   "800px"
                              ;:style    {:border "dashed 1px #ddd"} ;; Adds a slightly visible border around the h-box parent
                              :children [[title2 "Demo"]
                                         [editable-code]
-                                        [gap :size "0px"]
+                                        [gap
+                                         :src  (src-coordinates)
+                                         :size "0px"]
                                         [demo]
-                                        [gap :size "0px"]
+                                        [gap
+                                         :src  (src-coordinates)
+                                         :size "0px"]
                                         [choose-a-demo]]]]]]]))
