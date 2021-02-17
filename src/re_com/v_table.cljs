@@ -461,7 +461,7 @@
 
 (def v-table-parts-desc
   (when include-args-desc?
-    [{:name :wrapper                      :level 0 :class "rc-v-table-wrapper"                                  :impl "[v-table]" :notes "Outer container of the v-table."}
+    [{:name :wrapper                      :level 0 :class "rc-v-table-wrapper"                                  :impl "[v-table]" :notes "Outer container of the v-table"}
      {:name :left-section                 :level 1 :class "rc-v-table-left-section"                             :impl "[v-box]"   :notes "The left v-box container section of the table, containing sections 1,2,3"}
      {:name :top-left                     :level 2 :class "rc-v-table-top-left rc-v-table-content"              :impl "[box]"     :notes "Top left section (1)"}
      {:name :row-headers                  :level 2 :class "rc-v-table-row-headers rc-v-table-viewport"          :impl "[v-box]"   :notes "Row header viewport section (2)"}
@@ -1060,7 +1060,9 @@
                                      ;; Others
                                      scroll-rows-into-view scroll-columns-into-view
                                      class parts]
-                              :or   {virtual? true remove-empty-row-space? true key-fn nil}
+                              :or   {virtual?                true
+                                     remove-empty-row-space? true
+                                     key-fn                  nil}
                               :as   args}]
                           (validate-args-macro v-table-args-desc args "v-table")
                           (reset! content-rows-width row-content-width)
@@ -1119,7 +1121,7 @@
                                                         scrollbar-tot-thick))}
 
                                         ;; TODO: Currently, scrolling a v-table with the mouse wheel also scrolls parent scrollbars (usually the one on the <body>)
-                                        ;; The solution seems to to use CSS overscroll-behavior
+                                        ;; The solution seems to be to use CSS overscroll-behavior
                                         ;; https://developers.google.com/web/updates/2017/11/overscroll-behavior
                                         ;; The following should be in the right place but it makes no difference (also tried the block version)
                                         ;; More research required to solve this
