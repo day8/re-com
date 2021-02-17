@@ -3,12 +3,12 @@
     [re-com.core     :refer [handler-fn]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
-    [reagent.core    :as reagent]
+    [reagent.core    :as    reagent]
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.box      :as box]
+    [re-com.box      :refer [box]]
     [re-com.util     :refer [px deref-or-value assoc-in-if-empty]]
     [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
-    [re-com.v-table  :as v-table]))
+    [re-com.v-table  :as    v-table]))
 
 
 (defn swap!-sort-by-column
@@ -84,13 +84,13 @@
               [arrow-up-icon]))])])))
 
 
-(defn column-headers
-  "Render the table header"
+(defn column-header-renderer
+  ":column-header-renderer AND :top-left-renderer - Render the table header"
   [columns parts sort-by-column]
   (into
     [:div
      (merge
-       {:class    (str "rc-simple-v-table-column-headers " (get-in parts [:simple-column-headers :class]))
+       {:class    (str "rc-simple-v-table-column-headers noselect " (get-in parts [:simple-column-headers :class]))
         :style    (merge {:padding     "4px 0px"
                           :overflow    "hidden"
                           :white-space "nowrap"}
@@ -101,7 +101,8 @@
       [column-header column parts sort-by-column])))
 
 
-(defn row-column
+(defn column-renderer
+  "Render a single column of a single row"
   [row {:keys [width height align vertical-align row-label-fn] :as column} cell-style]
   [:div {:style (merge {:display        "inline-block"
                         :padding        (str "0px " "12px")
@@ -118,8 +119,8 @@
    (row-label-fn row)])
 
 
-(defn row-columns
-  "Render a single row of the table data"
+(defn row-renderer
+  ":row-renderer AND :row-header-renderer: Render a single row of the table data"
   [columns on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color row-index row]
   (into
     [:div
@@ -138,14 +139,14 @@
       :on-mouse-enter (when on-enter-row (handler-fn (on-enter-row row-index)))
       :on-mouse-leave (when on-leave-row (handler-fn (on-leave-row row-index)))}]
     (for [column columns]
-      [row-column row column cell-style])))
+      [column-renderer row column cell-style])))
 
 
 (def simple-v-table-exclusive-parts-desc
   (when include-args-desc?
-    [{:name :simple-wrapper        :level 0 :class "rc-simple-v-table-wrapper"        :impl "[simple-v-table]" :notes "Outer wrapper of the simple-v-table."}
-     {:name :simple-column-headers :level 3 :class "rc-simple-v-table-column-headers" :impl "[:div]"}
-     {:name :simple-column-header  :level 4 :class "rc-simple-v-table-column-header"  :impl "[:div]"}]))
+    [{:name :simple-wrapper        :level 0 :class "rc-simple-v-table-wrapper"        :impl "[simple-v-table]" :notes "Outer container of the simple-v-table"}
+     {:name :simple-column-headers :level 3 :class "rc-simple-v-table-column-headers" :impl "[:div]"           :notes "Simple-v-table's container for column headers (placed under v-table's :column-header-content)"}
+     {:name :simple-column-header  :level 4 :class "rc-simple-v-table-column-header"  :impl "[:div]"           :notes "Individual column header components"}]))
 
 
 (def simple-v-table-exclusive-parts
@@ -209,7 +210,7 @@
                    table-padding             19
                    table-row-line-color      "#EAEEF1"
                    fixed-column-border-color "#BBBEC0"
-                   column-header-renderer    column-headers}
+                   column-header-renderer    column-header-renderer}
             :as   args}]
       (validate-args-macro simple-v-table-args-desc args "simple-v-table")
       (let [fcc-bounded            (min fixed-column-count (count columns))
@@ -234,7 +235,7 @@
                                                (vec (reverse sorted))
                                                (vec sorted))))
                                          (deref-or-value model))))]
-        [box/box
+        [box
          :class (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
          :style (merge {;; :flex setting
                         ;; When max-rows is being used:
@@ -257,10 +258,10 @@
                  :column-header-height    column-header-height
 
                  ;; ===== Row header (section 2)
-                 :row-header-renderer     (partial row-columns fixed-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
+                 :row-header-renderer     (partial row-renderer fixed-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
 
                  ;; ===== Rows (section 5)
-                 :row-renderer            (partial row-columns content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
+                 :row-renderer            (partial row-renderer content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
                  :row-content-width       content-width
                  :row-height              row-height
                  :max-row-viewport-height (when max-rows (* max-rows row-height))
