@@ -248,6 +248,7 @@
                                                                                    {:id :units  :header-label "Units"  :row-label-fn :units                :width 100 :align "right"  :vertical-align "middle" :sort-by true}]
                                                        :fixed-column-count        @fixed-column-count
                                                        :fixed-column-border-color "#333"
+                                                       :drag-id                   :method
 
                                                        ;; ===== Rows
                                                        :row-height                35

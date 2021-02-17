@@ -11,6 +11,39 @@
     [re-com.v-table  :as    v-table]))
 
 
+(def immediate-move? (reagent/atom true))
+;(def immediate-move? (reagent/atom false))
+
+(def drag-start-row-color   "hsl(197deg 100% 97%)")
+(def drag-current-row-color "hsl(197deg 100% 70%)") ;; 92%
+
+(def drag-start-row   (reagent/atom nil))
+(def drag-current-row (reagent/atom nil))
+(def dragging?        (reagent/atom nil))
+
+
+(defn vec-remove
+  "Remove elem in coll by index"
+  [coll pos]
+  (vec (concat (subvec coll 0 pos) (subvec coll (inc pos)))))
+
+
+(defn vec-add
+  "Add elem in coll by index"
+  [coll pos el]
+  (concat (subvec coll 0 pos) [el] (subvec coll pos)))
+
+
+(defn vec-move
+  "Move elem in coll by index"
+  [coll pos1 pos2]
+  (println "vec-move nth index:" (pr-str pos1))
+  (let [el (nth coll pos1)]
+    (if (= pos1 pos2)
+      coll
+      (into [] (vec-add (vec-remove coll pos1) pos2 el)))))
+
+
 (defn swap!-sort-by-column
   [{:keys [key-fn order]} new-key-fn new-comp]
   (if (= key-fn new-key-fn)
@@ -103,7 +136,7 @@
 
 (defn row-item
   "Render a single row item (column) of a single row"
-  [row {:keys [width height align vertical-align row-label-fn] :as column} cell-style parts]
+  [row-index row {:keys [id width height align vertical-align row-label-fn] :as column} drag-id cell-style parts]
   [:div
    (merge
      {:class (str "rc-simple-v-table-row-item " (get-in parts [:simple-row-item :class]))
@@ -113,20 +146,25 @@
                      :height         (px height)
                      :text-align     align
                      :vertical-align vertical-align
+                     :cursor         (when (= id drag-id) "move")
                      :white-space    "nowrap"
                      :overflow       "hidden"
                      :text-overflow  "ellipsis"}
                     (get-in parts [:simple-row-item :style])
                     (if (fn? cell-style)
                       (cell-style row column)
-                      cell-style))}
+                      cell-style))
+      :on-mouse-down (handler-fn (when (= id drag-id)
+                                   (reset! dragging? row-index)
+                                   (reset! drag-start-row row-index)
+                                   (println ">> :on-mouse-DOWN: start-row is" row-index)))}
      (get-in parts [:simple-row-item :attr]))
    (row-label-fn row)])
 
 
 (defn row-renderer
   ":row-renderer AND :row-header-renderer: Render a single row of the table data"
-  [columns on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color row-index row]
+  [model columns drag-id on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color row-index row]
   (into
     [:div
      (merge
@@ -135,19 +173,56 @@
                                 :overflow    "hidden"
                                 :white-space "nowrap"
                                 :height      (px row-height)
-                                :border-top  (str "1px solid " table-row-line-color)
-                                :cursor      (when on-click-row "pointer")}
+                                :border-top       (str "1px solid " (if (and @dragging? (= row-index @drag-current-row)) drag-current-row-color table-row-line-color))
+                                :border-bottom    (and @dragging? (= row-index @drag-current-row) (str "1px solid " drag-current-row-color))
+                                :cursor           (when on-click-row "pointer")
+                                :background-color (when @dragging?
+                                                    (cond
+                                                      ;(= row-index @drag-current-row) drag-current-row-color
+                                                      (= row-index @drag-start-row) drag-start-row-color))}
                                (get-in parts [:simple-row :style])
                                (if (fn? row-style)
                                  (row-style row)
                                  row-style))
         :on-click       (handler-fn (do (v-table/show-row-data-on-alt-click row row-index event)
-                                        (when on-click-row (on-click-row row-index))))
-        :on-mouse-enter (when on-enter-row (handler-fn (on-enter-row row-index)))
-        :on-mouse-leave (when on-leave-row (handler-fn (on-leave-row row-index)))}
+                                        ;(println ">>> :on-click" row-index)
+                                        (when on-click-row (on-click-row row-index))
+                                        ))
+        :on-mouse-enter (when on-enter-row (handler-fn (let []
+                                                         ;(println ">>> :on-mouse-enter" row-index)
+                                                         (on-enter-row row-index))))
+        :on-mouse-leave (when on-leave-row (handler-fn (let []
+                                                         ;(println ">>> :on-mouse-leave" row-index)
+                                                         (on-leave-row row-index)
+                                                         )))
+
+        ;; ============================================================================================
+
+        ;:on-mouse-down  (handler-fn (let []
+        ;                              (reset! dragging? row-index)
+        ;                              (reset! drag-start-row row-index)
+        ;                              (println ">> :on-mouse-DOWN: start-row is" row-index)
+        ;                              ))
+        :on-mouse-move  (handler-fn (let []
+                                      (when (and @dragging? (not= row-index @drag-current-row))
+                                        (if @immediate-move?
+                                          (when-not (nil? @drag-current-row)
+                                            (println ">> :on-mouse-MOVE: move row" @drag-current-row "to" row-index)
+                                            (reset! model (vec-move @model @drag-current-row row-index)))
+                                          (println ">> :on-mouse-MOVE: drop-row is now" row-index))
+                                        (reset! drag-current-row row-index)
+                                        )))
+        :on-mouse-up    (handler-fn (let []
+                                      (if @immediate-move?
+                                        (println ">> :on-mouse-UP: move row" @drag-start-row "to" row-index)
+                                        (reset! model (vec-move @model @drag-start-row row-index)))
+
+                                      (reset! dragging? nil)
+                                      (reset! drag-start-row nil)
+                                      (reset! drag-current-row nil)))}
        (get-in parts [:simple-row :attr]))]
     (for [column columns]
-      [row-item row column cell-style parts])))
+      [row-item row-index row column drag-id cell-style])))
 
 
 (def simple-v-table-exclusive-parts-desc
@@ -180,6 +255,7 @@
   (when include-args-desc?
     [{:name :model                     :required true                     :type "r/atom containing vec of maps"    :validate-fn vector-atom?                   :description "one element for each row in the table."}
      {:name :columns                   :required true                     :type "vector of maps"                   :validate-fn vector-of-maps?                :description [:span "one element for each column in the table. Must contain " [:code ":id"] "," [:code ":header-label"] "," [:code ":row-label-fn"] "," [:code ":width"] ", and " [:code ":height"] ". Optionally contains " [:code ":sort-by"] ", " [:code ":align"] " and " [:code ":vertical-align"] ". " [:code ":sort-by"] " can be " [:code "true"] " or a map optionally containing " [:code ":key-fn"] " and " [:code ":comp"] " ala " [:code "cljs.core/sort-by"] "."]}
+     {:name :drag-id                   :required false                    :type "keyword"                          :validate-fn keyword?                       :description "the column allows row dragging"}
      {:name :fixed-column-count        :required false :default 0         :type "integer"                          :validate-fn number?                        :description "the number of fixed (non-scrolling) columns on the left."}
      {:name :fixed-column-border-color :required false :default "#BBBEC0" :type "string"                           :validate-fn string?                        :description [:span "The CSS color of the horizontal border between the fixed columns on the left, and the other columns on the right. " [:code ":fixed-column-count"] " must be > 0 to be visible."]}
      {:name :column-header-height      :required false :default 31        :type "integer"                          :validate-fn number?                        :description [:span "px height of the column header section. Typically, equals " [:code ":row-height"] " * number-of-column-header-rows."]}
@@ -210,7 +286,7 @@
   [& {:as args}]
   (validate-args-macro simple-v-table-args-desc args "simple-v-table")
   (let [sort-by-column         (reagent/atom nil)]
-    (fn [& {:keys [model columns fixed-column-count fixed-column-border-color column-header-height column-header-renderer
+    (fn [& {:keys [model columns drag-id fixed-column-count fixed-column-border-color column-header-height column-header-renderer
                    max-width max-rows row-height table-padding table-row-line-color on-click-row on-enter-row on-leave-row
                    row-style cell-style class parts]
 
@@ -246,7 +322,7 @@
                                                (vec sorted))))
                                          (deref-or-value model))))]
         [box
-         :class (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
+         :class (str "rc-simple-v-table-wrapper noselect " (get-in parts [:simple-wrapper :class]))
          :style (merge {;; :flex setting
                         ;; When max-rows is being used:
                         ;;  - "0 1 auto" allows shrinking within parent but not growing (to prevent vertical spill)
@@ -268,10 +344,10 @@
                  :column-header-height    column-header-height
 
                  ;; ===== Row header (section 2)
-                 :row-header-renderer     (partial row-renderer fixed-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color)
+                 :row-header-renderer     (partial row-renderer model fixed-cols drag-id on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color)
 
                  ;; ===== Rows (section 5)
-                 :row-renderer            (partial row-renderer content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color)
+                 :row-renderer            (partial row-renderer model content-cols drag-id on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color)
                  :row-content-width       content-width
                  :row-height              row-height
                  :max-row-viewport-height (when max-rows (* max-rows row-height))
