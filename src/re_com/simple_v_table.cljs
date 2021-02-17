@@ -41,7 +41,7 @@
    [:path {:d "M7 14l5-5 5 5H7z"}]])
 
 
-(defn column-header
+(defn column-header-item
   [{:keys [id row-label-fn width height align vertical-align header-label sort-by] :as column} parts sort-by-column]
   (let [{:keys [key-fn comp] :or {key-fn row-label-fn comp compare}} sort-by
         {current-key-fn :key-fn order :order} @sort-by-column]
@@ -49,11 +49,11 @@
       [:<>
        [:div
         (merge
-          {:class (str "rc-simple-v-table-column-header " (get-in parts [:simple-column-header :class]))
+          {:class (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
            :style (merge {:display        "inline-block"
                           :padding        "0px 12px"
                           :width          (px (if sort-by (- width 24) width))
-                          :min-height     (px 24)
+                          :min-height     "24px"
                           :height         (px height)
                           :font-weight    "bold"
                           :text-align     align
@@ -63,17 +63,17 @@
                           :text-overflow  "ellipsis"}
                          (when sort-by
                            {:cursor "pointer"})
-                         (get-in parts [:simple-column-header :style]))}
+                         (get-in parts [:simple-column-header-item :style]))}
           (when sort-by
             {:on-click on-click})
-          (get-in parts [:simple-column-header :attr]))
+          (get-in parts [:simple-column-header-item :attr]))
         header-label]
        (when sort-by
          [:div
           {:style {:cursor         "pointer"
                    :display        "inline-block"
-                   :width          (px 24)
-                   :height         (px 24)
+                   :width          "24px"
+                   :height         "24px"
                    :text-align     align
                    :vertical-align vertical-align}
            :on-click on-click}
@@ -90,63 +90,73 @@
   (into
     [:div
      (merge
-       {:class    (str "rc-simple-v-table-column-headers noselect " (get-in parts [:simple-column-headers :class]))
+       {:class    (str "rc-simple-v-table-column-header noselect " (get-in parts [:simple-column-header :class]))
         :style    (merge {:padding     "4px 0px"
                           :overflow    "hidden"
                           :white-space "nowrap"}
-                         (get-in parts [:simple-column-headers :style]))
+                         (get-in parts [:simple-column-header :style]))
         :on-click (handler-fn (v-table/show-row-data-on-alt-click columns 0 event))}
-       (get-in parts [:simple-column-headers :attr]))]
+       (get-in parts [:simple-column-header :attr]))]
     (for [column columns]
-      [column-header column parts sort-by-column])))
+      [column-header-item column parts sort-by-column])))
 
 
-(defn column-renderer
-  "Render a single column of a single row"
-  [row {:keys [width height align vertical-align row-label-fn] :as column} cell-style]
-  [:div {:style (merge {:display        "inline-block"
-                        :padding        (str "0px " "12px")
-                        :width          (px width)
-                        :height         (px height)
-                        :text-align     align
-                        :vertical-align vertical-align
-                        :white-space    "nowrap"
-                        :overflow       "hidden"
-                        :text-overflow  "ellipsis"}
-                       (if (fn? cell-style)
-                         (cell-style row column)
-                         cell-style))}
+(defn row-item
+  "Render a single row item (column) of a single row"
+  [row {:keys [width height align vertical-align row-label-fn] :as column} cell-style parts]
+  [:div
+   (merge
+     {:class (str "rc-simple-v-table-row-item " (get-in parts [:simple-row-item :class]))
+      :style (merge {:display        "inline-block"
+                     :padding        (str "0px " "12px")
+                     :width          (px width)
+                     :height         (px height)
+                     :text-align     align
+                     :vertical-align vertical-align
+                     :white-space    "nowrap"
+                     :overflow       "hidden"
+                     :text-overflow  "ellipsis"}
+                    (get-in parts [:simple-row-item :style])
+                    (if (fn? cell-style)
+                      (cell-style row column)
+                      cell-style))}
+     (get-in parts [:simple-row-item :attr]))
    (row-label-fn row)])
 
 
 (defn row-renderer
   ":row-renderer AND :row-header-renderer: Render a single row of the table data"
-  [columns on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color row-index row]
+  [columns on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color row-index row]
   (into
     [:div
-     {:class          (str "rc-simple-v-table-row ")
-      :style          (merge {:padding     "4px 0px"
-                              :overflow    "hidden"
-                              :white-space "nowrap"
-                              :height      (px row-height)
-                              :border-top  (str "1px solid " table-row-line-color)
-                              :cursor      (when on-click-row "pointer")}
-                             (if (fn? row-style)
-                               (row-style row)
-                               row-style))
-      :on-click       (handler-fn (do (v-table/show-row-data-on-alt-click row row-index event)
-                                      (when on-click-row (on-click-row row-index))))
-      :on-mouse-enter (when on-enter-row (handler-fn (on-enter-row row-index)))
-      :on-mouse-leave (when on-leave-row (handler-fn (on-leave-row row-index)))}]
+     (merge
+       {:class          (str "rc-simple-v-table-row " (get-in parts [:simple-row :class]))
+        :style          (merge {:padding     "4px 0px"
+                                :overflow    "hidden"
+                                :white-space "nowrap"
+                                :height      (px row-height)
+                                :border-top  (str "1px solid " table-row-line-color)
+                                :cursor      (when on-click-row "pointer")}
+                               (get-in parts [:simple-row :style])
+                               (if (fn? row-style)
+                                 (row-style row)
+                                 row-style))
+        :on-click       (handler-fn (do (v-table/show-row-data-on-alt-click row row-index event)
+                                        (when on-click-row (on-click-row row-index))))
+        :on-mouse-enter (when on-enter-row (handler-fn (on-enter-row row-index)))
+        :on-mouse-leave (when on-leave-row (handler-fn (on-leave-row row-index)))}
+       (get-in parts [:simple-row :attr]))]
     (for [column columns]
-      [column-renderer row column cell-style])))
+      [row-item row column cell-style parts])))
 
 
 (def simple-v-table-exclusive-parts-desc
   (when include-args-desc?
-    [{:name :simple-wrapper        :level 0 :class "rc-simple-v-table-wrapper"        :impl "[simple-v-table]" :notes "Outer container of the simple-v-table"}
-     {:name :simple-column-headers :level 3 :class "rc-simple-v-table-column-headers" :impl "[:div]"           :notes "Simple-v-table's container for column headers (placed under v-table's :column-header-content)"}
-     {:name :simple-column-header  :level 4 :class "rc-simple-v-table-column-header"  :impl "[:div]"           :notes "Individual column header components"}]))
+    [{:name :simple-wrapper             :level 0 :class "rc-simple-v-table-wrapper"             :impl "[simple-v-table]" :notes "Outer container of the simple-v-table"}
+     {:name :simple-column-header       :level 3 :class "rc-simple-v-table-column-header"       :impl "[:div]"           :notes "Simple-v-table's container for column headers (placed under v-table's :column-header-content/:top-left)"}
+     {:name :simple-column-header-item  :level 4 :class "rc-simple-v-table-column-header-item"  :impl "[:div]"           :notes "Individual column header item/cell components"}
+     {:name :simple-row                 :level 3 :class "rc-simple-v-table-row"                 :impl "[:div]"           :notes "Simple-v-table's container for rows (placed under v-table's :row-content/:row-header-content)"}
+     {:name :simple-row-item            :level 4 :class "rc-simple-v-table-row-item"            :impl "[:div]"           :notes "Individual row item/cell components"}]))
 
 
 (def simple-v-table-exclusive-parts
@@ -258,10 +268,10 @@
                  :column-header-height    column-header-height
 
                  ;; ===== Row header (section 2)
-                 :row-header-renderer     (partial row-renderer fixed-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
+                 :row-header-renderer     (partial row-renderer fixed-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color)
 
                  ;; ===== Rows (section 5)
-                 :row-renderer            (partial row-renderer content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style table-row-line-color)
+                 :row-renderer            (partial row-renderer content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color)
                  :row-content-width       content-width
                  :row-height              row-height
                  :max-row-viewport-height (when max-rows (* max-rows row-height))
