@@ -118,12 +118,6 @@
                                    relative-x                                              ;; return the left offset in px
                                    (* 100.0 (/ relative-x c-width)))))                     ;; return the percentage panel-1 width against container width
 
-        <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
-
-        mouseout             (fn [event]
-                               (if (<html>? (.-relatedTarget event))                       ;; stop drag if we leave the <html> element
-                                 (stop-drag)))
-
         mousemove            (fn [event]
                                (reset! split-perc (calc-perc (.-clientX event))))
 
@@ -144,9 +138,9 @@
                                                       :height height}
                                                      style)}
                                       (when in-drag?                             ;; only listen when we are dragging
-                                        {:on-mouse-up   (handler-fn (stop-drag))
-                                         :on-mouse-move (handler-fn (mousemove event))
-                                         :on-mouse-out  (handler-fn (mouseout event))})
+                                        {:on-mouse-up    (handler-fn (stop-drag))
+                                         :on-mouse-move  (handler-fn (mousemove event))
+                                         :on-mouse-leave (handler-fn (stop-drag))})
                                       attr))
 
         make-panel-attrs     (fn [class style attr in-drag? percentage]
@@ -229,12 +223,6 @@
                                    relative-y                                              ;; return the top offset in px
                                    (* 100.0 (/ relative-y c-height)))))                    ;; return the percentage panel-1 height against container width
 
-        <html>?              #(= % (.-documentElement js/document))                        ;; test for the <html> element
-
-        mouseout             (fn [event]
-                               (if (<html>? (.-relatedTarget event))                       ;; stop drag if we leave the <html> element
-                                 (stop-drag)))
-
         mousemove            (fn [event]
                                (reset! split-perc (calc-perc (.-clientY event))))
 
@@ -255,9 +243,9 @@
                                                       :height height}
                                                      style)}
                                       (when in-drag?                             ;; only listen when we are dragging
-                                        {:on-mouse-up   (handler-fn (stop-drag))
-                                         :on-mouse-move (handler-fn (mousemove event))
-                                         :on-mouse-out  (handler-fn (mouseout event))})
+                                        {:on-mouse-up    (handler-fn (stop-drag))
+                                         :on-mouse-move  (handler-fn (mousemove event))
+                                         :on-mouse-leave (handler-fn (stop-drag))})
                                       attr))
 
         make-panel-attrs     (fn [class style attr in-drag? percentage]
