@@ -1,10 +1,17 @@
 (ns re-com.box
+  (:require-macros
+    [re-com.debug    :refer [src-coordinates]]
+    [re-com.validate :refer [validate-args-macro]])
   (:require
-    [clojure.string  :as    string]
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.validate :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
-                                     scroll-options-list string-or-hiccup? css-style? html-attr?] :refer-macros [validate-args-macro]]))
+    [clojure.string   :as    string]
+    [re-com.component :refer [create-class]]
+    [re-com.config    :refer [include-args-desc?]]
+    [re-com.debug     :refer [src->attr]]
+    [re-com.validate  :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
+                                      scroll-options-list string-or-hiccup? css-style? html-attr?]]))
 
+;; [IJ] TODO: Can we please rename this as it is too similar to re-com.config/debug?, and afaik it is not the same thing.
+;;            Maybe visualise-flow?...
 (def debug false)
 
 
@@ -233,43 +240,49 @@
      {:name :gap        :required false                   :type "string"        :validate-fn string?        :description "the amount of whitespace to put between each child. Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
      {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
-     {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}]))
+     {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+     {:name :src        :required false                :type "map"              :validate-fn map?          :description "Source code coordinates. See 'Debugging'."}]))
 
 (defn h-box
   "Returns hiccup which produces a horizontal box.
    It's primary role is to act as a container for components and lays it's children from left to right.
    By default, it also acts as a child under it's parent"
-  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr]
-      :or   {size "none" justify :start align :stretch}
-      :as   args}]
-  (validate-args-macro h-box-args-desc args "h-box")
-  (let [s        (merge
-                   (flex-flow-style "row nowrap")
-                   (flex-child-style size)
-                   (when width      {:width      width})
-                   (when height     {:height     height})
-                   (when min-width  {:min-width  min-width})
-                   (when min-height {:min-height min-height})
-                   (when max-width  {:max-width  max-width})
-                   (when max-height {:max-height max-height})
-                   (justify-style justify)
-                   (align-style :align-items align)
-                   (when align-self (align-style :align-self align-self))
-                   (when margin     {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
-                   (when padding    {:padding    padding})
-                   (when debug      {:background-color "gold"})
-                   style)
-        gap-form (when gap [re-com.box/gap
-                            :size  gap
-                            :width gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
-        children (if gap
-                   (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
-                   children)]
-    (into [:div
-           (merge
-             {:class (str "rc-h-box display-flex " class) :style s}
-             attr)]
-          children)))
+  [& {:keys [src]}]
+  (create-class
+    {:reagent-render (fn h-box-render
+                       [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr src]
+                           :or   {size "none" justify :start align :stretch}
+                           :as   args}]
+                       (validate-args-macro h-box-args-desc args "h-box")
+                       (let [s        (merge
+                                        (flex-flow-style "row nowrap")
+                                        (flex-child-style size)
+                                        (when width      {:width      width})
+                                        (when height     {:height     height})
+                                        (when min-width  {:min-width  min-width})
+                                        (when min-height {:min-height min-height})
+                                        (when max-width  {:max-width  max-width})
+                                        (when max-height {:max-height max-height})
+                                        (justify-style justify)
+                                        (align-style :align-items align)
+                                        (when align-self (align-style :align-self align-self))
+                                        (when margin     {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
+                                        (when padding    {:padding    padding})
+                                        (when debug      {:background-color "gold"})
+                                        style)
+                             gap-form (when gap [re-com.box/gap
+                                                 :size  gap
+                                                 :width gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
+                             children (if gap
+                                        (interpose gap-form (filter identity children)) ;; filter is to remove possible nils so we don't add unwanted gaps
+                                        children)]
+                         (into [:div
+                                (merge
+                                  (src->attr src)
+                                  {:class (str "rc-h-box display-flex " class) :style s}
+                                  attr)]
+                               children)))}
+    src))
 
 
 ;; ------------------------------------------------------------------------------------

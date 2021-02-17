@@ -119,11 +119,15 @@
    so we just rely on js/console.error to print a nice error to the console instead."
   [arg-defs passed-args & component-name]
   (if-not debug?
-    true
+    nil
     (let [passed-arg-keys (set (keys passed-args))]
-      (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys (first component-name))
-           (required-args-passed? (:required-args  arg-defs) passed-arg-keys (first component-name))
-           (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name))))))
+      (when-not (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys (first component-name))
+                     (required-args-passed? (:required-args  arg-defs) passed-arg-keys (first component-name))
+                     (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name)))
+        [:div
+         {:style {:min-width "10px"
+                  :min-height "10px"
+                  :background "red"}}]))))
 
 
 ;; ----------------------------------------------------------------------------
