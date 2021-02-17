@@ -31,7 +31,3 @@
 (defmacro handler-fn
   ([& body]
    `(fn [~'event] ~@body nil)))  ;; force return nil
-
-(defmacro src-coordinates
-  []
-  (select-keys (meta &form) [:file :line]))

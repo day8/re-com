@@ -13,12 +13,13 @@
 (defn src->props
   "Emulates @babel/plugin-transform-react-jsx-source __source prop data structure."
   [src]
-  #js {:argv #js {:__source (src->__source src)}})
+  #js {:__source (src->__source src)})
 
 (defn src->attr
   [{:keys [file line] :as src}]
   (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
     (if src
-      {:data-rc-src (str file ":" line)}
+      {:__source (src->__source src)
+       :data-rc-src (str file ":" line)}
       {})
     {}))

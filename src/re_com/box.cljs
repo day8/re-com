@@ -6,7 +6,7 @@
     [clojure.string   :as    string]
     [re-com.component :refer [create-class]]
     [re-com.config    :refer [include-args-desc?]]
-    [re-com.debug     :refer [src->attr]]
+    [re-com.debug     :refer [src->attr src->__source]]
     [re-com.validate  :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
                                       scroll-options-list string-or-hiccup? css-style? html-attr?]]))
 
@@ -243,6 +243,8 @@
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                :type "map"              :validate-fn map?          :description "Source code coordinates. See 'Debugging'."}]))
 
+;; JSX: <div class="" style=""  __source= { {:fileName ""}}></div>
+
 (defn h-box
   "Returns hiccup which produces a horizontal box.
    It's primary role is to act as a container for components and lays it's children from left to right.
@@ -279,7 +281,8 @@
                          (into [:div
                                 (merge
                                   (src->attr src)
-                                  {:class (str "rc-h-box display-flex " class) :style s}
+                                  {:__source (src->__source src)
+                                   :class (str "rc-h-box display-flex " class) :style s}
                                   attr)]
                                children)))}
     src))

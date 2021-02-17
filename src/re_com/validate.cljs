@@ -194,7 +194,7 @@
 (def html-attrs #{; ----- HTML attributes (:class and :style commented out as they are not valid in re-com)
                   ; ----- Reference: https://facebook.github.io/react/docs/dom-elements.html#all-supported-html-attributes
                   ; ----- Another place for names: https://github.com/facebook/react/blob/master/packages/react-dom/src/shared/possibleStandardNames.js
-                  :accept :accept-charset :access-key :action :allow-full-screen :allow-transparency :alt :async :auto-complete :auto-focus :auto-play :capture
+                  :__source :accept :accept-charset :access-key :action :allow-full-screen :allow-transparency :alt :async :auto-complete :auto-focus :auto-play :capture
                   :cell-padding :cell-spacing :challenge :char-set :checked :cite #_:class :class-name :cols :col-span :content :content-editable :context-menu :controls :controls-list
                   :coords :cross-origin :data :date-time :default :defer :dir :disabled :download :draggable :enc-type :form :form-action :form-enc-type :form-method
                   :form-no-validate :form-target :frame-border :headers :height :hidden :high :href :href-lang :html-for :http-equiv :icon :id :input-mode :integrity

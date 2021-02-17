@@ -44,22 +44,20 @@
 
 ;; TODO: when disabled?, should the text appear "disabled".
 
-(defn err-comp
-  []
-  (throw (new js/Error "foo"))
-  [:div])
-
 (defn checkbox
   [& {:keys [src]}]
   (create-class
     {:constructor (fn [this props]
                     (js/console.log "props" props))
-     :component-did-catch (fn [this error error-info]
-                            (js/console.log "error-info" error-info))
+     ;:component-did-catch (fn [this error error-info]
+     ;                       #_(js/console.log "error-info" error-info))
      :reagent-render
      (fn checkbox-render
        [& {:keys [model on-change label disabled? label-class label-style class style attr parts src]
            :as   args}]
+       (js/console.log "before exception")
+       (js/undefined 1)
+       (js/console.log "after exception")
        (or
          (validate-args-macro checkbox-args-desc args "checkbox")
          (let [cursor      "default"
@@ -71,10 +69,11 @@
             :src      (src-coordinates)
             :class    (str "noselect rc-checkbox-wrapper " (get-in parts [:wrapper :class]))
             :style    (get-in parts [:wrapper :style])
-            :attr     (merge (src->attr src) (get-in parts [:wrapper :attr]))
+            :attr     (merge
+                        (src->attr src)
+                        (get-in parts [:wrapper :attr]))
             :align    :start
-            :children [[err-comp]
-                       [:input
+            :children [[:input
                         (merge
                           {:class     (str "rc-checkbox " class)
                            :type      "checkbox"
