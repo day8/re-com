@@ -60,7 +60,6 @@
 
 (defn validate-args-log
   [element problems component-name {:keys [file line] :as src}]
-  (js/console.log problems)
   (let [monospace-style      "font-family: monospace; font-weight: bold; background: #eee; color: #333; padding: 3px"]
     (js/console.group "%c\uD83D\uDCA5 re-com validation errors " "background: #FF4136; color: white; font-size: 1.4em; padding: 3px")
     (js/console.log (str "• ⚙️ %c[" (short-component-name component-name) " ...]") monospace-style)
@@ -69,15 +68,15 @@
       (do
         (js/console.log (str "• \uD83D\uDCC1 in file %c" file "%c at line %c" line) monospace-style "" monospace-style)
         (js/console.log (str "• \uD83D\uDD17 source: http://localhost:3449/compiled_dev/demo/cljs-runtime/" file ":" line)))
-      (js/console.log (str "• \uD83D\uDCD8 learn to add source coordinates to your components at https://re-com.day8.com.au/#/debug")))
+      (js/console.log (str "• \uD83D\uDCD8 learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug")))
     (doseq [{:keys [problem arg-name expected actual validate-fn-result]} problems]
       (case problem
         ;; [IJ] TODO: :validate-fn-return
-        :unknown         (js/console.log (str "• ❓ unknown argument: %c" arg-name) monospace-style)
-        :required        (js/console.log (str "• ❗  missing required argument: %c" arg-name) monospace-style)
-        :validate-fn     (js/console.log (str "• ≢  argument %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual) monospace-style "" monospace-style "" monospace-style)
+        :unknown         (js/console.log (str "• ❓ %cUnknown argument: %c" arg-name) "font-weight: bold" monospace-style)
+        :required        (js/console.log (str "• ❗  %cMissing required argument: %c" arg-name) "font-weight: bold" monospace-style)
+        :validate-fn     (js/console.log (str "• ≢  Argument %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual) monospace-style "" monospace-style "" monospace-style)
         :validate-fn-map (js/console.log (str "• \uD83D\uDE45\uD83C\uDFFD " (:message validate-fn-result)))
-        (js/console.log "• \uD83D\uDE15 unknown problem reported")))
+        (js/console.log "• \uD83D\uDE15 Unknown problem reported")))
     (js/console.log "• \uD83D\uDCC3 notice a problem with this log? Please file an issue at https://github.com/day8/re-com/issues/new")
     (js/console.groupCollapsed (str "%c\uD83C\uDF32 component stack ") "background: #0074D9; color: white; font-size: 1.4em; padding: 3px")
     ;; [IJ] TODO: width and height etc.

@@ -88,7 +88,7 @@
                                                                     (reset! unknown-arg2? val))]
                                                       [checkbox
                                                        :src       (src-coordinates)
-                                                       :label     [:span "Do not provided required " [:code ":on-change"]]
+                                                       :label     [:span "Do not provide required " [:code ":on-change"]]
                                                        :model     missing-on-change?
                                                        :on-change (fn [val]
                                                                     (reset! missing-on-change? val))]
