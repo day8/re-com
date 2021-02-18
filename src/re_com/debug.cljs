@@ -9,7 +9,7 @@
   ([src]
    (src->attr src (component/component-name (r/current-component))))
   ([{:keys [file line] :as src} component-name]
-   (if true ;; debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
+   (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
      (if src
        {:data-rc-src            (str file ":" line)
         :data-rc-component-name component-name}
