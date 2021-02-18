@@ -83,7 +83,7 @@
     (doseq [{:keys [i el component-name src width height]} (map-indexed #(assoc %2 :i (inc %1)) (component-stack @element))]
       (if src
         (let [[file line] (string/split src #":")]
-          (js/console.log (str "%c" i "%c ⚙️ %c[" component-name " ...]%c \uD83D\uDCC1 %c" file "%c:%c" line " %o") "font-weight: bold; font-size: 1.2em" "" monospace-style "" monospace-style "" monospace-style el))
+          (js/console.log (str "%c" i "%c ⚙️ %c[" (short-component-name component-name) " ...]%c \uD83D\uDCC1 %c" file "%c:%c" line " %o") "font-weight: bold; font-size: 1.2em" "" monospace-style "" monospace-style "" monospace-style el))
         (js/console.log (str "%c" i "%c \uD83C\uDF10 %o") "font-weight: bold; font-size: 1.2em" "" el)))
     (js/console.groupEnd)
     (js/console.groupEnd)))
