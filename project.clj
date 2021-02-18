@@ -62,11 +62,14 @@
                                         :modules          {:demo {:init-fn  re-demo.core/mount-demo
                                                                   :preloads [day8.app.dev-preload]}}
                                         :compiler-options {:closure-defines {re-com.config/version                  "lein-git-inject/version"
-                                                                             ;; Even for production builds of the demo site, we want goog.DEBUG
+                                                                             ;; For production builds of the demo app, set goog.DEBUG
                                                                              ;; to be true so that the debugging demo page works as expected.
                                                                              goog.DEBUG                             true
                                                                              re-com.config/force-include-args-desc? true}
-                                                           :externs ["externs/detect-element-resize-externs.js"]}
+                                                           ;; For production builds of the demo app, keep the component name
+                                                           ;; symbols for display in validation error logging.
+                                                           :pseudo-names    true
+                                                           :externs         ["externs/detect-element-resize-externs.js"]}
                                         :dev              {:asset-path       "/compiled_dev/demo"
                                                            :output-dir       "run/resources/public/compiled_dev/demo"
                                                            :compiler-options {:external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}
