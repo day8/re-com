@@ -11,6 +11,7 @@
             [re-com.core                   :refer [h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
             [re-com.config                 :refer [version]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
+            [re-demo.debug                 :as    debug]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]
             [re-demo.introduction          :as    introduction]
             [re-demo.radio-button          :as    radio-button]
@@ -71,7 +72,7 @@
 
 (def tabs-definition
   [{:id :introduction           :level :major :label "Introduction"       :panel introduction/panel}
-
+   {:id :debug                  :level :major :label "Debugging"          :panel debug/panel}
    {:id :buttons                :level :major :label "Buttons"}
    {:id :button                 :level :minor :label "Basic Button"       :panel button/panel}
    {:id :row-button             :level :minor :label "Row Button"         :panel row-button/panel}
