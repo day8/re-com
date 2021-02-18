@@ -3,6 +3,7 @@
     [cljs-time.core         :as    time.core]
     [clojure.set            :refer [superset?]]
     [re-com.config          :refer [debug?]]
+    [re-com.debug           :as    debug]
     [re-com.util            :refer [deref-or-value-peek]]
     [reagent.core           :as    reagent]
     [reagent.impl.component :as    component]
@@ -18,18 +19,11 @@
   [obj max-len]
   (gstring/truncate (str obj) max-len))
 
-(defn log-error
-  "Sends a message to the DeV Tools console as an error. Returns false to indicate 'error' condition"
-  [& args]
-  (.error js/console (apply str args))
-  false)
-
 (defn log-warning
   "Sends a message to the DeV Tools console as an warning. Returns true to indicate 'not and error' condition"
   [& args]
   (.warn js/console (apply str args))
   true)
-
 
 (defn hash-map-with-name-keys
   [v]
@@ -52,22 +46,24 @@
 ;; Primary validation functions
 ;; ----------------------------------------------------------------------------
 
-(defn arg-names-valid?
-  "returns true if every passed-args is value. Otherwise log the problem and return false"
-  [defined-args passed-args component-name]
-  (or (superset? defined-args passed-args)
-      (let [missing-args (remove defined-args passed-args)]
-        (log-error "[" component-name "] Invalid argument(s): " missing-args)))) ;; Regent will show the component-path
+(defn arg-names-known?
+  "returns problems conjed with a problem map for every passed-arg that is not in defined-args."
+  [defined-args passed-args problems]
+  (if (superset? defined-args passed-args)
+    problems
+    (let [unknown-args (remove defined-args passed-args)]
+      (into problems (map (fn [arg] {:problem :unknown :arg-name arg}) unknown-args)))))
 
-(defn required-args-passed?
-  "returns true if all the required args are supplied. Otherwise log the error and return false"
-  [required-args passed-args component-name]
-  (or (superset? passed-args required-args)
-      (let [missing-args (remove passed-args required-args)]
-        (log-error "[" component-name "] Missing required argument(s): " missing-args)))) ;; Regent will show the component-path
+;; [IJ] TODO: This can probably be refactored and combined with the above arg-names-valid? fn.
+(defn required-args?
+  "returns problems conjed with a problem map for every required-args that is not in passed-args."
+  [required-args passed-args problems]
+  (if (superset? passed-args required-args)
+    problems
+    (let [missing-args (remove passed-args required-args)]
+      (into problems (map (fn [arg] {:problem :required :arg-name arg}) missing-args)))))
 
-
-(defn validate-fns-pass?
+(defn validate-fns?
   "Gathers together a list of args that have a validator and...
    returns true if all argument values are valid OR are just warnings (log warning to the console).
    Otherwise log an error to the console and return false.
@@ -81,7 +77,7 @@
                                          :status  - :error:   log to console as error
                                                     :warning: log to console as warning
                                          :message - use this string in the message of the warning/error"
-  [args-with-validators passed-args component-name]
+  [args-with-validators passed-args problems]
   (let [validate-arg (fn [[_ v-arg-def]]
                        (let [arg-name          (:name v-arg-def)
                              arg-val           (deref-or-value-peek (arg-name passed-args)) ;; Automatically extract value if it's in an atom
@@ -90,45 +86,70 @@
                                                  (validate-fn arg-val) ;; Standard call, just pass the arg
                                                  (validate-fn arg-val (satisfies? IDeref (arg-name passed-args)))) ;; Extended call, also wants to know if arg-val is an atom
                              required?         (:required v-arg-def)
-                             log-msg-base      (str "Validation failed for argument '" arg-name "' in component '" component-name "': ")
-                             comp-name         (str " at " (component/component-name (reagent/current-component)))
+                             problem-base      {:arg-name arg-name}
                              warning?          (= (:status validate-result) :warning)]
-                         ;(println (str "[" component-name "] v-arity(" (.-length validate-fn) ") " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 200)) "' => " validate-result))
                          (cond
                            (or (true? validate-result)
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
-                                    (not required?))) true
-                           (false? validate-result)  (log-error log-msg-base "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 60)) "'" comp-name)
-                           (map?   validate-result)  ((if warning? log-warning log-error)
-                                                      log-msg-base
-                                                      (:message validate-result)
-                                                      (when warning? comp-name))
-                           :else                      (log-error "Invalid return from validate-fn: " validate-result comp-name))))]
-    (->> (select-keys args-with-validators (vec (keys passed-args)))
-         (map validate-arg)
-         (every? true?))))
+                                    (not required?)))
+                           nil
+
+                           (false? validate-result)
+                           (merge problem-base
+                                  {:problem  :validate-fn
+                                   :expected v-arg-def
+                                   :actual   (left-string arg-val 60)})
+
+                           (and (map? validate-result)
+                                (not warning?))
+                           (merge problem-base
+                                  {:problem            :validate-fn-map
+                                   :validate-fn-result validate-result})
+
+                           (and (map? validate-result)
+                                warning?)
+                           (do
+                             (log-warning
+                               (str "Validation failed for argument '" arg-name "' in component '" (component/component-name (reagent/current-component)) "': " (:message validate-result)))
+                             nil)
+
+                           :else
+                           (merge problem-base
+                                  {:problem            :validate-fn-return
+                                   :validate-fn-result validate-result}))))]
+    (into problems
+      (->> (select-keys args-with-validators (vec (keys passed-args)))
+           (map validate-arg)))))
 
 (defn validate-args
   "Calls three validation tests:
     - Are arg names valid?
     - Have all required args been passed?
     - Specific validation function calls to check arg values if specified
-   If they all pass, returns true.
-   Normally used as the first function at the beginning of a component render function
-   Used to use {:pre... at the beginning of functions, but stopped doing that as throws and causes long ugly stack traces
-   so we just rely on js/console.error to print a nice error to the console instead."
-  [arg-defs passed-args & component-name]
+
+   If they all pass, returns nil.
+
+   Normally used as the first function of an `or` at the beginning of a component render function, so that either the
+   validation problem component will be rendered in place of the component or nil will skip to the component rendering
+   normally.
+
+   Used to use {:pre... at the beginning of functions and return booleans. Stopped doing that as throws and causes
+   long ugly stack traces. We rely on walking the dom for data-rc-src attributes in the debug/validate-args-problem
+   component instead."
+  [arg-defs passed-args src]
   (if-not debug?
     nil
-    (let [passed-arg-keys (set (keys passed-args))]
-      (when-not (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys (first component-name))
-                     (required-args-passed? (:required-args  arg-defs) passed-arg-keys (first component-name))
-                     (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name)))
-        [:div
-         {:style {:min-width "10px"
-                  :min-height "10px"
-                  :background "red"}}]))))
-
+    (let [passed-arg-keys (set (keys passed-args))
+          problems        (->> []
+                               (arg-names-known? (:arg-names arg-defs) passed-arg-keys)
+                               (required-args?   (:required-args arg-defs) passed-arg-keys)
+                               (validate-fns?    (:validated-args arg-defs) passed-args)
+                               (remove nil?))]
+      (when-not (empty? problems)
+        [debug/validate-args-problems
+         :src            src
+         :problems       problems
+         :component-name (component/component-name (reagent/current-component))]))))
 
 ;; ----------------------------------------------------------------------------
 ;; Custom :validate-fn functions based on (validate-arg-against-set)

@@ -5,7 +5,7 @@
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.debug     :refer [src->attr]]
-    [re-com.config    :refer [include-args-desc? debug?]]
+    [re-com.config    :refer [include-args-desc?]]
     [re-com.util      :refer [deref-or-value px]]
     [re-com.popover   :refer [popover-tooltip]]
     [re-com.box       :refer [h-box v-box box gap line flex-child-style align-style]]
@@ -46,7 +46,7 @@
   [& {:keys [model on-change label disabled? label-class label-style class style attr parts src]
       :as   args}]
   (or
-    (validate-args-macro checkbox-args-desc args "checkbox")
+    (validate-args-macro checkbox-args-desc args src)
     (let [cursor      "default"
           model       (deref-or-value model)
           disabled?   (deref-or-value disabled?)

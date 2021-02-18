@@ -44,7 +44,7 @@
       [& {:keys [on-click div-size font-size color hover-color tooltip top-offset left-offset disabled? class style attr parts src] :as args
           :or   {div-size 16 font-size 16 color "#ccc" hover-color "#999"}}]
       (or
-        (validate-args-macro close-button-args-desc args "close-button")
+        (validate-args-macro close-button-args-desc args src)
         (let [disabled?  (deref-or-value disabled?)]
           [box
            :src   src

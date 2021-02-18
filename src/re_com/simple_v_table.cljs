@@ -209,24 +209,25 @@
    - (cell-style row col)
   where row is the data for that row and col is the definition map for that column
   "
-  [& {:as args}]
+  [& {:keys [src] :as args}]
   (or
-    (validate-args-macro simple-v-table-args-desc args "simple-v-table")
+    (validate-args-macro simple-v-table-args-desc args src)
     (let [sort-by-column         (reagent/atom nil)]
-      (fn [& {:keys [model columns fixed-column-count fixed-column-border-color column-header-height column-header-renderer
-                     max-width max-rows row-height table-padding table-row-line-color on-click-row on-enter-row on-leave-row
-                     row-style cell-style class parts src]
+      (fn simple-v-table-render
+        [& {:keys [model columns fixed-column-count fixed-column-border-color column-header-height column-header-renderer
+                   max-width max-rows row-height table-padding table-row-line-color on-click-row on-enter-row on-leave-row
+                   row-style cell-style class parts src]
 
-              :or   {column-header-height      31
-                     row-height                31
-                     fixed-column-count        0
-                     table-padding             19
-                     table-row-line-color      "#EAEEF1"
-                     fixed-column-border-color "#BBBEC0"
-                     column-header-renderer    column-header-renderer}
-              :as   args}]
+            :or   {column-header-height      31
+                   row-height                31
+                   fixed-column-count        0
+                   table-padding             19
+                   table-row-line-color      "#EAEEF1"
+                   fixed-column-border-color "#BBBEC0"
+                   column-header-renderer    column-header-renderer}
+            :as   args}]
         (or
-          (validate-args-macro simple-v-table-args-desc args "simple-v-table")
+          (validate-args-macro simple-v-table-args-desc args src)
           (let [fcc-bounded            (min fixed-column-count (count columns))
                 fixed-cols             (subvec columns 0 fcc-bounded)
                 content-cols           (subvec columns fcc-bounded (count columns))

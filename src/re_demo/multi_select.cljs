@@ -1,4 +1,6 @@
 (ns re-demo.multi-select
+  (:require-macros
+    [re-com.debug  :refer [src-coordinates]])
   (:require [cljs.pprint          :as pprint]
             [reagent.core         :as reagent]
             [re-com.core          :refer [h-box box checkbox gap v-box multi-select hyperlink-href p label]]
@@ -29,6 +31,7 @@
 (defn panel
   []
   [v-box
+   :src      (src-coordinates)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[multi-select ... ]"
@@ -36,18 +39,21 @@
                             "src/re_demo/multi_select.cljs"]
 
               [h-box
+               :src      (src-coordinates)
                :gap      "100px"
                :children [[v-box
-                            :gap      "10px"
-                            :width    "450px"
-                            :children [[title2 "Notes"]
-                                       [status-text "Stable"]
-                                       [new-in-version "v2.12.0"]
-                                       [p "A compound component that allows the user to incrementally build up a selection from a list of choices, often a big list."]
-                                       [p "Choices and selections can optionally be grouped. Filtering is available for big lists."]
-                                       [p "Takes up a lot of screen real estate but can be placed in a popup."]
-                                       [args-table multi-select-args-desc]]]
+                           :src       (src-coordinates)
+                           :gap      "10px"
+                           :width    "450px"
+                           :children [[title2 "Notes"]
+                                      [status-text "Stable"]
+                                      [new-in-version "v2.12.0"]
+                                      [p "A compound component that allows the user to incrementally build up a selection from a list of choices, often a big list."]
+                                      [p "Choices and selections can optionally be grouped. Filtering is available for big lists."]
+                                      [p "Takes up a lot of screen real estate but can be placed in a popup."]
+                                      [args-table multi-select-args-desc]]]
                           [v-box
+                           :src      (src-coordinates)
                            :gap      "20px"
                            :width    "450px"
                            :children [[title2 "Demo"]
@@ -65,34 +71,45 @@
                                        :sort-fn       :group
                                        :on-change     #(reset! model %)]
                                       [h-box
-                                       :height "90px"      ;; means the Compontent (which is underneath) doesn't move up and down as the model changes
+                                       :src    (src-coordinates)
+                                       :height "90px" ;; means the Component (which is underneath) doesn't move up and down as the model changes
                                        :gap    "5px"
                                        :width  "100%"
-                                       :children [[label :label [:code ":model"]]
-                                                  [label :label " is currently"]
+                                       :children [[label
+                                                   :src   (src-coordinates)
+                                                   :label [:code ":model"]]
+                                                  [label
+                                                   :src   (src-coordinates)
+                                                   :label " is currently"]
                                                   [:code
                                                    {:class "display-flex"
                                                     :style {:flex "1"}}
                                                    (with-out-str (pprint/pprint @model))]]]
-                                      [gap :size "0px"]
+                                      [gap
+                                       :src  (src-coordinates)
+                                       :size "0px"]
                                       [v-box
-                                       :gap "10px"
+                                       :src   (src-coordinates)
+                                       :gap   "10px"
                                        :style {:min-width        "550px"
                                                :padding          "15px"
                                                :border-top       "1px solid #DDD"
                                                :background-color "#f7f7f7"}
                                        :children [[title3 "Interactive Parameters" {:margin-top "0"}]
                                                   [h-box
-                                                   :gap "30px"
+                                                   :src      (src-coordinates)
+                                                   :gap      "30px"
                                                    :children [[v-box
                                                                :gap "3px"
                                                                :children [[checkbox
+                                                                           :src       (src-coordinates)
                                                                            :label     [box
                                                                                        :align :start
                                                                                        :child [:code ":disabled?"]]
                                                                            :model     disabled?
                                                                            :on-change #(reset! disabled? %)]
                                                                           [checkbox
+                                                                           :src       (src-coordinates)
                                                                            :label     [box
                                                                                        :align :start
                                                                                        :child [:code ":required?"]]
@@ -101,6 +118,7 @@
                                                               [v-box
                                                                :gap "3px"
                                                                :children [[checkbox
+                                                                           :src       (src-coordinates)
                                                                            :label     [box
                                                                                        :align :start
                                                                                        :child [:code ":filter-box?"]]
@@ -108,6 +126,7 @@
                                                                            :on-change #(reset! filter-box? %)]
                                                                           (when @filter-box?
                                                                             [checkbox
+                                                                             :src       (src-coordinates)
                                                                              :label     [box
                                                                                          :align :start
                                                                                          :child [:code ":regex-filter?"]]
@@ -115,9 +134,12 @@
                                                                              :on-change #(reset! regex-filter? %)])]]]]
 
                                                   [v-box
-                                                   :size "initial"
-                                                   :gap "5px"
-                                                   :children [[label :label [:code ":choices"]]
+                                                   :src      (src-coordinates)
+                                                   :size     "initial"
+                                                   :gap      "5px"
+                                                   :children [[label
+                                                               :src   (src-coordinates)
+                                                               :label [:code ":choices"]]
                                                               [:pre (with-out-str (pprint/pprint choices))]]]]]]]]]
 
               [parts-table "multi-select" multi-select-parts-desc]]])

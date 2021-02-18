@@ -825,11 +825,11 @@
    "
   ;; Suggestion: Ideally make the component work out row-content-width so it doesn't need to be passed (and column-header-height/column-footer-height if possible)
 
-  [& {:keys [model virtual? row-height row-viewport-width row-viewport-height max-row-viewport-height]
+  [& {:keys [model virtual? row-height row-viewport-width row-viewport-height max-row-viewport-height src]
       :or   {virtual? true}
       :as   args}]
   (or
-    (validate-args-macro v-table-args-desc args "v-table")
+    (validate-args-macro v-table-args-desc args src)
     (let [scroll-x              (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
           scroll-y              (reagent/atom 0)              ;; px offset from top of header/content/footer sections (note: this value remains the same when virtual-mode? is both true and false)
           ;wheel-row-increment   (* 10 row-height)             ;; Could be an argument
@@ -1057,7 +1057,7 @@
                             (reset! row-viewport-element nil))
 
            :reagent-render
-                          (fn v-table-renderer
+                          (fn v-table-render
                             [& {:keys [virtual? remove-empty-row-space? key-fn max-width
                                        ;; Section 1
                                        top-left-renderer
@@ -1085,7 +1085,7 @@
                                        key-fn                  nil}
                                 :as   args}]
                             (or
-                              (validate-args-macro v-table-args-desc args "v-table")
+                              (validate-args-macro v-table-args-desc args src)
                               (do
                                 (reset! content-rows-width row-content-width)
                                 (reset! content-rows-height (* @m-size row-height))

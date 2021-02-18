@@ -27,19 +27,19 @@
 
 (deftest test-arg-names-valid?
   (are [expected actual] (= expected actual)
-    true (validate/arg-names-valid? #{:arg1} #{:arg1} "test-arg-names-valid?")
-    false (validate/arg-names-valid? #{:arg1} #{:arg2} "test-arg-names-valid?")
-    true (validate/arg-names-valid? #{:arg1 :arg2} #{:arg2} "test-arg-names-valid?")
-    false (validate/arg-names-valid? #{:arg1 :arg2} #{:arg1 :arg3} "test-arg-names-valid?")))
+                         true (validate/arg-names-known? #{:arg1} #{:arg1} "test-arg-names-valid?")
+                         false (validate/arg-names-known? #{:arg1} #{:arg2} "test-arg-names-valid?")
+                         true (validate/arg-names-known? #{:arg1 :arg2} #{:arg2} "test-arg-names-valid?")
+                         false (validate/arg-names-known? #{:arg1 :arg2} #{:arg1 :arg3} "test-arg-names-valid?")))
 
 (deftest test-required-args-passed?
   (are [expected actual] (= expected actual)
-    true (validate/required-args-passed? #{:arg1} #{:arg1} "test-required-args-passed?")
-    false (validate/required-args-passed? #{:arg1} #{:arg2} "test-required-args-passed?")
-    false (validate/required-args-passed? #{:arg1 :arg2} #{:arg2} "test-required-args-passed?")
-    false (validate/required-args-passed? #{:arg1 :arg2} #{:arg1 :arg3} "test-required-args-passed?")
-    true (validate/required-args-passed? #{:arg1 :arg2} #{:arg1 :arg2} "test-required-args-passed?")
-    true (validate/required-args-passed? #{:arg1 :arg2} #{:arg1 :arg2 :arg3} "test-required-args-passed?")))
+                         true (validate/required-args? #{:arg1} #{:arg1} "test-required-args-passed?")
+                         false (validate/required-args? #{:arg1} #{:arg2} "test-required-args-passed?")
+                         false (validate/required-args? #{:arg1 :arg2} #{:arg2} "test-required-args-passed?")
+                         false (validate/required-args? #{:arg1 :arg2} #{:arg1 :arg3} "test-required-args-passed?")
+                         true (validate/required-args? #{:arg1 :arg2} #{:arg1 :arg2} "test-required-args-passed?")
+                         true (validate/required-args? #{:arg1 :arg2} #{:arg1 :arg2 :arg3} "test-required-args-passed?")))
 
 (deftest test-extension-attribute?
   (is (validate/extension-attribute? :data-attribute))

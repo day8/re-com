@@ -45,7 +45,7 @@
       :or   {wrap-nicely? true backdrop-color "black" backdrop-opacity 0.6}
       :as   args}]
   (or
-    (validate-args-macro modal-panel-args-desc args "modal-panel")
+    (validate-args-macro modal-panel-args-desc args src)
     [:div    ;; Containing div
      (merge {:class  (str "display-flex rc-modal-panel " class)
              :style (merge {:position "fixed"

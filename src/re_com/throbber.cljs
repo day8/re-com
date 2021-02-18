@@ -40,7 +40,7 @@
   "Render an animated throbber using CSS"
   [& {:keys [size color class style attr parts src] :as args}]
   (or
-    (validate-args-macro throbber-args-desc args "throbber")
+    (validate-args-macro throbber-args-desc args src)
     (let [seg (fn []
                 [:li
                  (merge

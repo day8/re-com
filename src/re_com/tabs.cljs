@@ -48,7 +48,7 @@
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
-    (validate-args-macro horizontal-tabs-args-desc args "tabs")
+    (validate-args-macro horizontal-tabs-args-desc args src)
     (let [current  (deref-or-value model)
           tabs     (deref-or-value tabs)
           _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
@@ -154,7 +154,7 @@
       :or   {id-fn :id label-fn :label tooltip-fn :tooltip}
       :as   args}]
   (or
-    (validate-args-macro bar-tabs-args-desc args "tabs")
+    (validate-args-macro bar-tabs-args-desc args src)
     (bar-tabs
       :model            model
       :tabs             tabs
@@ -176,7 +176,7 @@
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
-    (validate-args-macro bar-tabs-args-desc args "tabs")
+    (validate-args-macro bar-tabs-args-desc args src)
     (bar-tabs
       :model     model
       :tabs      tabs
@@ -255,7 +255,7 @@
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
-    (validate-args-macro pill-tabs-args-desc args "tabs")
+    (validate-args-macro pill-tabs-args-desc args src)
     (pill-tabs
       :model     model
       :tabs      tabs
@@ -275,7 +275,7 @@
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
-    (validate-args-macro pill-tabs-args-desc args "tabs")
+    (validate-args-macro pill-tabs-args-desc args src)
     (pill-tabs
       :model     model
       :tabs      tabs

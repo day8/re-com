@@ -268,7 +268,7 @@
    {:id \"US\" :label \"United States\"  :group \"Group 1\"}
    {:id \"GB\" :label \"United Kingdom\" :group \"Group 1\"}
    {:id \"AF\" :label \"Afghanistan\"    :group \"Group 2\"}]"
-  [& {:keys [model sort-fn]
+  [& {:keys [model sort-fn src]
       :or   {sort-fn identity}
       :as   args}]
   "Internal glossary:
@@ -276,7 +276,7 @@
   RHS - selections - comes from model => internal-model - the selected items from choices collection
   "
   (or
-    (validate-args-macro multi-select-args-desc args "multi-select")
+    (validate-args-macro multi-select-args-desc args src)
     (let [*external-model                    (reagent/atom (deref-or-value model)) ;; Holds the last known external value of model, to detect external model changes
           *internal-model                    (reagent/atom @*external-model) ;; Create a new atom from the model to be used internally
           *current-choice-id                 (reagent/atom nil)
@@ -293,16 +293,17 @@
                                               :text-align   "left"
                                               :font-variant "small-caps"
                                               :font-size    11}]
-      (fn [& {:keys [choices model required? max-selected-items left-label right-label on-change disabled? filter-box? regex-filter?
-                     placeholder width height max-height tab-index id-fn label-fn group-fn sort-fn class style attr parts src]
-              :or   {id-fn     :id
-                     label-fn  :label
-                     group-fn  :group
-                     sort-fn   compare
-                     required? false}
-              :as   args}]
+      (fn multi-select-render
+        [& {:keys [choices model required? max-selected-items left-label right-label on-change disabled? filter-box? regex-filter?
+                   placeholder width height max-height tab-index id-fn label-fn group-fn sort-fn class style attr parts src]
+            :or   {id-fn     :id
+                   label-fn  :label
+                   group-fn  :group
+                   sort-fn   compare
+                   required? false}
+            :as   args}]
         (or
-          (validate-args-macro multi-select-args-desc args "multi-select")
+          (validate-args-macro multi-select-args-desc args src)
           (let [required?              (deref-or-value required?)
                 filter-box?            (deref-or-value filter-box?)
                 regex-filter?          (deref-or-value regex-filter?)

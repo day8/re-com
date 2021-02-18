@@ -47,7 +47,7 @@
   [& {:keys [model value on-change label disabled? label-class label-style class style attr parts src]
       :as   args}]
   (or
-    (validate-args-macro radio-button-args-desc args "radio-button")
+    (validate-args-macro radio-button-args-desc args src)
     (let [cursor      "default"
           model       (deref-or-value model)
           disabled?   (deref-or-value disabled?)

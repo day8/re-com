@@ -142,7 +142,7 @@
   "Renders a backdrop div which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
   [& {:keys [opacity on-click class src] :as args}]
   (or
-    (validate-args-macro backdrop-args-desc args "backdrop")
+    (validate-args-macro backdrop-args-desc args src)
     [:div
      (merge
        {:class    (str "noselect rc-backdrop " class)
@@ -175,7 +175,7 @@
   [& {:keys [showing? title close-button? close-callback class src]
       :as args}]
   (or
-    (validate-args-macro popover-title-args-desc args "popover-title")
+    (validate-args-macro popover-title-args-desc args src)
     #_(assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback") ;; IJ: TODO re-refactor
     (let [close-button? (if (nil? close-button?) true close-button?)]
       [:h3
@@ -257,9 +257,9 @@
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
-  [& {:keys [position position-offset title] :as args}]
+  [& {:keys [position position-offset title src] :as args}]
   (or
-    (validate-args-macro popover-border-args-desc args "popover-border")
+    (validate-args-macro popover-border-args-desc args src)
     (let [pop-id                  (gensym "popover-")
           rendered-once           (reagent/atom false)        ;; The initial render is off screen because rendering it in place does not render at final width, and we need to measure it to be able to place it properly
           ready-to-show?          (reagent/atom false)        ;; This is used by the optimal position code to avoid briefly seeing it in its intended position before quickly moving to the optimal position
@@ -294,13 +294,13 @@
              (reset! ready-to-show? true)))
 
          :reagent-render
-         (fn
+         (fn popover-border-render
            [& {:keys [children position position-offset width height popover-color popover-border-color arrow-length
                       arrow-width arrow-gap padding margin-left margin-top tooltip-style? title class src]
                :or {arrow-length 11 arrow-width 22 arrow-gap -1}
                :as args}]
            (or
-             (validate-args-macro popover-border-args-desc args "popover-border")
+             (validate-args-macro popover-border-args-desc args src)
              (let [[orientation grey-arrow?] (calc-metrics @position)]
                [:div.popover.fade.in
                 (merge
@@ -374,9 +374,9 @@
 
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes"
-  [& {:keys [no-clip?] :as args}]
+  [& {:keys [no-clip? src] :as args}]
   (or
-    (validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")
+    (validate-args-macro popover-content-wrapper-args-desc args src)
     (let [left-offset              (reagent/atom 0)
           top-offset               (reagent/atom 0)
           position-no-clip-popover (fn position-no-clip-popover
@@ -399,14 +399,14 @@
            (position-no-clip-popover this))
 
          :reagent-render
-         (fn
+         (fn popover-content-wrapper-render
            [& {:keys [showing-injected? position-injected position-offset no-clip? width height backdrop-opacity on-cancel
                       title close-button? body tooltip-style? popover-color popover-border-color arrow-length arrow-width
                       arrow-gap padding class style attr parts src]
                :or {arrow-length 11 arrow-width 22 arrow-gap -1}
                :as args}]
            (or
-             (validate-args-macro popover-content-wrapper-args-desc args "popover-content-wrapper")
+             (validate-args-macro popover-content-wrapper-args-desc args src)
              (do
                @position-injected ;; Dereference this atom. Although nothing here needs its value explicitly, the calculation of left-offset and top-offset are affected by it for :no-clip? true
                [:div
@@ -466,9 +466,9 @@
 
 (defn popover-anchor-wrapper
   "Renders an element or control along with a Bootstrap popover"
-  [& {:keys [showing? position] :as args}]
+  [& {:keys [showing? position src] :as args}]
   (or
-    (validate-args-macro popover-anchor-wrapper-args-desc args "popover-anchor-wrapper")
+    (validate-args-macro popover-anchor-wrapper-args-desc args src)
     (let [external-position (reagent/atom position)
           internal-position (reagent/atom @external-position)
           reset-on-hide     (reaction (when-not (deref-or-value showing?) (reset! internal-position @external-position)))]
@@ -476,10 +476,10 @@
         {:display-name "popover-anchor-wrapper"
 
          :reagent-render
-         (fn
+         (fn popover-anchor-wrapper-render
            [& {:keys [showing? position anchor popover class style attr parts src] :as args}]
            (or
-             (validate-args-macro popover-anchor-wrapper-args-desc args "popover-anchor-wrapper")
+             (validate-args-macro popover-anchor-wrapper-args-desc args src)
              (do
                @reset-on-hide ;; Dereference this reaction, otherwise it won't be set up. The reaction is set to run whenever the popover closes
                (when (not= @external-position position) ;; Has position changed externally?
@@ -537,7 +537,7 @@
       :or {no-clip? true}
       :as args}]
   (or
-    (validate-args-macro popover-tooltip-args-desc args "popover-tooltip")
+    (validate-args-macro popover-tooltip-args-desc args src)
     (let [label         (deref-or-value label)
           popover-color (case status
                           :warning "#f57c00"

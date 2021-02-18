@@ -49,7 +49,7 @@
       :or   {alert-type :info}
       :as   args}]
   (or
-    (validate-args-macro alert-box-args-desc args "alert-box")
+    (validate-args-macro alert-box-args-desc args src)
     (let [close-alert  [close-button
                         :src       (src-coordinates)
                         :class     (str "rc-alert-close-button " (get-in parts [:close-button :class]))
@@ -147,7 +147,7 @@
       :or   {padding "4px"}
       :as   args}]
   (or
-    (validate-args-macro alert-list-args-desc args "alert-list")
+    (validate-args-macro alert-list-args-desc args src)
     (let [alerts (deref-or-value alerts)]
       [box
        :src   src

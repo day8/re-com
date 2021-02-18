@@ -45,7 +45,7 @@
       :or   {width "100%"}
       :as   args}]
   (or
-    (validate-args-macro progress-bar-args-desc args "progress-bar")
+    (validate-args-macro progress-bar-args-desc args src)
     (let [model (deref-or-value model)]
       [box
        :src   src

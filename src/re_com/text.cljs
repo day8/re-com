@@ -40,7 +40,7 @@
   [& {:keys [label on-click width class style attr parts src]
       :as   args}]
   (or
-    (validate-args-macro label-args-desc args "label")
+    (validate-args-macro label-args-desc args src)
     [box
      :src   src
      :class (str "display-inline-flex rc-label-wrapper " (get-in parts [:wrapper :class]))
@@ -92,7 +92,7 @@
       :or   {margin-top "0.6em" margin-bottom "0.3em"}
       :as   args}]
   (or
-    (validate-args-macro title-args-desc args "title")
+    (validate-args-macro title-args-desc args src)
     (let [preset-class (if (nil? level) "" (name level))]
       [v-box
        :src      src

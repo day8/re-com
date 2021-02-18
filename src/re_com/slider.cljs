@@ -46,7 +46,7 @@
       :or   {min 0 max 100}
       :as   args}]
   (or
-    (validate-args-macro slider-args-desc args "slider")
+    (validate-args-macro slider-args-desc args src)
     (let [model     (deref-or-value model)
           min       (deref-or-value min)
           max       (deref-or-value max)

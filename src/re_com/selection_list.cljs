@@ -151,7 +151,7 @@
   [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr parts src]
     :as   args}]
   (or
-    (validate-args-macro selection-list-args-desc args "selection-list")
+    (validate-args-macro selection-list-args-desc args src)
     (let [selected (if multi-select? model (-> model first vector set))
           items    (map (if item-renderer
                           #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?

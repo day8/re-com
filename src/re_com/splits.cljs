@@ -98,11 +98,11 @@
 
 (defn h-split
   "Returns markup for a horizontal layout component"
-  [& {:keys [size width height split-is-px? on-split-change initial-split splitter-size margin]
+  [& {:keys [size width height split-is-px? on-split-change initial-split splitter-size margin src]
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   (or
-    (validate-args-macro hv-split-args-desc args "h-split")
+    (validate-args-macro hv-split-args-desc args src)
     (let [container-id         (gensym "h-split-")
           split-perc           (reagent/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
           dragging?            (reagent/atom false)                       ;; is the user dragging the splitter (mouse is down)?
@@ -181,7 +181,7 @@
                                    (src->attr src)
                                    attr))]
 
-      (fn
+      (fn h-split-render
         [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
         [:div (make-container-attrs class style attr src @dragging?)
          [:div (make-panel-attrs
@@ -216,11 +216,11 @@
 
 (defn v-split
   "Returns markup for a vertical layout component"
-  [& {:keys [size width height split-is-px? on-split-change initial-split splitter-size margin]
+  [& {:keys [size width height split-is-px? on-split-change initial-split splitter-size margin src]
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   (or
-    (validate-args-macro hv-split-args-desc args "v-split")
+    (validate-args-macro hv-split-args-desc args src)
     (let [container-id         (gensym "v-split-")
           split-perc           (reagent/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height
           dragging?            (reagent/atom false)                        ;; is the user dragging the splitter (mouse is down)?
@@ -299,7 +299,7 @@
                                    (src->attr src)
                                    attr))]
 
-      (fn
+      (fn v-split-render
         [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
         [:div (make-container-attrs class style attr src @dragging?)
          [:div (make-panel-attrs

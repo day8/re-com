@@ -178,7 +178,7 @@
   [& {:keys [size width height class style attr src]
       :as   args}]
   (or
-    (validate-args-macro gap-args-desc args "gap")
+    (validate-args-macro gap-args-desc args src)
     (let [s (merge
               (when size   (flex-child-style size))
               (when width  {:width width})
@@ -212,7 +212,7 @@
       :or   {size "1px" color "lightgray"}
       :as   args}]
   (or
-    (validate-args-macro line-args-desc args "line")
+    (validate-args-macro line-args-desc args src)
     (let [s (merge
               (flex-child-style (str "0 0 " size))
               {:background-color color}
@@ -257,7 +257,7 @@
       :or   {size "none" justify :start align :stretch}
       :as   args}]
   (or
-    (validate-args-macro h-box-args-desc args "h-box")
+    (validate-args-macro h-box-args-desc args src)
     (let [s        (merge
                      (flex-flow-style "row nowrap")
                      (flex-child-style size)
@@ -321,7 +321,7 @@
       :or   {size "none" justify :start align :stretch}
       :as   args}]
   (or
-    (validate-args-macro v-box-args-desc args "v-box")
+    (validate-args-macro v-box-args-desc args src)
     (let [s        (merge
                      (flex-flow-style  "column nowrap")
                      (flex-child-style size)
@@ -384,7 +384,7 @@
       :or   {size "none"}
       :as   args}]
   (or
-    (validate-args-macro box-args-desc args "box")
+    (validate-args-macro box-args-desc args src)
     (box-base :size        size
               :width       width
               :height      height
@@ -453,7 +453,7 @@
       :or   {size "auto"}
       :as   args}]
   (or
-    (validate-args-macro scroller-args-desc args "scroller")
+    (validate-args-macro scroller-args-desc args src)
     (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
           scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
       (box-base :size       size
@@ -517,7 +517,7 @@
       :or   {size "none"}
       :as   args}]
   (or
-    (validate-args-macro border-args-desc args "border")
+    (validate-args-macro border-args-desc args src)
     (let [no-border      (every? nil? [border l-border r-border t-border b-border])
           default-border "1px solid lightgrey"]
       (box-base :size        size
