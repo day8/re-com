@@ -4,7 +4,7 @@
 
 (defn src->attr
   [{:keys [file line] :as src}]
-  (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
+  (if true ;; debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
     (if src
       {:data-rc-src (str file ":" line)}
       {})
