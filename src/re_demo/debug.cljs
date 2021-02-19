@@ -30,6 +30,7 @@
                    :src      (src-coordinates)
                    :gap      "100px"
                    :children [[component-stack-spy
+                               :src   (src-coordinates)
                                :child [v-box
                                        :src      (src-coordinates)
                                        :gap      "10px"

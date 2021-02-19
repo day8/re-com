@@ -1,5 +1,6 @@
 (ns re-com.debug
   (:require
+    [goog.object            :as    gobj]
     [clojure.string         :as    string]
     [reagent.core           :as    r]
     [reagent.impl.component :as    component]
@@ -20,13 +21,39 @@
       (string/replace #"_render" "")
       (string/replace #"_" "-")))
 
+;(fn [& {:keys [child]}]
+;  (let [old-child-args-as-map (apply hash-map (rest child))
+;        old-ref-fn            (get-in old-child-args-as-map [:attr :ref])
+;        ref-fn                (fn [el] (reset! element el) (when (fn? old-ref-fn) (old-ref-fn el)))
+;        child-args-as-map     (assoc-in old-child-args-as-map [:attr :ref] ref-fn)
+;        child-args-as-kw-args (reduce into [] (seq child-args-as-map))]
+;    (into [(first child)] child-args-as-kw-args)))})))
+
 (defn src->attr
+  ;; TODO: delete this when migrated
   ([src]
-   (src->attr src (component/component-name (r/current-component))))
-  ([{:keys [file line] :as src} component-name]
+   (let [component-name (component/component-name (r/current-component))]
+     (js/console.warn component-name " not migrated to store args")
+     (src->attr src component-name {})))
+  ([src args]
+   (src->attr src (component/component-name (r/current-component)) args))
+  ([{:keys [file line] :as src} component-name args]
    (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
      (merge
-       {:data-rc-component (short-component-name component-name)}
+       {:ref               (fn [el]
+                             (if (nil? el)
+                               (js/console.warn "ref in str->attr is nil")
+                               (do
+                                 (js/console.log "set args to" args)
+                                 ;; Remember args so they can be logged later:
+                                 (gobj/set el "__rc-args" (dissoc args
+                                                                  :src
+                                                                  :children))
+                                 ;; User may have supplied their own ref like so: {:attr {:ref (fn ...)}}
+                                 (when-let [ref-fn (get-in args [:attr :ref])]
+                                   (when (fn? ref-fn)
+                                     (ref-fn el))))))
+        :data-rc-component (short-component-name component-name)}
        (when src
          {:data-rc-src     (str file ":" line)}))
      {})))
@@ -37,12 +64,16 @@
   ([stack ^js/Element el]
    (if-not el ;; termination condition
      stack
-     (let [^js/Element parent (.-parentElement el)]
-       (-> (conj stack
+     (let [component          (.. el -dataset -rcComponent)
+           ^js/Element parent (.-parentElement el)]
+       (->
+         (if (= "component-stack-spy" component)
+           stack
+           (conj stack
                  {:el        el
                   :src       (.. el -dataset -rcSrc)
-                  :component (.. el -dataset -rcComponent)})
-           (component-stack parent))))))
+                  :component component}))
+         (component-stack parent))))))
 
 (defn validate-args-problems-style
   []
@@ -75,16 +106,18 @@
   [stack]
   (js/console.groupCollapsed (str "• %c Component stack (click me)") h2-style)
   (doseq [{:keys [i el component src]} (map-indexed #(assoc %2 :i (inc %1)) stack)]
-    (if component
-      (if src
-        (let [[file line] (string/split src #":")]
+    (let [args (gobj/get el "__rc-args")]
+      #_(js/console.log args)
+      (if component
+        (if src
+          (let [[file line] (string/split src #":")]
+            (js/console.log
+              (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      DOM: %o\n      Parameters: %O")
+              index-style "" code-style "" code-style "" code-style "" el args))
           (js/console.log
-            (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c %o")
-            index-style "" code-style "" code-style "" code-style "" el))
-        (js/console.log
-          (str "%c" i "%c " gear-icon " %c[" component " ...]%c %o")
-          index-style "" code-style "" el))
-      (js/console.log (str "%c" i "%c " globe-icon " %o") index-style "" el)))
+            (str "%c" i "%c " gear-icon " %c[" component " ...]%c %o")
+            index-style "" code-style "" el))
+        (js/console.log (str "%c" i "%c " globe-icon " %o") index-style "" el))))
   (js/console.groupEnd))
 
 (defn log-validate-args-error
@@ -159,59 +192,20 @@
 
 (defn component-stack-spy
   [& {:keys [child src]}]
-  (let [element (atom nil)]
+  (let [element (atom nil)
+        log-fn  (fn []
+                  (let [el @element]
+                    (when el
+                      (let [first-child (first (.-children el))]
+                        (js/console.group "%c[component-stack-spy ...]%c" code-style "")
+                        (log-component-stack (component-stack first-child))
+                        (js/console.groupEnd)))))]
     (r/create-class
-      {:display-name "component-stack-spy"
-
-       :component-did-mount
-       (fn [this]
-         (let [first-child (first (.-children @element))]
-           (js/console.group "%c[component-stack-spy ...]%c component-did-mount" code-style "")
-           (log-component-stack (component-stack first-child))
-           (js/console.groupEnd)))
-
-       :component-did-update
-       (fn [this argv old-state snapshot]
-         (let [first-child (first (.-children @element))]
-           (js/console.group "%c[component-stack-spy ...]%c component-did-update" code-style "")
-           (log-component-stack (component-stack first-child))
-           (js/console.groupEnd)))
-
+      {:display-name         "component-stack-spy"
+       :component-did-mount  log-fn
+       :component-did-update log-fn
        :reagent-render
        (fn [& {:keys [child src]}]
          [:div
-          (merge
-            {:ref  (fn [el] (reset! element el))}
-            (src->attr src))
+          (src->attr src {:attr {:ref (fn [el] (reset! element el))}})
           child])})))
-
-;; The advantage of this impl is it does not inject anything into the DOM, but it only works for re-come components and
-;; not hiccup etc.
-#_(defn component-stack-spy
-    "A component that will log the component stack of its child while not producing any DOM output. Only supports re-com
-   components that accept an :attr parameter."
-    [& {:keys [child]}]
-    (let [element (atom nil)]
-      (r/create-class
-        {:display-name "component-stack-spy"
-
-         :component-did-mount
-         (fn [this]
-           (js/console.group "%c[component-stack-spy ...]%c component-did-mount" code-style "")
-           (log-component-stack (component-stack @element))
-           (js/console.groupEnd))
-
-         :component-did-update
-         (fn [this argv old-state snapshot]
-           (js/console.group "%c[component-stack-spy ...]%c component-did-update" code-style "")
-           (log-component-stack (component-stack @element))
-           (js/console.groupEnd))
-
-         :reagent-render
-         (fn [& {:keys [child]}]
-           (let [old-child-args-as-map (apply hash-map (rest child))
-                 old-ref-fn            (get-in old-child-args-as-map [:attr :ref])
-                 ref-fn                (fn [el] (reset! element el) (when (fn? old-ref-fn) (old-ref-fn el)))
-                 child-args-as-map     (assoc-in old-child-args-as-map [:attr :ref] ref-fn)
-                 child-args-as-kw-args (reduce into [] (seq child-args-as-map))]
-             (into [(first child)] child-args-as-kw-args)))})))

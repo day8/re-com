@@ -283,7 +283,7 @@
                      children)]
       (into [:div
              (merge
-               (src->attr src)
+               (src->attr src args)
                {:class (str "rc-h-box display-flex " class) :style s}
                attr)]
             children))))
@@ -347,7 +347,7 @@
                      children)]
       (into [:div
              (merge
-               (src->attr src)
+               (src->attr src args)
                {:class (str "rc-v-box display-flex " class) :style s}
                attr)]
             children))))

@@ -150,7 +150,7 @@
                                           {:on-mouse-up   (handler-fn (stop-drag))
                                            :on-mouse-move (handler-fn (mousemove event))
                                            :on-mouse-out  (handler-fn (mouseout event))})
-                                        (src->attr src)
+                                        (src->attr src args)
                                         attr))
 
           make-panel-attrs     (fn [class style attr src in-drag? percentage]
@@ -164,7 +164,7 @@
                                                   {:overflow "hidden"} ;; TODO: Shouldn't have this...test removing it
                                                   (when in-drag? {:pointer-events "none"})
                                                   style)}
-                                   (src->attr src)
+                                   (src->attr src args)
                                    attr))
 
           make-splitter-attrs  (fn [class style attr src]
@@ -177,7 +177,7 @@
                                                           {:cursor "col-resize"}
                                                           (when @over? {:background-color "#f8f8f8"})
                                                           style)}
-                                   (src->attr src)
+                                   (src->attr src args)
                                    attr))]
 
       (fn h-split-render
