@@ -1,6 +1,6 @@
 (ns re-demo.border
   (:require-macros
-    [re-com.debug  :refer [src-coordinates]])
+    [re-com.core   :refer [src-coordinates]])
   (:require
     [re-com.core   :refer [h-box v-box box gap border p]]
     [re-com.box    :refer [border-args-desc]]

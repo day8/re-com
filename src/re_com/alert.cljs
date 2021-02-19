@@ -1,7 +1,6 @@
 (ns re-com.alert
   (:require-macros
-    [re-com.core         :refer [handler-fn]]
-    [re-com.debug        :refer [src-coordinates]])
+    [re-com.core         :refer [handler-fn src-coordinates]])
   (:require
     [re-com.box          :refer [h-box v-box box scroller border flex-child-style]]
     [re-com.buttons      :refer [button]]

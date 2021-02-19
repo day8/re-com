@@ -1,7 +1,6 @@
 (ns re-com.buttons
   (:require-macros
-    [re-com.core     :refer [handler-fn]]
-    [re-com.debug    :refer [src-coordinates]])
+    [re-com.core     :refer [handler-fn src-coordinates]])
   (:require
     [re-com.util     :refer [deref-or-value px]]
     [re-com.config   :refer [include-args-desc?]]

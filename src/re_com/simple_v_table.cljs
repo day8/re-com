@@ -1,7 +1,6 @@
 (ns re-com.simple-v-table
   (:require-macros
-    [re-com.core     :refer [handler-fn]]
-    [re-com.debug    :refer [src-coordinates]]
+    [re-com.core     :refer [handler-fn src-coordinates]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [reagent.core    :as    reagent]

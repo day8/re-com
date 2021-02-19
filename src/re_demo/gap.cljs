@@ -1,6 +1,6 @@
 (ns re-demo.gap
   (:require-macros
-    [re-com.debug  :refer [src-coordinates]])
+    [re-com.core   :refer [src-coordinates]])
   (:require
     [re-com.core   :refer [h-box v-box gap p line box]]
     [re-com.box    :refer [gap-args-desc]]

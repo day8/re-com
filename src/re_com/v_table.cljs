@@ -1,8 +1,7 @@
 (ns re-com.v-table
   (:require-macros
     [reagent.ratom      :refer [reaction]]
-    [re-com.core        :refer [handler-fn]]
-    [re-com.debug       :refer [src-coordinates]]
+    [re-com.core        :refer [handler-fn src-coordinates]]
     [re-com.validate    :refer [validate-args-macro]])
   (:require
     [reagent.core       :as    reagent]

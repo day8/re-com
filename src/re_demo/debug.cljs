@@ -1,6 +1,6 @@
 (ns re-demo.debug
   (:require-macros
-    [re-com.debug      :refer [src-coordinates]])
+    [re-com.core       :refer [src-coordinates]])
   (:require
     [re-com.core       :refer [h-box v-box box gap line label title checkbox hyperlink p]]
     [re-com.datepicker :refer [datepicker]]

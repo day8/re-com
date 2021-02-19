@@ -1,6 +1,6 @@
 (ns re-com.box
   (:require-macros
-    [re-com.debug    :refer [src-coordinates]]
+    [re-com.core     :refer [src-coordinates]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [clojure.string   :as    string]

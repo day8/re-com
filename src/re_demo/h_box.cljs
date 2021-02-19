@@ -1,7 +1,6 @@
 (ns re-demo.h-box
   (:require-macros
-    [re-com.core     :refer [handler-fn]]
-    [re-com.debug    :refer [src-coordinates]])
+    [re-com.core     :refer [handler-fn src-coordinates]])
   (:require
     [clojure.string  :as    string]
     [re-com.core     :refer [p p-span h-box v-box box gap line scroller border label title button close-button checkbox hyperlink-href slider horizontal-bar-tabs info-button

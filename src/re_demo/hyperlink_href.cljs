@@ -1,6 +1,6 @@
 (ns re-demo.hyperlink-href
   (:require-macros
-    [re-com.debug   :refer [src-coordinates]])
+    [re-com.core    :refer [src-coordinates]])
   (:require
     [re-com.core    :refer [h-box v-box box gap line label title radio-button hyperlink-href p checkbox]]
     [re-com.buttons :refer [hyperlink-href-parts-desc hyperlink-href-args-desc]]

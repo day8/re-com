@@ -1,7 +1,7 @@
 (ns re-demo.datepicker
   (:require-macros
     [reagent.ratom     :refer [reaction]]
-    [re-com.debug      :refer [src-coordinates]])
+    [re-com.core       :refer [src-coordinates]])
   (:require
     [goog.date.Date]
     [reagent.core      :as    reagent]

@@ -1,7 +1,6 @@
 (ns re-com.typeahead
   (:require-macros
-    [re-com.core            :refer [handler-fn]]
-    [re-com.debug           :refer [src-coordinates]]
+    [re-com.core            :refer [handler-fn src-coordinates]]
     [re-com.validate        :refer [validate-args-macro]]
     [cljs.core.async.macros :refer [alt! go-loop]])
   (:require

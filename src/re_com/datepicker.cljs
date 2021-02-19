@@ -1,7 +1,6 @@
 (ns re-com.datepicker
   (:require-macros
-    [re-com.core          :refer [handler-fn]]
-    [re-com.debug         :refer [src-coordinates]])
+    [re-com.core          :refer [handler-fn src-coordinates]])
   (:require
     [reagent.core         :as reagent]
     [cljs-time.core       :as cljs-time]

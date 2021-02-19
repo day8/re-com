@@ -1,6 +1,6 @@
 (ns re-demo.dropdowns
   (:require-macros
-    [re-com.debug    :refer [src-coordinates]])
+    [re-com.core     :refer [src-coordinates]])
   (:require
     [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
     [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]

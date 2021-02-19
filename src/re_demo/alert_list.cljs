@@ -1,6 +1,6 @@
 (ns re-demo.alert-list
   (:require-macros
-    [re-com.debug  :refer [src-coordinates]])
+    [re-com.core   :refer [src-coordinates]])
   (:require
     [re-com.core   :refer [h-box v-box box line gap label title button alert-box alert-list p]]
     [re-com.alert  :refer [alert-list-parts-desc alert-box-args-desc alert-list-args-desc]]

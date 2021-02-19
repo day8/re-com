@@ -1,6 +1,4 @@
-(ns re-com.core
-  (:require
-    [re-com.debug :as debug]))
+(ns re-com.core)
 
 ;; There is a trap when writing DOM event handlers.  This looks innocent enough:
 ;;
@@ -34,4 +32,6 @@
   ([& body]
    `(fn [~'event] ~@body nil)))  ;; force return nil
 
-(def src-coordinates debug/src-coordinates)
+(defmacro src-coordinates
+  []
+  (select-keys (meta &form) [:file :line]))

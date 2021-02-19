@@ -1,6 +1,6 @@
 (ns re-demo.simple-v-table-sales
   (:require-macros
-    [re-com.debug          :refer [src-coordinates]])
+    [re-com.core           :refer [src-coordinates]])
   (:require
     [clojure.string        :as string]
     [goog.string           :as gstring]

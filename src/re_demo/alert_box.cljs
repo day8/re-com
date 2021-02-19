@@ -1,7 +1,7 @@
 (ns re-demo.alert-box
   (:require-macros
     [reagent.debug :refer [dbg prn println log dev? warn warn-unless]]
-    [re-com.debug  :refer [src-coordinates]])
+    [re-com.core   :refer [src-coordinates]])
   (:require
     [re-com.core   :refer [h-box v-box box line gap title label alert-box alert-list p]]
     [re-com.alert  :refer [alert-box-parts-desc alert-box-args-desc alert-list-args-desc]]

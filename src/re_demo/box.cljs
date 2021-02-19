@@ -1,6 +1,6 @@
 (ns re-demo.box
   (:require-macros
-    [re-com.debug  :refer [src-coordinates]])
+    [re-com.core   :refer [src-coordinates]])
   (:require
     [re-com.core   :refer [h-box v-box box gap hyperlink-href p]]
     [re-com.box    :refer [box-args-desc]]

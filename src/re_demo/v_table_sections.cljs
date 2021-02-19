@@ -1,7 +1,8 @@
 (ns re-demo.v-table-sections
-  (:require [re-com.core   :refer [v-box v-table label]]
-            [re-com.util    :refer [px]]
-            [reagent.core  :as reagent]))
+  (:require
+    [re-com.core   :refer [v-box v-table label]]
+    [re-com.util    :refer [px]]
+    [reagent.core  :as reagent]))
 
 
 

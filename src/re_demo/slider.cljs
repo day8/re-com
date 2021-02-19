@@ -1,6 +1,6 @@
 (ns re-demo.slider
   (:require-macros
-    [re-com.debug  :refer [src-coordinates]])
+    [re-com.core   :refer [src-coordinates]])
   (:require
     [re-com.core   :refer [h-box v-box box gap line label title slider checkbox input-text horizontal-bar-tabs vertical-bar-tabs p]]
     [re-com.slider :refer [slider-parts-desc slider-args-desc]]

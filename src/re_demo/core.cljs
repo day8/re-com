@@ -1,6 +1,6 @@
 (ns re-demo.core
   (:require-macros
-    [re-com.debug           :refer [src-coordinates]]
+    [re-com.core            :refer [src-coordinates]]
     [cljs.core.async.macros :refer [go]]
     [secretary.core         :refer [defroute]])
   (:require [goog.events                   :as    events]

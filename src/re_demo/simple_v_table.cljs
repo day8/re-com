@@ -1,6 +1,6 @@
 (ns re-demo.simple-v-table
   (:require-macros
-    [re-com.debug                          :refer [src-coordinates]])
+    [re-com.core                           :refer [src-coordinates]])
   (:require
     [re-com.core                           :refer [h-box gap v-box p line horizontal-tabs]]
     [re-com.simple-v-table                 :refer [simple-v-table-parts-desc simple-v-table-args-desc]]

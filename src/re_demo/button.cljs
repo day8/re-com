@@ -1,7 +1,6 @@
 (ns re-demo.button
   (:require-macros
-    [re-com.core    :refer [handler-fn]]
-    [re-com.debug   :refer [src-coordinates]])
+    [re-com.core    :refer [handler-fn src-coordinates]])
   (:require
     [re-com.core    :refer [h-box v-box box gap line button label throbber hyperlink-href p p-span]]
     [re-com.buttons :refer [button-parts-desc button-args-desc]]

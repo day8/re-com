@@ -1,6 +1,6 @@
 (ns re-demo.checkbox
   (:require-macros
-    [re-com.debug    :refer [src-coordinates]])
+    [re-com.core     :refer [src-coordinates]])
   (:require
     [re-com.core     :refer [h-box v-box box gap line checkbox label p]]
     [re-com.checkbox :refer [checkbox-parts-desc checkbox-args-desc]]

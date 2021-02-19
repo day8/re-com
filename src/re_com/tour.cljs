@@ -1,7 +1,6 @@
 (ns re-com.tour
   (:require-macros
-    [re-com.core    :refer [handler-fn]]
-    [re-com.debug   :refer [src-coordinates]])
+    [re-com.core    :refer [handler-fn src-coordinates]])
   (:require
     [reagent.core   :as    reagent]
     [re-com.box     :refer [flex-child-style]]

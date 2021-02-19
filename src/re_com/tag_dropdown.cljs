@@ -1,8 +1,7 @@
 (ns re-com.tag-dropdown
   (:require-macros
     [reagent.ratom   :refer [reaction]]
-    [re-com.core     :refer [handler-fn]]
-    [re-com.debug    :refer [src-coordinates]]
+    [re-com.core     :refer [handler-fn src-coordinates]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [goog.string           :as gstring]
