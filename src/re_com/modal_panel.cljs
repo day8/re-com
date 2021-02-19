@@ -72,12 +72,12 @@
         (get-in parts [:backdrop :attr]))]
      [:div    ;; Child container
       (merge
-        {:class    (str  "rc-modal-panel-child-container " (get-in parts [:child-container :class]))
+        {:class    (str  "rc-modal-panel-child-container " (get-in parts [:container :class]))
          :style (merge {:margin  "auto"
                         :z-index 2}
-                       (get-in parts [:child-container :style])
+                       (get-in parts [:container :style])
                        (when wrap-nicely? {:background-color "white"
                                            :padding          "16px"
                                            :border-radius    "6px"}))}
-        (get-in parts [:child-container :attr]))
+        (get-in parts [:container :attr]))
       child]]))
