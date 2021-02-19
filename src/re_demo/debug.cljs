@@ -11,8 +11,7 @@
 
 (defn debug-demo
   []
-  (let [unknown-arg1?          (reagent/atom false)
-        unknown-arg2?          (reagent/atom false)
+  (let [bogus-param-name?        (reagent/atom false)
         missing-on-change?     (reagent/atom false)
         boolean-selectable-fn? (reagent/atom false)
         unknown-part?          (reagent/atom false)]
@@ -62,29 +61,6 @@
                                           [p "This demo allows you to make certain kinds of mistakes with a "
                                            [:code "[datepicker ...]"] "component and to observe the output in DevTools console."]
                                           [p "Pay particular attention to the \"component stack\" section of the output. As you mouse over the components in this section, DevTools will highlight them in the running app."]
-                                          (cond->
-                                            [datepicker
-                                             :src (src-coordinates)]
-                                            (not @missing-on-change?)
-                                            (into [:on-change #()])
-                                            @unknown-arg1?
-                                            (into [:arg1-bogus-name :bogus])
-                                            @unknown-arg2?
-                                            (into [:arg2-bogus-name :bogus])
-                                            @boolean-selectable-fn?
-                                            (into [:selectable-fn true])
-                                            @unknown-part?
-                                            (into [:parts {:bogus-part-name {:style {:border "1px solid #ccc"}}}]))
-
-
-                                          #_[hyperlink
-                                             :src              (src-coordinates)
-                                             :label            "Click me"
-                                             :tooltip          "Click here to increase the click count"
-                                             :tooltip-position :left-center
-                                             :on-click         #(swap! click-count inc)
-                                             :disabled?        disabled?]
-
                                           [v-box
                                            :src      (src-coordinates)
                                            :gap      "10px"
@@ -98,17 +74,11 @@
                                                        :label "Simulate Mistakes"
                                                        :style {:margin-top "0"}]
                                                       [checkbox
-                                                       :src       (src-coordinates)
-                                                       :label     [:span "Provide " [:code ":unknown-arg1?"]]
-                                                       :model     unknown-arg1?
+                                                       :src (src-coordinates)
+                                                       :label [:span "Provide " [:code ":bogus-param-name"]]
+                                                       :model bogus-param-name?
                                                        :on-change (fn [val]
-                                                                    (reset! unknown-arg1? val))]
-                                                      [checkbox
-                                                       :src       (src-coordinates)
-                                                       :label     [:span "Provide " [:code ":unknown-arg2?"]]
-                                                       :model     unknown-arg2?
-                                                       :on-change (fn [val]
-                                                                    (reset! unknown-arg2? val))]
+                                                                    (reset! bogus-param-name? val))]
                                                       [checkbox
                                                        :src       (src-coordinates)
                                                        :label     [:span "Do not provide required " [:code ":on-change"]]
@@ -126,7 +96,19 @@
                                                        :label     [:span "Unknown part in " [:code ":parts"]]
                                                        :model     unknown-part?
                                                        :on-change (fn [val]
-                                                                    (reset! unknown-part? val))]]]]]]]]])))
+                                                                    (reset! unknown-part? val))]]]
+                                          (cond->
+                                            [datepicker
+                                             :src (src-coordinates)]
+                                            (not @missing-on-change?)
+                                            (into [:on-change #()])
+                                            @bogus-param-name?
+                                            (into [:bogus-arg-name :bogus])
+                                            @boolean-selectable-fn?
+                                            (into [:selectable-fn true])
+                                            @unknown-part?
+                                            (into [:parts {:bogus-part-name {:style {:border "1px solid #ccc"}}}]))]]]]]])))
+
 
 
 

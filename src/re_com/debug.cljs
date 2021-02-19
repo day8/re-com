@@ -5,34 +5,6 @@
     [reagent.impl.component :as    component]
     [re-com.config          :refer [debug? root-url-for-compiler-output]]))
 
-(defn src->attr
-  ([src]
-   (src->attr src (component/component-name (r/current-component))))
-  ([{:keys [file line] :as src} component-name]
-   (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
-     (if src
-       {:data-rc-src            (str file ":" line)
-        :data-rc-component-name component-name}
-       {})
-     {})))
-
-(defn component-stack
-  ([el]
-   (component-stack [] el))
-  ([stack ^js/Element el]
-   (if-not el ;; termination condition
-     stack
-     (let [src                (.. el -dataset -rcSrc)
-           component-name     (.. el -dataset -rcComponentName)
-           ^js/Element parent (.-parentElement el)]
-       (-> (conj stack
-                 {:el             el
-                  :src            src
-                  :component-name component-name
-                  :width          (.-offsetWidth el)
-                  :height         (.-offsetHeight el)})
-           (component-stack parent))))))
-
 (defn short-component-name
   "Returns the interesting part of component-name"
   [component-name]
@@ -45,7 +17,32 @@
   (-> component-name
       (string/split #"\.")
       (last)
-      (string/replace #"-render" "")))
+      (string/replace #"_render" "")
+      (string/replace #"_" "-")))
+
+(defn src->attr
+  ([src]
+   (src->attr src (component/component-name (r/current-component))))
+  ([{:keys [file line] :as src} component-name]
+   (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
+     (if src
+       {:data-rc-src       (str file ":" line)
+        :data-rc-component (short-component-name component-name)}
+       {})
+     {})))
+
+(defn component-stack
+  ([el]
+   (component-stack [] el))
+  ([stack ^js/Element el]
+   (if-not el ;; termination condition
+     stack
+     (let [^js/Element parent (.-parentElement el)]
+       (-> (conj stack
+                 {:el        el
+                  :src       (.. el -dataset -rcSrc)
+                  :component (.. el -dataset -rcComponent)})
+           (component-stack parent))))))
 
 (defn validate-args-problems-style
   []
@@ -58,34 +55,57 @@
    :vertical-align "center"
    :background      "#FF4136"})
 
+(def h1-style "background: #FF4136; color: white; font-size: 1.4em; padding: 3px")
+(def h2-style "background: #0074D9; color: white; padding: 0.25em")
+(def code-style "font-family: monospace; font-weight: bold; background: #eee; color: #333; padding: 3px")
+(def error-style "font-weight: bold")
+(def index-style "font-weight: bold; font-size: 1.1em")
+
 (defn validate-args-log
   [element problems component-name {:keys [file line] :as src}]
-  (let [monospace-style      "font-family: monospace; font-weight: bold; background: #eee; color: #333; padding: 3px"]
-    (js/console.group "%c\uD83D\uDCA5 re-com validation error " "background: #FF4136; color: white; font-size: 1.4em; padding: 3px")
-    (js/console.log (str "• ⚙️ %c[" (short-component-name component-name) " ...]") monospace-style)
+  (let [source-url    (when root-url-for-compiler-output (str root-url-for-compiler-output file ":" line))]
+    (js/console.group "%c\uD83D\uDCA5 re-com validation error " h1-style)
     (if src
-      ;; [IJ] TODO add Google Closure build config for this base URL
+      (if source-url
+        (js/console.log
+          (str "• ⚙️%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line "%c see " source-url)
+          code-style "" code-style "" code-style "")
+        (do
+          (js/console.log
+            (str "• ⚙️%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line)
+            code-style "" code-style "" code-style)
+          (js/console.log
+            (str "• \uD83D\uDCD8 Add %cre-com.config/root-url-for-compiler-output%c to your %c:closure-defines%c to enable clickable source urls")
+            code-style "" code-style "")))
       (do
-        (js/console.log (str "• \uD83D\uDCC1 in file %c" file "%c at line %c" line) monospace-style "" monospace-style)
-        (when-not (empty? root-url-for-compiler-output)
-          (js/console.log (str "• \uD83D\uDD17 source: " root-url-for-compiler-output file ":" line))))
-      (js/console.log (str "• \uD83D\uDCD8 learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug")))
+        (js/console.log
+          (str "• \uD83D\uDCC1️ %c[" (short-component-name component-name) " ...]")
+          code-style)
+        (js/console.log (str "• \uD83D\uDCD8 Learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug"))))
     (doseq [{:keys [problem arg-name expected actual validate-fn-result]} problems]
       (case problem
         ;; [IJ] TODO: :validate-fn-return
-        :unknown         (js/console.log (str "• ❓ %cUnknown parameter: %c" arg-name) "font-weight: bold" monospace-style)
-        :required        (js/console.log (str "• ❗  %cMissing required parameter: %c" arg-name) "font-weight: bold" monospace-style)
-        :validate-fn     (js/console.log (str "• ≢  Parameter %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual) monospace-style "" monospace-style "" monospace-style)
-        :validate-fn-map (js/console.log (str "• \uD83D\uDE45\uD83C\uDFFD " (:message validate-fn-result)))
+        :unknown         (js/console.log
+                           (str "• ❓ %cUnknown parameter: %c" arg-name)
+                           error-style code-style)
+        :required        (js/console.log
+                           (str "• ❗  %cMissing required parameter: %c" arg-name)
+                           error-style code-style)
+        :validate-fn     (js/console.log
+                           (str "• ≢  %cParameter %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual)
+                           error-style code-style error-style code-style error-style code-style)
+        :validate-fn-map (js/console.log
+                           (str "• \uD83D\uDE45\uD83C\uDFFD %c" (:message validate-fn-result))
+                           error-style)
         (js/console.log "• \uD83D\uDE15 Unknown problem reported")))
-    (js/console.groupCollapsed (str "• %c component stack (click me)")
-                               "background: #0074D9; color: white; padding: 0.25em ")
-    ;; [IJ] TODO: width and height etc.
-    (doseq [{:keys [i el component-name src width height]} (map-indexed #(assoc %2 :i (inc %1)) (component-stack @element))]
+    (js/console.groupCollapsed (str "• %c component stack (click me)") h2-style)
+    (doseq [{:keys [i el component src]} (map-indexed #(assoc %2 :i (inc %1)) (component-stack @element))]
       (if src
         (let [[file line] (string/split src #":")]
-          (js/console.log (str "%c" i "%c ⚙️ %c[" (short-component-name component-name) " ...]%c \uD83D\uDCC1 %c" file "%c:%c" line " %o") "font-weight: bold; font-size: 1.2em" "" monospace-style "" monospace-style "" monospace-style el))
-        (js/console.log (str "%c" i "%c \uD83C\uDF10 %o") "font-weight: bold; font-size: 1.2em" "" el)))
+          (js/console.log
+            (str "%c" i "%c ⚙️ %c[" component " ...]%c in file %c" file "%c at line %c" line "%c %o")
+            index-style "" code-style "" code-style "" code-style "" el))
+        (js/console.log (str "%c" i "%c \uD83C\uDF10 %o") index-style "" el)))
     (js/console.groupEnd)
     (js/console.groupEnd)))
 
