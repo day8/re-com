@@ -65,7 +65,11 @@
                                                                              ;; For production builds of the demo app, set goog.DEBUG
                                                                              ;; to be true so that the debugging demo page works as expected.
                                                                              goog.DEBUG                             true
-                                                                             re-com.config/force-include-args-desc? true}
+                                                                             ;; When re-com produces validation errors it tries to provide links
+                                                                             ;; to source code. These links require that you provide the root URL
+                                                                             ;; to the ClojureScript compiler output with source maps.
+                                                                             re-com.config/root-url-for-compiler-output "http://localhost:3449/compiled_dev/demo/cljs-runtime/"
+                                                                             re-com.config/force-include-args-desc?     true}
                                                            ;; For production builds of the demo app, keep the component name
                                                            ;; symbols for display in validation error logging.
                                                            :pseudo-names    true

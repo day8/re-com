@@ -13,6 +13,8 @@
 ;; debug?.
 (goog-define force-include-args-desc? false)
 
+(goog-define root-url-for-compiler-output "")
+
 ;; When include-args-desc? is true, the data structures for arguments and parts will be included in the output JS file,
 ;; otherwise they will not be included.
 (def ^boolean include-args-desc?

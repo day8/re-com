@@ -33,12 +33,35 @@
                                :src      (src-coordinates)
                                :gap      "10px"
                                :width    "450px"
-                               :children [[p "All re-com components validate arguments. When there is a validation failure the component will render as a red box."]
-                                          [p "To see examples of validation failure logs open Chrome DevTools and click options on the right."]]]
+                               :children [[title2 ":src"]
+                                          [line]
+                                          [p "All re-com components optionally accept an " [:code ":src"] "parameter which can assist with debugging at development time."]
+                                          [p "re-com also supplies a companion macro " [:code "re-com.core/src-coordinates"] "which captures source code coordinates at compile time."]
+                                          [p "The two are normally combined in the following way:"]
+                                          [:pre
+                                           "[datepicker\n  :src (re-com.core/src-coordinates)\n  ...]"]
+                                          [p "To get access to the macro you can refer it in the following way:"]
+                                          [:pre
+                                           "(ns my-app\n  (:require-macros [re-com.core :refer [src-coordinates]]))"]
+                                          [p "We strongly recommend that all your re-com code is permanently instrumented with " [:code ":src"] ". Production builds will elide this overhead."]
+                                          [p "When " [:code ":src"] "is supplied, all DOM nodes are annotated with two data attributes " [:code "data-rc-src"] " and " [:code "data-rc-component-name"] ". This is especially useful when you are understanding the structure of an unfamiliar codebase."]
+                                          [p "For a demonstration of this feature, right click and inspect the datepicker in the column to the right."]
+                                          [title2 "Closure Defines"]
+                                          [line]
+                                          [p "[IJ] TODO"]
+                                          [:code "re-com.config/root-url-for-compiler-output"]]]
+
                               [v-box
                                :src      (src-coordinates)
                                :gap      "10px"
-                               :children [[title2 "Demo"]
+                               :children [[title2 "Parameters Errors"]
+                                          [line]
+                                          [p "All re-com components validate their parameters."]
+                                          [p "When you supply incorrect parameters to a component, re-com will render
+                                              the component as a red box and log details to the DevTools console."]
+                                          [p "This demo allows you to make certain kinds of mistakes with a "
+                                           [:code "[datepicker ...]"] "component and to observe the output in DevTools console."]
+                                          [p "Pay particular attention to the \"component stack\" section of the output. As you mouse over the components in this section, DevTools will highlight them in the running app."]
                                           (cond->
                                             [datepicker
                                              :src (src-coordinates)]
@@ -72,7 +95,7 @@
                                            :children [[title
                                                        :src   (src-coordinates)
                                                        :level :level3
-                                                       :label "Interactive Parameters"
+                                                       :label "Simulate Mistakes"
                                                        :style {:margin-top "0"}]
                                                       [checkbox
                                                        :src       (src-coordinates)

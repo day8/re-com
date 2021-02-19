@@ -3,7 +3,7 @@
     [clojure.string         :as    string]
     [reagent.core           :as    r]
     [reagent.impl.component :as    component]
-    [re-com.config          :refer [debug?]]))
+    [re-com.config          :refer [debug? root-url-for-compiler-output]]))
 
 (defn src->attr
   ([src]
@@ -67,14 +67,15 @@
       ;; [IJ] TODO add Google Closure build config for this base URL
       (do
         (js/console.log (str "• \uD83D\uDCC1 in file %c" file "%c at line %c" line) monospace-style "" monospace-style)
-        (js/console.log (str "• \uD83D\uDD17 source: http://localhost:3449/compiled_dev/demo/cljs-runtime/" file ":" line)))
+        (when-not (empty? root-url-for-compiler-output)
+          (js/console.log (str "• \uD83D\uDD17 source: " root-url-for-compiler-output file ":" line))))
       (js/console.log (str "• \uD83D\uDCD8 learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug")))
     (doseq [{:keys [problem arg-name expected actual validate-fn-result]} problems]
       (case problem
         ;; [IJ] TODO: :validate-fn-return
-        :unknown         (js/console.log (str "• ❓ %cUnknown argument: %c" arg-name) "font-weight: bold" monospace-style)
-        :required        (js/console.log (str "• ❗  %cMissing required argument: %c" arg-name) "font-weight: bold" monospace-style)
-        :validate-fn     (js/console.log (str "• ≢  Argument %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual) monospace-style "" monospace-style "" monospace-style)
+        :unknown         (js/console.log (str "• ❓ %cUnknown parameter: %c" arg-name) "font-weight: bold" monospace-style)
+        :required        (js/console.log (str "• ❗  %cMissing required parameter: %c" arg-name) "font-weight: bold" monospace-style)
+        :validate-fn     (js/console.log (str "• ≢  Parameter %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual) monospace-style "" monospace-style "" monospace-style)
         :validate-fn-map (js/console.log (str "• \uD83D\uDE45\uD83C\uDFFD " (:message validate-fn-result)))
         (js/console.log "• \uD83D\uDE15 Unknown problem reported")))
     (js/console.groupCollapsed (str "• %c component stack (click me)")
