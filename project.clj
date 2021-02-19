@@ -17,7 +17,9 @@
                  [thheller/shadow-cljs        "2.11.18"  :scope "provided"]
                  [reagent                     "0.10.0"   :scope "provided"]
                  [org.clojure/core.async      "1.3.610"]
-                 [com.andrewmcveigh/cljs-time "0.5.2"]]
+                 [com.andrewmcveigh/cljs-time "0.5.2"]
+                 [garden                      "1.3.10"]
+                 [net.dhleong/spade           "1.0.4"]]
 
   :plugins      [[day8/lein-git-inject "0.0.14"]
                  [lein-shadow          "0.3.1"]
