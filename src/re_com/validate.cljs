@@ -146,7 +146,7 @@
                                (validate-fns?    (:validated-args arg-defs) passed-args)
                                (remove nil?))]
       (when-not (empty? problems)
-        [debug/validate-args-problems
+        [debug/validate-args-error
          :src            src
          :problems       problems
          :component-name (component/component-name (reagent/current-component))]))))

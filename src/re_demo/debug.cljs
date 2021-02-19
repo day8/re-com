@@ -4,6 +4,7 @@
   (:require
     [re-com.core       :refer [h-box v-box box gap line label title checkbox hyperlink p]]
     [re-com.datepicker :refer [datepicker]]
+    [re-com.debug      :refer [component-stack-spy]]
     [re-com.buttons    :refer [hyperlink-parts-desc hyperlink-args-desc]]
     [re-demo.utils     :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
     [re-com.util       :refer [px]]
@@ -28,27 +29,28 @@
                   [h-box
                    :src      (src-coordinates)
                    :gap      "100px"
-                   :children [[v-box
-                               :src      (src-coordinates)
-                               :gap      "10px"
-                               :width    "450px"
-                               :children [[title2 ":src"]
-                                          [line]
-                                          [p "All re-com components optionally accept an " [:code ":src"] "parameter which can assist with debugging at development time."]
-                                          [p "re-com also supplies a companion macro " [:code "re-com.core/src-coordinates"] "which captures source code coordinates at compile time."]
-                                          [p "The two are normally combined in the following way:"]
-                                          [:pre
-                                           "[datepicker\n  :src (re-com.core/src-coordinates)\n  ...]"]
-                                          [p "To get access to the macro you can refer it in the following way:"]
-                                          [:pre
-                                           "(ns my-app\n  (:require-macros [re-com.core :refer [src-coordinates]]))"]
-                                          [p "We strongly recommend that all your re-com code is permanently instrumented with " [:code ":src"] ". Production builds will elide this overhead."]
-                                          [p "When " [:code ":src"] "is supplied, all DOM nodes are annotated with two data attributes " [:code "data-rc-src"] " and " [:code "data-rc-component-name"] ". This is especially useful when you are understanding the structure of an unfamiliar codebase."]
-                                          [p "For a demonstration of this feature, right click and inspect the datepicker in the column to the right."]
-                                          [title2 "Closure Defines"]
-                                          [line]
-                                          [p "[IJ] TODO"]
-                                          [:code "re-com.config/root-url-for-compiler-output"]]]
+                   :children [[component-stack-spy
+                               :child [v-box
+                                       :src      (src-coordinates)
+                                       :gap      "10px"
+                                       :width    "450px"
+                                       :children [[title2 ":src"]
+                                                  [line]
+                                                  [p "All re-com components optionally accept an " [:code ":src"] "parameter which can assist with debugging at development time."]
+                                                  [p "re-com also supplies a companion macro " [:code "re-com.core/src-coordinates"] "which captures source code coordinates at compile time."]
+                                                  [p "The two are normally combined in the following way:"]
+                                                  [:pre
+                                                   "[datepicker\n  :src (re-com.core/src-coordinates)\n  ...]"]
+                                                  [p "To get access to the macro you can refer it in the following way:"]
+                                                  [:pre
+                                                   "(ns my-app\n  (:require-macros [re-com.core :refer [src-coordinates]]))"]
+                                                  [p "We strongly recommend that all your re-com code is permanently instrumented with " [:code ":src"] ". Production builds will elide this overhead."]
+                                                  [p "When " [:code ":src"] "is supplied, all DOM nodes are annotated with two data attributes " [:code "data-rc-src"] " and " [:code "data-rc-component-name"] ". This is especially useful when you are understanding the structure of an unfamiliar codebase."]
+                                                  [p "For a demonstration of this feature, right click and inspect the datepicker in the column to the right."]
+                                                  [title2 "Closure Defines"]
+                                                  [line]
+                                                  [p "[IJ] TODO"]
+                                                  [:code "re-com.config/root-url-for-compiler-output"]]]]
 
                               [v-box
                                :src      (src-coordinates)

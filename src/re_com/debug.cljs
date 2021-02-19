@@ -25,10 +25,10 @@
    (src->attr src (component/component-name (r/current-component))))
   ([{:keys [file line] :as src} component-name]
    (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
-     (if src
-       {:data-rc-src       (str file ":" line)
-        :data-rc-component (short-component-name component-name)}
-       {})
+     (merge
+       {:data-rc-component (short-component-name component-name)}
+       (when src
+         {:data-rc-src     (str file ":" line)}))
      {})))
 
 (defn component-stack
@@ -61,70 +61,88 @@
 (def error-style "font-weight: bold")
 (def index-style "font-weight: bold; font-size: 1.1em")
 
-(defn validate-args-log
+(def collision-icon "\uD83D\uDCA5")
+(def gear-icon "⚙️") ;; the trailing 'space' is an intentional modifier, not an actual space, so do not delete it!
+(def blue-book-icon "\uD83D\uDCD8")
+(def question-mark-icon "❓")
+(def exclamation-mark-icon "❗")
+(def noncongruent-icon "≢")
+(def stop-icon "\uD83D\uDE45\uD83C\uDFFD")
+(def confused-icon "\uD83D\uDE15")
+(def globe-icon "\uD83C\uDF10")
+
+(defn log-component-stack
+  [stack]
+  (js/console.groupCollapsed (str "• %c Component stack (click me)") h2-style)
+  (doseq [{:keys [i el component src]} (map-indexed #(assoc %2 :i (inc %1)) stack)]
+    (if component
+      (if src
+        (let [[file line] (string/split src #":")]
+          (js/console.log
+            (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c %o")
+            index-style "" code-style "" code-style "" code-style "" el))
+        (js/console.log
+          (str "%c" i "%c " gear-icon " %c[" component " ...]%c %o")
+          index-style "" code-style "" el))
+      (js/console.log (str "%c" i "%c " globe-icon " %o") index-style "" el)))
+  (js/console.groupEnd))
+
+(defn log-validate-args-error
   [element problems component-name {:keys [file line] :as src}]
   (let [source-url    (when root-url-for-compiler-output (str root-url-for-compiler-output file ":" line))]
-    (js/console.group "%c\uD83D\uDCA5 re-com validation error " h1-style)
+    (js/console.group (str "%c" collision-icon " re-com validation error ") h1-style)
     (if src
       (if source-url
         (js/console.log
-          (str "• ⚙️%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line "%c see " source-url)
+          (str "• " gear-icon "%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line "%c see " source-url)
           code-style "" code-style "" code-style "")
         (do
           (js/console.log
-            (str "• ⚙️%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line)
+            (str "• " gear-icon "%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line)
             code-style "" code-style "" code-style)
           (js/console.log
-            (str "• \uD83D\uDCD8 Add %cre-com.config/root-url-for-compiler-output%c to your %c:closure-defines%c to enable clickable source urls")
+            (str "• " blue-book-icon " Add %cre-com.config/root-url-for-compiler-output%c to your %c:closure-defines%c to enable clickable source urls")
             code-style "" code-style "")))
       (do
         (js/console.log
-          (str "• \uD83D\uDCC1️ %c[" (short-component-name component-name) " ...]")
+          (str "• " gear-icon "%c[" (short-component-name component-name) " ...]")
           code-style)
-        (js/console.log (str "• \uD83D\uDCD8 Learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug"))))
+        (js/console.log (str "• " blue-book-icon " Learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug"))))
     (doseq [{:keys [problem arg-name expected actual validate-fn-result]} problems]
       (case problem
         ;; [IJ] TODO: :validate-fn-return
         :unknown         (js/console.log
-                           (str "• ❓ %cUnknown parameter: %c" arg-name)
+                           (str "• " question-mark-icon " %cUnknown parameter: %c" arg-name)
                            error-style code-style)
         :required        (js/console.log
-                           (str "• ❗  %cMissing required parameter: %c" arg-name)
+                           (str "• " exclamation-mark-icon "  %cMissing required parameter: %c" arg-name)
                            error-style code-style)
         :validate-fn     (js/console.log
-                           (str "• ≢  %cParameter %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual)
+                           (str "• " noncongruent-icon "  %cParameter %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual)
                            error-style code-style error-style code-style error-style code-style)
         :validate-fn-map (js/console.log
-                           (str "• \uD83D\uDE45\uD83C\uDFFD %c" (:message validate-fn-result))
+                           (str "• " stop-icon " %c" (:message validate-fn-result))
                            error-style)
-        (js/console.log "• \uD83D\uDE15 Unknown problem reported")))
-    (js/console.groupCollapsed (str "• %c component stack (click me)") h2-style)
-    (doseq [{:keys [i el component src]} (map-indexed #(assoc %2 :i (inc %1)) (component-stack @element))]
-      (if src
-        (let [[file line] (string/split src #":")]
-          (js/console.log
-            (str "%c" i "%c ⚙️ %c[" component " ...]%c in file %c" file "%c at line %c" line "%c %o")
-            index-style "" code-style "" code-style "" code-style "" el))
-        (js/console.log (str "%c" i "%c \uD83C\uDF10 %o") index-style "" el)))
-    (js/console.groupEnd)
+        (js/console.log "• " confused-icon " Unknown problem reported")))
+    (log-component-stack (component-stack @element))
     (js/console.groupEnd)))
 
-(defn validate-args-problems
+(defn validate-args-error
   [& {:keys [problems component-name src]}]
   (let [element                 (atom nil)
         internal-problems       (atom problems)
         internal-component-name (atom component-name)
         internal-src            (atom src)]
     (r/create-class
-      {:display-name "validate-args-problems"
+      {:display-name "validate-args-error"
 
        :component-did-mount
        (fn [this]
-         (validate-args-log element @internal-problems @internal-component-name @internal-src))
+         (log-validate-args-error element @internal-problems @internal-component-name @internal-src))
 
        :component-did-update
        (fn [this argv old-state snapshot]
-         (validate-args-log element @internal-problems @internal-component-name @internal-src))
+         (log-validate-args-error element @internal-problems @internal-component-name @internal-src))
 
        :reagent-render
        (fn [& {:keys [problems component-name src]}]
@@ -137,5 +155,63 @@
              :ref      (fn [el] (reset! element el))
              :style    (validate-args-problems-style)}
             (src->attr src component-name))
-          "\uD83D\uDCA5"])})))
+          collision-icon])})))
 
+(defn component-stack-spy
+  [& {:keys [child src]}]
+  (let [element (atom nil)]
+    (r/create-class
+      {:display-name "component-stack-spy"
+
+       :component-did-mount
+       (fn [this]
+         (let [first-child (first (.-children @element))]
+           (js/console.group "%c[component-stack-spy ...]%c component-did-mount" code-style "")
+           (log-component-stack (component-stack first-child))
+           (js/console.groupEnd)))
+
+       :component-did-update
+       (fn [this argv old-state snapshot]
+         (let [first-child (first (.-children @element))]
+           (js/console.group "%c[component-stack-spy ...]%c component-did-update" code-style "")
+           (log-component-stack (component-stack first-child))
+           (js/console.groupEnd)))
+
+       :reagent-render
+       (fn [& {:keys [child src]}]
+         [:div
+          (merge
+            {:ref  (fn [el] (reset! element el))}
+            (src->attr src))
+          child])})))
+
+;; The advantage of this impl is it does not inject anything into the DOM, but it only works for re-come components and
+;; not hiccup etc.
+#_(defn component-stack-spy
+    "A component that will log the component stack of its child while not producing any DOM output. Only supports re-com
+   components that accept an :attr parameter."
+    [& {:keys [child]}]
+    (let [element (atom nil)]
+      (r/create-class
+        {:display-name "component-stack-spy"
+
+         :component-did-mount
+         (fn [this]
+           (js/console.group "%c[component-stack-spy ...]%c component-did-mount" code-style "")
+           (log-component-stack (component-stack @element))
+           (js/console.groupEnd))
+
+         :component-did-update
+         (fn [this argv old-state snapshot]
+           (js/console.group "%c[component-stack-spy ...]%c component-did-update" code-style "")
+           (log-component-stack (component-stack @element))
+           (js/console.groupEnd))
+
+         :reagent-render
+         (fn [& {:keys [child]}]
+           (let [old-child-args-as-map (apply hash-map (rest child))
+                 old-ref-fn            (get-in old-child-args-as-map [:attr :ref])
+                 ref-fn                (fn [el] (reset! element el) (when (fn? old-ref-fn) (old-ref-fn el)))
+                 child-args-as-map     (assoc-in old-child-args-as-map [:attr :ref] ref-fn)
+                 child-args-as-kw-args (reduce into [] (seq child-args-as-map))]
+             (into [(first child)] child-args-as-kw-args)))})))
