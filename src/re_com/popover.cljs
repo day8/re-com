@@ -4,7 +4,7 @@
     [re-com.validate     :refer [validate-args-macro]])
   (:require
     [re-com.config       :refer [include-args-desc?]]
-    [re-com.debug        :refer [src->attr]]
+    [re-com.debug        :refer [->attr]]
     [re-com.util         :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
     [re-com.box          :refer [box h-box v-box flex-child-style flex-flow-style align-style]]
     [re-com.close-button :refer [close-button]]
@@ -153,7 +153,7 @@
                    :background-color "black"
                    :opacity          (or opacity 0.0)}
         :on-click (handler-fn (on-click))}
-       (src->attr src))]))
+       (->attr src args))]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -182,7 +182,7 @@
          {:class (str "popover-title rc-popover-title " class)
           :style (merge (flex-child-style "inherit")
                         {:font-size "18px"})}
-         (src->attr src))
+         (->attr src args))
        [h-box
         :src      (src-coordinates)
         :justify  :between
@@ -335,7 +335,7 @@
                                   :opacity   (if @ready-to-show? "1" "0")
                                   :max-width "none"
                                   :padding   "0px"})}
-                  (src->attr src))
+                  (->attr src args))
                 [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color popover-border-color]
                 (when title title)
                 (into [:div.popover-content {:style {:padding padding}}] children)])))}))))
@@ -415,7 +415,7 @@
                                                       :left      (px @left-offset)
                                                       :top       (px @top-offset)})
                                       style)}
-                       (src->attr src)
+                       (->attr src args)
                        attr)
                 (when (and (deref-or-value showing-injected?)  on-cancel)
                   [backdrop
@@ -491,7 +491,7 @@
                   (merge {:class (str "rc-popover-anchor-wrapper display-inline-flex " class)
                           :style (merge (flex-child-style "inherit")
                                         style)}
-                         (src->attr src)
+                         (->attr src args)
                          attr)
                   [:div                                ;; Wrapper around the anchor and the "point"
                    {:class (str "display-inline-flex rc-point-wrapper " (get-in parts [:point-wrapper :class]))

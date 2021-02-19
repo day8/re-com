@@ -3,7 +3,7 @@
     [re-com.core     :refer [handler-fn src-coordinates]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [src->attr]]
+    [re-com.debug    :refer [->attr]]
     [re-com.util     :refer [deref-or-value position-for-id item-for-id]]
     [re-com.box      :refer [align-style flex-child-style]]
     [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
@@ -606,7 +606,7 @@
                                     (when tooltip
                                       {:on-mouse-over (handler-fn (reset! over? true))
                                        :on-mouse-out (handler-fn (reset! over? false))})
-                                    (src->attr src)
+                                    (->attr src args)
                                     attr)
                                   (cond
                                     just-drop? nil

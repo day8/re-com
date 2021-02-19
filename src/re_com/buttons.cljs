@@ -4,7 +4,7 @@
   (:require
     [re-com.util     :refer [deref-or-value px]]
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [src->attr]]
+    [re-com.debug    :refer [->attr]]
     [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
                              string-or-hiccup? css-style? html-attr? string-or-atom? parts?] :refer-macros [validate-args-macro]]
     [re-com.popover  :refer [popover-tooltip]]

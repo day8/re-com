@@ -3,7 +3,7 @@
     [re-com.core     :refer [handler-fn src-coordinates]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [src->attr]]
+    [re-com.debug    :refer [->attr]]
     [re-com.util     :refer [deref-or-value px]]
     [re-com.validate :refer [string-or-hiccup? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
     [re-com.box      :refer [box]]

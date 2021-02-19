@@ -4,7 +4,7 @@
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [src->attr]]
+    [re-com.debug    :refer [->attr]]
     [re-com.util     :refer [deref-or-value]]
     [re-com.box      :refer [flex-child-style]]
     [re-com.validate :refer [css-style? html-attr? parts? vector-of-maps?
@@ -55,7 +55,7 @@
        (merge {:class (str "nav nav-tabs noselect rc-tabs " class)
                :style (merge (flex-child-style "none")
                              (get-in parts [:wrapper :style]))}
-              (src->attr src)
+              (->attr src args)
               attr)
        (for [t tabs]
          (let [id        (id-fn  t)
@@ -105,7 +105,7 @@
         {:name :parts            :required false                        :type "map"                    :validate-fn (parts? bar-tabs-parts) :description "See Parts section below."}))))
 
 (defn- bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position vertical? class style attr parts validate? src]}]
+  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position vertical? class style attr parts validate? src] :as args}]
   (let [showing (reagent/atom nil)]
     (fn [& {:keys [model tabs]}]
       (let [current  (deref-or-value model)
@@ -116,7 +116,7 @@
                  {:class (str "noselect btn-group" (if vertical? "-vertical") " rc-tabs " class)
                   :style (merge (flex-child-style "none")
                                 (get-in parts [:wrapper :style]))}
-                 (src->attr src)
+                 (->attr src args)
                  attr)]
          (for [t tabs]
            (let [id        (id-fn t)
@@ -217,7 +217,7 @@
 
 
 (defn- pill-tabs    ;; tabs-like in action
-  [& {:keys [model tabs on-change id-fn label-fn vertical? class style attr parts src]}]
+  [& {:keys [model tabs on-change id-fn label-fn vertical? class style attr parts src] :as args}]
   (let [current  (deref-or-value model)
         tabs     (deref-or-value tabs)
         _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
@@ -227,7 +227,7 @@
         :style (merge (flex-child-style "none")
                       (get-in parts [:wrapper :style]))
         :role  "tabslist"}
-       (src->attr src)
+       (->attr src args)
        attr)
      (for [t tabs]
        (let [id        (id-fn  t)

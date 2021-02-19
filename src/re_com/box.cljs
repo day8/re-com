@@ -5,7 +5,7 @@
   (:require
     [clojure.string   :as    string]
     [re-com.config    :refer [include-args-desc?]]
-    [re-com.debug     :refer [src->attr]]
+    [re-com.debug     :refer [->attr]]
     [re-com.validate  :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
                                       scroll-options-list string-or-hiccup? css-style? html-attr?]]))
 
@@ -123,7 +123,8 @@
 (defn- box-base
   "This should generally NOT be used as it is the basis for the box, scroller and border components"
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self
-             margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr src]}]
+             margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr src]
+      :as   args}]
   (let [s (merge
             (flex-flow-style "inherit")
             (flex-child-style size)
@@ -153,7 +154,7 @@
             style)]
     [:div
      (merge
-       (src->attr src)
+       (->attr src args)
        {:class (str class-name "display-flex " class) :style s}
        attr)
      child]))
@@ -187,7 +188,7 @@
               style)]
       [:div
        (merge
-         (src->attr src)
+         (->attr src args)
          {:class (str "rc-gap " class) :style s}
          attr)])))
 
@@ -219,7 +220,7 @@
               style)]
       [:div
        (merge
-         (src->attr src)
+         (->attr src args)
          {:class (str "rc-line " class) :style s}
          attr)])))
 
@@ -283,7 +284,7 @@
                      children)]
       (into [:div
              (merge
-               (src->attr src)
+               (->attr src args)
                {:class (str "rc-h-box display-flex " class) :style s}
                attr)]
             children))))
@@ -347,7 +348,7 @@
                      children)]
       (into [:div
              (merge
-               (src->attr src)
+               (->attr src args)
                {:class (str "rc-v-box display-flex " class) :style s}
                attr)]
             children))))

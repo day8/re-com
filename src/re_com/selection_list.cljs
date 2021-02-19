@@ -4,7 +4,7 @@
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config       :refer [include-args-desc?]]
-    [re-com.debug        :refer [src->attr]]
+    [re-com.debug        :refer [->attr]]
     [re-com.text         :refer [label]]
     [re-com.checkbox     :refer [checkbox]]
     [re-com.radio-button :refer [radio-button]]

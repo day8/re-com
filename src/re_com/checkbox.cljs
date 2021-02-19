@@ -3,7 +3,7 @@
     [re-com.core     :refer [handler-fn src-coordinates]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.debug     :refer [src->attr]]
+    [re-com.debug     :refer [->attr]]
     [re-com.config    :refer [include-args-desc?]]
     [re-com.util      :refer [deref-or-value px]]
     [re-com.popover   :refer [popover-tooltip]]

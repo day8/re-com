@@ -6,7 +6,7 @@
     [re-com.buttons      :refer [button]]
     [re-com.close-button :refer [close-button]]
     [re-com.config       :refer [include-args-desc?]]
-    [re-com.debug        :refer [src->attr]]
+    [re-com.debug        :refer [->attr]]
     [re-com.util         :refer [deref-or-value]]
     [re-com.validate     :refer [string-or-hiccup? alert-type? alert-types-list
                                  vector-of-maps? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]))
@@ -66,7 +66,7 @@
                :style (merge (flex-child-style "none")
                              {:padding padding}
                              style)}
-              (src->attr src)
+              (->attr src args)
               attr)
        (when heading
          [h-box

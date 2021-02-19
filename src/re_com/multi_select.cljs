@@ -7,7 +7,7 @@
     [clojure.string              :as string]
     [goog.string                 :as gstring]
     [re-com.config               :refer [include-args-desc?]]
-    [re-com.debug                :refer [src->attr]]
+    [re-com.debug                :refer [->attr]]
     [re-com.input-text           :refer [input-text]]
     [re-com.box                  :as box]
     [re-com.text                 :as text]
@@ -420,7 +420,7 @@
                               {:overflow "hidden"
                                :width    width}
                               style)}
-               (src->attr src)
+               (->attr src args)
                attr) ;; Prevent user text selection
              [box/h-box
               :src        (src-coordinates)

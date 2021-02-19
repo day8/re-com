@@ -3,13 +3,14 @@
     [re-com.core       :refer [src-coordinates]])
   (:require
     [re-com.core       :refer [h-box v-box box gap line label title checkbox hyperlink p]]
+    [re-com.debug      :refer [component-stack-spy]]
     [re-com.datepicker :refer [datepicker]]
     [reagent.core      :as    reagent]
     [re-demo.utils     :refer [panel-title title2]]))
 
 (defn debug-demo
   []
-  (let [bogus-param-name?        (reagent/atom false)
+  (let [bogus-param-name?      (reagent/atom false)
         missing-on-change?     (reagent/atom false)
         boolean-selectable-fn? (reagent/atom false)
         unknown-part?          (reagent/atom false)]
@@ -26,30 +27,30 @@
                   [h-box
                    :src      (src-coordinates)
                    :gap      "100px"
-                   :children [[v-box
-                               :src      (src-coordinates)
-                               :gap      "10px"
-                               :width    "450px"
-                               :children [[title2 ":src"]
-                                          [line]
-                                          [p "All re-com components accept a " [:code ":src"] " parameter which provides the source code coordinates of your usage. " 
-                                             "The value is expected to be a map with two keys " [:code ":file"] " and " [:code ":line"] "."]
-                                          [p "re-com reflects these coordinates back to you when reporting errors and showing component stacks, which can greatly improve the debugging experience. "]
-                                          [ p "re-com also supplies the companion macro " [:code "re-com.core/src-coordinates"] " which captures source code coordinates as a map."
-                                              " The two should be combined like this:"]
-                                          [:pre
-                                           "[button\n  :src   (re-com.core/src-coordinates)    ;; <-- here\n  :label \"click me\"\n  ...]"]
-                                          [p "To get use the macro, you'll need to refer it as follows:"]
-                                          [:pre
-                                           "(ns my-app\n  (:require-macros [re-com.core :refer [src-coordinates]]))"]
-                                          [p "Also, when " [:code ":src"] "is supplied, the DOM node representing the component is annotated with a " [:code "data-rc-src"] "  attribute containing the source code coordinates. "
-                                             "As a result, there's a direct link between a DOM element and the code which created it, which is especially useful when you are understanding the structure of an unfamiliar codebase (including your own after an absence)."]
-                                          [p "This feature is sufficiently useful that we recommend you leave your re-com code permanently instrumented with " [:code ":src"] ". Every single component, all the time. In production builds the macro returns " [:code "nil"] " eliding any overhead."]
-                                          [title2 "Closure Defines"]
-                                          [line]
-                                          [p "[IJ] TODO"]
-                                          [:code "re-com.config/root-url-for-compiler-output"]]]
-
+                   :children [[component-stack-spy
+                               :child [v-box
+                                       :src      (src-coordinates)
+                                       :gap      "10px"
+                                       :width    "450px"
+                                       :children [[title2 ":src"]
+                                                  [line]
+                                                  [p "All re-com components accept a " [:code ":src"] " parameter which provides the source code coordinates of your usage. "
+                                                     "The value is expected to be a map with two keys " [:code ":file"] " and " [:code ":line"] "."]
+                                                  [p "re-com reflects these coordinates back to you when reporting errors and showing component stacks, which can greatly improve the debugging experience. "]
+                                                  [ p "re-com also supplies the companion macro " [:code "re-com.core/src-coordinates"] " which captures source code coordinates as a map."
+                                                      " The two should be combined like this:"]
+                                                  [:pre
+                                                   "[button\n  :src   (re-com.core/src-coordinates)    ;; <-- here\n  :label \"click me\"\n  ...]"]
+                                                  [p "To get use the macro, you'll need to refer it as follows:"]
+                                                  [:pre
+                                                   "(ns my-app\n  (:require-macros [re-com.core :refer [src-coordinates]]))"]
+                                                  [p "Also, when " [:code ":src"] "is supplied, the DOM node representing the component is annotated with a " [:code "data-rc-src"] "  attribute containing the source code coordinates. "
+                                                     "As a result, there's a direct link between a DOM element and the code which created it, which is especially useful when you are understanding the structure of an unfamiliar codebase (including your own after an absence)."]
+                                                  [p "This feature is sufficiently useful that we recommend you leave your re-com code permanently instrumented with " [:code ":src"] ". Every single component, all the time. In production builds the macro returns " [:code "nil"] " eliding any overhead."]
+                                                  [title2 "Closure Defines"]
+                                                  [line]
+                                                  [p "[IJ] TODO"]
+                                                  [:code "re-com.config/root-url-for-compiler-output"]]]]
                               [v-box
                                :src      (src-coordinates)
                                :gap      "10px"

@@ -5,7 +5,7 @@
   (:require
     [reagent.core    :as    reagent]
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [src->attr]]
+    [re-com.debug    :refer [->attr]]
     [re-com.validate :refer [css-style? html-attr? parts? number-or-string?]]
     [re-com.text     :refer [label]]
     [re-com.box      :refer [h-box gap]]

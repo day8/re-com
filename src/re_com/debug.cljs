@@ -1,5 +1,7 @@
 (ns re-com.debug
   (:require
+    [goog.object            :as    gobj]
+    [cljs.reader            :refer [read-string]]
     [clojure.string         :as    string]
     [reagent.core           :as    r]
     [reagent.impl.component :as    component]
@@ -20,15 +22,39 @@
       (string/replace #"_render" "")
       (string/replace #"_" "-")))
 
-(defn src->attr
-  ([src]
-   (src->attr src (component/component-name (r/current-component))))
-  ([{:keys [file line] :as src} component-name]
+(defn prune-args
+  [args]
+  (-> ;; Remove args with nil value
+      (apply dissoc args (for [[k v] args :when (nil? v)] k))
+      ;; Remove args already represented in component hierarchy
+      (dissoc :src :child :children :panel-1 :panel-2)))
+
+(defn ->attr
+  ([src args]
+   (->attr src (component/component-name (r/current-component)) args))
+  ([{:keys [file line] :as src} component-name args]
    (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
-     (merge
-       {:data-rc-component (short-component-name component-name)}
-       (when src
-         {:data-rc-src     (str file ":" line)}))
+     (let [pruned-args (prune-args args)
+           ref-fn      (fn [el]
+                         ;; If the ref callback is defined as an inline function, it will get called twice during updates,
+                         ;; first with null and then again with the DOM element.
+                         ;;
+                         ;; See: 'Caveats with callback refs' at
+                         ;; https://reactjs.org/docs/refs-and-the-dom.html#caveats-with-callback-refs
+                         (when el
+                           ;; Remember args so they can be logged later:
+                           (gobj/set el "__rc-args" pruned-args))
+                         ;; User may have supplied their own ref like so: {:attr {:ref (fn ...)}}
+                         (when-let [user-ref-fn (get-in args [:attr :ref])]
+                           (when (fn? user-ref-fn)
+                             (user-ref-fn el))))]
+       (cond->
+         {:ref               ref-fn
+          :data-rc-component (short-component-name component-name)
+          ;; [IJ] TODO: Remove data-rc-args when :ref solution is working.
+          :data-rc-args      (pr-str pruned-args)}
+         src
+         (assoc :data-rc-src (str file ":" line))))
      {})))
 
 (defn component-stack
@@ -37,12 +63,20 @@
   ([stack ^js/Element el]
    (if-not el ;; termination condition
      stack
-     (let [^js/Element parent (.-parentElement el)]
-       (-> (conj stack
+     (let [component          (.. el -dataset -rcComponent)
+           ^js/Element parent (.-parentElement el)]
+       (->
+         (if (= "component-stack-spy" component)
+           stack
+           (conj stack
                  {:el        el
                   :src       (.. el -dataset -rcSrc)
-                  :component (.. el -dataset -rcComponent)})
-           (component-stack parent))))))
+                  :component component
+                  ;; [IJ] TODO: This often returns undefined.
+                  #_#_:args      (.-__rc-args el)
+                  ;; [IJ] TODO: Remove data-rc-args when :ref solution is working.
+                  :args      (read-string (.. el -dataset -rcArgs))}))
+         (component-stack parent))))))
 
 (defn validate-args-problems-style
   []
@@ -74,13 +108,13 @@
 (defn log-component-stack
   [stack]
   (js/console.groupCollapsed (str "• %c Component stack (click me)") h2-style)
-  (doseq [{:keys [i el component src]} (map-indexed #(assoc %2 :i (inc %1)) stack)]
+  (doseq [{:keys [i el component src args]} (map-indexed #(assoc %2 :i (inc %1)) stack)]
     (if component
       (if src
         (let [[file line] (string/split src #":")]
           (js/console.log
-            (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c %o")
-            index-style "" code-style "" code-style "" code-style "" el))
+            (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      DOM: %o\n      Parameters: %O")
+            index-style "" code-style "" code-style "" code-style "" el args))
         (js/console.log
           (str "%c" i "%c " gear-icon " %c[" component " ...]%c %o")
           index-style "" code-style "" el))
@@ -154,64 +188,33 @@
             {:title    "re-com validation error. Look in the devtools console."
              :ref      (fn [el] (reset! element el))
              :style    (validate-args-problems-style)}
-            (src->attr src component-name))
+            (->attr src component-name))
           collision-icon])})))
 
 (defn component-stack-spy
   [& {:keys [child src]}]
-  (let [element (atom nil)]
+  (let [element (atom nil)
+        ref-fn  (fn [el]
+                  ;; If the ref callback is defined as an inline function, it will get called twice during updates,
+                  ;; first with null and then again with the DOM element.
+                  ;;
+                  ;; See: 'Caveats with callback refs' at
+                  ;; https://reactjs.org/docs/refs-and-the-dom.html#caveats-with-callback-refs
+                  (when el
+                    (reset! element el)))
+        log-fn  (fn []
+                  (let [el @element]
+                    (when el
+                      (let [first-child (first (.-children el))]
+                        (js/console.group "%c[component-stack-spy ...]" code-style)
+                        (log-component-stack (component-stack first-child))
+                        (js/console.groupEnd)))))]
     (r/create-class
-      {:display-name "component-stack-spy"
-
-       :component-did-mount
-       (fn [this]
-         (let [first-child (first (.-children @element))]
-           (js/console.group "%c[component-stack-spy ...]%c component-did-mount" code-style "")
-           (log-component-stack (component-stack first-child))
-           (js/console.groupEnd)))
-
-       :component-did-update
-       (fn [this argv old-state snapshot]
-         (let [first-child (first (.-children @element))]
-           (js/console.group "%c[component-stack-spy ...]%c component-did-update" code-style "")
-           (log-component-stack (component-stack first-child))
-           (js/console.groupEnd)))
-
+      {:display-name         "component-stack-spy"
+       :component-did-mount  log-fn
+       :component-did-update log-fn
        :reagent-render
        (fn [& {:keys [child src]}]
          [:div
-          (merge
-            {:ref  (fn [el] (reset! element el))}
-            (src->attr src))
+          (->attr src {:attr {:ref ref-fn}})
           child])})))
-
-;; The advantage of this impl is it does not inject anything into the DOM, but it only works for re-come components and
-;; not hiccup etc.
-#_(defn component-stack-spy
-    "A component that will log the component stack of its child while not producing any DOM output. Only supports re-com
-   components that accept an :attr parameter."
-    [& {:keys [child]}]
-    (let [element (atom nil)]
-      (r/create-class
-        {:display-name "component-stack-spy"
-
-         :component-did-mount
-         (fn [this]
-           (js/console.group "%c[component-stack-spy ...]%c component-did-mount" code-style "")
-           (log-component-stack (component-stack @element))
-           (js/console.groupEnd))
-
-         :component-did-update
-         (fn [this argv old-state snapshot]
-           (js/console.group "%c[component-stack-spy ...]%c component-did-update" code-style "")
-           (log-component-stack (component-stack @element))
-           (js/console.groupEnd))
-
-         :reagent-render
-         (fn [& {:keys [child]}]
-           (let [old-child-args-as-map (apply hash-map (rest child))
-                 old-ref-fn            (get-in old-child-args-as-map [:attr :ref])
-                 ref-fn                (fn [el] (reset! element el) (when (fn? old-ref-fn) (old-ref-fn el)))
-                 child-args-as-map     (assoc-in old-child-args-as-map [:attr :ref] ref-fn)
-                 child-args-as-kw-args (reduce into [] (seq child-args-as-map))]
-             (into [(first child)] child-args-as-kw-args)))})))

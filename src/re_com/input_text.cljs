@@ -4,7 +4,7 @@
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [src->attr]]
+    [re-com.debug    :refer [->attr]]
     [re-com.util     :refer [deref-or-value px]]
     [re-com.popover  :refer [popover-tooltip]]
     [re-com.throbber :refer [throbber]]

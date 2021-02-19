@@ -4,7 +4,7 @@
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [src->attr]]
+    [re-com.debug    :refer [->attr]]
     [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr? parts?]]))
 
 ;; ------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@
                             :height   "100%"
                             :z-index  1020}
                            style)}
-            (src->attr src)
+            (->attr src args)
             attr)
      [:div    ;; Backdrop
       (merge

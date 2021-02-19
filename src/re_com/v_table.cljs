@@ -6,7 +6,7 @@
   (:require
     [reagent.core       :as    reagent]
     [re-com.config      :refer [debug? include-args-desc?]]
-    [re-com.debug       :refer [src->attr]]
+    [re-com.debug       :refer [->attr]]
     [re-com.box         :as    box]
     [re-com.util        :as    util :refer [deref-or-value px-n]]
     [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]

@@ -3,7 +3,7 @@
     [re-com.core     :refer [handler-fn src-coordinates]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [src->attr]]
+    [re-com.debug    :refer [->attr]]
     [re-com.util     :refer [get-element-by-id sum-scroll-offsets]]
     [re-com.box      :refer [flex-child-style flex-flow-style]]
     [re-com.validate :refer [string-or-hiccup? number-or-string? html-attr? css-style? parts?] :refer-macros [validate-args-macro]]
@@ -150,7 +150,7 @@
                                           {:on-mouse-up   (handler-fn (stop-drag))
                                            :on-mouse-move (handler-fn (mousemove event))
                                            :on-mouse-out  (handler-fn (mouseout event))})
-                                        (src->attr src)
+                                        (->attr src args)
                                         attr))
 
           make-panel-attrs     (fn [class style attr src in-drag? percentage]
@@ -164,7 +164,7 @@
                                                   {:overflow "hidden"} ;; TODO: Shouldn't have this...test removing it
                                                   (when in-drag? {:pointer-events "none"})
                                                   style)}
-                                   (src->attr src)
+                                   (->attr src args)
                                    attr))
 
           make-splitter-attrs  (fn [class style attr src]
@@ -177,7 +177,7 @@
                                                           {:cursor "col-resize"}
                                                           (when @over? {:background-color "#f8f8f8"})
                                                           style)}
-                                   (src->attr src)
+                                   (->attr src args)
                                    attr))]
 
       (fn h-split-render
@@ -268,7 +268,7 @@
                                           {:on-mouse-up   (handler-fn (stop-drag))
                                            :on-mouse-move (handler-fn (mousemove event))
                                            :on-mouse-out  (handler-fn (mouseout event))})
-                                        (src->attr src)
+                                        (->attr src args)
                                         attr))
 
           make-panel-attrs     (fn [class style attr src in-drag? percentage]
@@ -282,7 +282,7 @@
                                                   {:overflow "hidden"} ;; TODO: Shouldn't have this...test removing it
                                                   (when in-drag? {:pointer-events "none"})
                                                   style)}
-                                   (src->attr src)
+                                   (->attr src args)
                                    attr))
 
           make-splitter-attrs  (fn [class style attr src]
@@ -295,7 +295,7 @@
                                                           {:cursor  "row-resize"}
                                                           (when @over? {:background-color "#f8f8f8"})
                                                           style)}
-                                   (src->attr src)
+                                   (->attr src args)
                                    attr))]
 
       (fn v-split-render

@@ -6,7 +6,7 @@
   (:require
     [cljs.core.async   :refer [chan timeout <! put!]]
     [re-com.config     :refer [include-args-desc?]]
-    [re-com.debug      :refer [src->attr]]
+    [re-com.debug      :refer [->attr]]
     [re-com.throbber   :refer [throbber]]
     [re-com.input-text :refer [input-text]]
     [re-com.util       :refer [deref-or-value px]]
