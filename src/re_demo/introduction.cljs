@@ -56,26 +56,6 @@
                                         directly to the associated source code (within github)."]]]]]]])
 
 
-(defn params-validation
-  []
-  [v-box
-   :children [
-              [title :level :level2 :label "Has Parameter Validation"]
-              [gap :size "10px"]
-
-              [p "Now, our sausage fingers sometimes type onmouseover instead of on-mouse-over,
-                                     or centre rather than center, and sometimes we pass in a string where there should be keyword."]
-              [h-box
-               :gap center-gap-px
-               :children [[v-box
-                           :children [[p "re-com catches these errors early by validating both parameter names and values."]
-                                      [p "To avoid the overhead in this checking,
-                                         include the following in your project.clj for your production builds:"]
-                                      [:pre
-                                       {:style {:width "450px"}}
-                                       ":closure-defines {:goog.DEBUG false}"]]]
-                          [v-box
-                           :children [[p RHS-column-style "Parameter validation errors are written to the console."]]]]]]])
 
 (defn named-params
   []
@@ -194,9 +174,6 @@
               [gap :size "30px"]
               [line]
               [named-params]
-              [gap :size "30px"]
-              [line]
-              [params-validation]
               [gap :size "30px"]
               [line]
               [layouts-section]
