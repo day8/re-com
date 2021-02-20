@@ -96,10 +96,10 @@
               [p "re-com also supplies the companion macro " [:code "src-coordinates"] " which returns a correctly populated map."
                " The two should be combined like this:"]
               [:pre
-               "[button\n  :src   (src-coordinates)    ;; <-- here\n  :label \"click me\"\n  ...]"]
+               "[button\n  :src   (src-coordinates)    ;; <-- note\n  :label \"click me\"\n  ...]"]
               [p "To use this macro, your " [:code "ns"] "will need to refer it as follows:"]
               [:pre
-               "(ns my.app\n  (:require-macros\n    [re-com.core :refer [src-coordinates]])  ;; <-- here\n  (:require\n    [re-com.core :refer [h-box v-box ...]])"]
+               "(ns my.app\n  (:require-macros\n    [re-com.core :refer [src-coordinates]])  ;; <-- note\n  (:require\n    [re-com.core :refer [h-box v-box ...]])"]
               [p "But wait, there's more. "]
               [p "When " [:code ":src"] " is provided, re-com will add a \"data\" attribute to the DOM "
                "node representing a component. This attribute, called " [:code "data-rc-src"] ",  will contain any source code coordinates provided. "]
