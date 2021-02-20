@@ -121,15 +121,15 @@
    :children [[title2 [:span [:code "component-stack-spy"]]]
               [line]
               [gap :size "10px"]
-              [p "h-box and v-box are generally simple to use. "
-                "But sometimes, in complicated, deeply nested structures, it can 
+              [p "h-box and v-box are usually simple to use. "
+                "But, in deeply nested structures, it can 
                  be a chore to work out what part of a hierarchy is driving height and width. 
-                 Is a certain child driving the width of a parent, or the other way around?"]
-              [p "To work it out, you need to see all size/heights/widths etc
-                 from a leaf component right through to the root, and display it in one place for review. "]
-              [p [:code "component-stack-spy"] " is useful for exactly this situation. You wrap it about a leaf component and it will dump a report to devtools console:"]
+                 Is a certain child driving the width of a parent, or the other way around? Or is it the grandparent?"]
+              [p "To work it out, you need to gather together all size/heights/widths etc
+                 from a leaf component right through to the root, and display it in one place for easy review. "]
+              [p [:code "component-stack-spy"] " is for exactly this situation. You wrap it around a leaf component and it will dump a report to devtools console:"]
                [:pre
-                "[component-stack-spy\n  :child the-leaf-component]"]
+                "[component-stack-spy\n  :child [simple-v-table ...]]"]
               ]])
 
 
