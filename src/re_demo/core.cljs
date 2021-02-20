@@ -11,8 +11,9 @@
             [re-com.core                   :refer [h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
             [re-com.config                 :refer [version]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
-            [re-demo.debug                 :as    debug]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]
+            [re-demo.debug                 :as    debug]
+            [re-demo.config                :as    config]
             [re-demo.introduction          :as    introduction]
             [re-demo.radio-button          :as    radio-button]
             [re-demo.checkbox              :as    checkbox]
@@ -116,8 +117,9 @@
    {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
    {:id :border                 :level :minor :label "Border"             :panel border/panel}
    {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}
-   
-   {:id :debug                  :level :major :label "Debugging"          :panel debug/panel}])
+
+   {:id :debug                  :level :major :label "Debugging"          :panel debug/panel}
+   {:id :config                 :level :major :label "Config"             :panel config/panel}])
 
 
 (defn nav-item

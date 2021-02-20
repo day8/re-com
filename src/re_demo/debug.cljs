@@ -121,31 +121,16 @@
    :children [[title2 [:span [:code "component-stack-spy"]]]
               [line]
               [gap :size "10px"]
-              [p "h-box and v-box are usually simple to use. "
-                "But, in deeply nested structures, it can 
-                 be a chore to work out what part of a hierarchy is driving height and width. 
+              [p [:code "h-box"] " and " [:code "v-box"] " are usually simple to use. "
+                "But, in deeply nested structures, where the leaf component is an \"elastic\" table, it can sometimes
+                 be a chore to work out what part of a hierarchy is driving height and width.
                  Is a certain child driving the width of a parent, or the other way around? Or is it the grandparent?"]
-              [p "To work it out, you need to gather together all size/heights/widths etc
-                 from a leaf component right through to the root, and display it in one place for easy review. "]
-              [p [:code "component-stack-spy"] " is for exactly this situation. You wrap it around a leaf component and it will dump a report to devtools console:"]
+              [p "To work it out, it is very useful to gather together, in one place, the hierarchy of size/heights/widths etc
+                 from the leaf component right through to the root. Review then becomes easy because it doesn't involve jumping around different parts of the codebase. "]
+              [p [:code "component-stack-spy"] " is built for exactly this situation. You wrap it around a leaf component and it will dump a report to devtools console:"]
                [:pre
                 "[component-stack-spy\n  :child [simple-v-table ...]]"]
               ]])
-
-
-(defn compiler-config
-  []
-  [v-box
-   :src      (src-coordinates)
-   :children [[title2 "Compiler Configuration"]
-              [line]
-              [p "To avoid the overhead of parameter validation in production, "
-               "include the following in your project.clj for your production builds:"]
-              [:pre
-               {:style {:width "450px"}}
-               ":closure-defines {:goog.DEBUG false}"]
-              "XXXX others?"
-              [:code "re-com.config/root-url-for-compiler-output"]]])
 
 (defn debug-demo
   []
@@ -162,11 +147,7 @@
                :gap      "100px"
                :children [[the-src-parameter-column]
                           [params-validation-column]
-                          [v-box
-                           :src      (src-coordinates)
-                           :gap      "10px"
-                           :children [[stack-spy-column]
-                                      [compiler-config]]]]]]])
+                          [stack-spy-column]]]]])
 
 
 
