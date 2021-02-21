@@ -12,15 +12,18 @@
   []
   [v-box
    :src      (src-coordinates)
-   :children [[title2 "Compiler Configuration"]
-              [line]
-              [p "To avoid the overhead of parameter validation in production, "
-               "include the following in your project.clj for your production builds:"]
+   :children [[title2 "Compiler"]
+              [line]             
+              [gap :size "10px"]
+              [p "To avoid the overhead of parameter validation in production, 
+                 include the following in your project.clj for your production builds:"]
               [:pre
                {:style {:width "450px"}}
                ":closure-defines {:goog.DEBUG false}"]
-              "XXXX others?"
-              [:code "re-com.config/root-url-for-compiler-output"]]])
+              [gap :size "20px"]
+              [:code "re-com.config/root-url-for-compiler-output"]
+              [gap :size "20px"]
+              "XXXX other?"]])
 
 
 (defn config-page

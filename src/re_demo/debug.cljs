@@ -97,10 +97,10 @@
                " The two should be combined like this:"]
               [:pre
                "[button\n  :src   (src-coordinates)    ;; <-- note\n  :label \"click me\"\n  ...]"]
-              [p "To use this macro, your " [:code "ns"] "will need to refer it as follows:"]
+              [p "To use it, your " [:code "ns"] " will need to  " [:code ":require-macros"] " it as follows:"]
               [:pre
                "(ns my.app\n  (:require-macros\n    [re-com.core :refer [src-coordinates]])  ;; <-- note\n  (:require\n    [re-com.core :refer [h-box v-box ...]])"]
-              [p "But wait, there's more. "]
+              [p "But wait, you get more. "]
               [p "When " [:code ":src"] " is provided, re-com will add a \"data\" attribute to the DOM "
                "node representing a component. This attribute, called " [:code "data-rc-src"] ",  will contain any source code coordinates provided. "]
               [p "This links any DOM node you inspect in devtool's \"Elements\" tab to the code which created it. "
@@ -121,16 +121,18 @@
    :children [[title2 [:span [:code "component-stack-spy"]]]
               [line]
               [gap :size "10px"]
-              [p [:code "h-box"] " and " [:code "v-box"] " are usually simple to use. "
-                "But, in deeply nested structures, where the leaf component is an \"elastic\" table, it can sometimes
+              [p [:code "h-box"] " and " [:code "v-box"] " are usually simple to use. 
+                 But, in deeply nested structures, where the leaf component is an \"elastic\" table, it can sometimes
                  be a chore to work out what part of a hierarchy is driving height and width.
                  Is a certain child driving the width of a parent, or the other way around? Or is it the grandparent?"]
               [p "To work it out, it is very useful to gather together, in one place, the hierarchy of size/heights/widths etc
-                 from the leaf component right through to the root. Review then becomes easy because it doesn't involve jumping around different parts of the codebase. "]
-              [p [:code "component-stack-spy"] " is built for exactly this situation. You wrap it around a leaf component and it will dump a report to devtools console:"]
-               [:pre
-                "[component-stack-spy\n  :child [simple-v-table ...]]"]
-              ]])
+                  from the leaf component right through to the root. Your review then becomes easy because you don't need jump 
+                  around different parts of the codebase, as you work your way up the component stack. "]
+              [p [:code "component-stack-spy"] " is built to help in exactly this situation. You wrap it around a single " [:code ":child"]
+                 ", assumed to be a leaf component, and it will dump a detailed component stack report to devtools console."]
+              [p "Use it like this:"]
+              [:pre
+               "[component-stack-spy\n  :child [simple-v-table ...]]"]]])
 
 (defn debug-demo
   []
