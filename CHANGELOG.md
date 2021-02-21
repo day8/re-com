@@ -4,6 +4,7 @@
 
 #### Added
 
+- Add new debugging features, including the new `:src` parameter. [The debug page](https://re-com.day8.com.au/#/debug) explains more.  Note: previously, parameter validation errors raised exceptions, but now components instead draw themselves as a red, placeholder box, and write error information to the devtools console.
 - Add column sorting feature to `[simple-v-table]`. Column specifications can now, optionally include a `:sort-by` key.
 - Add new arguments to `[tag-dropdown]` including `:required?` ,`:min-width`, `:max-width`, `:abbrev-fn` and `:abbrev-characters`.
 - Add the argument `:split-is-px?` to `[splitter]`.  See [#178](https://github.com/day8/re-com/issues/178)
@@ -14,7 +15,7 @@
    - `off` to `rc-datepicker-unselectable` (for unselectable days) or `rc-datepicker-out-of-focus` (for days not in the current month)
    - `selected` to `rc-datepicker-selected`
    - `today` to `rc-datepicker-today`.
-   
+
 #### Fixed
 
 - Previously, the argument and parts description data structures (for each component) were incorrectly included into production builds. This is now fixed. 
@@ -41,7 +42,7 @@
 
 ##### `[v-table]` and `[simple-v-table]`
 
-This section is only relevant to `Alpha` testers as these components are not yet marked as `Stable`. Iterative improvements have continued
+Both of these components are still `Alpha`. Iterative improvements have continued
 causing some breaking changes.
 
 - **Breaking**:
