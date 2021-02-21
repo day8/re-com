@@ -24,10 +24,12 @@
 
 (defn prune-args
   [args]
-  (-> ;; Remove args with nil value
+  (if (map? args)
+    (-> ;; Remove args with nil value
       (apply dissoc args (for [[k v] args :when (nil? v)] k))
       ;; Remove args already represented in component hierarchy
-      (dissoc :src :child :children :panel-1 :panel-2)))
+      (dissoc :src :child :children :panel-1 :panel-2))
+    args))
 
 (defn ->attr
   ([src args]
