@@ -18,6 +18,7 @@
         unknown-part?          (reagent/atom false)]
     (fn []
       [v-box
+       :src      (coords)
        :children [[title2 "Parameter Validation"]
                   [line]
                   [gap :size "10px"]

@@ -37,7 +37,7 @@
   ([{:keys [file line] :as src} component-name args]
    (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
      (let [pruned-args (prune-args args)
-           ref-fn      (fn [el]
+           ref-fn      (fn [^js/Element el]
                          ;; If the ref callback is defined as an inline function, it will get called twice during updates,
                          ;; first with null and then again with the DOM element.
                          ;;
@@ -52,9 +52,7 @@
                              (user-ref-fn el))))]
        (cond->
          {:ref               ref-fn
-          :data-rc-component (short-component-name component-name)
-          ;; [IJ] TODO: Remove data-rc-args when :ref solution is working.
-          :data-rc-args      (pr-str pruned-args)}
+          :data-rc-component (short-component-name component-name)}
          src
          (assoc :data-rc-src (str file ":" line))))
      {})))
@@ -74,10 +72,7 @@
                  {:el        el
                   :src       (.. el -dataset -rcSrc)
                   :component component
-                  ;; [IJ] TODO: This often returns undefined.
-                  #_#_:args      (.-__rc-args el)
-                  ;; [IJ] TODO: Remove data-rc-args when :ref solution is working.
-                  :args      (read-string (.. el -dataset -rcArgs))}))
+                  :args      (gobj/get el "__rc-args")}))
          (component-stack parent))))))
 
 (defn validate-args-problems-style
@@ -114,12 +109,16 @@
     (if component
       (if src
         (let [[file line] (string/split src #":")]
-          (js/console.log
-            (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      Parameters: %O\n      DOM: %o")
-            index-style "" code-style "" code-style "" code-style "" args el))
+          (if args
+            (js/console.log
+              (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      Parameters: %O\n      DOM: %o")
+              index-style "" code-style "" code-style "" code-style "" args el)
+            (js/console.log
+              (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      DOM: %o")
+              index-style "" code-style "" code-style "" code-style "" el)))
         (js/console.log
-          (str "%c" i "%c " gear-icon " %c[" component " ...]%c %o")
-          index-style "" code-style "" el))
+          (str "%c" i "%c " gear-icon " %c[" component " ...]%c\n      Parameters: %O\n      DOM: %o")
+          index-style "" code-style "" args el))
       (js/console.log (str "%c" i "%c " globe-icon " %o") index-style "" el)))
   (js/console.groupEnd))
 
@@ -190,9 +189,8 @@
          (reset! internal-src src)
          [:div
           (merge
-            (->attr src component-name) ;; first in merge so this :ref fn doesn't get over-ridden by the ->attr :ref fn.
+            (->attr src component-name {:attr {:ref ref-fn}})  ;; important that this ref-fn doesn't get overridden by (->attr ...)
             {:title    "re-com validation error. Look in the DevTools console."
-             :ref      ref-fn
              :style    (validate-args-problems-style)})
 
           collision-icon])})))
@@ -222,5 +220,5 @@
        :reagent-render
        (fn [& {:keys [component src]}]
          [:div
-          (->attr src {:attr {:ref ref-fn}})
+          (->attr src {:attr {:ref ref-fn}}) ;; important that this ref-fn doesn't get overridden by (->attr ...)
           component])})))
