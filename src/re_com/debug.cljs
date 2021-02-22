@@ -22,13 +22,15 @@
       (string/replace #"_render" "")
       (string/replace #"_" "-")))
 
-(defn prune-args
+(defn loggable-args
+  "Return a version of args which is stripped of uninteresting values, suitable for logging."
   [args]
   (if (map? args)
-    (-> ;; Remove args with nil value
-      (apply dissoc args (for [[k v] args :when (nil? v)] k))
-      ;; Remove args already represented in component hierarchy
-      (dissoc :src :child :children :panel-1 :panel-2))
+    (->> ;; Remove args already represented in component hierarchy
+      (dissoc args :src :child :children :panel-1 :panel-2)
+      ;; Remove args with nil value
+      (remove (comp nil? second))
+      (into {}))
     args))
 
 (defn ->attr
@@ -36,7 +38,7 @@
    (->attr src (component/component-name (r/current-component)) args))
   ([{:keys [file line] :as src} component-name args]
    (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
-     (let [pruned-args (prune-args args)
+     (let [pruned-args (loggable-args args)
            ref-fn      (fn [^js/Element el]
                          ;; If the ref callback is defined as an inline function, it will get called twice during updates,
                          ;; first with null and then again with the DOM element.
