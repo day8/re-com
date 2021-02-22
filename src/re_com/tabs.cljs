@@ -40,7 +40,7 @@
      {:name :style            :required false                 :type "CSS style map"           :validate-fn css-style?                     :description [:span "CSS styles to add or override (aplies to " [:span.bold "each individual tab"] " rather than the container)"]}
      {:name :attr             :required false                 :type "HTML attr map"           :validate-fn html-attr?                     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts            :required false                 :type "map"                     :validate-fn (parts? horizontal-tabs-parts) :description "See Parts section below."}
-     {:name :src              :required false                 :type "map"                     :validate-fn map?                           :description "Source code coordinates. See 'Debugging'."}
+     {:name :src              :required false                 :type "map"                     :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :log              :required false                 :type "map"                     :validate-fn map?                           :description "Used internally to modify the output of logging for the component."}]))
 
 (defn horizontal-tabs

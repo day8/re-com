@@ -545,7 +545,7 @@
      {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                         :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
      {:name :class                      :required false                :type "string"                      :validate-fn string?                :description "CSS class names, space separated (these are applied to the table's outer container)"}
      {:name :parts                      :required false                :type "map"                         :validate-fn (parts? v-table-parts) :description "See Parts section below."}
-     {:name :src                        :required false                :type "map"                         :validate-fn map?                   :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src                        :required false                :type "map"                         :validate-fn map?                   :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 
 (defn v-table

@@ -36,7 +36,7 @@
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?            :description "CSS styles (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?            :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? button-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"             :validate-fn map?                  :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src              :required false                        :type "map"             :validate-fn map?                  :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (defn button
   "Returns the markup for a basic button"
@@ -116,7 +116,7 @@
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?                           :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?                           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-circle-icon-button-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"             :validate-fn map?                                 :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src              :required false                        :type "map"             :validate-fn map?                                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
@@ -204,7 +204,7 @@
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?                    :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-icon-button-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"             :validate-fn map?                          :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src              :required false                        :type "map"             :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (defn md-icon-button
   "a square button containing a material design icon"
@@ -288,7 +288,7 @@
      {:name :style     :required false                       :type "CSS style map"   :validate-fn css-style?                 :description "CSS styles to add or override (applies to the button, not the popover wrapper)"}
      {:name :attr      :required false                       :type "HTML attr map"   :validate-fn html-attr?                 :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the popover wrapper)"]}
      {:name :parts     :required false                       :type "map"             :validate-fn (parts? info-button-parts) :description "See Parts section below."}
-     {:name :src       :required false                       :type "map"             :validate-fn map?                       :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src       :required false                       :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (defn info-button
   "A tiny light grey button, with an 'i' in it. Meant to be unobtrusive.
@@ -364,7 +364,7 @@
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?                :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? row-button-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"             :validate-fn map?                      :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src              :required false                        :type "map"             :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (defn row-button
   "a small button containing a material design icon"
@@ -444,7 +444,7 @@
      {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?               :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?               :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"                      :validate-fn (parts? hyperlink-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"                      :validate-fn map?                     :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src              :required false                        :type "map"                      :validate-fn map?                     :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (defn hyperlink
   "Renders an underlined text hyperlink component.
@@ -527,7 +527,7 @@
      {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?                    :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"                      :validate-fn (parts? hyperlink-href-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"                      :validate-fn map?                          :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src              :required false                        :type "map"                      :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.

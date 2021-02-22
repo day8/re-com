@@ -39,11 +39,9 @@
   []
   (select-keys (meta &form) [:file :line]))
 
-;; Obtain the current component's component-name and args to be provided as a :log argument to another component that
-;; is used as the root component of the current component; i.e. to change the logging output of the root component to
-;; look as if it is the current component. Note that components using :log (reflect) cannot themselves receive a :log
-;; parameter because it would be overriden. Only components that use (->attr args) directly (i.e. a hiccup root element)
-;; can accept a :log parameter.
+;; Obtain the current component's component-name and args to be provided as a :log argument to another component. Causes
+;; the other component to masquerade in logs as the current component in terms of its component-name and args. Used when
+;; the root of the current component is another re-com component.
 (defmacro reflect
   []
   {:component '(re-com.debug/short-component-name (reagent.impl.component/component-name (reagent.core/current-component)))

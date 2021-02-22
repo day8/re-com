@@ -177,7 +177,7 @@
      {:name :height             :required false :default "25px"         :type "string"                  :validate-fn string?                     :description "the specific height of the component"}
      {:name :style              :required false                         :type "map"                     :validate-fn map?                        :description "CSS styles to add or override"}
      {:name :parts              :required false                         :type "map"                     :validate-fn (parts? tag-dropdown-parts) :description "See Parts section below."}
-     {:name :src                :required false                         :type "map"                     :validate-fn map?                        :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src                :required false                         :type "map"                     :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (defn tag-dropdown
   [& {:keys [src] :as args}]

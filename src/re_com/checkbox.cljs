@@ -38,8 +38,8 @@
      {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?              :description "CSS style map (applies to the checkbox, not the wrapping div)"}
      {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?              :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the checkbox, not the wrapping div)"]}
      {:name :parts       :required false                :type "map"              :validate-fn (parts? checkbox-parts) :description "See Parts section below."}
-     ;; [IJ] TODO: copy to all the args-desc maps.
-     {:name :src         :required false                :type "map"              :validate-fn map?                    :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src         :required false                :type "map"              :validate-fn map?                    :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :log         :required false                :type "map"              :validate-fn map?                    :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
 
 ;; TODO: when disabled?, should the text appear "disabled".
 (defn checkbox

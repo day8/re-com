@@ -172,7 +172,7 @@
      {:name :class  :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
      {:name :style  :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
      {:name :attr   :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src    :required false :type "map"           :validate-fn map?       :description "Source code coordinates. See 'Debugging'."}
+     {:name :src    :required false :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :log    :required false :type "map"           :validate-fn map?       :description "Used internally to modify the output of logging for the component."}]))
 
 (defn gap
@@ -205,7 +205,7 @@
      {:name :class :required false                      :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
      {:name :style :required false                      :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
      {:name :attr  :required false                      :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src   :required false                      :type "map"           :validate-fn map?       :description "Source code coordinates. See 'Debugging'."}
+     {:name :src   :required false                      :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :log   :required false                      :type "map"           :validate-fn map?       :description "Used internally to modify the output of logging for the component."}]))
 
 (defn line
@@ -250,7 +250,7 @@
      {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src        :required false                   :type "map"           :validate-fn map?           :description "Source code coordinates. See 'Debugging'."}
+     {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :log        :required false                   :type "map"           :validate-fn map?           :description "Used internally to modify the output of logging for the component."}]))
 
 (defn h-box
@@ -315,7 +315,7 @@
      {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src        :required false                   :type "map"           :validate-fn map?           :description "Source code coordinates. See 'Debugging'."}
+     {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :log        :required false                   :type "map"           :validate-fn map?           :description "Used internally to modify the output of logging for the component."}]))
 
 (defn v-box
@@ -380,7 +380,7 @@
      {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src        :required false                   :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}
+     {:name :src        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :log        :required false                   :type "map"             :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
 
 (defn box
@@ -441,7 +441,7 @@
      {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src        :required false                   :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}
+     {:name :src        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :log        :required false                   :type "map"             :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
 
 (defn scroller
@@ -513,7 +513,7 @@
      {:name :class      :required false                                :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :style      :required false                                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
      {:name :attr       :required false                                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src        :required false                                :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}
+     {:name :src        :required false                                :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :log        :required false                                :type "map"             :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
 
 (defn border

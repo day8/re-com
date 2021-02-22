@@ -32,7 +32,7 @@
      {:name :style    :required false :type "CSS style map" :validate-fn css-style?           :description "additional CSS styles (applies to the label, not the wrapping div)"}
      {:name :attr     :required false :type "HTML attr map" :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the label, not the wrapping div)"]}
      {:name :parts    :required false :type "map"           :validate-fn (parts? label-parts) :description "See Parts section below."}
-     {:name :src      :required false :type "map"           :validate-fn map?                 :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src      :required false :type "map"           :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (defn label
   "Returns markup for a basic label"
@@ -84,7 +84,7 @@
      {:name :style         :required false                   :type "CSS style map"   :validate-fn css-style?           :description "CSS styles to add or override (applies to the title, not the wrapping div)"}
      {:name :attr          :required false                   :type "HTML attr map"   :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the title, not the wrapping div)"]}
      {:name :parts         :required false                   :type "map"             :validate-fn (parts? title-parts) :description "See Parts section below."}
-     {:name :src           :required false                   :type "map"             :validate-fn map?                 :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src           :required false                   :type "map"             :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
 
 (defn title
   "A title with four preset levels"
