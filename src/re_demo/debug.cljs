@@ -22,13 +22,13 @@
                   [line]
                   [gap :size "10px"]
 
-                  [p "Now, our sausage fingers sometimes type onmouseover instead of on-mouse-over, "
-                   " or centre rather than center, and sometimes we pass in a string where a keyword is required."]
+                  [p "Now, our sausage fingers sometimes type " [:code "onmouseover"] " instead of " [:code "on-mouse-over"] ", "
+                   " or " [:code "centre"] " rather than " [:code "center"] ", and sometimes we pass in a string where a keyword is required."]
                   [p "re-com catches these errors early by validating both parameter names and values."]
 
 
                   [p "If a components detects a mistake in its parameters, it will render itself as a red, "
-                   "placeholder box and report details of the error to the devtools console."]
+                   "placeholder box and report details of the error to the DevTools console."]
 
                   [v-box
                    :src      (src-coordinates)
@@ -68,7 +68,7 @@
                                :model     unknown-part?
                                :on-change (fn [val]
                                             (reset! unknown-part? val))]
-                              [p "Pay attention to the \"component stack\" section output to devtools console. mouseover the components in this section, and notice how devtools highlights them in the running app."]]]
+                              [p "Pay attention to the \"component stack\" section output to DevTools console. mouseover the components in this section, and notice how DevTools highlights them in the running app."]]]
                   (cond->
                    [datepicker
                     :src (src-coordinates)]
@@ -103,7 +103,7 @@
               [p "But wait, you get more. "]
               [p "When " [:code ":src"] " is provided, re-com will add a \"data\" attribute to the DOM "
                "node representing a component. This attribute, called " [:code "data-rc-src"] ",  will contain any source code coordinates provided. "]
-              [p "This links any DOM node you inspect in devtool's \"Elements\" tab to the code which created it. "
+              [p "This links any DOM node you inspect in DevTool's \"Elements\" tab to the code which created it. "
                "When you are exploring an unfamiliar codebase (including your own, after an absence) this is invaluable. "
                "Just right-click and \"Inspect\" on any part of the apps UI and you can instantly see the coordinates for the underlying code."]
               [p [:b [:i "This feature is sufficiently useful that we recommend you leave your re-com code permanently instrumented with " [:code ":src"]]] ". Every single component, all the time. In production builds, the macro returns " [:code "nil"] " eliding any overhead. "]
@@ -118,21 +118,23 @@
   []
   [v-box
    :src      (src-coordinates)
-   :children [[title2 [:span [:code "component-stack-spy"]]]
+   :children [[title2 [:span [:code "stack-spy"]]]
               [line]
               [gap :size "10px"]
               [p [:code "h-box"] " and " [:code "v-box"] " are usually simple to use. 
-                 But, in deeply nested structures, where the leaf component is an \"elastic\" table, it can sometimes
+                 But, in deeply nested structures, where the component is an \"elastic\" table, it can sometimes
                  be a chore to work out what part of a hierarchy is driving height and width.
                  Is a certain child driving the width of a parent, or the other way around? Or is it the grandparent?"]
               [p "To work it out, it is very useful to gather together, in one place, the hierarchy of size/heights/widths etc
-                  from the leaf component right through to the root. Your review then becomes easy because you don't need jump 
+                  from the component right through to the root. Your review then becomes easy because you don't need jump
                   around different parts of the codebase, as you work your way up the component stack. "]
-              [p [:code "component-stack-spy"] " is built to help in exactly this situation. You wrap it around a single " [:code ":child"]
-                 ", assumed to be a leaf component, and it will dump a detailed component stack report to devtools console."]
+              [p [:code "stack-spy"] " is built to help in exactly this situation. You wrap it around a single component
+                 and it will dump a detailed component stack report to DevTools console."]
               [p "Use it like this:"]
               [:pre
-               "[component-stack-spy\n  :child [simple-v-table ...]]"]]])
+               "(ns my.app\n  (:require\n    [re-com.debug :refer [stack-spy]])"
+               "\n\n"
+               "[stack-spy\n  :component [simple-v-table ...]]"]]])
 
 (defn debug-demo
   []
