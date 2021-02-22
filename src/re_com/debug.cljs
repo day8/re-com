@@ -68,7 +68,7 @@
      (let [component          (.. el -dataset -rcComponent)
            ^js/Element parent (.-parentElement el)]
        (->
-         (if (= "component-stack-spy" component)
+         (if (= "stack-spy" component)
            stack
            (conj stack
                  {:el        el
@@ -193,8 +193,8 @@
             (->attr src component-name))
           collision-icon])})))
 
-(defn component-stack-spy
-  [& {:keys [child src]}]
+(defn stack-spy
+  [& {:keys [component src]}]
   (let [element (atom nil)
         ref-fn  (fn [el]
                   ;; If the ref callback is defined as an inline function, it will get called twice during updates,
@@ -208,15 +208,15 @@
                   (let [el @element]
                     (when el
                       (let [first-child (first (.-children el))]
-                        (js/console.group "%c[component-stack-spy ...]" code-style)
+                        (js/console.group "%c[stack-spy ...]" code-style)
                         (log-component-stack (component-stack first-child))
                         (js/console.groupEnd)))))]
     (r/create-class
-      {:display-name         "component-stack-spy"
+      {:display-name         "stack-spy"
        :component-did-mount  log-fn
        :component-did-update log-fn
        :reagent-render
-       (fn [& {:keys [child src]}]
+       (fn [& {:keys [component src]}]
          [:div
           (->attr src {:attr {:ref ref-fn}})
-          child])})))
+          component])})))
