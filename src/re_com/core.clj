@@ -33,7 +33,7 @@
    `(fn [~'event] ~@body nil)))  ;; force return nil
 
 
-;; Obtain source code coordinates and assemble them into a map litteral containing `:file` and `:line` keys 
+;; Obtain source code coordinates and assemble them into a map literal containing `:file` and `:line` keys
 ;; See explanation: https://re-com.day8.com.au/#/debug
 (defmacro coords
   []
