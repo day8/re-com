@@ -65,19 +65,23 @@
                                                                              ;; For production builds of the demo app, set goog.DEBUG
                                                                              ;; to be true so that the debugging demo page works as expected.
                                                                              goog.DEBUG                             true
-                                                                             ;; When re-com produces validation errors it tries to provide links
-                                                                             ;; to source code. These links require that you provide the root URL
-                                                                             ;; to the ClojureScript compiler output with source maps.
-                                                                             re-com.config/root-url-for-compiler-output "http://localhost:3449/compiled_dev/demo/cljs-runtime/"
-                                                                             re-com.config/force-include-args-desc?     true}
+                                                                             re-com.config/force-include-args-desc? true}
                                                            ;; For production builds of the demo app, keep the component name
                                                            ;; symbols for display in validation error logging.
                                                            :pseudo-names    true
                                                            :externs         ["externs/detect-element-resize-externs.js"]}
                                         :dev              {:asset-path       "/compiled_dev/demo"
                                                            :output-dir       "run/resources/public/compiled_dev/demo"
-                                                           :compiler-options {:external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}
-                                        :release          {:output-dir "run/resources/public/compiled_prod/demo"}
+                                                           :compiler-options {:closure-defines {;; When re-com produces validation errors it tries to provide links
+                                                                                                ;; to source code. These links require that you provide the root URL
+                                                                                                ;; to the ClojureScript compiler output with source maps.
+                                                                                                re-com.config/root-url-for-compiler-output "http://localhost:3449/compiled_dev/demo/cljs-runtime/"}
+                                                                              :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}
+                                        :release          {:output-dir "run/resources/public/compiled_prod/demo"
+                                                           :compiler-options {:closure-defines {;; For production builds, such as the demo website, there is no source
+                                                                                                ;; code to link to in validation errors or component stacks, so we set
+                                                                                                ;; it to an empty string to cause links to not be displayed at all.
+                                                                                                re-com.config/root-url-for-compiler-output ""}}}
                                         :devtools         {:http-port        ~http-port
                                                            :http-root        "run/resources/public"
                                                            :push-state/index "index_dev.html"}}
