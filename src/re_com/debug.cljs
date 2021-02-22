@@ -115,8 +115,8 @@
       (if src
         (let [[file line] (string/split src #":")]
           (js/console.log
-            (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      DOM: %o\n      Parameters: %O")
-            index-style "" code-style "" code-style "" code-style "" el args))
+            (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      Parameters: %O      DOM: %o\n")
+            index-style "" code-style "" code-style "" code-style "" args el))
         (js/console.log
           (str "%c" i "%c " gear-icon " %c[" component " ...]%c %o")
           index-style "" code-style "" el))
