@@ -1,6 +1,6 @@
 (ns re-com.input-text
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn coords reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -47,7 +47,8 @@
      {:name :attr             :required false                  :type "HTML attr map"            :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
      {:name :parts            :required false                  :type "map"                      :validate-fn (parts? input-text-parts) :description "See Parts section below."}
      {:name :input-type       :required false                  :type "keyword"                  :validate-fn keyword?                  :description [:span "ONLY applies to super function 'base-input-text': either " [:code ":input"] ", " [:code ":password"] " or " [:code ":textarea"]]}
-     {:name :src              :required false                  :type "map"                      :validate-fn map?                      :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src              :required false                  :type "map"                      :validate-fn map?                      :description "Source code coordinates. See 'Debugging'."}
+     {:name :log              :required false                  :type "map"                      :validate-fn map?                      :description "Used internally to modify the output of logging for the component."}]))
 
 ;; Sample regex's:
 ;;  - #"^(-{0,1})(\d*)$"                   ;; Signed integer
@@ -64,7 +65,7 @@
     (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
           internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)]
       (fn input-text-base-render
-        [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts src]
+        [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts src log]
             :or   {change-on-blur? true, on-alter identity}
             :as   args}]
         (or
@@ -98,6 +99,7 @@
               (reset! internal-model latest-ext-model))
             [h-box
              :src      src
+             :log      log
              :align    :start
              :class    (str "rc-input-text " (get-in parts [:wrapper :class]))
              :style    (get-in parts [:wrapper :style])
@@ -201,14 +203,14 @@
 
 (defn input-text
   [& args]
-  (apply input-text-base :input-type :input args))
+  (apply input-text-base :input-type :input :log (reflect) args))
 
 
 (defn input-password
   [& args]
-  (apply input-text-base :input-type :password args))
+  (apply input-text-base :input-type :password :log (reflect) args))
 
 
 (defn input-textarea
   [& args]
-  (apply input-text-base :input-type :textarea args))
+  (apply input-text-base :input-type :textarea :log (reflect) args))

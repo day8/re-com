@@ -1,6 +1,6 @@
 (ns re-com.typeahead
   (:require-macros
-    [re-com.core            :refer [handler-fn coords]]
+    [re-com.core            :refer [handler-fn coords reflect]]
     [re-com.validate        :refer [validate-args-macro]]
     [cljs.core.async.macros :refer [alt! go-loop]])
   (:require
@@ -284,6 +284,7 @@
               (swap! state-atom external-model-changed latest-external-model))
             [v-box
              :src      src
+             :log      (reflect)
              :class    "rc-typeahead"
              :attr     attr
              :width    width

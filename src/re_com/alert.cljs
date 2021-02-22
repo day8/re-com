@@ -1,6 +1,6 @@
 (ns re-com.alert
   (:require-macros
-    [re-com.core         :refer [handler-fn coords]])
+    [re-com.core         :refer [handler-fn coords reflect]])
   (:require
     [re-com.box          :refer [h-box v-box box scroller border flex-child-style]]
     [re-com.buttons      :refer [button]]
@@ -40,7 +40,8 @@
      {:name :style      :required false                 :type "CSS style map"   :validate-fn css-style?               :description "CSS styles to add or override (applies to the outer container)"}
      {:name :attr       :required false                 :type "HTML attr map"   :validate-fn html-attr?               :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts      :required false                 :type "map"             :validate-fn (parts? alert-box-parts) :description "See Parts section below."}
-     {:name :src        :required false                 :type "map"             :validate-fn map?                     :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src        :required false                 :type "map"             :validate-fn map?                     :description "Source code coordinates. See 'Debugging'."}
+     {:name :log        :required false                 :type "map"             :validate-fn map?                     :description "Used internally to modify the output of logging for the component."}]))
 
 (defn alert-box
   "Displays one alert box. A close button allows the message to be removed"
@@ -66,7 +67,7 @@
                :style (merge (flex-child-style "none")
                              {:padding padding}
                              style)}
-              (->attr src args)
+              (->attr args)
               attr)
        (when heading
          [h-box
@@ -150,6 +151,7 @@
     (let [alerts (deref-or-value alerts)]
       [box
        :src   src
+       :log   (reflect)
        :class (str "rc-alert-list-wrapper " (get-in parts [:wrapper :class]))
        :style (get-in parts [:wrapper :style] {})
        :attr  (get-in parts [:wrapper :attr] {})

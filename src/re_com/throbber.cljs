@@ -1,6 +1,6 @@
 (ns re-com.throbber
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn coords reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -50,6 +50,7 @@
                    (get-in parts [:segment :attr]))])]
       [box
        :src   src
+       :log   (reflect)
        :class (str "rc-throbber-wrapper " (get-in parts [:wrapper :class]))
        :style (get-in parts [:wrapper :style])
        :attr  (get-in parts [:wrapper :attr])

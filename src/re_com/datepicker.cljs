@@ -1,6 +1,6 @@
 (ns re-com.datepicker
   (:require-macros
-    [re-com.core          :refer [handler-fn coords]])
+    [re-com.core          :refer [handler-fn coords reflect]])
   (:require
     [reagent.core         :as reagent]
     [cljs-time.core       :as cljs-time]
@@ -163,10 +163,11 @@
 
 
 (defn- main-div-with
-  [table-div hide-border? class style attr parts src]
+  [table-div hide-border? class style attr parts src log]
   ;;extra h-box is currently necessary so that calendar & border do not stretch to width of any containing v-box
   [h-box
    :src      src
+   :log      log
    :class    "rc-datepicker-wrapper"
    :children [[border
                :src    (coords)
@@ -559,7 +560,8 @@
              style
              attr
              parts
-             src]))))))
+             src
+             (reflect)]))))))
 
 
 (defn- anchor-button

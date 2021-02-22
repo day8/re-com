@@ -1,6 +1,7 @@
 (ns re-demo.selection-list
   (:require
     [cljs.pprint           :as pprint]
+    [re-com.debug          :refer [stack-spy]]
     [re-com.core           :refer [h-box v-box box gap selection-list label title checkbox p]]
     [re-com.selection-list :refer [selection-list-parts-desc selection-list-args-desc]]
     [re-demo.utils         :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
@@ -29,17 +30,18 @@
        :align    :start
        :children [[title2 "Demo"]
                   [v-box ;; TODO: v-box required to constrain height of internal border.
-                   :children [[selection-list
-                               :width          "391px"      ;; manual hack for width of variation panel A+B 1024px
-                               :max-height     "95px"       ;; based on compact style @ 19px x 5 rows
-                               :model          selections
-                               :choices        items
-                               :label-fn       :label
-                               :as-exclusions? as-exclusions?
-                               :multi-select?  multi-select?
-                               :disabled?      disabled?
-                               :required?      required?
-                               :on-change      #(reset! selections %)]
+                   :children [[stack-spy
+                               :component [selection-list
+                                           :width          "391px"      ;; manual hack for width of variation panel A+B 1024px
+                                           :max-height     "95px"       ;; based on compact style @ 19px x 5 rows
+                                           :model          selections
+                                           :choices        items
+                                           :label-fn       :label
+                                           :as-exclusions? as-exclusions?
+                                           :multi-select?  multi-select?
+                                           :disabled?      disabled?
+                                           :required?      required?
+                                           :on-change      #(reset! selections %)]]
                               [gap :size "10px"]
                               [h-box
                                :height "60px"

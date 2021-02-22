@@ -40,7 +40,8 @@
      {:name :style            :required false                 :type "CSS style map"           :validate-fn css-style?                     :description [:span "CSS styles to add or override (aplies to " [:span.bold "each individual tab"] " rather than the container)"]}
      {:name :attr             :required false                 :type "HTML attr map"           :validate-fn html-attr?                     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts            :required false                 :type "map"                     :validate-fn (parts? horizontal-tabs-parts) :description "See Parts section below."}
-     {:name :src              :required false                 :type "map"                     :validate-fn map?                           :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src              :required false                 :type "map"                     :validate-fn map?                           :description "Source code coordinates. See 'Debugging'."}
+     {:name :log              :required false                 :type "map"                     :validate-fn map?                           :description "Used internally to modify the output of logging for the component."}]))
 
 (defn horizontal-tabs
   [& {:keys [model tabs on-change id-fn label-fn class style attr parts src]
@@ -55,7 +56,7 @@
        (merge {:class (str "nav nav-tabs noselect rc-tabs " class)
                :style (merge (flex-child-style "none")
                              (get-in parts [:wrapper :style]))}
-              (->attr src args)
+              (->attr args)
               attr)
        (for [t tabs]
          (let [id        (id-fn  t)
@@ -102,7 +103,8 @@
         {:name :tooltip-fn       :required false :default :tooltip      :type "tab -> string | hiccup" :validate-fn ifn?                    :description [:span "[horizontal-bar-tabs only] given an element of " [:code ":tabs"] ", returns its tooltip"]}
         {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?               :description [:span "[horizontal-bar-tabs only] relative to this anchor. One of " position-options-list]}
         {:name :validate?        :required false :default true          :type "boolean"                                                     :description [:span "Validate " [:code ":model"] " against " [:code ":tabs"]]}
-        {:name :parts            :required false                        :type "map"                    :validate-fn (parts? bar-tabs-parts) :description "See Parts section below."}))))
+        {:name :parts            :required false                        :type "map"                    :validate-fn (parts? bar-tabs-parts) :description "See Parts section below."}
+        {:name :log              :required false                        :type "map"                    :validate-fn map?                    :description "Used internally to modify the output of logging for the component."}))))
 
 (defn- bar-tabs
   [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position vertical? class style attr parts validate? src] :as args}]
@@ -116,7 +118,7 @@
                  {:class (str "noselect btn-group" (if vertical? "-vertical") " rc-tabs " class)
                   :style (merge (flex-child-style "none")
                                 (get-in parts [:wrapper :style]))}
-                 (->attr src args)
+                 (->attr args)
                  attr)]
          (for [t tabs]
            (let [id        (id-fn t)
@@ -149,7 +151,7 @@
 
 
 (defn horizontal-bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position class style attr parts src validate?]
+  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position class style attr parts src log validate?]
       :or   {id-fn :id label-fn :label tooltip-fn :tooltip}
       :as   args}]
   (or
@@ -168,10 +170,11 @@
       :attr             attr
       :parts            parts
       :src              src
+      :log              log
       :validate?        validate?)))
 
 (defn vertical-bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src validate?]
+  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src log validate?]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
@@ -188,6 +191,7 @@
       :attr      attr
       :parts     parts
       :src       src
+      :log       log
       :validate? validate?)))
 
 
@@ -227,7 +231,7 @@
         :style (merge (flex-child-style "none")
                       (get-in parts [:wrapper :style]))
         :role  "tabslist"}
-       (->attr src args)
+       (->attr args)
        attr)
      (for [t tabs]
        (let [id        (id-fn  t)
@@ -250,7 +254,7 @@
 
 
 (defn horizontal-pill-tabs
-  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src]
+  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src log]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
@@ -266,11 +270,12 @@
       :style     style
       :attr      attr
       :parts     parts
-      :src       src)))
+      :src       src
+      :log       log)))
 
 
 (defn vertical-pill-tabs
-  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src]
+  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src log]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
@@ -286,4 +291,5 @@
       :style     style
       :attr      attr
       :parts     parts
-      :src       src)))
+      :src       src
+      :log       log)))

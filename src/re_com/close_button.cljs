@@ -1,6 +1,6 @@
 (ns re-com.close-button
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]])
+    [re-com.core     :refer [handler-fn coords reflect]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
@@ -47,6 +47,7 @@
         (let [disabled?  (deref-or-value disabled?)]
           [box
            :src   src
+           :log   (reflect)
            :class (str "rc-close-button " (get-in parts [:wrapper :class]))
            :style (merge {:display          "inline-block"
                           :position         "relative"

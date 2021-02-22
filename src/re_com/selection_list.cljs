@@ -1,6 +1,6 @@
 (ns re-com.selection-list
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn coords reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config       :refer [include-args-desc?]]
@@ -146,25 +146,49 @@
      {:name :parts          :required false                 :type "map"                                  :validate-fn (parts? selection-list-parts) :description "See Parts section below."}
      {:name :src            :required false                 :type "map"                                  :validate-fn map?                          :description "Source code coordinates. See 'Debugging'."}]))
 
-(defn- list-container
-  [{:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr parts src]
-    :as   args}]
+;;NOTE: Consumer has complete control over what is selected or not. A current design tradeoff
+;;      causes all selection changes to trigger a complete list re-render as a result of on-change callback.
+;;      this approach may be not ideal for very large list choices.
+(defn selection-list
+  "Produce a list box with items arranged vertically"
+  [& {:keys [choices model on-change id-fn label-fn multi-select? as-exclusions? required? width height max-height disabled? hide-border? item-renderer class style attr parts src]
+      :or   {multi-select?  true
+             as-exclusions? false
+             required?      false
+             disabled?      false
+             hide-border?   false
+             id-fn          :id
+             label-fn       :label}
+      :as   args}]
   (or
     (validate-args-macro selection-list-args-desc args src)
-    (let [selected (if multi-select? model (-> model first vector set))
-          items    (map (if item-renderer
-                          #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
-                          (if multi-select?
-                            #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)
-                            #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)))
-                        choices)
-          bounds   (select-keys args [:width :height :max-height])
-          spacing  (if hide-border? spacing-unbordered spacing-bordered)]
+    (let [choices        (deref-or-value choices)
+          model          (deref-or-value model)
+          on-change      (deref-or-value on-change)
+          multi-select?  (deref-or-value multi-select?)
+          as-exclusions? (deref-or-value as-exclusions?)
+          required?      (deref-or-value required?)
+          width          (deref-or-value width)
+          height         (deref-or-value height)
+          max-height     (deref-or-value max-height)
+          disabled?      (deref-or-value disabled?)
+          hide-border?   (deref-or-value hide-border?)
+          item-renderer  (deref-or-value item-renderer)
+          selected       (if multi-select? model (-> model first vector set))
+          items          (map (if item-renderer
+                                #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
+                                (if multi-select?
+                                  #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)
+                                  #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)))
+                              choices)
+          bounds         (select-keys args [:width :height :max-height])
+          spacing        (if hide-border? spacing-unbordered spacing-bordered)]
       ;; In single select mode force selections to one. This causes a second render
       ;; TODO: GR commented this out to fix the bug where #{nil} was being returned for an empty list. Remove when we're sure there are no ill effects.
       #_(when-not (= selected model) (on-change selected))
       [border
        :src    src
+       :log    (reflect)
        :class  (str "rc-selection-list "
                     (when (deref-or-value disabled?) "rc-disabled")
                     class)
@@ -184,25 +208,3 @@
                      items)])))
 
 
-(defn- configure
-  "Augment passed attributes with defaults and deref any atoms"
-  [attributes]
-  (merge {:multi-select?  true
-          :as-exclusions? false
-          :required?      false
-          :disabled?      false
-          :hide-border?   false
-          :id-fn          :id
-          :label-fn       :label}
-         (fmap deref-or-value attributes)))
-
-(defn selection-list
-  "Produce a list box with items arranged vertically"
-  [& {:as args}]
-  (or
-    (validate-args-macro selection-list-args-desc args "selection-list")
-    ;;NOTE: Consumer has complete control over what is selected or not. A current design tradeoff
-    ;;      causes all selection changes to trigger a complete list re-render as a result of on-change callback.
-    ;;      this approach may be not ideal for very large list choices.
-    (fn [& {:as args}]
-      [list-container (configure args)])))

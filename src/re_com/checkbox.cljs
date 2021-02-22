@@ -1,6 +1,6 @@
 (ns re-com.checkbox
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn coords reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.debug     :refer [->attr]]
@@ -54,6 +54,7 @@
                         (on-change (not model)))]  ;; call on-change with either true or false
       [h-box
        :src      src
+       :log      (reflect)
        :class    (str "noselect rc-checkbox-wrapper " (get-in parts [:wrapper :class]))
        :style    (get-in parts [:wrapper :style])
        :attr     (get-in parts [:wrapper :attr])

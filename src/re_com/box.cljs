@@ -123,7 +123,7 @@
 (defn- box-base
   "This should generally NOT be used as it is the basis for the box, scroller and border components"
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self
-             margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr src]
+             margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr]
       :as   args}]
   (let [s (merge
             (flex-flow-style "inherit")
@@ -154,7 +154,7 @@
             style)]
     [:div
      (merge
-       (->attr src args)
+       (->attr args)
        {:class (str class-name "display-flex " class) :style s}
        attr)
      child]))
@@ -172,7 +172,8 @@
      {:name :class  :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
      {:name :style  :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
      {:name :attr   :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src    :required false :type "map"           :validate-fn map?       :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src    :required false :type "map"           :validate-fn map?       :description "Source code coordinates. See 'Debugging'."}
+     {:name :log    :required false :type "map"           :validate-fn map?       :description "Used internally to modify the output of logging for the component."}]))
 
 (defn gap
   "Returns a component which produces a gap between children in a v-box/h-box along the main axis"
@@ -188,7 +189,7 @@
               style)]
       [:div
        (merge
-         (->attr src args)
+         (->attr args)
          {:class (str "rc-gap " class) :style s}
          attr)])))
 
@@ -204,7 +205,8 @@
      {:name :class :required false                      :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
      {:name :style :required false                      :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
      {:name :attr  :required false                      :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src   :required false                      :type "map"           :validate-fn map?       :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src   :required false                      :type "map"           :validate-fn map?       :description "Source code coordinates. See 'Debugging'."}
+     {:name :log   :required false                      :type "map"           :validate-fn map?       :description "Used internally to modify the output of logging for the component."}]))
 
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
@@ -220,7 +222,7 @@
               style)]
       [:div
        (merge
-         (->attr src args)
+         (->attr args)
          {:class (str "rc-line " class) :style s}
          attr)])))
 
@@ -248,7 +250,8 @@
      {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src        :required false                   :type "map"           :validate-fn map?           :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src        :required false                   :type "map"           :validate-fn map?           :description "Source code coordinates. See 'Debugging'."}
+     {:name :log        :required false                   :type "map"           :validate-fn map?           :description "Used internally to modify the output of logging for the component."}]))
 
 (defn h-box
   "Returns hiccup which produces a horizontal box.
@@ -284,7 +287,7 @@
                      children)]
       (into [:div
              (merge
-               (->attr src args)
+               (->attr args)
                {:class (str "rc-h-box display-flex " class) :style s}
                attr)]
             children))))
@@ -312,7 +315,8 @@
      {:name :class      :required false                   :type "string"        :validate-fn string?        :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src        :required false                   :type "map"           :validate-fn map?           :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src        :required false                   :type "map"           :validate-fn map?           :description "Source code coordinates. See 'Debugging'."}
+     {:name :log        :required false                   :type "map"           :validate-fn map?           :description "Used internally to modify the output of logging for the component."}]))
 
 (defn v-box
   "Returns hiccup which produces a vertical box.
@@ -348,7 +352,7 @@
                      children)]
       (into [:div
              (merge
-               (->attr src args)
+               (->attr args)
                {:class (str "rc-v-box display-flex " class) :style s}
                attr)]
             children))))
@@ -376,12 +380,13 @@
      {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src        :required false                   :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src        :required false                   :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}
+     {:name :log        :required false                   :type "map"             :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
 
 (defn box
   "Returns hiccup which produces a box, which is generally used as a child of a v-box or an h-box.
    By default, it also acts as a container for further child compenents, or another h-box or v-box"
-  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding child class style attr src]
+  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding child class style attr src log]
       :or   {size "none"}
       :as   args}]
   (or
@@ -403,7 +408,8 @@
               :class       class
               :style       style
               :attr        attr
-              :src         src)))
+              :src         src
+              :log         log)))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -435,7 +441,8 @@
      {:name :class      :required false                   :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src        :required false                   :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src        :required false                   :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}
+     {:name :log        :required false                   :type "map"             :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
 
 (defn scroller
   "Returns hiccup which produces a scoller component.
@@ -450,7 +457,7 @@
            :off    Never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen.
            :spill  Never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place.
    Note:   If scroll is set, then setting h-scroll or v-scroll overrides the scroll value"
-  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self margin padding child class style attr src]
+  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self margin padding child class style attr src log]
       :or   {size "auto"}
       :as   args}]
   (or
@@ -477,7 +484,8 @@
                 :class      class
                 :style      style
                 :attr       attr
-                :src        src))))
+                :src        src
+                :log        log))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -505,7 +513,8 @@
      {:name :class      :required false                                :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :style      :required false                                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
      {:name :attr       :required false                                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src        :required false                                :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src        :required false                                :type "map"             :validate-fn map?              :description "Source code coordinates. See 'Debugging'."}
+     {:name :log        :required false                                :type "map"             :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
 
 (defn border
   "Returns hiccup which produces a border component.
@@ -514,7 +523,7 @@
     - border-width: thin, medium, thick or standard CSS size (e.g. 2px, 0.5em)
     - border-style: none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset
     - color:        standard CSS color (e.g. grey #88ffee)"
-  [& {:keys [size width height min-width min-height max-width max-height margin padding border l-border r-border t-border b-border radius child class style attr src]
+  [& {:keys [size width height min-width min-height max-width max-height margin padding border l-border r-border t-border b-border radius child class style attr src log]
       :or   {size "none"}
       :as   args}]
   (or
@@ -541,4 +550,5 @@
                 :class       class
                 :style       style
                 :attr        attr
-                :src         src))))
+                :src         src
+                :log         log))))

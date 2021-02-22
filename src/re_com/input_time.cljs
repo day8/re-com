@@ -1,6 +1,6 @@
 (ns re-com.input-time
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn coords reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [reagent.core    :as    reagent]
@@ -187,6 +187,7 @@
 
             [h-box
              :src      src
+             :log      (reflect)
              :class    (str "rc-input-time " (get-in parts [:wrapper :class]))
              :style    (merge {:height height} (get-in parts [:wrapper :style]))
              :attr     (get-in parts [:wrapper :attr])

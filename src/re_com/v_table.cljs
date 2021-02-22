@@ -1,7 +1,7 @@
 (ns re-com.v-table
   (:require-macros
     [reagent.ratom      :refer [reaction]]
-    [re-com.core        :refer [handler-fn coords]]
+    [re-com.core        :refer [handler-fn coords reflect]]
     [re-com.validate    :refer [validate-args-macro]])
   (:require
     [reagent.core       :as    reagent]
@@ -1132,6 +1132,7 @@
 
                                 [box/h-box
                                  :src      src
+                                 :log      (reflect)
                                  :class    (str "rc-v-table " class " " (get-in parts [:wrapper :class]))
                                  :style    (merge
                                              {:max-width  max-width ;; Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width

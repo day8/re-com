@@ -34,30 +34,33 @@
     args))
 
 (defn ->attr
-  ([src args]
-   (->attr src (component/component-name (r/current-component)) args))
-  ([{:keys [file line] :as src} component-name args]
-   (if debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
-     (let [pruned-args (loggable-args args)
-           ref-fn      (fn [^js/Element el]
-                         ;; If the ref callback is defined as an inline function, it will get called twice during updates,
-                         ;; first with null and then again with the DOM element.
-                         ;;
-                         ;; See: 'Caveats with callback refs' at
-                         ;; https://reactjs.org/docs/refs-and-the-dom.html#caveats-with-callback-refs
-                         (when el
-                           ;; Remember args so they can be logged later:
-                           (gobj/set el "__rc-args" pruned-args))
-                         ;; User may have supplied their own ref like so: {:attr {:ref (fn ...)}}
-                         (when-let [user-ref-fn (get-in args [:attr :ref])]
-                           (when (fn? user-ref-fn)
-                             (user-ref-fn el))))]
-       (cond->
-         {:ref               ref-fn
-          :data-rc-component (short-component-name component-name)}
-         src
-         (assoc :data-rc-src (str file ":" line))))
-     {})))
+  [{:keys [src log] :as args}]
+  (if-not debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
+    {}
+    (let [rc-component        (or (:component log)
+                                  (short-component-name (component/component-name (r/current-component))))
+          rc-args             (loggable-args
+                                (or (:args log)
+                                    args))
+          ref-fn              (fn [^js/Element el]
+                                ;; If the ref callback is defined as an inline function, it will get called twice during updates,
+                                ;; first with null and then again with the DOM element.
+                                ;;
+                                ;; See: 'Caveats with callback refs' at
+                                ;; https://reactjs.org/docs/refs-and-the-dom.html#caveats-with-callback-refs
+                                (when el
+                                  ;; Remember args so they can be logged later:
+                                  (gobj/set el "__rc-args" rc-args))
+                                ;; User may have supplied their own ref like so: {:attr {:ref (fn ...)}}
+                                (when-let [user-ref-fn (get-in args [:attr :ref])]
+                                  (when (fn? user-ref-fn)
+                                    (user-ref-fn el))))
+          {:keys [file line]} src]
+      (cond->
+        {:ref               ref-fn
+         :data-rc-component rc-component}
+        src
+        (assoc :data-rc-src (str file ":" line))))))
 
 (defn component-stack
   ([el]
@@ -165,33 +168,36 @@
     (js/console.groupEnd)))
 
 (defn validate-args-error
-  [& {:keys [problems component-name src]}]
-  (let [element                 (atom nil)
-        ref-fn                  (fn [el]
-                                  (when el
-                                    (reset! element el)))
-        internal-problems       (atom problems)
-        internal-component-name (atom component-name)
-        internal-src            (atom src)]
+  [& {:keys [problems component args src]}]
+  (let [element            (atom nil)
+        ref-fn             (fn [el]
+                             (when el
+                               (reset! element el)))
+        internal-problems  (atom problems)
+        internal-component (atom component)
+        internal-src       (atom src)]
     (r/create-class
       {:display-name "validate-args-error"
 
        :component-did-mount
        (fn [this]
-         (log-validate-args-error element @internal-problems @internal-component-name @internal-src))
+         (log-validate-args-error element @internal-problems @internal-component @internal-src))
 
        :component-did-update
        (fn [this argv old-state snapshot]
-         (log-validate-args-error element @internal-problems @internal-component-name @internal-src))
+         (log-validate-args-error element @internal-problems @internal-component @internal-src))
 
        :reagent-render
-       (fn [& {:keys [problems component-name src]}]
+       (fn [& {:keys [problems component args src]}]
          (reset! internal-problems problems)
-         (reset! internal-component-name component-name)
+         (reset! internal-component component)
          (reset! internal-src src)
          [:div
           (merge
-            (->attr src component-name {:attr {:ref ref-fn}})  ;; important that this ref-fn doesn't get overridden by (->attr ...)
+            (->attr {:src  src
+                     :log  {:component component
+                            :args      args}
+                     :attr {:ref ref-fn}})  ;; important that this ref-fn doesn't get overridden by (->attr ...)
             {:title    "re-com validation error. Look in the DevTools console."
              :style    (validate-args-problems-style)})
 
@@ -222,5 +228,5 @@
        :reagent-render
        (fn [& {:keys [component src]}]
          [:div
-          (->attr src {:attr {:ref ref-fn}}) ;; important that this ref-fn doesn't get overridden by (->attr ...)
+          (->attr {:src src :attr {:ref ref-fn}}) ;; important that this ref-fn doesn't get overridden by (->attr ...)
           component])})))

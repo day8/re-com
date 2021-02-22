@@ -1,6 +1,6 @@
 (ns re-com.buttons
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]])
+    [re-com.core     :refer [handler-fn coords reflect]])
   (:require
     [re-com.util     :refer [deref-or-value px]]
     [re-com.config   :refer [include-args-desc?]]
@@ -70,6 +70,7 @@
               (reset! showing? false))
             [box
              :src   src
+             :log   (reflect)
              :class (str "rc-button-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
              :style (get-in parts [:wrapper :style])
              :attr  (get-in parts [:wrapper :attr])
@@ -157,6 +158,7 @@
                                (get-in parts [:icon :attr]))]]]
             [box
              :src   src
+             :log   (reflect)
              :align :start
              :class (str "display-inline-flex rc-md-circle-icon-button-wrapper " (get-in parts [:wrapper :class]))
              :style (get-in parts [:wrapper :style])
@@ -169,8 +171,8 @@
                        :showing? showing?
                        :anchor   the-button
                        :class    (str "rc-md-circle-icon-button-tooltip " (get-in parts [:tooltip :class]))
-                       :style    (get-in parts [:tooltip :style] {})
-                       :attr     (get-in parts [:tooltip :attr] {})]
+                       :style    (get-in parts [:tooltip :style])
+                       :attr     (get-in parts [:tooltip :attr])]
                       the-button)]))))))
 
 
@@ -243,6 +245,7 @@
                                 :style (get-in parts [:icon :style] {})}
                                (get-in parts [:icon :attr]))]]]
             [box
+             :log   (reflect)
              :src   src
              :align :start
              :class (str "display-inline-flex rc-md-icon-button-wrapper " (get-in parts [:wrapper :class]))
@@ -300,6 +303,7 @@
         (validate-args-macro info-button-args-desc args src)
         [popover-tooltip
          :src       src
+         :log       (reflect)
          :label     info
          :status    :info
          :position  (or position :right-below)
@@ -396,6 +400,7 @@
                                (get-in parts [:icon :attr]))]]]
             [box
              :src   src
+             :log   (reflect)
              :align :start
              :class (str "display-inline-flex rc-row-button-wrapper " (get-in parts [:wrapper :class]))
              :style (get-in parts [:wrapper :style] {})
@@ -478,6 +483,7 @@
                                     label]]]
             [box
              :src   src
+             :log   (reflect)
              :align :start
              :class (str "display-inline-flex rc-hyperlink-wrapper " (get-in parts [:wrapper :class]))
              :style (get-in parts [:wrapper :style])
@@ -562,6 +568,7 @@
 
             [box
              :src   src
+             :log   (reflect)
              :align :start
              :class (str "rc-hyperlink-href-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
              :style (get-in parts [:wrapper :style] {})

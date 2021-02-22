@@ -1,7 +1,7 @@
 (ns re-com.tag-dropdown
   (:require-macros
     [reagent.ratom   :refer [reaction]]
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn coords reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [goog.string           :as gstring]
@@ -290,6 +290,7 @@
                                                 :on-click  #(on-change #{})])]]]
             [popover-anchor-wrapper
              :src      src
+             :log      (reflect)
              :class    (str "rc-tag-dropdown-popover-anchor-wrapper " (get-in parts [:popover-anchor-wrapper :class]))
              :showing? showing?
              :position :below-center

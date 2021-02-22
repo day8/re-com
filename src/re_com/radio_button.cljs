@@ -1,6 +1,6 @@
 (ns re-com.radio-button
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn coords reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -54,6 +54,7 @@
                         (on-change value))]  ;; call on-change with the :value arg
       [h-box
        :src      src
+       :log      (reflect)
        :class    (str "noselect rc-radio-button-wrapper " (get-in parts [:wrapper :class]))
        :style    (get-in parts [:wrapper :style])
        :attr     (get-in parts [:wrapper :attr])

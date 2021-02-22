@@ -1,6 +1,6 @@
 (ns re-com.text
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn coords reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -41,6 +41,7 @@
   (or
     (validate-args-macro label-args-desc args src)
     [box
+     :log   (reflect)
      :src   src
      :class (str "display-inline-flex rc-label-wrapper " (get-in parts [:wrapper :class]))
      :style (get-in parts [:wrapper :style])
@@ -95,6 +96,7 @@
     (let [preset-class (if (nil? level) "" (name level))]
       [v-box
        :src      src
+       :log      (reflect)
        :class    (str "rc-title-wrapper " preset-class " " (get-in parts [:wrapper :class]))
        :style    (get-in parts [:wrapper :style])
        :attr     (get-in parts [:wrapper :attr])

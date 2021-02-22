@@ -259,7 +259,8 @@
      {:name :style              :required false                     :type "CSS style map"            :validate-fn validate/css-style?         :description "CSS styles to add or override"}
      {:name :attr               :required false                     :type "HTML attr map"            :validate-fn validate/html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :parts              :required false                     :type "map"                      :validate-fn (parts? multi-select-parts) :description "See Parts section below."}
-     {:name :src                :required false                     :type "map"                      :validate-fn map?                        :description "Source code coordinates. See 'Debugging'."}]))
+     {:name :src                :required false                     :type "map"                      :validate-fn map?                        :description "Source code coordinates. See 'Debugging'."}
+     {:name :log                :required false                     :type "map"                      :validate-fn map?                        :description "Used internally to modify the output of logging for the component."}]))
 
 (defn multi-select
   "Render a multi-select component which emulates the bootstrap-choosen style. Sample choices object:
@@ -412,7 +413,7 @@
                                             (reset! *external-model @*internal-model)
                                             (on-change @*internal-model))
                                           (reset! *current-selection-id nil))]
-            [:div ;; TODO: Convert to box ?
+            [:div
              (merge
                {:class (str "rc-multi-select noselect chosen-container chosen-container-single " class)
                 :style (merge (box/flex-child-style (if width "0 0 auto" "auto"))
@@ -420,7 +421,7 @@
                               {:overflow "hidden"
                                :width    width}
                               style)}
-               (->attr src args)
+               (->attr args)
                attr) ;; Prevent user text selection
              [box/h-box
               :src        (coords)

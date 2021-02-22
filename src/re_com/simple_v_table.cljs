@@ -1,6 +1,6 @@
 (ns re-com.simple-v-table
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn coords reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [reagent.core    :as    reagent]
@@ -251,6 +251,7 @@
                                              (deref-or-value model))))]
             [box
              :src   src
+             :log   (reflect)
              :class (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
              :style (merge {;; :flex setting
                             ;; When max-rows is being used:

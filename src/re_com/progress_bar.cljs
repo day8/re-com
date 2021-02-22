@@ -1,6 +1,6 @@
 (ns re-com.progress-bar
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn coords reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -48,6 +48,7 @@
     (let [model (deref-or-value model)]
       [box
        :src   src
+       :log   (reflect)
        :class (str "rc-progress-bar-wrapper " (get-in parts [:wrapper :class]))
        :style (get-in parts [:wrapper :style])
        :attr  (get-in parts [:wrapper :attr])
