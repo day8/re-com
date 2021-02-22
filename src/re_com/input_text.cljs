@@ -1,6 +1,6 @@
 (ns re-com.input-text
   (:require-macros
-    [re-com.core     :refer [handler-fn src-coordinates]]
+    [re-com.core     :refer [handler-fn coords]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -161,7 +161,7 @@
                           (let [icon-class (case status :success "zmdi-check-circle" :warning "zmdi-alert-triangle" :error "zmdi-alert-circle zmdi-spinner" :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner")]
                             (if status-tooltip
                              [popover-tooltip
-                              :src      (src-coordinates)
+                              :src      (coords)
                               :label    status-tooltip
                               :position :right-center
                               :status   status
@@ -185,7 +185,7 @@
                                                 :margin-left "4px"})]
                              (if (= :validating status)
                                [throbber
-                                :src   (src-coordinates)
+                                :src   (coords)
                                 :size  :regular
                                 :class "smaller"]
                                [:i {:class (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")

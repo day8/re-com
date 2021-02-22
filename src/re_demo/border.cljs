@@ -1,6 +1,6 @@
 (ns re-demo.border
   (:require-macros
-    [re-com.core   :refer [src-coordinates]])
+    [re-com.core   :refer [coords]])
   (:require
     [re-com.core   :refer [h-box v-box box gap border p]]
     [re-com.box    :refer [border-args-desc]]
@@ -10,7 +10,7 @@
 (defn panel
   []
   [v-box
-   :src      (src-coordinates)
+   :src      (coords)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title  "[border ... ]"
@@ -18,10 +18,10 @@
                             "src/re_demo/border.cljs"]
 
               [h-box
-               :src      (src-coordinates)
+               :src      (coords)
                :gap      "100px"
                :children [[v-box
-                           :src      (src-coordinates)
+                           :src      (coords)
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Notes"]
@@ -30,7 +30,7 @@
                                       [p "The border can be used at any level in a box hierarchy. For example, it could be a child of an h-box and it's child could be a v-box."]
                                       [args-table border-args-desc]]]
                           [v-box
-                           :src      (src-coordinates)
+                           :src      (coords)
                            :gap      "10px"
                            ; :size     "0 0 auto"
                            ;:align    :start
@@ -44,12 +44,12 @@
 
                                       [p "Here is the result..."]
                                       [border
-                                       :src    (src-coordinates)
+                                       :src    (coords)
                                        :border "1px dashed red"
                                        :child  [box
-                                                :src    (src-coordinates)
+                                                :src    (coords)
                                                 :height "100px"
                                                 :child "Hello"]]]]]]
               [gap
-               :src  (src-coordinates)
+               :src  (coords)
                :size "30px"]]])

@@ -32,6 +32,6 @@
   ([& body]
    `(fn [~'event] ~@body nil)))  ;; force return nil
 
-(defmacro src-coordinates
+(defmacro coords
   []
   (select-keys (meta &form) [:file :line]))

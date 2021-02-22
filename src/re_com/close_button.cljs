@@ -1,6 +1,6 @@
 (ns re-com.close-button
   (:require-macros
-    [re-com.core     :refer [handler-fn src-coordinates]])
+    [re-com.core     :refer [handler-fn coords]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
@@ -56,7 +56,7 @@
                          (get-in parts [:wrapper :style]))
            :attr  (get-in parts [:wrapper :attr])
            :child [box
-                   :src   (src-coordinates)
+                   :src   (coords)
                    :class class
                    :style (merge
                             {:position  "absolute"

@@ -1,6 +1,6 @@
 (ns re-com.popover
   (:require-macros
-    [re-com.core         :refer [handler-fn src-coordinates]]
+    [re-com.core         :refer [handler-fn coords]]
     [re-com.validate     :refer [validate-args-macro]])
   (:require
     [re-com.config       :refer [include-args-desc?]]
@@ -184,13 +184,13 @@
                         {:font-size "18px"})}
          (->attr src args))
        [h-box
-        :src      (src-coordinates)
+        :src      (coords)
         :justify  :between
         :align    :center
         :children [title
                    (when close-button?
                      [close-button
-                      :src         (src-coordinates)
+                      :src         (coords)
                       :on-click    #(if close-callback
                                       (close-callback)
                                       (reset! showing? false))
@@ -419,12 +419,12 @@
                        attr)
                 (when (and (deref-or-value showing-injected?)  on-cancel)
                   [backdrop
-                   :src      (src-coordinates)
+                   :src      (coords)
                    :class    (get-in parts [:backdrop :class] "")
                    :opacity  backdrop-opacity
                    :on-click on-cancel])
                 [popover-border
-                 :src                  (src-coordinates)
+                 :src                  (coords)
                  :class                (get-in parts [:border :class] "")
                  :position             position-injected
                  :position-offset      position-offset
@@ -438,7 +438,7 @@
                  :arrow-gap            arrow-gap
                  :padding              padding
                  :title                (when title [popover-title
-                                                    :src            (src-coordinates)
+                                                    :src            (coords)
                                                     :class          (get-in parts [:title :class] "")
                                                     :title          title
                                                     :showing?       showing-injected?
@@ -553,7 +553,7 @@
        :style    style
        :attr     attr
        :popover [popover-content-wrapper
-                 :src            (src-coordinates)
+                 :src            (coords)
                  :no-clip?       no-clip?
                  :on-cancel      on-cancel
                  :width          width
@@ -564,7 +564,7 @@
                  :arrow-width    12
                  :arrow-gap      4
                  :body           [v-box
-                                  :src   (src-coordinates)
+                                  :src   (coords)
                                   :class (get-in parts [:v-box :class])
                                   :style (if (= status :info)
                                            {:color       "white"
@@ -576,11 +576,11 @@
                                             :text-align  "center"})
                                   :children [(when close-button?
                                                [box
-                                                :src        (src-coordinates)
+                                                :src        (coords)
                                                 :class      (str "rc-popover-tooltip-close-button-container " (get-in parts [:close-button-container :class]))
                                                 :align-self :end
                                                 :child      [close-button
-                                                             :src         (src-coordinates)
+                                                             :src         (coords)
                                                              :class       (str "rc-popover-tooltip-close-button " (get-in parts [:close-button :class]))
                                                              :on-click    #(if on-cancel
                                                                              (on-cancel)

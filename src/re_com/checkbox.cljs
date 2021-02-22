@@ -1,6 +1,6 @@
 (ns re-com.checkbox
   (:require-macros
-    [re-com.core     :refer [handler-fn src-coordinates]]
+    [re-com.core     :refer [handler-fn coords]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.debug     :refer [->attr]]

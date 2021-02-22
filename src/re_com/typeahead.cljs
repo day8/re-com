@@ -1,6 +1,6 @@
 (ns re-com.typeahead
   (:require-macros
-    [re-com.core            :refer [handler-fn src-coordinates]]
+    [re-com.core            :refer [handler-fn coords]]
     [re-com.validate        :refer [validate-args-macro]]
     [cljs.core.async.macros :refer [alt! go-loop]])
   (:require
@@ -288,7 +288,7 @@
              :attr     attr
              :width    width
              :children [[input-text
-                         :src            (src-coordinates)
+                         :src            (coords)
                          :model          input-text-model
                          :class          class
                          :style          style
@@ -307,24 +307,24 @@
                                 :on-blur #(swap! state-atom input-text-will-blur)}]
                         (if (or (not-empty suggestions) waiting?)
                           [box
-                           :src   (src-coordinates)
+                           :src   (coords)
                            :style {:position "relative"}
                            :child [v-box
-                                   :src      (src-coordinates)
+                                   :src      (coords)
                                    :class    (str "rc-typeahead-suggestions-container " (get-in parts [:suggestions-container :class]))
                                    :children [(when waiting?
                                                 [box
-                                                 :src   (src-coordinates)
+                                                 :src   (coords)
                                                  :align :center
                                                  :child [throbber
-                                                         :src   (src-coordinates)
+                                                         :src   (coords)
                                                          :size  :small
                                                          :class (str "rc-typeahead-throbber " (get-in parts [:throbber :class]))]])
                                               (for [[i s] (map vector (range) suggestions)
                                                     :let [selected? (= suggestion-active-index i)]]
                                                 ^{:key i}
                                                 [box
-                                                 :src   (src-coordinates)
+                                                 :src   (coords)
                                                  :child (if render-suggestion
                                                           (render-suggestion s)
                                                           s)

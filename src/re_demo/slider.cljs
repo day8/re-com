@@ -1,6 +1,6 @@
 (ns re-demo.slider
   (:require-macros
-    [re-com.core   :refer [src-coordinates]])
+    [re-com.core   :refer [coords]])
   (:require
     [re-com.core   :refer [h-box v-box box gap line label title slider checkbox input-text horizontal-bar-tabs vertical-bar-tabs p]]
     [re-com.slider :refer [slider-parts-desc slider-args-desc]]
@@ -18,7 +18,7 @@
     (fn
       []
       [v-box
-       :src      (src-coordinates)
+       :src      (coords)
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[slider ... ]"
@@ -26,10 +26,10 @@
                                 "src/re_demo/slider.cljs"]
 
                   [h-box
-                   :src      (src-coordinates)
+                   :src      (coords)
                    :gap      "100px"
                    :children [[v-box
-                               :src      (src-coordinates)
+                               :src      (coords)
                                :gap      "10px"
                                :width    "450px"
                                :children [[title2 "Notes"]
@@ -37,14 +37,14 @@
                                           [p "Standard HTML5 slider control."]
                                           [args-table slider-args-desc]]]
                               [v-box
-                               :src      (src-coordinates)
+                               :src      (coords)
                                :gap      "10px"
                                :children [[title2 "Demo"]
                                           [v-box
-                                           :src      (src-coordinates)
+                                           :src      (coords)
                                            :gap      "20px"
                                            :children [[slider
-                                                       :src       (src-coordinates)
+                                                       :src       (coords)
                                                        :model     slider-val
                                                        :min       slider-min
                                                        :max       slider-max
@@ -53,10 +53,10 @@
                                                        :on-change #(reset! slider-val (str %))
                                                        :disabled? disabled?]
                                                       [gap
-                                                       :src      (src-coordinates)
+                                                       :src      (coords)
                                                        :size "0px"]
                                                       [v-box
-                                                       :src      (src-coordinates)
+                                                       :src      (coords)
                                                        :gap "10px"
                                                        :style    {:min-width        "150px"
                                                                   :padding          "15px"
@@ -64,73 +64,73 @@
                                                                   :background-color "#f7f7f7"}
                                                        :children [[title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
                                                                   [h-box
-                                                                   :src      (src-coordinates)
+                                                                   :src      (coords)
                                                                    :gap      "10px"
                                                                    :align    :center
                                                                    :children [[box
-                                                                               :src      (src-coordinates)
+                                                                               :src      (coords)
                                                                                :align :start
                                                                                :width "60px"
                                                                                :child [:code ":model"]]
                                                                               [input-text
-                                                                               :src      (src-coordinates)
+                                                                               :src      (coords)
                                                                                :model           slider-val
                                                                                :width           "60px"
                                                                                :height          "26px"
                                                                                :on-change       #(reset! slider-val %)
                                                                                :change-on-blur? false]]]
                                                                   [h-box
-                                                                   :src      (src-coordinates)
+                                                                   :src      (coords)
                                                                    :gap      "10px"
                                                                    :align    :center
                                                                    :children [[box
-                                                                               :src      (src-coordinates)
+                                                                               :src      (coords)
                                                                                :align :start
                                                                                :width "60px"
                                                                                :child [:code ":min"]]
                                                                               [input-text
-                                                                               :src      (src-coordinates)
+                                                                               :src      (coords)
                                                                                :model           slider-min
                                                                                :width           "60px"
                                                                                :height          "26px"
                                                                                :on-change       #(reset! slider-min %)
                                                                                :change-on-blur? false]]]
                                                                   [h-box
-                                                                   :src      (src-coordinates)
+                                                                   :src      (coords)
                                                                    :gap      "10px"
                                                                    :align    :center
                                                                    :children [[box
-                                                                               :src      (src-coordinates)
+                                                                               :src      (coords)
                                                                                :align :start
                                                                                :width "60px"
                                                                                :child [:code ":max"]]
                                                                               [input-text
-                                                                               :src      (src-coordinates)
+                                                                               :src      (coords)
                                                                                :model           slider-max
                                                                                :width           "60px"
                                                                                :height          "26px"
                                                                                :on-change       #(reset! slider-max %)
                                                                                :change-on-blur? false]]]
                                                                   [h-box
-                                                                   :src      (src-coordinates)
+                                                                   :src      (coords)
                                                                    :gap      "10px"
                                                                    :align    :center
                                                                    :children [[box
-                                                                               :src      (src-coordinates)
+                                                                               :src      (coords)
                                                                                :align :start
                                                                                :width "60px"
                                                                                :child [:code ":step"]]
                                                                               [input-text
-                                                                               :src      (src-coordinates)
+                                                                               :src      (coords)
                                                                                :model           slider-step
                                                                                :width           "60px"
                                                                                :height          "26px"
                                                                                :on-change       #(reset! slider-step %)
                                                                                :change-on-blur? false]]]
                                                                   [checkbox
-                                                                   :src      (src-coordinates)
+                                                                   :src      (coords)
                                                                    :label [box
-                                                                           :src      (src-coordinates)
+                                                                           :src      (coords)
                                                                            :align :start :child [:code ":disabled?"]]
                                                                    :model disabled?
                                                                    :on-change (fn [val]

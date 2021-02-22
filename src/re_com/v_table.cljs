@@ -1,7 +1,7 @@
 (ns re-com.v-table
   (:require-macros
     [reagent.ratom      :refer [reaction]]
-    [re-com.core        :refer [handler-fn src-coordinates]]
+    [re-com.core        :refer [handler-fn coords]]
     [re-com.validate    :refer [validate-args-macro]])
   (:require
     [reagent.core       :as    reagent]
@@ -141,7 +141,7 @@
                   :on-mouse-leave on-mouse-leave
                   :on-mouse-down  (handler-fn (when show? (scrollbar-mouse-down event)))} ;; TODO: Best way to move this fn to outer fn? (closes over show?)
          :child  [box/box
-                  :src    (src-coordinates)
+                  :src    (coords)
                   :width  (if horizontal?
                             (px (if show? thumb-length 0))
                             (px width))
@@ -166,7 +166,7 @@
   "Render section 1 - the content component"
   [top-left-renderer column-header-height class style attr]
   [box/box ;; content component
-   :src    (src-coordinates)
+   :src    (coords)
    :class  (str "rc-v-table-top-left rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
@@ -192,7 +192,7 @@
   "
   [row-header-renderer key-fn top-row-index rows scroll-y class style attr]
   [box/v-box
-   :src      (src-coordinates)
+   :src      (coords)
    :class    (str "rc-v-table-row-header-content rc-v-table-content " class)
    :style    (merge {:margin-top (px scroll-y :negative)}
                     style)
@@ -213,7 +213,7 @@
    sel-class sel-style sel-attr
    content-class content-style content-attr]
   [box/v-box ;; viewport component
-   :src      (src-coordinates)
+   :src      (coords)
    :class    (str "rc-v-table-row-headers rc-v-table-viewport " class)
    :style    (merge {:position   "relative"
                      :overflow   "hidden"
@@ -239,7 +239,7 @@
   "Render section 3 - the content component"
   [bottom-left-renderer column-footer-height class style attr]
   [box/box ;; content component
-   :src    (src-coordinates)
+   :src    (coords)
    :class  (str "rc-v-table-bottom-left rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
@@ -261,7 +261,7 @@
   "
   [column-header-renderer scroll-x class style attr]
   [box/box
-   :src   (src-coordinates)
+   :src   (coords)
    :class (str "rc-v-table-column-header-content rc-v-table-content " class)
    :style (merge {:margin-left (px scroll-x :negative)}
                  style)
@@ -278,7 +278,7 @@
    sel-class sel-style sel-attr
    content-class content-style content-attr]
   [box/v-box ;; viewport component
-   :src      (src-coordinates)
+   :src      (coords)
    :class    (str "rc-v-table-column-headers rc-v-table-viewport " class)
    :style    (merge {:overflow "hidden"
                      :position "relative"}
@@ -314,7 +314,7 @@
   "
   [row-renderer key-fn top-row-index rows scroll-x scroll-y class style attr]
   [box/v-box
-   :src      (src-coordinates)
+   :src      (coords)
    :class    (str "rc-v-table-row-content rc-v-table-content " class)
    :style    (merge {:margin-left (px scroll-x :negative)
                      :margin-top (px scroll-y :negative)}
@@ -336,7 +336,7 @@
    sel-class sel-style sel-attr
    content-class content-style content-attr]
   [box/v-box ;; viewport component
-   :src      (src-coordinates)
+   :src      (coords)
    :class    (str "rc-v-table-rows rc-v-table-viewport " class)
    :style    (merge {:overflow   "hidden"
                      :position   "relative"
@@ -369,7 +369,7 @@
   "
   [column-footer-renderer scroll-x class style attr]
   [box/box
-   :src   (src-coordinates)
+   :src   (coords)
    :class (str "rc-v-table-column-footer-content rc-v-table-content " class)
    :style (merge {:margin-left (px scroll-x :negative)}
                  style)
@@ -383,7 +383,7 @@
    class style attr
    content-class content-style content-attr]
   [box/box ;; viewport component
-   :src    (src-coordinates)
+   :src    (coords)
    :class  (str "rc-v-table-column-footers rc-v-table-viewport " class)
    :style  (merge {:overflow "hidden"}
                   style)
@@ -401,7 +401,7 @@
   "Render section 7 - the content component"
   [top-right-renderer column-header-height class style attr]
   [box/box ;; content component
-   :src    (src-coordinates)
+   :src    (coords)
    :class  (str  "rc-v-table-top-right rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
@@ -427,7 +427,7 @@
   "
   [row-footer-renderer key-fn top-row-index rows scroll-y class style attr]
   [box/v-box
-   :src      (src-coordinates)
+   :src      (coords)
    :class    (str "rc-v-table-row-footer-content rc-v-table-content " class)
    :style    (merge {:margin-top (px scroll-y :negative)}
                     style)
@@ -446,7 +446,7 @@
    class style attr
    content-class content-style content-attr]
   [box/box ;; viewport component
-   :src    (src-coordinates)
+   :src    (coords)
    :class  (str "rc-v-table-row-footers rc-v-table-viewport " class)
    :style  (merge {:overflow   "hidden"
                    :max-height (px content-rows-height)}
@@ -465,7 +465,7 @@
   "Render section 9 - the content component"
   [bottom-right-renderer column-footer-height class style attr]
   [box/box ;; content component
-   :src    (src-coordinates)
+   :src    (coords)
    :class  (str "rc-v-table-bottom-right rc-v-table-content " class)
    :style  (merge {:overflow "hidden"}
                   style)
@@ -1159,7 +1159,7 @@
                                             ;; ========== LEFT SECTION (1, 2, 3) - row header area
 
                                             [box/v-box
-                                             :src      (src-coordinates)
+                                             :src      (coords)
                                              :class    (str "rc-v-table-left-section " (get-in parts [:left-section :class]))
                                              :style    (get-in parts [:left-section :style])
                                              :attr     (get-in parts [:left-section :attr])
@@ -1213,13 +1213,13 @@
                                                          (get-in parts [:bottom-left :attr])]
 
                                                         [box/gap
-                                                         :src  (src-coordinates)
+                                                         :src  (coords)
                                                          :size (px scrollbar-tot-thick)]]]
 
                                             ;; ========== MIDDLE SECTION (4, 5, 6) - column header/footer and content area
 
                                             [box/v-box
-                                             :src      (src-coordinates)
+                                             :src      (coords)
                                              :class    (str "rc-v-table-middle-section " (get-in parts [:middle-section :class]))
                                              :style    (merge {:max-width (px @content-rows-width)}
                                                               (get-in parts [:middle-section :style]))
@@ -1299,7 +1299,7 @@
                                                         ;; ========== Horizontal scrollbar section
 
                                                         [scrollbar
-                                                         :src            (src-coordinates)
+                                                         :src            (coords)
                                                          :class          (str "rc-v-table-h-scroll " (get-in parts [:h-scroll :class]))
                                                          :type           :horizontal
                                                          :length         @rl-row-viewport-width
@@ -1314,7 +1314,7 @@
                                             ;; ========== Right section (7, 8, 9) - row footer area
 
                                             [box/v-box
-                                             :src      (src-coordinates)
+                                             :src      (coords)
                                              :class    (str "rc-v-table-right-section " (get-in parts [:right-section :class]))
                                              :style    (get-in parts [:right-section :style])
                                              :attr     (get-in parts [:right-section :attr])
@@ -1361,24 +1361,24 @@
                                                          (get-in parts [:bottom-right :attr])]
 
                                                         [box/gap
-                                                         :src  (src-coordinates)
+                                                         :src  (coords)
                                                          :size (px scrollbar-tot-thick)]]]
 
                                             ;; ========== Vertical scrollbar section
 
                                             [box/v-box
-                                             :src      (src-coordinates)
+                                             :src      (coords)
                                              :class    (str "rc-v-table-v-scroll-section " (get-in parts [:v-scroll-section :class]))
                                              :style    (get-in parts [:v-scroll-section :style])
                                              :attr     (get-in parts [:v-scroll-section :attr])
                                              :children [[box/gap
-                                                         :src  (src-coordinates)
+                                                         :src  (coords)
                                                          :size (px (or column-header-height 0))]
                                                         [box/box
-                                                         :src   (src-coordinates)
+                                                         :src   (coords)
                                                          :size  "auto"
                                                          :child [scrollbar
-                                                                 :src            (src-coordinates)
+                                                                 :src            (coords)
                                                                  :class          (str "rc-v-table-v-scroll " (get-in parts [:v-scroll :class]))
                                                                  :type           :vertical
                                                                  :length         @rl-row-viewport-height
@@ -1390,10 +1390,10 @@
                                                                                         (get-in parts [:v-scroll :style]))
                                                                  :attr           (get-in parts [:v-scroll :attr])]]
                                                         [box/gap
-                                                         :src  (src-coordinates)
+                                                         :src  (coords)
                                                          :size (px (or column-footer-height 0))]
                                                         [box/gap
-                                                         :src  (src-coordinates)
+                                                         :src  (coords)
                                                          :size (px scrollbar-tot-thick)]]]
 
                                             ;; ========== Debug section

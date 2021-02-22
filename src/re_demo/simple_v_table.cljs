@@ -1,6 +1,6 @@
 (ns re-demo.simple-v-table
   (:require-macros
-    [re-com.core                           :refer [src-coordinates]])
+    [re-com.core                           :refer [coords]])
   (:require
     [re-com.core                           :refer [h-box gap v-box p line horizontal-tabs]]
     [re-com.simple-v-table                 :refer [simple-v-table-parts-desc simple-v-table-args-desc]]
@@ -14,7 +14,7 @@
 (defn notes-column
   []
   [v-box
-   :src      (src-coordinates)
+   :src      (coords)
    :gap      "10px"
    :width    "550px"
    :padding  "0px 100px 0px 0px"
@@ -68,17 +68,17 @@
         selected-tab-id (reagent/atom (:id (first tab-defs)))]
     (fn []
       [v-box
-       :src      (src-coordinates)
+       :src      (coords)
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[simple-v-table ... ]" "src/re_com/simple_v_table.cljs" "src/re_demo/simple_v_table.cljs"]
                   [h-box
-                   :src      (src-coordinates)
+                   :src      (coords)
                    :gap      "50px"
                    :children [[v-box
-                               :src      (src-coordinates)
+                               :src      (coords)
                                :children [[horizontal-tabs
-                                           :src       (src-coordinates)
+                                           :src       (coords)
                                            :model     selected-tab-id
                                            :tabs      tab-defs
                                            :style     {:margin-top "12px"}
@@ -88,20 +88,20 @@
                                             :parameters [args-table simple-v-table-args-desc {:total-width       "550px"
                                                                                               :name-column-width "180px"}])]]
                               [v-box
-                               :src      (src-coordinates)
+                               :src      (coords)
                                :children [[title2 "Demo #1"]
                                           [gap
-                                           :src      (src-coordinates)
+                                           :src      (coords)
                                            :size "15px"]
                                           [simple-v-table-sales/demo]
                                           [source-reference "for above simple-v-table" "src/re_demo/simple_v_table_sales.cljs"]
                                           [gap
-                                           :src      (src-coordinates)
+                                           :src      (coords)
                                            :size "40px"]
-                                          [line :src      (src-coordinates)]
+                                          [line :src      (coords)]
                                           [title2 "Demo #2"]
                                           [gap
-                                           :src      (src-coordinates)
+                                           :src      (coords)
                                            :size "15px"]
                                           [simple-v-table-periodic-table/demo]
                                           [source-reference "for above simple-v-table" "src/re_demo/simple_v_table_periodic_table.cljs"]]]]]

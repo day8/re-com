@@ -1,6 +1,6 @@
 (ns re-demo.config
   (:require-macros
-   [re-com.core       :refer [src-coordinates]])
+    [re-com.core       :refer [coords]])
   (:require
    [re-com.core       :refer [h-box v-box gap line title p]]
    [re-demo.utils     :refer [panel-title title2]]))
@@ -11,7 +11,7 @@
 (defn compiler-config
   []
   [v-box
-   :src      (src-coordinates)
+   :src      (coords)
    :children [[title2 "Compiler"]
               [line]             
               [gap :size "10px"]
@@ -29,7 +29,7 @@
 (defn config-page
   []
   [v-box
-   :src      (src-coordinates)
+   :src      (coords)
    :gap      "10px"
    :children [[panel-title
                "Config"
@@ -37,7 +37,7 @@
                "src/re_demo/config.cljs"]
 
               [h-box
-               :src      (src-coordinates)
+               :src      (coords)
                :gap      "100px"
                :children [[compiler-config]]]]])
 

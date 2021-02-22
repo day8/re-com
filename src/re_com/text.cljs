@@ -1,6 +1,6 @@
 (ns re-com.text
   (:require-macros
-    [re-com.core     :refer [handler-fn src-coordinates]]
+    [re-com.core     :refer [handler-fn coords]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -107,7 +107,7 @@
                                 attr)
                    label]
                   (when underline? [line
-                                    :src  (src-coordinates)
+                                    :src  (coords)
                                     :size "1px"
                                     :class (str "rc-title-underline " (get-in parts [:underline :class]))
                                     :style (merge {:margin-bottom margin-bottom} (get-in parts [:underline :style]))

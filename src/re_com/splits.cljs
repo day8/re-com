@@ -1,6 +1,6 @@
 (ns re-com.splits
   (:require-macros
-    [re-com.core     :refer [handler-fn src-coordinates]])
+    [re-com.core     :refer [handler-fn coords]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
@@ -188,21 +188,21 @@
                  (str "rc-h-split-top rc-h-split-left " (get-in parts [:left :class]))
                  (get-in parts [:top :style])
                  (get-in parts [:top :attr])
-                 (src-coordinates)
+                 (coords)
                  @dragging? @split-perc)
           panel-1]
          [:div (make-splitter-attrs
                  (str "rc-h-split-splitter " (get-in parts [:splitter :class]))
                  (get-in parts [:splitter :style])
                  (get-in parts [:splitter :attr])
-                 (src-coordinates))
+                 (coords))
           [drag-handle :vertical @over? parts]]
          [:div (make-panel-attrs
                  ;; Leaving rc-h-split-bottom class (below) for backwards compatibility only.
                  (str "rc-h-split-bottom rc-h-split-right " (get-in parts [:right :class]))
                  (get-in parts [:bottom :style])
                  (get-in parts [:bottom :attr])
-                 (src-coordinates)
+                 (coords)
                  @dragging? (if split-is-px?
                               (- @split-perc) ;; Negative value indicates this is for panel-2
                               (- 100 @split-perc)))
@@ -305,7 +305,7 @@
                  (str "rc-v-split-top " (get-in parts [:top :class]))
                  (get-in parts [:top :style])
                  (get-in parts [:top :attr])
-                 (src-coordinates)
+                 (coords)
                  @dragging?
                  @split-perc)
           panel-1]
@@ -313,13 +313,13 @@
                  (str "rc-v-split-splitter " (get-in parts [:splitter :class]))
                  (get-in parts [:splitter :style])
                  (get-in parts [:splitter :attr])
-                 (src-coordinates))
+                 (coords))
           [drag-handle :horizontal @over? parts]]
          [:div (make-panel-attrs
                  (str "rc-v-split-bottom " (get-in parts [:bottom :class]))
                  (get-in parts [:bottom :style])
                  (get-in parts [:bottom :attr])
-                 (src-coordinates)
+                 (coords)
                  @dragging?
                  (if split-is-px?
                    (- @split-perc) ;; Negative value indicates this is for panel-2
