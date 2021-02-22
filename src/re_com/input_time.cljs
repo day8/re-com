@@ -1,6 +1,6 @@
 (ns re-com.input-time
   (:require-macros
-    [re-com.core     :refer [handler-fn coords reflect]]
+    [re-com.core     :refer [handler-fn at reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [reagent.core    :as    reagent]

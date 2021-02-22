@@ -1,6 +1,6 @@
 (ns re-com.buttons
   (:require-macros
-    [re-com.core     :refer [handler-fn coords reflect]])
+    [re-com.core     :refer [handler-fn at reflect]])
   (:require
     [re-com.util     :refer [deref-or-value px]]
     [re-com.config   :refer [include-args-desc?]]
@@ -77,7 +77,7 @@
              :align :start
              :child (if tooltip
                       [popover-tooltip
-                       :src      (coords)
+                       :src      (at)
                        :label    tooltip
                        :position (or tooltip-position :below-center)
                        :showing? showing?
@@ -165,7 +165,7 @@
              :attr  (get-in parts [:wrapper :attr])
              :child (if tooltip
                       [popover-tooltip
-                       :src      (coords)
+                       :src      (at)
                        :label    tooltip
                        :position (or tooltip-position :below-center)
                        :showing? showing?
@@ -253,7 +253,7 @@
              :attr  (get-in parts [:wrapper :attr])
              :child (if tooltip
                       [popover-tooltip
-                       :src      (coords)
+                       :src      (at)
                        :label    tooltip
                        :position (or tooltip-position :below-center)
                        :showing? showing?
@@ -407,7 +407,7 @@
              :attr  (get-in parts [:wrapper :attr] {})
              :child (if tooltip
                       [popover-tooltip
-                       :src      (coords)
+                       :src      (at)
                        :label    tooltip
                        :position (or tooltip-position :below-center)
                        :showing? showing?
@@ -461,7 +461,7 @@
           (let [label      (deref-or-value label)
                 disabled?  (deref-or-value disabled?)
                 the-button [box
-                            :src   (coords)
+                            :src   (at)
                             :align :start
                             :class (str "rc-hyperlink-container " (get-in parts [:container :class]))
                             :child [:a
@@ -490,7 +490,7 @@
              :attr  (get-in parts [:wrapper :attr])
              :child (if tooltip
                       [popover-tooltip
-                       :src      (coords)
+                       :src      (at)
                        :label    tooltip
                        :position (or tooltip-position :below-center)
                        :showing? showing?
@@ -575,7 +575,7 @@
              :attr  (get-in parts [:wrapper :attr] {})
              :child (if tooltip
                       [popover-tooltip
-                       :src      (coords)
+                       :src      (at)
                        :label    tooltip
                        :position (or tooltip-position :below-center)
                        :showing? showing?

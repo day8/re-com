@@ -1,6 +1,6 @@
 (ns re-demo.core
   (:require-macros
-    [re-com.core            :refer [coords]]
+    [re-com.core            :refer [at]]
     [cljs.core.async.macros :refer [go]]
     [secretary.core         :refer [defroute]])
   (:require [goog.events                   :as    events]
@@ -156,25 +156,25 @@
   [selected-tab-id on-select-tab]
   (let [background-col "#fcfcfc"]
     [v-box
-     :src      (coords)
+     :src      (at)
      :size     "1"
      :style    {:background-color background-col}
      :children [[v-box
-                 :src      (coords)
+                 :src      (at)
                  :class    "noselect"
                  :style    {:background-color background-col}
                  :children (conj (into []
                                        (for [tab tabs-definition]
                                          [nav-item tab selected-tab-id on-select-tab])))]
                 [gap
-                 :src  (coords)
+                 :src  (at)
                  :size "1"]
                 [box
-                 :src   (coords)
+                 :src   (at)
                  :style {:padding "8px 24px"
                          :background-color background-col}
                  :child [label
-                         :src   (coords)
+                         :src   (at)
                          :style {:font-size "10px"}
                          :label version]]]]))
 
@@ -182,13 +182,13 @@
 (defn re-com-title-box
   []
   [h-box
-   :src     (coords)
+   :src     (at)
    :justify :center
    :align   :center
    :height  "62px"
    :style   {:background-color "#666"}
    :children [[title
-               :src   (coords)
+               :src   (at)
                :label "Re-com"
                :level :level1
                :style {:font-size   "32px"
@@ -198,10 +198,10 @@
 (defn browser-alert
   []
   [box
-   :src     (coords)
+   :src     (at)
    :padding "10px 10px 0px 0px"
    :child   [alert-box
-             :src        (coords)
+             :src        (at)
              :alert-type :danger
              :heading    "Only Tested On Chrome"
              :body       "re-com should work on all modern browsers, but there might be dragons!"]])
@@ -231,30 +231,30 @@
        ;; Outer-most box height must be 100% to fill the entrie client height.
        ;; This assumes that height of <body> is itself also set to 100%.
        ;; width does not need to be set.
-       :src           (coords)
+       :src           (at)
        :height        "100%"
        :split-is-px?  true
        :initial-split 180
        :margin        "0px"
        :panel-1       [scroller
-                       :src      (coords)
+                       :src      (at)
                        ;:size  "none"
                        :v-scroll :auto
                        :h-scroll :off
                        :child [v-box
-                               :src      (coords)
+                               :src      (at)
                                :size     "1"
                                :children [[re-com-title-box]
                                           [left-side-nav-bar selected-tab-id on-select-tab]]]]
        :panel-2       [scroller
-                       :src   (coords)
+                       :src   (at)
                        :attr  {:id "right-panel"}
                        :child [v-box
-                               :src      (coords)
+                               :src      (at)
                                :size     "1"
                                :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
                                           [box
-                                           :src     (coords)
+                                           :src     (at)
                                            :padding "0px 0px 0px 50px"
                                            :child   [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 

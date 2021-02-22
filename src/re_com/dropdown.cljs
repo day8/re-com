@@ -1,6 +1,6 @@
 (ns re-com.dropdown
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]])
+    [re-com.core     :refer [handler-fn at]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
@@ -675,7 +675,7 @@
                 _                (when on-drop (add-watch drop-showing? :on-drop #(when (and (not %3) %4) (on-drop))))]
             (if tooltip
               [popover-tooltip
-               :src      (coords)
+               :src      (at)
                :label    tooltip
                :position (or tooltip-position :below-center)
                :showing? showing?

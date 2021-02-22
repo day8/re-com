@@ -1,6 +1,6 @@
 (ns re-com.typeahead
   (:require-macros
-    [re-com.core            :refer [handler-fn coords reflect]]
+    [re-com.core            :refer [handler-fn at reflect]]
     [re-com.validate        :refer [validate-args-macro]]
     [cljs.core.async.macros :refer [alt! go-loop]])
   (:require
@@ -289,7 +289,7 @@
              :attr     attr
              :width    width
              :children [[input-text
-                         :src            (coords)
+                         :src            (at)
                          :model          input-text-model
                          :class          class
                          :style          style
@@ -308,24 +308,24 @@
                                 :on-blur #(swap! state-atom input-text-will-blur)}]
                         (if (or (not-empty suggestions) waiting?)
                           [box
-                           :src   (coords)
+                           :src   (at)
                            :style {:position "relative"}
                            :child [v-box
-                                   :src      (coords)
+                                   :src      (at)
                                    :class    (str "rc-typeahead-suggestions-container " (get-in parts [:suggestions-container :class]))
                                    :children [(when waiting?
                                                 [box
-                                                 :src   (coords)
+                                                 :src   (at)
                                                  :align :center
                                                  :child [throbber
-                                                         :src   (coords)
+                                                         :src   (at)
                                                          :size  :small
                                                          :class (str "rc-typeahead-throbber " (get-in parts [:throbber :class]))]])
                                               (for [[i s] (map vector (range) suggestions)
                                                     :let [selected? (= suggestion-active-index i)]]
                                                 ^{:key i}
                                                 [box
-                                                 :src   (coords)
+                                                 :src   (at)
                                                  :child (if render-suggestion
                                                           (render-suggestion s)
                                                           s)

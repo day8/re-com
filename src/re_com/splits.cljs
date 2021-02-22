@@ -1,6 +1,6 @@
 (ns re-com.splits
   (:require-macros
-    [re-com.core     :refer [handler-fn coords reflect]])
+    [re-com.core     :refer [handler-fn at reflect]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]

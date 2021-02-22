@@ -1,6 +1,6 @@
 (ns re-com.datepicker
   (:require-macros
-    [re-com.core          :refer [handler-fn coords reflect]])
+    [re-com.core          :refer [handler-fn at reflect]])
   (:require
     [reagent.core         :as reagent]
     [cljs-time.core       :as cljs-time]
@@ -170,7 +170,7 @@
    :log      log
    :class    "rc-datepicker-wrapper"
    :children [[border
-               :src    (coords)
+               :src    (at)
                :class  (str "rc-datepicker-border " (get-in parts [:border :class]))
                :style  (get-in parts [:border :style] {})
                :attr   (get-in parts [:border :attr] {})
@@ -245,7 +245,7 @@
     (when (not disabled?)
       [:<>
        [box
-        :src     (coords)
+        :src     (at)
         :class   (str (if prev-year-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-prev-year " (get-in parts [:prev-year :class]))
         :style   (get-in parts [:prev-year :style])
         :attr    (merge
@@ -257,7 +257,7 @@
         :child  [prev-year-icon
                  :parts parts]]
        [line
-        :src (coords)]])))
+        :src (at)]])))
 
 (defn- prev-month-nav
   [& {:keys [display-month minimum disabled? parts]}]
@@ -266,7 +266,7 @@
     (when (not disabled?)
       [:<>
        [box
-        :src     (coords)
+        :src     (at)
         :class   (str (if prev-month-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-prev-month " (get-in parts [:prev-month :class]))
         :style   (get-in parts [:prev-month :style])
         :attr    (merge
@@ -278,7 +278,7 @@
         :child   [prev-month-icon
                   :parts parts]]
        [line
-        :src (coords)]])))
+        :src (at)]])))
 
 (defn- next-month-nav
   [& {:keys [display-month maximum disabled? parts]}]
@@ -287,9 +287,9 @@
     (when (not disabled?)
       [:<>
        [line
-        :src (coords)]
+        :src (at)]
        [box
-        :src     (coords)
+        :src     (at)
         :class   (str (if next-month-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-next-month " (get-in parts [:next-month :class]))
         :style   (get-in parts [:next-month :style])
         :attr    (merge
@@ -308,9 +308,9 @@
     (when (not disabled?)
       [:<>
        [line
-        :src (coords)]
+        :src (at)]
        [box
-        :src     (coords)
+        :src     (at)
         :class   (str (if next-year-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-next-year " (get-in parts [:next-year :class]))
         :style   (get-in parts [:next-year :style])
         :attr    (merge
@@ -333,7 +333,7 @@
         :style    (merge {:padding "0px"} (get-in parts [:nav :style]))}
        (get-in parts [:nav :attr]))
      [h-box
-      :src      (coords)
+      :src      (at)
       :height   "100%"
       :children [[prev-year-nav
                   :display-month display-month
@@ -346,7 +346,7 @@
                   :disabled?     disabled?
                   :parts         parts]
                  [box
-                  :src     (coords)
+                  :src     (at)
                   :class   (str "rc-datepicker-month " (get-in parts [:month :class]))
                   :style   (get-in parts [:month :style])
                   :attr    (get-in parts [:month :attr])
@@ -618,7 +618,7 @@
                 passthrough-args   (->> passthrough-args
                                         (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)  ;; these keys only valid at this API level
                                         (assoc :on-change collapse-on-select)
-                                        (assoc :src (coords))
+                                        (assoc :src (at))
                                         (merge {:hide-border? true})                                                        ;; apply defaults
                                         vec
                                         flatten)]
@@ -629,7 +629,7 @@
              :position position
              :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
              :popover  [popover-content-wrapper
-                        :src             (coords)
+                        :src             (at)
                         :position-offset (+ (if show-weeks? 43 44) position-offset)
                         :no-clip?        no-clip?
                         :arrow-length    0

@@ -1,6 +1,6 @@
 (ns re-demo.debug
   (:require-macros
-    [re-com.core       :refer [coords]])
+    [re-com.core       :refer [at]])
   (:require
     [re-com.core       :refer [h-box v-box box gap line  title checkbox p]]
     [re-com.datepicker :refer [datepicker]]
@@ -18,7 +18,7 @@
         unknown-part?          (reagent/atom false)]
     (fn []
       [v-box
-       :src      (coords)
+       :src      (at)
        :children [[title2 "Parameter Validation"]
                   [line]
                   [gap :size "10px"]
@@ -32,39 +32,39 @@
                    "placeholder box and report details of the error to the DevTools console."]
 
                   [v-box
-                   :src      (coords)
+                   :src      (at)
                    :gap      "10px"
                    :style    {:min-width        "150px"
                               :padding          "15px"
                               :border-top       "1px solid #DDD"
                               :background-color "#f7f7f7"}
                    :children [[title
-                               :src   (coords)
+                               :src   (at)
                                :level :level3
                                :label "Simulate Parameter Errors"
                                :style {:margin-top "0"}]
                               [p "This demo lets you to simulate making parameter errors with the "
                                [:code "[datepicker ...]"] "component below and to then observe the outcomes."]
                               [checkbox
-                               :src (coords)
+                               :src   (at)
                                :label [:span "Provide " [:code ":bogus-param-name"]]
                                :model bogus-param-name?
                                :on-change (fn [val]
                                             (reset! bogus-param-name? val))]
                               [checkbox
-                               :src       (coords)
+                               :src       (at)
                                :label     [:span "Do not provide the required " [:code ":on-change"]]
                                :model     missing-on-change?
                                :on-change (fn [val]
                                             (reset! missing-on-change? val))]
                               [checkbox
-                               :src       (coords)
+                               :src       (at)
                                :label     [:span "Provide a bad value (a boolean for " [:code ":selectable-fn"] ")"]
                                :model     boolean-selectable-fn?
                                :on-change (fn [val]
                                             (reset! boolean-selectable-fn? val))]
                               [checkbox
-                               :src       (coords)
+                               :src       (at)
                                :label     [:span "Provide an unknown id in " [:code ":parts"]]
                                :model     unknown-part?
                                :on-change (fn [val]
@@ -72,7 +72,7 @@
                               [p "Pay attention to the \"component stack\" section output to DevTools console. mouseover the components in this section, and notice how DevTools highlights them in the running app."]]]
                   (cond->
                    [datepicker
-                    :src (coords)]
+                    :src (at)]
                    (not @missing-on-change?)
                    (into [:on-change #()])
                    @bogus-param-name?
@@ -87,20 +87,20 @@
 (defn the-src-parameter-column
   []
   [v-box
-   :src      (coords)
+   :src      (at)
    :children [[title2 [:span "The " [:code ":src"] " Parameter"]]
               [line]
               [gap :size "10px"]
               [p "All re-com components accept a " [:code ":src"] " parameter through which you can provide the source code coordinates of your usage. "
                "The value must be a map with two keys " [:code ":file"] " and " [:code ":line"] "."]
               [p "re-com reflects these coordinates back to you when reporting errors and showing component stacks, and this will greatly improve your debugging experience. "]
-              [p "re-com also supplies the companion macro " [:code "coords"] " which returns a correctly populated map."
+              [p "re-com also supplies the companion macro " [:code "at"] " which returns a correctly populated map."
                " The two should be combined like this:"]
               [:pre
-               "[button\n  :src   (coords)    ;; <-- note\n  :label \"click me\"\n  ...]"]
+               "[button\n  :src   (at)    ;; <-- note\n  :label \"click me\"\n  ...]"]
               [p "To use it, your " [:code "ns"] " will need to  " [:code ":require-macros"] " it as follows:"]
               [:pre
-               "(ns my.app\n  (:require-macros\n    [re-com.core :refer [coords]])  ;; <-- note\n  (:require\n    [re-com.core :refer [h-box v-box ...]])"]
+               "(ns my.app\n  (:require-macros\n    [re-com.core :refer [at]])  ;; <-- note\n  (:require\n    [re-com.core :refer [h-box v-box ...]])"]
               [p "But wait, you get more. "]
               [p "When " [:code ":src"] " is provided, re-com will add a \"data\" attribute to the DOM "
                "node representing a component. This attribute, called " [:code "data-rc-src"] ",  will contain any source code coordinates provided. "]
@@ -110,7 +110,7 @@
               [p [:b [:i "This feature is sufficiently useful that we recommend you leave your re-com code permanently instrumented with " [:code ":src"]]] ". Every single component, all the time. In production builds, the macro returns " [:code "nil"] " eliding any overhead. "]
               [p "And, if you have a legacy codebase, which does not yet use " [:code ":src"]
                ", using search/replace will get you a long way. "
-               "For example, do a global search/replace of " [:code "[h-box"] " for " [:code "[h-box :src (coords)"]
+               "For example, do a global search/replace of " [:code "[h-box"] " for " [:code "[h-box :src (at)"]
                " and then do the same of " [:code " v-box"] " etc. You'll still need to work on the ns to require the macro. "
                "Just a thought."]]])
 
@@ -118,7 +118,7 @@
 (defn stack-spy-column
   []
   [v-box
-   :src      (coords)
+   :src      (at)
    :children [[title2 [:span [:code "stack-spy"]]]
               [line]
               [gap :size "10px"]
@@ -140,7 +140,7 @@
 (defn debug-demo
   []
   [v-box
-   :src      (coords)
+   :src      (at)
    :gap      "10px"
    :children [[panel-title  
                "Debugging"
@@ -148,7 +148,7 @@
                "src/re_demo/debug.cljs"]
 
               [h-box
-               :src      (coords)
+               :src      (at)
                :gap      "100px"
                :children [[the-src-parameter-column]
                           [params-validation-column]

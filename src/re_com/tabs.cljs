@@ -1,6 +1,6 @@
 (ns re-com.tabs
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn at]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -139,7 +139,7 @@
                              label]]
              (if tooltip
                [popover-tooltip
-                :src      (coords)
+                :src      (at)
                 :label    tooltip
                 :position (or tooltip-position :below-center)
                 :showing? (reagent/track #(= id @showing))

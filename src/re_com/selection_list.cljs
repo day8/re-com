@@ -1,6 +1,6 @@
 (ns re-com.selection-list
   (:require-macros
-    [re-com.core     :refer [handler-fn coords reflect]]
+    [re-com.core     :refer [handler-fn at reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config       :refer [include-args-desc?]]
@@ -49,7 +49,7 @@
                                        (on-change (check-clicked selections item-id (not (selections item-id)) required?))))}
               (get-in parts [:list-group-item :attr]))
      :child [checkbox
-             :src         (coords)
+             :src         (at)
              :class       (str "rc-selection-list-checkbox " (get-in parts [:checkbox :class]))
              :style       (get-in parts [:checkbox :style])
              :attr        (get-in parts [:checkbox :attr])
@@ -77,7 +77,7 @@
                                               (on-change (radio-clicked selections item-id)))))}
                    (get-in parts [:list-group-item :attr]))
      :child [radio-button
-             :src         (coords)
+             :src         (at)
              :class       (str "rc-selection-list-radio-button " (get-in parts [:radio-button :class]))
              :style       (merge (get-in parts [:radio-button :style] {})
                                  (when disabled?

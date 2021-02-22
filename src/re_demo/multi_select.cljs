@@ -1,6 +1,6 @@
 (ns re-demo.multi-select
   (:require-macros
-    [re-com.core  :refer [coords]])
+    [re-com.core  :refer [at]])
   (:require
     [cljs.pprint          :as pprint]
     [reagent.core         :as reagent]
@@ -32,7 +32,7 @@
 (defn panel
   []
   [v-box
-   :src      (coords)
+   :src      (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[multi-select ... ]"
@@ -40,10 +40,10 @@
                             "src/re_demo/multi_select.cljs"]
 
               [h-box
-               :src      (coords)
+               :src      (at)
                :gap      "100px"
                :children [[v-box
-                           :src       (coords)
+                           :src       (at)
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Notes"]
@@ -54,7 +54,7 @@
                                       [p "Takes up a lot of screen real estate but can be placed in a popup."]
                                       [args-table multi-select-args-desc]]]
                           [v-box
-                           :src      (coords)
+                           :src      (at)
                            :gap      "20px"
                            :width    "450px"
                            :children [[title2 "Demo"]
@@ -72,25 +72,25 @@
                                        :sort-fn       :group
                                        :on-change     #(reset! model %)]
                                       [h-box
-                                       :src    (coords)
+                                       :src    (at)
                                        :height "90px" ;; means the Component (which is underneath) doesn't move up and down as the model changes
                                        :gap    "5px"
                                        :width  "100%"
                                        :children [[label
-                                                   :src   (coords)
+                                                   :src   (at)
                                                    :label [:code ":model"]]
                                                   [label
-                                                   :src   (coords)
+                                                   :src   (at)
                                                    :label " is currently"]
                                                   [:code
                                                    {:class "display-flex"
                                                     :style {:flex "1"}}
                                                    (with-out-str (pprint/pprint @model))]]]
                                       [gap
-                                       :src  (coords)
+                                       :src  (at)
                                        :size "0px"]
                                       [v-box
-                                       :src   (coords)
+                                       :src   (at)
                                        :gap   "10px"
                                        :style {:min-width        "550px"
                                                :padding          "15px"
@@ -98,19 +98,19 @@
                                                :background-color "#f7f7f7"}
                                        :children [[title3 "Interactive Parameters" {:margin-top "0"}]
                                                   [h-box
-                                                   :src      (coords)
+                                                   :src      (at)
                                                    :gap      "30px"
                                                    :children [[v-box
                                                                :gap "3px"
                                                                :children [[checkbox
-                                                                           :src       (coords)
+                                                                           :src       (at)
                                                                            :label     [box
                                                                                        :align :start
                                                                                        :child [:code ":disabled?"]]
                                                                            :model     disabled?
                                                                            :on-change #(reset! disabled? %)]
                                                                           [checkbox
-                                                                           :src       (coords)
+                                                                           :src       (at)
                                                                            :label     [box
                                                                                        :align :start
                                                                                        :child [:code ":required?"]]
@@ -119,7 +119,7 @@
                                                               [v-box
                                                                :gap "3px"
                                                                :children [[checkbox
-                                                                           :src       (coords)
+                                                                           :src       (at)
                                                                            :label     [box
                                                                                        :align :start
                                                                                        :child [:code ":filter-box?"]]
@@ -127,7 +127,7 @@
                                                                            :on-change #(reset! filter-box? %)]
                                                                           (when @filter-box?
                                                                             [checkbox
-                                                                             :src       (coords)
+                                                                             :src       (at)
                                                                              :label     [box
                                                                                          :align :start
                                                                                          :child [:code ":regex-filter?"]]
@@ -135,11 +135,11 @@
                                                                              :on-change #(reset! regex-filter? %)])]]]]
 
                                                   [v-box
-                                                   :src      (coords)
+                                                   :src      (at)
                                                    :size     "initial"
                                                    :gap      "5px"
                                                    :children [[label
-                                                               :src   (coords)
+                                                               :src   (at)
                                                                :label [:code ":choices"]]
                                                               [:pre (with-out-str (pprint/pprint choices))]]]]]]]]]
 

@@ -1,6 +1,6 @@
 (ns re-com.box
   (:require-macros
-    [re-com.core     :refer [coords]]
+    [re-com.core     :refer [at]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [clojure.string   :as    string]
@@ -279,7 +279,7 @@
                      (when debug      {:background-color "gold"})
                      style)
           gap-form (when gap [re-com.box/gap
-                              :src   (coords)
+                              :src   (at)
                               :size  gap
                               :width gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
           children (if gap
@@ -344,7 +344,7 @@
                      (when debug       {:background-color "antiquewhite"})
                      style)
           gap-form (when gap [re-com.box/gap
-                              :src    (coords)
+                              :src    (at)
                               :size   gap
                               :height gap]) ;; TODO: required to get around a Chrome bug: https://code.google.com/p/chromium/issues/detail?id=423112. Remove once fixed.
           children (if gap

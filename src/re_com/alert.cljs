@@ -1,6 +1,6 @@
 (ns re-com.alert
   (:require-macros
-    [re-com.core         :refer [handler-fn coords reflect]])
+    [re-com.core         :refer [handler-fn at reflect]])
   (:require
     [re-com.box          :refer [h-box v-box box scroller border flex-child-style]]
     [re-com.buttons      :refer [button]]
@@ -51,7 +51,7 @@
   (or
     (validate-args-macro alert-box-args-desc args src)
     (let [close-alert  [close-button
-                        :src       (coords)
+                        :src       (at)
                         :class     (str "rc-alert-close-button " (get-in parts [:close-button :class]))
                         :style     (get-in parts [:close-button :style])
                         :attr      (get-in parts [:close-button :attr])
@@ -71,7 +71,7 @@
               attr)
        (when heading
          [h-box
-          :src      (coords)
+          :src      (at)
           :justify  :between
           :align    :center
           :class    (str "rc-alert-heading " (get-in parts [:heading :class]))
@@ -89,7 +89,7 @@
                        close-alert)]])
        (when body
          [h-box
-          :src      (coords)
+          :src      (at)
           :justify  :between
           :align    :center
           :class    (str "rc-alert-body " (get-in parts [:body :class]))
@@ -156,21 +156,21 @@
        :style (get-in parts [:wrapper :style] {})
        :attr  (get-in parts [:wrapper :attr] {})
        :child [border
-               :src     (coords)
+               :src     (at)
                :class   (str "rc-alert-list " class)
                :style   style
                :attr    attr
                :padding padding
                :border  border-style
                :child   [scroller
-                         :src      (coords)
+                         :src      (at)
                          :v-scroll :auto
                          :class    (str "rc-alert-list-scroller " (get-in parts [:scroller :class]))
                          :style    (merge {:max-height max-height}
                                           (get-in parts [:scroller :style]))
                          :attr     (get-in parts [:scroller :attr])
                          :child    [v-box
-                                    :src      (coords)
+                                    :src      (at)
                                     :size     "auto"
                                     :class    (str "rc-alert-list-v-box " (get-in parts [:v-box :class]))
                                     :style    (get-in parts [:v-box :style])
@@ -178,7 +178,7 @@
                                     :children [(for [alert alerts]
                                                  (let [{:keys [id alert-type heading body padding closeable?]} alert]
                                                    ^{:key id} [alert-box
-                                                               :src        (coords)
+                                                               :src        (at)
                                                                :id         id
                                                                :alert-type alert-type
                                                                :heading    heading

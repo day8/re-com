@@ -1,6 +1,6 @@
 (ns re-com.popover
   (:require-macros
-    [re-com.core         :refer [handler-fn coords reflect]]
+    [re-com.core         :refer [handler-fn at reflect]]
     [re-com.validate     :refer [validate-args-macro]])
   (:require
     [re-com.config       :refer [include-args-desc?]]
@@ -186,13 +186,13 @@
                         {:font-size "18px"})}
          (->attr args))
        [h-box
-        :src      (coords)
+        :src      (at)
         :justify  :between
         :align    :center
         :children [title
                    (when close-button?
                      [close-button
-                      :src         (coords)
+                      :src         (at)
                       :on-click    #(if close-callback
                                       (close-callback)
                                       (reset! showing? false))
@@ -423,12 +423,12 @@
                        attr)
                 (when (and (deref-or-value showing-injected?)  on-cancel)
                   [backdrop
-                   :src      (coords)
+                   :src      (at)
                    :class    (get-in parts [:backdrop :class] "")
                    :opacity  backdrop-opacity
                    :on-click on-cancel])
                 [popover-border
-                 :src                  (coords)
+                 :src                  (at)
                  :class                (get-in parts [:border :class] "")
                  :position             position-injected
                  :position-offset      position-offset
@@ -442,7 +442,7 @@
                  :arrow-gap            arrow-gap
                  :padding              padding
                  :title                (when title [popover-title
-                                                    :src            (coords)
+                                                    :src            (at)
                                                     :class          (get-in parts [:title :class] "")
                                                     :title          title
                                                     :showing?       showing-injected?
@@ -560,7 +560,7 @@
        :style    style
        :attr     attr
        :popover [popover-content-wrapper
-                 :src            (coords)
+                 :src            (at)
                  :no-clip?       no-clip?
                  :on-cancel      on-cancel
                  :width          width
@@ -571,7 +571,7 @@
                  :arrow-width    12
                  :arrow-gap      4
                  :body           [v-box
-                                  :src   (coords)
+                                  :src   (at)
                                   :class (get-in parts [:v-box :class])
                                   :style (if (= status :info)
                                            {:color       "white"
@@ -583,11 +583,11 @@
                                             :text-align  "center"})
                                   :children [(when close-button?
                                                [box
-                                                :src        (coords)
+                                                :src        (at)
                                                 :class      (str "rc-popover-tooltip-close-button-container " (get-in parts [:close-button-container :class]))
                                                 :align-self :end
                                                 :child      [close-button
-                                                             :src         (coords)
+                                                             :src         (at)
                                                              :class       (str "rc-popover-tooltip-close-button " (get-in parts [:close-button :class]))
                                                              :on-click    #(if on-cancel
                                                                              (on-cancel)

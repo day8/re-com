@@ -1,6 +1,6 @@
 (ns re-demo.simple-v-table-sales
   (:require-macros
-    [re-com.core           :refer [coords]])
+    [re-com.core           :refer [at]])
   (:require
     [clojure.string        :as string]
     [goog.string           :as gstring]
@@ -66,27 +66,27 @@
         method-row-label-fn (fn [row] (case (:method row) :online [devices-icon] [store-icon]))]
     (fn []
       [v-box
-       :src      (coords)
+       :src      (at)
        :children [[title3 "Sales Table Demo"]
                   [gap :size (px 5)]
                   [v-box
-                   :src      (coords)
+                   :src      (at)
                    :gap      (px 10)
                    :children [[v-box
-                               :src      (coords)
+                               :src      (at)
                                :width    "450px"
                                :children [[:p "This demo shows the primary use case - a table displaying entities in rows, and their attributes in columns. See it below in the blue box."]
                                           #_[:p  "This demo allows you to experiment with how the dimensions of a " [:code "simple-v-table"]" interact with those of its parent. "]]]
 
                               [v-box
-                               :src      (coords)
+                               :src      (at)
                                :gap      (px 5)
                                :children [[h-box
-                                           :src      (coords)
+                                           :src      (at)
                                            :gap      spacing7
                                            :align    :center
                                            :children [[checkbox
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :model     fixed-column-count?
                                                        :on-change #(do (reset! fixed-column-count? %)
                                                                        (reset! fixed-column-count (if @fixed-column-count? 1 0)))]
@@ -94,7 +94,7 @@
                                                       (when @fixed-column-count?
                                                         [:<>
                                                          [slider
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :model     fixed-column-count
                                                           :on-change #(reset! fixed-column-count %)
                                                           :min       0
@@ -102,26 +102,26 @@
                                                           :step      1
                                                           :width     (px 200)]
                                                          [gap
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :size spacing7]
                                                          [label
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :label @fixed-column-count]])]]
                                           [h-box
-                                           :src      (coords)
+                                           :src      (at)
                                            :gap      spacing7
                                            :align    :center
                                            :children [[checkbox
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :model     max-width?
                                                        :on-change #(reset! max-width? %)]
                                                       [label
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :label [:code ":max-width"]]
                                                       (when @max-width?
                                                         [:<>
                                                          [slider
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :model     max-width
                                                           :on-change #(reset! max-width %)
                                                           :min       200
@@ -129,17 +129,17 @@
                                                           :step      1
                                                           :width     (px 200)]
                                                          [gap
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :size spacing7]
                                                          [label
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :label (px @max-width)]])]]
                                           [h-box
-                                           :src      (coords)
+                                           :src      (at)
                                            :gap      spacing7
                                            :align    :center
                                            :children [[checkbox
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :model     max-rows?
                                                        :on-change (fn [new-max-rows?]
                                                                     (let [rc (count @sales-rows)]
@@ -148,7 +148,7 @@
                                                                         (if (or (<= rc 100) @parent-height?)
                                                                           (reset! max-rows? new-max-rows?)))))]
                                                       [label
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :label [:code
                                                                (when (and (> (count @sales-rows) 100) (not @parent-height?))
                                                                  {:title "Can't uncheck. Table would be too large.\nMust check 'parent height' before you can uncheck this"
@@ -157,7 +157,7 @@
                                                       (if @max-rows?
                                                         [:<>
                                                          [slider
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :model     max-rows
                                                           :on-change #(reset! max-rows %)
                                                           :min       0
@@ -165,26 +165,26 @@
                                                           :step      1
                                                           :width     (px 200)]
                                                          [gap
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :size spacing]
                                                          [label
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :label @max-rows]
                                                          [gap
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :size spacing7]
                                                          [label
-                                                          :src      (coords)
+                                                          :src      (at)
                                                           :label (str "(this demo has " (count @sales-rows) " rows of data)")]]
                                                         [label
-                                                         :src      (coords)
+                                                         :src      (at)
                                                          :style {:background-color parent-color}
                                                          :label (str "when unset, the table's height is the parent's explicit height, or if that's unset, the number of rows of data (" (count @sales-rows) ")")])]]
                                           [gap
-                                           :src      (coords)
+                                           :src      (at)
                                            :size "0px"]
                                           [v-box
-                                           :src      (coords)
+                                           :src      (at)
                                            :class    "parent-for-simple-v-table"
                                            :width    (when @parent-width?  (px @parent-width))
                                            :height   (when @parent-height? (px @parent-height))
@@ -192,23 +192,23 @@
                                                       :background-color parent-color}
                                            :gap      spacing
                                            :children [[label
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :label "This blue box is the table's (v-box) parent."]
                                                       [h-box
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :gap      spacing7
                                                        :align    :center
                                                        :children [[checkbox
-                                                                   :src      (coords)
+                                                                   :src      (at)
                                                                    :model     parent-width?
                                                                    :on-change #(reset! parent-width? %)]
                                                                   [label
-                                                                   :src      (coords)
+                                                                   :src      (at)
                                                                    :label [:code "parent width"]]
                                                                   (if @parent-width?
                                                                     [:<>
                                                                      [slider
-                                                                      :src      (coords)
+                                                                      :src      (at)
                                                                       :model     parent-width
                                                                       :on-change #(reset! parent-width %)
                                                                       :min       500
@@ -216,20 +216,20 @@
                                                                       :step      1
                                                                       :width     (px 200)]
                                                                      [gap
-                                                                      :src      (coords)
+                                                                      :src      (at)
                                                                       :size spacing7]
                                                                      [label
-                                                                      :src      (coords)
+                                                                      :src      (at)
                                                                       :label (px @parent-width)]]
                                                                     [label
-                                                                     :src      (coords)
+                                                                     :src      (at)
                                                                      :label "unset: grows to table's natural extent (or the :max-width override)"])]]
                                                       [h-box
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :gap      spacing7
                                                        :align    :center
                                                        :children [[checkbox
-                                                                   :src      (coords)
+                                                                   :src      (at)
                                                                    :model     parent-height?
                                                                    :on-change (fn [new-parent-height?]
                                                                                 (let [rc (count @sales-rows)]
@@ -238,7 +238,7 @@
                                                                                     (if (or (<= rc 100) @max-rows?)
                                                                                       (reset! parent-height? new-parent-height?)))))]
                                                                   [label
-                                                                   :src      (coords)
+                                                                   :src      (at)
                                                                    :label [:code
                                                                            (when (and (> (count @sales-rows) 100) (not @max-rows?))
                                                                              {:title "Can't uncheck. Table would be too large.\nMust check :max-rows before you can uncheck this"
@@ -247,7 +247,7 @@
                                                                   (if @parent-height?
                                                                     [:<>
                                                                      [slider
-                                                                      :src      (coords)
+                                                                      :src      (at)
                                                                       :model     parent-height
                                                                       :on-change #(reset! parent-height %)
                                                                       :min       500
@@ -255,25 +255,25 @@
                                                                       :step      1
                                                                       :width     (px 200)]
                                                                      [gap
-                                                                      :src      (coords)
+                                                                      :src      (at)
                                                                       :size spacing7]
                                                                      [label
-                                                                      :src      (coords)
+                                                                      :src      (at)
                                                                       :label (px @parent-height)]]
                                                                     [label
-                                                                     :src      (coords)
+                                                                     :src      (at)
                                                                      :label (str "unset: grows to table's natural extent (" (count @sales-rows) " rows of data) or the :max-rows override")])]]
                                                       (when debug?
                                                         [h-box
-                                                         :src      (coords)
+                                                         :src      (at)
                                                          :gap      spacing7
                                                          :align    :center
                                                          :children [[label
-                                                                     :src      (coords)
+                                                                     :src      (at)
                                                                      :width "145px"
                                                                      :label [:span "Rows in table: " [:span.bold (count @sales-rows)]]]
                                                                     [button
-                                                                     :src      (coords)
+                                                                     :src      (at)
                                                                      :label    (str "Generate " (if @how-many? @how-many "random") " rows")
                                                                      :style    {:width   "170px"
                                                                                 :height  "24px"
@@ -282,14 +282,14 @@
                                                                                       (reset! parent-height? true))
                                                                                     (reset! sales-rows (generate-sales-rows (if @how-many? @how-many (+ 5 (rand 95))))))]
                                                                     [checkbox
-                                                                     :src      (coords)
+                                                                     :src      (at)
                                                                      :model     how-many?
                                                                      :on-change #(reset! how-many? %)]
                                                                     [label :label [:code "how many?"]]
                                                                     (if @how-many?
                                                                       [:<>
                                                                        [slider
-                                                                        :src      (coords)
+                                                                        :src      (at)
                                                                         :model     how-many
                                                                         :on-change #(reset! how-many %)
                                                                         :min       1000
@@ -304,7 +304,7 @@
                                                       ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
                                                       ;; The simple-v-table demo starts here
                                                       [simple-v-table
-                                                       :src                       (coords)
+                                                       :src                       (at)
                                                        :model                     sales-rows
 
                                                        ;; ===== Columns

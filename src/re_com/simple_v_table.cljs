@@ -1,6 +1,6 @@
 (ns re-com.simple-v-table
   (:require-macros
-    [re-com.core     :refer [handler-fn coords reflect]]
+    [re-com.core     :refer [handler-fn at reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [reagent.core    :as    reagent]
@@ -267,7 +267,7 @@
                            (get-in parts [:simple-wrapper :style]))
              :attr  (get-in parts [:simple-wrapper :attr])
              :child [v-table/v-table
-                     :src                     (coords)
+                     :src                     (at)
                      :model                   internal-model
 
                      ;; ===== Column header (section 4)

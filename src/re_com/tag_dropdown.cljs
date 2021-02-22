@@ -1,7 +1,7 @@
 (ns re-com.tag-dropdown
   (:require-macros
     [reagent.ratom   :refer [reaction]]
-    [re-com.core     :refer [handler-fn coords reflect]]
+    [re-com.core     :refer [handler-fn at reflect]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [goog.string           :as gstring]
@@ -78,13 +78,13 @@
             tag-label     (label-fn tag-data)
             tag-description (when description-fn (description-fn tag-data))]
         [v-box
-         :src      (coords)
+         :src      (at)
          :class    (str "rc-tag-dropdown-tag " (get-in parts [:tag :class]) " " (get-in parts [tag-id-kw :class]))
          :style    (merge (get-in parts [:tag :style]) (get-in parts [tag-id-kw :style]))
          :attr     (merge (get-in parts [:tag :attr]) (get-in parts [tag-id-kw :attr]))
          :align :start
          :children [[h-box
-                     :src        (coords)
+                     :src        (at)
                      :align-self :start
                      :justify    (if placeholder? :end :center)
 
@@ -113,11 +113,11 @@
                              attr)
                      :children [(if placeholder?
                                   [box
-                                   :src   (coords)
+                                   :src   (at)
                                    :style {:color "hsl(194, 61%, 85%)"}
                                    :child (gstring/unescapeEntities "&#9660;")]
                                   [box
-                                   :src   (coords)
+                                   :src   (at)
                                    :style {:cursor (when clickable? "pointer")}
                                    :attr  {:on-click (handler-fn
                                                        (when clickable?
@@ -126,15 +126,15 @@
                                    :child (or tag-label "???")])
                                 (when (and unselectable? (not placeholder?))
                                   [h-box
-                                   :src      (coords)
+                                   :src      (at)
                                    :align    :center
                                    :children [[box
-                                               :src   (coords)
+                                               :src   (at)
                                                :style {:margin-left "4px"
                                                        :margin-right "3px"}
                                                :child "|"]
                                               [close-button
-                                               :src         (coords)
+                                               :src         (at)
                                                :color       "white"
                                                :hover-color "#ccc"
                                                :div-size    13
@@ -220,7 +220,7 @@
                                  :tooltip     "Click to select tags"
                                  :hover-style {:background-color "#eee"}]
                 tag-list-body   [selection-list
-                                 :src           (coords)
+                                 :src           (at)
                                  :disabled?     disabled?
                                  :required?     required?
                                  :parts         {:list-group-item {:style {:background-color "#F3F6F7"}}}
@@ -237,7 +237,7 @@
                                  :on-change     #(on-change %)
                                  :multi-select? true]
                 tag-main        [h-box
-                                 :src       (coords)
+                                 :src       (at)
                                  :min-width min-width
                                  :max-width max-width
                                  :height    height
@@ -255,7 +255,7 @@
                                                    (when (not disabled?) {:on-click (handler-fn (reset! showing? true))})
                                                    (get-in parts [:main :attr]))
                                  :children  [[h-box
-                                              :src      (coords)
+                                              :src      (at)
                                               :class    (str "rc-tag-dropdown-tags " (get-in parts [:tags :class]))
                                               :size     "1" ;; This line will align the tag placeholder to the right
                                               :style    {:overflow "hidden"}
@@ -276,16 +276,16 @@
                                                           (when (not disabled?)
                                                             placeholder-tag)
                                                           [gap
-                                                           :src  (coords)
+                                                           :src  (at)
                                                            :size "20px"]
                                                           (when (zero? (count model))
                                                             [box
-                                                             :src   (coords)
+                                                             :src   (at)
                                                              :child (if placeholder placeholder "")]))]
                                              (when (and (not-empty model) (not disabled?)
                                                         (not required?))
                                                [close-button
-                                                :src       (coords)
+                                                :src       (at)
                                                 :parts     {:wrapper {:style {:margin-left "5px"}}}
                                                 :on-click  #(on-change #{})])]]]
             [popover-anchor-wrapper
@@ -296,7 +296,7 @@
              :position :below-center
              :anchor   tag-main
              :popover  [popover-content-wrapper
-                        :src             (coords)
+                        :src             (at)
                         :arrow-length    0
                         :arrow-width     0
                         :arrow-gap       1

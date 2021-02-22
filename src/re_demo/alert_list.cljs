@@ -1,6 +1,6 @@
 (ns re-demo.alert-list
   (:require-macros
-    [re-com.core   :refer [coords]])
+    [re-com.core   :refer [at]])
   (:require
     [re-com.core   :refer [h-box v-box box line gap label title button alert-box alert-list p]]
     [re-com.alert  :refer [alert-list-parts-desc alert-box-args-desc alert-list-args-desc]]
@@ -24,17 +24,17 @@
 
     (fn []
       [v-box
-       :src      (coords)
+       :src      (at)
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[alert-list ... ]"
                                 "src/re_com/alert.cljs"
                                 "src/re_demo/alert_list.cljs"]
                   [h-box
-                   :src      (coords)
+                   :src      (at)
                    :gap      "100px"
                    :children [[v-box
-                               :src      (coords)
+                               :src      (at)
                                :gap      "10px"
                                :width    "450px"
                                :children [[title2 "Notes"]
@@ -42,19 +42,19 @@
                                           [p "Renders a dynamic list of alert-boxes vertically, with a scroll bar if necessary."]
                                           [args-table alert-list-args-desc]]]
                               [v-box
-                               :src      (coords)
+                               :src      (at)
                                :width    "600px"
                                :gap      "10px"
                                :children [[title2 "Demo"]
                                           [h-box
-                                           :src      (coords)
+                                           :src      (at)
                                            :gap      "10px"
                                            :align    :center
                                            :children [[label
-                                                       :src   (coords)
+                                                       :src   (at)
                                                        :label "To insert alerts at the top of the list, click "]
                                                       [button
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :label    "Add alert"
                                                        :style    {:width "100px"}
                                                        :on-click #(add-alert alerts (gensym) :info {:heading "New alert" :body "This alert was added by the \"Add alert\" button."})]]]
@@ -62,7 +62,7 @@
                                           [p [:code ":max-height"] " is set to 300px. A scroll bar will appear as necessary."]
                                           [p "For demonstration purposes, a 'dotted' " [:code ":border-style"] " is set."]
                                           [alert-list
-                                           :src          (coords)
+                                           :src          (at)
                                            :alerts       alerts
                                            :on-close     #(reset! alerts (remove-id-item % @alerts))
                                            :max-height   "300px"

@@ -1,6 +1,6 @@
 (ns re-com.multi-select
   (:require-macros
-    [re-com.core     :refer [handler-fn coords]]
+    [re-com.core     :refer [handler-fn at]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [clojure.set                 :as set]
@@ -424,7 +424,7 @@
                (->attr args)
                attr) ;; Prevent user text selection
              [box/h-box
-              :src        (coords)
+              :src        (at)
               :class      (str "rc-multi-select-container " (get-in parts [:container :class]))
               :style      (get-in parts [:container :class])
               :attr       (get-in parts [:container :attr])
@@ -432,7 +432,7 @@
               :max-height max-height
               :gap        "4px"
               :children   [[box/v-box
-                            :src      (coords)
+                            :src      (at)
                             :class    (str "rc-multi-select-left " (get-in parts [:left :class]))
                             :style    (get-in parts [:left :style])
                             :attr     (get-in parts [:left :attr])
@@ -441,7 +441,7 @@
                             :children [(when left-label
                                          (if (string? left-label)
                                            [box/h-box
-                                            :src      (coords)
+                                            :src      (at)
                                             :class    (str "rc-multi-select-left-label-container " (get-in parts [:left-label-container :class]))
                                             :style    (get-in parts [:left-label-container :style])
                                             :attr     (get-in parts [:left-label-container :attr])
@@ -465,7 +465,7 @@
                                                           (str "showing " (count filtered-choices) " of " potential-count))]]]
                                            left-label))
                                        [list-box
-                                        :src                     (coords)
+                                        :src                     (at)
                                         :class                   (str "rc-multi-select-left-list-box " (get-in parts [:left-list-box :class]))
                                         :items                   filtered-choices
                                         :id-fn                   id-fn
@@ -480,19 +480,19 @@
                                        (when filter-box?
                                          [:<>
                                           [box/gap
-                                           :src  (coords)
+                                           :src  (at)
                                            :size "4px"]
                                           [filter-text-box *filter-choices-text placeholder *warning-message disabled? parts]
                                           [box/gap
-                                           :src  (coords)
+                                           :src  (at)
                                            :size "4px"]
                                           (if (string/blank? @*filter-choices-text)
                                             [text/label
-                                             :src   (coords)
+                                             :src   (at)
                                              :label (gstring/unescapeEntities "&nbsp;")
                                              :style {:font-size "smaller"}]
                                             [text/label
-                                             :src   (coords)
+                                             :src   (at)
                                              :class (str "rc-multi-select-left-filter-result-count " (get-in parts [:left-filter-result-count :class]))
                                              :style (merge {:font-size "smaller"}
                                                            (get-in parts [:left-filter-result-count :style]))
@@ -500,26 +500,26 @@
                                              :label [:span "Found " (rc.util/pluralize (count filtered-choices) "match" "matches") " containing " [:strong @*filter-choices-text]]])])]]
 
                            [box/v-box
-                            :src      (coords)
+                            :src      (at)
                             :class    (str "rc-multi-select-middle-container " (get-in parts [:middle-container :class]))
                             :style    (get-in parts [:middle-container :style])
                             :attr     (get-in parts [:middle-container :attr])
                             :justify  :between
                             :children [[box/box
-                                        :src   (coords)
+                                        :src   (at)
                                         :class (str "rc-multi-select-middle-spacer " (get-in parts [:middle-spacer :class]))
                                         :style (get-in parts [:middle-spacer :style])
                                         :attr  (get-in parts [:middle-spacer :attr])
                                         :size  "0 1 22px" ;; 22 = (+ 18 4) - height of the top components
                                         :child ""]
                                        [box/v-box
-                                        :src      (coords)
+                                        :src      (at)
                                         :class    (str "rc-multi-select-middle " (get-in parts [:middle :class]))
                                         :style    (get-in parts [:middle :style])
                                         :attr     (get-in parts [:middle :attr])
                                         :justify  :center
                                         :children [[buttons/button
-                                                    :src       (coords)
+                                                    :src       (at)
                                                     :class     (str "rc-multi-select-include-all-button " (get-in parts [:include-all-button :class]))
                                                     :label     [:span
                                                                 [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-fast-forward")}]
@@ -532,7 +532,7 @@
                                                     :attr      (get-in parts [:include-all-button :attr])
                                                     :on-click  include-filtered-click]
                                                    [buttons/button
-                                                    :src       (coords)
+                                                    :src       (at)
                                                     :class     (str "rc-multi-select-include-selected-button " (get-in parts [:include-selected-button :class]))
                                                     :label     [:span
                                                                 [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-play")}]
@@ -548,7 +548,7 @@
                                                     :attr      (get-in parts [:include-selected-button :attr])
                                                     :on-click  include-click]
                                                    [buttons/button
-                                                    :src       (coords)
+                                                    :src       (at)
                                                     :class     (str "rc-multi-select-exclude-selected-button " (get-in parts [:exclude-selected-button :class]))
                                                     :label     [:span
                                                                 [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-play zmdi-hc-rotate-180")}]
@@ -564,7 +564,7 @@
                                                     :attr      (get-in parts [:exclude-selected-button :attr])
                                                     :on-click  exclude-click]
                                                    [buttons/button
-                                                    :src       (coords)
+                                                    :src       (at)
                                                     :class     (str "rc-multi-select-exclude-all-button " (get-in parts [:exclude-all-button :class]))
                                                     :label     [:span
                                                                 [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-fast-rewind")}]
@@ -577,12 +577,12 @@
                                                     :attr      (get-in parts [:exclude-all-button :attr])
                                                     :on-click  exclude-filtered-click]]]
                                        [box/box
-                                        :src   (coords)
+                                        :src   (at)
                                         :size  (str "0 2 " (if filter-box? "55px" "0px")) ;; 55 = (+ 4 4 28 4 15) - height of the bottom components
                                         ;:style {:background-color "lightblue"}
                                         :child ""]]]
                            [box/v-box
-                            :src      (coords)
+                            :src      (at)
                             :class    (str "rc-multi-select-right " (get-in parts [:right :class]))
                             :size     "50%"
                             :gap      "4px"
@@ -591,7 +591,7 @@
                             :attr     (get-in parts [:right :attr])
                             :children [^{:key (gensym)}
                                        [text/label
-                                        :src   (coords)
+                                        :src   (at)
                                         :label @*warning-message
                                         :class (str "rc-multi-select-warning-message " (get-in parts [:warning-message :class]))
                                         :style (when @*warning-message
@@ -612,7 +612,7 @@
                                        (when right-label
                                          (if (string? right-label)
                                            [box/h-box
-                                            :src      (coords)
+                                            :src      (at)
                                             :class    (str "rc-multi-select-right-label-container " (get-in parts [:right-label-container :class]))
                                             :style    (get-in parts [:right-label-container :style])
                                             :attr     (get-in parts [:right-label-container :attr])
@@ -636,7 +636,7 @@
                                                           (str "showing " (count filtered-selections) " of " chosen-count))]]]
                                            right-label))
                                        [list-box
-                                        :src                     (coords)
+                                        :src                     (at)
                                         :class                   (str "rc-multi-select-right-list-box " (get-in parts [:right-list-box :class]))
                                         :style                   (get-in parts [:right-list-box :style])
                                         :attr                    (get-in parts [:right-list-box :attr])
@@ -653,19 +653,19 @@
                                        (when filter-box?
                                          [:<>
                                           [box/gap
-                                           :src  (coords)
+                                           :src  (at)
                                            :size "4px"]
                                           [filter-text-box *filter-selections-text placeholder *warning-message disabled? parts]
                                           [box/gap
-                                           :src  (coords)
+                                           :src  (at)
                                            :size "4px"]
                                           (if (string/blank? @*filter-selections-text)
                                             [text/label
-                                             :src   (coords)
+                                             :src   (at)
                                              :label (gstring/unescapeEntities "&nbsp;")
                                              :style {:font-size "smaller"}]
                                             [text/label
-                                             :src   (coords)
+                                             :src   (at)
                                              :label [:span "Found " (rc.util/pluralize (count filtered-selections) "match" "matches") " containing " [:strong @*filter-selections-text]]
                                              :class (str "rc-multi-select-right-filter-result-count " (get-in parts [:right-filter-result-count :class]))
                                              :style (merge {:font-size "smaller"} (get-in parts [:right-filter-result-count :style]))

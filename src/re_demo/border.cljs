@@ -1,6 +1,6 @@
 (ns re-demo.border
   (:require-macros
-    [re-com.core   :refer [coords]])
+    [re-com.core   :refer [at]])
   (:require
     [re-com.core   :refer [h-box v-box box gap border p]]
     [re-com.box    :refer [border-args-desc]]
@@ -10,7 +10,7 @@
 (defn panel
   []
   [v-box
-   :src      (coords)
+   :src      (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title  "[border ... ]"
@@ -18,10 +18,10 @@
                             "src/re_demo/border.cljs"]
 
               [h-box
-               :src      (coords)
+               :src      (at)
                :gap      "100px"
                :children [[v-box
-                           :src      (coords)
+                           :src      (at)
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Notes"]
@@ -30,7 +30,7 @@
                                       [p "The border can be used at any level in a box hierarchy. For example, it could be a child of an h-box and it's child could be a v-box."]
                                       [args-table border-args-desc]]]
                           [v-box
-                           :src      (coords)
+                           :src      (at)
                            :gap      "10px"
                            ; :size     "0 0 auto"
                            ;:align    :start
@@ -44,12 +44,12 @@
 
                                       [p "Here is the result..."]
                                       [border
-                                       :src    (coords)
+                                       :src    (at)
                                        :border "1px dashed red"
                                        :child  [box
-                                                :src    (coords)
+                                                :src    (at)
                                                 :height "100px"
                                                 :child "Hello"]]]]]]
               [gap
-               :src  (coords)
+               :src  (at)
                :size "30px"]]])

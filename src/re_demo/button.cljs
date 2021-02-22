@@ -1,6 +1,6 @@
 (ns re-demo.button
   (:require-macros
-    [re-com.core    :refer [handler-fn coords]])
+    [re-com.core    :refer [handler-fn at]])
   (:require
     [re-com.core    :refer [h-box v-box box gap line button label throbber hyperlink-href p p-span]]
     [re-com.buttons :refer [button-parts-desc button-args-desc]]
@@ -26,7 +26,7 @@
     (fn
       []
       [v-box
-       :src      (coords)
+       :src      (at)
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[button ... ]"
@@ -34,10 +34,10 @@
                                 "src/re_demo/button.cljs"]
 
                   [h-box
-                   :src      (coords)
+                   :src      (at)
                    :gap      "100px"
                    :children [[v-box
-                               :src      (coords)
+                               :src      (at)
                                :gap      "10px"
                                :width    "450px"
                                :children [[title2 "Notes"]
@@ -47,20 +47,20 @@
                                           [p "Styling to be provided via the " [:code ":class"] " attribute. Typically you'll be using Bootstrap CSS styles such as \"btn-info\"."]
                                           [p-span "See "
                                             [hyperlink-href
-                                             :src    (coords)
+                                             :src    (at)
                                              :label  "Bootstrap Button Options"
                                              :href   "http://getbootstrap.com/css/#buttons-options"
                                              :target "_blank"]
                                             " for information on available classes."]
                                           [args-table button-args-desc]]]
                               [v-box
-                               :src      (coords)
+                               :src      (at)
                                :gap      "10px"
                                :children [[title2 "Demo"]
                                           [h-box
-                                           :src      (coords)
+                                           :src      (at)
                                            :children [[button
-                                                       :src              (coords)
+                                                       :src              (at)
                                                        :label            "No Clicking!"
                                                        :tooltip          (when-not (= (:outcome-index @state) (dec (count click-outcomes))) "Seriously, NO CLICKING!")
                                                        :tooltip-position :below-center
@@ -68,35 +68,35 @@
                                                        :on-click          #(swap! state update-in [:outcome-index] inc)
                                                        :class             "btn-danger"]
                                                       [box
-                                                       :src    (coords)
+                                                       :src    (at)
                                                        :align  :center      ;; note: centered text wrt the button
                                                        :child  [label
-                                                                :src   (coords)
+                                                                :src   (at)
                                                                 :label (nth click-outcomes (:outcome-index @state))
                                                                 :style {:margin-left "15px"}]]]]
                                           [gap
-                                           :src  (coords)
+                                           :src  (at)
                                            :size "20px"]
                                           [h-box
-                                           :src      (coords)
+                                           :src      (at)
                                            :height   "50px"
                                            :gap      "50px"
                                            :align    :center
                                            :children [[button
-                                                       :src               (coords)
+                                                       :src               (at)
                                                        :label             (if (:see-throbber @state)  "Stop it!" "See Throbber")
                                                        :tooltip           "I'm a tooltip on the left"
                                                        :tooltip-position :left-center
                                                        :on-click          #(swap! state update-in [:see-throbber] not)]
                                                       (when (:see-throbber @state) [throbber])]]
                                           [gap
-                                           :src  (coords)
+                                           :src  (at)
                                            :size "20px"]
 
                                           [p "The two buttons above are styled using Bootstrap. For the " [:code ":class"] " parameter, we passed in the name of a standard Bootstrap class, like \"btn-default\"."]
                                           [p "But the button below was created by supplying inline styles via the " [:code ":style"] " and " [:code ":attr"] " parameters. To see the code, click the \"Page Source\" hyperlink at the top."]
                                           [button
-                                           :src       (coords)
+                                           :src       (at)
                                             :label    [:span "Microsoft Modern Button " [:i.zmdi.zmdi-hc-fw-rc.zmdi-download]]
                                             :on-click #()
                                             :style    {:color            "white"

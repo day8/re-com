@@ -1,6 +1,6 @@
 (ns re-demo.checkbox
   (:require-macros
-    [re-com.core     :refer [coords]])
+    [re-com.core     :refer [at]])
   (:require
     [re-com.core     :refer [h-box v-box box gap line checkbox label p]]
     [re-com.checkbox :refer [checkbox-parts-desc checkbox-args-desc]]
@@ -59,11 +59,11 @@
                                           [v-box
                                            :gap "15px"
                                            :children [[h-box
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :gap      "10px"
                                                        :height   "20px"
                                                        :children [[checkbox
-                                                                   :src       (coords)
+                                                                   :src       (at)
                                                                    :label     "tick me  "
                                                                    :model     ticked?
                                                                    :on-change #(reset! ticked? %)]
@@ -71,33 +71,33 @@
                                                                   (when @ticked? [label :label " is ticked"])]]
 
                                                       [h-box
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :gap      "1px"
                                                        :children [[checkbox
-                                                                   :src       (coords)
+                                                                   :src       (at)
                                                                    :model     all-for-one?
                                                                    :on-change #(reset! all-for-one? %)]
                                                                   [checkbox
-                                                                   :src       (coords)
+                                                                   :src       (at)
                                                                    :model     all-for-one?
                                                                    :on-change #(reset! all-for-one? %)]
                                                                   [checkbox
-                                                                   :src       (coords)
+                                                                   :src       (at)
                                                                    :model     all-for-one?
                                                                    :on-change #(reset! all-for-one? %)
                                                                    :label     "all for one, and one for all.  "]]]
 
                                                       [h-box
-                                                       :src      (coords)
+                                                       :src      (at)
                                                        :gap      "15px"
                                                        :children [[checkbox
-                                                                   :src       (coords)
+                                                                   :src       (at)
                                                                    :label     "tick this one, to \"disable\""
                                                                    :model     disabled?
                                                                    :on-change #(reset! disabled? %)]
                                                                   [right-arrow]
                                                                   [checkbox
-                                                                   :src         (coords)
+                                                                   :src         (at)
                                                                    :label       (if @disabled? "now disabled" "enabled")
                                                                    :model       something1?
                                                                    :disabled?   disabled?
@@ -107,7 +107,7 @@
                                                       [h-box
                                                        :gap      "1px"
                                                        :children [[checkbox
-                                                                   :src       (coords)
+                                                                   :src       (at)
                                                                    :model     something2?
                                                                    :on-change #(reset! something2? %)]
                                                                   [gap :size "50px"]

@@ -1,6 +1,6 @@
 (ns re-demo.hyperlink
   (:require-macros
-    [re-com.core    :refer [coords]])
+    [re-com.core    :refer [at]])
   (:require
     [re-com.core    :refer [h-box v-box box gap line label title checkbox hyperlink p]]
     [re-com.buttons :refer [hyperlink-parts-desc hyperlink-args-desc]]
@@ -15,7 +15,7 @@
     (fn
       []
       [v-box
-       :src      (coords)
+       :src      (at)
        :size     "auto"
        :gap      "10px"
        :children [[panel-title  "[hyperlink ... ]"
@@ -23,10 +23,10 @@
                                 "src/re_demo/hyperlink.cljs"]
 
                   [h-box
-                   :src      (coords)
+                   :src      (at)
                    :gap      "100px"
                    :children [[v-box
-                               :src      (coords)
+                               :src      (at)
                                :gap      "10px"
                                :width    "450px"
                                :children [[title2 "Notes"]
@@ -35,33 +35,33 @@
                                           [p "If you want to launch external URLs, use the [hyperlink-href] component."]
                                           [args-table hyperlink-args-desc]]]
                               [v-box
-                               :src      (coords)
+                               :src      (at)
                                :gap      "10px"
                                :children [[title2 "Demo"]
                                           [hyperlink
-                                           :src              (coords)
+                                           :src              (at)
                                            :label            "Click me"
                                            :tooltip          "Click here to increase the click count"
                                            :tooltip-position :left-center
                                            :on-click         #(swap! click-count inc)
                                            :disabled?        disabled?]
                                           [label
-                                           :src   (coords)
+                                           :src   (at)
                                            :label (str "click count = " @click-count)]
                                           [v-box
-                                           :src      (coords)
+                                           :src      (at)
                                            :gap      "10px"
                                            :style    {:min-width        "150px"
                                                       :padding          "15px"
                                                       :border-top       "1px solid #DDD"
                                                       :background-color "#f7f7f7"}
                                            :children [[title
-                                                       :src   (coords)
+                                                       :src   (at)
                                                        :level :level3
                                                        :label "Interactive Parameters"
                                                        :style {:margin-top "0"}]
                                                       [checkbox
-                                                       :src       (coords)
+                                                       :src       (at)
                                                        :label     [:code ":disabled?"]
                                                        :model     disabled?
                                                        :on-change (fn [val]

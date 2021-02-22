@@ -35,7 +35,7 @@
 
 ;; Obtain source code coordinates and assemble them into a map literal containing `:file` and `:line` keys
 ;; See explanation: https://re-com.day8.com.au/#/debug
-(defmacro coords
+(defmacro at
   []
   (select-keys (meta &form) [:file :line]))
 
