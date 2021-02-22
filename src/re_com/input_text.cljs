@@ -48,7 +48,7 @@
      {:name :parts            :required false                  :type "map"                      :validate-fn (parts? input-text-parts) :description "See Parts section below."}
      {:name :input-type       :required false                  :type "keyword"                  :validate-fn keyword?                  :description [:span "ONLY applies to super function 'base-input-text': either " [:code ":input"] ", " [:code ":password"] " or " [:code ":textarea"]]}
      {:name :src              :required false                  :type "map"                      :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log              :required false                  :type "map"                      :validate-fn map?                      :description "Used internally to modify the output of logging for the component."}]))
+     {:name :log              :required false                  :type "map"                      :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
 
 ;; Sample regex's:
 ;;  - #"^(-{0,1})(\d*)$"                   ;; Signed integer

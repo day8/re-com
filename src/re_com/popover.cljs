@@ -136,7 +136,7 @@
      {:name :on-click :required false              :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}
      {:name :class    :required false              :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :src      :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log      :required false              :type "map"             :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
+     {:name :log      :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
 
 (defn- backdrop
   "Renders a backdrop div which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
@@ -169,7 +169,7 @@
      {:name :close-callback :required false                :type "-> nil"            :validate-fn fn?               :description [:span "a function which takes no params and returns nothing. Called when the close button is pressed. Not required if " [:code ":showing?"] " atom passed in OR " [:code ":close-button?"] " is set to false"]}
      {:name :class          :required false                :type "string"            :validate-fn string?           :description "CSS class names, space separated"}
      {:name :src            :required false                :type "map"               :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log            :required false                :type "map"               :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
+     {:name :log            :required false                :type "map"               :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
 
 (defn- popover-title
   "Renders a title at the top of a popover with an optional close button on the far right"
@@ -255,7 +255,7 @@
      {:name :title                :required false                       :type "string | markup"                                 :description "describes a title"}
      {:name :class                :required false                       :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
      {:name :src                  :required false                       :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log                  :required false                       :type "map"              :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
+     {:name :log                  :required false                       :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
@@ -373,7 +373,7 @@
      {:name :attr                 :required false                        :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts                :required false                        :type "map"              :validate-fn (parts? #{:backdrop :border :title}) :description "See Parts section below."}
      {:name :src                  :required false                        :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log                  :required false                        :type "map"              :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
+     {:name :log                  :required false                        :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
 
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes"
@@ -466,7 +466,7 @@
      {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts    :required false                       :type "map"             :validate-fn (parts? #{:point-wrapper :point}) :description "See Parts section below."}
      {:name :src      :required false                       :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log      :required false                       :type "map"             :validate-fn map?              :description "Used internally to modify the output of logging for the component."}]))
+     {:name :log      :required false                       :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
 
 (defn popover-anchor-wrapper
   "Renders an element or control along with a Bootstrap popover"
@@ -534,7 +534,7 @@
      {:name :attr          :required false                        :type "HTML attr map"            :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to popover-anchor-wrapper component)"]}
      {:name :parts         :required false                        :type "map"                      :validate-fn (parts? #{:v-box :close-button-container :close-button}) :description "See Parts section below."}
      {:name :src           :required false                        :type "map"                      :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log           :required false                        :type "map"                      :validate-fn map?                 :description "Used internally to modify the output of logging for the component."}]))
+     {:name :log           :required false                        :type "map"                      :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style"
