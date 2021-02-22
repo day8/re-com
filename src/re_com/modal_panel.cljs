@@ -13,9 +13,9 @@
 
 (def modal-panel-parts-desc
   (when include-args-desc?
-    [{:type :legacy    :level 0 :class "rc-modal-panel"           :impl "[modal-panel]" :notes "Outer wrapper of the modal panel, backdrop, everything."}
-     {:name :backdrop  :level 1 :class "rc-modal-panel-backdrop"  :impl "[:div]"        :notes "Semi-transparent backdrop, which prevents other user interaction."}
-     {:name :container :level 1 :class "rc-modal-panel-container" :impl "[:div]"        :notes [:span "The container for the " [:code ":child"] "component."]}]))
+    [{:type :legacy          :level 0 :class "rc-modal-panel"           :impl "[modal-panel]" :notes "Outer wrapper of the modal panel, backdrop, everything."}
+     {:name :backdrop        :level 1 :class "rc-modal-panel-backdrop"  :impl "[:div]"        :notes "Semi-transparent backdrop, which prevents other user interaction."}
+     {:name :child-container :level 1 :class "rc-modal-panel-container" :impl "[:div]"        :notes [:span "The container for the " [:code ":child"] "component."]}]))
 
 (def modal-panel-parts
   (when include-args-desc?
