@@ -100,10 +100,6 @@
 (def collision-icon "\uD83D\uDCA5")
 (def gear-icon "⚙️") ;; the trailing 'space' is an intentional modifier, not an actual space, so do not delete it!
 (def blue-book-icon "\uD83D\uDCD8")
-(def question-mark-icon "❓")
-(def exclamation-mark-icon "❗")
-(def noncongruent-icon "≢")
-(def stop-icon "\uD83D\uDE45\uD83C\uDFFD")
 (def confused-icon "\uD83D\uDE15")
 (def globe-icon "\uD83C\uDF10")
 
@@ -127,6 +123,25 @@
       (js/console.log (str "%c" i "%c " globe-icon " %o") index-style "" el)))
   (js/console.groupEnd))
 
+(defn log-validate-args-error-problems
+  [problems]
+  (doseq [{:keys [problem arg-name expected actual validate-fn-result]} problems]
+    (case problem
+      ;; [IJ] TODO: :validate-fn-return
+      :unknown         (js/console.log
+                         (str "• %cUnknown parameter: %c" arg-name)
+                         error-style code-style)
+      :required        (js/console.log
+                         (str "• %cMissing required parameter: %c" arg-name)
+                         error-style code-style)
+      :validate-fn     (js/console.log
+                         (str "• %cParameter %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual)
+                         error-style code-style error-style code-style error-style code-style)
+      :validate-fn-map (js/console.log
+                         (str "• %c" (:message validate-fn-result))
+                         error-style)
+      (js/console.log "• " confused-icon " Unknown problem reported"))))
+
 (defn log-validate-args-error
   [element problems component-name {:keys [file line] :as src}]
   (let [source-url    (when root-url-for-compiler-output (str root-url-for-compiler-output file ":" line))]
@@ -148,22 +163,7 @@
           (str "• " gear-icon "%c[" (short-component-name component-name) " ...]")
           code-style)
         (js/console.log (str "• " blue-book-icon " Learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug"))))
-    (doseq [{:keys [problem arg-name expected actual validate-fn-result]} problems]
-      (case problem
-        ;; [IJ] TODO: :validate-fn-return
-        :unknown         (js/console.log
-                           (str "• " question-mark-icon " %cUnknown parameter: %c" arg-name)
-                           error-style code-style)
-        :required        (js/console.log
-                           (str "• " exclamation-mark-icon "  %cMissing required parameter: %c" arg-name)
-                           error-style code-style)
-        :validate-fn     (js/console.log
-                           (str "• " noncongruent-icon "  %cParameter %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual)
-                           error-style code-style error-style code-style error-style code-style)
-        :validate-fn-map (js/console.log
-                           (str "• " stop-icon " %c" (:message validate-fn-result))
-                           error-style)
-        (js/console.log "• " confused-icon " Unknown problem reported")))
+    (log-validate-args-error-problems problems)
     (log-component-stack (component-stack @element))
     (js/console.groupEnd)))
 
