@@ -115,7 +115,7 @@
       (if src
         (let [[file line] (string/split src #":")]
           (js/console.log
-            (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      Parameters: %O      DOM: %o\n")
+            (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      Parameters: %O\n      DOM: %o")
             index-style "" code-style "" code-style "" code-style "" args el))
         (js/console.log
           (str "%c" i "%c " gear-icon " %c[" component " ...]%c %o")
@@ -166,6 +166,9 @@
 (defn validate-args-error
   [& {:keys [problems component-name src]}]
   (let [element                 (atom nil)
+        ref-fn                  (fn [el]
+                                  (when el
+                                    (reset! element el)))
         internal-problems       (atom problems)
         internal-component-name (atom component-name)
         internal-src            (atom src)]
@@ -187,10 +190,11 @@
          (reset! internal-src src)
          [:div
           (merge
-            {:title    "re-com validation error. Look in the devtools console."
-             :ref      (fn [el] (reset! element el))
-             :style    (validate-args-problems-style)}
-            (->attr src component-name))
+            (->attr src component-name) ;; first in merge so this :ref fn doesn't get over-ridden by the ->attr :ref fn.
+            {:title    "re-com validation error. Look in the DevTools console."
+             :ref      ref-fn
+             :style    (validate-args-problems-style)})
+
           collision-icon])})))
 
 (defn stack-spy
