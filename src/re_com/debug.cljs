@@ -57,8 +57,8 @@
                                     (user-ref-fn el))))
           {:keys [file line]} src]
       (cond->
-        {:ref               ref-fn
-         :data-rc-component rc-component}
+        {:ref     ref-fn
+         :data-rc rc-component}
         src
         (assoc :data-rc-src (str file ":" line))))))
 
@@ -68,7 +68,7 @@
   ([stack ^js/Element el]
    (if-not el ;; termination condition
      stack
-     (let [component          (.. el -dataset -rcComponent)
+     (let [component          (.. el -dataset -rc)
            ^js/Element parent (.-parentElement el)]
        (->
          (if (= "stack-spy" component)
