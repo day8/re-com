@@ -5,6 +5,7 @@
             [re-com.checkbox       :as checkbox]
             [re-com.close-button   :as close-button]
             [re-com.datepicker     :as datepicker]
+            [re-com.debug          :as debug]
             [re-com.dropdown       :as dropdown]
             [re-com.input-text     :as input-text]
             [re-com.typeahead      :as typeahead]
@@ -106,3 +107,5 @@
 (def make-tour                  tour/make-tour)
 (def start-tour                 tour/start-tour)
 (def make-tour-nav              tour/make-tour-nav)
+
+(def stack-spy                  debug/stack-spy)
