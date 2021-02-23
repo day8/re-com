@@ -41,18 +41,12 @@
    :children [[title2 "Tooling"]
               [line]
               [gap :size "20px"]
-              [p "It is recommended you have "
+              [p "It is essential you have "
                [hyperlink-href
                 :href   "https://github.com/binaryage/cljs-devtools/blob/master/docs/installation.md"
                 :label  "CLJS DevTools"
                 :target "_blank"]
-               " integrated with your project to enable correct formatting and navigation in re-com logging such as 'Parameters' in component stacks."]
-              [title3 "Incorrect Formatting with Missing CLJS DevTools:"]
-              [gap :size "10px"]
-              [:img {:src "demo/logging-without-cljs-devtools.png"}]
-              [title3 "Correct Formatting with CLJS DevTools:"]
-              [gap :size "10px"]
-              [:img {:src "demo/logging-with-cljs-devtools.png"}]]])
+               " integrated with your project to enable correct formatting and navigation in re-com logging such as 'Parameters' in component stacks."]]])
 
 (defn config-page
   []
