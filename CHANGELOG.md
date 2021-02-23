@@ -1,6 +1,6 @@
-## Future Release (YYYY-MM-DD)
+## N.N.N (YYYY-MM-DD)
 
-...
+... unreleased features go here
 
 ## 2.13.0 (2012-02-23)
 
