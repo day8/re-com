@@ -49,7 +49,7 @@
 (defn without-debug
   "Returns hiccup form without debug in first attrs as writing tests for that would be complex (i.e. equality of ref-fn fns etc)."
   [[tag attrs & rest]]
-  (into [tag (dissoc attrs :data-rc-component :ref)] rest))
+  (into [tag (dissoc attrs :data-rc :ref)] rest))
 
 (deftest test-gap
   (are [expected actual] (= expected actual)
