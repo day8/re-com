@@ -832,30 +832,30 @@
     (validate-args-macro v-table-args-desc args)
     (let [scroll-x                          (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
           scroll-y                          (reagent/atom 0)              ;; px offset from top of header/content/footer sections (note: this value remains the same when virtual-mode? is both true and false)
-          ;wheel-row-increment               (* 10 row-height)             ;; Could be an argument
-          ;wheel-col-increment               (* 4 102)                     ;; Could be an argument - can't calculate this in here, needs to be passed
+         ;wheel-row-increment               (* 10 row-height)             ;; Could be an argument
+         ;wheel-col-increment               (* 4 102)                     ;; Could be an argument - can't calculate this in here, needs to be passed
           content-rows-width                (reagent/atom 0)              ;; Total px width of the content rendered by row-renderer (passed in via the :row-content-width arg)
           content-rows-height               (reagent/atom 0)              ;; Total px height of all content rows rendered by row-renderer (calculated internally)
           row-viewport-id                   (gensym "row-viewport-")      ;; The resize listener will listen to this element's (the row-viewport component) resize behaviour
           row-viewport-element              (reagent/atom nil)            ;; This contains a js reference to the row-viewport component (being listened to for resize changes)
           rl-row-viewport-width             (reagent/atom 0)              ;; The current width of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-width arg)
           rl-row-viewport-height            (reagent/atom (min (* row-height (count @model)) max-row-viewport-height)) ;; The current height of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-height arg). Initialise to prevent that annoying cascading render effect
-          internal-scroll-rows-into-view    (reagent/atom nil)   ;; Internal state for scrolling a particular row number (or range or rows) into view
-          internal-scroll-columns-into-view (reagent/atom nil)   ;; Internal state for scrolling a px range of columns into view
+          internal-scroll-rows-into-view    (reagent/atom nil)            ;; Internal state for scrolling a particular row number (or range or rows) into view
+          internal-scroll-columns-into-view (reagent/atom nil)            ;; Internal state for scrolling a px range of columns into view
           m-size                            (reaction (count @model))     ;; TODO/NOTE: This reaction was not always fired at the required time when creating virtual-rows after deleting a constraint. Could be an FRP glitch?
-          rows-per-viewport                 (reaction (.round js/Math (/ @rl-row-viewport-height row-height)))          ;; The number of rows that can currently be displayed in the row-viewport component
-          max-scroll-x                      (reaction (- @content-rows-width  @rl-row-viewport-width))                  ;; The maximum number of pixels the content can be scrolled vertically so it stops at the very bottom of the content section
-          max-scroll-y                      (reaction (- @content-rows-height @rl-row-viewport-height))                 ;; The maximum number of pixels the content can be scrolled horizontally so it stops at the far right of the content section
-          top-row-index                     (reaction (int (/ @scroll-y row-height)))                                   ;; The row number (zero-based) of the row currently rendered at the top of the table
-          bot-row-index                     (reaction (min (+ @top-row-index (dec @rows-per-viewport)) @m-size))        ;; The row number of the row currently rendered at the bottom of the table
-          virtual-scroll-y                  (reaction (mod @scroll-y row-height))                                       ;; Virtual version of scroll-y but this is a very small number (between 0 and the row-height)
+          rows-per-viewport                 (reaction (.round js/Math (/ @rl-row-viewport-height row-height)))      ;; The number of rows that can currently be displayed in the row-viewport component
+          max-scroll-x                      (reaction (- @content-rows-width  @rl-row-viewport-width))              ;; The maximum number of pixels the content can be scrolled vertically so it stops at the very bottom of the content section
+          max-scroll-y                      (reaction (- @content-rows-height @rl-row-viewport-height))             ;; The maximum number of pixels the content can be scrolled horizontally so it stops at the far right of the content section
+          top-row-index                     (reaction (int (/ @scroll-y row-height)))                               ;; The row number (zero-based) of the row currently rendered at the top of the table
+          bot-row-index                     (reaction (min (+ @top-row-index (dec @rows-per-viewport)) @m-size))    ;; The row number of the row currently rendered at the bottom of the table
+          virtual-scroll-y                  (reaction (mod @scroll-y row-height))                                   ;; Virtual version of scroll-y but this is a very small number (between 0 and the row-height)
           virtual-rows                      (reaction (when (pos? @m-size)
                                                         (subvec @model
                                                                 (min @top-row-index @m-size)
                                                                 (min (+ @top-row-index @rows-per-viewport 2) @m-size))))
 
-          on-h-scroll-change                #(reset! scroll-x %)                                                      ;; The on-change handler for the horizontal scrollbar
-          on-v-scroll-change                #(reset! scroll-y %)                                                      ;; The on-change handler for the verticalscrollbar
+          on-h-scroll-change                #(reset! scroll-x %)    ;; The on-change handler for the horizontal scrollbar
+          on-v-scroll-change                #(reset! scroll-y %)    ;; The on-change handler for the vertical scrollbar
 
           ;; When the resize listener detects a viewport area size change, this handler is fired
           on-viewport-resize                (fn on-viewport-resize
@@ -874,25 +874,25 @@
           on-wheel                          (fn on-wheel
                                               [event]
                                               (let [delta-x (.-deltaX event)
-                                                    new-delta-x delta-x ;(cond ;; Disabled for now
-                                                    ;  (neg? delta-x) (- wheel-col-increment)
-                                                    ;  (pos? delta-x) wheel-col-increment
-                                                    ;  :else          0)
+                                                    new-delta-x delta-x  ;(cond ;; Disabled for now
+                                                                         ;  (neg? delta-x) (- wheel-col-increment)
+                                                                         ;  (pos? delta-x) wheel-col-increment
+                                                                         ;  :else          0)
                                                     delta-y (.-deltaY event)
                                                     new-delta-y delta-y] ;(cond ;; Disabled for now
-                                                    ;  (neg? delta-y) (- wheel-row-increment)
-                                                    ;  (pos? delta-y) wheel-row-increment
-                                                    ;  :else          0)
+                                                                         ;  (neg? delta-y) (- wheel-row-increment)
+                                                                         ;  (pos? delta-y) wheel-row-increment
+                                                                         ;  :else          0)
 
                                                 (reset! scroll-x (max 0 (min @max-scroll-x (+ @scroll-x new-delta-x))))
                                                 (reset! scroll-y (max 0 (min @max-scroll-y (+ @scroll-y new-delta-y))))))
 
-          dmm-tracker                       (atom nil)                    ;; Holds a reference to the current dmm (DOM mouse-move) dmm-tracker object
-          sel-parent-bounding-rect          (reagent/atom nil)         ;; left, right, top, bottom, width, height of div where the selection is being drawn in (in screen coordinates)
-          sel-content-x-start               (reagent/atom 0)              ;; Original mouse-down x position of the content selection
-          sel-content-y-start               (reagent/atom 0)              ;; Original mouse-down y position of the content selection
-          sel-content-x-end                 (reagent/atom 0)              ;; Current mouse x drag position of the content selection
-          sel-content-y-end                 (reagent/atom 0)              ;; Current mouse y drag position of the content selection
+          dmm-tracker                       (atom nil)            ;; Holds a reference to the current dmm (DOM mouse-move) dmm-tracker object
+          sel-parent-bounding-rect          (reagent/atom nil)    ;; left, right, top, bottom, width, height of div where the selection is being drawn in (in screen coordinates)
+          sel-content-x-start               (reagent/atom 0)      ;; Original mouse-down x position of the content selection
+          sel-content-y-start               (reagent/atom 0)      ;; Original mouse-down y position of the content selection
+          sel-content-x-end                 (reagent/atom 0)      ;; Current mouse x drag position of the content selection
+          sel-content-y-end                 (reagent/atom 0)      ;; Current mouse y drag position of the content selection
 
           ;; The selection rectangle component
           selection-renderer                (fn selection-renderer
@@ -926,11 +926,11 @@
                                                    attr)
                                                  ""]))
 
-          coords-debug                      (reagent/atom nil)            ;; Handy when debugging - used to show selection coords on the left-hand debug section
-          event-debug                       (reagent/atom nil)            ;; Handy when debugging - use this to display data from the event object on the left-hand debug section
-          selection-target                  (reagent/atom nil)            ;; Indicates which section we're selecting in (one of :row, :row-header or :column-header)
-          sel-max-content-rows-px           (reagent/atom 0)            ;; The maximum value that can be passed in the callback of px rows to be used for the selection callback
-          sel-max-content-cols-px           (reagent/atom 0)            ;; The maximum number of px columns to be used for the selection callback
+          coords-debug                      (reagent/atom nil)    ;; Handy when debugging - used to show selection coords on the left-hand debug section
+          event-debug                       (reagent/atom nil)    ;; Handy when debugging - use this to display data from the event object on the left-hand debug section
+          selection-target                  (reagent/atom nil)    ;; Indicates which section we're selecting in (one of :row, :row-header or :column-header)
+          sel-max-content-rows-px           (reagent/atom 0)      ;; The maximum value that can be passed in the callback of px rows to be used for the selection callback
+          sel-max-content-cols-px           (reagent/atom 0)      ;; The maximum number of px columns to be used for the selection callback
 
           ;; Calculates the map representing the selection dimensions that will be passed back to the caller (translates px to row numbers if required)
           selection-coords                  (fn selection-coords
@@ -957,8 +957,8 @@
                                                   coords)
                                                 {}))
 
-          dragging?                         (reagent/atom false)          ;; true when the mouse is down in a selectable section
-          dragging-outside?                 (reagent/atom false)          ;; true when the mouse is down in a selectable section BUT is outside the section (causes scrolling and selection extension)
+          dragging?                         (reagent/atom false)  ;; true when the mouse is down in a selectable section
+          dragging-outside?                 (reagent/atom false)  ;; true when the mouse is down in a selectable section BUT is outside the section (causes scrolling and selection extension)
 
           ;; Whenever a mouse move is detected while dragging a selection, this handler is called by the dmm-tracker
           on-drag-change                    (fn on-drag-change
