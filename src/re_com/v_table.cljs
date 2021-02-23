@@ -830,210 +830,210 @@
       :as   args}]
   (or
     (validate-args-macro v-table-args-desc args)
-    (let [scroll-x              (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
-          scroll-y              (reagent/atom 0)              ;; px offset from top of header/content/footer sections (note: this value remains the same when virtual-mode? is both true and false)
-          ;wheel-row-increment   (* 10 row-height)             ;; Could be an argument
-          ;wheel-col-increment   (* 4 102)                     ;; Could be an argument - can't calculate this in here, needs to be passed
-          content-rows-width    (reagent/atom 0)              ;; Total px width of the content rendered by row-renderer (passed in via the :row-content-width arg)
-          content-rows-height   (reagent/atom 0)              ;; Total px height of all content rows rendered by row-renderer (calculated internally)
-          row-viewport-id       (gensym "row-viewport-")      ;; The resize listener will listen to this element's (the row-viewport component) resize behaviour
-          row-viewport-element  (reagent/atom nil)            ;; This contains a js reference to the row-viewport component (being listened to for resize changes)
-          rl-row-viewport-width (reagent/atom 0)              ;; The current width of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-width arg)
-          rl-row-viewport-height (reagent/atom (min (* row-height (count @model)) max-row-viewport-height)) ;; The current height of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-height arg). Initialise to prevent that annoying cascading render effect
-          internal-scroll-rows-into-view (reagent/atom nil)   ;; Internal state for scrolling a particular row number (or range or rows) into view
+    (let [scroll-x                          (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
+          scroll-y                          (reagent/atom 0)              ;; px offset from top of header/content/footer sections (note: this value remains the same when virtual-mode? is both true and false)
+          ;wheel-row-increment               (* 10 row-height)             ;; Could be an argument
+          ;wheel-col-increment               (* 4 102)                     ;; Could be an argument - can't calculate this in here, needs to be passed
+          content-rows-width                (reagent/atom 0)              ;; Total px width of the content rendered by row-renderer (passed in via the :row-content-width arg)
+          content-rows-height               (reagent/atom 0)              ;; Total px height of all content rows rendered by row-renderer (calculated internally)
+          row-viewport-id                   (gensym "row-viewport-")      ;; The resize listener will listen to this element's (the row-viewport component) resize behaviour
+          row-viewport-element              (reagent/atom nil)            ;; This contains a js reference to the row-viewport component (being listened to for resize changes)
+          rl-row-viewport-width             (reagent/atom 0)              ;; The current width of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-width arg)
+          rl-row-viewport-height            (reagent/atom (min (* row-height (count @model)) max-row-viewport-height)) ;; The current height of the row-viewport component (returned from the resize listener or overridden by the :row-viewport-height arg). Initialise to prevent that annoying cascading render effect
+          internal-scroll-rows-into-view    (reagent/atom nil)   ;; Internal state for scrolling a particular row number (or range or rows) into view
           internal-scroll-columns-into-view (reagent/atom nil)   ;; Internal state for scrolling a px range of columns into view
-          m-size                (reaction (count @model))     ;; TODO/NOTE: This reaction was not always fired at the required time when creating virtual-rows after deleting a constraint. Could be an FRP glitch?
-          rows-per-viewport     (reaction (.round js/Math (/ @rl-row-viewport-height row-height)))          ;; The number of rows that can currently be displayed in the row-viewport component
-          max-scroll-x          (reaction (- @content-rows-width  @rl-row-viewport-width))                  ;; The maximum number of pixels the content can be scrolled vertically so it stops at the very bottom of the content section
-          max-scroll-y          (reaction (- @content-rows-height @rl-row-viewport-height))                 ;; The maximum number of pixels the content can be scrolled horizontally so it stops at the far right of the content section
-          top-row-index         (reaction (int (/ @scroll-y row-height)))                                   ;; The row number (zero-based) of the row currently rendered at the top of the table
-          bot-row-index         (reaction (min (+ @top-row-index (dec @rows-per-viewport)) @m-size))        ;; The row number of the row currently rendered at the bottom of the table
-          virtual-scroll-y      (reaction (mod @scroll-y row-height))                                       ;; Virtual version of scroll-y but this is a very small number (between 0 and the row-height)
-          virtual-rows          (reaction (when (pos? @m-size)
-                                            (subvec @model
-                                                    (min @top-row-index @m-size)
-                                                    (min (+ @top-row-index @rows-per-viewport 2) @m-size))))
+          m-size                            (reaction (count @model))     ;; TODO/NOTE: This reaction was not always fired at the required time when creating virtual-rows after deleting a constraint. Could be an FRP glitch?
+          rows-per-viewport                 (reaction (.round js/Math (/ @rl-row-viewport-height row-height)))          ;; The number of rows that can currently be displayed in the row-viewport component
+          max-scroll-x                      (reaction (- @content-rows-width  @rl-row-viewport-width))                  ;; The maximum number of pixels the content can be scrolled vertically so it stops at the very bottom of the content section
+          max-scroll-y                      (reaction (- @content-rows-height @rl-row-viewport-height))                 ;; The maximum number of pixels the content can be scrolled horizontally so it stops at the far right of the content section
+          top-row-index                     (reaction (int (/ @scroll-y row-height)))                                   ;; The row number (zero-based) of the row currently rendered at the top of the table
+          bot-row-index                     (reaction (min (+ @top-row-index (dec @rows-per-viewport)) @m-size))        ;; The row number of the row currently rendered at the bottom of the table
+          virtual-scroll-y                  (reaction (mod @scroll-y row-height))                                       ;; Virtual version of scroll-y but this is a very small number (between 0 and the row-height)
+          virtual-rows                      (reaction (when (pos? @m-size)
+                                                        (subvec @model
+                                                                (min @top-row-index @m-size)
+                                                                (min (+ @top-row-index @rows-per-viewport 2) @m-size))))
 
-          on-h-scroll-change #(reset! scroll-x %)                                                      ;; The on-change handler for the horizontal scrollbar
-          on-v-scroll-change #(reset! scroll-y %)                                                      ;; The on-change handler for the verticalscrollbar
+          on-h-scroll-change                #(reset! scroll-x %)                                                      ;; The on-change handler for the horizontal scrollbar
+          on-v-scroll-change                #(reset! scroll-y %)                                                      ;; The on-change handler for the verticalscrollbar
 
           ;; When the resize listener detects a viewport area size change, this handler is fired
-          on-viewport-resize    (fn on-viewport-resize
-                                  [event]
-                                  (let [target        (-> event .-target)
-                                        bounding-rect (if (nil? target) {} (.getBoundingClientRect target))]
-                                    (reset! rl-row-viewport-width  (or row-viewport-width  (.-width  bounding-rect)))
-                                    (reset! rl-row-viewport-height (or row-viewport-height (.-height bounding-rect)))
-                                    (reset! scroll-x               (max 0 (min @max-scroll-x @scroll-x)))
-                                    (reset! scroll-y               (max 0 (min @max-scroll-y @scroll-y)))))
+          on-viewport-resize                (fn on-viewport-resize
+                                              [event]
+                                              (let [target        (-> event .-target)
+                                                    bounding-rect (if (nil? target) {} (.getBoundingClientRect target))]
+                                                (reset! rl-row-viewport-width  (or row-viewport-width  (.-width  bounding-rect)))
+                                                (reset! rl-row-viewport-height (or row-viewport-height (.-height bounding-rect)))
+                                                (reset! scroll-x               (max 0 (min @max-scroll-x @scroll-x)))
+                                                (reset! scroll-y               (max 0 (min @max-scroll-y @scroll-y)))))
 
           ;; When the mouse wheel is scrolled, this handler is called
           ;;     TODO: Wheel support not currently cross-browser (but works well in Chrome). References:
           ;;           http://stackoverflow.com/questions/5527601/normalizing-mousewheel-speed-across-browsers
           ;;           https://developer.mozilla.org/en-US/docs/Web/Events/wheel
-          on-wheel              (fn on-wheel
-                                  [event]
-                                  (let [delta-x (.-deltaX event)
-                                        new-delta-x delta-x ;(cond ;; Disabled for now
-                                        ;  (neg? delta-x) (- wheel-col-increment)
-                                        ;  (pos? delta-x) wheel-col-increment
-                                        ;  :else          0)
-                                        delta-y (.-deltaY event)
-                                        new-delta-y delta-y] ;(cond ;; Disabled for now
-                                        ;  (neg? delta-y) (- wheel-row-increment)
-                                        ;  (pos? delta-y) wheel-row-increment
-                                        ;  :else          0)
+          on-wheel                          (fn on-wheel
+                                              [event]
+                                              (let [delta-x (.-deltaX event)
+                                                    new-delta-x delta-x ;(cond ;; Disabled for now
+                                                    ;  (neg? delta-x) (- wheel-col-increment)
+                                                    ;  (pos? delta-x) wheel-col-increment
+                                                    ;  :else          0)
+                                                    delta-y (.-deltaY event)
+                                                    new-delta-y delta-y] ;(cond ;; Disabled for now
+                                                    ;  (neg? delta-y) (- wheel-row-increment)
+                                                    ;  (pos? delta-y) wheel-row-increment
+                                                    ;  :else          0)
 
-                                    (reset! scroll-x (max 0 (min @max-scroll-x (+ @scroll-x new-delta-x))))
-                                    (reset! scroll-y (max 0 (min @max-scroll-y (+ @scroll-y new-delta-y))))))
+                                                (reset! scroll-x (max 0 (min @max-scroll-x (+ @scroll-x new-delta-x))))
+                                                (reset! scroll-y (max 0 (min @max-scroll-y (+ @scroll-y new-delta-y))))))
 
-          dmm-tracker           (atom nil)                    ;; Holds a reference to the current dmm (DOM mouse-move) dmm-tracker object
-          sel-parent-bounding-rect (reagent/atom nil)         ;; left, right, top, bottom, width, height of div where the selection is being drawn in (in screen coordinates)
-          sel-content-x-start   (reagent/atom 0)              ;; Original mouse-down x position of the content selection
-          sel-content-y-start   (reagent/atom 0)              ;; Original mouse-down y position of the content selection
-          sel-content-x-end     (reagent/atom 0)              ;; Current mouse x drag position of the content selection
-          sel-content-y-end     (reagent/atom 0)              ;; Current mouse y drag position of the content selection
+          dmm-tracker                       (atom nil)                    ;; Holds a reference to the current dmm (DOM mouse-move) dmm-tracker object
+          sel-parent-bounding-rect          (reagent/atom nil)         ;; left, right, top, bottom, width, height of div where the selection is being drawn in (in screen coordinates)
+          sel-content-x-start               (reagent/atom 0)              ;; Original mouse-down x position of the content selection
+          sel-content-y-start               (reagent/atom 0)              ;; Original mouse-down y position of the content selection
+          sel-content-x-end                 (reagent/atom 0)              ;; Current mouse x drag position of the content selection
+          sel-content-y-end                 (reagent/atom 0)              ;; Current mouse y drag position of the content selection
 
           ;; The selection rectangle component
-          selection-renderer    (fn selection-renderer
-                                  [class style attr]
-                                  (let [selecting-down?  (> @sel-content-y-end @sel-content-y-start)
-                                        selecting-right? (> @sel-content-x-end @sel-content-x-start)
-                                        width            (if selecting-right?
-                                                           (- @sel-content-x-end @sel-content-x-start)
-                                                           (- @sel-content-x-start @sel-content-x-end))
-                                        height           (if selecting-down?
-                                                           (- @sel-content-y-end @sel-content-y-start)
-                                                           (- @sel-content-y-start @sel-content-y-end))
-                                        top              (if selecting-down?
-                                                           (- @sel-content-y-start @scroll-y)
-                                                           (- @sel-content-y-start @scroll-y height))
-                                        left             (if selecting-right?
-                                                           (- @sel-content-x-start @scroll-x)
-                                                           (- @sel-content-x-start @scroll-x width))]
-                                    [:div
-                                     (merge
-                                       {:class (str "rc-v-table-selection " class)
-                                        :style (merge {:position         "absolute"
-                                                       :z-index          1
-                                                       :top              (px top)
-                                                       :left             (px left)
-                                                       :width            (px width)
-                                                       :height           (px height)
-                                                       :background-color "rgba(0,0,255,0.1)"
-                                                       :border           "1px solid rgba(0,0,255,0.4)"}
-                                                      style)}
-                                       attr)
-                                     ""]))
+          selection-renderer                (fn selection-renderer
+                                              [class style attr]
+                                              (let [selecting-down?  (> @sel-content-y-end @sel-content-y-start)
+                                                    selecting-right? (> @sel-content-x-end @sel-content-x-start)
+                                                    width            (if selecting-right?
+                                                                       (- @sel-content-x-end @sel-content-x-start)
+                                                                       (- @sel-content-x-start @sel-content-x-end))
+                                                    height           (if selecting-down?
+                                                                       (- @sel-content-y-end @sel-content-y-start)
+                                                                       (- @sel-content-y-start @sel-content-y-end))
+                                                    top              (if selecting-down?
+                                                                       (- @sel-content-y-start @scroll-y)
+                                                                       (- @sel-content-y-start @scroll-y height))
+                                                    left             (if selecting-right?
+                                                                       (- @sel-content-x-start @scroll-x)
+                                                                       (- @sel-content-x-start @scroll-x width))]
+                                                [:div
+                                                 (merge
+                                                   {:class (str "rc-v-table-selection " class)
+                                                    :style (merge {:position         "absolute"
+                                                                   :z-index          1
+                                                                   :top              (px top)
+                                                                   :left             (px left)
+                                                                   :width            (px width)
+                                                                   :height           (px height)
+                                                                   :background-color "rgba(0,0,255,0.1)"
+                                                                   :border           "1px solid rgba(0,0,255,0.4)"}
+                                                                  style)}
+                                                   attr)
+                                                 ""]))
 
-          coords-debug          (reagent/atom nil)            ;; Handy when debugging - used to show selection coords on the left-hand debug section
-          event-debug           (reagent/atom nil)            ;; Handy when debugging - use this to display data from the event object on the left-hand debug section
-          selection-target      (reagent/atom nil)            ;; Indicates which section we're selecting in (one of :row, :row-header or :column-header)
-          sel-max-content-rows-px (reagent/atom 0)            ;; The maximum value that can be passed in the callback of px rows to be used for the selection callback
-          sel-max-content-cols-px (reagent/atom 0)            ;; The maximum number of px columns to be used for the selection callback
+          coords-debug                      (reagent/atom nil)            ;; Handy when debugging - used to show selection coords on the left-hand debug section
+          event-debug                       (reagent/atom nil)            ;; Handy when debugging - use this to display data from the event object on the left-hand debug section
+          selection-target                  (reagent/atom nil)            ;; Indicates which section we're selecting in (one of :row, :row-header or :column-header)
+          sel-max-content-rows-px           (reagent/atom 0)            ;; The maximum value that can be passed in the callback of px rows to be used for the selection callback
+          sel-max-content-cols-px           (reagent/atom 0)            ;; The maximum number of px columns to be used for the selection callback
 
           ;; Calculates the map representing the selection dimensions that will be passed back to the caller (translates px to row numbers if required)
-          selection-coords      (fn selection-coords
-                                  []
-                                  (if @sel-parent-bounding-rect
-                                    (let [selecting-down?      (> @sel-content-y-end @sel-content-y-start)
-                                          selecting-right?     (> @sel-content-x-end @sel-content-x-start)
-                                          use-rows-numbers?    (not= @selection-target :column-header)           ;; rows and row-headers return row numbers, column-headers return px values
-                                          start-row-px         (if selecting-down?  @sel-content-y-start @sel-content-y-end)
-                                          end-row-px           (if selecting-down?  @sel-content-y-end @sel-content-y-start)
-                                          start-col-px         (if selecting-right? @sel-content-x-start @sel-content-x-end)
-                                          end-col-px           (if selecting-right? @sel-content-x-end @sel-content-x-start)
-                                          start-row-px-clipped (max 0 (min @sel-max-content-rows-px start-row-px))
-                                          end-row-px-clipped   (max 0 (min @sel-max-content-rows-px end-row-px))
-                                          coords               {:start-row (if use-rows-numbers?
-                                                                             (int (/ start-row-px-clipped row-height))
-                                                                             start-row-px-clipped)
-                                                                :end-row   (if use-rows-numbers?
-                                                                             (int (/ end-row-px-clipped row-height))
-                                                                             end-row-px-clipped)
-                                                                :start-col (max 0 (min @sel-max-content-cols-px start-col-px))
-                                                                :end-col   (max 0 (min @sel-max-content-cols-px end-col-px))}]
-                                      (when debug? (reset! coords-debug coords))
-                                      coords)
-                                    {}))
+          selection-coords                  (fn selection-coords
+                                              []
+                                              (if @sel-parent-bounding-rect
+                                                (let [selecting-down?      (> @sel-content-y-end @sel-content-y-start)
+                                                      selecting-right?     (> @sel-content-x-end @sel-content-x-start)
+                                                      use-rows-numbers?    (not= @selection-target :column-header)           ;; rows and row-headers return row numbers, column-headers return px values
+                                                      start-row-px         (if selecting-down?  @sel-content-y-start @sel-content-y-end)
+                                                      end-row-px           (if selecting-down?  @sel-content-y-end @sel-content-y-start)
+                                                      start-col-px         (if selecting-right? @sel-content-x-start @sel-content-x-end)
+                                                      end-col-px           (if selecting-right? @sel-content-x-end @sel-content-x-start)
+                                                      start-row-px-clipped (max 0 (min @sel-max-content-rows-px start-row-px))
+                                                      end-row-px-clipped   (max 0 (min @sel-max-content-rows-px end-row-px))
+                                                      coords               {:start-row (if use-rows-numbers?
+                                                                                         (int (/ start-row-px-clipped row-height))
+                                                                                         start-row-px-clipped)
+                                                                            :end-row   (if use-rows-numbers?
+                                                                                         (int (/ end-row-px-clipped row-height))
+                                                                                         end-row-px-clipped)
+                                                                            :start-col (max 0 (min @sel-max-content-cols-px start-col-px))
+                                                                            :end-col   (max 0 (min @sel-max-content-cols-px end-col-px))}]
+                                                  (when debug? (reset! coords-debug coords))
+                                                  coords)
+                                                {}))
 
-          dragging?             (reagent/atom false)          ;; true when the mouse is down in a selectable section
-          dragging-outside?     (reagent/atom false)          ;; true when the mouse is down in a selectable section BUT is outside the section (causes scrolling and selection extension)
+          dragging?                         (reagent/atom false)          ;; true when the mouse is down in a selectable section
+          dragging-outside?                 (reagent/atom false)          ;; true when the mouse is down in a selectable section BUT is outside the section (causes scrolling and selection extension)
 
           ;; Whenever a mouse move is detected while dragging a selection, this handler is called by the dmm-tracker
-          on-drag-change        (fn on-drag-change
-                                  [sel-fn _delta-x _delta-y curr-x curr-y ctrlKey shiftKey event]
-                                  (let [top-offset     (.-top    @sel-parent-bounding-rect)
-                                        left-offset    (.-left   @sel-parent-bounding-rect)
-                                        bottom-offset  (.-bottom @sel-parent-bounding-rect)
-                                        right-offset   (.-right  @sel-parent-bounding-rect)
-                                        scroll-delta-y (if (and @dragging-outside? (not= @selection-target :column-header))
-                                                         (cond
-                                                           (< curr-y top-offset)    (- curr-y top-offset)
-                                                           (> curr-y bottom-offset) (- curr-y bottom-offset)
-                                                           :else                    0)
-                                                         0)
-                                        scroll-delta-x (if (and @dragging-outside? (not= @selection-target :row-header))
-                                                         (cond
-                                                           (< curr-x left-offset)  (- curr-x left-offset)
-                                                           (> curr-x right-offset) (- curr-x right-offset)
-                                                           :else                   0)
-                                                         0)]
-                                    (reset! sel-content-x-end (+ curr-x (- left-offset) @scroll-x))
-                                    (reset! sel-content-y-end (+ curr-y (- top-offset)  @scroll-y))
-                                    (reset! scroll-x (max 0 (min @max-scroll-x (+ @scroll-x scroll-delta-x))))
-                                    (reset! scroll-y (max 0 (min @max-scroll-y (+ @scroll-y scroll-delta-y))))
-                                    (when debug? (reset! event-debug event))
-                                    (sel-fn :selecting (selection-coords) ctrlKey shiftKey event))) ;; Call back to the app
+          on-drag-change                    (fn on-drag-change
+                                              [sel-fn _delta-x _delta-y curr-x curr-y ctrlKey shiftKey event]
+                                              (let [top-offset     (.-top    @sel-parent-bounding-rect)
+                                                    left-offset    (.-left   @sel-parent-bounding-rect)
+                                                    bottom-offset  (.-bottom @sel-parent-bounding-rect)
+                                                    right-offset   (.-right  @sel-parent-bounding-rect)
+                                                    scroll-delta-y (if (and @dragging-outside? (not= @selection-target :column-header))
+                                                                     (cond
+                                                                       (< curr-y top-offset)    (- curr-y top-offset)
+                                                                       (> curr-y bottom-offset) (- curr-y bottom-offset)
+                                                                       :else                    0)
+                                                                     0)
+                                                    scroll-delta-x (if (and @dragging-outside? (not= @selection-target :row-header))
+                                                                     (cond
+                                                                       (< curr-x left-offset)  (- curr-x left-offset)
+                                                                       (> curr-x right-offset) (- curr-x right-offset)
+                                                                       :else                   0)
+                                                                     0)]
+                                                (reset! sel-content-x-end (+ curr-x (- left-offset) @scroll-x))
+                                                (reset! sel-content-y-end (+ curr-y (- top-offset)  @scroll-y))
+                                                (reset! scroll-x (max 0 (min @max-scroll-x (+ @scroll-x scroll-delta-x))))
+                                                (reset! scroll-y (max 0 (min @max-scroll-y (+ @scroll-y scroll-delta-y))))
+                                                (when debug? (reset! event-debug event))
+                                                (sel-fn :selecting (selection-coords) ctrlKey shiftKey event))) ;; Call back to the app
 
           ;; When the mouse is released while dragging a selection, this handler is called by the dmm-tracker
-          on-drag-end           (fn on-drag-end
-                                  [sel-fn ctrlKey shiftKey event]
-                                  (when debug? (reset! coords-debug nil))
-                                  (when debug? (reset! event-debug event))
-                                  (sel-fn :selection-end (selection-coords) ctrlKey shiftKey event) ;; Call back to the app
-                                  (reset! dragging? false)
-                                  (reset! dragging-outside? false)
-                                  (reset! sel-parent-bounding-rect nil)
-                                  (reset! dmm-tracker nil))
+          on-drag-end                       (fn on-drag-end
+                                              [sel-fn ctrlKey shiftKey event]
+                                              (when debug? (reset! coords-debug nil))
+                                              (when debug? (reset! event-debug event))
+                                              (sel-fn :selection-end (selection-coords) ctrlKey shiftKey event) ;; Call back to the app
+                                              (reset! dragging? false)
+                                              (reset! dragging-outside? false)
+                                              (reset! sel-parent-bounding-rect nil)
+                                              (reset! dmm-tracker nil))
 
           ;; This is called when the mouse is pressed in a selectable section to kick things off
-          on-mouse-down         (fn on-mouse-down
-                                  [sel-target sel-fn max-rows-px max-cols-px event]
-                                  (reset! selection-target sel-target)
-                                  (reset! sel-max-content-rows-px (dec max-rows-px))
-                                  (reset! sel-max-content-cols-px (dec max-cols-px))
-                                  (reset! sel-parent-bounding-rect (.getBoundingClientRect (.-currentTarget event))) ;; Note: js->clj only works with Objects and this is a ClientRect
-                                  (let [top-offset  (- (.-top   @sel-parent-bounding-rect))
-                                        left-offset (- (.-left  @sel-parent-bounding-rect))]
-                                    (reset! sel-content-x-start (+ (.-clientX event) left-offset @scroll-x))
-                                    (reset! sel-content-y-start (+ (.-clientY event) top-offset  @scroll-y))
-                                    (reset! sel-content-x-end @sel-content-x-start)
-                                    (reset! sel-content-y-end @sel-content-y-start)
-                                    (when debug? (reset! event-debug event))
-                                    (sel-fn :selection-start (selection-coords) (.-ctrlKey event) (.-shiftKey event) event) ;; Call back to the app
-                                    (reset! dmm-tracker (make-dmm-tracker (partial on-drag-change sel-fn) (partial on-drag-end sel-fn)))
-                                    (captureMouseMoves @dmm-tracker event)
-                                    (reset! dragging? true)
-                                    (reset! dragging-outside? false)
-                                    #_(.stopPropagation event)))
+          on-mouse-down                     (fn on-mouse-down
+                                              [sel-target sel-fn max-rows-px max-cols-px event]
+                                              (reset! selection-target sel-target)
+                                              (reset! sel-max-content-rows-px (dec max-rows-px))
+                                              (reset! sel-max-content-cols-px (dec max-cols-px))
+                                              (reset! sel-parent-bounding-rect (.getBoundingClientRect (.-currentTarget event))) ;; Note: js->clj only works with Objects and this is a ClientRect
+                                              (let [top-offset  (- (.-top   @sel-parent-bounding-rect))
+                                                    left-offset (- (.-left  @sel-parent-bounding-rect))]
+                                                (reset! sel-content-x-start (+ (.-clientX event) left-offset @scroll-x))
+                                                (reset! sel-content-y-start (+ (.-clientY event) top-offset  @scroll-y))
+                                                (reset! sel-content-x-end @sel-content-x-start)
+                                                (reset! sel-content-y-end @sel-content-y-start)
+                                                (when debug? (reset! event-debug event))
+                                                (sel-fn :selection-start (selection-coords) (.-ctrlKey event) (.-shiftKey event) event) ;; Call back to the app
+                                                (reset! dmm-tracker (make-dmm-tracker (partial on-drag-change sel-fn) (partial on-drag-end sel-fn)))
+                                                (captureMouseMoves @dmm-tracker event)
+                                                (reset! dragging? true)
+                                                (reset! dragging-outside? false)
+                                                #_(.stopPropagation event)))
 
 
           ;; Clears the dragging-outside? flag when the mouse returns to the selectable section
-          on-mouse-enter        (fn on-mouse-enter
-                                  [sel-target]
-                                  (when (and @dragging? (= @selection-target sel-target))
-                                    (reset! dragging-outside? false)))
+          on-mouse-enter                    (fn on-mouse-enter
+                                              [sel-target]
+                                              (when (and @dragging? (= @selection-target sel-target))
+                                                (reset! dragging-outside? false)))
 
           ;; Sets the dragging-outside? flag when the mouse moves out of the selectable section
-          on-mouse-leave        (fn on-mouse-leave
-                                  [sel-target]
-                                  (when (and @dragging? (= @selection-target sel-target))
-                                    (reset! dragging-outside? true)))
-          selection-fns         [selection-renderer
-                                 on-mouse-down
-                                 on-mouse-enter
-                                 on-mouse-leave]]
+          on-mouse-leave                    (fn on-mouse-leave
+                                              [sel-target]
+                                              (when (and @dragging? (= @selection-target sel-target))
+                                                (reset! dragging-outside? true)))
+          selection-fns                     [selection-renderer
+                                             on-mouse-down
+                                             on-mouse-enter
+                                             on-mouse-leave]]
 
       ;; Only render the table if the js resize listener code has been loaded
       (if-not (or (.hasOwnProperty js/window "addResizeListener") (.hasOwnProperty js/window "removeResizeListener"))
