@@ -27,7 +27,7 @@ In short, re-com attempts to provide the kind of UI basics you'd need to build a
 The entire layout side of this library relies on 
 [Flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/)
 
-Now, pretty much every modern browser  
+Now, pretty much every modern browser
 [has support for Flexbox](http://caniuse.com/#feat=flexbox) so 
 this is probably a non-issue these days, unless you need to 
 support old versions of IE.
@@ -44,6 +44,8 @@ taken precedence. To give you some idea, our main demo app which includes every 
 code and plenty of yadda yadda explanatory strings, comes to about 167K compressed when
 using `:optimizations :advanced` (700K uncompressed).
 That number includes ReactJS plus the ClojureScript libs and runtime. So, everything.
+Note:  these numbers no longer match the demo app. We wanted to show off some of the debug features in our demo app, 
+so we backed away from fully advanced, minified compilation. 
 
 ## So, Without Ado Being Any Furthered ...
 
