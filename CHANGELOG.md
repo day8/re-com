@@ -5,6 +5,7 @@
 #### Added
 
 - Add new debugging features, including the new `:src` parameter. [The debug page](https://re-com.day8.com.au/#/debug) explains more.  Note: where previously parameter validation errors raised exceptions, now components instead draw themselves as a red, placeholder box, and write error information to the devtools console. This is a gentler, more informative approach - exceptions are too jarring and result in a blizzard of confusing React stack traces in the console.
+- Add a new compiler configuration `re-com.config/root-url-for-compiler-output`. [The config page](https://re-com.day8.com.au/#/config) explains more.
 - Add column sorting feature to `[simple-v-table]`. Column specifications can now, optionally include a `:sort-by` key.
 - Add new arguments to `[tag-dropdown]` including `:required?` ,`:min-width`, `:max-width`, `:abbrev-fn` and `:abbrev-characters`.
 - Add the argument `:split-is-px?` to `[splitter]`.  See [#178](https://github.com/day8/re-com/issues/178)
