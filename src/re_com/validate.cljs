@@ -98,7 +98,7 @@
                            (merge problem-base
                                   {:problem  :validate-fn
                                    :expected v-arg-def
-                                   :actual   (left-string arg-val 60)})
+                                   :actual   (left-string (pr-str arg-val) 60)})
 
                            (and (map? validate-result)
                                 (not warning?))
