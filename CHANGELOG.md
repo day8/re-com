@@ -29,6 +29,8 @@
 
 #### Changed
 
+- Upgrade Material Design Iconic Font to [2.2.0](https://github.com/zavoloklom/material-design-iconic-font/releases/tag/2.2.0). See [#253](https://github.com/day8/re-com/pull/253). Thanks to [@esnyder](https://github.com/esnyder).
+
 ##### `[text/p]`
 
 - `[text/p]` is now an alias to `[text/p-span]`.  Externally this means no change. But interally, it is implemented using `[:span]` instead of `[:p]` (allowing you to embed `boxes` etc).  **Breaking** Because of the change in HTML elements used, your custom CSS selectors targetting `p` elements will have to be changed to target `span.rc-p`. 
