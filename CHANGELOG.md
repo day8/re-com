@@ -1,3 +1,7 @@
+## Future Release (YYYY-MM-DD)
+
+...
+
 ## 2.13.0 (2012-02-23)
 
 > **IMPORTANT:** You must upgrade your copy of `re-com.css` when upgrading to this release.
