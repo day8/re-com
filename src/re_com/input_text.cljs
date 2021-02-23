@@ -1,6 +1,6 @@
 (ns re-com.input-text
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect]]
+    [re-com.core     :refer [handler-fn at reflect-current-component]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -48,7 +48,7 @@
      {:name :parts            :required false                  :type "map"                      :validate-fn (parts? input-text-parts) :description "See Parts section below."}
      {:name :input-type       :required false                  :type "keyword"                  :validate-fn keyword?                  :description [:span "ONLY applies to super function 'base-input-text': either " [:code ":input"] ", " [:code ":password"] " or " [:code ":textarea"]]}
      {:name :src              :required false                  :type "map"                      :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log              :required false                  :type "map"                      :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as         :required false                  :type "map"                      :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 ;; Sample regex's:
 ;;  - #"^(-{0,1})(\d*)$"                   ;; Signed integer
@@ -61,15 +61,15 @@
   "Returns markup for a basic text input label"
   [& {:keys [model input-type src] :as args}]
   (or
-    (validate-args-macro input-text-args-desc args src)
+    (validate-args-macro input-text-args-desc args)
     (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
           internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)]
       (fn input-text-base-render
-        [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts src log]
+        [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts src debug-as]
             :or   {change-on-blur? true, on-alter identity}
             :as   args}]
         (or
-          (validate-args-macro input-text-args-desc args src)
+          (validate-args-macro input-text-args-desc args)
           (let [latest-ext-model  (deref-or-value model)
                 disabled?         (deref-or-value disabled?)
                 change-on-blur?   (deref-or-value change-on-blur?)
@@ -99,7 +99,7 @@
               (reset! internal-model latest-ext-model))
             [h-box
              :src      src
-             :log      log
+             :debug-as (or debug-as (reflect-current-component))
              :align    :start
              :class    (str "rc-input-text " (get-in parts [:wrapper :class]))
              :style    (get-in parts [:wrapper :style])
@@ -203,14 +203,14 @@
 
 (defn input-text
   [& args]
-  (apply input-text-base :input-type :input :log (reflect) args))
+  (apply input-text-base :input-type :input :debug-as (reflect-current-component) args))
 
 
 (defn input-password
   [& args]
-  (apply input-text-base :input-type :password :log (reflect) args))
+  (apply input-text-base :input-type :password :debug-as (reflect-current-component) args))
 
 
 (defn input-textarea
   [& args]
-  (apply input-text-base :input-type :textarea :log (reflect) args))
+  (apply input-text-base :input-type :textarea :debug-as (reflect-current-component) args))

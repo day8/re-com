@@ -1,6 +1,6 @@
 (ns re-com.slider
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect]]
+    [re-com.core     :refer [handler-fn at reflect-current-component]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -37,43 +37,44 @@
      {:name :style     :required false                  :type "CSS style map"            :validate-fn css-style?            :description "CSS styles to add or override (applies to the slider, not the wrapping div)"}
      {:name :attr      :required false                  :type "HTML attr map"            :validate-fn html-attr?            :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the slider, not the wrapping div)"]}
      {:name :parts     :required false                  :type "map"                      :validate-fn (parts? slider-parts) :description "See Parts section below."}
-     {:name :src       :required false                  :type "map"                      :validate-fn map?                  :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src       :required false                  :type "map"                      :validate-fn map?                  :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as  :required false                  :type "map"                      :validate-fn map?                  :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn slider
   "Returns markup for an HTML5 slider input"
-  [& {:keys [model min max step width on-change disabled? class style attr parts src]
+  [& {:keys [model min max step width on-change disabled? class style attr parts src debug-as]
       :or   {min 0 max 100}
       :as   args}]
   (or
-    (validate-args-macro slider-args-desc args src)
+    (validate-args-macro slider-args-desc args)
     (let [model     (deref-or-value model)
           min       (deref-or-value min)
           max       (deref-or-value max)
           step      (deref-or-value step)
           disabled? (deref-or-value disabled?)]
       [box
-       :src   src
-       :log   (reflect)
-       :class (str "rc-slider-wrapper " (get-in parts [:wrapper :class]))
-       :style (get-in parts [:wrapper :style] {})
-       :attr  (get-in parts [:wrapper :attr] {})
-       :align :start
-       :child [:input
-               (merge
-                 {:class     (str "rc-slider " class)
-                  :type      "range"
-                  ;:orient    "vertical" ;; Make Firefox slider vertical (doesn't work because React ignores it, I think)
-                  :style     (merge
-                               (flex-child-style "none")
-                               {;:-webkit-appearance "slider-vertical"   ;; TODO: Make a :orientation (:horizontal/:vertical) option
-                                ;:writing-mode       "bt-lr"             ;; Make IE slider vertical
-                                :width  (or width "400px")
-                                :cursor (if disabled? "default" "pointer")}
-                               style)
-                  :min       min
-                  :max       max
-                  :step      step
-                  :value     model
-                  :disabled  disabled?
-                  :on-change (handler-fn (on-change (js/Number (-> event .-target .-value))))}
-                 attr)]])))
+       :src      src
+       :debug-as (or debug-as (reflect-current-component))
+       :class    (str "rc-slider-wrapper " (get-in parts [:wrapper :class]))
+       :style    (get-in parts [:wrapper :style] {})
+       :attr     (get-in parts [:wrapper :attr] {})
+       :align    :start
+       :child    [:input
+                  (merge
+                    {:class     (str "rc-slider " class)
+                     :type      "range"
+                     ;:orient    "vertical" ;; Make Firefox slider vertical (doesn't work because React ignores it, I think)
+                     :style     (merge
+                                  (flex-child-style "none")
+                                  {;:-webkit-appearance "slider-vertical"   ;; TODO: Make a :orientation (:horizontal/:vertical) option
+                                   ;:writing-mode       "bt-lr"             ;; Make IE slider vertical
+                                   :width  (or width "400px")
+                                   :cursor (if disabled? "default" "pointer")}
+                                  style)
+                     :min       min
+                     :max       max
+                     :step      step
+                     :value     model
+                     :disabled  disabled?
+                     :on-change (handler-fn (on-change (js/Number (-> event .-target .-value))))}
+                    attr)]])))

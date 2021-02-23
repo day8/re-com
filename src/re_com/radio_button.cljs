@@ -1,6 +1,6 @@
 (ns re-com.radio-button
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect]]
+    [re-com.core     :refer [handler-fn at reflect-current-component]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -39,14 +39,15 @@
      {:name :style       :required false                :type "CSS style map"    :validate-fn css-style?        :description "CSS style map (applies to the radio-button, not the wrapping div)"}
      {:name :attr        :required false                :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the radio-button, not the wrapping div)"]}
      {:name :parts       :required false                :type "map"              :validate-fn (parts? radio-button-parts) :description "See Parts section below."}
-     {:name :src         :required false                :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src         :required false                :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as    :required false                :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn radio-button
   "I return the markup for a radio button, with an optional RHS label"
-  [& {:keys [model value on-change label disabled? label-class label-style class style attr parts src]
+  [& {:keys [model value on-change label disabled? label-class label-style class style attr parts src debug-as]
       :as   args}]
   (or
-    (validate-args-macro radio-button-args-desc args src)
+    (validate-args-macro radio-button-args-desc args)
     (let [cursor      "default"
           model       (deref-or-value model)
           disabled?   (deref-or-value disabled?)
@@ -54,7 +55,7 @@
                         (on-change value))]  ;; call on-change with the :value arg
       [h-box
        :src      src
-       :log      (reflect)
+       :debug-as (or debug-as (reflect-current-component))
        :class    (str "noselect rc-radio-button-wrapper " (get-in parts [:wrapper :class]))
        :style    (get-in parts [:wrapper :style])
        :attr     (get-in parts [:wrapper :attr])

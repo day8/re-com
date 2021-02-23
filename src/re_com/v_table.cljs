@@ -1,7 +1,7 @@
 (ns re-com.v-table
   (:require-macros
     [reagent.ratom      :refer [reaction]]
-    [re-com.core        :refer [handler-fn at reflect]]
+    [re-com.core        :refer [handler-fn at reflect-current-component]]
     [re-com.validate    :refer [validate-args-macro]])
   (:require
     [reagent.core       :as    reagent]
@@ -545,7 +545,8 @@
      {:name :remove-empty-row-space?    :required false :default true  :type "boolean"                                                         :description "If true, removes whitespace between the last row and the horizontal scrollbar. Useful for tables without many rows where otherwise there would be a big gap between the last row and the horizontal scrollbar at the bottom of the available space."}
      {:name :class                      :required false                :type "string"                      :validate-fn string?                :description "CSS class names, space separated (these are applied to the table's outer container)"}
      {:name :parts                      :required false                :type "map"                         :validate-fn (parts? v-table-parts) :description "See Parts section below."}
-     {:name :src                        :required false                :type "map"                         :validate-fn map?                   :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src                        :required false                :type "map"                         :validate-fn map?                   :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as                   :required false                :type "map"                         :validate-fn map?                   :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 
 (defn v-table
@@ -828,7 +829,7 @@
       :or   {virtual? true}
       :as   args}]
   (or
-    (validate-args-macro v-table-args-desc args src)
+    (validate-args-macro v-table-args-desc args)
     (let [scroll-x              (reagent/atom 0)              ;; px offset from left of header/content/footer sections (affected by changing scrollbar or scroll-wheel, or dragging selection box past screen edge)
           scroll-y              (reagent/atom 0)              ;; px offset from top of header/content/footer sections (note: this value remains the same when virtual-mode? is both true and false)
           ;wheel-row-increment   (* 10 row-height)             ;; Could be an argument
@@ -1078,13 +1079,13 @@
                                        bottom-right-renderer
                                        ;; Others
                                        scroll-rows-into-view scroll-columns-into-view
-                                       class parts src]
+                                       class parts src debug-as]
                                 :or   {virtual?                true
                                        remove-empty-row-space? true
                                        key-fn                  nil}
                                 :as   args}]
                             (or
-                              (validate-args-macro v-table-args-desc args src)
+                              (validate-args-macro v-table-args-desc args)
                               (do
                                 (reset! content-rows-width row-content-width)
                                 (reset! content-rows-height (* @m-size row-height))
@@ -1132,7 +1133,7 @@
 
                                 [box/h-box
                                  :src      src
-                                 :log      (reflect)
+                                 :debug-as (or debug-as (reflect-current-component))
                                  :class    (str "rc-v-table " class " " (get-in parts [:wrapper :class]))
                                  :style    (merge
                                              {:max-width  max-width ;; Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width

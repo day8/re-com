@@ -166,21 +166,21 @@
 
 (def gap-args-desc
   (when include-args-desc?
-    [{:name :size   :required true  :type "string"        :validate-fn string?    :description "the length of the whitespace.  Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
-     {:name :width  :required false :type "string"        :validate-fn string?    :description "a CSS width style"}
-     {:name :height :required false :type "string"        :validate-fn string?    :description "a CSS height style"}
-     {:name :class  :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
-     {:name :style  :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
-     {:name :attr   :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src    :required false :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log    :required false :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+    [{:name :size     :required true  :type "string"        :validate-fn string?    :description "the length of the whitespace.  Typically, an absolute CSS length like 10px or 10em, but can be a stretchy proportional amount like 2"}
+     {:name :width    :required false :type "string"        :validate-fn string?    :description "a CSS width style"}
+     {:name :height   :required false :type "string"        :validate-fn string?    :description "a CSS height style"}
+     {:name :class    :required false :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
+     {:name :style    :required false :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
+     {:name :attr     :required false :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+     {:name :src      :required false :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as :required false :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn gap
   "Returns a component which produces a gap between children in a v-box/h-box along the main axis"
-  [& {:keys [size width height class style attr src]
+  [& {:keys [size width height class style attr]
       :as   args}]
   (or
-    (validate-args-macro gap-args-desc args src)
+    (validate-args-macro gap-args-desc args)
     (let [s (merge
               (when size   (flex-child-style size))
               (when width  {:width width})
@@ -200,22 +200,22 @@
 
 (def line-args-desc
   (when include-args-desc?
-    [{:name :size  :required false :default "1px"       :type "string"        :validate-fn string?    :description "a CSS style for the thickness of the line. Usually px, % or em"}
-     {:name :color :required false :default "lightgray" :type "string"        :validate-fn string?    :description "a CSS color"}
-     {:name :class :required false                      :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
-     {:name :style :required false                      :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
-     {:name :attr  :required false                      :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
-     {:name :src   :required false                      :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log   :required false                      :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+    [{:name :size     :required false :default "1px"       :type "string"        :validate-fn string?    :description "a CSS style for the thickness of the line. Usually px, % or em"}
+     {:name :color    :required false :default "lightgray" :type "string"        :validate-fn string?    :description "a CSS color"}
+     {:name :class    :required false                      :type "string"        :validate-fn string?    :description "CSS class names, space separated"}
+     {:name :style    :required false                      :type "CSS style map" :validate-fn css-style? :description "CSS styles to add or override"}
+     {:name :attr     :required false                      :type "HTML attr map" :validate-fn html-attr? :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
+     {:name :src      :required false                      :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as :required false                      :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
    Specify size in pixels and a stancard CSS color. Defaults to a 1px lightgray line"
-  [& {:keys [size color class style attr src]
+  [& {:keys [size color class style attr]
       :or   {size "1px" color "lightgray"}
       :as   args}]
   (or
-    (validate-args-macro line-args-desc args src)
+    (validate-args-macro line-args-desc args)
     (let [s (merge
               (flex-child-style (str "0 0 " size))
               {:background-color color}
@@ -251,17 +251,17 @@
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn h-box
   "Returns hiccup which produces a horizontal box.
    It's primary role is to act as a container for components and lays it's children from left to right.
    By default, it also acts as a child under it's parent"
-  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr src]
+  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
   (or
-    (validate-args-macro h-box-args-desc args src)
+    (validate-args-macro h-box-args-desc args)
     (let [s        (merge
                      (flex-flow-style "row nowrap")
                      (flex-child-style size)
@@ -316,17 +316,17 @@
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn v-box
   "Returns hiccup which produces a vertical box.
    It's primary role is to act as a container for components and lays it's children from top to bottom.
    By default, it also acts as a child under it's parent"
-  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr src]
+  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
   (or
-    (validate-args-macro v-box-args-desc args src)
+    (validate-args-macro v-box-args-desc args)
     (let [s        (merge
                      (flex-flow-style  "column nowrap")
                      (flex-child-style size)
@@ -370,8 +370,8 @@
      {:name :height     :required false                   :type "string"          :validate-fn string?           :description "a CSS height style"}
      {:name :min-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The minimum width to which the box can shrink"}
      {:name :min-height :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The minimum height to which the box can shrink"}
-     {:name :max-width  :required false                   :type "string"          :validate-fn string?          :description "a CSS width style. The maximum width to which the box can grow"}
-     {:name :max-height :required false                   :type "string"          :validate-fn string?          :description "a CSS height style. The maximum height to which the box can grow"}
+     {:name :max-width  :required false                   :type "string"          :validate-fn string?           :description "a CSS width style. The maximum width to which the box can grow"}
+     {:name :max-height :required false                   :type "string"          :validate-fn string?           :description "a CSS height style. The maximum height to which the box can grow"}
      {:name :justify    :required false :default :start   :type "keyword"         :validate-fn justify-style?    :description [:span "equivalent to CSS style " [:span.bold "justify-content"] "." [:br] "One of " justify-options-list]}
      {:name :align      :required false :default :stretch :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-items"]  "." [:br] " One of " align-options-list]}
      {:name :align-self :required false                   :type "keyword"         :validate-fn align-style?      :description [:span "equivalent to CSS style " [:span.bold "align-self"] "." [:br]  "Used when a child must override the parent's align-items setting."]}
@@ -381,16 +381,16 @@
      {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as   :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn box
   "Returns hiccup which produces a box, which is generally used as a child of a v-box or an h-box.
    By default, it also acts as a container for further child compenents, or another h-box or v-box"
-  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding child class style attr src log]
+  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding child class style attr src debug-as]
       :or   {size "none"}
       :as   args}]
   (or
-    (validate-args-macro box-args-desc args src)
+    (validate-args-macro box-args-desc args)
     (box-base :size        size
               :width       width
               :height      height
@@ -409,7 +409,7 @@
               :style       style
               :attr        attr
               :src         src
-              :log         log)))
+              :debug-as    debug-as)))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -442,7 +442,7 @@
      {:name :style      :required false                   :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as   :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn scroller
   "Returns hiccup which produces a scoller component.
@@ -457,11 +457,11 @@
            :off    Never show scroll bar(s). Content which is not in the bounds of the scroller can not be seen.
            :spill  Never show scroll bar(s). Content which is not in the bounds of the scroller spills all over the place.
    Note:   If scroll is set, then setting h-scroll or v-scroll overrides the scroll value"
-  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self margin padding child class style attr src log]
+  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self margin padding child class style attr src debug-as]
       :or   {size "auto"}
       :as   args}]
   (or
-    (validate-args-macro scroller-args-desc args src)
+    (validate-args-macro scroller-args-desc args)
     (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
           scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
       (box-base :size       size
@@ -485,7 +485,7 @@
                 :style      style
                 :attr       attr
                 :src        src
-                :log        log))))
+                :debug-as   debug-as))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -514,7 +514,7 @@
      {:name :style      :required false                                :type "CSS style map"   :validate-fn css-style?        :description "CSS styles to add or override"}
      {:name :attr       :required false                                :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                                :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log        :required false                                :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as   :required false                                :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn border
   "Returns hiccup which produces a border component.
@@ -523,11 +523,11 @@
     - border-width: thin, medium, thick or standard CSS size (e.g. 2px, 0.5em)
     - border-style: none, hidden, dotted, dashed, solid, double, groove, ridge, inset, outset
     - color:        standard CSS color (e.g. grey #88ffee)"
-  [& {:keys [size width height min-width min-height max-width max-height margin padding border l-border r-border t-border b-border radius child class style attr src log]
+  [& {:keys [size width height min-width min-height max-width max-height margin padding border l-border r-border t-border b-border radius child class style attr src debug-as]
       :or   {size "none"}
       :as   args}]
   (or
-    (validate-args-macro border-args-desc args src)
+    (validate-args-macro border-args-desc args)
     (let [no-border      (every? nil? [border l-border r-border t-border b-border])
           default-border "1px solid lightgrey"]
       (box-base :size        size
@@ -551,4 +551,4 @@
                 :style       style
                 :attr        attr
                 :src         src
-                :log         log))))
+                :debug-as    debug-as))))

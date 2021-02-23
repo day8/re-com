@@ -260,7 +260,7 @@
      {:name :attr               :required false                     :type "HTML attr map"            :validate-fn validate/html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :parts              :required false                     :type "map"                      :validate-fn (parts? multi-select-parts) :description "See Parts section below."}
      {:name :src                :required false                     :type "map"                      :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log                :required false                     :type "map"                      :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as           :required false                     :type "map"                      :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn multi-select
   "Render a multi-select component which emulates the bootstrap-choosen style. Sample choices object:
@@ -276,7 +276,7 @@
   RHS - selections - comes from model => internal-model - the selected items from choices collection
   "
   (or
-    (validate-args-macro multi-select-args-desc args src)
+    (validate-args-macro multi-select-args-desc args)
     (let [*external-model                    (reagent/atom (deref-or-value model)) ;; Holds the last known external value of model, to detect external model changes
           *internal-model                    (reagent/atom @*external-model) ;; Create a new atom from the model to be used internally
           *current-choice-id                 (reagent/atom nil)
@@ -303,7 +303,7 @@
                    required? false}
             :as   args}]
         (or
-          (validate-args-macro multi-select-args-desc args src)
+          (validate-args-macro multi-select-args-desc args)
           (let [required?              (deref-or-value required?)
                 filter-box?            (deref-or-value filter-box?)
                 regex-filter?          (deref-or-value regex-filter?)

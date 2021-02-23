@@ -1,6 +1,6 @@
 (ns re-com.alert
   (:require-macros
-    [re-com.core         :refer [handler-fn at reflect]])
+    [re-com.core         :refer [handler-fn at reflect-current-component]])
   (:require
     [re-com.box          :refer [h-box v-box box scroller border flex-child-style]]
     [re-com.buttons      :refer [button]]
@@ -41,15 +41,15 @@
      {:name :attr       :required false                 :type "HTML attr map"   :validate-fn html-attr?               :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts      :required false                 :type "map"             :validate-fn (parts? alert-box-parts) :description "See Parts section below."}
      {:name :src        :required false                 :type "map"             :validate-fn map?                     :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log        :required false                 :type "map"             :validate-fn map?                     :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as   :required false                 :type "map"             :validate-fn map?                     :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn alert-box
   "Displays one alert box. A close button allows the message to be removed"
-  [& {:keys [id alert-type heading body padding closeable? on-close class style attr parts src]
+  [& {:keys [id alert-type heading body padding closeable? on-close class style attr parts]
       :or   {alert-type :info}
       :as   args}]
   (or
-    (validate-args-macro alert-box-args-desc args src)
+    (validate-args-macro alert-box-args-desc args)
     (let [close-alert  [close-button
                         :src       (at)
                         :class     (str "rc-alert-close-button " (get-in parts [:close-button :class]))
@@ -129,7 +129,8 @@
      {:name :style        :required false                                :type "CSS style map"           :validate-fn css-style?                :description "CSS styles to add or override (applies to the outer container)"}
      {:name :attr         :required false                                :type "HTML attr map"           :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts        :required false                                :type "map"                     :validate-fn (parts? alert-list-parts) :description "See Parts section below."}
-     {:name :src          :required false                                :type "map"                     :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src          :required false                                :type "map"                     :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as     :required false                                :type "map"                     :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn alert-list
   "Displays a list of alert-box components in a v-box. Sample alerts object:
@@ -143,48 +144,48 @@
        :alert-type :info
        :heading \"Heading\"
        :body \"Body\"}]"
-  [& {:keys [alerts on-close max-height padding border-style alert-class alert-style class style attr parts src]
+  [& {:keys [alerts on-close max-height padding border-style alert-class alert-style class style attr parts src debug-as]
       :or   {padding "4px"}
       :as   args}]
   (or
-    (validate-args-macro alert-list-args-desc args src)
+    (validate-args-macro alert-list-args-desc args)
     (let [alerts (deref-or-value alerts)]
       [box
-       :src   src
-       :log   (reflect)
-       :class (str "rc-alert-list-wrapper " (get-in parts [:wrapper :class]))
-       :style (get-in parts [:wrapper :style] {})
-       :attr  (get-in parts [:wrapper :attr] {})
-       :child [border
-               :src     (at)
-               :class   (str "rc-alert-list " class)
-               :style   style
-               :attr    attr
-               :padding padding
-               :border  border-style
-               :child   [scroller
-                         :src      (at)
-                         :v-scroll :auto
-                         :class    (str "rc-alert-list-scroller " (get-in parts [:scroller :class]))
-                         :style    (merge {:max-height max-height}
-                                          (get-in parts [:scroller :style]))
-                         :attr     (get-in parts [:scroller :attr])
-                         :child    [v-box
-                                    :src      (at)
-                                    :size     "auto"
-                                    :class    (str "rc-alert-list-v-box " (get-in parts [:v-box :class]))
-                                    :style    (get-in parts [:v-box :style])
-                                    :attr     (get-in parts [:v-box :attr])
-                                    :children [(for [alert alerts]
-                                                 (let [{:keys [id alert-type heading body padding closeable?]} alert]
-                                                   ^{:key id} [alert-box
-                                                               :src        (at)
-                                                               :id         id
-                                                               :alert-type alert-type
-                                                               :heading    heading
-                                                               :body       body
-                                                               :padding    padding
-                                                               :closeable? closeable?
-                                                               :on-close   on-close
-                                                               :class      alert-class
-                                                               :style      (merge alert-style (:style alert))]))]]]]])))
+       :src      src
+       :debug-as (or debug-as (reflect-current-component))
+       :class    (str "rc-alert-list-wrapper " (get-in parts [:wrapper :class]))
+       :style    (get-in parts [:wrapper :style] {})
+       :attr     (get-in parts [:wrapper :attr] {})
+       :child    [border
+                  :src     (at)
+                  :class   (str "rc-alert-list " class)
+                  :style   style
+                  :attr    attr
+                  :padding padding
+                  :border  border-style
+                  :child   [scroller
+                            :src      (at)
+                            :v-scroll :auto
+                            :class    (str "rc-alert-list-scroller " (get-in parts [:scroller :class]))
+                            :style    (merge {:max-height max-height}
+                                             (get-in parts [:scroller :style]))
+                            :attr     (get-in parts [:scroller :attr])
+                            :child    [v-box
+                                       :src      (at)
+                                       :size     "auto"
+                                       :class    (str "rc-alert-list-v-box " (get-in parts [:v-box :class]))
+                                       :style    (get-in parts [:v-box :style])
+                                       :attr     (get-in parts [:v-box :attr])
+                                       :children [(for [alert alerts]
+                                                    (let [{:keys [id alert-type heading body padding closeable?]} alert]
+                                                      ^{:key id} [alert-box
+                                                                  :src        (at)
+                                                                  :id         id
+                                                                  :alert-type alert-type
+                                                                  :heading    heading
+                                                                  :body       body
+                                                                  :padding    padding
+                                                                  :closeable? closeable?
+                                                                  :on-close   on-close
+                                                                  :class      alert-class
+                                                                  :style      (merge alert-style (:style alert))]))]]]]])))

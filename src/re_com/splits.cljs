@@ -1,6 +1,6 @@
 (ns re-com.splits
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect]])
+    [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
@@ -94,7 +94,7 @@
      {:name :attr            :required false                 :type "HTML attr map"   :validate-fn html-attr?              :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts           :required false                 :type "map"             :validate-fn (parts? hv-split-parts) :description "See Parts section below."}
      {:name :src             :required false                 :type "map"             :validate-fn map?                    :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log             :required false                 :type "map"             :validate-fn map?                    :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as        :required false                 :type "map"             :validate-fn map?                    :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn h-split
   "Returns markup for a horizontal layout component"
@@ -102,7 +102,7 @@
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   (or
-    (validate-args-macro hv-split-args-desc args src)
+    (validate-args-macro hv-split-args-desc args)
     (let [container-id         (gensym "h-split-")
           split-perc           (reagent/atom (js/parseInt initial-split)) ;; splitter position as a percentage of width
           dragging?            (reagent/atom false)                       ;; is the user dragging the splitter (mouse is down)?
@@ -215,7 +215,7 @@
       :or   {size "auto" initial-split 50 splitter-size "8px" margin "8px"}
       :as   args}]
   (or
-    (validate-args-macro hv-split-args-desc args src)
+    (validate-args-macro hv-split-args-desc args)
     (let [container-id         (gensym "v-split-")
           split-perc           (reagent/atom (js/parseInt initial-split))  ;; splitter position as a percentage of height
           dragging?            (reagent/atom false)                        ;; is the user dragging the splitter (mouse is down)?

@@ -1,6 +1,6 @@
 (ns re-com.input-time
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect]]
+    [re-com.core     :refer [handler-fn at reflect-current-component]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [reagent.core    :as    reagent]
@@ -155,24 +155,25 @@
      {:name :style        :required false                  :type "CSS style map"             :validate-fn css-style?                :description "CSS style. e.g. {:color \"red\" :width \"50px\"} (applies to the textbox, not the wrapping div)"}
      {:name :attr         :required false                  :type "HTML attr map"             :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the textbox, not the wrapping div)"]}
      {:name :parts        :required false                  :type "map"                       :validate-fn (parts? input-time-parts) :description "See Parts section below."}
-     {:name :src          :required false                  :type "map"                       :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src          :required false                  :type "map"                       :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as     :required false                  :type "map"                       :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn input-time
   "I return the markup for an input box which will accept and validate times.
    Parameters - refer input-time-args above"
-  [& {:keys [model minimum maximum src] :as args
+  [& {:keys [model minimum maximum] :as args
       :or   {minimum 0 maximum 2359}}]
   (or
-    (validate-args-macro input-time-args-desc args src)
+    (validate-args-macro input-time-args-desc args)
     #_(validate-arg-times (deref-or-value model) minimum maximum) ;; [IJ] TODO
     (let [deref-model    (deref-or-value model)
           text-model     (reagent/atom (time->text deref-model))
           previous-model (reagent/atom deref-model)]
       (fn input-time-render
-        [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts src] :as args
+        [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts src debug-as] :as args
             :or   {minimum 0 maximum 2359}}]
         (or
-          (validate-args-macro input-time-args-desc args src)
+          (validate-args-macro input-time-args-desc args)
           #_(validate-arg-times (deref-or-value model) minimum maximum) ;; [IJ] TODO
           (let [style (merge (when hide-border? {:border "none"})
                              style)
@@ -187,7 +188,7 @@
 
             [h-box
              :src      src
-             :log      (reflect)
+             :debug-as (or debug-as (reflect-current-component))
              :class    (str "rc-input-time " (get-in parts [:wrapper :class]))
              :style    (merge {:height height} (get-in parts [:wrapper :style]))
              :attr     (get-in parts [:wrapper :attr])

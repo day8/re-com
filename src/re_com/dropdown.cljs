@@ -412,7 +412,7 @@
      {:name :attr               :required false                        :type "HTML attr map"                 :validate-fn html-attr?                     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts              :required false                        :type "map"                           :validate-fn (parts? single-dropdown-parts) :description "See Parts section below."}
      {:name :src                :required false                        :type "map"                           :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log                :required false                        :type "map"                           :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as           :required false                        :type "map"                           :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn single-dropdown
   "Render a single dropdown component which emulates the bootstrap-choosen style. Sample choices object:
@@ -420,11 +420,11 @@
       {:id \"US\" :label \"United States\"  :group \"Group 1\"}
       {:id \"GB\" :label \"United Kingdom\" :group \"Group 1\"}
       {:id \"AF\" :label \"Afghanistan\"    :group \"Group 2\"}]"
-  [& {:keys [choices model regex-filter? debounce-delay just-drop? src]
+  [& {:keys [choices model regex-filter? debounce-delay just-drop?]
       :or {debounce-delay 250}
       :as args}]
   (or
-    (validate-args-macro single-dropdown-args-desc args src)
+    (validate-args-macro single-dropdown-args-desc args)
     (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
           internal-model (reagent/atom @external-model)         ;; Create a new atom from the model to be used internally
           drop-showing?  (reagent/atom (boolean just-drop?))
@@ -453,11 +453,11 @@
           focus-anchor        #(some-> @node (.getElementsByClassName "chosen-single") (.item 0) (.focus))]
       (load-choices "" regex-filter? false)
       (fn single-dropdown-render
-        [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? free-text? auto-complete? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? est-item-height repeat-change? i18n on-drop width max-height tab-index debounce-delay tooltip tooltip-position class style attr parts src]
+        [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? free-text? auto-complete? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? est-item-height repeat-change? i18n on-drop width max-height tab-index debounce-delay tooltip tooltip-position class style attr parts]
             :or {id-fn :id label-fn :label group-fn :group render-fn label-fn enter-drop? true cancelable? true est-item-height 30}
             :as args}]
         (or
-          (validate-args-macro single-dropdown-args-desc args src)
+          (validate-args-macro single-dropdown-args-desc args)
           (let [choices          (if choices-fn? (:choices @choices-state) (deref-or-value choices))
                 id-fn            (if free-text? identity id-fn)
                 label-fn         (if free-text? identity label-fn)

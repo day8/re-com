@@ -41,14 +41,14 @@
      {:name :attr             :required false                 :type "HTML attr map"           :validate-fn html-attr?                     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts            :required false                 :type "map"                     :validate-fn (parts? horizontal-tabs-parts) :description "See Parts section below."}
      {:name :src              :required false                 :type "map"                     :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log              :required false                 :type "map"                     :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as         :required false                 :type "map"                     :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn horizontal-tabs
-  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src]
+  [& {:keys [model tabs on-change id-fn label-fn class style attr parts]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
-    (validate-args-macro horizontal-tabs-args-desc args src)
+    (validate-args-macro horizontal-tabs-args-desc args)
     (let [current  (deref-or-value model)
           tabs     (deref-or-value tabs)
           _        (assert (not-empty (filter #(= current (id-fn %)) tabs)) "model not found in tabs vector")]
@@ -103,11 +103,10 @@
         {:name :tooltip-fn       :required false :default :tooltip      :type "tab -> string | hiccup" :validate-fn ifn?                    :description [:span "[horizontal-bar-tabs only] given an element of " [:code ":tabs"] ", returns its tooltip"]}
         {:name :tooltip-position :required false :default :below-center :type "keyword"                :validate-fn position?               :description [:span "[horizontal-bar-tabs only] relative to this anchor. One of " position-options-list]}
         {:name :validate?        :required false :default true          :type "boolean"                                                     :description [:span "Validate " [:code ":model"] " against " [:code ":tabs"]]}
-        {:name :parts            :required false                        :type "map"                    :validate-fn (parts? bar-tabs-parts) :description "See Parts section below."}
-        {:name :log              :required false                        :type "map"                    :validate-fn map?                    :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}))))
+        {:name :parts            :required false                        :type "map"                    :validate-fn (parts? bar-tabs-parts) :description "See Parts section below."}))))
 
 (defn- bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position vertical? class style attr parts validate? src] :as args}]
+  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position vertical? class style attr parts validate?] :as args}]
   (let [showing (reagent/atom nil)]
     (fn [& {:keys [model tabs]}]
       (let [current  (deref-or-value model)
@@ -151,11 +150,11 @@
 
 
 (defn horizontal-bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position class style attr parts src log validate?]
+  [& {:keys [model tabs on-change id-fn label-fn tooltip-fn tooltip-position class style attr parts src debug-as validate?]
       :or   {id-fn :id label-fn :label tooltip-fn :tooltip}
       :as   args}]
   (or
-    (validate-args-macro bar-tabs-args-desc args src)
+    (validate-args-macro bar-tabs-args-desc args)
     (bar-tabs
       :model            model
       :tabs             tabs
@@ -170,15 +169,15 @@
       :attr             attr
       :parts            parts
       :src              src
-      :log              log
+      :debug-as         debug-as
       :validate?        validate?)))
 
 (defn vertical-bar-tabs
-  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src log validate?]
+  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src debug-as validate?]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
-    (validate-args-macro bar-tabs-args-desc args src)
+    (validate-args-macro bar-tabs-args-desc args)
     (bar-tabs
       :model     model
       :tabs      tabs
@@ -191,7 +190,7 @@
       :attr      attr
       :parts     parts
       :src       src
-      :log       log
+      :debug-as  debug-as
       :validate? validate?)))
 
 
@@ -254,11 +253,11 @@
 
 
 (defn horizontal-pill-tabs
-  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src log]
+  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src debug-as]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
-    (validate-args-macro pill-tabs-args-desc args src)
+    (validate-args-macro pill-tabs-args-desc args)
     (pill-tabs
       :model     model
       :tabs      tabs
@@ -271,15 +270,15 @@
       :attr      attr
       :parts     parts
       :src       src
-      :log       log)))
+      :debug-as  debug-as)))
 
 
 (defn vertical-pill-tabs
-  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src log]
+  [& {:keys [model tabs on-change id-fn label-fn class style attr parts src debug-as]
       :or   {id-fn :id label-fn :label}
       :as   args}]
   (or
-    (validate-args-macro pill-tabs-args-desc args src)
+    (validate-args-macro pill-tabs-args-desc args)
     (pill-tabs
       :model     model
       :tabs      tabs
@@ -292,4 +291,4 @@
       :attr      attr
       :parts     parts
       :src       src
-      :log       log)))
+      :debug-as  debug-as)))

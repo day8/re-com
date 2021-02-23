@@ -1,6 +1,6 @@
 (ns re-com.popover
   (:require-macros
-    [re-com.core         :refer [handler-fn at reflect]]
+    [re-com.core         :refer [handler-fn at reflect-current-component]]
     [re-com.validate     :refer [validate-args-macro]])
   (:require
     [re-com.config       :refer [include-args-desc?]]
@@ -136,13 +136,13 @@
      {:name :on-click :required false              :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}
      {:name :class    :required false              :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
      {:name :src      :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log      :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn- backdrop
   "Renders a backdrop div which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
-  [& {:keys [opacity on-click class src] :as args}]
+  [& {:keys [opacity on-click class] :as args}]
   (or
-    (validate-args-macro backdrop-args-desc args src)
+    (validate-args-macro backdrop-args-desc args)
     [:div
      (merge
        {:class    (str "noselect rc-backdrop " class)
@@ -169,14 +169,14 @@
      {:name :close-callback :required false                :type "-> nil"            :validate-fn fn?               :description [:span "a function which takes no params and returns nothing. Called when the close button is pressed. Not required if " [:code ":showing?"] " atom passed in OR " [:code ":close-button?"] " is set to false"]}
      {:name :class          :required false                :type "string"            :validate-fn string?           :description "CSS class names, space separated"}
      {:name :src            :required false                :type "map"               :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log            :required false                :type "map"               :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as       :required false                :type "map"               :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn- popover-title
   "Renders a title at the top of a popover with an optional close button on the far right"
-  [& {:keys [showing? title close-button? close-callback class src]
+  [& {:keys [showing? title close-button? close-callback class]
       :as args}]
   (or
-    (validate-args-macro popover-title-args-desc args src)
+    (validate-args-macro popover-title-args-desc args)
     #_(assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback") ;; IJ: TODO re-refactor
     (let [close-button? (if (nil? close-button?) true close-button?)]
       [:h3
@@ -255,13 +255,13 @@
      {:name :title                :required false                       :type "string | markup"                                 :description "describes a title"}
      {:name :class                :required false                       :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
      {:name :src                  :required false                       :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log                  :required false                       :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as             :required false                       :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
   [& {:keys [position position-offset title src] :as args}]
   (or
-    (validate-args-macro popover-border-args-desc args src)
+    (validate-args-macro popover-border-args-desc args)
     (let [pop-id                  (gensym "popover-")
           rendered-once           (reagent/atom false)        ;; The initial render is off screen because rendering it in place does not render at final width, and we need to measure it to be able to place it properly
           ready-to-show?          (reagent/atom false)        ;; This is used by the optimal position code to avoid briefly seeing it in its intended position before quickly moving to the optimal position
@@ -302,7 +302,7 @@
                :or {arrow-length 11 arrow-width 22 arrow-gap -1}
                :as args}]
            (or
-             (validate-args-macro popover-border-args-desc args src)
+             (validate-args-macro popover-border-args-desc args)
              (let [[orientation grey-arrow?] (calc-metrics @position)]
                [:div.popover.fade.in
                 (merge
@@ -373,13 +373,13 @@
      {:name :attr                 :required false                        :type "HTML attr map"    :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts                :required false                        :type "map"              :validate-fn (parts? #{:backdrop :border :title}) :description "See Parts section below."}
      {:name :src                  :required false                        :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log                  :required false                        :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as             :required false                        :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn popover-content-wrapper
   "Abstracts several components to handle the 90% of cases for general popovers and dialog boxes"
-  [& {:keys [no-clip? src] :as args}]
+  [& {:keys [no-clip?] :as args}]
   (or
-    (validate-args-macro popover-content-wrapper-args-desc args src)
+    (validate-args-macro popover-content-wrapper-args-desc args)
     (let [left-offset              (reagent/atom 0)
           top-offset               (reagent/atom 0)
           position-no-clip-popover (fn position-no-clip-popover
@@ -405,11 +405,11 @@
          (fn popover-content-wrapper-render
            [& {:keys [showing-injected? position-injected position-offset no-clip? width height backdrop-opacity on-cancel
                       title close-button? body tooltip-style? popover-color popover-border-color arrow-length arrow-width
-                      arrow-gap padding class style attr parts src]
+                      arrow-gap padding class style attr parts]
                :or {arrow-length 11 arrow-width 22 arrow-gap -1}
                :as args}]
            (or
-             (validate-args-macro popover-content-wrapper-args-desc args src)
+             (validate-args-macro popover-content-wrapper-args-desc args)
              (do
                @position-injected ;; Dereference this atom. Although nothing here needs its value explicitly, the calculation of left-offset and top-offset are affected by it for :no-clip? true
                [:div
@@ -466,13 +466,13 @@
      {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts    :required false                       :type "map"             :validate-fn (parts? #{:point-wrapper :point}) :description "See Parts section below."}
      {:name :src      :required false                       :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log      :required false                       :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as :required false                       :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn popover-anchor-wrapper
   "Renders an element or control along with a Bootstrap popover"
   [& {:keys [showing? position src] :as args}]
   (or
-    (validate-args-macro popover-anchor-wrapper-args-desc args src)
+    (validate-args-macro popover-anchor-wrapper-args-desc args)
     (let [external-position (reagent/atom position)
           internal-position (reagent/atom @external-position)
           reset-on-hide     (reaction (when-not (deref-or-value showing?) (reset! internal-position @external-position)))]
@@ -481,9 +481,9 @@
 
          :reagent-render
          (fn popover-anchor-wrapper-render
-           [& {:keys [showing? position anchor popover class style attr parts src] :as args}]
+           [& {:keys [showing? position anchor popover class style attr parts] :as args}]
            (or
-             (validate-args-macro popover-anchor-wrapper-args-desc args src)
+             (validate-args-macro popover-anchor-wrapper-args-desc args)
              (do
                @reset-on-hide ;; Dereference this reaction, otherwise it won't be set up. The reaction is set to run whenever the popover closes
                (when (not= @external-position position) ;; Has position changed externally?
@@ -534,15 +534,15 @@
      {:name :attr          :required false                        :type "HTML attr map"            :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to popover-anchor-wrapper component)"]}
      {:name :parts         :required false                        :type "map"                      :validate-fn (parts? #{:v-box :close-button-container :close-button}) :description "See Parts section below."}
      {:name :src           :required false                        :type "map"                      :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log           :required false                        :type "map"                      :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as      :required false                        :type "map"                      :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn popover-tooltip
   "Renders text as a tooltip in Bootstrap popover style"
-  [& {:keys [label showing? on-cancel close-button? status anchor position no-clip? width class style attr parts src log]
-      :or {no-clip? true}
-      :as args}]
+  [& {:keys [label showing? on-cancel close-button? status anchor position no-clip? width class style attr parts src debug-as]
+      :or   {no-clip? true}
+      :as   args}]
   (or
-    (validate-args-macro popover-tooltip-args-desc args src)
+    (validate-args-macro popover-tooltip-args-desc args)
     (let [label         (deref-or-value label)
           popover-color (case status
                           :warning "#f57c00"
@@ -552,7 +552,7 @@
                           "black")]
       [popover-anchor-wrapper
        :src      src
-       :log      (or log (reflect))
+       :debug-as (or debug-as (reflect-current-component))
        :showing? showing?
        :position (or position :below-center)
        :anchor   anchor

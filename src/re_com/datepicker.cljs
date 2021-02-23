@@ -1,6 +1,6 @@
 (ns re-com.datepicker
   (:require-macros
-    [re-com.core          :refer [handler-fn at reflect]])
+    [re-com.core          :refer [handler-fn at reflect-current-component]])
   (:require
     [reagent.core         :as reagent]
     [cljs-time.core       :as cljs-time]
@@ -163,11 +163,11 @@
 
 
 (defn- main-div-with
-  [table-div hide-border? class style attr parts src log]
+  [table-div hide-border? class style attr parts src debug-as]
   ;;extra h-box is currently necessary so that calendar & border do not stretch to width of any containing v-box
   [h-box
    :src      src
-   :log      log
+   :debug-as debug-as
    :class    "rc-datepicker-wrapper"
    :children [[border
                :src    (at)
@@ -524,21 +524,22 @@
      {:name :style          :required false                               :type "CSS style map"                       :validate-fn css-style?                :description "CSS styles to add or override (applies to the outer border div, not the wrapping div)"}
      {:name :attr           :required false                               :type "HTML attr map"                       :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] " allowed (applies to the outer border div, not the wrapping div)"]}
      {:name :parts          :required false                               :type "map"                                 :validate-fn (parts? datepicker-parts) :description "See Parts section below."}
-     {:name :src            :required false                               :type "map"                                 :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src            :required false                               :type "map"                                 :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as       :required false                               :type "map"                                 :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn datepicker
-  [& {:keys [model src] :as args}]
+  [& {:keys [model] :as args}]
   (or
-    (validate-args-macro datepicker-args-desc args src)
+    (validate-args-macro datepicker-args-desc args)
     (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
           internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
           display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))]
       (fn datepicker-render
-        [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts src]
+        [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts src debug-as]
             :or   {start-of-week 6} ;; Default to Sunday
             :as   args}]
         (or
-          (validate-args-macro datepicker-args-desc args src)
+          (validate-args-macro datepicker-args-desc args)
           (let [latest-ext-model    (deref-or-value model)
                 disabled?           (deref-or-value disabled?)
                 props-with-defaults (merge args {:start-of-week start-of-week})
@@ -561,7 +562,7 @@
              attr
              parts
              src
-             (reflect)]))))))
+             (or debug-as (reflect-current-component))]))))))
 
 
 (defn- anchor-button
@@ -596,22 +597,21 @@
           {:name :no-clip?        :required false  :default true           :type "boolean"  :description "[datepicker-dropdown only] when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
           {:name :placeholder     :required false                          :type "string"   :description "[datepicker-dropdown only] placeholder text for when a date is not selected."}
           {:name :width           :required false  :validate-fn string?    :type "string"   :description "[datepicker-dropdown only] a CSS width style"}
-          {:name :position-offset :required false  :validate-fn number?    :type "integer"  :description "[datepicker-dropdown only] px horizontal offset of the popup"}
-          {:name :src             :required false  :validate-fn map?       :type "map"      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]})))
+          {:name :position-offset :required false  :validate-fn number?    :type "integer"  :description "[datepicker-dropdown only] px horizontal offset of the popup"})))
 
 (defn datepicker-dropdown
   [& {:keys [src] :as args}]
   (or
-    (validate-args-macro datepicker-dropdown-args-desc args src)
+    (validate-args-macro datepicker-dropdown-args-desc args)
     (let [shown?         (reagent/atom false)
           cancel-popover #(reset! shown? false)
           position       :below-left]
       (fn datepicker-dropdown-render
-        [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset src]
+        [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset src debug-as]
             :or {no-clip? true, position-offset 0}
             :as passthrough-args}]
         (or
-          (validate-args-macro datepicker-dropdown-args-desc passthrough-args src)
+          (validate-args-macro datepicker-dropdown-args-desc passthrough-args)
           (let [collapse-on-select (fn [new-model]
                                      (reset! shown? false)
                                      (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
@@ -624,6 +624,7 @@
                                         flatten)]
             [popover-anchor-wrapper
              :src      src
+             :debug-as (or debug-as (reflect-current-component))
              :class    "rc-datepicker-dropdown-wrapper"
              :showing? shown?
              :position position

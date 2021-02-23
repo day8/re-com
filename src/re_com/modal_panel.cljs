@@ -33,7 +33,7 @@
      {:name :attr              :required false                  :type "HTML attr map"   :validate-fn html-attr?                 :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :parts             :required false                  :type "map"             :validate-fn (parts? modal-panel-parts) :description "See Parts section below."}
      {:name :src               :required false                  :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :log               :required false                  :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging. Map optionally containing keys" [:code ":component"] "and" [:code ":args"] ". Causes this component to masquerade in logs as the provided component name and args."]}]))
+     {:name :debug-as          :required false                  :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 
 (defn modal-panel
@@ -41,11 +41,11 @@
    main window to prevent UI interactivity and place user focus on the modal window.
    Parameters:
     - child:  The message to display in the modal (a string or a hiccup vector or function returning a hiccup vector)"
-  [& {:keys [child wrap-nicely? backdrop-color backdrop-opacity backdrop-on-click class style attr parts src]
+  [& {:keys [child wrap-nicely? backdrop-color backdrop-opacity backdrop-on-click class style attr parts]
       :or   {wrap-nicely? true backdrop-color "black" backdrop-opacity 0.6}
       :as   args}]
   (or
-    (validate-args-macro modal-panel-args-desc args src)
+    (validate-args-macro modal-panel-args-desc args)
     [:div    ;; Containing div
      (merge {:class  (str "display-flex rc-modal-panel " class)
              :style (merge {:position "fixed"
@@ -73,7 +73,7 @@
         (get-in parts [:backdrop :attr]))]
      [:div    ;; Child container
       (merge
-        {:class    (str  "rc-modal-panel-child-container " (get-in parts [:child-container :class]))
+        {:class (str  "rc-modal-panel-child-container " (get-in parts [:child-container :class]))
          :style (merge {:margin  "auto"
                         :z-index 2}
                        (get-in parts [:child-container :style])

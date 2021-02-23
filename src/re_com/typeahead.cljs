@@ -1,6 +1,6 @@
 (ns re-com.typeahead
   (:require-macros
-    [re-com.core            :refer [handler-fn at reflect]]
+    [re-com.core            :refer [handler-fn at reflect-current-component]]
     [re-com.validate        :refer [validate-args-macro]]
     [cljs.core.async.macros :refer [alt! go-loop]])
   (:require
@@ -256,13 +256,14 @@
      {:name :style                   :required false                  :type "CSS style map"        :validate-fn css-style?         :description "CSS styles to add or override (applies to the textbox)"}
      {:name :attr                    :required false                  :type "HTML attr map"        :validate-fn html-attr?         :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to " [:span.bold "the outer container"] ", rather than the textbox)"]}
      {:name :parts                   :required false                  :type "map"                  :validate-fn (parts? #{:suggestions-container :suggestion :throbber}) :description "See Parts section below."}
-     {:name :src                     :required false                  :type "map"                  :validate-fn map?               :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src                     :required false                  :type "map"                  :validate-fn map?               :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as                :required false                  :type "map"                  :validate-fn map?               :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn typeahead
   "typeahead reagent component"
-  [& {:keys [src] :as args}]
+  [& {:keys [] :as args}]
   (or
-    (validate-args-macro typeahead-args-desc args src)
+    (validate-args-macro typeahead-args-desc args)
     (let [{:as state :keys [c-search c-input]} (make-typeahead-state args)
           state-atom (reagent/atom state)
           input-text-model (reagent/cursor state-atom [:input-text])]
@@ -271,9 +272,9 @@
         [& {:as   args
             :keys [data-source _on-change _change-on-blur? _immediate-model-update? model _debounce-delay render-suggestion _suggestion-to-string _rigid?
                    ;; forwarded to wrapped `input-text`:
-                   status status-icon? status-tooltip placeholder width height disabled? class style attr parts src]}]
+                   status status-icon? status-tooltip placeholder width height disabled? class style attr parts src debug-as]}]
         (or
-          (validate-args-macro typeahead-args-desc args src)
+          (validate-args-macro typeahead-args-desc args)
           (let [{:as state :keys [suggestions waiting? suggestion-active-index external-model]} @state-atom
                 last-data-source      (:data-source state)
                 latest-external-model (deref-or-value model)
@@ -284,7 +285,7 @@
               (swap! state-atom external-model-changed latest-external-model))
             [v-box
              :src      src
-             :log      (reflect)
+             :debug-as (or debug-as (reflect-current-component))
              :class    "rc-typeahead"
              :attr     attr
              :width    width

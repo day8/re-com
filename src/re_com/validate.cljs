@@ -136,7 +136,7 @@
    Used to use {:pre... at the beginning of functions and return booleans. Stopped doing that as throws and causes
    long ugly stack traces. We rely on walking the dom for data-rc-src attributes in the debug/validate-args-problem
    component instead."
-  [arg-defs passed-args src] ;; [IJ] TODO: Could get src out of passed-args and remove src arg from validate args macro.
+  [arg-defs passed-args]
   (if-not debug?
     nil
     (let [passed-arg-keys (set (keys passed-args))
@@ -147,7 +147,6 @@
                                (remove nil?))]
       (when-not (empty? problems)
         [debug/validate-args-error
-         :src       src
          :problems  problems
          :args      passed-args
          :component (debug/short-component-name (component/component-name (reagent/current-component)))]))))

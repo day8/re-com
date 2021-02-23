@@ -1,6 +1,6 @@
 (ns re-com.text
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect]]
+    [re-com.core     :refer [handler-fn at reflect-current-component]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -32,31 +32,32 @@
      {:name :style    :required false :type "CSS style map" :validate-fn css-style?           :description "additional CSS styles (applies to the label, not the wrapping div)"}
      {:name :attr     :required false :type "HTML attr map" :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the label, not the wrapping div)"]}
      {:name :parts    :required false :type "map"           :validate-fn (parts? label-parts) :description "See Parts section below."}
-     {:name :src      :required false :type "map"           :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src      :required false :type "map"           :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as :required false :type "map"           :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn label
   "Returns markup for a basic label"
-  [& {:keys [label on-click width class style attr parts src]
+  [& {:keys [label on-click width class style attr parts src debug-as]
       :as   args}]
   (or
-    (validate-args-macro label-args-desc args src)
+    (validate-args-macro label-args-desc args)
     [box
-     :log   (reflect)
-     :src   src
-     :class (str "display-inline-flex rc-label-wrapper " (get-in parts [:wrapper :class]))
-     :style (get-in parts [:wrapper :style])
-     :attr  (get-in parts [:wrapper :attr])
-     :width width
-     :align :start
-     :child [:span
-             (merge
-               {:class (str "rc-label " class)
-                :style (merge (flex-child-style "none")
-                              style)}
-               (when on-click
-                 {:on-click (handler-fn (on-click))})
-               attr)
-             label]]))
+     :debug-as (or debug-as (reflect-current-component))
+     :src      src
+     :class    (str "display-inline-flex rc-label-wrapper " (get-in parts [:wrapper :class]))
+     :style    (get-in parts [:wrapper :style])
+     :attr     (get-in parts [:wrapper :attr])
+     :width    width
+     :align    :start
+     :child    [:span
+                (merge
+                  {:class (str "rc-label " class)
+                   :style (merge (flex-child-style "none")
+                                 style)}
+                  (when on-click
+                    {:on-click (handler-fn (on-click))})
+                  attr)
+                label]]))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -84,19 +85,20 @@
      {:name :style         :required false                   :type "CSS style map"   :validate-fn css-style?           :description "CSS styles to add or override (applies to the title, not the wrapping div)"}
      {:name :attr          :required false                   :type "HTML attr map"   :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the title, not the wrapping div)"]}
      {:name :parts         :required false                   :type "map"             :validate-fn (parts? title-parts) :description "See Parts section below."}
-     {:name :src           :required false                   :type "map"             :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src           :required false                   :type "map"             :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as      :required false                   :type "map"             :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn title
   "A title with four preset levels"
-  [& {:keys [label level underline? margin-top margin-bottom class style attr parts src]
+  [& {:keys [label level underline? margin-top margin-bottom class style attr parts src debug-as]
       :or   {margin-top "0.6em" margin-bottom "0.3em"}
       :as   args}]
   (or
-    (validate-args-macro title-args-desc args src)
+    (validate-args-macro title-args-desc args)
     (let [preset-class (if (nil? level) "" (name level))]
       [v-box
        :src      src
-       :log      (reflect)
+       :debug-as (or debug-as (reflect-current-component))
        :class    (str "rc-title-wrapper " preset-class " " (get-in parts [:wrapper :class]))
        :style    (get-in parts [:wrapper :style])
        :attr     (get-in parts [:wrapper :attr])

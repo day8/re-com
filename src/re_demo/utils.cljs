@@ -128,12 +128,13 @@
   "I render component arguments in an easy to read format"
   [args  {:keys [total-width name-column-width title]
           :or   {name-column-width "130px" }}]
-  [v-box
-   :width    total-width
-   :children (concat
-               [[title2 (if title title "Parameters")]
-                [gap :size "10px"]]
-               (map (partial arg-row name-column-width) args (cycle [true false])))])
+  (let [public-args (remove #(= :debug-as (:name %)) args)] ;; Hide :debug-as parameter
+    [v-box
+     :width    total-width
+     :children (concat
+                 [[title2 (if title title "Parameters")]
+                  [gap :size "10px"]]
+                 (map (partial arg-row name-column-width) public-args (cycle [true false])))]))
 
 (defn parts-header
   []

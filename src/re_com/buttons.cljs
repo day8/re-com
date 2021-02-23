@@ -1,6 +1,6 @@
 (ns re-com.buttons
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect]])
+    [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
     [re-com.util     :refer [deref-or-value px]]
     [re-com.config   :refer [include-args-desc?]]
@@ -36,18 +36,19 @@
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?            :description "CSS styles (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?            :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? button-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"             :validate-fn map?                  :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src              :required false                        :type "map"             :validate-fn map?                  :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as         :required false                        :type "map"             :validate-fn map?                  :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn button
   "Returns the markup for a basic button"
   []
   (let [showing? (reagent/atom false)]
     (fn
-      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts src]
+      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts src debug-as]
           :or   {class "btn-default"}
           :as   args}]
       (or
-        (validate-args-macro button-args-desc args src)
+        (validate-args-macro button-args-desc args)
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
           (let [disabled? (deref-or-value disabled?)
@@ -69,23 +70,23 @@
             (when disabled?
               (reset! showing? false))
             [box
-             :src   src
-             :log   (reflect)
-             :class (str "rc-button-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
-             :style (get-in parts [:wrapper :style])
-             :attr  (get-in parts [:wrapper :attr])
-             :align :start
-             :child (if tooltip
-                      [popover-tooltip
-                       :src      (at)
-                       :label    tooltip
-                       :position (or tooltip-position :below-center)
-                       :showing? showing?
-                       :anchor   the-button
-                       :class    (str "rc-button-tooltip " (get-in parts [:tooltip :class]))
-                       :style    (get-in parts [:tooltip :style])
-                       :attr     (get-in parts [:tooltip :attr])]
-                      the-button)]))))))
+             :src      src
+             :debug-as (or debug-as (reflect-current-component))
+             :class    (str "rc-button-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
+             :style    (get-in parts [:wrapper :style])
+             :attr     (get-in parts [:wrapper :attr])
+             :align    :start
+             :child    (if tooltip
+                         [popover-tooltip
+                          :src      (at)
+                          :label    tooltip
+                          :position (or tooltip-position :below-center)
+                          :showing? showing?
+                          :anchor   the-button
+                          :class    (str "rc-button-tooltip " (get-in parts [:tooltip :class]))
+                          :style    (get-in parts [:tooltip :style])
+                          :attr     (get-in parts [:tooltip :attr])]
+                         the-button)]))))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -116,18 +117,19 @@
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?                           :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?                           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-circle-icon-button-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"             :validate-fn map?                                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src              :required false                        :type "map"             :validate-fn map?                                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as         :required false                        :type "map"             :validate-fn map?                                 :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn md-circle-icon-button
   "a circular button containing a material design icon"
   []
   (let [showing? (reagent/atom false)]
     (fn md-circle-icon-button-render
-      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr parts src]
+      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr parts src debug-as]
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       (or
-        (validate-args-macro md-circle-icon-button-args-desc args src)
+        (validate-args-macro md-circle-icon-button-args-desc args)
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
           (let [the-button [:div
@@ -157,23 +159,23 @@
                                 :style (get-in parts [:icon :style] {})}
                                (get-in parts [:icon :attr]))]]]
             [box
-             :src   src
-             :log   (reflect)
-             :align :start
-             :class (str "display-inline-flex rc-md-circle-icon-button-wrapper " (get-in parts [:wrapper :class]))
-             :style (get-in parts [:wrapper :style])
-             :attr  (get-in parts [:wrapper :attr])
-             :child (if tooltip
-                      [popover-tooltip
-                       :src      (at)
-                       :label    tooltip
-                       :position (or tooltip-position :below-center)
-                       :showing? showing?
-                       :anchor   the-button
-                       :class    (str "rc-md-circle-icon-button-tooltip " (get-in parts [:tooltip :class]))
-                       :style    (get-in parts [:tooltip :style])
-                       :attr     (get-in parts [:tooltip :attr])]
-                      the-button)]))))))
+             :src      src
+             :debug-as (or debug-as (reflect-current-component))
+             :align    :start
+             :class    (str "display-inline-flex rc-md-circle-icon-button-wrapper " (get-in parts [:wrapper :class]))
+             :style    (get-in parts [:wrapper :style])
+             :attr     (get-in parts [:wrapper :attr])
+             :child    (if tooltip
+                         [popover-tooltip
+                          :src      (at)
+                          :label    tooltip
+                          :position (or tooltip-position :below-center)
+                          :showing? showing?
+                          :anchor   the-button
+                          :class    (str "rc-md-circle-icon-button-tooltip " (get-in parts [:tooltip :class]))
+                          :style    (get-in parts [:tooltip :style])
+                          :attr     (get-in parts [:tooltip :attr])]
+                         the-button)]))))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -204,18 +206,19 @@
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?                    :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? md-icon-button-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"             :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src              :required false                        :type "map"             :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as         :required false                        :type "map"             :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn md-icon-button
   "a square button containing a material design icon"
   []
   (let [showing? (reagent/atom false)]
     (fn md-icon-button-render
-      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr parts src]
+      [& {:keys [md-icon-name on-click size tooltip tooltip-position emphasise? disabled? class style attr parts src debug-as]
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       (or
-        (validate-args-macro md-icon-button-args-desc args src)
+        (validate-args-macro md-icon-button-args-desc args)
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
           (let [the-button [:div
@@ -245,23 +248,23 @@
                                 :style (get-in parts [:icon :style] {})}
                                (get-in parts [:icon :attr]))]]]
             [box
-             :log   (reflect)
-             :src   src
-             :align :start
-             :class (str "display-inline-flex rc-md-icon-button-wrapper " (get-in parts [:wrapper :class]))
-             :style (get-in parts [:wrapper :style])
-             :attr  (get-in parts [:wrapper :attr])
-             :child (if tooltip
-                      [popover-tooltip
-                       :src      (at)
-                       :label    tooltip
-                       :position (or tooltip-position :below-center)
-                       :showing? showing?
-                       :anchor   the-button
-                       :class    (str "rc-md-icon-button-tooltip " (get-in parts [:tooltip :class]))
-                       :style    (get-in parts [:tooltip :style])
-                       :attr     (get-in parts [:tooltip :attr])]
-                      the-button)]))))))
+             :src      src
+             :debug-as (or debug-as (reflect-current-component))
+             :align    :start
+             :class    (str "display-inline-flex rc-md-icon-button-wrapper " (get-in parts [:wrapper :class]))
+             :style    (get-in parts [:wrapper :style])
+             :attr     (get-in parts [:wrapper :attr])
+             :child    (if tooltip
+                         [popover-tooltip
+                          :src      (at)
+                          :label    tooltip
+                          :position (or tooltip-position :below-center)
+                          :showing? showing?
+                          :anchor   the-button
+                          :class    (str "rc-md-icon-button-tooltip " (get-in parts [:tooltip :class]))
+                          :style    (get-in parts [:tooltip :style])
+                          :attr     (get-in parts [:tooltip :attr])]
+                         the-button)]))))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -288,7 +291,8 @@
      {:name :style     :required false                       :type "CSS style map"   :validate-fn css-style?                 :description "CSS styles to add or override (applies to the button, not the popover wrapper)"}
      {:name :attr      :required false                       :type "HTML attr map"   :validate-fn html-attr?                 :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the popover wrapper)"]}
      {:name :parts     :required false                       :type "map"             :validate-fn (parts? info-button-parts) :description "See Parts section below."}
-     {:name :src       :required false                       :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src       :required false                       :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as  :required false                       :type "map"             :validate-fn map?                       :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn info-button
   "A tiny light grey button, with an 'i' in it. Meant to be unobtrusive.
@@ -298,12 +302,12 @@
   []
   (let [showing? (reagent/atom false)]
     (fn info-button-render
-      [& {:keys [info position width disabled? class style attr parts src] :as args}]
+      [& {:keys [info position width disabled? class style attr parts src debug-as] :as args}]
       (or
-        (validate-args-macro info-button-args-desc args src)
+        (validate-args-macro info-button-args-desc args)
         [popover-tooltip
          :src       src
-         :log       (reflect)
+         :debug-as  (or debug-as (reflect-current-component))
          :label     info
          :status    :info
          :position  (or position :right-below)
@@ -364,7 +368,8 @@
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?                :description "CSS styles to add or override (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?                :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? row-button-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"             :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src              :required false                        :type "map"             :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as         :required false                        :type "map"             :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn row-button
   "a small button containing a material design icon"
@@ -375,7 +380,7 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       (or
-        (validate-args-macro row-button-args-desc args src)
+        (validate-args-macro row-button-args-desc args)
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
           (let [the-button [:div
@@ -399,23 +404,23 @@
                                 :style (get-in parts [:icon :style] {})}
                                (get-in parts [:icon :attr]))]]]
             [box
-             :src   src
-             :log   (reflect)
-             :align :start
-             :class (str "display-inline-flex rc-row-button-wrapper " (get-in parts [:wrapper :class]))
-             :style (get-in parts [:wrapper :style] {})
-             :attr  (get-in parts [:wrapper :attr] {})
-             :child (if tooltip
-                      [popover-tooltip
-                       :src      (at)
-                       :label    tooltip
-                       :position (or tooltip-position :below-center)
-                       :showing? showing?
-                       :anchor   the-button
-                       :class    (str "rc-row-button-tooltip " (get-in parts [:tooltip :class]))
-                       :style    (get-in parts [:tooltip :style])
-                       :attr     (get-in parts [:tooltip :attr])]
-                      the-button)]))))))
+             :src      src
+             :debug-as (reflect-current-component)
+             :align    :start
+             :class    (str "display-inline-flex rc-row-button-wrapper " (get-in parts [:wrapper :class]))
+             :style    (get-in parts [:wrapper :style] {})
+             :attr     (get-in parts [:wrapper :attr] {})
+             :child    (if tooltip
+                         [popover-tooltip
+                          :src      (at)
+                          :label    tooltip
+                          :position (or tooltip-position :below-center)
+                          :showing? showing?
+                          :anchor   the-button
+                          :class    (str "rc-row-button-tooltip " (get-in parts [:tooltip :class]))
+                          :style    (get-in parts [:tooltip :style])
+                          :attr     (get-in parts [:tooltip :attr])]
+                         the-button)]))))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -444,7 +449,8 @@
      {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?               :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?               :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"                      :validate-fn (parts? hyperlink-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"                      :validate-fn map?                     :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src              :required false                        :type "map"                      :validate-fn map?                     :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as         :required false                        :type "map"                      :validate-fn map?                     :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn hyperlink
   "Renders an underlined text hyperlink component.
@@ -453,9 +459,9 @@
   []
   (let [showing? (reagent/atom false)]
     (fn hyperlink-render
-      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts src] :as args}]
+      [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts src debug-as] :as args}]
       (or
-        (validate-args-macro hyperlink-args-desc args src)
+        (validate-args-macro hyperlink-args-desc args)
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
           (let [label      (deref-or-value label)
@@ -482,23 +488,23 @@
                                       attr)
                                     label]]]
             [box
-             :src   src
-             :log   (reflect)
-             :align :start
-             :class (str "display-inline-flex rc-hyperlink-wrapper " (get-in parts [:wrapper :class]))
-             :style (get-in parts [:wrapper :style])
-             :attr  (get-in parts [:wrapper :attr])
-             :child (if tooltip
-                      [popover-tooltip
-                       :src      (at)
-                       :label    tooltip
-                       :position (or tooltip-position :below-center)
-                       :showing? showing?
-                       :anchor   the-button
-                       :class    (str "rc-hyperlink-tooltip " (get-in parts [:tooltip :class]))
-                       :style    (get-in parts [:tooltip :style])
-                       :attr     (get-in parts [:tooltip :attr])]
-                      the-button)]))))))
+             :src      src
+             :debug-as (or debug-as (reflect-current-component))
+             :align    :start
+             :class    (str "display-inline-flex rc-hyperlink-wrapper " (get-in parts [:wrapper :class]))
+             :style    (get-in parts [:wrapper :style])
+             :attr     (get-in parts [:wrapper :attr])
+             :child    (if tooltip
+                         [popover-tooltip
+                          :src      (at)
+                          :label    tooltip
+                          :position (or tooltip-position :below-center)
+                          :showing? showing?
+                          :anchor   the-button
+                          :class    (str "rc-hyperlink-tooltip " (get-in parts [:tooltip :class]))
+                          :style    (get-in parts [:tooltip :style])
+                          :attr     (get-in parts [:tooltip :attr])]
+                         the-button)]))))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -527,7 +533,8 @@
      {:name :style            :required false                        :type "CSS style map"            :validate-fn css-style?                    :description "CSS styles to add or override (applies to the hyperlink, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"            :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the hyperlink, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"                      :validate-fn (parts? hyperlink-href-parts) :description "See Parts section below."}
-     {:name :src              :required false                        :type "map"                      :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src              :required false                        :type "map"                      :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as         :required false                        :type "map"                      :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn hyperlink-href
   "Renders an underlined text hyperlink component.
@@ -536,9 +543,9 @@
   []
   (let [showing? (reagent/atom false)]
     (fn hyperlink-href-render
-      [& {:keys [label href target tooltip tooltip-position disabled? class style attr parts src] :as args}]
+      [& {:keys [label href target tooltip tooltip-position disabled? class style attr parts src debug-as] :as args}]
       (or
-        (validate-args-macro hyperlink-href-args-desc args src)
+        (validate-args-macro hyperlink-href-args-desc args)
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
           (let [label      (deref-or-value label)
@@ -567,20 +574,20 @@
                             label]]
 
             [box
-             :src   src
-             :log   (reflect)
-             :align :start
-             :class (str "rc-hyperlink-href-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
-             :style (get-in parts [:wrapper :style] {})
-             :attr  (get-in parts [:wrapper :attr] {})
-             :child (if tooltip
-                      [popover-tooltip
-                       :src      (at)
-                       :label    tooltip
-                       :position (or tooltip-position :below-center)
-                       :showing? showing?
-                       :anchor   the-button
-                       :class    (str "rc-hyperlink-href-tooltip " (get-in parts [:tooltip :class]))
-                       :style    (get-in parts [:tooltip :style] {})
-                       :attr     (get-in parts [:tooltip :attr] {})]
-                      the-button)]))))))
+             :src      src
+             :debug-as (or debug-as (reflect-current-component))
+             :align    :start
+             :class    (str "rc-hyperlink-href-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
+             :style    (get-in parts [:wrapper :style] {})
+             :attr     (get-in parts [:wrapper :attr] {})
+             :child    (if tooltip
+                         [popover-tooltip
+                          :src      (at)
+                          :label    tooltip
+                          :position (or tooltip-position :below-center)
+                          :showing? showing?
+                          :anchor   the-button
+                          :class    (str "rc-hyperlink-href-tooltip " (get-in parts [:tooltip :class]))
+                          :style    (get-in parts [:tooltip :style] {})
+                          :attr     (get-in parts [:tooltip :attr] {})]
+                         the-button)]))))))

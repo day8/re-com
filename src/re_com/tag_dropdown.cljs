@@ -1,7 +1,7 @@
 (ns re-com.tag-dropdown
   (:require-macros
     [reagent.ratom   :refer [reaction]]
-    [re-com.core     :refer [handler-fn at reflect]]
+    [re-com.core     :refer [handler-fn at reflect-current-component]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [goog.string           :as gstring]
@@ -177,22 +177,23 @@
      {:name :height             :required false :default "25px"         :type "string"                  :validate-fn string?                     :description "the specific height of the component"}
      {:name :style              :required false                         :type "map"                     :validate-fn map?                        :description "CSS styles to add or override"}
      {:name :parts              :required false                         :type "map"                     :validate-fn (parts? tag-dropdown-parts) :description "See Parts section below."}
-     {:name :src                :required false                         :type "map"                     :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src                :required false                         :type "map"                     :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as           :required false                         :type "map"                     :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn tag-dropdown
-  [& {:keys [src] :as args}]
+  [& {:as args}]
   (or
-    (validate-args-macro tag-dropdown-args-desc args src)
+    (validate-args-macro tag-dropdown-args-desc args)
     (let [showing?      (reagent/atom false)]
       (fn tag-dropdown-render
         [& {:keys [choices model placeholder on-change unselect-buttons? required? abbrev-fn abbrev-threshold label-fn
-                   description-fn min-width max-width height style disabled? parts src]
+                   description-fn min-width max-width height style disabled? parts src debug-as]
             :or   {label-fn          :label
                    description-fn    :description
                    height            "25px"}
             :as   args}]
         (or
-          (validate-args-macro tag-dropdown-args-desc args src)
+          (validate-args-macro tag-dropdown-args-desc args)
           (let [choices            (deref-or-value choices)
                 model              (deref-or-value model)
                 abbrev-threshold   (deref-or-value abbrev-threshold)
@@ -290,7 +291,7 @@
                                                 :on-click  #(on-change #{})])]]]
             [popover-anchor-wrapper
              :src      src
-             :log      (reflect)
+             :debug-as (or debug-as (reflect-current-component))
              :class    (str "rc-tag-dropdown-popover-anchor-wrapper " (get-in parts [:popover-anchor-wrapper :class]))
              :showing? showing?
              :position :below-center

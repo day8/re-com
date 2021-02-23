@@ -1,6 +1,6 @@
 (ns re-com.progress-bar
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect]]
+    [re-com.core     :refer [handler-fn at reflect-current-component]]
     [re-com.validate :refer [validate-args-macro]])
   (:require
     [re-com.config   :refer [include-args-desc?]]
@@ -36,33 +36,34 @@
      {:name :style     :required false                 :type "CSS style map"            :validate-fn css-style?                  :description "CSS styles to add or override (applies to the progress-bar, not the wrapping div)"}
      {:name :attr      :required false                 :type "HTML attr map"            :validate-fn html-attr?                  :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the progress-bar, not the wrapping div)"]}
      {:name :parts     :required false                 :type "map"                      :validate-fn (parts? progress-bar-parts) :description "See Parts section below."}
-     {:name :src       :required false                 :type "map"                      :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}]))
+     {:name :src       :required false                 :type "map"                      :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as  :required false                 :type "map"                      :validate-fn map?                        :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn progress-bar
   "Render a bootstrap styled progress bar"
-  [& {:keys [model width striped? class bar-class style attr parts src]
+  [& {:keys [model width striped? class bar-class style attr parts src debug-as]
       :or   {width "100%"}
       :as   args}]
   (or
-    (validate-args-macro progress-bar-args-desc args src)
+    (validate-args-macro progress-bar-args-desc args)
     (let [model (deref-or-value model)]
       [box
-       :src   src
-       :log   (reflect)
-       :class (str "rc-progress-bar-wrapper " (get-in parts [:wrapper :class]))
-       :style (get-in parts [:wrapper :style])
-       :attr  (get-in parts [:wrapper :attr])
-       :align :start
-       :child [:div
-               (merge
-                 {:class (str "progress rc-progress-bar " class)
-                  :style (merge (flex-child-style "none")
-                                {:width width}
-                                style)}
-                 attr)
-               [:div
-                {:class (str "progress-bar " (when striped? "progress-bar-striped active rc-progress-bar-portion ") bar-class)
-                 :role  "progressbar"
-                 :style {:width      (str model "%")
-                         :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind
-                (str model "%")]]])))
+       :src      src
+       :debug-as (or debug-as (reflect-current-component))
+       :class    (str "rc-progress-bar-wrapper " (get-in parts [:wrapper :class]))
+       :style    (get-in parts [:wrapper :style])
+       :attr     (get-in parts [:wrapper :attr])
+       :align    :start
+       :child    [:div
+                  (merge
+                    {:class (str "progress rc-progress-bar " class)
+                     :style (merge (flex-child-style "none")
+                                   {:width width}
+                                   style)}
+                    attr)
+                  [:div
+                   {:class (str "progress-bar " (when striped? "progress-bar-striped active rc-progress-bar-portion ") bar-class)
+                    :role  "progressbar"
+                    :style {:width      (str model "%")
+                            :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind
+                   (str model "%")]]])))

@@ -27,20 +27,20 @@
   [args]
   (if (map? args)
     (->> ;; Remove args already represented in component hierarchy
-      (dissoc args :src :child :children :panel-1 :panel-2)
+      (dissoc args :src :child :children :panel-1 :panel-2 :debug-as)
       ;; Remove args with nil value
       (remove (comp nil? second))
       (into {}))
     args))
 
 (defn ->attr
-  [{:keys [src log] :as args}]
+  [{:keys [src debug-as] :as args}]
   (if-not debug? ;; This is in a separate `if` so Google Closure dead code elimination can run...
     {}
-    (let [rc-component        (or (:component log)
+    (let [rc-component        (or (:component debug-as)
                                   (short-component-name (component/component-name (r/current-component))))
           rc-args             (loggable-args
-                                (or (:args log)
+                                (or (:args debug-as)
                                     args))
           ref-fn              (fn [^js/Element el]
                                 ;; If the ref callback is defined as an inline function, it will get called twice during updates,
@@ -168,36 +168,36 @@
     (js/console.groupEnd)))
 
 (defn validate-args-error
-  [& {:keys [problems component args src]}]
+  [& {:keys [problems component args]}]
   (let [element            (atom nil)
         ref-fn             (fn [el]
                              (when el
                                (reset! element el)))
         internal-problems  (atom problems)
         internal-component (atom component)
-        internal-src       (atom src)]
+        internal-args      (atom args)]
     (r/create-class
       {:display-name "validate-args-error"
 
        :component-did-mount
        (fn [this]
-         (log-validate-args-error element @internal-problems @internal-component @internal-src))
+         (log-validate-args-error element @internal-problems @internal-component (:src @internal-args)))
 
        :component-did-update
        (fn [this argv old-state snapshot]
-         (log-validate-args-error element @internal-problems @internal-component @internal-src))
+         (log-validate-args-error element @internal-problems @internal-component (:src @internal-args)))
 
        :reagent-render
-       (fn [& {:keys [problems component args src]}]
+       (fn [& {:keys [problems component args]}]
          (reset! internal-problems problems)
          (reset! internal-component component)
-         (reset! internal-src src)
+         (reset! internal-args args)
          [:div
           (merge
-            (->attr {:src  src
-                     :log  {:component component
-                            :args      args}
-                     :attr {:ref ref-fn}})  ;; important that this ref-fn doesn't get overridden by (->attr ...)
+            (->attr {:src      (:src args)
+                     :debug-as {:component component
+                                :args      args}
+                     :attr     {:ref ref-fn}})  ;; important that this ref-fn doesn't get overridden by (->attr ...)
             {:title    "re-com validation error. Look in the DevTools console."
              :style    (validate-args-problems-style)})
 
