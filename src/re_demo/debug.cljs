@@ -133,7 +133,7 @@
                  and it will dump a detailed component stack report to DevTools console."]
               [p "Use it like this:"]
               [:pre
-               "(ns my.app\n  (:require\n    [re-com.debug :refer [stack-spy]])"
+               "(ns my.app\n  (:require\n    [re-com.core :refer [stack-spy]])"
                "\n\n"
                "[stack-spy\n  :component [simple-v-table ...]]"]]])
 
