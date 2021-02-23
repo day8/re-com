@@ -400,8 +400,8 @@
                  contains-class? (contains? arg-keys :class)
                  contains-style? (contains? arg-keys :style)
                  result   (cond
-                            contains-class? ":class not allowed in :attr argument"
-                            contains-style? ":style not allowed in :attr argument"
+                            contains-class? ":attr parameters (including :parts) do not allow :class"
+                            contains-style? ":attr parameters (including :parts) do not allow :style"
                             :else           (when-let [invalid (not-empty (invalid-html-attrs arg-keys))]
                                               (str "Unknown HTML attribute(s): " invalid)))]
              (or (nil? result)
@@ -420,13 +420,13 @@
         (fn [_ k v]
           (if-not (keys k)
             (reduced {:status  :error
-                      :message (str k " not allowed in :parts argument")})
+                      :message (str "Invalid keyword in :parts parameter: " k)})
             (reduce-kv
               (fn [_ k2 v2]
                 (case k2
                   :class (if-not (string? v2)
                            (reduced {:status :error
-                                     :message (str ":parts [" k " " k2 "] argument must be a string")})
+                                     :message (str "Parameter [:parts " k " " k2 "] expected string but got " (type v2))})
                            true)
                   :style (let [valid? (css-style? v2)]
                            (if-not (true? valid?)
@@ -437,7 +437,7 @@
                              (reduced valid?)
                              true))
                   (reduced {:status :error
-                            :message (str k2 " not allowed in [:parts " k "] argument")})))
+                            :message (str "Invalid keyword in [:parts " k "] parameter: " k2)})))
               true
               v)))
         true
