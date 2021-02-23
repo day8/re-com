@@ -35,9 +35,7 @@
 
 ;; Obtain source code coordinates and assemble them into a map literal containing `:file` and `:line` keys
 ;; See explanation: https://re-com.day8.com.au/#/debug
-(defmacro at
-  []
-  (select-keys (meta &form) [:file :line]))
+(defmacro at [] (let [{:keys [file line]} (meta &form)] {:file file :line line :log '(fn [& args] (.apply js/console.log nil (clj->js args))) :group '(fn [& args] (.apply js/console.group nil (clj->js args))) :groupEnd '(fn [& args] (.apply js/console.groupEnd nil (clj->js args))) :groupCollapsed '(fn [& args] (.apply js/console.groupCollapsed nil (clj->js args)))}))
 
 ;; Obtain the current component's component-name and args to be provided as a :debug-as argument to another component.
 ;; Causes the other component to masquerade in debug output, such as component stacks, as the current component in terms

@@ -37,6 +37,7 @@
     (fn
       []
       [v-box
+       :src      (at)
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[checkbox ... ]"
@@ -74,6 +75,7 @@
                                                        :src      (at)
                                                        :gap      "1px"
                                                        :children [[checkbox
+                                                                   :foo :bar
                                                                    :src       (at)
                                                                    :model     all-for-one?
                                                                    :on-change #(reset! all-for-one? %)]

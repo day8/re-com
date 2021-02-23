@@ -104,68 +104,78 @@
 (def globe-icon "\uD83C\uDF10")
 
 (defn log-component-stack
-  [stack]
-  (js/console.groupCollapsed (str "• %c Component stack (click me)") h2-style)
+  [stack {:keys [log group groupEnd groupCollapsed]
+          :or   {log            js/console.log
+                 group          js/console.group
+                 groupEnd       js/console.groupEnd
+                 groupCollapsed js/console.groupCollapsed}}]
+  (groupCollapsed (str "• %c Component stack (click me)") h2-style)
   (doseq [{:keys [i el component src args]} (map-indexed #(assoc %2 :i (inc %1)) stack)]
     (if component
       (if src
         (let [[file line] (string/split src #":")]
           (if args
-            (js/console.log
+            (log
               (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      Parameters: %O\n      DOM: %o")
               index-style "" code-style "" code-style "" code-style "" args el)
-            (js/console.log
+            (log
               (str "%c" i "%c " gear-icon " %c[" component " ...]%c in file %c" file "%c at line %c" line "%c\n      DOM: %o")
               index-style "" code-style "" code-style "" code-style "" el)))
-        (js/console.log
+        (log
           (str "%c" i "%c " gear-icon " %c[" component " ...]%c\n      Parameters: %O\n      DOM: %o")
           index-style "" code-style "" args el))
-      (js/console.log (str "%c" i "%c " globe-icon " %o") index-style "" el)))
-  (js/console.groupEnd))
+      (log (str "%c" i "%c " globe-icon " %o") index-style "" el)))
+  (groupEnd))
 
 (defn log-validate-args-error-problems
-  [problems]
+  [problems {:keys [log]
+             :or   {log js/console.log}}]
   (doseq [{:keys [problem arg-name expected actual validate-fn-result]} problems]
     (case problem
       ;; [IJ] TODO: :validate-fn-return
-      :unknown         (js/console.log
+      :unknown         (log
                          (str "• %cUnknown parameter: %c" arg-name)
                          error-style code-style)
-      :required        (js/console.log
+      :required        (log
                          (str "• %cMissing required parameter: %c" arg-name)
                          error-style code-style)
-      :validate-fn     (js/console.log
+      :validate-fn     (log
                          (str "• %cParameter %c" arg-name "%c expected %c" (:type expected ) "%c but got %c" actual)
                          error-style code-style error-style code-style error-style code-style)
-      :validate-fn-map (js/console.log
+      :validate-fn-map (log
                          (str "• %c" (:message validate-fn-result))
                          error-style)
-      (js/console.log "• " confused-icon " Unknown problem reported"))))
+      (log "• " confused-icon " Unknown problem reported"))))
 
 (defn log-validate-args-error
-  [element problems component-name {:keys [file line] :as src}]
+  [element problems component-name {:keys [file line log group groupEnd]
+                                    :or   {log            js/console.log
+                                           group          js/console.group
+                                           groupEnd       js/console.groupEnd
+                                           groupCollapsed js/console.groupCollapsed}
+                                    :as   src}]
   (let [source-url    (when root-url-for-compiler-output (str root-url-for-compiler-output file ":" line))]
-    (js/console.group (str "%c" collision-icon " re-com validation error ") h1-style)
+    (group (str "%c" collision-icon " re-com validation error ") h1-style)
     (if src
       (if source-url
-        (js/console.log
+        (log
           (str "• " gear-icon "%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line "%c see " source-url)
           code-style "" code-style "" code-style "")
         (do
-          (js/console.log
+          (log
             (str "• " gear-icon "%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line)
             code-style "" code-style "" code-style)
-          (js/console.log
+          (log
             (str "• " blue-book-icon " Add %cre-com.config/root-url-for-compiler-output%c to your %c:closure-defines%c to enable clickable source urls")
             code-style "" code-style "")))
       (do
-        (js/console.log
+        (log
           (str "• " gear-icon "%c[" (short-component-name component-name) " ...]")
           code-style)
-        (js/console.log (str "• " blue-book-icon " Learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug"))))
-    (log-validate-args-error-problems problems)
-    (log-component-stack (component-stack @element))
-    (js/console.groupEnd)))
+        (log (str "• " blue-book-icon " Learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug"))))
+    (log-validate-args-error-problems problems src)
+    (log-component-stack (component-stack @element) src)
+    (groupEnd)))
 
 (defn validate-args-error
   [& {:keys [problems component args]}]
@@ -215,12 +225,15 @@
                   (when el
                     (reset! element el)))
         log-fn  (fn []
-                  (let [el @element]
+                  (let [el                       @element
+                        {:keys [group groupEnd]
+                         :or   {group js/console.group
+                                groupEnd js/console.groupEnd}} src]
                     (when el
                       (let [first-child (first (.-children el))]
-                        (js/console.group "%c[stack-spy ...]" code-style)
-                        (log-component-stack (component-stack first-child))
-                        (js/console.groupEnd)))))]
+                        (group "%c[stack-spy ...]" code-style)
+                        (log-component-stack (component-stack first-child) src)
+                        (groupEnd)))))]
     (r/create-class
       {:display-name         "stack-spy"
        :component-did-mount  log-fn

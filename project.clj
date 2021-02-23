@@ -72,7 +72,9 @@
                                                            :externs         ["externs/detect-element-resize-externs.js"]}
                                         :dev              {:asset-path       "/compiled_dev/demo"
                                                            :output-dir       "run/resources/public/compiled_dev/demo"
-                                                           :compiler-options {:closure-defines {;; When re-com produces validation errors it tries to provide links
+                                                           :compiler-options {:pretty-print true
+                                                                              :source-map-detail-level :all
+                                                                              :closure-defines {;; When re-com produces validation errors it tries to provide links
                                                                                                 ;; to source code. These links require that you provide the root URL
                                                                                                 ;; to the ClojureScript compiler output with source maps.
                                                                                                 re-com.config/root-url-for-compiler-output "http://localhost:3449/compiled_dev/demo/cljs-runtime/"}

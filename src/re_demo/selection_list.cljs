@@ -1,4 +1,6 @@
 (ns re-demo.selection-list
+  (:require-macros
+    [re-com.core           :refer [at]])
   (:require
     [cljs.pprint           :as pprint]
     [re-com.debug          :refer [stack-spy]]
@@ -31,6 +33,7 @@
        :children [[title2 "Demo"]
                   [v-box ;; TODO: v-box required to constrain height of internal border.
                    :children [[stack-spy
+                               :src       (at)
                                :component [selection-list
                                            :width          "391px"      ;; manual hack for width of variation panel A+B 1024px
                                            :max-height     "95px"       ;; based on compact style @ 19px x 5 rows
