@@ -10,7 +10,7 @@
 
 A ClojureScript library of UI components for [Reagent](http://reagent-project.github.io). 
 
-Re-com provides:
+re-com provides:
 
 * familiar UI widgetry **components** such as dropdowns, date pickers, popovers, tabs, etc.
 * layout **components**, which arrange widgets vertically and horizontally, within
