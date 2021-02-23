@@ -5,7 +5,7 @@
   (:require
     [reagent.core    :as    reagent]
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
+    [re-com.debug    :as debug :refer [->attr]]
     [re-com.validate :refer [css-style? html-attr? parts? number-or-string?]]
     [re-com.text     :refer [label]]
     [re-com.box      :refer [h-box gap]]
@@ -85,12 +85,28 @@
     :else true))
 
 (defn- validate-arg-times
-  [model minimum maximum]
-  (assert (and (number? model) (valid-time? model)) (str "[input-time] given an invalid :model - " model))
-  (assert (and (number? minimum) (valid-time? minimum)) (str "[input-time] given an invalid :minimum - " minimum))
-  (assert (and (number? maximum) (valid-time? maximum)) (str "[input-time] given an invalid :maximum - " maximum))
-  (assert (<= minimum maximum) (str "[input-time] :minimum " minimum " > :maximum  " maximum))
-  true)
+  [model minimum maximum args]
+  (when-let [message (cond
+                       (not (and (number? model) (valid-time? model)))
+                       (str "[input-time] given an invalid :model - " model)
+
+                       (not (and (number? minimum) (valid-time? minimum)))
+                       (str "[input-time] given an invalid :minimum - " minimum)
+
+                       (not (and (number? maximum) (valid-time? maximum)))
+                       (str "[input-time] given an invalid :maximum - " maximum)
+
+                       (not (<= minimum maximum))
+                       (str "[input-time] :minimum " minimum " > :maximum  " maximum)
+
+                       :default
+                       nil)]
+    [debug/validate-args-error
+      :component "input-time"
+      :args      args
+      :problems  [{:problem            :validate-fn-map
+                   :validate-fn-result {:message message}}]]))
+
 
 (defn- force-valid-time
   "Validate the time supplied.
@@ -165,7 +181,7 @@
       :or   {minimum 0 maximum 2359}}]
   (or
     (validate-args-macro input-time-args-desc args)
-    #_(validate-arg-times (deref-or-value model) minimum maximum) ;; [IJ] TODO
+    (validate-arg-times (deref-or-value model) minimum maximum args)
     (let [deref-model    (deref-or-value model)
           text-model     (reagent/atom (time->text deref-model))
           previous-model (reagent/atom deref-model)]
@@ -174,7 +190,7 @@
             :or   {minimum 0 maximum 2359}}]
         (or
           (validate-args-macro input-time-args-desc args)
-          #_(validate-arg-times (deref-or-value model) minimum maximum) ;; [IJ] TODO
+          (validate-arg-times (deref-or-value model) minimum maximum args)
           (let [style (merge (when hide-border? {:border "none"})
                              style)
                 new-val (deref-or-value model)
