@@ -98,9 +98,9 @@
                " The two should be combined like this:"]
               [:pre
                "[button\n  :src   (at)    ;; <-- note\n  :label \"click me\"\n  ...]"]
-              [p "To use it, your " [:code "ns"] " will need to  " [:code ":require-macros"] " it as follows:"]
+              [p "To use it, your " [:code "ns"] " will need to  " [:code ":require"] " it as follows:"]
               [:pre
-               "(ns my.app\n  (:require-macros\n    [re-com.core :refer [at]])  ;; <-- note\n  (:require\n    [re-com.core :refer [h-box v-box ...]])"]
+               "(ns my.app\n  (:require\n    [re-com.core :refer [at h-box v-box ...]])) ;; <-- note 'at'"]
               [p "But wait, you get more. "]
               [p "When " [:code ":src"] " is provided, re-com will add a \"data\" attribute to the DOM "
                "node representing a component. This attribute, called " [:code "data-rc-src"] ",  will contain any source code coordinates provided. "]
