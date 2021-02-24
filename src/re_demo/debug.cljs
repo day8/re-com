@@ -137,6 +137,18 @@
                "\n\n"
                "[stack-spy\n  :component [simple-v-table ...]]"]]])
 
+
+(defn colourising 
+  []
+  [v-box
+   :src      (coords)
+   :children [[title2 "Layout Colourising"]
+              [line]
+              [gap :size "10px"]
+              [p "re-com contains a switch which colorises the layout primatives of " [:code "h-box"] ", " [:code "v-box"] ", " [:code "gap"] " and " [:code "box"] "."]
+              [:pre " (set! re-com.box/debug true)"]]])
+
+
 (defn debug-demo
   []
   [v-box
@@ -152,7 +164,10 @@
                :gap      "100px"
                :children [[the-src-parameter-column]
                           [params-validation-column]
-                          [stack-spy-column]]]]])
+                          [v-box 
+                           :gap "20px"
+                           :children [[stack-spy-column] 
+                                      [colourising]]]]]]])
 
 
 
