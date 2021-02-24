@@ -144,7 +144,7 @@
 
 (defn log-validate-args-error
   [element problems component-name {:keys [file line] :as src}]
-  (let [source-url    (when root-url-for-compiler-output (str root-url-for-compiler-output file ":" line))]
+  (let [source-url    (when (not (empty? root-url-for-compiler-output)) (str root-url-for-compiler-output file ":" line))]
     (js/console.group (str "%c" collision-icon " re-com validation error ") h1-style)
     (if src
       (if source-url
