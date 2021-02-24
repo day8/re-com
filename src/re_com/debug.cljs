@@ -156,13 +156,13 @@
             (str "• " gear-icon "%c[" (short-component-name component-name) " ...]%c in file %c" file "%c at line %c" line)
             code-style "" code-style "" code-style)
           (js/console.log
-            (str "• " blue-book-icon " Add %cre-com.config/root-url-for-compiler-output%c to your %c:closure-defines%c to enable clickable source urls")
+            (str "• To enable clickable source urls, add %cre-com.config/root-url-for-compiler-output%c to your %c:closure-defines%c. See https://re-com.day8.com.au/#/config")
             code-style "" code-style "")))
       (do
         (js/console.log
           (str "• " gear-icon "%c[" (short-component-name component-name) " ...]")
           code-style)
-        (js/console.log (str "• " blue-book-icon " Learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug"))))
+        (js/console.log (str "• Learn how to add source coordinates to your components at https://re-com.day8.com.au/#/debug"))))
     (log-validate-args-error-problems problems)
     (log-component-stack (component-stack @element))
     (js/console.groupEnd)))

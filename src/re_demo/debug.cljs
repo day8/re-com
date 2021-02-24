@@ -97,7 +97,7 @@
               [p "re-com also supplies the companion macro " [:code "at"] " which returns a correctly populated map."
                " The two should be combined like this:"]
               [:pre
-               "[button\n  :src   (at)    ;; <-- note\n  :label \"click me\"\n  ...]"]
+               "[button\n  :src   (at)         ;; <-- note\n  :label \"click me\"\n  ...]"]
               [p "To use it, your " [:code "ns"] " will need to  " [:code ":require"] " it as follows:"]
               [:pre
                "(ns my.app\n  (:require\n    [re-com.core :refer [at h-box v-box ...]])) ;; <-- note 'at'"]
@@ -141,7 +141,7 @@
 (defn colourising 
   []
   [v-box
-   :src      (coords)
+   :src      (at)
    :children [[title2 "Layout Colourising"]
               [line]
               [gap :size "10px"]
