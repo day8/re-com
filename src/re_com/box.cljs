@@ -7,11 +7,9 @@
     [re-com.config    :refer [include-args-desc?]]
     [re-com.debug     :refer [->attr]]
     [re-com.validate  :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
-                                      scroll-options-list string-or-hiccup? css-style? html-attr?]]))
+                              scroll-options-list string-or-hiccup? css-style? html-attr?]]))
 
-;; [IJ] TODO: Can we please rename this as it is too similar to re-com.config/debug?, and afaik it is not the same thing.
-;;            Maybe visualise-flow?...
-(def debug false)
+(def visualise-flow? true)
 
 
 ;; ------------------------------------------------------------------------------------
@@ -27,33 +25,33 @@
     - basis   Initial size (width, actually) of item before any growing or shrinking. Can be any size value, e.g. 60%, 100px, auto
               Note: auto will cause the initial size to be calculated to take up as much space as possible, in conjunction with it's siblings :flex settings.
    Supported values:
-    - initial            '0 1 auto'  - Use item's width/height for dimensions (or content dimensions if w/h not specifed). Never grow. Shrink (to min-size) if necessary.
+    - initial            '0 1 auto'  - Use item's width/height for dimensions (or content dimensions if w/h not specified). Never grow. Shrink (to min-size) if necessary.
                                        Good for creating boxes with fixed maximum size, but that can shrink to a fixed smaller size (min-width/height) if space becomes tight.
                                        NOTE: When using initial, you should also set a width/height value (depending on flex-direction) to specify it's default size
                                              and an optional min-width/height value to specify the size it can shrink to.
     - auto               '1 1 auto'  - Use item's width/height for dimensions. Grow if necessary. Shrink (to min-size) if necessary.
                                        Good for creating really flexible boxes that will gobble as much available space as they are allowed or shrink as much as they are forced to.
-    - none               '0 0 auto'  - Use item's width/height for dimensions (or content dimensions if not specifed). Never grow. Never shrink.
+    - none               '0 0 auto'  - Use item's width/height for dimensions (or content dimensions if not specified). Never grow. Never shrink.
                                        Good for creating rigid boxes that stick to their width/height if specified, otherwise their content size.
     - 100px              '0 0 100px' - Non flexible 100px size (in the flex direction) box.
                                        Good for fixed headers/footers and side bars of an exact size.
     - 60%                '60 1 0px'  - Set the item's size (it's width/height depending on flex-direction) to be 60% of the parent container's width/height.
                                        NOTE: If you use this, then all siblings with percentage values must add up to 100%.
     - 60                 '60 1 0px'  - Same as percentage above.
-    - grow shrink basis  'grow shrink basis' - If none of the above common valaues above meet your needs, this gives you precise control.
+    - grow shrink basis  'grow shrink basis' - If none of the above common values above meet your needs, this gives you precise control.
    If number of words is not 1 or 3, an exception is thrown.
    Reference: http://www.w3.org/TR/css3-flexbox/#flexibility
    Diagram:   http://www.w3.org/TR/css3-flexbox/#flex-container
    Regex101 testing: ^(initial|auto|none)|(\\d+)(px|%|em)|(\\d+)\\w(\\d+)\\w(.*) - remove double backslashes"
   [size]
   ;; TODO: Could make initial/auto/none into keywords???
-  (let [split-size      (string/split (string/trim size) #"\s+")                  ;; Split into words separated by whitespace
+  (let [split-size      (string/split (string/trim size) #"\s+")            ;; Split into words separated by whitespace
         split-count     (count split-size)
         _               (assert (contains? #{1 3} split-count) "Must pass either 1 or 3 words to flex-child-style")
         size-only       (when (= split-count 1) (first split-size))         ;; Contains value when only one word passed (e.g. auto, 60px)
         split-size-only (when size-only (string/split size-only #"(\d+)(.*)")) ;; Split into number + string
         [_ num units]   (when size-only split-size-only)                    ;; grab number and units
-        pass-through?   (nil? num)                                          ;; If we can't split, then we'll pass this straign through
+        pass-through?   (nil? num)                                          ;; If we can't split, then we'll pass this straight through
         grow-ratio?     (or (= units "%") (= units "") (nil? units))        ;; Determine case for using grow ratio
         grow            (if grow-ratio? num "0")                            ;; Set grow based on percent or integer, otherwise no grow
         shrink          (if grow-ratio? "1" "0")                            ;; If grow set, then set shrink to even shrinkage as well
@@ -117,7 +115,7 @@
 
 
 ;; ------------------------------------------------------------------------------------
-;;  Private Component: box-base (debug color: lightblue)
+;;  Private Component: box-base (visualise-flow? color: lightblue)
 ;; ------------------------------------------------------------------------------------
 
 (defn- box-base
@@ -150,7 +148,7 @@
             (when radius      {:border-radius radius})
             (if bk-color
               {:background-color bk-color}
-              (if debug {:background-color "lightblue"} {}))
+              (if visualise-flow? {:background-color "lightblue"} {}))
             style)]
     [:div
      (merge
@@ -161,7 +159,7 @@
 
 
 ;; ------------------------------------------------------------------------------------
-;;  Component: gap (debug color: chocolate)
+;;  Component: gap (visualise-flow? color: chocolate)
 ;; ------------------------------------------------------------------------------------
 
 (def gap-args-desc
@@ -185,7 +183,7 @@
               (when size   (flex-child-style size))
               (when width  {:width width})
               (when height {:height height})
-              (when debug  {:background-color "chocolate"})
+              (when visualise-flow? {:background-color "chocolate"})
               style)]
       [:div
        (merge
@@ -228,7 +226,7 @@
 
 
 ;; ------------------------------------------------------------------------------------
-;;  Component: h-box (debug color: gold)
+;;  Component: h-box (visualise-flow? color: gold)
 ;; ------------------------------------------------------------------------------------
 
 (def h-box-args-desc
@@ -276,7 +274,7 @@
                      (when align-self (align-style :align-self align-self))
                      (when margin     {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
                      (when padding    {:padding    padding})
-                     (when debug      {:background-color "gold"})
+                     (when visualise-flow? {:background-color "gold"})
                      style)
           gap-form (when gap [re-com.box/gap
                               :src   (at)
@@ -293,7 +291,7 @@
             children))))
 
 ;; ------------------------------------------------------------------------------------
-;;  Component: v-box (debug color: antiquewhite)
+;;  Component: v-box (visualise-flow? color: antiquewhite)
 ;; ------------------------------------------------------------------------------------
 
 (def v-box-args-desc
@@ -341,7 +339,7 @@
                      (when align-self  (align-style :align-self align-self))
                      (when margin      {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
                      (when padding     {:padding    padding})
-                     (when debug       {:background-color "antiquewhite"})
+                     (when visualise-flow? {:background-color "antiquewhite"})
                      style)
           gap-form (when gap [re-com.box/gap
                               :src    (at)
