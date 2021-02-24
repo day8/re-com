@@ -615,13 +615,13 @@
           (let [collapse-on-select (fn [new-model]
                                      (reset! shown? false)
                                      (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
-                passthrough-args   (->> passthrough-args
-                                        (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)  ;; these keys only valid at this API level
-                                        (assoc :on-change collapse-on-select)
-                                        (assoc :src (at))
-                                        (merge {:hide-border? true})                                                        ;; apply defaults
-                                        vec
-                                        flatten)]
+                passthrough-args   (-> passthrough-args
+                                       (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)  ;; these keys only valid at this API level
+                                       (assoc :on-change collapse-on-select)
+                                       (assoc :src (at))
+                                       (merge {:hide-border? true})                                                        ;; apply defaults
+                                       vec
+                                       flatten)]
             [popover-anchor-wrapper
              :src      src
              :debug-as (or debug-as (reflect-current-component))
