@@ -34,7 +34,7 @@
                         :plugins      [[org.clojure/data.json "0.2.6"]]}
 
              :demo     {:dependencies [[alandipert/storage-atom "2.0.1"]
-                                       [com.cognitect/transit-cljs "0.8.256"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
+                                       [com.cognitect/transit-cljs "0.8.264"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
                                        [clj-commons/secretary "1.2.4"]]}}
 
   :source-paths    ["src"]
