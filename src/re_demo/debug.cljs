@@ -146,7 +146,7 @@
               [line]
               [gap :size "10px"]
               [p "re-com contains a switch which colorises the layout primatives of " [:code "h-box"] ", " [:code "v-box"] ", " [:code "gap"] " and " [:code "box"] "."]
-              [:pre " (set! re-com.box/debug true)"]]])
+              [:pre " (set! re-com.box/visualise-flow? true)"]]])
 
 
 (defn debug-demo
