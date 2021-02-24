@@ -2,11 +2,13 @@
 
 ... unreleased features go here
 
+## 2.13.1 (2021-02-24)
+
 #### Fixed
 
 - Fix `datepicker-dropdown` exception. Regression in 2.13.0. 
 
-## 2.13.0 (2012-02-23)
+## 2.13.0 (2021-02-23)
 
 > **IMPORTANT:** You must upgrade your copy of `re-com.css` when upgrading to this release.
 
