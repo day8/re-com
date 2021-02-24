@@ -1,4 +1,6 @@
 (ns re-com.validate
+  (:require-macros
+    [re-com.validate])
   (:require
     [cljs-time.core         :as    time.core]
     [clojure.set            :refer [superset?]]
