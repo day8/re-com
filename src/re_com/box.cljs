@@ -9,7 +9,7 @@
     [re-com.validate  :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
                               scroll-options-list string-or-hiccup? css-style? html-attr?]]))
 
-(def visualise-flow? true)
+(def visualise-flow? false)
 
 
 ;; ------------------------------------------------------------------------------------
