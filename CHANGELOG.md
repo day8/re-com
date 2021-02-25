@@ -10,15 +10,14 @@
 
 ## 2.13.0 (2021-02-23)
 
-> **IMPORTANT:** You must upgrade your copy of `re-com.css` when upgrading to this release.
-
-You also should ugprade your copies of Material Design Iconic Font [CSS and font files](https://github.com/day8/re-com/tree/master/run/resources/public/assets) including:
-- `css/material-design-iconic-font.min.css`
-- `fonts/Material-Design-Iconic-Font.eot`
-- `fonts/Material-Design-Iconic-Font.svg`
-- `fonts/Material-Design-Iconic-Font.ttf`
-- `fonts/Material-Design-Iconic-Font.woff`
-- `fonts/Material-Design-Iconic-Font.woff2`
+When upgrading any app to use this version, please update the following:
+   - `re-com.css`
+   - `css/material-design-iconic-font.min.css`
+   - `fonts/Material-Design-Iconic-Font.eot`
+   - `fonts/Material-Design-Iconic-Font.svg`
+   - `fonts/Material-Design-Iconic-Font.ttf`
+   - `fonts/Material-Design-Iconic-Font.woff`
+   - `fonts/Material-Design-Iconic-Font.woff2`
 
 #### Added
 
