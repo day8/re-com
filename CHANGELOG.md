@@ -1,6 +1,7 @@
 ## N.N.N (YYYY-MM-DD)
 
-... unreleased features go here
+> Comitted but unreleased features are put here, at the top  
+> Information about each release can be found below 
 
 ## 2.13.1 (2021-02-24)
 
