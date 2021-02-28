@@ -3,6 +3,21 @@
 > Comitted but unreleased changes are put here, at the top  
 > Information about the changes made in prior releases are below
 
+## 2.13.2 (2021-02-24)
+
+#### Fixed
+
+- Fix `re-com.core/at` macro availability via `:refer` so you can now simply do:
+```clojure
+(:require
+  [re-com.core :refer [at]])
+```
+- Fix `re-com.core/at` macro eliding (i.e. return nil) in production builds.
+- Fix logging of source urls in validation errors or `stack-spy` when no
+  `re-com.config/root-url-for-compiler-output` Closure Define is provided in
+  the compiler configuration; i.e. do not log the URL as missing the required
+  information to create a valid URL.
+
 ## 2.13.1 (2021-02-24)
 
 #### Fixed
