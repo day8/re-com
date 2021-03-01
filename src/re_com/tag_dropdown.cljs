@@ -8,11 +8,11 @@
     [reagent.core          :as reagent]
     [re-com.config         :refer [include-args-desc?]]
     [re-com.debug          :refer [->attr]]
-    [re-com.util           :refer [deref-or-value px-n]]
+    [re-com.util           :refer [deref-or-value px-n assoc-in-if-empty]]
     [re-com.validate       :as validate :refer [parts?]]
     [re-com.box            :refer [box h-box v-box gap]]
     [re-com.checkbox       :refer [checkbox]]
-    [re-com.selection-list :refer [selection-list]]
+    [re-com.selection-list :as    selection-list]
     [re-com.close-button   :refer [close-button]]
     [re-com.popover        :refer [popover-content-wrapper popover-anchor-wrapper]]))
 
@@ -118,13 +118,22 @@
                        {:style {:color "#586069"}}
                        tag-description])]]))))
 
-(def tag-dropdown-parts-desc
+(def tag-dropdown-exclusive-parts-desc
   (when include-args-desc?
     [{:name :popover-anchor-wrapper :level 0 :class "rc-tag-dropdown-popover-anchor-wrapper" :impl "[popover-anchor-wrapper]"}
      {:name :main                   :level 1 :class "rc-tag-dropdown"                        :impl "[h-box]"}
      {:name :tags                   :level 2 :class "rc-tag-dropdown-tags"                   :impl "[h-box]"}
      {:name :tag                    :level 3 :class "rc-tag-dropdown-tag"                    :impl "[h-box]" :notes [:span "Each individual tag can be independently targeted with the keyword of its " [:code ":id"]]}
      {:name :selection-list         :level 2 :class "rc-tag-dropdown-selection-list"         :impl "[selection-list]"}]))
+
+(def tag-dropdown-parts-desc
+  (when include-args-desc?
+    (into
+      tag-dropdown-exclusive-parts-desc
+      (->>
+        selection-list/selection-list-parts-desc
+        (remove #(= :legacy (:type %)))
+        (map #(update % :level (comp inc inc)))))))
 
 (def tag-dropdown-parts
   (when include-args-desc?
@@ -191,14 +200,18 @@
                                  :on-click    #(reset! showing? true)
                                  :tooltip     "Click to select tags"
                                  :hover-style {:background-color "#eee"}]
-                tag-list-body   [selection-list
+                tag-list-body   [selection-list/selection-list
                                  :src           (at)
+                                 :class         (get-in parts [:selection-list :class] "")
+                                 :style         (get-in parts [:selection-list :style])
+                                 :attr          (get-in parts [:selection-list :attr])
                                  :disabled?     disabled?
                                  :required?     required?
-                                 :parts         {:list-group-item {:style {:background-color "#F3F6F7"
-                                                                           :border           "1px solid #ddd"
-                                                                           :height           "auto"
-                                                                           :padding          "10px 15px"}}}
+                                 :parts         (->
+                                                  (select-keys parts selection-list/selection-list-parts)
+                                                  (assoc-in-if-empty [:list-group-item :style :border] "1px solid #ddd")
+                                                  (assoc-in-if-empty [:list-group-item :style :height] "auto")
+                                                  (assoc-in-if-empty [:list-group-item :style :padding] "10px 15px"))
                                  :choices       choices
                                  :hide-border?  true
                                  :label-fn      (fn [tag]
@@ -207,7 +220,6 @@
                                                    :description-fn description-fn
                                                    :tag-data       tag
                                                    :style          style])
-                                 ;:item-renderer as-checked
                                  :model         model
                                  :on-change     #(on-change %)
                                  :multi-select? true]

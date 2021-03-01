@@ -3,6 +3,10 @@
 > Comitted but unreleased changes are put here, at the top  
 > Information about the changes made in prior releases are below
 
+#### Added
+
+- Add parts to tag-dropdown for internal selection-list
+
 ## 2.13.2 (2021-02-24)
 
 #### Fixed
