@@ -33,35 +33,6 @@
                       base-style)]
      base-style)))
 
-
-;; TODO: [GR] Ripped off from re-com.selection-list
-(defn- check-clicked
-  [selections item-id ticked? required?]
-  (let [num-selected (count selections)
-        only-item    (when (= 1 num-selected) (first selections))]
-    (if (and required? (= only-item item-id))
-      selections  ;; prevent unselect of last item
-      (if ticked? (conj selections item-id) (disj selections item-id)))))
-
-
-;; TODO: [GR] Ripped off from re-com.selection-list (added {:height "22px"} to override height in compact class
-(defn- as-checked
-  [item id-fn selections on-change disabled? label-fn required? as-exclusions?]
-  ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
-  (let [item-id (id-fn item)]
-    [box
-     :class "list-group-item "
-     :style {:padding "4px 8px 4px 8px"}
-     :attr  {:on-click (handler-fn (when-not disabled?
-                                     (on-change (check-clicked selections item-id (not (selections item-id)) required?))))}
-     :child [checkbox
-             :model       (some? (selections item-id))
-             :on-change   #()                                 ;; handled by enclosing box
-             :disabled?   disabled?
-             :label-style (label-style (selections item-id) as-exclusions?)
-             :label       (label-fn item)]]))
-
-
 (defn text-tag
   []
   (let [over? (reagent/atom false)]
@@ -224,7 +195,10 @@
                                  :src           (at)
                                  :disabled?     disabled?
                                  :required?     required?
-                                 :parts         {:list-group-item {:style {:background-color "#F3F6F7"}}}
+                                 :parts         {:list-group-item {:style {:background-color "#F3F6F7"
+                                                                           :border           "1px solid #ddd"
+                                                                           :height           "auto"
+                                                                           :padding          "10px 15px"}}}
                                  :choices       choices
                                  :hide-border?  true
                                  :label-fn      (fn [tag]
@@ -233,7 +207,7 @@
                                                    :description-fn description-fn
                                                    :tag-data       tag
                                                    :style          style])
-                                 :item-renderer as-checked
+                                 ;:item-renderer as-checked
                                  :model         model
                                  :on-change     #(on-change %)
                                  :multi-select? true]

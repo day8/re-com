@@ -28,15 +28,6 @@
                        base-style)]
      base-style)))
 
-
-(defn- check-clicked
-  [selections item-id ticked? required?]
-  (let [num-selected (count selections)
-        only-item    (when (= 1 num-selected) (first selections))]
-    (if (and required? (= only-item item-id))
-      selections  ;; prevent unselect of last item
-      (if ticked? (conj selections item-id) (disj selections item-id)))))
-
 (defn- as-checked
   [item id-fn selections on-change disabled? label-fn required? as-exclusions? parts]
   ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
@@ -45,8 +36,14 @@
      :class (str "list-group-item compact rc-selection-list-group-item " (get-in parts [:list-group-item :class]))
      :style (get-in parts [:list-group-item :style] {})
      :attr  (merge
-              {:on-click (handler-fn (when-not disabled?
-                                       (on-change (check-clicked selections item-id (not (selections item-id)) required?))))}
+              {:on-click (handler-fn
+                           (let [num-selected (count selections)
+                                 only-item    (when (= 1 num-selected) (first selections))]
+                             (when (and (not disabled?)
+                                        (not (and required? (= only-item item-id))))
+                               (if (selections item-id)
+                                 (on-change (disj selections item-id))
+                                 (on-change (conj selections item-id))))))}
               (get-in parts [:list-group-item :attr]))
      :child [checkbox
              :src         (at)
