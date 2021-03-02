@@ -29,6 +29,14 @@ html, body {
     padding:        0px;
 }
 
+/* The following style addresses: https://github.com/day8/re-com/issues/256
+   The default user agent style is :focus { outline: black auto 1px; } which looks terrible so we use a higher
+   specificity selector to override it. */
+
+*:focus {
+  outline: #ddd auto 1px !important;
+}
+
 /*----------------------------------------------------------------------------------------
   Bootstrap overrides after upgrading to 3.3.5
 ----------------------------------------------------------------------------------------*/

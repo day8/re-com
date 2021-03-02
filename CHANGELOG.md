@@ -3,6 +3,10 @@
 > Comitted but unreleased changes are put here, at the top  
 > Information about the changes made in prior releases are below
 
+#### Changed
+
+- Change colour of `:focus` outline on non-native components such as `button` and `single-dropdown`
+
 #### Added
 
 - Add parts to tag-dropdown for internal selection-list
