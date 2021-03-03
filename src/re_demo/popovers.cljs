@@ -1,10 +1,10 @@
 (ns re-demo.popovers
   (:require [re-com.core                 :refer [h-box v-box box gap line scroller border label title input-text checkbox radio-button button hyperlink hyperlink-href p  single-dropdown
                                                  popover-content-wrapper popover-anchor-wrapper popover-border popover-tooltip flex-child-style] :refer-macros [handler-fn]]
-            [re-com.popover              :refer [popover-content-wrapper-args-desc popover-anchor-wrapper-args-desc popover-border-args-desc popover-tooltip-args-desc]]
+            [re-com.popover              :refer [popover-content-wrapper-args-desc popover-content-wrapper-parts-desc popover-anchor-wrapper-parts-desc popover-anchor-wrapper-args-desc popover-anchor-wrapper-parts-desc popover-border-args-desc popover-border-parts-desc popover-tooltip-args-desc popover-tooltip-parts-desc]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
             [re-com.util                 :refer [get-element-by-id px]]
-            [re-demo.utils               :refer [panel-title title2 title3 args-table github-hyperlink status-text scroll-to-top]]
+            [re-demo.utils               :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text scroll-to-top]]
             [reagent.core                :as    reagent]))
 
 
@@ -171,7 +171,8 @@
                            :children [[title2 "[popover-anchor-wrapper ...]"]
                                       [status-text "Stable"]
                                       [p "Description pending."]
-                                      [args-table popover-anchor-wrapper-args-desc]]]
+                                      [args-table popover-anchor-wrapper-args-desc]
+                                      [parts-table "popover-anchor" popover-anchor-wrapper-parts-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
@@ -184,7 +185,8 @@
                            :width    "450px"
                            :children [[title2 "[popover-content-wrapper ...]"]
                                       [p "Description pending."]
-                                      [args-table popover-content-wrapper-args-desc]]]
+                                      [args-table popover-content-wrapper-args-desc]
+                                      [parts-table "popover-content-wrapper" popover-content-wrapper-parts-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
@@ -198,7 +200,8 @@
                            :children [[title2 "[popover-border ...]"]
                                       [p "This component is not normally used as it is rendered by [popover-content-wrapper]."]
                                       [p "Only use this if you want to create a custom [popover-content-wrapper]."]
-                                      [args-table popover-border-args-desc]]]
+                                      [args-table popover-border-args-desc]
+                                      [parts-table "popover-border" popover-border-parts-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
@@ -211,7 +214,8 @@
                            :width    "450px"
                            :children [[title2 "[popover-tooltip ...]"]
                                       [p "Description pending."]
-                                      [args-table popover-tooltip-args-desc]]]
+                                      [args-table popover-tooltip-args-desc]
+                                      [parts-table "popover-tooltip" popover-tooltip-parts-desc]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]

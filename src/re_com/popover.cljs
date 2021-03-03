@@ -89,35 +89,39 @@
 
 (defn- popover-arrow
   "Render the triangle which connects the popover to the anchor (using SVG)"
-  [orientation pop-offset arrow-length arrow-width grey-arrow? no-border? popover-color popover-border-color]
+  [orientation pop-offset arrow-length arrow-width grey-arrow? no-border? popover-color popover-border-color parts]
   (let [half-arrow-width (/ arrow-width 2)
         arrow-shape {:left  (str (point 0 0)            (point arrow-length half-arrow-width) (point 0 arrow-width))
                      :right (str (point arrow-length 0) (point 0 half-arrow-width)            (point arrow-length arrow-width))
                      :above (str (point 0 0)            (point half-arrow-width arrow-length) (point arrow-width 0))
                      :below (str (point 0 arrow-length) (point half-arrow-width 0)            (point arrow-width arrow-length))}]
-    [:svg {:class "popover-arrow"
-           :style {:position "absolute"
-                   (case orientation ;; Connect arrow to edge of popover
-                     :left  :right
-                     :right :left
-                     :above :bottom
-                     :below :top) (px arrow-length :negative)
+    [:svg
+     (merge
+       {:class (str "popover-arrow rc-popover-arrow " (get-in parts [:arrow :class]))
+        :style (merge {:position "absolute"
+                       (case orientation ;; Connect arrow to edge of popover
+                         :left  :right
+                         :right :left
+                         :above :bottom
+                         :below :top) (px arrow-length :negative)
 
-                   (case orientation ;; Position the arrow at the top/left, center or bottom/right of the popover
-                     (:left  :right) :top
-                     (:above :below) :left) (if (nil? pop-offset) "50%" (px pop-offset))
+                       (case orientation ;; Position the arrow at the top/left, center or bottom/right of the popover
+                         (:left  :right) :top
+                         (:above :below) :left) (if (nil? pop-offset) "50%" (px pop-offset))
 
-                   (case orientation ;; Adjust the arrow position so it's center is attached to the desired position set above
-                     (:left  :right) :margin-top
-                     (:above :below) :margin-left) (px half-arrow-width :negative)
+                       (case orientation ;; Adjust the arrow position so it's center is attached to the desired position set above
+                         (:left  :right) :margin-top
+                         (:above :below) :margin-left) (px half-arrow-width :negative)
 
-                   :width (px (case orientation ;; Arrow is rendered in a rectangle so choose the correct edge length
-                                (:left  :right) arrow-length
-                                (:above :below) arrow-width))
+                       :width (px (case orientation ;; Arrow is rendered in a rectangle so choose the correct edge length
+                                    (:left  :right) arrow-length
+                                    (:above :below) arrow-width))
 
-                   :height (px (case orientation ;; Same as :width comment above
-                                 (:left  :right) arrow-width
-                                 (:above :below) arrow-length))}}
+                       :height (px (case orientation ;; Same as :width comment above
+                                     (:left  :right) arrow-width
+                                     (:above :below) arrow-length))}
+                      (get-in parts [:arrow :style]))}
+       (get-in parts [:arrow :attr]))
      [:polyline {:points (arrow-shape orientation)
                  :style {:fill (if popover-color
                                  popover-color
@@ -135,45 +139,63 @@
     [{:name :opacity  :required false :default 0.0 :type "double | string" :validate-fn number-or-string? :description [:span "opacity of backdrop from:" [:br] "0.0 (transparent) to 1.0 (opaque)"]}
      {:name :on-click :required false              :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the backdrop is clicked"}
      {:name :class    :required false              :type "string"          :validate-fn string?           :description "CSS class names, space separated"}
+     {:name :style    :required false              :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
+     {:name :attr     :required false              :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
      {:name :src      :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn- backdrop
   "Renders a backdrop div which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
-  [& {:keys [opacity on-click class] :as args}]
+  [& {:keys [opacity on-click class style attr] :as args}]
   (or
     (validate-args-macro backdrop-args-desc args)
     [:div
      (merge
        {:class    (str "noselect rc-backdrop " class)
-        :style    {:position         "fixed"
-                   :left             "0px"
-                   :top              "0px"
-                   :width            "100%"
-                   :height           "100%"
-                   :background-color "black"
-                   :opacity          (or opacity 0.0)}
+        :style    (merge
+                    {:position         "fixed"
+                     :left             "0px"
+                     :top              "0px"
+                     :width            "100%"
+                     :height           "100%"
+                     :background-color "black"
+                     :opacity          (or opacity 0.0)}
+                    style)
         :on-click (handler-fn (on-click))}
-       (->attr args))]))
+       (->attr args)
+       attr)]))
 
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: popover-title
 ;;--------------------------------------------------------------------------------------------------
 
+(def popover-title-parts-desc
+  (when include-args-desc?
+    [{:type :legacy       :level 0 :class "rc-popover-title" :impl "[:h3]"          :notes "Outer wrapper of the popover title."}
+     {:name :container    :level 1 :class ""                 :impl "[h-box]"        :notes [:span "Container for the " [:code ":title"] " and the close button."]}
+     {:name :close-button :level 2 :class ""                 :impl "[close-button]" :notes "The close button."}]))
+
+(def popover-title-parts
+  (when include-args-desc?
+    (-> (map :name popover-title-parts-desc) set)))
+
 (def popover-title-args-desc
   (when include-args-desc?
-    [{:name :showing?       :required true                 :type "boolean r/atom"                                   :description "an r/atom. When the value is true, the popover shows."}
-     {:name :title          :required false                :type "string | hiccup"   :validate-fn string-or-hiccup? :description "describes the title of the popover. Default font size is 18px to make it stand out"}
-     {:name :close-button?  :required false  :default true :type "boolean"                                          :description "when true, displays the close button"}
-     {:name :close-callback :required false                :type "-> nil"            :validate-fn fn?               :description [:span "a function which takes no params and returns nothing. Called when the close button is pressed. Not required if " [:code ":showing?"] " atom passed in OR " [:code ":close-button?"] " is set to false"]}
-     {:name :class          :required false                :type "string"            :validate-fn string?           :description "CSS class names, space separated"}
-     {:name :src            :required false                :type "map"               :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as       :required false                :type "map"               :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    [{:name :showing?       :required true                 :type "boolean r/atom"                                              :description "an r/atom. When the value is true, the popover shows."}
+     {:name :title          :required false                :type "string | hiccup"   :validate-fn string-or-hiccup?            :description "describes the title of the popover. Default font size is 18px to make it stand out"}
+     {:name :close-button?  :required false  :default true :type "boolean"                                                     :description "when true, displays the close button"}
+     {:name :close-callback :required false                :type "-> nil"            :validate-fn fn?                          :description [:span "a function which takes no params and returns nothing. Called when the close button is pressed. Not required if " [:code ":showing?"] " atom passed in OR " [:code ":close-button?"] " is set to false"]}
+     {:name :class          :required false                :type "string"            :validate-fn string?                      :description "CSS class names, space separated"}
+     {:name :style          :required false                :type "CSS style map"     :validate-fn css-style?                   :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
+     {:name :attr           :required false                :type "HTML attr map"     :validate-fn html-attr?                   :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+     {:name :parts          :required false                :type "map"               :validate-fn (parts? popover-title-parts) :description "See Parts section below."}
+     {:name :src            :required false                :type "map"               :validate-fn map?                         :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as       :required false                :type "map"               :validate-fn map?                         :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn- popover-title
   "Renders a title at the top of a popover with an optional close button on the far right"
-  [& {:keys [showing? title close-button? close-callback class]
+  [& {:keys [showing? title close-button? close-callback class style attr parts]
       :as args}]
   (or
     (validate-args-macro popover-title-args-desc args)
@@ -183,16 +205,23 @@
        (merge
          {:class (str "popover-title rc-popover-title " class)
           :style (merge (flex-child-style "inherit")
-                        {:font-size "18px"})}
-         (->attr args))
+                        {:font-size "18px"}
+                        style)}
+         (->attr args)
+         attr)
        [h-box
         :src      (at)
+        :class    (get-in parts [:container :class] "")
+        :style    (get-in parts [:container :style])
         :justify  :between
         :align    :center
         :children [title
                    (when close-button?
                      [close-button
                       :src         (at)
+                      :class       (get-in parts [:close-button :class] "")
+                      :style       (get-in parts [:close-button :style])
+                      :attr        (get-in parts [:close-button :attr])
                       :on-click    #(if close-callback
                                       (close-callback)
                                       (reset! showing? false))
@@ -236,26 +265,39 @@
         {:left clip-left :right clip-right :top clip-top :bottom clip-bottom})
     (or (some? clip-left) (some? clip-right) (some? clip-top) (some? clip-bottom))))        ;; Return boolean
 
+(def popover-border-parts-desc
+  (when include-args-desc?
+    [{:type :legacy       :level 0 :class "rc-popover-border"  :impl "[:div]"  :notes "Outer wrapper of the popover title."}
+     {:name :arrow        :level 1 :class "rc-popover-arrow"   :impl "[:svg]"  :notes ""}
+     {:name :content      :level 2 :class "rc-popover-content" :impl "[:div]"  :notes ""}]))
+
+(def popover-border-parts
+  (when include-args-desc?
+    (-> (map :name popover-border-parts-desc) set)))
+
 (def popover-border-args-desc
   (when include-args-desc?
-    [{:name :children             :required true                        :type "vector"           :validate-fn sequential?       :description "a vector of component markups"}
-     {:name :position             :required true                        :type "keyword r/atom"   :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
-     {:name :position-offset      :required false                       :type "integer"          :validate-fn number?           :description [:span "px offset of the arrow from its default " [:code ":position"] " along the popover border. Is ignored when " [:code ":position"] " is one of the " [:code ":xxx-center"] " variants. Positive numbers slide the popover toward its center"]}
-     {:name :width                :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the popover width"}
-     {:name :height               :required false :default "auto"       :type "string"           :validate-fn string?           :description "a CSS style describing the popover height"}
-     {:name :popover-color        :required false :default "white"      :type "string"           :validate-fn string?           :description "fill color of the popover"}
-     {:name :popover-border-color :required false                       :type "string"           :validate-fn string?           :description "color of the popover border, including the arrow"}
-     {:name :arrow-length         :required false :default 11           :type "integer | string" :validate-fn number-or-string? :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
-     {:name :arrow-width          :required false :default 22           :type "integer | string" :validate-fn number-or-string? :description "the width in pixels of arrow base"}
-     {:name :arrow-gap            :required false :default -1           :type "integer"          :validate-fn number?           :description "px gap between the anchor and the arrow tip. Positive numbers push the popover away from the anchor"}
-     {:name :padding              :required false                       :type "string"           :validate-fn string?           :description "a CSS style which overrides the inner padding of the popover"}
-     {:name :margin-left          :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the horiztonal offset from anchor after position"}
-     {:name :margin-top           :required false                       :type "string"           :validate-fn string?           :description "a CSS style describing the vertical offset from anchor after position"}
-     {:name :tooltip-style?       :required false :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
-     {:name :title                :required false                       :type "string | markup"                                 :description "describes a title"}
-     {:name :class                :required false                       :type "string"           :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
-     {:name :src                  :required false                       :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as             :required false                       :type "map"              :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+    [{:name :children             :required true                        :type "vector"           :validate-fn sequential?                   :description "a vector of component markups"}
+     {:name :position             :required true                        :type "keyword r/atom"   :validate-fn position?                     :description [:span "relative to this anchor. One of " position-options-list]}
+     {:name :position-offset      :required false                       :type "integer"          :validate-fn number?                       :description [:span "px offset of the arrow from its default " [:code ":position"] " along the popover border. Is ignored when " [:code ":position"] " is one of the " [:code ":xxx-center"] " variants. Positive numbers slide the popover toward its center"]}
+     {:name :width                :required false                       :type "string"           :validate-fn string?                       :description "a CSS style describing the popover width"}
+     {:name :height               :required false :default "auto"       :type "string"           :validate-fn string?                       :description "a CSS style describing the popover height"}
+     {:name :popover-color        :required false :default "white"      :type "string"           :validate-fn string?                       :description "fill color of the popover"}
+     {:name :popover-border-color :required false                       :type "string"           :validate-fn string?                       :description "color of the popover border, including the arrow"}
+     {:name :arrow-length         :required false :default 11           :type "integer | string" :validate-fn number-or-string?             :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
+     {:name :arrow-width          :required false :default 22           :type "integer | string" :validate-fn number-or-string?             :description "the width in pixels of arrow base"}
+     {:name :arrow-gap            :required false :default -1           :type "integer"          :validate-fn number?                       :description "px gap between the anchor and the arrow tip. Positive numbers push the popover away from the anchor"}
+     {:name :padding              :required false                       :type "string"           :validate-fn string?                       :description "a CSS style which overrides the inner padding of the popover"}
+     {:name :margin-left          :required false                       :type "string"           :validate-fn string?                       :description "a CSS style describing the horiztonal offset from anchor after position"}
+     {:name :margin-top           :required false                       :type "string"           :validate-fn string?                       :description "a CSS style describing the vertical offset from anchor after position"}
+     {:name :tooltip-style?       :required false :default false        :type "boolean"                                                     :description "setup popover styles for a tooltip"}
+     {:name :title                :required false                       :type "string | markup"                                             :description "describes a title"}
+     {:name :class                :required false                       :type "string"           :validate-fn string?                       :description "CSS class names, space separated (applies to the outer container)"}
+     {:name :style                :required false                       :type "CSS style map"    :validate-fn css-style?                    :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
+     {:name :attr                 :required false                       :type "HTML attr map"    :validate-fn html-attr?                    :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
+     {:name :parts                :required false                       :type "map"              :validate-fn (parts? popover-border-parts) :description "See Parts section below."}
+     {:name :src                  :required false                       :type "map"              :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
+     {:name :debug-as             :required false                       :type "map"              :validate-fn map?                          :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn popover-border
   "Renders an element or control along with a Bootstrap popover"
@@ -298,7 +340,7 @@
          :reagent-render
          (fn popover-border-render
            [& {:keys [children position position-offset width height popover-color popover-border-color arrow-length
-                      arrow-width arrow-gap padding margin-left margin-top tooltip-style? title class src]
+                      arrow-width arrow-gap padding margin-left margin-top tooltip-style? title class style attr parts src]
                :or {arrow-length 11 arrow-width 22 arrow-gap -1}
                :as args}]
            (or
@@ -337,16 +379,34 @@
                                  {:display   "block"
                                   :opacity   (if @ready-to-show? "1" "0")
                                   :max-width "none"
-                                  :padding   "0px"})}
-                  (->attr args))
-                [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color popover-border-color]
+                                  :padding   "0px"}
+                                 style)}
+                  (->attr args)
+                  attr)
+                [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color popover-border-color parts]
                 (when title title)
-                (into [:div.popover-content {:style {:padding padding}}] children)])))}))))
+                (into [:div
+                       (merge
+                         {:class (str "popover-content rc-popover-content " (get-in parts [:content :class]))
+                          :style (merge {:padding padding} (get-in parts [:content :style]))}
+                         (get-in parts [:content :attr]))]
+                      children)])))}))))
 
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: popover-content-wrapper
 ;;--------------------------------------------------------------------------------------------------
+
+(def popover-content-wrapper-parts-desc
+  (when include-args-desc?
+    [{:type :legacy   :level 0 :class "rc-popover-content-wrapper" :impl "[:div]" :notes ""}
+     {:name :backdrop :level 1 :class "rc-point-wrapper"           :impl "[backdrop]" :notes ""}
+     {:name :border   :level 2 :class ""                           :impl "[popover-border]" :notes ""}
+     {:name :title    :level 3 :class ""                           :impl "[popover-title]" :notes ""}]))
+
+(def popover-content-wrapper-parts
+  (when include-args-desc?
+    (-> (map :name popover-content-wrapper-parts-desc) set)))
 
 (def popover-content-wrapper-args-desc
   (when include-args-desc?
@@ -413,7 +473,7 @@
              (do
                @position-injected ;; Dereference this atom. Although nothing here needs its value explicitly, the calculation of left-offset and top-offset are affected by it for :no-clip? true
                [:div
-                (merge {:class (str "popover-content-wrapper " class)
+                (merge {:class (str "popover-content-wrapper rc-popover-content-wrapper " class)
                         :style (merge (flex-child-style "inherit")
                                       (when no-clip? {:position "fixed"
                                                       :left      (px @left-offset)
@@ -425,11 +485,15 @@
                   [backdrop
                    :src      (at)
                    :class    (get-in parts [:backdrop :class] "")
+                   :style    (get-in parts [:backdrop :style])
+                   :attr     (get-in parts [:backdrop :attr])
                    :opacity  backdrop-opacity
                    :on-click on-cancel])
                 [popover-border
                  :src                  (at)
                  :class                (get-in parts [:border :class] "")
+                 :style                (get-in parts [:border :style])
+                 :attr                 (get-in parts [:border :attr])
                  :position             position-injected
                  :position-offset      position-offset
                  :width                width
@@ -444,6 +508,8 @@
                  :title                (when title [popover-title
                                                     :src            (at)
                                                     :class          (get-in parts [:title :class] "")
+                                                    :style          (get-in parts [:title :style])
+                                                    :attr           (get-in parts [:title :attr])
                                                     :title          title
                                                     :showing?       showing-injected?
                                                     :close-button?  close-button?
@@ -455,6 +521,16 @@
 ;; Component: popover-anchor-wrapper
 ;;--------------------------------------------------------------------------------------------------
 
+(def popover-anchor-wrapper-parts-desc
+  (when include-args-desc?
+    [{:type :legacy        :level 0 :class "rc-popover-anchor-wrapper" :impl "[:div]" :notes "Outer wrapper of the anchor, popover, backdrop, everything."}
+     {:name :point-wrapper :level 1 :class "rc-point-wrapper"          :impl "[:div]" :notes "Wraps the anchor component and the popover-point (which the actual popover points to)."}
+     {:name :point         :level 2 :class "rc-popover-point"          :impl "[:div]" :notes [:span "The point (width/height 0) which is placed at the center of the relevant side of the anchor, based on " [:code ":position"] "tag"]}]))
+
+(def popover-anchor-wrapper-parts
+  (when include-args-desc?
+    (-> (map :name popover-anchor-wrapper-parts-desc) set)))
+
 (def popover-anchor-wrapper-args-desc
   (when include-args-desc?
     [{:name :showing? :required true                        :type "boolean r/atom"                                 :description "an atom or value. When the value is true, the popover shows"}
@@ -464,7 +540,7 @@
      {:name :class    :required false                       :type "string"          :validate-fn string?           :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style    :required false                       :type "CSS style map"   :validate-fn css-style?        :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
      {:name :attr     :required false                       :type "HTML attr map"   :validate-fn html-attr?        :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the outer container)"]}
-     {:name :parts    :required false                       :type "map"             :validate-fn (parts? #{:point-wrapper :point}) :description "See Parts section below."}
+     {:name :parts    :required false                       :type "map"             :validate-fn (parts? popover-anchor-wrapper-parts) :description "See Parts section below."}
      {:name :src      :required false                       :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as :required false                       :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
@@ -518,6 +594,19 @@
 ;; Component: popover-tooltip
 ;;--------------------------------------------------------------------------------------------------
 
+(def popover-tooltip-parts-desc
+  (when include-args-desc?
+    [{:type :legacy                 :level 0 :class "rc-popover-anchor-wrapper"                 :impl "[popover-anchor-wrapper]"  :notes "Outer wrapper of the popover tooltip."}
+     {:name :content-wrapper        :level 1 :class ""                                          :impl "[popover-content-wrapper]" :notes ""}
+     {:name :v-box                  :level 2 :class ""                                          :impl "[v-box]"                   :notes ""}
+     {:name :close-button-container :level 3 :class "rc-popover-tooltip-close-button-container" :impl "[box]"                     :notes ""}
+     {:name :close-button           :level 4 :class "rc-popover-tooltip-close-button"           :impl "[close-button]"            :notes ""}]))
+
+(def popover-tooltip-parts
+  (when include-args-desc?
+    (-> (map :name popover-tooltip-parts-desc) set)))
+
+
 (def popover-tooltip-args-desc
   (when include-args-desc?
     [{:name :label         :required true                         :type "string | hiccup | r/atom" :validate-fn string-or-hiccup?    :description "the text (or component) for the tooltip"}
@@ -532,7 +621,7 @@
      {:name :class         :required false                        :type "string"                   :validate-fn string?              :description "CSS class names, space separated (applies to popover-anchor-wrapper component)"}
      {:name :style         :required false                        :type "CSS style map"            :validate-fn css-style?           :description "override component style(s) with a style map, only use in case of emergency (applies to popover-anchor-wrapper component)"}
      {:name :attr          :required false                        :type "HTML attr map"            :validate-fn html-attr?           :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to popover-anchor-wrapper component)"]}
-     {:name :parts         :required false                        :type "map"                      :validate-fn (parts? #{:v-box :close-button-container :close-button}) :description "See Parts section below."}
+     {:name :parts         :required false                        :type "map"                      :validate-fn (parts? popover-tooltip-parts) :description "See Parts section below."}
      {:name :src           :required false                        :type "map"                      :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as      :required false                        :type "map"                      :validate-fn map?                 :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
@@ -561,6 +650,9 @@
        :attr     attr
        :popover [popover-content-wrapper
                  :src            (at)
+                 :class          (get-in parts [:content-wrapper :class] "")
+                 :style          (get-in parts [:content-wrapper :style])
+                 :attr           (get-in parts [:content-wrapper :attr])
                  :no-clip?       no-clip?
                  :on-cancel      on-cancel
                  :width          width
@@ -573,22 +665,28 @@
                  :body           [v-box
                                   :src   (at)
                                   :class (get-in parts [:v-box :class])
-                                  :style (if (= status :info)
-                                           {:color       "white"
-                                            :font-size   "14px"
-                                            :padding     "4px"}
-                                           {:color       "white"
-                                            :font-size   "12px"
-                                            :font-weight "bold"
-                                            :text-align  "center"})
+                                  :style (merge
+                                           (if (= status :info)
+                                             {:color       "white"
+                                              :font-size   "14px"
+                                              :padding     "4px"}
+                                             {:color       "white"
+                                              :font-size   "12px"
+                                              :font-weight "bold"
+                                              :text-align  "center"})
+                                           (get-in parts [:v-box :style]))
                                   :children [(when close-button?
                                                [box
                                                 :src        (at)
                                                 :class      (str "rc-popover-tooltip-close-button-container " (get-in parts [:close-button-container :class]))
+                                                :style      (get-in parts [:close-button-container :style])
+                                                :attr       (get-in parts [:close-button-container :attr])
                                                 :align-self :end
                                                 :child      [close-button
                                                              :src         (at)
                                                              :class       (str "rc-popover-tooltip-close-button " (get-in parts [:close-button :class]))
+                                                             :style       (get-in parts [:close-button :style])
+                                                             :attr        (get-in parts [:close-button :attr])
                                                              :on-click    #(if on-cancel
                                                                              (on-cancel)
                                                                              (reset! showing? false))
