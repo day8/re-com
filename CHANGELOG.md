@@ -1,7 +1,6 @@
 ## N.N.N (YYYY-MM-DD)
 
-> Comitted but unreleased changes are put here, at the top  
-> Information about the changes made in prior releases are below
+> Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
 #### Changed
 
