@@ -5,7 +5,7 @@
   (:require
     [reagent.core    :as    reagent]
     [re-com.config   :refer [include-args-desc?]]
-    [re-com.box      :refer [box]]
+    [re-com.box      :refer [box h-box gap]]
     [re-com.util     :refer [px deref-or-value assoc-in-if-empty]]
     [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
     [re-com.v-table  :as    v-table]))
@@ -25,81 +25,97 @@
 
 
 (defn sort-icon
-  []
-  [:svg {:height "24" :viewBox "0 0 24 24" :width "24"}
-   [:path {:d "M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"}]])
+  [{:keys [size fill]
+    :or   {size "16px"
+           fill "#ddd"}}]
+  [:svg {:width   size
+         :height  size
+         :viewBox "0 0 24 24"}
+   [:path {:fill fill
+           :d    "M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"}]])
 
 (defn arrow-down-icon
-  []
-  [:svg {:height "24" :viewBox "0 0 24 24" :width "24"}
-   [:path {:d "M7 10l5 5 5-5H7z"}]])
+  [{:keys [size fill]
+    :or   {size "24px"
+           fill "#ddd"}}]
+  [:svg {:width   size
+         :height  size
+         :viewBox "0 0 24 24"}
+   [:path {:fill fill
+           :d    "M7 10l5 5 5-5H7z"}]])
 
 
 (defn arrow-up-icon
-  []
-  [:svg {:height "24" :viewBox "0 0 24 24" :width "24"}
-   [:path {:d "M7 14l5-5 5 5H7z"}]])
+  [{:keys [size fill]
+    :or   {size "24px"
+           fill "#ddd"}}]
+  [:svg {:width   size
+         :height  size
+         :viewBox "0 0 24 24"}
+   [:path {:fill fill
+           :d    "M7 14l5-5 5 5H7z"}]])
 
+
+(def vertical-align->align
+  {:top      :start
+   :middle   :center
+   :bottom   :end
+   :sub      :end
+   :text-top :center})
 
 (defn column-header-item
   [{:keys [id row-label-fn width height align vertical-align header-label sort-by] :as column} parts sort-by-column]
   (let [{:keys [key-fn comp] :or {key-fn row-label-fn comp compare}} sort-by
         {current-key-fn :key-fn order :order} @sort-by-column]
-    (let [on-click #(swap! sort-by-column swap!-sort-by-column key-fn comp)]
-      [:<>
-       [:div
-        (merge
-          {:class (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
-           :style (merge {:display        "inline-block"
-                          :padding        "0px 12px"
-                          :width          (px (if sort-by (- width 24) width))
-                          :min-height     "24px"
-                          :height         (px height)
-                          :font-weight    "bold"
-                          :text-align     align
-                          :vertical-align vertical-align
-                          :white-space    "nowrap"
-                          :overflow       "hidden"
-                          :text-overflow  "ellipsis"}
-                         (when sort-by
-                           {:cursor "pointer"})
-                         (get-in parts [:simple-column-header-item :style]))}
-          (when sort-by
-            {:on-click on-click})
-          (get-in parts [:simple-column-header-item :attr]))
-        header-label]
-       (when sort-by
-         [:div
-          {:style {:cursor         "pointer"
-                   :display        "inline-block"
-                   :width          "24px"
-                   :height         "24px"
-                   :text-align     align
-                   :vertical-align vertical-align}
-           :on-click on-click}
-          (if-not (= current-key-fn key-fn)
-            [sort-icon]
-            (if (= order :desc)
-              [arrow-down-icon]
-              [arrow-up-icon]))])])))
-
+    (let [on-click #(swap! sort-by-column swap!-sort-by-column key-fn comp)
+          align    (get vertical-align->align (keyword vertical-align) vertical-align)]
+      (cond->
+        [h-box
+         :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
+         :width    (px width)
+         :style    (merge
+                     {:padding       "0px 12px"
+                      :min-height    "24px"
+                      :height        (px height)
+                      :font-weight   "bold"
+                      :text-align    align
+                      :white-space   "nowrap"
+                      :overflow      "hidden"
+                      :text-overflow "ellipsis"}
+                     (when sort-by
+                       {:cursor "pointer"})
+                     (get-in parts [:simple-column-header-item :style]))
+         :attr     (merge
+                     {}
+                     (when sort-by
+                       {:on-click on-click})
+                     (get-in parts [:simple-column-header-item :attr]))
+         :children [header-label
+                    (when sort-by
+                      [:<>
+                       [gap :size "16px"]
+                       (if (not= current-key-fn key-fn)
+                         [sort-icon]
+                         (if (= order :desc)
+                           [arrow-down-icon]
+                           [arrow-up-icon]))])]]
+        (when align)
+        (into [:align align])))))
 
 (defn column-header-renderer
   ":column-header-renderer AND :top-left-renderer - Render the table header"
   [columns parts sort-by-column]
-  (into
-    [:div
-     (merge
-       {:class    (str "rc-simple-v-table-column-header noselect " (get-in parts [:simple-column-header :class]))
-        :style    (merge {:padding     "4px 0px"
-                          :overflow    "hidden"
-                          :white-space "nowrap"}
-                         (get-in parts [:simple-column-header :style]))
-        :on-click (handler-fn (v-table/show-row-data-on-alt-click columns 0 event))}
-       (get-in parts [:simple-column-header :attr]))]
-    (for [column columns]
-      [column-header-item column parts sort-by-column])))
-
+  [h-box
+   :class    (str "rc-simple-v-table-column-header noselect " (get-in parts [:simple-column-header :class]))
+   :style    (merge {:padding     "4px 0px"
+                     :overflow    "hidden"
+                     :white-space "nowrap"}
+                    (get-in parts [:simple-column-header :style]))
+   :attr     (merge {:on-click (handler-fn (v-table/show-row-data-on-alt-click columns 0 event))}
+                    (get-in parts [:simple-column-header :attr]))
+   :children (into []
+                   (for [column columns]
+                     [column-header-item column parts sort-by-column]))])
 
 (defn row-item
   "Render a single row item (column) of a single row"
