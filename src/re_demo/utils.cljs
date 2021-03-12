@@ -1,6 +1,6 @@
 (ns re-demo.utils
   (:require
-    [re-com.core           :refer [title line label hyperlink-href align-style]]
+    [re-com.core           :refer [title line label hyperlink-href align-style at]]
     [re-com.box            :refer [box gap h-box v-box]]
     [re-com.text           :refer [p]]
     [re-com.util           :refer [px]]))
@@ -141,7 +141,7 @@
   [h-box
    :style {:background "#e8e8e8"}
    :children [[box
-               :width "343px"
+               :width "450px"
                :style {:padding "5px 12px"
                        :font-weight "bold"}
                :child [:span "Part"]]
@@ -170,7 +170,7 @@
               :border-left (when (not odd-row?) "1px solid #f4f4f4")
               :border-right (when (not odd-row?) "1px solid #f4f4f4")}
    :children [[h-box
-               :width    "343px"
+               :width    "450px"
                :style {:padding "5px 12px"}
                :children [[gap :size (px (* level 19))]
                           (if (= :legacy type)
@@ -198,6 +198,7 @@
   (let [name-of-first-part  (str (first (remove nil? (map :name parts))))
         code-example-spaces (reduce #(str % " ") "" (range (+ (count name-of-first-part) 13)))]
     [v-box
+     :src     (at)
      :margin   "0px 20px 20px 0px"
      :children (concat
                  [[title2 "Parts"]

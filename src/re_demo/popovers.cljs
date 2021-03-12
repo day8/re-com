@@ -167,11 +167,12 @@
                :gap      "100px"
                :children [[v-box
                            :gap      "10px"
-                           :width    "450px"
                            :children [[title2 "[popover-anchor-wrapper ...]"]
                                       [status-text "Stable"]
                                       [p "Description pending."]
-                                      [args-table popover-anchor-wrapper-args-desc]
+                                      [box
+                                       :width "450px"
+                                       :child [args-table popover-anchor-wrapper-args-desc]]
                                       [parts-table "popover-anchor" popover-anchor-wrapper-parts-desc]]]
                           [v-box
                            :gap      "10px"
@@ -182,10 +183,11 @@
                :gap      "100px"
                :children [[v-box
                            :gap      "10px"
-                           :width    "450px"
                            :children [[title2 "[popover-content-wrapper ...]"]
                                       [p "Description pending."]
-                                      [args-table popover-content-wrapper-args-desc]
+                                      [box
+                                       :width "450px"
+                                       :child [args-table popover-content-wrapper-args-desc]]
                                       [parts-table "popover-content-wrapper" popover-content-wrapper-parts-desc]]]
                           [v-box
                            :gap      "10px"
@@ -196,11 +198,12 @@
                :gap      "100px"
                :children [[v-box
                            :gap      "10px"
-                           :width    "450px"
                            :children [[title2 "[popover-border ...]"]
                                       [p "This component is not normally used as it is rendered by [popover-content-wrapper]."]
                                       [p "Only use this if you want to create a custom [popover-content-wrapper]."]
-                                      [args-table popover-border-args-desc]
+                                      [box
+                                       :width "450px"
+                                       :child [args-table popover-border-args-desc]]
                                       [parts-table "popover-border" popover-border-parts-desc]]]
                           [v-box
                            :gap      "10px"
@@ -211,11 +214,12 @@
                :gap      "100px"
                :children [[v-box
                            :gap      "10px"
-                           :width    "450px"
                            :children [[title2 "[popover-tooltip ...]"]
                                       [p "Description pending."]
                                       [args-table popover-tooltip-args-desc]
-                                      [parts-table "popover-tooltip" popover-tooltip-parts-desc]]]
+                                      [box
+                                       :width "450px"
+                                       :child [parts-table "popover-tooltip" popover-tooltip-parts-desc]]]]
                           [v-box
                            :gap      "10px"
                            :children [[title2 "Demo"]
