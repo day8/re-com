@@ -27,7 +27,7 @@
 (defn sort-icon
   [{:keys [size fill]
     :or   {size "16px"
-           fill "#ddd"}}]
+           fill "transparent"}}]
   [:svg {:width   size
          :height  size
          :viewBox "0 0 24 24"}
@@ -37,7 +37,7 @@
 (defn arrow-down-icon
   [{:keys [size fill]
     :or   {size "24px"
-           fill "#ddd"}}]
+           fill "transparent"}}]
   [:svg {:width   size
          :height  size
          :viewBox "0 0 24 24"}
@@ -48,7 +48,7 @@
 (defn arrow-up-icon
   [{:keys [size fill]
     :or   {size "24px"
-           fill "#ddd"}}]
+           fill "transparent"}}]
   [:svg {:width   size
          :height  size
          :viewBox "0 0 24 24"}

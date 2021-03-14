@@ -5,6 +5,7 @@
 #### Changed
 
 - Change colour of `:focus` outline on non-native components such as `button` and `single-dropdown`
+- `simple-v-table` sortable column icons now only appear on hover. **Requires copying updated `re-com.css` to your project.**
 
 #### Added
 

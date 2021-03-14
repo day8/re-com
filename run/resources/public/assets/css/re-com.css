@@ -1424,3 +1424,11 @@ code {
 .rc-typeahead-suggestion.active {
     background-color: #ddd;
 }
+
+/*----------------------------------------------------------------------------------------
+  simple-v-table
+----------------------------------------------------------------------------------------*/
+
+.rc-simple-v-table-wrapper .rc-v-table-column-headers:hover svg path {
+  fill: #ddd;
+}
