@@ -1,9 +1,8 @@
-(ns scripts.core
+(ns add-at-macro.core
   (:require [clojure.java.io :as io]
             [rewrite-clj.zip :as z]
             [clojure.set :as clj-set])
   (:import (java.io File FileNotFoundException)))
-
 
 (defn get-alias
   "Gets re-com alias in require vector i.e `[re-com.core ... :as rc]
@@ -292,8 +291,8 @@
               arguments  (when arguments
                            (parse-arguments arguments))
               edited     (find-recom-usages new-loc @parsed-require-g {:namespaced? false
-                                                                          :verbose?    verbose?
-                                                                          :arguments   arguments})
+                                                                       :verbose?    verbose?
+                                                                       :arguments   arguments})
               last?      (nil? (z/right loc))]
           (if (and last? namespaced?)
             (-> loc (z/replace edited) z/root)

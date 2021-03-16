@@ -1,6 +1,6 @@
-(ns scripts.core-test
+(ns add-at-macro.core-test
   (:require [clojure.test :refer :all]
-            [scripts.core :refer :all]
+            [add-at-macro.core :refer :all]
             [rewrite-clj.zip :as z]))
 
 (def ^:private verbose? true)

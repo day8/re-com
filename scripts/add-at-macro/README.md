@@ -1,4 +1,31 @@
-Script to import `at` macro and add it to re-com components.
+You should run this script on a legacy codebase to take advantage of `re-com's` new `:src` debugging feature described 
+here: https://re-com.day8.com.au/#/debug
+
+This script will recursively traverse all the ClojureScript code in an existing codebase, adding `:src (at)` to every 
+use of a re-com component. To those namespaces which need updating (ie. those using `re-com` components), it will also 
+add the necessary namespace `requires` for the `at` macro.
+
+So, existing code like this:
+```clojure
+[v-box
+  :size     "auto"
+  :gap      "10px"
+  :children [...]]
+```
+
+will be changed to
+```clojure
+[v-box   :src  (at)      ;; <-- this is new
+  :size     "auto"
+  :gap      "10px"
+  :children [...]]
+```
+
+(And, before you ask, no, we did not find a way to put the added code on the next line with correct indentation).
+
+This script is clever enough to detect when a component already has an existing :src (at) argument, and it will not 
+add duplicates. It is also clever enough to not add a duplicate requires for at. As a result, it can be run multiple 
+times on a codebase.
 
 ### Prerequisites
 This project uses [lein exec](https://github.com/kumarshantanu/lein-exec) which might need to be pre-installed.
@@ -11,7 +38,7 @@ git clone https://github.com/day8/re-com.git
 ```
 2. Navigate to the scripts location
 ```
-cd re-com/scripts/ 
+cd re-com/at-macro/scripts/ 
 ```
 3. Say, for example you have a project that uses re-com with sources in `../my-project/src`
 4. Run
