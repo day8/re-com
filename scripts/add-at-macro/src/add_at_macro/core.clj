@@ -5,16 +5,20 @@
   (:import (java.io File FileNotFoundException)))
 
 (defn get-alias
-  "Gets re-com alias in require vector i.e `[re-com.core ... :as rc]
-  returns the string rc. This is used to find re-com usages in a file."
+  "Given loc which is a require vector such as `[re-com.core ... :as rc]` will
+   returns the alias as a string.
+
+   Given `[re-com.core ... :as rc]` will return 'rc'."
   ([loc]
    (let [alias (if-let [as-kw (z/find-value loc z/next ':as)]
                  (-> as-kw z/next z/string))]
      alias)))
 
 (defn find-at-loc
-  "Takes a loc in the form of a vector containing re-com components i.e [p h-box at ...]
-  and returns the loc if `at` macro is in the vector."
+  "Given a loc in the form of a `:refer` vector containing re-com components such as [p h-box at ...]
+  will return a rewrite-clj zipper of the `at` macro if it is in the vector, otherwise returning `nil`.
+
+  Given [p h-box at ...] will return `at`"
   [loc]
   (loop [loc (z/down loc)]
     (cond
@@ -24,10 +28,16 @@
       (recur (z/right loc)))))
 
 (defn find-require-macros-in-require
-  "Finds `:refer-macros` in a re-com import form which is in the `:require` form, i.e
-  (:require [re-com.core :refer-macros [] ...] ...). If found, we search if the `:refer-macros`
-  option loads `at` macro and we remove it if true. The at-macro will be added to the `:refer`
-  option."
+  "Given loc which is a require vector in the `:require` section such as
+  `[re-com.core :as rc :require-macros [at]] will return a modified vector with the `at` macro removed.
+  The `at` macro will be added in the `:refer` option.
+
+  It will transform
+  `[re-com.core :as rc :require-macros [x at z]]`
+  to
+  `[re-com.core :as rc :require-macros [x z]]`
+
+  The original loc is returned if the `at` macro is not imported."
   [loc]
   (let [refer-macros  (z/find-value loc z/next ':refer-macros)
         refer-macros  (z/right refer-macros)
@@ -38,8 +48,18 @@
       loc)))
 
 (defn append-at-to-recom-require-form
-  "Checks if re-com import statement has :refer option, appends 'at' macro if True, and
-  adds refer option with 'at' macro if not. Loc is [re-com.core ...]"
+  "Give loc which is a require vector such as `[re-com.core :as rc ...]` will return map that contains: the alias as
+   a string, a vector of the required namespaces such as [p label box] and a modified vector with at macro imported.
+
+   It might transform loc from:
+   `[re-com.core :as rc]`
+   to
+   `[re-com.core :as rc :refer [at]]`,
+
+   And also from:
+   `[re-com.core :as rc :refer [x y z]]`
+   to
+   `[re-com.core :as rc :refer [at x y z]]`"
   [loc verbose?]
   (let [loc                  (-> loc z/string z/of-string)
         loc                  (-> loc find-require-macros-in-require)
@@ -74,7 +94,13 @@
                                   (z/append-child (z/sexpr (z/of-string "[at]"))))))}))
 
 (defn remove-at-from-required-macros
-  "Checks if `at` macro is loaded in :require-macros form and removes it if true. "
+  "Give loc which is a require vector such as `[re-com.core :refer [at p box] ...]` in the `:require-macros` section
+  will return a modified vector with at macro removed.
+
+  It might transform loc from:
+  `[re-com.core :refer [p at box]`
+  to
+  `[re-com.core :refer [p box]`"
   [loc verbose?]
   (let [refer-keyword       (z/find-value loc z/next :refer)
         referred-namespaces (if refer-keyword
@@ -89,9 +115,23 @@
       loc)))
 
 (defn find-re-com-in-require
-  "Takes a loc and finds if the loc is a vector that imports re-com.core in the namespace. i.e
-  [re-com.core ...]. This function by default checks in the :require form and ignores :require-macros
-  unless `:macros?` option is true."
+  "Given loc which is a require vector such as [re-com.core :as rc ...]` will return the
+  loc if it is found in the `:require` section.
+
+  If loc exists in :require such as
+  `(:require
+    [re-com.core :as rc ...]
+    ...)`
+  it will return the rewrite-clj zipper:
+  `[re-com.core :as rc ...]`.
+
+  If the `macros?` argument is true, the function will do the same operation but check the `:require-macros`
+  section instead.
+  If macros? option is true, the above example returns nil and returns the zipper iff the require vector exists in
+  :refer-macros section such as:
+  `(:require-macros
+    [re-com.core :as rc ...]
+    ...)`"
   [loc {:keys [macros?]}]
   (when (and (z/vector? loc)
              (-> loc z/down z/string (= "re-com.core"))
@@ -103,8 +143,16 @@
     loc))
 
 (defn fix-require-forms
-  "Checks if form loads recom.core. If re-com.core is loaded in :require-macros,
-  it is checked to not contain 'at' macro"
+  "Given loc which is a namespace list such as `(ns ...)` will return a map which contains: a vector of the required
+  namespaces such as [p box label], the alias as a string such as 'rc' and a modified list with the at macro
+  imported in the re-com vector. It loops through the namespace list and can call functions to format the location
+  of the `at` macro.
+
+  If the list contains a re-com vector in the `:require` section such as [re-com.core :as rc] the function
+  `append-at-to-recom-require-form` is called with the vector which imports the `at` macro.
+  If the list contains a re-com vector in the `:require-macros` section, the function `remove-at-from-required-macros`
+  is called with the vector which checks that the `at` macro is not loaded and removes the `at` macro if it exists.
+  The macro is added again in the require vector in the :refer section."
   [loc verbose?]
   (let [required-namespaces-g (atom [])
         used-alias-g (atom nil)]
@@ -136,7 +184,7 @@
         (recur (z/next loc))))))
 
 (defn check-source-added-already?
-  "Checks if :src option already exists in a vector (re-com component)"
+  "Given loc which is a re-com component and a vector such as [box :src (at) :child [...]], returns true if the `:src` option exists."
   [loc]
   (loop [loc (z/down loc)]
     (cond
@@ -146,9 +194,19 @@
       (recur (z/right loc)))))
 
 (defn add-at-in-component
-  "Adds :src option in a vector, targeting re-com components."
+  "Given a re-com component which is a vector such as `[box :child [...]]` returns a modified vector with the `:src`
+  option added.
+
+  It transforms
+  `[box :child [...]]`
+  to
+  `[box :src (at) :child [...]]`
+
+  Given a component with the src option already added such as
+  `[box :src (at) :child [...]]
+  it returns the component unedited."
   [loc verbose?]
-  (if-not (check-source-added-already? loc)
+  (if-not (check-source-added-already? loc)                 ;; Check if :src option is added already
     (do
       (when verbose?
         (println "Adding :src option at line " (first (z/position loc)) " column " (second (z/position loc))))
@@ -156,10 +214,27 @@
           (z/insert-right (z/node (z/of-string "(at)")))
           (z/insert-right (z/node (z/of-string ":src")))
           z/up))
-    loc))     ;; :src option is already added
+    loc))
 
 (defn find-recom-usages
-  "Find usages of recom namespaces in the document body (Non header section)"
+  "Given loc which is a rewrite-clj zipper, it loops through the zipper and finds re-com components. Once a re-com
+   component is found, it calls the function `add-at-in-component` with the component to add `:src` annotations to the
+   component.
+
+   If zipper is a file such as
+   `(ns ...)
+
+   (defn x [] ...)
+
+   (defn y [] ...)
+   ...`
+   we start looping at `(ns ...)` if `namespaced?` argument is true else at `(defn x [] ...)`. If zipper is a file make
+   sure to pass `:namespaced` as true in order to skip the `(ns ...)` form.
+
+   The loc can also be the zipper of any clojure form such as `defn` and `def`. Just make sure that `:namespaced` is
+   false(default) to prevent skipping the first form.
+
+   It returns the modified loc with `:src` annotations added to its re-com components."
   [loc parsed-require {:keys [namespaced? verbose? arguments]}]
   (let [loc                 (if namespaced? (-> loc z/right) loc)  ;; skip the (ns ...) form
         required-namespaces (if arguments
@@ -184,20 +259,38 @@
         (recur (z/next loc))))))
 
 (defn require-form?
-  "Takes a loc and determines if the file has a namespace form (ns ...)"
+  "Given loc which can be the zipper of anything, determines if the loc is a namespace form such as (ns ...) and
+  returns true if so. Else, it returns nil.
+
+  Given loc is:
+  `(ns ...)`
+  returns true
+
+  Given anything else such as `(def ...)` returns false"
   [loc]
   (when (-> loc z/down z/string (= "ns"))
     loc))
 
 (defn a-function?
-  "Takes a loc and determines if the code is a function."
+  "Given loc which is the zipper of anything, determines if loc is a clojure `defn` function.
+
+   Given loc as
+   `(defn ...)`
+   returns true
+
+   If loc is anything else such as:
+   `(ns ...)
+   returns false"
   [loc]
   (and (z/list? loc)
        (-> loc z/down z/string (= "defn"))))
 
 (defn arguments
-  "Takes a function and returns the arguments in the function, the arguments are important to prevent
-   rename when the same name is used for a re-com namespace and a local variable."
+  "Takes the loc of a function and returns the arguments of the function, the arguments are important to prevent
+   adding `:src` annotations to local variables that share names with re-com components. For example
+   (defn blah
+     [label arg2 agr3]      ;; <--- oops label is now shadowing a re-com component within this defn
+     ...)"
   [loc]
   (loop [loc loc]
     (cond
@@ -207,7 +300,18 @@
       (recur (z/right loc)))))
 
 (defn parse-map-arguments
-  "Takes a map that destructures an argument and tries to get the value in the `:keys` key. "
+  "Given loc which is a map that parses function arguments, it returns a vector of the `:keys` keyword in the map.
+
+  Given:
+  {:keys [at p box]
+   :or {...}}
+   returns the vector:
+  [at p box]
+
+  Issue: Currently we can only get variables in the :keys section and do not support other forms of argument parsing
+  such as this map
+  {at :at box :box}
+  which returns an empty vector."
   [loc]
   (let [vector-keys (if (map? (z/sexpr loc))
                       (:keys (z/sexpr loc))
@@ -224,8 +328,14 @@
         []))))
 
 (defn parse-arguments
-  "Takes a vector of function arguments (with symbols and maps) and builds a flat
-  vector of the arguments."
+  "Given loc which is a vector of function arguments, returns a flattened vector of the same arguments.
+
+   It transforms:
+   [arg {:keys [at p box] ...} arg3]
+   to
+   [arg at p box arg3]
+
+   The supported values in loc are strings/variables and maps."
   [loc]
   (let [loc (-> loc z/string (z/of-string {:track-position? true}) z/down)
         arguments (atom [])]
@@ -256,10 +366,20 @@
           (recur (z/right loc)))))))
 
 (defn parse-file
-  "Takes a file and loops through the main forms. We then classify the form as a
-  namespace import form if of the form `(ns ...)` or as a function, `(defn ...)`.
-  Other forms have a general method. For defn, we need to know the arguments to prevent
-  renaming arguments that share names with re-com.core namespace components."
+  "Takes a file and loops through the main forms. We then classify the looped form as a namespace if it exists as
+  `(ns ...)` and as a function if it exists as, `(defn ...)`. Other forms have a general method.
+  We need to know if the looped form is a namespace form `(ns ...)` in order to add the at macro in the `:require`
+  section.
+  For `defn`, we need to know the arguments to prevent renaming arguments that share names with re-com.core namespace
+  components.
+
+  Given the file
+  `(ns ...)                           <== namespace form
+
+  (defn x [] ...)                     <== function form
+
+  (def y [])                          <== general form
+  ...`  this function will loop three times for the three main forms."
   [file-loc namespaced? verbose?]
   (let [parsed-require-g (atom {})
         edited?  (atom false)]
@@ -310,10 +430,9 @@
             (recur (-> loc (z/replace edited) z/right))))))))
 
 (defn read-write-file
-  "Reads and writes file in case of edits. When `verbose?` is true, operations that the script does
-  are printed to the console. `testing?` supersedes `verbose?` with extra option of preventing the
-  changes being printed to file. Convenient for testing as it prints the changes that would happen
-  to file."
+  "Reads and writes file in case of edits. When `verbose?` is true, operations that the script does are printed to the
+   console. `testing?` supersedes `verbose?` with the extra option that the changes being printed to file. testing? is
+   convenient for testing as it prints the changes to console instead of saving them to disk."
   [file {:keys [verbose? testing?]}]
   (let [abs-path    (.getAbsolutePath ^File file)
         _           (println "Reading file: " abs-path)
