@@ -487,6 +487,8 @@
       (run-script (str (first args)))
       (println "Directory/File not provided"))))
 
+
+;; This section of the code is required for lein exec to start our script at `-main`
 (try (require 'leiningen.exec)
      (when @(ns-resolve 'leiningen.exec '*running?*)
        (apply -main (rest *command-line-args*)))
