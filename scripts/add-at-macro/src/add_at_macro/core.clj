@@ -6,7 +6,7 @@
 
 (defn get-alias
   "Given loc which is a require vector such as `[re-com.core ... :as rc]` will
-   returns the alias as a string.
+   return the alias as a string.
 
    Given `[re-com.core ... :as rc]` will return 'rc'."
   ([loc]
