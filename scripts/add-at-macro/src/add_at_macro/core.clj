@@ -6,7 +6,7 @@
 
 (defn get-alias
   "Given `loc` which is a require vector such as `[re-com.core ... :as rc]`, 
-   returns the alias for `re-com.code` as a string.
+   returns the alias for `re-com.core` as a string.
 
    So, for `[re-com.core ... :as rc]` it will return `rc`."
   ([loc]
@@ -46,8 +46,9 @@
       loc)))
 
 (defn append-at-to-recom-require-form
-  "Given `loc` which is a require vector such as `[re-com.core :as rc ...]` will return a map that contains: the alias
-   for `re-com.core` as a string, a vector of the required symbols such as [p label box] and a modified vector with `at` required.
+  "Given `loc` which is a `:require` vector such as `[re-com.core :as rc ...]` will return a map that
+  contains: the alias for `re-com.core` as a string, a vector of the required symbols such as
+  [p label box] and a modified vector with `at` required.
 
    For example, it would transform a `loc` from:
      `[re-com.core :as rc]`
@@ -92,8 +93,8 @@
                                   (z/append-child (z/sexpr (z/of-string "[at]"))))))}))
 
 (defn remove-at-from-required-macros
-  "Given `loc` is a require vector such as `[re-com.core :refer [at p box] ...]` in the `:require-macros` section
-  will return a modified vector with at macro removed.
+  "Given `loc` is a `:require` vector such as `[re-com.core :refer [at p box] ...]` in the `:require-macros`
+  list, will return a modified vector with at macro removed.
 
   It might transform loc from:
     `[re-com.core :refer [p at box]]`
@@ -113,10 +114,12 @@
       loc)))
 
 (defn find-re-com-in-require
-  "Given `loc` is a `:require` list, will return the `loc` of the vector
-  for `re-com.core`, if present. Otherwise `nil`.
+  "Given `loc` is a `:require` vector which loads `re-com.core` such as `[re-com.core :as rc ...]`,
+  will return the `loc` of the vector, if its parent is a `:require` list. Otherwise `nil`.
 
-  If `loc` exists in :require such as
+  For example, if `loc` is
+    `[re-com.core :as rc ...]`
+  and its parent is a `:require` list:
     `(:require
       [re-com.core :as rc ...]
       ...)`
@@ -126,11 +129,11 @@
   If the `macros?` argument is true, the function will do the same operation but check the `:require-macros`
   section instead.
   
-  If `macros?` option is true, the above example returns nil and returns the zipper iff the require vector exists in
-    `:refer-macros` section such as:
-      `(:require-macros
-         [re-com.core :as rc ...]
-         ...)`"
+  If `macros?` option is true, the above example returns nil and returns the zipper iff the `:require` vector
+  exists in `:refer-macros` section such as:
+    `(:require-macros
+       [re-com.core :as rc ...]
+       ...)`"
   [loc {:keys [macros?]}]
   (when (and (z/vector? loc)
              (-> loc z/down z/string (= "re-com.core"))
@@ -142,7 +145,7 @@
     loc))
 
 (defn fix-require-forms
-  "Given `loc` a namespace list such as `(ns ...)`, will return a map which contains: a vector of the required
+  "Given `loc` is a namespace list such as `(ns ...)`, will return a map which contains: a vector of the required
   namespaces such as [p box label], the alias as a string such as 'rc' and a modified list with `at`
   imported in the re-com vector. It loops through the namespace list and can call functions to format the location
   of `at`.
@@ -193,8 +196,8 @@
       (recur (z/right loc)))))
 
 (defn add-at-in-component
-  "Given a re-com component which is a vector such as `[box :child [...]]` returns a modified vector with the `:src`
-  option added.
+  "Given `:loc` is a re-com component which is a vector such as `[box :child [...]]` returns a modified vector
+  with the `:src` option added.
 
   It transforms
   `[box :child [...]]`
