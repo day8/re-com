@@ -5,7 +5,7 @@
     [re-com.core       :refer [h-box v-box box gap line  title checkbox p]]
     [re-com.datepicker :refer [datepicker]]
     [reagent.core      :as    reagent]
-    [re-demo.utils     :refer [panel-title title2]]))
+    [re-demo.utils     :refer [panel-title title2 github-hyperlink]]))
 
 
 
