@@ -127,10 +127,10 @@
     `[re-com.core :as rc ...]`.
 
   If the `macros?` argument is true, the function will do the same operation but check the `:require-macros`
-  section instead.
+  list instead.
   
   If `macros?` option is true, the above example returns nil and returns the zipper iff the `:require` vector
-  exists in `:refer-macros` section such as:
+  exists in `:refer-macros` list such as:
     `(:require-macros
        [re-com.core :as rc ...]
        ...)`"
