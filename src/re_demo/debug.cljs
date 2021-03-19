@@ -5,7 +5,7 @@
     [re-com.core       :refer [h-box v-box box gap line  title checkbox p]]
     [re-com.datepicker :refer [datepicker]]
     [reagent.core      :as    reagent]
-    [re-demo.utils     :refer [panel-title title2 github-hyperlink]]))
+    [re-demo.utils     :refer [panel-title title2 title3 github-hyperlink]]))
 
 
 
@@ -108,8 +108,10 @@
                "When you are exploring an unfamiliar codebase (including your own, after an absence) this is invaluable. "
                "Just right-click and \"Inspect\" on any part of the apps UI and you can instantly see the coordinates for the underlying code."]
               [p [:b [:i "This feature is sufficiently useful that we recommend you leave your re-com code permanently instrumented with " [:code ":src"]]] ". Every single component, all the time. In production builds, the macro returns " [:code "nil"] " eliding any overhead. "]
-              [p "And, if you have an existing/legacy codebase, "
-               "there is " [github-hyperlink "a script in the repo" "scripts/add-at-macro"] " which will massage your codebase so that "  [:code ":src"]  " is added to every use of a re-com component."]]])
+              [title3 "A Script"]
+              [p "If you have an existing/legacy codebase, "
+               "there is " [github-hyperlink "a script in the repo" "scripts/add-at-macro"] 
+               " which will massage your code to add a "  [:code ":src"]  " argument everywhere a re-com component is used."]]])
 
 
 (defn stack-spy-column
