@@ -5,20 +5,19 @@
   (:import (java.io File FileNotFoundException)))
 
 (defn get-alias
-  "Given loc which is a require vector such as `[re-com.core ... :as rc]` will
-   return the alias as a string.
+  "Given `loc` which is a require vector such as `[re-com.core ... :as rc]`, 
+   returns the alias for `re-com.code` as a string.
 
-   Given `[re-com.core ... :as rc]` will return 'rc'."
+   So, for `[re-com.core ... :as rc]` it will return `rc`."
   ([loc]
    (let [alias (if-let [as-kw (z/find-value loc z/next ':as)]
                  (-> as-kw z/next z/string))]
      alias)))
 
 (defn find-at-loc
-  "Given a loc in the form of a `:refer` vector containing re-com components such as [p h-box at ...]
-  will return a rewrite-clj zipper of the `at` macro if it is in the vector, otherwise returning `nil`.
-
-  Given [p h-box at ...] will return `at`"
+  "Given a `loc` which is the :refer vector within a :require, for example [p h-box at ...],
+  will return the rewrite-clj zipper of the `at` element if it is in the vector, otherwise `nil`.
+  "
   [loc]
   (loop [loc (z/down loc)]
     (cond
@@ -28,16 +27,15 @@
       (recur (z/right loc)))))
 
 (defn find-require-macros-in-require
-  "Given loc which is a require vector in the `:require` section such as
-  `[re-com.core :as rc :require-macros [at]] will return a modified vector with the `at` macro removed.
-  The `at` macro will be added in the `:refer` option.
+  "Given `loc` is a `:require` vector with `at` in the `:require-macros` section, for example
+  `[re-com.core :as rc :require-macros [at]]`, will return a modified vector with `at` removed.
 
-  It will transform
-  `[re-com.core :as rc :require-macros [x at z]]`
+  For example, it will transform
+    `[re-com.core :as rc :require-macros [x at z]]`
   to
-  `[re-com.core :as rc :require-macros [x z]]`
+    `[re-com.core :as rc :require-macros [x z]]`
 
-  The original loc is returned if the `at` macro is not imported."
+  `loc` is returned unchanged if the `at` is not found in `:require-macros`."
   [loc]
   (let [refer-macros  (z/find-value loc z/next ':refer-macros)
         refer-macros  (z/right refer-macros)
@@ -48,18 +46,18 @@
       loc)))
 
 (defn append-at-to-recom-require-form
-  "Give loc which is a require vector such as `[re-com.core :as rc ...]` will return map that contains: the alias as
-   a string, a vector of the required namespaces such as [p label box] and a modified vector with at macro imported.
+  "Given `loc` which is a require vector such as `[re-com.core :as rc ...]` will return a map that contains: the alias
+   for `re-com.core` as a string, a vector of the required symbols such as [p label box] and a modified vector with `at` required.
 
-   It might transform loc from:
-   `[re-com.core :as rc]`
+   For example, it would transform a `loc` from:
+     `[re-com.core :as rc]`
    to
-   `[re-com.core :as rc :refer [at]]`,
+     `[re-com.core :as rc :refer [at]]`,
 
    And also from:
-   `[re-com.core :as rc :refer [x y z]]`
+     `[re-com.core :as rc :refer [x y z]]`
    to
-   `[re-com.core :as rc :refer [at x y z]]`"
+     `[re-com.core :as rc :refer [at x y z]]`"
   [loc verbose?]
   (let [loc                  (-> loc z/string z/of-string)
         loc                  (-> loc find-require-macros-in-require)
@@ -94,13 +92,13 @@
                                   (z/append-child (z/sexpr (z/of-string "[at]"))))))}))
 
 (defn remove-at-from-required-macros
-  "Give loc which is a require vector such as `[re-com.core :refer [at p box] ...]` in the `:require-macros` section
+  "Given `loc` is a require vector such as `[re-com.core :refer [at p box] ...]` in the `:require-macros` section
   will return a modified vector with at macro removed.
 
   It might transform loc from:
-  `[re-com.core :refer [p at box]`
+    `[re-com.core :refer [p at box]]`
   to
-  `[re-com.core :refer [p box]`"
+    `[re-com.core :refer [p box]]`"
   [loc verbose?]
   (let [refer-keyword       (z/find-value loc z/next :refer)
         referred-namespaces (if refer-keyword
@@ -115,23 +113,24 @@
       loc)))
 
 (defn find-re-com-in-require
-  "Given loc which is a require vector such as [re-com.core :as rc ...]` will return the
-  loc if it is found in the `:require` section.
+  "Given `loc` is a `:require` list, will return the `loc` of the vector
+  for `re-com.core`, if present. Otherwise `nil`.
 
-  If loc exists in :require such as
-  `(:require
-    [re-com.core :as rc ...]
-    ...)`
-  it will return the rewrite-clj zipper:
-  `[re-com.core :as rc ...]`.
+  If `loc` exists in :require such as
+    `(:require
+      [re-com.core :as rc ...]
+      ...)`
+  it will return the rewrite-clj zipper for:
+    `[re-com.core :as rc ...]`.
 
   If the `macros?` argument is true, the function will do the same operation but check the `:require-macros`
   section instead.
-  If macros? option is true, the above example returns nil and returns the zipper iff the require vector exists in
-  :refer-macros section such as:
-  `(:require-macros
-    [re-com.core :as rc ...]
-    ...)`"
+  
+  If `macros?` option is true, the above example returns nil and returns the zipper iff the require vector exists in
+    `:refer-macros` section such as:
+      `(:require-macros
+         [re-com.core :as rc ...]
+         ...)`"
   [loc {:keys [macros?]}]
   (when (and (z/vector? loc)
              (-> loc z/down z/string (= "re-com.core"))
@@ -143,10 +142,10 @@
     loc))
 
 (defn fix-require-forms
-  "Given loc which is a namespace list such as `(ns ...)` will return a map which contains: a vector of the required
-  namespaces such as [p box label], the alias as a string such as 'rc' and a modified list with the at macro
+  "Given `loc` a namespace list such as `(ns ...)`, will return a map which contains: a vector of the required
+  namespaces such as [p box label], the alias as a string such as 'rc' and a modified list with `at`
   imported in the re-com vector. It loops through the namespace list and can call functions to format the location
-  of the `at` macro.
+  of `at`.
 
   If the list contains a re-com vector in the `:require` section such as [re-com.core :as rc] the function
   `append-at-to-recom-require-form` is called with the vector which imports the `at` macro.
@@ -217,17 +216,17 @@
     loc))
 
 (defn find-recom-usages
-  "Given loc which is a rewrite-clj zipper, it loops through the zipper and finds re-com components. Once a re-com
-   component is found, it calls the function `add-at-in-component` with the component to add `:src` annotations to the
+  "Given `loc` is a rewrite-clj zipper, it loops through the zipper and finds use of re-com components. If a re-com
+   component is found, calls the function `add-at-in-component` with the component to add `:src` annotations to the
    component.
 
-   If zipper is a file such as
-   `(ns ...)
+   If zipper is for a form such as
+     `(ns ...)
 
-   (defn x [] ...)
+      (defn x [] ...)
 
-   (defn y [] ...)
-   ...`
+      (defn y [] ...)
+      ...`
    we start looping at `(ns ...)` if `namespaced?` argument is true else at `(defn x [] ...)`. If zipper is a file make
    sure to pass `:namespaced` as true in order to skip the `(ns ...)` form.
 
@@ -259,20 +258,21 @@
         (recur (z/next loc))))))
 
 (defn require-form?
-  "Given loc which can be the zipper of anything, determines if the loc is a namespace form such as (ns ...) and
-  returns true if so. Else, it returns nil.
+  "Given `loc` is a zipper, returns true if it represents a namespace form such as (ns ...), else
+  returns nil. 
 
-  Given loc is:
-  `(ns ...)`
+  Given `loc` is:
+    `(ns ...)`
   returns true
 
-  Given anything else such as `(def ...)` returns false"
+  Given anything else, such as `(def ...)`, returns false"
   [loc]
   (when (-> loc z/down z/string (= "ns"))
     loc))
 
 (defn a-function?
-  "Given loc which is the zipper of anything, determines if loc is a clojure `defn` function.
+  "Given `loc` is a zipper for a top level form, returns true if it is a clojure `defn` 
+   form, otherwise `nil`.
 
    Given loc as
    `(defn ...)`
