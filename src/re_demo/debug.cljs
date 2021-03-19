@@ -108,11 +108,8 @@
                "When you are exploring an unfamiliar codebase (including your own, after an absence) this is invaluable. "
                "Just right-click and \"Inspect\" on any part of the apps UI and you can instantly see the coordinates for the underlying code."]
               [p [:b [:i "This feature is sufficiently useful that we recommend you leave your re-com code permanently instrumented with " [:code ":src"]]] ". Every single component, all the time. In production builds, the macro returns " [:code "nil"] " eliding any overhead. "]
-              [p "And, if you have a legacy codebase, which does not yet use " [:code ":src"]
-               ", using search/replace will get you a long way. "
-               "For example, do a global search/replace of " [:code "[h-box"] " for " [:code "[h-box :src (at)"]
-               " and then do the same of " [:code " v-box"] " etc. You'll still need to work on the ns to require the macro. "
-               "Just a thought."]]])
+              [p "And, if you have an existing/legacy codebase, which does not yet use " [:code ":src"]
+               ", there is " [github-hyperlink "a script" "scripts/add-at-macro"] " which will massage your codebase so that "  [:code ":src"]  " is added to the use of every re-com component."]]])
 
 
 (defn stack-spy-column
