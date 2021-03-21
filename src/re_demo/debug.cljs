@@ -1,11 +1,11 @@
 (ns re-demo.debug
   (:require-macros
-    [re-com.core       :refer [at]])
+    [re-com.core       :refer []])
   (:require
-    [re-com.core       :refer [h-box v-box box gap line  title checkbox p]]
+    [re-com.core       :refer [at h-box v-box box gap line title checkbox p]]
     [re-com.datepicker :refer [datepicker]]
     [reagent.core      :as    reagent]
-    [re-demo.utils     :refer [panel-title title2]]))
+    [re-demo.utils     :refer [panel-title title2 title3 github-hyperlink]]))
 
 
 
@@ -20,8 +20,8 @@
       [v-box
        :src      (at)
        :children [[title2 "Parameter Validation"]
-                  [line]
-                  [gap :size "10px"]
+                  [line :src (at)]
+                  [gap :src (at) :size "10px"]
 
                   [p "Now, our sausage fingers sometimes type " [:code "onmouseover"] " instead of " [:code "on-mouse-over"] ", "
                    " or " [:code "centre"] " rather than " [:code "center"] ", and sometimes we pass in a string where a keyword is required."]
@@ -89,8 +89,8 @@
   [v-box
    :src      (at)
    :children [[title2 [:span "The " [:code ":src"] " Parameter"]]
-              [line]
-              [gap :size "10px"]
+              [line :src (at)]
+              [gap :src (at) :size "10px"]
               [p "All re-com components accept a " [:code ":src"] " parameter through which you can provide the source code coordinates of your usage. "
                "The value must be a map with two keys " [:code ":file"] " and " [:code ":line"] "."]
               [p "re-com reflects these coordinates back to you when reporting errors and showing component stacks, and this will greatly improve your debugging experience. "]
@@ -108,11 +108,10 @@
                "When you are exploring an unfamiliar codebase (including your own, after an absence) this is invaluable. "
                "Just right-click and \"Inspect\" on any part of the apps UI and you can instantly see the coordinates for the underlying code."]
               [p [:b [:i "This feature is sufficiently useful that we recommend you leave your re-com code permanently instrumented with " [:code ":src"]]] ". Every single component, all the time. In production builds, the macro returns " [:code "nil"] " eliding any overhead. "]
-              [p "And, if you have a legacy codebase, which does not yet use " [:code ":src"]
-               ", using search/replace will get you a long way. "
-               "For example, do a global search/replace of " [:code "[h-box"] " for " [:code "[h-box :src (at)"]
-               " and then do the same of " [:code " v-box"] " etc. You'll still need to work on the ns to require the macro. "
-               "Just a thought."]]])
+              [title3 "A Script"]
+              [p "If you have an existing/legacy codebase, "
+               "there is " [github-hyperlink "a script in the repo" "scripts/add-at-macro"] 
+               " which will massage your code to add a "  [:code ":src"]  " argument everywhere a re-com component is used."]]])
 
 
 (defn stack-spy-column
@@ -120,8 +119,8 @@
   [v-box
    :src      (at)
    :children [[title2 [:span [:code "stack-spy"]]]
-              [line]
-              [gap :size "10px"]
+              [line :src (at)]
+              [gap :src (at) :size "10px"]
               [p [:code "h-box"] " and " [:code "v-box"] " are usually simple to use. 
                  But, in deeply nested structures, where the component is an \"elastic\" table, it can sometimes
                  be a chore to work out what part of a hierarchy is driving height and width.
@@ -143,8 +142,8 @@
   [v-box
    :src      (at)
    :children [[title2 "Layout Colourising"]
-              [line]
-              [gap :size "10px"]
+              [line :src (at)]
+              [gap :src (at) :size "10px"]
               [p "re-com contains a switch which colorises the layout primatives of " [:code "h-box"] ", " [:code "v-box"] ", " [:code "gap"] " and " [:code "box"] "."]
               [:pre " (set! re-com.box/visualise-flow? true)"]]])
 
@@ -164,7 +163,7 @@
                :gap      "100px"
                :children [[the-src-parameter-column]
                           [params-validation-column]
-                          [v-box 
+                          [v-box :src (at) 
                            :gap "20px"
                            :children [[stack-spy-column] 
                                       [colourising]]]]]]])

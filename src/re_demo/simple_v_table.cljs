@@ -1,8 +1,8 @@
 (ns re-demo.simple-v-table
   (:require-macros
-    [re-com.core                           :refer [at]])
+    [re-com.core                           :refer []])
   (:require
-    [re-com.core                           :refer [h-box gap v-box p line horizontal-tabs]]
+    [re-com.core                           :refer [at h-box gap v-box p line horizontal-tabs]]
     [re-com.simple-v-table                 :refer [simple-v-table-parts-desc simple-v-table-args-desc]]
     [re-com.util                           :refer [px]]
     [re-demo.simple-v-table-sales          :as simple-v-table-sales]

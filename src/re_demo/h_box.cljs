@@ -1,10 +1,9 @@
 (ns re-demo.h-box
   (:require-macros
-    [re-com.core     :refer [handler-fn at]])
+    [re-com.core     :refer [handler-fn]])
   (:require
     [clojure.string  :as    string]
-    [re-com.core     :refer [p p-span h-box v-box box gap line scroller border label title button close-button checkbox hyperlink-href slider horizontal-bar-tabs info-button
-                             input-text input-textarea popover-anchor-wrapper popover-content-wrapper popover-tooltip]]
+    [re-com.core     :refer [at p p-span h-box v-box box gap line scroller border label title button close-button checkbox hyperlink-href slider horizontal-bar-tabs info-button input-text input-textarea popover-anchor-wrapper popover-content-wrapper popover-tooltip]]
     [re-com.box      :refer [h-box-args-desc v-box-args-desc box-args-desc gap-args-desc line-args-desc scroller-args-desc border-args-desc flex-child-style]]
     [re-com.util     :refer [px]]
     [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]
@@ -119,14 +118,14 @@
                     :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 400]}
                     :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
                     :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
-             :desc [v-box
+             :desc [v-box :src (at)
                     :children [[:p.info-subheading "The " [:code ":justify"] " parameter"]
                                [:p "Specifies how children (the three boxes) are arranged horizontally."]
                                [:p.info-subheading "Things to try"]
                                [:ul
                                 [:li "Select different " [:code ":justify"] " values and notice how the children are repositioned."]
                                 [:li "Untick " [:code ":justify"] ". When not specified, the default value is :start."]]
-                               [p-span [:code ":justify"] " is the analog of " [hyperlink-href
+                               [p-span [:code ":justify"] " is the analog of " [hyperlink-href :src (at)
                                                                                 :label "Flexbox justify-content style"
                                                                                 :href "https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content"
                                                                                 :target "_blank"] "."]]]}
@@ -159,7 +158,7 @@
                     :height     {:value "50px"   :omit? true  :editing? (atom false) :range [0 400]}
                     :min-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}
                     :max-width  {:value "50px"   :omit? true  :editing? (atom false) :range [0 200]}}
-             :desc [v-box
+             :desc [v-box :src (at)
                     :children [[:p.info-subheading "The " [:code ":align"] " & " [:code ":align-self"] " parameters"]
                                [:p [:code ":align"] " specifies how children are arranged vertically."]
                                [:p [:code ":align-self"] " is used on individual children to override the :align value specified by their parent."]
@@ -168,7 +167,7 @@
                                 [:li "Select different " [:code ":align"] " values for the h-box and notice how this only affects Box1 because both other boxes have an overriding :align-self setting."]
                                 [:li "Change the " [:code ":align-self"] " values for Box2 and Box3 to see them adjust their vertical position."]
                                 [:li "Adjust the h-box " [:code ":height"] " and notice boxes 2 and 3 sticking to their specified alignment."]]
-                               [p-span [:code ":align"] " is the analog of " [hyperlink-href
+                               [p-span [:code ":align"] " is the analog of " [hyperlink-href :src (at)
                                                                               :label "Flexbox align-items style"
                                                                               :href "https://developer.mozilla.org/en-US/docs/Web/CSS/align-items"
                                                                               :target "_blank"] "."]]]}
@@ -219,7 +218,7 @@
                                 [:li "Adjust the h-box " [:code ":width"] " and notice how Box1 and Box2 don't change in width, and Box3 greedily takes any excess space and squeezes down to nothing as the h-box width is reduced further."]
                                 [:li "Set the Box2 " [:code ":size"] " to a ratio value of \"2\" and notice how it will always take up double the width of Box3 (ratio \"1\") as you adjust the h-box " [:code ":width"] "."]
                                 [:li "Set the Box2 " [:code ":size"] " to a gsb value of \"0 0 80%\". Its width is fixed to 80% of its parent h-box, with no growing or shrinking. Box1 and Box2 now have fixed widths. Box3 can grow and shrink. See this in action as you adjust the h-box " [:code ":width"] "."]]
-                               [p-span [:code ":size"] " is the analog of " [hyperlink-href
+                               [p-span [:code ":size"] " is the analog of " [hyperlink-href :src (at)
                                                                              :label "Flexbox flex style"
                                                                              :href "https://developer.mozilla.org/en-US/docs/Web/CSS/flex"
                                                                              :target "_blank"] "."]]]}
@@ -412,7 +411,7 @@
   "
   [box-parameters]
   (let [over? (:over? box-parameters)]
-    (-> [box :style h-box-style]
+    (-> [box :src (at) :style h-box-style]
         (merge-named-params (dissoc box-parameters :over? :text))
         (conj :child)
         (conj [:div {:style (merge panel-style
@@ -424,7 +423,7 @@
   [box
    :src   (at)
    :style {:margin-left "8px"}
-   :child [close-button
+   :child [close-button :src (at)
            :on-click  #(on-close)
            :div-size  20
            :font-size 20]])
@@ -516,7 +515,7 @@
                    :tabs      opts
                    :style     editor-style
                    :on-change #(update-model path :type %)]
-                  (when (= @model :text) [gap :size "8px" :width "8px"])
+                  (when (= @model :text) [gap :src (at) :size "8px" :width "8px"])
                   (when (= @model :text)
                     [input-text
                      :src             (at)
@@ -567,7 +566,7 @@
                                :on-change #(do (update-model path :type %)
                                                (reset! size-status nil))]
                               (when (contains? #{:px :ratio :gsb} @model)
-                                [gap :size "8px" :width "8px"])
+                                [gap :src (at) :size "8px" :width "8px"])
                               (when (= @model :px)
                                 [slider
                                  :src       (at)
@@ -656,7 +655,7 @@
             show-checkbox?    (and editor (not (contains? (set path) :text))) ;; To only show on mouse over, use: (and row-active? (not (contains? (set path) :text)))
             allow-edit?       (and row-active? (not @omit?))
             editing?          (if editor (get-in @box-state editing?-path) (reagent/atom false))
-            arg-hiccup        [h-box
+            arg-hiccup        [h-box :src (at)
                                :width     "242px"
                                :style    (merge {:overflow "hidden"}
                                                 (when @editing?         {:background-color "#e8e8e8"})
@@ -666,22 +665,22 @@
                                                 (when @omit?            {:color            "#c0c0c0"}))
                                :attr     {:on-mouse-over #(mouse-over-fn true)
                                           :on-mouse-out  #(mouse-over-fn false)}
-                               :children [[box
+                               :children [[box :src (at)
                                            :size "20px"
                                            :child (if show-checkbox?
-                                                    [checkbox
+                                                    [checkbox :src (at)
                                                      :model     (not @omit?)
                                                      :style     {:opacity "0.6"}
                                                      :on-change #(do (swap! box-state assoc-in (conj path :omit?) (not %))
                                                                      (swap! box-state assoc-in editing?-path (atom %)))]
                                                     [:span])] ;; when no checkbox, use a filler
-                                          [gap :size (indent-px indent)]
-                                          [box
+                                          [gap :src (at) :size (indent-px indent)]
+                                          [box :src (at)
                                            :size "100px"
                                            :attr  (when allow-edit? {:on-click toggle-editor})
                                            :style (when @omit? {:text-decoration "line-through"})
                                            :child text1]
-                                          [box
+                                          [box :src (at)
                                            :attr  (when allow-edit? {:on-click toggle-editor})
                                            :style (when @omit? {:text-decoration "line-through"})
                                            :child [:span
@@ -729,7 +728,7 @@
   "creates the hiccup for the actual demo, with its child boxes and all"
   []
   (let [over? (:over? (:hbox @box-state))]
-    (-> [h-box
+    (-> [h-box :src (at)
          :padding "4px"
          :style (merge {:border "dashed 1px red"}
                        (when over? over-style))]

@@ -1,8 +1,8 @@
 (ns re-demo.button
   (:require-macros
-    [re-com.core    :refer [handler-fn at]])
+    [re-com.core    :refer [handler-fn]])
   (:require
-    [re-com.core    :refer [h-box v-box box gap line button label throbber hyperlink-href p p-span]]
+    [re-com.core    :refer [at h-box v-box box gap line button label throbber hyperlink-href p p-span]]
     [re-com.buttons :refer [button-parts-desc button-args-desc]]
     [re-demo.utils  :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
     [re-com.util    :refer [px]]
@@ -88,7 +88,7 @@
                                                        :tooltip           "I'm a tooltip on the left"
                                                        :tooltip-position :left-center
                                                        :on-click          #(swap! state update-in [:see-throbber] not)]
-                                                      (when (:see-throbber @state) [throbber])]]
+                                                      (when (:see-throbber @state) [throbber :src (at)])]]
                                           [gap
                                            :src  (at)
                                            :size "20px"]

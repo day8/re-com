@@ -9,12 +9,12 @@
   :url              "https://github.com/day8/re-com.git"
   :license          {:name "MIT"}
 
-  :dependencies [[org.clojure/clojure         "1.10.2"   :scope "provided"]
+  :dependencies [[org.clojure/clojure         "1.10.3"   :scope "provided"]
                  [org.clojure/clojurescript   "1.10.773" :scope "provided"
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
-                 [thheller/shadow-cljs        "2.11.18"  :scope "provided"]
+                 [thheller/shadow-cljs        "2.11.23"  :scope "provided"]
                  [reagent                     "1.0.0"    :scope "provided"]
                  [org.clojure/core.async      "1.3.610"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]

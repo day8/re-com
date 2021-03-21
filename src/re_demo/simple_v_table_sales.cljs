@@ -1,12 +1,12 @@
 (ns re-demo.simple-v-table-sales
   (:require-macros
-    [re-com.core           :refer [at]])
+    [re-com.core           :refer []])
   (:require
     [clojure.string        :as string]
     [goog.string           :as gstring]
     [goog.string.format]
     [reagent.core          :as reagent]
-    [re-com.core           :refer [label p slider hyperlink-href h-box v-box gap simple-v-table checkbox button]]
+    [re-com.core           :refer [at label p slider hyperlink-href h-box v-box gap simple-v-table checkbox button]]
     [re-com.config         :refer [debug?]]
     [re-demo.utils         :refer [title3]]
     [re-com.util           :refer [px]]))
@@ -62,13 +62,13 @@
         how-many            (reagent/atom 100)
         spacing             (px 12)
         spacing7           (px 7)
-        email-row-label-fn  (fn [row] [hyperlink-href :label (:email row) :href (str "mailto:" (:email row))])
+        email-row-label-fn  (fn [row] [hyperlink-href :src (at) :label (:email row) :href (str "mailto:" (:email row))])
         method-row-label-fn (fn [row] (case (:method row) :online [devices-icon] [store-icon]))]
     (fn []
       [v-box
        :src      (at)
        :children [[title3 "Sales Table Demo"]
-                  [gap :size (px 5)]
+                  [gap :src (at) :size (px 5)]
                   [v-box
                    :src      (at)
                    :gap      (px 10)
@@ -90,7 +90,7 @@
                                                        :model     fixed-column-count?
                                                        :on-change #(do (reset! fixed-column-count? %)
                                                                        (reset! fixed-column-count (if @fixed-column-count? 1 0)))]
-                                                      [label :label [:code ":fixed-column-count"]]
+                                                      [label :src (at) :label [:code ":fixed-column-count"]]
                                                       (when @fixed-column-count?
                                                         [:<>
                                                          [slider
@@ -285,7 +285,7 @@
                                                                      :src      (at)
                                                                      :model     how-many?
                                                                      :on-change #(reset! how-many? %)]
-                                                                    [label :label [:code "how many?"]]
+                                                                    [label :src (at) :label [:code "how many?"]]
                                                                     (if @how-many?
                                                                       [:<>
                                                                        [slider
@@ -296,9 +296,9 @@
                                                                         :max       1000000
                                                                         :step      1000
                                                                         :width     (px 200)]
-                                                                       [gap :size spacing7]
-                                                                       [label :label @how-many]]
-                                                                      [label :label "random number between 5 and 99"])]])
+                                                                       [gap :src (at) :size spacing7]
+                                                                       [label :src (at) :label @how-many]]
+                                                                      [label :src (at) :label "random number between 5 and 99"])]])
 
 
                                                       ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv

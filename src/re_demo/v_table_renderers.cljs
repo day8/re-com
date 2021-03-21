@@ -1,18 +1,18 @@
 (ns re-demo.v-table-renderers
-  (:require [re-com.core   :refer [v-box v-table label]]
+  (:require [re-com.core   :refer [at v-box v-table label]]
             [re-com.util    :refer [px]]
             [reagent.core  :as reagent]))
 
 
 (defn box-with-border
   [{:keys [name background height width]}]
-  [v-box
+  [v-box :src (at)
    :height (px  height)
    :width   (if width (px width) "1 0 auto")
    :style  {:color "white" :background-color background :padding "3px" :border "solid white 1px"}
    :align  :center
    :justify :center
-   :children [[label :label name :style {:font-size 11 :font-weight "bold"}]]])
+   :children [[label :src (at) :label name :style {:font-size 11 :font-weight "bold"}]]])
 
 
 (defn table-showing-renderers
@@ -34,7 +34,7 @@
         width-of-main-row-content (js/Math.round (/ total-row-height fib-ratio))
         dummy-rows                (reagent/atom (mapv #(hash-map :id %1) (range num-rows)))]
     (fn []
-      [v-table
+      [v-table :src (at)
        :model                   dummy-rows
 
        ;; Data Rows (section 5)

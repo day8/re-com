@@ -1,8 +1,8 @@
 (ns re-demo.slider
   (:require-macros
-    [re-com.core   :refer [at]])
+    [re-com.core   :refer []])
   (:require
-    [re-com.core   :refer [h-box v-box box gap line label title slider checkbox input-text horizontal-bar-tabs vertical-bar-tabs p]]
+    [re-com.core   :refer [at h-box v-box box gap line label title slider checkbox input-text horizontal-bar-tabs vertical-bar-tabs p]]
     [re-com.slider :refer [slider-parts-desc slider-args-desc]]
     [re-demo.utils :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
     [re-com.util   :refer [px]]
@@ -62,7 +62,7 @@
                                                                   :padding          "15px"
                                                                   :border-top       "1px solid #DDD"
                                                                   :background-color "#f7f7f7"}
-                                                       :children [[title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                                                       :children [[title :src (at) :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
                                                                   [h-box
                                                                    :src      (at)
                                                                    :gap      "10px"

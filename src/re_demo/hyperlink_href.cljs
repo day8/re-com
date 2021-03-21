@@ -1,8 +1,8 @@
 (ns re-demo.hyperlink-href
   (:require-macros
-    [re-com.core    :refer [at]])
+    [re-com.core    :refer []])
   (:require
-    [re-com.core    :refer [h-box v-box box gap line label title radio-button hyperlink-href p checkbox]]
+    [re-com.core    :refer [at h-box v-box box gap line label title radio-button hyperlink-href p checkbox]]
     [re-com.buttons :refer [hyperlink-href-parts-desc hyperlink-href-args-desc]]
     [re-demo.utils  :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
     [re-com.util    :refer [px]]
@@ -39,7 +39,7 @@
                                :src      (at)
                                :gap      "10px"
                                :children [[title2 "Demo"]
-                                          [hyperlink-href
+                                          [hyperlink-href :src (at)
                                            :label     "Launch Google"
                                            :tooltip   "You're about to launch Google"
                                            :href      (when href? "http://google.com")

@@ -2,7 +2,7 @@
   (:require [cljs.pprint          :as pprint]
             [clojure.string       :as string]
             [reagent.core         :as reagent]
-            [re-com.core          :refer [h-box box checkbox gap v-box tag-dropdown hyperlink-href p label line]]
+            [re-com.core          :refer [at h-box box checkbox gap v-box tag-dropdown hyperlink-href p label line]]
             [re-com.slider        :refer [slider]]
             [re-com.tag-dropdown  :refer [tag-dropdown-parts-desc tag-dropdown-args-desc]]
             [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text new-in-version]]
@@ -31,12 +31,12 @@
         max-width?        (reagent/atom true)
         max-width         (reagent/atom 300)]
     (fn []
-      [v-box
+      [v-box :src (at)
        :gap      "11px"
        :width    "450px"
        :align    :start
        :children [[title2 "Demo"]
-                  [tag-dropdown
+                  [tag-dropdown :src (at)
                    :min-width         (when @min-width? (str @min-width "px"))
                    :max-width         (when @max-width? (str @max-width "px"))
                    :disabled?         disabled?
@@ -48,63 +48,63 @@
                    :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
                    :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
                    :on-change         #(reset! model %)]
-                  [h-box
+                  [h-box :src (at)
                    :height   "45px"
                    :gap      "5px"
                    :width    "100%"
-                   :children [[label :label [:code ":model"]]
-                              [label :label " is currently"]
+                   :children [[label :src (at) :label [:code ":model"]]
+                              [label :src (at) :label " is currently"]
                               [:code
                                {:class "display-flex"
                                 :style {:flex "1"}}
                                (with-out-str (pprint/pprint @model))]]]
-                  [v-box
+                  [v-box :src (at)
                    :gap "10px"
                    :style {:min-width        "550px"
                            :padding          "15px"
                            :border-top       "1px solid #DDD"
                            :background-color "#f7f7f7"}
                    :children [[title3 "Interactive Parameters" {:margin-top "0"}]
-                              [v-box
+                              [v-box :src (at)
                                :gap "20px"
-                               :children [[checkbox
-                                           :label     [box
+                               :children [[checkbox :src (at)
+                                           :label     [box :src (at)
                                                        :align :start
                                                        :child [:code ":disabled?"]]
                                            :model     disabled?
                                            :on-change #(reset! disabled? %)]
-                                          [checkbox
-                                           :label     [box
+                                          [checkbox :src (at)
+                                           :label     [box :src (at)
                                                        :align :start
                                                        :child [:code ":required?"]]
                                            :model     required?
                                            :on-change #(reset! required? %)]
-                                          [checkbox
-                                           :label     [box
+                                          [checkbox :src (at)
+                                           :label     [box :src (at)
                                                        :align :start
                                                        :child [:code ":unselect-buttons?"]]
                                            :model     unselect-buttons?
                                            :on-change #(reset! unselect-buttons? %)]
-                                          [checkbox
-                                           :label     [box
+                                          [checkbox :src (at)
+                                           :label     [box :src (at)
                                                        :align :start
                                                        :child [:span "Supply the string \"placeholder message\" for the " [:code ":placeholder"] " parameter"]]
                                            :model     placeholder?
                                            :on-change #(reset! placeholder? %)]
-                                          [v-box
+                                          [v-box :src (at)
                                            :gap      "11px"
-                                           :children [[checkbox
-                                                       :label     [box
+                                           :children [[checkbox :src (at)
+                                                       :label     [box :src (at)
                                                                    :align :start
                                                                    :child [:span "Supply an " [:code ":abbrev-fn"] " of " [:code "#(clojure.string/upper-case (first (:label %)))"]]]
                                                        :model     abbrev-fn?
                                                        :on-change #(reset! abbrev-fn? %)]
                                                       (when @abbrev-fn?
-                                                        [h-box
+                                                        [h-box :src (at)
                                                          :gap      "5px"
                                                          :align    :center
-                                                         :children [[checkbox
-                                                                     :label     [box
+                                                         :children [[checkbox :src (at)
+                                                                     :label     [box :src (at)
                                                                                  :align :start
                                                                                  :child [:span " and also supply an " [:code ":abbrev-threshold"] " of "]]
                                                                      :model     abbrev-threshold?
@@ -116,16 +116,16 @@
                                                                      :max       50
                                                                      :step      1
                                                                      :width     "160px"]
-                                                                    [label :label @abbrev-threshold]]])]]
-                                          [h-box
+                                                                    [label :src (at) :label @abbrev-threshold]]])]]
+                                          [h-box :src (at)
                                            :align    :center
-                                           :children [[checkbox
-                                                       :label     [box
+                                           :children [[checkbox :src (at)
+                                                       :label     [box :src (at)
                                                                    :align :start
                                                                    :child [:code ":min-width"]]
                                                        :model     min-width?
                                                        :on-change #(reset! min-width? %)]
-                                                      [gap :size "5px"]
+                                                      [gap :src (at) :size "5px"]
                                                       (when @min-width?
                                                         [:<>
                                                          [slider
@@ -135,17 +135,17 @@
                                                           :max       400
                                                           :step      1
                                                           :width     "300px"]
-                                                         [gap :size "5px"]
-                                                         [label :label (str @min-width "px")]])]]
-                                          [h-box
+                                                         [gap :src (at) :size "5px"]
+                                                         [label :src (at) :label (str @min-width "px")]])]]
+                                          [h-box :src (at)
                                            :align    :center
-                                           :children [[checkbox
-                                                       :label     [box
+                                           :children [[checkbox :src (at)
+                                                       :label     [box :src (at)
                                                                    :align :start
                                                                    :child [:code ":max-width"]]
                                                        :model     max-width?
                                                        :on-change #(reset! max-width? %)]
-                                                      [gap :size "5px"]
+                                                      [gap :src (at) :size "5px"]
                                                       (when @max-width?
                                                         [:<>
                                                          [slider
@@ -155,25 +155,25 @@
                                                           :max       400
                                                           :step      1
                                                           :width     "300px"]
-                                                         [gap :size "5px"]
-                                                         [label :label (str @max-width "px")]])]]]]]]
-                  #_[gap :size "5px"]
+                                                         [gap :src (at) :size "5px"]
+                                                         [label :src (at) :label (str @max-width "px")]])]]]]]]
+                  #_[gap :src (at) :size "5px"]
 
-                  [gap :size "10px"]]])))
+                  [gap :src (at) :size "10px"]]])))
 
 
 (defn panel
   []
-  [v-box
+  [v-box :src (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[tag-dropdown ... ]"
                             "src/re_com/tag_dropdown.cljs"
                             "src/re_demo/tag_dropdown.cljs"]
 
-              [h-box
+              [h-box :src (at)
                :gap      "100px"
-               :children [[v-box
+               :children [[v-box :src (at)
                             :gap      "10px"
                             :width    "450px"
                             :children [[title2 "Notes"]
