@@ -9,7 +9,7 @@
   "given a label and a relative path, return a component which hyperlinks to the GitHub URL in a new tab"
   [label src-path]
   (let [base-url (str "https://github.com/day8/re-com/blob/master/")]
-    [hyperlink-href
+    [hyperlink-href :src (at)
      :label  label
      ;:style  {:font-size    "13px"}
      :href   (str base-url src-path)
@@ -21,7 +21,7 @@
    :class "all-small-caps"
    :gap    "7px"
    :align  :center
-   :children [[label :label "source:"]
+   :children [[label :src (at) :label "source:"]
               [github-hyperlink description src]]])
 
 
@@ -33,7 +33,7 @@
                :margin "0px 0px 9px 0px"
                :height "54px"
                :align :end
-               :children [[title
+               :children [[title :src (at)
                            :label         panel-name
                            :level         :level1
                            :margin-bottom "0px"
@@ -43,16 +43,16 @@
                                       :class "all-small-caps"
                                       :gap    "7px"
                                       :align  :center
-                                      :children [[label :label "source:"]
+                                      :children [[label :src (at) :label "source:"]
                                                  [github-hyperlink "component" src1]
-                                                 [label :label "|"  :style {:font-size "12px"}]
+                                                 [label :src (at) :label "|"  :style {:font-size "12px"}]
                                                  [github-hyperlink "page" src2]]])]]
-              [line]]])
+              [line :src (at)]]])
 
 (defn title2
   "2nd level title"
   [text style]
-  [title
+  [title :src (at)
    :label text
    :level :level2
    :style style])
@@ -60,7 +60,7 @@
 (defn title3
   "3rd level title"
   [text style]
-  [title
+  [title :src (at)
    :label text
    :level :level3
    :style style])
@@ -81,7 +81,7 @@
 
 (defn material-design-hyperlink
   [text]
-  [hyperlink-href
+  [hyperlink-href :src (at)
    :label  text
    :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
    :target "_blank"])
@@ -109,7 +109,7 @@
                                       {:width        name-column-width
                                        :padding-left "15px"})}
                  (str (:name arg))]
-                 [line :size "1px" :color (if odd-row? "white" "#f4f4f4")]
+                 [line :src (at) :size "1px" :color (if odd-row? "white" "#f4f4f4")]
                  [v-box
                   :style {:padding "7px 15px 2px 15px"}
                   :gap  "4px"
@@ -119,7 +119,7 @@
                               :children (concat [[:span.semibold  arg-type]
                                                  [gap :size "1"]]
                                                  needed-vec)]
-                             [line]
+                             [line :src (at)]
                              [:p
                               ; {:font-size "smaller" :color "red"}
                               (:description arg)]]]]]))
@@ -145,13 +145,13 @@
                :style {:padding "5px 12px"
                        :font-weight "bold"}
                :child [:span "Part"]]
-              [line]
+              [line :src (at)]
               [box
                :width "343px"
                :style {:padding "5px 12px"
                        :font-weight "bold"}
                :child [:span "CSS Class"]]
-              [line]
+              [line :src (at)]
               [box
                :width "212px"
                :style {:padding "5px 12px"
@@ -178,17 +178,17 @@
                               name-label
                               [:span "Use " [:code ":class"], [:code ":style"] " or " [:code ":attr"] " arguments instead."])
                             [:code (str name)])]]
-              [line :color (if odd-row? "white" "#f4f4f4")]
+              [line :src (at) :color (if odd-row? "white" "#f4f4f4")]
               [box
                :width "343px"
                :style {:padding "5px 12px"}
                :child (if class [:code class] "")]
-              [line :color (if odd-row? "white" "#f4f4f4")]
+              [line :src (at) :color (if odd-row? "white" "#f4f4f4")]
               [box
                :width "212px"
                :style {:padding "5px 12px"}
                :child [:code impl]]
-              [line :color (if odd-row? "white" "#f4f4f4")]
+              [line :src (at) :color (if odd-row? "white" "#f4f4f4")]
               [box
                :style {:padding "5px 12px"}
                :child [:span notes]]]])

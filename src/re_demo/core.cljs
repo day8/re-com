@@ -1,6 +1,6 @@
 (ns re-demo.core
   (:require-macros
-    [re-com.core            :refer [at]]
+    [re-com.core            :refer []]
     [cljs.core.async.macros :refer [go]]
     [secretary.core         :refer [defroute]])
   (:require [goog.events                   :as    events]
@@ -8,7 +8,7 @@
             [reagent.dom                   :as    rdom]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
-            [re-com.core                   :refer [h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
+            [re-com.core                   :refer [at h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
             [re-com.config                 :refer [version]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]

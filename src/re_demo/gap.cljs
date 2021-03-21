@@ -1,8 +1,8 @@
 (ns re-demo.gap
   (:require-macros
-    [re-com.core   :refer [at]])
+    [re-com.core   :refer []])
   (:require
-    [re-com.core   :refer [h-box v-box gap p line box]]
+    [re-com.core   :refer [at h-box v-box gap p line box]]
     [re-com.box    :refer [gap-args-desc]]
     [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
@@ -23,7 +23,7 @@
                             "src/re_com/box.cljs"
                             "src/re_demo/gap.cljs"]
 
-              [h-box
+              [h-box :src (at)
                :gap      "100px"
               :children [[v-box
                           :src       (at)
@@ -86,7 +86,7 @@
                                       [gap
                                        :src  (at)
                                        :size "10px"]
-                                      [line]
+                                      [line :src (at)]
                                       [title2 "Demo #2"]
                                       [gap
                                        :src  (at)

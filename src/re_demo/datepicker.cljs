@@ -1,14 +1,14 @@
 (ns re-demo.datepicker
   (:require-macros
     [reagent.ratom     :refer [reaction]]
-    [re-com.core       :refer [at]])
+    [re-com.core       :refer []])
   (:require
     [goog.date.Date]
     [reagent.core      :as    reagent]
     [cljs-time.core    :refer [today days minus plus day-of-week before?]]
     [cljs-time.coerce  :refer [to-local-date]]
     [cljs-time.format  :refer [formatter unparse]]
-    [re-com.core       :refer [h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p button md-icon-button]]
+    [re-com.core       :refer [at h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p button md-icon-button]]
     [re-com.datepicker :refer [iso8601->date datepicker-parts-desc datepicker-dropdown-args-desc]]
     [re-com.validate   :refer [date-like?]]
     [re-com.util       :refer [now->utc px]]
@@ -46,7 +46,7 @@
 (defn- parameters-with
   "Toggle controls for some parameters."
   [content enabled-days as-days disabled? show-today? show-weeks? start-of-week-choices start-of-week]
-  [v-box
+  [v-box :src (at)
    :gap      "15px"
    :align    :start
    :children [content
@@ -85,7 +85,7 @@
                                        :child [:code ":show-weeks?"]]
                            :model     show-weeks?
                            :on-change #(reset! show-weeks? %)]
-                          [h-box
+                          [h-box :src (at)
                            :gap      "5px"
                            :align    :end
                            :children [[:code ":start-of-week"]
@@ -158,9 +158,9 @@
       :inline [(fn inline-fn
                  []
                  [parameters-with
-                  [v-box
+                  [v-box :src (at)
                    :gap      "15px"
-                   :children [[datepicker
+                   :children [[datepicker :src (at)
                                :model         model1
                                :disabled?     disabled?
                                :show-today?   @show-today?
@@ -168,19 +168,19 @@
                                :selectable-fn selectable-pred
                                :start-of-week @start-of-week
                                :on-change     #(do #_(js/console.log "model1:" %) (reset! model1 %))]
-                              [label :label [:span [:code ":model"] " is " (date->string @model1)]]
-                              #_[h-box
+                              [label :src (at) :label [:span [:code ":model"] " is " (date->string @model1)]]
+                              #_[h-box :src (at)
                                  :gap      "6px"
                                  :margin   "10px 0px 0px 0px"
                                  :align    :center
-                                 :children [[label :style label-style :label "Change model:"]
-                                            [md-icon-button
+                                 :children [[label :src (at) :style label-style :label "Change model:"]
+                                            [md-icon-button :src (at)
                                              :md-icon-name "zmdi-arrow-left"
                                              :size         :smaller
                                              :disabled?    (not (date-like? @model1))
                                              :on-click     #(when (date-like? @model1)
                                                               (reset! model1 (minus @model1 (days 1))))]
-                                            [md-icon-button
+                                            [md-icon-button :src (at)
                                              :md-icon-name "zmdi-arrow-right"
                                              :size         :smaller
                                              :disabled?    (if (and (date-like? @model1) (date-like? @model2))
@@ -189,7 +189,7 @@
                                                              true)
                                              :on-click     #(when (date-like? @model1)
                                                               (reset! model1 (plus @model1 (days 1))))]
-                                            [button
+                                            [button :src (at)
                                              :label    "Reset"
                                              :class    "btn btn-default"
                                              :style    {:padding  "1px 4px"}
@@ -273,7 +273,7 @@
   []
   (let [selected-variation (reagent/atom :inline)]
     (fn examples-fn []
-      [v-box
+      [v-box :src (at)
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "Date Components"

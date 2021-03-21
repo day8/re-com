@@ -2,7 +2,7 @@
   (:require
     [cljs.pprint           :as pprint]
     [re-com.debug          :refer [stack-spy]]
-    [re-com.core           :refer [h-box v-box box gap selection-list label title checkbox p]]
+    [re-com.core           :refer [at h-box v-box box gap selection-list label title checkbox p]]
     [re-com.selection-list :refer [selection-list-parts-desc selection-list-args-desc]]
     [re-demo.utils         :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
     [re-com.util           :refer [px]]
@@ -24,14 +24,14 @@
                                       {:id "8" :label "8th RULE: If this is your first night at FIGHT CLUB, you HAVE to fight." :short "8th RULE"}])
         selections     (reagent/atom #{"2"})]  ;; (second @items)
     (fn []
-      [v-box
+      [v-box :src (at)
        :width (str width "px")
        :gap      "20px"
        :align    :start
        :children [[title2 "Demo"]
-                  [v-box ;; TODO: v-box required to constrain height of internal border.
+                  [v-box :src (at) ;; TODO: v-box required to constrain height of internal border.
                    :children [[stack-spy
-                               :component [selection-list
+                               :component [selection-list :src (at)
                                            :width          "391px"      ;; manual hack for width of variation panel A+B 1024px
                                            :max-height     "95px"       ;; based on compact style @ 19px x 5 rows
                                            :model          selections
@@ -42,52 +42,52 @@
                                            :disabled?      disabled?
                                            :required?      required?
                                            :on-change      #(reset! selections %)]]
-                              [gap :size "10px"]
-                              [h-box
+                              [gap :src (at) :size "10px"]
+                              [h-box :src (at)
                                :height "60px"
                                :gap    "5px"
                                :width  "100%"
-                               :children [[label :label [:code ":model"]]
-                                          [label :label "is"]
+                               :children [[label :src (at) :label [:code ":model"]]
+                                          [label :src (at) :label "is"]
                                           [:code
                                            {:class "display-flex"
                                             :style {:flex "1"}}
                                            (with-out-str (pprint/pprint @selections))]]]]]
-                  [v-box
+                  [v-box :src (at)
                    :gap  "10px"
                    :style {:min-width        "550px"
                            :padding          "15px"
                            :border-top       "1px solid #DDD"
                            :background-color "#f7f7f7"}
-                   :children [[title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
-                              [checkbox
-                               :label       [box :align :start :child [:code ":disabled?"]]
+                   :children [[title :src (at) :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                              [checkbox :src (at)
+                               :label       [box :src (at) :align :start :child [:code ":disabled?"]]
                                :model       disabled?
                                :on-change   #(reset! disabled? %)]
-                              [checkbox
-                               :label       [box :align :start :child [:code ":multi-select?"]]
+                              [checkbox :src (at)
+                               :label       [box :src (at) :align :start :child [:code ":multi-select?"]]
                                :model       multi-select?
                                :on-change   #(reset! multi-select? %)]
-                              [checkbox
-                               :label       [box :align :start :child [:code ":required?"]]
+                              [checkbox :src (at)
+                               :label       [box :src (at) :align :start :child [:code ":required?"]]
                                :model       required?
                                :on-change   #(reset! required? %)]
-                              [checkbox
-                               :label       [box :align :start :child [:code ":as-exclusions?"]]
+                              [checkbox :src (at)
+                               :label       [box :src (at) :align :start :child [:code ":as-exclusions?"]]
                                :model       as-exclusions?
                                :on-change   #(reset! as-exclusions? %)]]]]])))
 
 (defn panel2
   []
-  [v-box
+  [v-box :src (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[selection-list ... ]"
                             "src/re_com/selection_list.cljs"
                             "src/re_demo/selection_list.cljs"]
-              [h-box
+              [h-box :src (at)
                :gap      "100px"
-               :children [[v-box
+               :children [[v-box :src (at)
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Notes"]

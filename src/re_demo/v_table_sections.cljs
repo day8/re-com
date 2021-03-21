@@ -1,6 +1,6 @@
 (ns re-demo.v-table-sections
   (:require
-    [re-com.core   :refer [v-box v-table label]]
+    [re-com.core   :refer [at v-box v-table label]]
     [re-com.util    :refer [px]]
     [reagent.core  :as reagent]))
 
@@ -8,14 +8,14 @@
 
 (defn box-with-text
   [{:keys [name section background height width]}]
-  [v-box
+  [v-box :src (at)
    :height (str height "px")
    :width   (if width (px width) "1 0 auto")  
    :style  {:color "white" :background-color background :padding "5px"}
    :align  :center
    :justify :center
-   :children [[label :label section :style {:font-size 20}]
-              [label :label name :style {:font-size 10}]]])
+   :children [[label :src (at) :label section :style {:font-size 20}]
+              [label :src (at) :label name :style {:font-size 10}]]])
 
 
 (defn sections-render
@@ -31,7 +31,7 @@
         width-of-main-row-content (int (/ row-height 0.618 0.618))    ;; fibonacci ratios to make it look pretty
         size2                     (int (* row-height 0.618 0.618))]   ;; fibonacci ratios to make it look pretty
     (fn []
-      [v-table
+      [v-table :src (at)
         :model              single-dummy-row
 
        ;; ===== Column header/footer (sections 4,6)

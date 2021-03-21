@@ -1,8 +1,8 @@
 (ns re-demo.config
   (:require-macros
-    [re-com.core       :refer [at]])
+    [re-com.core       :refer []])
   (:require
-   [re-com.core       :refer [h-box v-box gap line title p hyperlink-href]]
+   [re-com.core       :refer [at h-box v-box gap line title p hyperlink-href]]
    [re-demo.utils     :refer [panel-title title2 title3]]))
 
 
@@ -13,10 +13,10 @@
   [v-box
    :src      (at)
    :children [[title2 "Compiler"]
-              [line]
-              [gap :size "20px"]
+              [line :src (at)]
+              [gap :src (at) :size "20px"]
               [title3 "Production Builds"]
-              [gap :size "20px"]
+              [gap :src (at) :size "20px"]
               [p "The overhead of parameter validation is elided in production builds. This is based on "
                [:code "js/goog.DEBUG"] " being set to " [:code "false"] "."]
               [p [:code "js/goog.DEBUG"] " is automatically set by " [:code "shadow-cljs"] " to " [:code "false"] " for "
@@ -25,9 +25,9 @@
               [:pre
                {:style {:width "450px"}}
                ":closure-defines {goog.DEBUG false}"]
-              [gap :size "20px"]
+              [gap :src (at) :size "20px"]
               [title3 "Source Code Links"]
-              [gap :size "20px"]
+              [gap :src (at) :size "20px"]
               [p "When re-com produces validation errors or component stacks (such as via the " [:code "[stack-spy ...]"]
                " component) it tries to provide links to source code. For these links to be displayed it requires that you provide the root URL to the ClojureScript compiler output with source maps:"]
               [:pre
@@ -39,10 +39,10 @@
   [v-box
    :src      (at)
    :children [[title2 "Tooling"]
-              [line]
-              [gap :size "20px"]
+              [line :src (at)]
+              [gap :src (at) :size "20px"]
               [p "It is essential you have "
-               [hyperlink-href
+               [hyperlink-href :src (at)
                 :href   "https://github.com/binaryage/cljs-devtools/blob/master/docs/installation.md"
                 :label  "CLJS DevTools"
                 :target "_blank"]

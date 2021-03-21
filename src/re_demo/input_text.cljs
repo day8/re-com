@@ -1,5 +1,5 @@
 (ns re-demo.input-text
-  (:require [re-com.core       :refer [h-box v-box box gap line input-text input-password input-textarea label checkbox radio-button slider title p]]
+  (:require [re-com.core       :refer [at h-box v-box box gap line input-text input-password input-textarea label checkbox radio-button slider title p]]
             [re-com.input-text :refer [input-text-parts-desc input-text-args-desc]]
             [re-demo.utils     :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
             [re-com.util       :refer [px]]
@@ -20,16 +20,16 @@
         slider-val      (reagent/atom 4)]
     (fn
       []
-      [v-box
+      [v-box :src (at)
        :size     "auto"
        :gap      "10px"
        :children [[panel-title  "Input Text Components"
                                 "src/re_com/input_text.cljs"
                                 "src/re_demo/input_text.cljs"]
 
-                  [h-box
+                  [h-box :src (at)
                    :gap      "100px"
-                   :children [[v-box
+                   :children [[v-box :src (at)
                                :gap      "10px"
                                :width    "450px"
                                :children [[title2 "Notes"]
@@ -39,12 +39,12 @@
                                           [p "The " [:code ":on-change"] " function will be called either after each character is entered or on blur."]
                                           [p "Input warnings and errors can be indicated visually by border colors and icons."]
                                           [args-table input-text-args-desc]]]
-                              [v-box
+                              [v-box :src (at)
                                :gap      "10px"
                                :children [[title2 "Demo"]
-                                          [label :label "[input-text ... ]"]
-                                          [gap :size "5px"]
-                                          [input-text
+                                          [label :src (at) :label "[input-text ... ]"]
+                                          [gap :src (at) :size "5px"]
+                                          [input-text :src (at)
                                            :model            text-val
                                            :status           @status
                                            :status-icon?     @status-icon?
@@ -56,10 +56,10 @@
                                            :on-alter         (if @on-alter? string/upper-case identity)
                                            :change-on-blur?  change-on-blur?
                                            :disabled?        disabled?]
-                                          [gap :size "20px"]
-                                          [label :label "[input-password ... ]"]
-                                          [gap :size "5px"]
-                                          [input-password
+                                          [gap :src (at) :size "20px"]
+                                          [label :src (at) :label "[input-password ... ]"]
+                                          [gap :src (at) :size "5px"]
+                                          [input-password :src (at)
                                            :model            text-val
                                            :status           @status
                                            :status-icon?     @status-icon?
@@ -71,10 +71,10 @@
                                            :on-alter         (if @on-alter? string/upper-case identity)
                                            :change-on-blur?  change-on-blur?
                                            :disabled?        disabled?]
-                                          [gap :size "20px"]
-                                          [label :label "[input-textarea ... ]"]
-                                          [gap :size "5px"]
-                                          [input-textarea
+                                          [gap :src (at) :size "20px"]
+                                          [label :src (at) :label "[input-textarea ... ]"]
+                                          [gap :src (at) :size "5px"]
+                                          [input-textarea :src (at)
                                            :model            text-val
                                            :status           @status
                                            :status-icon?     @status-icon?
@@ -87,10 +87,10 @@
                                            :on-alter         (if @on-alter? string/upper-case identity)
                                            :change-on-blur?  change-on-blur?
                                            :disabled?        disabled?]
-                                          [gap :size "20px"]
-                                          [label :label "[input-text w/ alpha filter in on-change ... ]"]
-                                          [gap :size "5px"]
-                                          [input-text
+                                          [gap :src (at) :size "20px"]
+                                          [label :src (at) :label "[input-text w/ alpha filter in on-change ... ]"]
+                                          [gap :src (at) :size "5px"]
+                                          [input-text :src (at)
                                            :model            text-val
                                            :status           @status
                                            :status-icon?     @status-icon?
@@ -105,38 +105,38 @@
                                            :on-alter         (if @on-alter? string/upper-case identity)
                                            :change-on-blur?  change-on-blur?
                                            :disabled?        disabled?]
-                                          [title :level :level3 :label "Callbacks"]
-                                          [h-box
+                                          [title :src (at) :level :level3 :label "Callbacks"]
+                                          [h-box :src (at)
                                            :align    :center
                                            :gap      "5px"
                                            :children [[:code ":on-change"]
                                                       " last called with this value: "
                                                       [:span.bold (if @text-val @text-val "nil")]]]
-                                          [v-box
+                                          [v-box :src (at)
                                            :gap "15px"
                                            :style    {:min-width        "150px"
                                                       :padding          "15px"
                                                       :border-top       "1px solid #DDD"
                                                       :background-color "#f7f7f7"}
                                            :children [
-                                                      [title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
-                                                      [v-box
-                                                       :children [[box :align :start :child [:code ":change-on-blur?"]]
-                                                                  [radio-button
+                                                      [title :src (at) :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                                                      [v-box :src (at)
+                                                       :children [[box :src (at) :align :start :child [:code ":change-on-blur?"]]
+                                                                  [radio-button :src (at)
                                                                    :label     "false - Call on-change on every keystroke"
                                                                    :value     false
                                                                    :model     @change-on-blur?
                                                                    :on-change #(reset! change-on-blur? %)
                                                                    :style     {:margin-left "20px"}]
-                                                                  [radio-button
+                                                                  [radio-button :src (at)
                                                                    :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
                                                                    :value     true
                                                                    :model     @change-on-blur?
                                                                    :on-change #(reset! change-on-blur? %)
                                                                    :style     {:margin-left "20px"}]]]
-                                                      [v-box
-                                                       :children [[box :align :start :child [:code ":status"]]
-                                                                  [radio-button
+                                                      [v-box :src (at)
+                                                       :children [[box :src (at) :align :start :child [:code ":status"]]
+                                                                  [radio-button :src (at)
                                                                    :label     "nil/omitted - normal input state"
                                                                    :value     nil
                                                                    :model     @status
@@ -144,7 +144,7 @@
                                                                                 (reset! status %)
                                                                                 (reset! status-tooltip ""))
                                                                    :style {:margin-left "20px"}]
-                                                                  [radio-button
+                                                                  [radio-button :src (at)
                                                                    :label ":validating - set while validating an input value"
                                                                    :value :validating
                                                                    :model @status
@@ -152,7 +152,7 @@
                                                                                 (reset! status %)
                                                                                 (reset! status-tooltip "Validating tooltip - this (optionally) appears when an input-text is validating."))
                                                                    :style {:margin-left "20px"}]
-                                                                  [radio-button
+                                                                  [radio-button :src (at)
                                                                    :label ":success - border color becomes green"
                                                                    :value :success
                                                                    :model @status
@@ -160,7 +160,7 @@
                                                                                 (reset! status %)
                                                                                 (reset! status-tooltip "Success tooltip - this (optionally) appears when an input-text components has validated successfully."))
                                                                    :style {:margin-left "20px"}]
-                                                                  [radio-button
+                                                                  [radio-button :src (at)
                                                                    :label     ":warning - border color becomes orange"
                                                                    :value     :warning
                                                                    :model     @status
@@ -168,7 +168,7 @@
                                                                                 (reset! status %)
                                                                                 (reset! status-tooltip "Warning tooltip - this (optionally) appears when there are warnings on input-text components."))
                                                                    :style     {:margin-left "20px"}]
-                                                                  [radio-button
+                                                                  [radio-button :src (at)
                                                                    :label     ":error - border color becomes red"
                                                                    :value     :error
                                                                    :model     @status
@@ -176,59 +176,59 @@
                                                                                 (reset! status %)
                                                                                 (reset! status-tooltip "Error tooltip - this (optionally) appears when there are errors on input-text components."))
                                                                    :style     {:margin-left "20px"}]]]
-                                                      [h-box
+                                                      [h-box :src (at)
                                                        :align :start
                                                        :gap      "5px"
-                                                       :children [[checkbox
+                                                       :children [[checkbox :src (at)
                                                                    :label     [:code ":status-icon?"]
                                                                    :model     status-icon?
                                                                    :on-change (fn [val]
                                                                                 (reset! status-icon? val))]
                                                                   [:span " (notice the tooltips on the icons)"]]]
 
-                                                      [v-box
-                                                       :children [[box :align :start :child [:code ":validation-regex"]]
-                                                                  [radio-button
+                                                      [v-box :src (at)
+                                                       :children [[box :src (at) :align :start :child [:code ":validation-regex"]]
+                                                                  [radio-button :src (at)
                                                                    :label     "nil/omitted - no character validation"
                                                                    :value     nil
                                                                    :model     @regex
                                                                    :on-change #(do (reset! regex %)
                                                                                    (reset! text-val ""))
                                                                    :style     {:margin-left "20px"}]
-                                                                  [radio-button
+                                                                  [radio-button :src (at)
                                                                    :label     "only accept input matching '99.9'"
                                                                    :value     regex999
                                                                    :model     @regex
                                                                    :on-change #(do (reset! regex %)
                                                                                    (reset! text-val ""))
                                                                    :style     {:margin-left "20px"}]]]
-                                                      [h-box
+                                                      [h-box :src (at)
                                                        :align    :start
                                                        :gap      "5px"
-                                                       :children [[checkbox
+                                                       :children [[checkbox :src (at)
                                                                    :label     [:code ":on-alter"]
                                                                    :model     on-alter?
                                                                    :on-change (fn [val]
                                                                                 (reset! on-alter? val))]
                                                                   [:span " (set to " [:code "string/upper-case"] ")"]]]
-                                                      [checkbox
-                                                       :label     [box :align :start :child [:code ":disabled?"]]
+                                                      [checkbox :src (at)
+                                                       :label     [box :src (at) :align :start :child [:code ":disabled?"]]
                                                        :model     disabled?
                                                        :on-change (fn [val]
                                                                     (reset! disabled? val))]
-                                                      [h-box
+                                                      [h-box :src (at)
                                                        :gap "10px"
-                                                       :children [[h-box
+                                                       :children [[h-box :src (at)
                                                                    :align    :start
                                                                    :children [[:code ":rows"]
                                                                               "(textarea)"]]
-                                                                  [slider
+                                                                  [slider :src (at)
                                                                    :model     slider-val
                                                                    :min       1
                                                                    :max       10
                                                                    :width     "200px"
                                                                    :on-change #(reset! slider-val %)]
-                                                                  [label :label @slider-val]]]]]]]]]
+                                                                  [label :src (at) :label @slider-val]]]]]]]]]
                   [parts-table "input-text" input-text-parts-desc]]])))
 
 

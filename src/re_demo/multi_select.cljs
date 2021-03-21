@@ -1,10 +1,10 @@
 (ns re-demo.multi-select
   (:require-macros
-    [re-com.core  :refer [at]])
+    [re-com.core  :refer []])
   (:require
     [cljs.pprint          :as pprint]
     [reagent.core         :as reagent]
-    [re-com.core          :refer [h-box box checkbox gap v-box multi-select hyperlink-href p label]]
+    [re-com.core          :refer [at h-box box checkbox gap v-box multi-select hyperlink-href p label]]
     [re-com.multi-select  :refer [multi-select-parts-desc multi-select-args-desc]]
     [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text new-in-version]]
     [re-com.util          :refer [px]]
@@ -58,7 +58,7 @@
                            :gap      "20px"
                            :width    "450px"
                            :children [[title2 "Demo"]
-                                      [multi-select
+                                      [multi-select :src (at)
                                        :width         "450px"
                                        :left-label    "Car Choices"
                                        :right-label   "Cars Selected"
@@ -100,27 +100,27 @@
                                                   [h-box
                                                    :src      (at)
                                                    :gap      "30px"
-                                                   :children [[v-box
+                                                   :children [[v-box :src (at)
                                                                :gap "3px"
                                                                :children [[checkbox
                                                                            :src       (at)
-                                                                           :label     [box
+                                                                           :label     [box :src (at)
                                                                                        :align :start
                                                                                        :child [:code ":disabled?"]]
                                                                            :model     disabled?
                                                                            :on-change #(reset! disabled? %)]
                                                                           [checkbox
                                                                            :src       (at)
-                                                                           :label     [box
+                                                                           :label     [box :src (at)
                                                                                        :align :start
                                                                                        :child [:code ":required?"]]
                                                                            :model     required?
                                                                            :on-change #(reset! required? %)]]]
-                                                              [v-box
+                                                              [v-box :src (at)
                                                                :gap "3px"
                                                                :children [[checkbox
                                                                            :src       (at)
-                                                                           :label     [box
+                                                                           :label     [box :src (at)
                                                                                        :align :start
                                                                                        :child [:code ":filter-box?"]]
                                                                            :model     filter-box?
@@ -128,7 +128,7 @@
                                                                           (when @filter-box?
                                                                             [checkbox
                                                                              :src       (at)
-                                                                             :label     [box
+                                                                             :label     [box :src (at)
                                                                                          :align :start
                                                                                          :child [:code ":regex-filter?"]]
                                                                              :model     regex-filter?

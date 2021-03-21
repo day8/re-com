@@ -1,6 +1,6 @@
 (ns re-demo.typeahead
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [re-com.core      :refer [h-box v-box box gap line typeahead label checkbox radio-button slider title p]]
+  (:require [re-com.core      :refer [at h-box v-box box gap line typeahead label checkbox radio-button slider title p]]
             [re-com.typeahead :refer [typeahead-args-desc]]
             [re-demo.utils    :refer [panel-title title2 args-table github-hyperlink status-text]]
             [reagent.core     :as    reagent]
@@ -48,16 +48,16 @@
           nil)]
     (fn
       []
-      [v-box
+      [v-box :src (at)
        :size     "auto"
        :gap      "10px"
        :children [[panel-title  "[typeahead ... ]"
                    "src/re_com/typeahead.cljs"
                    "src/re_demo/typeahead.cljs"]
 
-                  [h-box
+                  [h-box :src (at)
                    :gap      "100px"
-                   :children [[v-box
+                   :children [[v-box :src (at)
                                :gap      "10px"
                                :width    "450px"
                                :children [[title2 "Notes"]
@@ -70,15 +70,15 @@
                                           [p "The " [:code ":render-suggestion"] " function can override the default rendering of suggestions."]
                                           [p "Input warnings and errors can be indicated visually by border colors and icons."]
                                           [args-table typeahead-args-desc]]]
-                              [v-box
+                              [v-box :src (at)
                                :gap      "10px"
                                :children [[title2 "Demo"]
-                                          [h-box
+                                          [h-box :src (at)
                                            :gap "40px"
-                                           :children [[v-box
-                                                       :children [[label :label "[typeahead ... ]"]
-                                                                  [gap :size "5px"]
-                                                                  [typeahead
+                                           :children [[v-box :src (at)
+                                                       :children [[label :src (at) :label "[typeahead ... ]"]
+                                                                  [gap :src (at) :size "5px"]
+                                                                  [typeahead :src (at)
                                                                    :model                typeahead-model
                                                                    :data-source          (case @data-source-choice :async data-source-async :immediate data-source-immediate)
                                                                    :suggestion-to-string #(:name %)
@@ -96,75 +96,75 @@
                                                                    :immediate-model-update? immediate-model-update?
                                                                    :rigid?               rigid?
                                                                    :disabled?            disabled?]]]
-                                                      [v-box
+                                                      [v-box :src (at)
                                                        :gap      "15px"
-                                                       :children [[title :level :level3 :label "Callbacks"]
-                                                                  [h-box
+                                                       :children [[title :src (at) :level :level3 :label "Callbacks"]
+                                                                  [h-box :src (at)
                                                                    :align    :center
                                                                    :gap      "5px"
-                                                                   :children [[v-box
+                                                                   :children [[v-box :src (at)
                                                                                :children [[:p [:code ":on-change"] " last called with this value: "]
                                                                                           [:pre (str @typeahead-on-change-value)]]]]]
-                                                                  [title :level :level3 :label "Parameters"]
-                                                                  [v-box
-                                                                   :children [[box :align :start :child [:code ":data-source"]]
-                                                                              [radio-button
+                                                                  [title :src (at) :level :level3 :label "Parameters"]
+                                                                  [v-box :src (at)
+                                                                   :children [[box :src (at) :align :start :child [:code ":data-source"]]
+                                                                              [radio-button :src (at)
                                                                                :label     [:p "Synchronous " [:code "string -> results"]]
                                                                                :value     :immediate
                                                                                :model     @data-source-choice
                                                                                :on-change #(reset! data-source-choice %)
                                                                                :style     {:margin-left "20px"}]
-                                                                              [radio-button
+                                                                              [radio-button :src (at)
                                                                                :label     [:p "Asynchronous " [:code "string, callback -> nil"]]
                                                                                :value     :async
                                                                                :model     @data-source-choice
                                                                                :on-change #(reset! data-source-choice %)
                                                                                :style     {:margin-left "20px"}]]]
-                                                                  [v-box
-                                                                   :children [[box :align :start :child [:code ":change-on-blur?"]]
-                                                                              [radio-button
+                                                                  [v-box :src (at)
+                                                                   :children [[box :src (at) :align :start :child [:code ":change-on-blur?"]]
+                                                                              [radio-button :src (at)
                                                                                :label     "false - Call on-change on every keystroke"
                                                                                :value     false
                                                                                :model     @change-on-blur?
                                                                                :on-change #(reset! change-on-blur? %)
                                                                                :style     {:margin-left "20px"}]
-                                                                              [radio-button
+                                                                              [radio-button :src (at)
                                                                                :label     "true - Call on-change only on blur or Enter key (Esc key resets text)"
                                                                                :value     true
                                                                                :model     @change-on-blur?
                                                                                :on-change #(reset! change-on-blur? %)
                                                                                :style     {:margin-left "20px"}]]]
-                                                                  [v-box
-                                                                   :children [[box :align :start :child [:code ":immediate-model-update?"]]
-                                                                              [radio-button
+                                                                  [v-box :src (at)
+                                                                   :children [[box :src (at) :align :start :child [:code ":immediate-model-update?"]]
+                                                                              [radio-button :src (at)
                                                                                :label     "false - Do not update model on every keystroke"
                                                                                :value     false
                                                                                :model     @immediate-model-update?
                                                                                :on-change #(reset! immediate-model-update? %)
                                                                                :style     {:margin-left "20px"}]
-                                                                              [radio-button
+                                                                              [radio-button :src (at)
                                                                                :label     "true - Update model on every keystroke"
                                                                                :value     true
                                                                                :model     @immediate-model-update?
                                                                                :on-change #(reset! immediate-model-update? %)
                                                                                :style     {:margin-left "20px"}]]]
-                                                                  [v-box
-                                                                   :children [[box :align :start :child [:code ":rigid?"]]
-                                                                              [radio-button
+                                                                  [v-box :src (at)
+                                                                   :children [[box :src (at) :align :start :child [:code ":rigid?"]]
+                                                                              [radio-button :src (at)
                                                                                :label     "false - Arbitrary text can be chosen as well as suggestion objects"
                                                                                :value     false
                                                                                :model     @rigid?
                                                                                :on-change #(reset! rigid? %)
                                                                                :style     {:margin-left "20px"}]
-                                                                              [radio-button
+                                                                              [radio-button :src (at)
                                                                                :label     "true - Only a suggestion object can be chosen"
                                                                                :value     true
                                                                                :model     @rigid?
                                                                                :on-change #(reset! rigid? %)
                                                                                :style     {:margin-left "20px"}]]]
-                                                                  [v-box
-                                                                   :children [[box :align :start :child [:code ":status"]]
-                                                                              [radio-button
+                                                                  [v-box :src (at)
+                                                                   :children [[box :src (at) :align :start :child [:code ":status"]]
+                                                                              [radio-button :src (at)
                                                                                :label     "nil/omitted - normal input state"
                                                                                :value     nil
                                                                                :model     @status
@@ -172,7 +172,7 @@
                                                                                              (reset! status %)
                                                                                              (reset! status-tooltip ""))
                                                                                :style {:margin-left "20px"}]
-                                                                              [radio-button
+                                                                              [radio-button :src (at)
                                                                                :label     ":warning - border color becomes orange"
                                                                                :value     :warning
                                                                                :model     @status
@@ -180,7 +180,7 @@
                                                                                              (reset! status %)
                                                                                              (reset! status-tooltip "Warning tooltip - this (optionally) appears when there are warnings on typeahead components."))
                                                                                :style     {:margin-left "20px"}]
-                                                                              [radio-button
+                                                                              [radio-button :src (at)
                                                                                :label     ":error - border color becomes red"
                                                                                :value     :error
                                                                                :model     @status
@@ -188,17 +188,17 @@
                                                                                              (reset! status %)
                                                                                              (reset! status-tooltip "Error tooltip - this (optionally) appears when there are errors on typeahead components."))
                                                                                :style     {:margin-left "20px"}]]]
-                                                                  [h-box
+                                                                  [h-box :src (at)
                                                                    :align :start
                                                                    :gap      "5px"
-                                                                   :children [[checkbox
+                                                                   :children [[checkbox :src (at)
                                                                                :label     [:code ":status-icon?"]
                                                                                :model     status-icon?
                                                                                :on-change (fn [val]
                                                                                             (reset! status-icon? val))]
                                                                               [:span " (notice the tooltips on the icons)"]]]
-                                                                  [checkbox
-                                                                   :label     [box :align :start :child [:code ":disabled?"]]
+                                                                  [checkbox :src (at)
+                                                                   :label     [box :src (at) :align :start :child [:code ":disabled?"]]
                                                                    :model     disabled?
                                                                    :on-change (fn [val]
                                                                                 (reset! disabled? val))]]]]]]]]]]])))

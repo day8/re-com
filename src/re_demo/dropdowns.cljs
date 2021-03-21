@@ -1,8 +1,8 @@
 (ns re-demo.dropdowns
   (:require-macros
-    [re-com.core     :refer [at]])
+    [re-com.core     :refer []])
   (:require
-    [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
+    [re-com.core     :refer [at h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
     [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
     [re-com.util     :refer [item-for-id]]
     [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
@@ -114,7 +114,7 @@
 
 (defn simple-demo
   []
-  [v-box
+  [v-box :src (at)
    :gap "10px"
    :children [[p "The dropdown above is the simple case."]
               [p "It presents a list of choices and allows one to be selected, via mouse or keyboard."]]])
@@ -373,7 +373,7 @@
                               :padding          "15px"
                               :border-top       "1px solid #DDD"
                               :background-color "#f7f7f7"}
-                   :children [[title :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                   :children [[title :src (at) :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
                               [p "Experiment with the checkboxes below to understand the effect of other parameters."]
                               [h-box
                                :src      (at)
@@ -787,7 +787,7 @@
                    :on-change   #(reset! auto-complete? %)]
                   [checkbox
                    :src         (at)
-                   :label       [box :align :start :child [:code ":capitalize?"]]
+                   :label       [box :src (at) :align :start :child [:code ":capitalize?"]]
                    :model       capitalize?
                    :label-style {:width "165px"}
                    :on-change   #(reset! capitalize? %)]
@@ -851,12 +851,12 @@
                                         [status-text "Stable"]
                                         [p-span
                                           "A dropdown selection component, similar to "
-                                          [hyperlink-href
+                                          [hyperlink-href :src (at)
                                            :label  "Chosen"
                                            :href   "http://harvesthq.github.io/chosen"
                                            :target "_blank"]
                                           ", styled using "
-                                          [hyperlink-href
+                                          [hyperlink-href :src (at)
                                            :label  "Bootstrap"
                                            :href   "https://github.com/alxlit/bootstrap-chosen"
                                            :target "_blank"]

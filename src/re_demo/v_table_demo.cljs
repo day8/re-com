@@ -1,6 +1,5 @@
 (ns re-demo.v-table-demo
-  (:require [re-com.core        :refer [h-box gap v-box box v-table show-row-data-on-alt-click line
-                                        p label popover-content-wrapper] :refer-macros [handler-fn]]
+  (:require [re-com.core        :refer [at h-box gap v-box box v-table show-row-data-on-alt-click line p label popover-content-wrapper] :refer-macros [handler-fn]]
             [re-com.util        :refer [px]]
             [re-demo.utils      :refer [title2 github-hyperlink source-reference]]
             [cljs-time.core     :as time.core]
@@ -380,7 +379,7 @@
 (defn render-table-dates
   "RENDERER: column-header-renderer - Output the detailed 4-row column header of the specified date range"
   []
-  [v-box
+  [v-box :src (at)
    :children [[render-dates-month timeline-start-date timeline-end-date]
               [render-dates-wc    timeline-start-date timeline-end-date]
               [render-dates-dow   timeline-start-date timeline-end-date]
@@ -393,26 +392,26 @@
   [description duration]
   (let [desc-width 85
         dur-width  65]
-    [h-box
+    [h-box :src (at)
      :width    (px (+ desc-width dur-width))
      :height   row-height-px
      :padding  "0 0 0 7px"
-     :children [[box :size "1" :child description]
+     :children [[box :src (at) :size "1" :child description]
                 (when (not= duration non-breaking-space)
                   [:<>
-                   [line]
-                   [gap :size "5px"]
-                   [box :width (px dur-width) :child duration]])]]))
+                   [line :src (at)]
+                   [gap :src (at) :size "5px"]
+                   [box :src (at) :width (px dur-width) :child duration]])]]))
 
 
 ;; TODO - its a bit empty right now
 (defn render-top-left-header
   "compute the row-header column headings (Market and Dur)"
   []
-  [h-box
+  [h-box :src (at)
    :size     "1"
    :align    :end ;; Send text to the bottom
-   :children [[gap :size "1"]]])
+   :children [[gap :src (at) :size "1"]]])
 
 
 (defn render-activity-row-header
@@ -505,8 +504,8 @@
            :anchor-width  (* num-days day-width)
            :anchor-height row-height
            :anchor        anchor
-           :popover       [popover-content-wrapper
-                           :body       [label :label "Popup to edit this item"]
+           :popover       [popover-content-wrapper :src (at)
+                           :body       [label :src (at) :label "Popup to edit this item"]
                            :no-clip?   true
                            :style      {:margin-left (px x-offset)}
                            :on-cancel  #(reset! editor-on nil)]]
@@ -562,9 +561,9 @@
     (fn gantt-chart-demo-render
       []
       (let [content-width (* days-in-timeline day-width)]
-        [v-box
+        [v-box :src (at)
          :class    "v-table-wrapper noselect"
-         :children [[v-table
+         :children [[v-table :src (at)
                      :model                      timeline-data
 
                      ;; ===== Column header (section 4)
@@ -633,7 +632,7 @@
 
 (defn demo
   []
-  [v-box
+  [v-box :src (at)
    :size "1"
    :children [[title2 "Demo"]
               [p [:b [:i "First,"]] " the " [:i "Notes"] " part of this page contains two diagrams describing " [:code "v-table"] " which are built using the " [:code "v-table"] " component. Start by looking at the " [github-hyperlink "source code" "src/re_demo/v_table_sections.cljs"]
@@ -641,11 +640,11 @@
                ". They provide a bare bones introduction."]
               [p [:b [:i "Next,"]] " look at " [:code "simple-v-table"] " (see LHS navigation) to understand what is possible if you want rectangular data displays."]
               [p [:b [:i "Finally,"]] " the demo below showing various more advanced capabilities: "]
-              [gap :size "10px"]
+              [gap :src (at) :size "10px"]
               [gantt-chart-demo]
-              [gap :size "10px"]
+              [gap :src (at) :size "10px"]
               [p "Notes:"]
-              [box
+              [box :src (at)
                :width "450px"
                :child [:ul
                        [:li "this table only has row and column headers, but no footer sections. And only one corner section results (top left)."]
