@@ -214,7 +214,7 @@
 
 (defn add-at-in-component
   "Given `loc` is a hiccup vector for a re-com component, such as `[box :child [...]]`, returns a modified vector
-  with the `:src` arguement added.
+  with the `:src` argument added.
 
   It transforms
     `[box :child [...]]`
@@ -237,8 +237,8 @@
 
 (defn find-recom-usages
   "Given `loc` is a rewrite-clj zipper, it searches for hiccup vectors involving re-com components. For each one
-  found, it calls `add-at-in-component` with that component to add `:src` to the arguements supplied.  As rewrite-clj
-  searches, it doesn't skip uneval forms (#_[<re-com-component> ...]) and so they will\n   also get :src annotations.
+  found, it calls `add-at-in-component` with that component to add `:src` to the arguments supplied.  As rewrite-clj
+  searches, it doesn't skip uneval forms such as (#_[<re-com-component> ...]) and so they will also get :src annotations.
 
    If zipper is for a form such as
      `(ns ...)
