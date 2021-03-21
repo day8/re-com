@@ -5,7 +5,7 @@
   (:import (java.io File FileNotFoundException)))
 
 (defn get-alias
-  "Given `loc` which is a `:require` vector such as `[re-com.core ... :as rc]`, 
+  "Given `loc` which is a `:require` vector such as `[re-com.core ... :as rc]`,
    returns the alias for `re-com.core` as a string.
 
    So, for `[re-com.core ... :as rc]` it will return \"rc\"."
@@ -47,9 +47,9 @@
 
 (defn append-at-to-recom-require-form
   "Given `loc` is a `:require` vector such as `[re-com.core :as rc ...]` will return a map that
-  contains: 
-    - the alias for `re-com.core` as a string, 
-    - a vector of the required symbols such as [p label box] 
+  contains:
+    - the alias for `re-com.core` as a string,
+    - a vector of the required symbols such as [p label box]
     - a modified vector with `at` required.
 
    For example, it would transform a `loc` from:
@@ -144,13 +144,26 @@
              (-> loc z/up z/down z/sexpr (= (if macros?
                                               :require-macros
                                               :require))))
-    loc))
+    (if (clojure.string/includes? (z/string loc) "#_")
+      (println "
+ This `:re-com` vector seems to contain an uneval form with `#_`. \n" (z/node loc) "\n" "
+ In case you have a component like `[re-com.core #_:as :as rc]` and wanted to get the alias, (`rc`),
+ we would normally
+ 1. Search for `:as` with `(z/find-value loc z/next ':as)` and get the element next to it. Or;
+ 2. Loop through the children of the vector and find the element next to the child `:as`.
+ However these methods will fail in the case of uneval forms since rewrite-clj zip reads them as code
+ and not comments. For the component `[re-com.core #_:as :as rc]` rewrite-clj will find the loc `#_:as`
+ and confuse it for both of the methods above which are instead looking for `:as`.
+ As a result the script can't guess how many uneval forms exist before the intended location of the at macro.
+ In case the form " (if macros? "imports the `at` macro, remove it manually."
+                                "needs to import the `at` macro, import it manually."))
+      loc)))
 
 (defn fix-require-forms
-  "Given `loc` is a namespace form such as `(ns ...)`, will return a map which contains: 
-    - a vector of refered vars such as [p box label], 
+  "Given `loc` is a namespace form such as `(ns ...)`, will return a map which contains:
+    - a vector of refered vars such as [p box label],
     - the alias of `re-com.core` as a string such as \"rc\"
-    - a modified list with `at` added rted in the re-com vector. 
+    - a modified list with `at` added rted in the re-com vector.
   It loops through the namespace list and can call functions to format the location
   of `at`.
 
@@ -201,7 +214,7 @@
 
 (defn add-at-in-component
   "Given `loc` is a hiccup vector for a re-com component, such as `[box :child [...]]`, returns a modified vector
-  with the `:src` arguement added.
+  with the `:src` argument added.
 
   It transforms
     `[box :child [...]]`
@@ -223,8 +236,9 @@
     loc))
 
 (defn find-recom-usages
-  "Given `loc` is a rewrite-clj zipper, it searches for hiccup vectors involving re-com components. For each one 
-  found, it calls `add-at-in-component` with that component to add `:src` to the arguements supplied.
+  "Given `loc` is a rewrite-clj zipper, it searches for hiccup vectors involving re-com components. For each one
+  found, it calls `add-at-in-component` with that component to add `:src` to the arguments supplied.  As rewrite-clj
+  searches, it doesn't skip uneval forms such as (#_[<re-com-component> ...]) and so they will also get :src annotations.
 
    If zipper is for a form such as
      `(ns ...)
@@ -252,11 +266,13 @@
 
         ;; when re-com component ns is loaded with :refer option
         (and (z/vector? loc) (seq (z/down loc))
+             (not (clojure.string/starts-with? (-> loc z/down z/string) "#_")) ;; skip uneval forms
              (some required-namespaces (conj [] (z/sexpr (z/down loc)))))
         (recur (-> loc (add-at-in-component verbose?) z/next))
 
         ;; when re-com component ns is loaded with :as option
         (and (z/vector? loc) (seq (z/down loc))
+             (not (clojure.string/starts-with? (-> loc z/down z/string) "#_")) ;; skip uneval forms
              (-> loc z/down z/string (clojure.string/starts-with? (str (:used-alias parsed-require) "/"))))
         (recur (-> loc (add-at-in-component verbose?) z/next))
 
