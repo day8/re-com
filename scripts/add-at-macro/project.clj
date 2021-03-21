@@ -6,4 +6,4 @@
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [rewrite-clj "1.0.579-alpha"]]
   :repl-options {:init-ns add-at-macro.core}
-  :main scripts.core)
+  :main add-at-macro.core)
