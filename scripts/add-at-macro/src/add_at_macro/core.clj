@@ -5,7 +5,7 @@
   (:import (java.io File FileNotFoundException)))
 
 (defn get-alias
-  "Given `loc` which is a `:require` vector such as `[re-com.core ... :as rc]`,
+  "Given `loc`, a rewrite-clj zipper for a `:require` vector such as `[re-com.core ... :as rc]`,
    returns the alias for `re-com.core` as a string.
 
    So, for `[re-com.core ... :as rc]` it will return \"rc\"."
@@ -15,7 +15,7 @@
      alias)))
 
 (defn find-at-loc
-  "Given a `loc` which is the `:refer` vector within a `:require`, for example [p h-box at ...],
+  "Given a `loc`, a rewrite-clj zipper for the `:refer` vector within a `:require`, for example [p h-box at ...],
   will return the rewrite-clj zipper of the `at` element if it is in the vector, otherwise `nil`.
   "
   [loc]
@@ -27,7 +27,7 @@
       (recur (z/right loc)))))
 
 (defn find-require-macros-in-require
-  "Given `loc` is a `:require` vector with `at` in the `:require-macros` section, for example
+  "Given `loc`, a rewrite-clj zipper for a `:require` vector with `at` in the `:require-macros` section, for example
   `[re-com.core :as rc :require-macros [at]]`, will return a modified vector with `at` removed.
 
   For example, it will transform
@@ -46,8 +46,8 @@
       loc)))
 
 (defn append-at-to-recom-require-form
-  "Given `loc` is a `:require` vector such as `[re-com.core :as rc ...]` will return a map that
-  contains:
+  "Given `loc`, a rewrite-clj zipper for is a `:require` vector such as `[re-com.core :as rc ...]`,
+  will return a map that contains:
     - the alias for `re-com.core` as a string,
     - a vector of the required symbols such as [p label box]
     - a modified vector with `at` required.
@@ -95,8 +95,8 @@
                                   (z/append-child (z/sexpr (z/of-string "[at]"))))))}))
 
 (defn remove-at-from-required-macros
-  "Given `loc` is a `:require` vector such as `[re-com.core :refer [at p box] ...]` in the `:require-macros`
-  list, will return a modified vector with `at` removed.
+  "Given `loc`, a rewrite-clj zipper for a `:require` vector such as `[re-com.core :refer [at p box] ...]`
+  in the `:require-macros` list, will return a modified vector with `at` removed.
 
   It might transform loc from:
     `[re-com.core :refer [p at box]]`
@@ -116,8 +116,9 @@
       loc)))
 
 (defn find-re-com-in-require
-  "Given `loc` is a `:require` vector which loads `re-com.core` such as `[re-com.core :as rc ...]`,
-  will return the `loc` of the vector, if its parent is a `:require` list. Otherwise `nil`.
+  "Given `loc`, a rewrite-clj zipper for a `:require` vector which loads `re-com.core` 
+  such as `[re-com.core :as rc ...]`, will return the `loc` of the vector, if its parent 
+  is a `:require` list. Otherwise `nil`.
 
   For example, if `loc` is
     `[re-com.core :as rc ...]`
@@ -160,7 +161,8 @@
       loc)))
 
 (defn fix-require-forms
-  "Given `loc` is a namespace form such as `(ns ...)`, will return a map which contains:
+  "Given `loc`, a rewrite-clj zipper for a namespace form such as `(ns ...)`,
+  will return a map which contains:
     - a vector of refered vars such as [p box label],
     - the alias of `re-com.core` as a string such as \"rc\"
     - a modified list with `at` added rted in the re-com vector.
@@ -203,7 +205,8 @@
         (recur (z/next loc))))))
 
 (defn check-source-added-already?
-  "Given `loc` is a hiccup vector for a re-com component, such as [box :src (at) :child [...]], returns true if it contains a `:src` argument."
+  "Given `loc`, a rewrite-clj zipper for a hiccup vector for a re-com component, 
+  such as [box :src (at) :child [...]], will return true if it contains a `:src` argument."
   [loc]
   (loop [loc (z/down loc)]
     (cond
@@ -213,8 +216,9 @@
       (recur (z/right loc)))))
 
 (defn add-at-in-component
-  "Given `loc` is a hiccup vector for a re-com component, such as `[box :child [...]]`, returns a modified vector
-  with the `:src` argument added.
+  "Given `loc`, a rewrite-clj zipper for a hiccup vector for a re-com component, 
+  such as `[box :child [...]]`, will return a modified vector with the `:src` 
+  argument added.
 
   It transforms
     `[box :child [...]]`
@@ -236,9 +240,12 @@
     loc))
 
 (defn find-recom-usages
-  "Given `loc` is a rewrite-clj zipper, it searches for hiccup vectors involving re-com components. For each one
-  found, it calls `add-at-in-component` with that component to add `:src` to the arguments supplied.  As rewrite-clj
-  searches, it doesn't skip uneval forms such as (#_[<re-com-component> ...]) and so they will also get :src annotations.
+  "Given `loc`, a rewrite-clj zipper for the body of a `defn`, it searches for hiccup vectors 
+  involving re-com components. For each one found, it calls `add-at-in-component` to add `:src`
+  to the existing arguments.
+  
+  Note: as rewrite-clj searches, it doesn't skip uneval forms such as 
+  `#_[<re-com-component> ...]` and so they will also get :src annotations.
 
    If zipper is for a form such as
      `(ns ...)
