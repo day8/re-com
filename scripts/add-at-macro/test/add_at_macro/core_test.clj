@@ -152,6 +152,15 @@
   (testing "Test getting function arguments."
     (is (z/vector? (arguments (z/down source-component))) "Could not get the function arguments.")))
 
+(def p-component (z/of-string "
+[rc/p-span        ;; also passes for `p`
+ :align :center
+ :children []]" {:track-position? true}))
+
+(deftest test-re-com-component?
+  (testing "Testing if this is a re-com component"
+    (is (not (re-com-component? (-> p-component z/down z/string) "rc")) "This is not a valid re-com component")))
+
 (def directory "")
 
 (deftest test-script
