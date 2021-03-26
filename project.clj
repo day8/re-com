@@ -14,7 +14,7 @@
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
-                 [thheller/shadow-cljs        "2.11.23"  :scope "provided"]
+                 [thheller/shadow-cljs        "2.11.24"  :scope "provided"]
                  [reagent                     "1.0.0"    :scope "provided"]
                  [org.clojure/core.async      "1.3.610"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
@@ -31,7 +31,7 @@
   :profiles {:dev      {:source-paths ["dev-src"]
                         :dependencies [[clj-stacktrace "0.2.8"]
                                        [binaryage/devtools "1.0.2"]]
-                        :plugins      [[org.clojure/data.json "0.2.6"]]}
+                        :plugins      [[org.clojure/data.json "2.0.1"]]}
 
              :demo     {:dependencies [[alandipert/storage-atom "2.0.1"]
                                        [com.cognitect/transit-cljs "0.8.264"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced

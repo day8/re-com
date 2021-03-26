@@ -142,7 +142,7 @@
 
 (defn row-renderer
   ":row-renderer AND :row-header-renderer: Render a single row of the table data"
-  [columns on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color row-index row]
+  [columns on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color row-index row]
   (into
     [:div
      (merge
@@ -153,6 +153,8 @@
                                 :height      (px row-height)
                                 :border-top  (str "1px solid " table-row-line-color)
                                 :cursor      (when on-click-row "pointer")}
+                               (when (and striped? (odd? row-index))
+                                 {:background-color "#f2f2f2"})
                                (get-in parts [:simple-row :style])
                                (if (fn? row-style)
                                  (row-style row)
@@ -208,6 +210,7 @@
      {:name :on-click-row              :required false                    :type "function"                         :validate-fn ifn?                           :description "This function is called when the user clicks a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
      {:name :on-enter-row              :required false                    :type "function"                         :validate-fn ifn?                           :description "This function is called when the user's mouse pointer enters a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
      {:name :on-leave-row              :required false                    :type "function"                         :validate-fn ifn?                           :description "This function is called when the user's mouse pointer leaves a row. Called with the row index. Do not use for adjusting row styles, use styling instead."}
+     {:name :striped?                  :required false :default false     :type "boolean"                                                                      :description "when true, adds zebra-striping to the table's rows."}
      {:name :row-style                 :required false                    :type "map | function"                   :validate-fn #(or (fn? %) (map? %))         :description "Style each row container either statically by passing a CSS map or dynamically by passing a function which receives the data for that row."}
      {:name :cell-style                :required false                    :type "map | function"                   :validate-fn #(or (fn? %) (map? %))         :description "Style each cell in a row either statically by passing a CSS map or dynamically by passing a function which receives the data for that row and the cell definition from the columns arg."}
      {:name :class                     :required false                    :type "string"                           :validate-fn string?                        :description "CSS class names, space separated (applies to the outer container)."}
@@ -232,7 +235,7 @@
       (fn simple-v-table-render
         [& {:keys [model columns fixed-column-count fixed-column-border-color column-header-height column-header-renderer
                    max-width max-rows row-height table-padding table-row-line-color on-click-row on-enter-row on-leave-row
-                   row-style cell-style class parts src debug-as]
+                   striped? row-style cell-style class parts src debug-as]
 
             :or   {column-header-height      31
                    row-height                31
@@ -292,10 +295,10 @@
                         :column-header-height    column-header-height
 
                         ;; ===== Row header (section 2)
-                        :row-header-renderer     (partial row-renderer fixed-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color)
+                        :row-header-renderer     (partial row-renderer fixed-cols on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color)
 
                         ;; ===== Rows (section 5)
-                        :row-renderer            (partial row-renderer content-cols on-click-row on-enter-row on-leave-row row-height row-style cell-style parts table-row-line-color)
+                        :row-renderer            (partial row-renderer content-cols on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color)
                         :row-content-width       content-width
                         :row-height              row-height
                         :max-row-viewport-height (when max-rows (* max-rows row-height))

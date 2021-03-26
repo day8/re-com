@@ -53,6 +53,7 @@
         max-width           (reagent/atom 630)
         fixed-column-count? (reagent/atom true)
         fixed-column-count  (reagent/atom 1)
+        striped?            (reagent/atom false)
         parent-color        "#BEEDFF"
         parent-width?       (reagent/atom false)
         parent-width        (reagent/atom 600)
@@ -180,6 +181,17 @@
                                                          :src      (at)
                                                          :style {:background-color parent-color}
                                                          :label (str "when unset, the table's height is the parent's explicit height, or if that's unset, the number of rows of data (" (count @sales-rows) ")")])]]
+                                          [h-box
+                                            :src      (at)
+                                            :gap      spacing7
+                                            :align    :center
+                                            :children [[checkbox
+                                                        :src      (at)
+                                                        :model     striped?
+                                                        :on-change #(reset! striped? %)]
+                                                       [label
+                                                        :src      (at)
+                                                        :label [:code ":striped?"]]]]
                                           [gap
                                            :src      (at)
                                            :size "0px"]
@@ -324,6 +336,7 @@
                                                        :max-width                 (when @max-width? (px @max-width))
 
                                                        ;; ===== Styling
+                                                       :striped?                  @striped?
                                                        :cell-style                (fn [{:keys [sales] :as row} {:keys [id] :as column}]
                                                                                     (when (= :sales id)
                                                                                       {:background-color (cond
