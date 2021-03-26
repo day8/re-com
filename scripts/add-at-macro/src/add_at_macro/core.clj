@@ -48,7 +48,7 @@
 (defn append-at-to-recom-require-form
   "Given `loc`, a rewrite-clj zipper for is a `:require` vector such as `[re-com.core :as rc ...]`,
   will return a map that contains:
-    - the alias for `re-com.core` as a string,
+    - the alias for `re-com.core` as a string such as `\"rc\"`,
     - a vector of the required symbols such as [p label box]
     - a modified vector with `at` required.
 
@@ -94,14 +94,14 @@
                                   (z/append-child (z/sexpr (z/of-string ":refer")))
                                   (z/append-child (z/sexpr (z/of-string "[at]"))))))}))
 
-(defn remove-at-from-required-macros
-  "Given `loc`, a rewrite-clj zipper for a `:require` vector such as `[re-com.core :refer [at p box] ...]`
+(defn remove-at-from-require-macros
+  "Given `loc`, a rewrite-clj zipper for a `:require-macros` vector such as `[re-com.core :refer [at] ...]`
   in the `:require-macros` list, will return a modified vector with `at` removed.
 
   It might transform loc from:
-    `[re-com.core :refer [p at box]]`
+    `[re-com.core :refer [at]]`
   to
-    `[re-com.core :refer [p box]]`"
+    `[re-com.core :refer []]`" ;; TODO: actually remove empty :refer ?
   [loc verbose?]
   (let [refer-keyword       (z/find-value loc z/next :refer)
         referred-namespaces (if refer-keyword
@@ -118,7 +118,7 @@
 (defn find-re-com-in-require
   "Given `loc`, a rewrite-clj zipper for a `:require` vector which loads `re-com.core` 
   such as `[re-com.core :as rc ...]`, will return the `loc` of the vector, if its parent 
-  is a `:require` list. Otherwise `nil`.
+  is a `:require` list and `macros?` argument is false. Otherwise `nil`.
 
   For example, if `loc` is
     `[re-com.core :as rc ...]`
@@ -131,12 +131,15 @@
 
   If the `macros?` argument is true, the function will do the same operation but check the `:require-macros`
   list instead.
-  
-  If `macros?` option is true, the above example returns nil and returns the zipper iff the `:require` vector
-  exists in `:refer-macros` list such as:
+
+  For example, if `loc` is
+    `[re-com.core :as rc ...]`
+  and its parent is a `:require-macros` list:
     `(:require-macros
-       [re-com.core :as rc ...]
-       ...)`"
+      [re-com.core :as rc ...]
+      ...)`
+  it will return the rewrite-clj zipper for:
+    `[re-com.core :as rc ...]`."
   [loc {:keys [macros?]}]
   (when (and (z/vector? loc)
              (-> loc z/down z/string (= "re-com.core"))
@@ -163,20 +166,20 @@
 (defn fix-require-forms
   "Given `loc`, a rewrite-clj zipper for a namespace form such as `(ns ...)`,
   will return a map which contains:
-    - a vector of refered vars such as [p box label],
+    - a vector of referred vars such as [p box label],
     - the alias of `re-com.core` as a string such as \"rc\"
-    - a modified list with `at` added rted in the re-com vector.
+    - a modified list with `at` added in the re-com vector.
   It loops through the namespace list and can call functions to format the location
   of `at`.
 
   If the list contains a re-com vector in the `:require` section such as [re-com.core :as rc] the function
   `append-at-to-recom-require-form` is called with the vector which imports the `at` macro.
-  If the list contains a re-com vector in the `:require-macros` section, the function `remove-at-from-required-macros`
-  is called with the vector which checks that the `at` macro is not loaded and removes the `at` macro if it exists.
+  If the list contains a re-com vector in the `:require-macros` section, the function `remove-at-from-require-macros`
+  is called with the vector which checks that the `at` macro is not referred and removes the `at` macro if it exists.
   The macro is added again in the require vector in the :refer section."
   [loc verbose?]
   (let [required-namespaces-g (atom [])
-        used-alias-g (atom nil)]
+        used-alias-g          (atom nil)]
     (loop [loc loc]
       (cond
         (z/end? loc) {:required-namespaces @required-namespaces-g
@@ -199,7 +202,7 @@
         (do
           (when verbose?
             (println "Found re-com.core in :require-macros, checking if `at` macro is referred."))
-          (recur (-> loc (remove-at-from-required-macros verbose?) z/next)))
+          (recur (-> loc (remove-at-from-require-macros verbose?) z/next)))
 
         :else
         (recur (z/next loc))))))
@@ -254,11 +257,11 @@
 
       (defn y [] ...)
       ...`
-   we start looping at `(ns ...)` if `namespaced?` argument is true else at `(defn x [] ...)`. If zipper is a file make
-   sure to pass `:namespaced` as true in order to skip the `(ns ...)` form.
+   we start looping at `(ns ...)` if `namespaced?` argument is true else at `(defn x [] ...)`. If zipper is a file
+   (i.e it contains a `(ns ...)` form) make sure to pass `:namespaced?` as true in order to skip the `(ns ...)` form.
 
-   The loc can also be the zipper of any clojure form such as `defn` and `def`. Just make sure that `:namespaced` is
-   false(default) to prevent skipping the first form.
+   The loc can also be the zipper of any clojure form such as `defn` and `def`. Just make sure that `:namespaced?` is
+   false (default) to prevent skipping the first form.
 
    It returns the modified loc with `:src` annotations added to its re-com components."
   [loc parsed-require {:keys [namespaced? verbose? arguments]}]
@@ -300,7 +303,7 @@
     loc))
 
 (defn a-function?
-  "Given `loc` is a zipper for a top level form, returns true if it is a clojure `defn` 
+  "Given `loc` is a zipper for a top level form, returns true if it is a `defn`
    form, otherwise `nil`.
 
    Given loc as
@@ -317,9 +320,11 @@
 (defn arguments
   "Takes the loc of a function and returns the arguments of the function, the arguments are important to prevent
    adding `:src` annotations to local variables that share names with re-com components. For example
-   (defn blah
-     [label arg2 agr3]      ;; <--- oops label is now shadowing a re-com component within this defn
-     ...)"
+     (defn blah
+       [label arg2 arg3]      ;; <--- oops label is now shadowing a re-com component within this defn
+       ...)
+   will return
+      [label arg2 arg3]"
   [loc]
   (loop [loc loc]
     (cond
@@ -329,7 +334,7 @@
       (recur (z/right loc)))))
 
 (defn parse-map-arguments
-  "Given `loc` which is a map that parses function arguments, it returns a vector of the `:keys` keyword in the map.
+  "Given `loc` which is a function argument destructuring map, it returns a vector of the `:keys` keyword in the map.
 
   Given:
   {:keys [at p box]
@@ -395,20 +400,20 @@
           (recur (z/right loc)))))))
 
 (defn parse-file
-  "Takes a file and loops through the main forms. We then classify the looped form as a namespace if it exists as
-  `(ns ...)` and as a function if it exists as, `(defn ...)`. Other forms have a general method.
-  We need to know if the looped form is a namespace form `(ns ...)` in order to add the at macro in the `:require`
-  section.
-  For `defn`, we need to know the arguments to prevent renaming arguments that share names with re-com.core namespace
-  components.
+  "Takes a file and loops through the main forms. We then classify the looped form as a namespace if it is a `(ns ...)`
+   form and as a function if it is a `(defn ...)` form. Other forms have a general method.
+   We need to know if the looped form is a namespace form `(ns ...)` in order to add the at macro in the `:require`
+   section, and possibly remove the at macro in the `:require-macros` section.
+   For `defn`, we need to know the arguments to prevent renaming arguments that share names with `re-com.core` namespace
+   components.
 
-  Given the file
-  `(ns ...)                           <== namespace form
+   Given the file
+   `(ns ...)                           <== namespace form
 
-  (defn x [] ...)                     <== function form
+   (defn x [] ...)                     <== function form
 
-  (def y [])                          <== general form
-  ...`  this function will loop three times for the three main forms."
+   (def y [])                          <== general form
+   ...`  this function will loop three times for the three main forms."
   [file-loc namespaced? verbose?]
   (let [parsed-require-g (atom {})
         edited?  (atom false)]
@@ -460,8 +465,8 @@
 
 (defn read-write-file
   "Reads and writes file in case of edits. When `verbose?` is true, operations that the script does are printed to the
-   console. `testing?` supersedes `verbose?` with the extra option that the changes being printed to file. testing? is
-   convenient for testing as it prints the changes to console instead of saving them to disk."
+   console. Or when `testing?` is true, it is the same as `verbose?` being true in that operations are printed to the
+   console and additionally edits are written to the console instead of files."
   [file {:keys [verbose? testing?]}]
   (let [abs-path    (.getAbsolutePath ^File file)
         _           (println "Reading file: " abs-path)
@@ -489,8 +494,13 @@
 (def testing? false)
 
 (defn run-script
-  "Checks that the absolute path exists. In case it resolves to a directory, we check
-  that the files in that directory are all valid files and have the .cljs extension"
+  "Runs this script on the directory or file at the given absolute path.
+
+   Checks that the absolute path exists, otherwise prints an error.
+
+   In the case that the absolute path resolves to a directory, we find all
+   files in that directory tree that have a `.cljs` extension and we run
+   this script's modifications on those files."
   [abs-path]
   (let [directory          (io/file abs-path)
         exists?            (.exists directory)
@@ -508,9 +518,10 @@
         (read-write-file file {:verbose? print?
                                :testing? testing?})))))
 
-(defn -main [& args]
+(defn -main
   "Call this function with the directory path as an argument to run this script. This function
-  is called after `lein run` with the arguments passed to lein run."
+  is called after `lein run` with the arguments passed to lein run. Also see `run-script` above."
+  [& args]
   (let [directory (str (first args))]
     (if (seq directory)
       (run-script (str (first args)))
