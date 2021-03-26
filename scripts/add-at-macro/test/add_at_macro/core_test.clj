@@ -47,10 +47,10 @@
     (with-redefs [recom-a recom-c]
       (test-append-at-to-refer-option))))
 
-(deftest test-remove-at-from-required-macros
+(deftest test-remove-at-from-require-macros
   (testing "Test removing at macro from re-com import form in require-macros `[re-com.core ...]`"
     (let [require-macro-a recom-b
-          edited-require  (remove-at-from-required-macros require-macro-a verbose?)
+          edited-require  (remove-at-from-require-macros require-macro-a verbose?)
           namespace       (-> edited-require z/down z/string)
           referred-vars   (-> edited-require (z/find-value z/next ':refer))
           referred-vars-a (when referred-vars
@@ -105,7 +105,7 @@
         (cond
           (z/end? loc) nil
           (find-re-com-in-require loc {:macros? true}) (with-redefs [recom-a loc]
-                                                         (test-remove-at-from-required-macros))
+                                                         (test-remove-at-from-require-macros))
           :else
           (recur (z/next loc)))))))
 
@@ -181,7 +181,7 @@
   :children [[re-com/title
               :label \"Title\"]]])
 
-(def test2 [title               <== Src will be added here.
+(def test2 [title               <== :src will be added here.
             :label \"Title\"])
 ")
 
