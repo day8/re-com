@@ -58,15 +58,17 @@ To install, follow the directions in the README.md found in the project's GitHub
 ### Test script
 1. Assign the variable `(def directory "")` in `./test/add-at-macro/core-test.clj` to the directory containing your
    source files. From step 3 above, say, `../my-project/src`.
+
 2. Run the function `test-script` in tests which will print the changes to be made to console. While `:testing?`
    is true the changes will also not be saved to file which is good for checking changes without saving them.
+
 3. To run the tests via the repl open a repl
-```
-lein repl
-```   
+   ```sh
+   lein repl
+   ```
 4. Run the following at the repl
-```clojure
-(require '[at-macro.core-test :refer [runner]])
-(runner <directory>)
-```
+   ```clojure
+   (require '[at-macro.core-test :refer [runner]])
+   (runner <directory>)
+   ```
  
