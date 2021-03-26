@@ -10,6 +10,7 @@
 #### Added
 
 - Add parts to tag-dropdown for internal selection-list
+- Add simple-v-table striped? argument
 
 ## 2.13.2 (2021-02-24)
 
