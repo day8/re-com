@@ -468,12 +468,18 @@
   "Reads and writes file in case of edits. When `verbose?` is true, operations that the script does are printed to the
    console. `testing?` supersedes `verbose?` with the extra option that the changes being printed to file. testing? is
    convenient for testing as it prints the changes to console instead of saving them to disk."
-  [file {:keys [verbose? testing?]}]
-  (let [abs-path    (.getAbsolutePath ^File file)
-        _           (println "Reading file: " abs-path)
+  [file {:keys [verbose? testing? test-file]}]
+  (let [abs-path    (when-not test-file
+                      (.getAbsolutePath ^File file))
+        _           (when abs-path
+                      (println "Reading file: " abs-path))
         verbose?    (or testing? verbose?)
         loc         (try
-                      (-> file slurp (z/of-string {:track-position? true}))
+                      (if test-file
+                        (if (string? test-file)
+                          (z/of-string test-file {:track-position? true})
+                          (println "The file to test should be a string."))
+                        (-> file slurp (z/of-string {:track-position? true})))
                       (catch Exception e (println "Error reading file: " e)))
         namespaced? (when loc
                       (-> loc z/leftmost z/down z/string (= "ns"))) ;; File contains (ns ...) at the beginning?
@@ -481,10 +487,11 @@
                       (parse-file loc namespaced? verbose?))]
     (if namespaced?
       (do
-        (if testing?
+        (if (or testing? test-file)
           (println edited-file "\n")
           (spit abs-path edited-file))
-        (println "Writing file: " abs-path "\n"))
+        (when-not test-file
+          (println "Writing file: " abs-path "\n")))
       (when verbose?
         (println "This namespace does not have any dependencies, skipping.")))))
 

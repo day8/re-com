@@ -163,6 +163,33 @@
 
 (def directory "")
 
+(def file-example "
+(ns sample-namespace.core
+  (:require
+    [re-com.core :refer [box title p v-box] :as re-com]))
+
+(def test [re-com/title
+            :label \"Title\"])
+
+(defn a-function
+ [title]
+ [p \"Should not change.\"]
+ [title
+  :label \"Should not change.\"]
+ [v-box
+  :align :center
+  :children [[re-com/title
+              :label \"Title\"]]])
+
+(def test2 [title               <== Src will be added here.
+            :label \"Title\"])
+")
+
+(deftest test-file
+  (testing "Testing effect of at macro script on a file."
+    (read-write-file nil {:testing? true :test-file file-example})))
+
+
 (deftest test-script
   (testing "Test the full script in general"
     ;; When `:print?` is true, this translates to verbose? in the script which is a flag to tell the script to print
