@@ -186,12 +186,12 @@
 ")
 
 (deftest test-file
-  (testing "Testing effect of at macro script on a file."
+  (testing "Test effect of `add-at-macro` script on a string file."
     (read-write-file nil {:testing? true :test-file file-example})))
 
 
 (deftest test-script
-  (testing "Test the full script in general"
+  (testing "Test the full script including reading files from disk"
     ;; When `:print?` is true, this translates to verbose? in the script which is a flag to tell the script to print
     ;; to the console the changes it will do. When the flag `:testing?` is true, the console does not save the changes
     ;; it makes to file but prints the file to console. When `:testing?` is true, `:verbose?` is always true
