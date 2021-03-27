@@ -159,7 +159,7 @@
 
 (deftest test-re-com-component?
   (testing "Testing if this is a re-com component"
-    (is (not (re-com-component? (-> p-component z/down z/string) "rc")) "This is not a valid re-com component")))
+    (is (not (re-com-kwargs-component? (-> p-component z/down z/string) "rc")) "This is not a valid re-com component")))
 
 (def directory "")
 

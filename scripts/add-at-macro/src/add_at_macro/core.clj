@@ -242,14 +242,14 @@
           z/up))
     loc))
 
-(defn re-com-component?
+(defn re-com-kwargs-component?
   "Given a string and an alias, finds if the string is referring to a re-com component that should not be
    added the `:src` annotations. i.e `p` or `p-span`.
 
    For example
-   - Given the string `rc/p` and the alias `rc`, will return true
-   - Given the string `rc/p-span` and the alias `rc`, will return true
-   - Given any other string such as `rc/box` and an alias such as `rc` will return false"
+   - Given the string `rc/p` and the alias `rc`, will return false
+   - Given the string `rc/p-span` and the alias `rc`, will return false
+   - Given any other string such as `rc/box` and an alias such as `rc` will return true"
   [s alias]
   (and (clojure.string/starts-with? s (str alias "/"))
        (not= s (str alias "/p"))
@@ -296,7 +296,7 @@
         ;; when re-com component ns is loaded with :as option
         (and (z/vector? loc) (seq (z/down loc))
              (not (clojure.string/starts-with? (-> loc z/down z/string) "#_")) ;; skip uneval forms
-             (-> loc z/down z/string (re-com-component? (:used-alias parsed-require))))
+             (-> loc z/down z/string (re-com-kwargs-component? (:used-alias parsed-require))))
         (recur (-> loc (add-at-in-component verbose?) z/next))
 
         :else
