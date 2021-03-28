@@ -116,8 +116,8 @@
       loc)))
 
 (defn find-re-com-in-require
-  "Given `loc`, a rewrite-clj zipper for a `:require` vector which loads `re-com.core` 
-  such as `[re-com.core :as rc ...]`, will return the `loc` of the vector, if its parent 
+  "Given `loc`, a rewrite-clj zipper for a `:require` vector which loads `re-com.core`
+  such as `[re-com.core :as rc ...]`, will return the `loc` of the vector, if its parent
   is a `:require` list and `macros?` argument is false. Otherwise `nil`.
 
   For example, if `loc` is
@@ -208,7 +208,7 @@
         (recur (z/next loc))))))
 
 (defn check-source-added-already?
-  "Given `loc`, a rewrite-clj zipper for a hiccup vector for a re-com component, 
+  "Given `loc`, a rewrite-clj zipper for a hiccup vector for a re-com component,
   such as [box :src (at) :child [...]], will return true if it contains a `:src` argument."
   [loc]
   (loop [loc (z/down loc)]
@@ -219,8 +219,8 @@
       (recur (z/right loc)))))
 
 (defn add-at-in-component
-  "Given `loc`, a rewrite-clj zipper for a hiccup vector for a re-com component, 
-  such as `[box :child [...]]`, will return a modified vector with the `:src` 
+  "Given `loc`, a rewrite-clj zipper for a hiccup vector for a re-com component,
+  such as `[box :child [...]]`, will return a modified vector with the `:src`
   argument added.
 
   It transforms
@@ -242,12 +242,25 @@
           z/up))
     loc))
 
+(defn re-com-kwargs-component?
+  "Given a string and an alias, finds if the string is referring to a re-com component that should not be
+   added the `:src` annotations. i.e `p` or `p-span`.
+
+   For example
+   - Given the string `rc/p` and the alias `rc`, will return false
+   - Given the string `rc/p-span` and the alias `rc`, will return false
+   - Given any other string such as `rc/box` and an alias such as `rc` will return true"
+  [s alias]
+  (and (clojure.string/starts-with? s (str alias "/"))
+       (not= s (str alias "/p"))
+       (not= s (str alias "/p-span"))))
+
 (defn find-recom-usages
-  "Given `loc`, a rewrite-clj zipper for the body of a `defn`, it searches for hiccup vectors 
+  "Given `loc`, a rewrite-clj zipper for the body of a `defn`, it searches for hiccup vectors
   involving re-com components. For each one found, it calls `add-at-in-component` to add `:src`
   to the existing arguments.
-  
-  Note: as rewrite-clj searches, it doesn't skip uneval forms such as 
+
+  Note: as rewrite-clj searches, it doesn't skip uneval forms such as
   `#_[<re-com-component> ...]` and so they will also get :src annotations.
 
    If zipper is for a form such as
@@ -283,7 +296,7 @@
         ;; when re-com component ns is loaded with :as option
         (and (z/vector? loc) (seq (z/down loc))
              (not (clojure.string/starts-with? (-> loc z/down z/string) "#_")) ;; skip uneval forms
-             (-> loc z/down z/string (clojure.string/starts-with? (str (:used-alias parsed-require) "/"))))
+             (-> loc z/down z/string (re-com-kwargs-component? (:used-alias parsed-require))))
         (recur (-> loc (add-at-in-component verbose?) z/next))
 
         :else
@@ -466,13 +479,22 @@
 (defn read-write-file
   "Reads and writes file in case of edits. When `verbose?` is true, operations that the script does are printed to the
    console. Or when `testing?` is true, it is the same as `verbose?` being true in that operations are printed to the
-   console and additionally edits are written to the console instead of files."
-  [file {:keys [verbose? testing?]}]
-  (let [abs-path    (.getAbsolutePath ^File file)
-        _           (println "Reading file: " abs-path)
+   console and additionally edits are written to the console instead of files.
+   For testing purposes, you can pass a file as a string using the `test-file` argument. This is convenient for testing
+   when the script is not editing a file correctly or for studying the behavior of the `add-at-macro` script. An example
+   of how to do this can be found in the `add-at-macro.core-test` namespace at the test, `test-file`."
+  [file {:keys [verbose? testing? test-file]}]
+  (let [abs-path    (when-not test-file
+                      (.getAbsolutePath ^File file))
+        _           (when abs-path
+                      (println "Reading file: " abs-path))
         verbose?    (or testing? verbose?)
         loc         (try
-                      (-> file slurp (z/of-string {:track-position? true}))
+                      (if test-file
+                        (if (string? test-file)
+                          (z/of-string test-file {:track-position? true})
+                          (println "The file to test should be a string."))
+                        (-> file slurp (z/of-string {:track-position? true})))
                       (catch Exception e (println "Error reading file: " e)))
         namespaced? (when loc
                       (-> loc z/leftmost z/down z/string (= "ns"))) ;; File contains (ns ...) at the beginning?
@@ -480,10 +502,11 @@
                       (parse-file loc namespaced? verbose?))]
     (if namespaced?
       (do
-        (if testing?
+        (if (or testing? test-file)
           (println edited-file "\n")
           (spit abs-path edited-file))
-        (println "Writing file: " abs-path "\n"))
+        (when-not test-file
+          (println "Writing file: " abs-path "\n")))
       (when verbose?
         (println "This namespace does not have any dependencies, skipping.")))))
 

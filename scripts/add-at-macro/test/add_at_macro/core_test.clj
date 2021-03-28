@@ -47,10 +47,10 @@
     (with-redefs [recom-a recom-c]
       (test-append-at-to-refer-option))))
 
-(deftest test-remove-at-from-required-macros
+(deftest test-remove-at-from-require-macros
   (testing "Test removing at macro from re-com import form in require-macros `[re-com.core ...]`"
     (let [require-macro-a recom-b
-          edited-require  (remove-at-from-required-macros require-macro-a verbose?)
+          edited-require  (remove-at-from-require-macros require-macro-a verbose?)
           namespace       (-> edited-require z/down z/string)
           referred-vars   (-> edited-require (z/find-value z/next ':refer))
           referred-vars-a (when referred-vars
@@ -105,7 +105,7 @@
         (cond
           (z/end? loc) nil
           (find-re-com-in-require loc {:macros? true}) (with-redefs [recom-a loc]
-                                                         (test-remove-at-from-required-macros))
+                                                         (test-remove-at-from-require-macros))
           :else
           (recur (z/next loc)))))))
 
@@ -152,10 +152,46 @@
   (testing "Test getting function arguments."
     (is (z/vector? (arguments (z/down source-component))) "Could not get the function arguments.")))
 
+(def p-component (z/of-string "
+[rc/p-span        ;; also passes for `p`
+ :align :center
+ :children []]" {:track-position? true}))
+
+(deftest test-re-com-component?
+  (testing "Testing if this is a re-com component"
+    (is (not (re-com-kwargs-component? (-> p-component z/down z/string) "rc")) "This is not a valid re-com component")))
+
 (def directory "")
 
+(def file-example "
+(ns sample-namespace.core
+  (:require
+    [re-com.core :refer [box title p v-box] :as re-com]))
+
+(def test [re-com/title
+            :label \"Title\"])
+
+(defn a-function
+ [title]
+ [p \"Should not change.\"]
+ [title
+  :label \"Should not change.\"]
+ [v-box
+  :align :center
+  :children [[re-com/title
+              :label \"Title\"]]])
+
+(def test2 [title               <== :src will be added here.
+            :label \"Title\"])
+")
+
+(deftest test-file
+  (testing "Test effect of `add-at-macro` script on a string file."
+    (read-write-file nil {:testing? true :test-file file-example})))
+
+
 (deftest test-script
-  (testing "Test the full script in general"
+  (testing "Test the full script including reading files from disk"
     ;; When `:print?` is true, this translates to verbose? in the script which is a flag to tell the script to print
     ;; to the console the changes it will do. When the flag `:testing?` is true, the console does not save the changes
     ;; it makes to file but prints the file to console. When `:testing?` is true, `:verbose?` is always true
