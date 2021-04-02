@@ -261,7 +261,6 @@
 (defn- free-text-dropdown-top-base
   "Base function (before lifecycle metadata) to render the top part of the dropdown (free-text), with the editable area and the up/down arrow"
   [free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]
-  (js/console.log "disabled? " disabled?)
   [:ul.chosen-choices
    [:li.search-field
     [:div.free-text
