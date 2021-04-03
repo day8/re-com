@@ -1,8 +1,10 @@
-You should run this script on a legacy codebase to take advantage of `re-com's` new `:src` debugging feature described 
-here: https://re-com.day8.com.au/#/debug
+You should run this script on a legacy codebase which uses `re-com`. 
+
+Version 2.13.0 of `re-com` introduced a new `:src` 
+debugging feature described here: https://re-com.day8.com.au/#/debug
 
 This script will recursively traverse all the ClojureScript files in an existing codebase, adding `:src (at)` to every 
-use of a re-com component. To those namespaces which need updating (ie. those using `re-com` components), it will also 
+use of a `re-com` component. To those namespaces which need updating (ie. those using `re-com` components), it will also 
 add the necessary namespace `requires` for the `at` macro.
 
 So, existing code like this:
