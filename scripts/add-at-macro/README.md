@@ -31,7 +31,7 @@ times on a codebase.
 
 ### Prerequisites
 
-This project uses [lein exec](https://github.com/kumarshantanu/lein-exec) which might need to be pre-installed.
+This project uses [babashka](https://github.com/babashka/babashka) which will need to be pre-installed.
 To install, follow the directions in the README.md found in the project's GitHub repository.
 
 ### To Run This Script
@@ -44,14 +44,14 @@ To install, follow the directions in the README.md found in the project's GitHub
   
 2. Navigate to the scripts location
    ```
-   cd re-com/scripts/add-at-macro/ 
+   cd re-com/scripts/add-at-macro/src/add_at_macro
    ```
 
 3. Run
 
    If the project using re-com had sources in `../my-project/src`, then run:
    ```
-   lein run "../my-project/src" 
+   bb core.clj "../my-project/src" 
    ```
 
 4. Inspect, the files in the `src` directory. Notice the updates made. 
@@ -64,13 +64,12 @@ To install, follow the directions in the README.md found in the project's GitHub
 2. Run the function `test-script` in tests which will print the changes to be made to console. While `:testing?`
    is true the changes will also not be saved to file which is good for checking changes without saving them.
 
-3. To run the tests via the repl open a repl
-   ```sh
-   lein repl
+3. Navigate to the home directory of this script
    ```
-4. Run the following at the repl
-   ```clojure
-   (require '[at-macro.core-test :refer [runner]])
-   (runner <directory>)
+   cd re-com/scripts/add-at-macro
+   ```
+4. To run the tests via babashka run,
+   ```sh
+   bb test\add_at_macro\test-runner.clj
    ```
  

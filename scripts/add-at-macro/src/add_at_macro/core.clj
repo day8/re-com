@@ -1,3 +1,4 @@
+#!/usr/bin/env bb
 (ns add-at-macro.core
   (:require [clojure.java.io :as io]
             [rewrite-clj.zip :as z]
@@ -511,10 +512,10 @@
         (println "This namespace does not have any dependencies, skipping.")))))
 
 ;; When print? is true, the changes this script makes are displayed to the console.
-(def print? false)
+(def print? true)
 
 ;; When testing? is true, print above is true plus, the changes are not saved to file.
-(def testing? false)
+(def testing? true)
 
 (defn run-script
   "Runs this script on the directory or file at the given absolute path.
@@ -533,7 +534,6 @@
                                          (.isFile %)
                                          (clojure.string/includes? % ".cljs")) files)]
     (cond
-      (not exists?) (println "The directory/file provided does not exist.")
       (not (seq filter-valid-files)) (println "No valid files were found in " abs-path ".")
 
       :else
@@ -545,14 +545,11 @@
   "Call this function with the directory path as an argument to run this script. This function
   is called after `lein run` with the arguments passed to lein run. Also see `run-script` above."
   [& args]
-  (let [directory (str (first args))]
+  (let [directory (str (ffirst args))]
     (if (seq directory)
-      (run-script (str (first args)))
-      (println "Directory/File not provided"))))
+      (run-script directory)
+      (println "Directory/File not provided")))
+  (System/exit 0))
 
-
-;; This section of the code is required for lein exec to start our script at `-main`
-(try (require 'leiningen.exec)
-     (when @(ns-resolve 'leiningen.exec '*running?*)
-       (apply -main (rest *command-line-args*)))
-     (catch FileNotFoundException e))
+(when (= *file* (System/getProperty "babashka.file"))
+  (-main *command-line-args*))
