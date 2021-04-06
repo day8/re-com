@@ -29,8 +29,8 @@
   :middleware   [leiningen.git-inject/middleware]
 
   :profiles {:dev      {:source-paths ["dev-src"]
-                        :dependencies [[clj-stacktrace "0.2.8"]
-                                       [binaryage/devtools "1.0.2"]]
+                        :dependencies [[clj-stacktrace        "0.2.8"]
+                                       [binaryage/devtools    "1.0.3"]]
                         :plugins      [[org.clojure/data.json "2.0.1"]]}
 
              :demo     {:dependencies [[alandipert/storage-atom "2.0.1"]
