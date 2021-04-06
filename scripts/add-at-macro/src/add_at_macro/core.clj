@@ -544,7 +544,7 @@
 
 (defn -main
   "Call this function with the directory path as an argument to run this script. This function
-  is called after `lein run` with the arguments passed to lein run. Also see `run-script` above."
+  is called after `bb core.clj` with the arguments passed to bb. Also see `run-script` above."
   [& args]
   (let [directory (str (ffirst args))]
     (if (seq directory)
