@@ -1,3 +1,4 @@
+#!/usr/bin/env bb
 (ns add-at-macro.core
   (:require [clojure.java.io :as io]
             [rewrite-clj.zip :as z]
@@ -545,14 +546,11 @@
   "Call this function with the directory path as an argument to run this script. This function
   is called after `lein run` with the arguments passed to lein run. Also see `run-script` above."
   [& args]
-  (let [directory (str (first args))]
+  (let [directory (str (ffirst args))]
     (if (seq directory)
-      (run-script (str (first args)))
-      (println "Directory/File not provided"))))
+      (run-script directory)
+      (println "Directory/File not provided")))
+  (System/exit 0))
 
-
-;; This section of the code is required for lein exec to start our script at `-main`
-(try (require 'leiningen.exec)
-     (when @(ns-resolve 'leiningen.exec '*running?*)
-       (apply -main (rest *command-line-args*)))
-     (catch FileNotFoundException e))
+(when (= *file* (System/getProperty "babashka.file"))
+  (-main *command-line-args*))
