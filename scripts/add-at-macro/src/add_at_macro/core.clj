@@ -534,6 +534,7 @@
                                          (.isFile %)
                                          (clojure.string/includes? % ".cljs")) files)]
     (cond
+      (not exists?) (println "The directory/file provided does not exist.")
       (not (seq filter-valid-files)) (println "No valid files were found in " abs-path ".")
 
       :else
