@@ -290,7 +290,3 @@
       (if (seq directory)
         (run-script directory)
         (println "Directory/File not provided")))))
-
-(defn runner [directory]
-  (with-redefs [directory directory]
-    (test-script)))
