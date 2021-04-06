@@ -1,11 +1,10 @@
-You should run this script on a legacy codebase which uses `re-com`. 
+You should run this [babashka](https://github.com/babashka/babashka) script on a legacy codebase which uses `re-com`. 
 
 Version 2.13.0 of `re-com` introduced a new `:src` 
 debugging feature described here: https://re-com.day8.com.au/#/debug
 
 This script will recursively traverse all the ClojureScript files in an existing codebase, adding `:src (at)` to every 
-use of a `re-com` component. To those namespaces which need updating (ie. those using `re-com` components), it will also 
-add the necessary namespace `requires` for the `at` macro.
+use of a `re-com` component. Where necessary, it will also modify namespace `requires` to add the `at` macro.
 
 So, existing code like this:
 ```clojure
@@ -31,8 +30,7 @@ times on a codebase.
 
 ### Prerequisites
 
-This project uses [babashka](https://github.com/babashka/babashka) `0.3.2` or higher which will need to be pre-installed.
-To install, follow the directions in the README.md found in the project's GitHub repository.
+You'll need to install [babashka](https://github.com/babashka/babashka) `0.3.2` or later by following [these instructions](https://github.com/babashka/babashka#installation).
 
 ### To Run This Script
 
@@ -49,7 +47,7 @@ To install, follow the directions in the README.md found in the project's GitHub
 
 3. Run
 
-   If the project using re-com had sources in `../my-project/src`, then run:
+   If the project using re-com had sources in `../my-project/src`, then run via babashka:
    ```
    bb core.clj "../my-project/src" 
    ```
