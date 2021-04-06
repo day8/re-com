@@ -31,7 +31,7 @@ times on a codebase.
 
 ### Prerequisites
 
-This project uses [babashka](https://github.com/babashka/babashka) which will need to be pre-installed.
+This project uses [babashka](https://github.com/babashka/babashka) `0.3.2` or higher which will need to be pre-installed.
 To install, follow the directions in the README.md found in the project's GitHub repository.
 
 ### To Run This Script
