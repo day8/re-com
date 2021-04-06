@@ -28,12 +28,10 @@ This script is clever enough to detect when a component already has an existing 
 add duplicates. It is also clever enough to not add a duplicate requires for `at`. As a result, it can be run multiple 
 times on a codebase.
 
-### Prerequisites
-
-You'll need to install [babashka](https://github.com/babashka/babashka) `0.3.2` or later by following [these instructions](https://github.com/babashka/babashka#installation).
-
 ### To Run This Script
 
+1. Install [babashka](https://github.com/babashka/babashka) `0.3.2` or later by following [these instructions](https://github.com/babashka/babashka#installation).
+ 
 1. Clone re-com's GitHub repository,
 
    ```
@@ -47,7 +45,7 @@ You'll need to install [babashka](https://github.com/babashka/babashka) `0.3.2` 
 
 3. Run
 
-   If the project using re-com had sources in `../my-project/src`, then run via babashka:
+   If the project using re-com had sources in `../my-project/src`, then run via babashka (aka `bb`):
    ```
    bb core.clj "../my-project/src" 
    ```
