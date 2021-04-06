@@ -512,10 +512,10 @@
         (println "This namespace does not have any dependencies, skipping.")))))
 
 ;; When print? is true, the changes this script makes are displayed to the console.
-(def print? true)
+(def print? false)
 
 ;; When testing? is true, print above is true plus, the changes are not saved to file.
-(def testing? true)
+(def testing? false)
 
 (defn run-script
   "Runs this script on the directory or file at the given absolute path.
