@@ -53,7 +53,10 @@ times on a codebase.
 4. Inspect, the files in the `src` directory. Notice the updates made. 
 
 
-### Test script
+### Running The Tests
+
+1. Install [babashka](https://github.com/babashka/babashka) `0.3.2` or later by following [these instructions](https://github.com/babashka/babashka#installation).
+
 1. Assign the variable `(def directory "")` in `./test/add-at-macro/core-test.clj` to the directory containing your
    source files. From step 3 above, say, `../my-project/src`.
 
