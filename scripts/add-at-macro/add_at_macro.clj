@@ -1,9 +1,11 @@
 #!/usr/bin/env bb
-(ns add-at-macro.core
-  (:require [clojure.java.io :as io]
-            [rewrite-clj.zip :as z]
-            [clojure.set :as clj-set])
-  (:import (java.io File FileNotFoundException)))
+
+(ns add-at-macro
+    (:require
+      [clojure.java.io :as io]
+      [rewrite-clj.zip :as z]
+      [clojure.set :as clj-set])
+    (:import (java.io File)))
 
 (defn get-alias
   "Given `loc`, a rewrite-clj zipper for a `:require` vector such as `[re-com.core ... :as rc]`,
@@ -511,12 +513,6 @@
       (when verbose?
         (println "This namespace does not have any dependencies, skipping.")))))
 
-;; When print? is true, the changes this script makes are displayed to the console.
-(def print? false)
-
-;; When testing? is true, print above is true plus, the changes are not saved to file.
-(def testing? false)
-
 (defn run-script
   "Runs this script on the directory or file at the given absolute path.
 
@@ -525,10 +521,10 @@
    In the case that the absolute path resolves to a directory, we find all
    files in that directory tree that have a `.cljs` extension and we run
    this script's modifications on those files."
-  [abs-path]
+  [abs-path {:keys [verbose? testing?]}]
   (let [directory          (io/file abs-path)
         exists?            (.exists directory)
-        files              (if exists?
+        files              (when exists?
                              (file-seq directory))
         filter-valid-files (filter #(and (.exists %)
                                          (.isFile %)
@@ -539,16 +535,26 @@
 
       :else
       (doseq [file filter-valid-files]
-        (read-write-file file {:verbose? print?
+        (read-write-file file {:verbose? verbose?
                                :testing? testing?})))))
 
 (defn -main
   "Call this function with the directory path as an argument to run this script. This function
-  is called after `bb core.clj` with the arguments passed to bb. Also see `run-script` above."
+  is called after `bb add_at_macro.clj` with the arguments passed to bb.
+  Extra options that can be passed to the command apart from the directory/file are
+   1. `-verbose?` - When this is passed, the changes the script makes are printed to console
+   2. `-testing?` - When this is passed, the files the script edits are not saved to disk with the new changes
+      but printed to the console.
+  When `:testing?` is passed, `verbose` is always true.  Also see `run-script` above."
   [& args]
-  (let [directory (str (ffirst args))]
+  (let [args      (first args)
+        directory (str (first args))
+        opts      (rest args)
+        verbose?  (boolean (first (filter #(= "-verbose" %) opts)))          ;; get command-line-args
+        testing?  (boolean (first (filter #(= "-testing" %) opts)))]
     (if (seq directory)
-      (run-script directory)
+      (run-script directory {:verbose? verbose?
+                             :testing? testing?})
       (println "Directory/File not provided")))
   (System/exit 0))
 

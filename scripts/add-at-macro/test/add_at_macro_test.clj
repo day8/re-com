@@ -1,7 +1,8 @@
-(ns add-at-macro.core-test
-  (:require [clojure.test :refer :all]
-            [add-at-macro.core :refer :all]
-            [rewrite-clj.zip :as z]))
+(ns add-at-macro-test
+    (:require
+      [clojure.test :refer :all]
+      [add-at-macro :refer :all]
+      [rewrite-clj.zip :as z]))
 
 (def ^:private verbose? true)
 
@@ -161,42 +162,27 @@
   (testing "Testing if this is a re-com component"
     (is (not (re-com-kwargs-component? (-> p-component z/down z/string) "rc")) "This is not a valid re-com component")))
 
-(def directory "")
+(def file-example
+ "(ns sample-namespace.core
+    (:require
+     [re-com.core :refer [box title p v-box] :as re-com]))
 
-(def file-example "
-(ns sample-namespace.core
-  (:require
-    [re-com.core :refer [box title p v-box] :as re-com]))
+  (def test [re-com/title
+             :label \"Title\"])
+  (defn a-function
+    [title]
+    [p \"Should not change.\"]
+    [title
+     :label \"Should not change.\"]
+    [v-box
+     :align :center
+     :children [[re-com/title
+                 :label \"Title\"]]])
 
-(def test [re-com/title
-            :label \"Title\"])
-
-(defn a-function
- [title]
- [p \"Should not change.\"]
- [title
-  :label \"Should not change.\"]
- [v-box
-  :align :center
-  :children [[re-com/title
-              :label \"Title\"]]])
-
-(def test2 [title               <== :src will be added here.
-            :label \"Title\"])
-")
+  (def test2 [title               <== :src will be added here.
+              :label \"Title\"])"
+)
 
 (deftest test-file
   (testing "Test effect of `add-at-macro` script on a string file."
     (read-write-file nil {:testing? true :test-file file-example})))
-
-
-(deftest test-script
-  (testing "Test the full script including reading files from disk"
-    ;; When `:print?` is true, this translates to verbose? in the script which is a flag to tell the script to print
-    ;; to the console the changes it will do. When the flag `:testing?` is true, the console does not save the changes
-    ;; it makes to file but prints the file to console. When `:testing?` is true, `:verbose?` is always true
-    (with-redefs [print? verbose?
-                  testing? verbose?]
-      (if (seq directory)
-        (run-script directory)
-        (println "Directory/File not provided")))))

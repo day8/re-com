@@ -32,43 +32,53 @@ times on a codebase.
 
 1. Install [babashka](https://github.com/babashka/babashka) `0.3.2` or later by following [these instructions](https://github.com/babashka/babashka#installation).
  
-1. Clone re-com's GitHub repository,
+2. Clone re-com's GitHub repository,
 
    ```
    git clone https://github.com/day8/re-com.git 
    ```
   
-2. Navigate to the scripts location
+3. Navigate to the scripts location
    ```
-   cd re-com/scripts/add-at-macro/src/add_at_macro
+   cd re-com/scripts/add-at-macro
    ```
 
-3. Run
+4. Run
 
    If the project using re-com had sources in `../my-project/src`, then run via babashka (aka `bb`):
    ```
-   bb core.clj "../my-project/src" 
+   bb add_at_macro.clj "../my-project/src" 
    ```
+   
+   ##### Tip
+   
+   For run, (not test command in the next section) The `bb` command also takes the following extra command line 
+   arguments after the directory. (Order matters)
+   1. `-verbose`. When this is passed, the changes the script makes are printed to console. Example command
+   ```sh 
+   bb add_at_macro.clj "../my-project/src" -verbose
+   ```
+   
+   2. `-testing`. When this is passed, the files that the script edits are not saved to disk but printed to console
+   ```sh 
+   bb add_at_macro.clj "../my-project/src" -testing
+   ```
+   Note, When `-testing` is passed, `-verbose` is always true.
+   
 
-4. Inspect, the files in the `src` directory. Notice the updates made. 
+5. Inspect, the files in the `src` directory. Notice the updates made. 
 
 
 ### Running The Tests
 
 1. Install [babashka](https://github.com/babashka/babashka) `0.3.2` or later by following [these instructions](https://github.com/babashka/babashka#installation).
 
-1. Assign the variable `(def directory "")` in `./test/add-at-macro/core-test.clj` to the directory containing your
-   source files. From step 3 above, say, `../my-project/src`.
-
-2. Run the function `test-script` in tests which will print the changes to be made to console. While `:testing?`
-   is true the changes will also not be saved to file which is good for checking changes without saving them.
-
-3. Navigate to the home directory of this script
+2. Navigate to the home directory of this script
    ```
    cd re-com/scripts/add-at-macro
    ```
-4. To run the tests via babashka run,
+3. To run the tests via babashka run,
    ```sh
-   bb test\add_at_macro\test-runner.clj
+   bb test\test-runner.clj
    ```
  
