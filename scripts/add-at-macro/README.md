@@ -66,6 +66,7 @@ times on a codebase.
    bb add_at_macro.clj "../my-project/src" --testing
    ```
    Note, When `-testing` is passed, `-verbose` is always true.
+   
    3. `--help` or `-h`. Print the help menu. Example command
    ```sh
    bb add_at_macro.clj --help
