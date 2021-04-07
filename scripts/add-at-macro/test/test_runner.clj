@@ -3,13 +3,13 @@
 (require '[clojure.test :as t]
          '[babashka.classpath :as cp])
 
-(cp/add-classpath "test")
-(cp/add-classpath "src")
+(cp/add-classpath "test")  ;; Watch the test file
+(cp/add-classpath ".")   ;; Watch the main script
 
-(require 'add-at-macro.core-test)
+(require 'add-at-macro-test)
 
 (def test-results
-  (t/run-tests 'add-at-macro.core-test))
+  (t/run-tests 'add-at-macro-test))
 
 (def failures-and-errors
   (let [{:keys [:fail :error]} test-results]
