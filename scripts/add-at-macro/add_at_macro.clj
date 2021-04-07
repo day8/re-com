@@ -508,7 +508,7 @@
                       (catch Exception e (println "Error reading file: " e)))
         namespaced? (when loc
                       (-> loc z/leftmost z/down z/string (= "ns"))) ;; File contains (ns ...) at the beginning?
-        edited-file (if namespaced?
+        edited-file (when namespaced?
                       (parse-file loc namespaced? verbose?))]
     (if namespaced?
       (do
@@ -562,6 +562,7 @@
 
 (def usage "Add at Macro Script
 
+Recursively traverse all the ClojureScript files in an existing codebase, adding `:src (at)` to every use of a re-com component. Where necessary, it will also modify namespace requires to refer the `re-com.core/at` macro.
 Usage:
   add_at_macro <directory> [options]
 
@@ -572,7 +573,7 @@ Options:
   ")
 
 ;; This section parses command line arguments
-;; See `--main` function above
+;; See `-main` function above
 (docopt/docopt
  usage
  *command-line-args*
