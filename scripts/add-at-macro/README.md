@@ -49,24 +49,28 @@ times on a codebase.
    ```
    bb add_at_macro.clj "../my-project/src" 
    ```
+
+5. Inspect, the files in the `src` directory. Notice the updates made.
    
-   ##### Tip
+   #### Tip
    
    For run, (not test command in the next section) The `bb` command also takes the following extra command line 
-   arguments after the directory. (Order matters)
-   1. `-verbose`. When this is passed, the changes the script makes are printed to console. Example command
+   arguments after the directory.
+   1. `--verbose` or `-v`. When this is passed, the changes the script makes are printed to console. Example command
    ```sh 
-   bb add_at_macro.clj "../my-project/src" -verbose
+   bb add_at_macro.clj "../my-project/src" --verbose
    ```
    
-   2. `-testing`. When this is passed, the files that the script edits are not saved to disk but printed to console
+   2. `--testing` or `-t`. When this is passed, the files that the script edits are not saved to disk but printed to console
    ```sh 
-   bb add_at_macro.clj "../my-project/src" -testing
+   bb add_at_macro.clj "../my-project/src" --testing
    ```
    Note, When `-testing` is passed, `-verbose` is always true.
-   
+   3. `--help` or `-h`. Print the help menu. Example command
+   ```sh
+   bb add_at_macro.clj --help
+   ```
 
-5. Inspect, the files in the `src` directory. Notice the updates made. 
 
 
 ### Running The Tests
