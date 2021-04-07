@@ -1,9 +1,10 @@
-You should run this script on a legacy codebase to take advantage of `re-com's` new `:src` debugging feature described 
-here: https://re-com.day8.com.au/#/debug
+You should run this [babashka](https://github.com/babashka/babashka) script on a legacy codebase which uses `re-com`. 
+
+Version 2.13.0 of `re-com` introduced a new `:src` 
+debugging feature described here: https://re-com.day8.com.au/#/debug
 
 This script will recursively traverse all the ClojureScript files in an existing codebase, adding `:src (at)` to every 
-use of a re-com component. To those namespaces which need updating (ie. those using `re-com` components), it will also 
-add the necessary namespace `requires` for the `at` macro.
+use of a `re-com` component. Where necessary, it will also modify namespace `requires` to add the `at` macro.
 
 So, existing code like this:
 ```clojure
@@ -27,13 +28,10 @@ This script is clever enough to detect when a component already has an existing 
 add duplicates. It is also clever enough to not add a duplicate requires for `at`. As a result, it can be run multiple 
 times on a codebase.
 
-### Prerequisites
-
-This project uses [lein exec](https://github.com/kumarshantanu/lein-exec) which might need to be pre-installed.
-To install, follow the directions in the README.md found in the project's GitHub repository.
-
 ### To Run This Script
 
+1. Install [babashka](https://github.com/babashka/babashka) `0.3.2` or later by following [these instructions](https://github.com/babashka/babashka#installation).
+ 
 1. Clone re-com's GitHub repository,
 
    ```
@@ -42,33 +40,35 @@ To install, follow the directions in the README.md found in the project's GitHub
   
 2. Navigate to the scripts location
    ```
-   cd re-com/scripts/add-at-macro/ 
+   cd re-com/scripts/add-at-macro/src/add_at_macro
    ```
 
 3. Run
 
-   If the project using re-com had sources in `../my-project/src`, then run:
+   If the project using re-com had sources in `../my-project/src`, then run via babashka (aka `bb`):
    ```
-   lein run "../my-project/src" 
+   bb core.clj "../my-project/src" 
    ```
 
 4. Inspect, the files in the `src` directory. Notice the updates made. 
 
 
-### Test script
+### Running The Tests
+
+1. Install [babashka](https://github.com/babashka/babashka) `0.3.2` or later by following [these instructions](https://github.com/babashka/babashka#installation).
+
 1. Assign the variable `(def directory "")` in `./test/add-at-macro/core-test.clj` to the directory containing your
    source files. From step 3 above, say, `../my-project/src`.
 
 2. Run the function `test-script` in tests which will print the changes to be made to console. While `:testing?`
    is true the changes will also not be saved to file which is good for checking changes without saving them.
 
-3. To run the tests via the repl open a repl
-   ```sh
-   lein repl
+3. Navigate to the home directory of this script
    ```
-4. Run the following at the repl
-   ```clojure
-   (require '[at-macro.core-test :refer [runner]])
-   (runner <directory>)
+   cd re-com/scripts/add-at-macro
+   ```
+4. To run the tests via babashka run,
+   ```sh
+   bb test\add_at_macro\test-runner.clj
    ```
  

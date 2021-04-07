@@ -93,7 +93,7 @@
           {:keys [required-namespaces
                   used-alias
                   edit-require]}       fixed-require-form
-          edit-require                 (-> edit-require .string (z/of-string {:track-position? true}))]
+          edit-require                 (-> edit-require str (z/of-string {:track-position? true}))]
       (loop [loc edit-require]
         (cond
           (z/end? loc) nil
@@ -107,7 +107,8 @@
           (find-re-com-in-require loc {:macros? true}) (with-redefs [recom-a loc]
                                                          (test-remove-at-from-require-macros))
           :else
-          (recur (z/next loc)))))))
+          (recur (z/next loc))))
+      (is (= (count required-namespaces) 9)))))
 
 (def component-source-a (z/of-string "
 [h-box
@@ -142,7 +143,6 @@
   [:span
    [:span.bold \"New in \"]
    [:span {:style style} version]])"))
-
 
 (deftest test-function-form?
   (testing "Test checking if a form is a function definition form."
@@ -200,7 +200,3 @@
       (if (seq directory)
         (run-script directory)
         (println "Directory/File not provided")))))
-
-(defn runner [directory]
-  (with-redefs [directory directory]
-    (test-script)))

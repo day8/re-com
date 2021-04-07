@@ -10,11 +10,11 @@
   :license          {:name "MIT"}
 
   :dependencies [[org.clojure/clojure         "1.10.3"   :scope "provided"]
-                 [org.clojure/clojurescript   "1.10.773" :scope "provided"
+                 [org.clojure/clojurescript   "1.10.844" :scope "provided"
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
-                 [thheller/shadow-cljs        "2.11.24"  :scope "provided"]
+                 [thheller/shadow-cljs        "2.12.1"   :scope "provided"]
                  [reagent                     "1.0.0"    :scope "provided"]
                  [org.clojure/core.async      "1.3.610"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
@@ -29,8 +29,8 @@
   :middleware   [leiningen.git-inject/middleware]
 
   :profiles {:dev      {:source-paths ["dev-src"]
-                        :dependencies [[clj-stacktrace "0.2.8"]
-                                       [binaryage/devtools "1.0.2"]]
+                        :dependencies [[clj-stacktrace        "0.2.8"]
+                                       [binaryage/devtools    "1.0.3"]]
                         :plugins      [[org.clojure/data.json "2.0.1"]]}
 
              :demo     {:dependencies [[alandipert/storage-atom "2.0.1"]
