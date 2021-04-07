@@ -485,7 +485,7 @@
    console and additionally edits are written to the console instead of files.
    For testing purposes, you can pass a file as a string using the `test-file` argument. This is convenient for testing
    when the script is not editing a file correctly or for studying the behavior of the `add-at-macro` script. An example
-   of how to do this can be found in the `add-at-macro.core-test` namespace at the test, `test-file`."
+   of how to do this can be found in the `add-at-macro-test` namespace at the test, `test-file`."
   [file {:keys [verbose? testing? test-file]}]
   (let [abs-path    (when-not test-file
                       (.getAbsolutePath ^File file))
