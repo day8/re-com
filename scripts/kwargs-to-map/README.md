@@ -1,9 +1,10 @@
 ### WARNING
-Do NOT use this script. It has been created in preparation for a future re-com change. No version of re-com 
-(including master branch) is yet compatible with the changes made by this script.
 
-This script will recursively traverse all the ClojureScript files in an existing codebase, formatting keyword 
-args in every use of a re-com component to map/hiccup syntax.
+> Do NOT use this script. It has been created in preparation for a future re-com change. No version of re-com 
+> (including master branch) is compatible with the changes made by this script.
+
+This script will recursively traverse all the ClojureScript files in an existing codebase, finding all uses of 
+re-com components and, for each, transforming keyword args into a map. 
 
 So, existing code like this:
 ```clojure
@@ -42,16 +43,16 @@ be run multiple times on a codebase.
 
 4. Run the script with babashka (aka `bb`)
 
-   If the project using re-com had sources in `../my-project/src`, then run:
+   If the codebase using re-com had sources in `../my-project/src`, then run:
    ```
    bb kwargs_to_map.clj "../my-project/src" 
    ```
 
-5. Inspect, the files in the `src` directory. Notice the updates made.
+5. Inspect the files in the `src` directory. Notice the updates made.
 
 #### Tip
 
-For run, (not test command in the next section) The `bb` command also takes the following extra command line 
+For run, (not test command in the next section) the `bb` command also takes the following extra command line 
 arguments after the directory.
 
 1. `--verbose` or `-v`. When this is passed, the changes the script makes are printed to console. Example command
@@ -83,7 +84,8 @@ arguments after the directory.
    bb test/test-runner.clj 
    ```
  
-### Operation
+### What It Does 
+
 The following section documents how the script edits your files
 - The re-com components, `p` and `p-span` do not receive any editing
 - The re-com components below are considered to have the child which is the indicated key
