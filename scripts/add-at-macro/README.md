@@ -22,7 +22,7 @@ will be changed to
   :children [...]]
 ```
 
-(And, before you ask, no, we did not find a way to put the added code on the next line with correct indentation).
+(And, before you ask, no, we didn't find a way to add code on the next line, with correct indentation).
 
 This script is clever enough to detect when a component already has an existing `:src (at)` argument, and it will not 
 add duplicates. It is also clever enough to not add a duplicate requires for `at`. As a result, it can be run multiple 
