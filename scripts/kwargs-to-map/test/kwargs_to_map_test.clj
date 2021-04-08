@@ -173,10 +173,13 @@
   "Given loc which is a re-com component in hiccup syntax, we will be finding the number
   of immediate children.
   For example, the component `h-box` below
+  ```
   [h-box
-  {:size \"1\"
-   :margin \"20px 0 0 0\"}
-  [child-component]] has two immediate children, the map and the vector, child component."
+   {:size \"1\"
+    :margin \"20px 0 0 0\"}
+   [child-component]]
+   ```
+   has two immediate children, the map and the vector, child component."
   [loc ]
   (let [loc (z/down loc)
         children-count (atom 0)]
@@ -196,7 +199,10 @@
   [box {
   :class \"class-name\"
   :size \"1\" } [child-component]]
-  ```"
+  ```
+  The parameter `f` is a function which is used for validating the child. E.g for `box` the
+  function could be `z/vector?` - which checks that the parameter passed,
+  (in this case `[child-component]`) is a vector."
   [loc f]
   (let [loc (z/down loc)
         map-leftmost (z/right loc)
@@ -281,7 +287,8 @@
     (let [edited-p  (kwags-to-map p-example {:verbose true})
           edited-p-span (kwags-to-map p-span-example {:verbose true})]
       ;; the count will always be 2,
-      ;; 1. The symbol e.g `p` and the text.
+      ;; 1. The symbol e.g `p`
+      ;; 2. the text.
       (is (= (count-immediate-keyword-args edited-p) 2))
       (is (= (count-immediate-keyword-args edited-p-span) 2)))))
 
