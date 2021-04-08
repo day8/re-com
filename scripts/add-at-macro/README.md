@@ -16,7 +16,7 @@ So, existing code like this:
 
 will be changed to
 ```clojure
-[v-box   :src  (at)      ;; <-- this is new
+[v-box   :src  (at)      ;; <-- this was added
   :size     "auto"
   :gap      "10px"
   :children [...]]
