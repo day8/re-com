@@ -1,10 +1,17 @@
 #!/usr/bin/env bb
 
-(ns kwargs-to-map.core
+(require '[babashka.deps :as deps])
+
+(deps/add-deps
+  '{:deps {docopt/docopt {:git/url "https://github.com/nubank/docopt.clj"
+                          :sha     "12b997548381b607ddb246e4f4c54c01906e70aa"}}})
+
+(ns kwargs-to-map
   (:require [clojure.java.io :as io]
             [rewrite-clj.zip :as z]
-            [clojure.set :as clj-set])
-  (:import (java.io File FileNotFoundException)))
+            [clojure.set :as clj-set]
+            [docopt.core :as docopt])
+  (:import (java.io File)))
 
 (defn get-alias
   "Given `loc`, a rewrite-clj zipper for a `:require` vector such as `[re-com.core ... :as rc]`,
@@ -551,8 +558,7 @@
    console. Or when `testing?` is true, it is the same as `verbose?` being true in that operations are printed to the
    console and additionally edits are written to the console instead of files.
    For testing purposes, you can pass a file as a string using the `test-file` argument. This is convenient for testing
-   when the script is not editing a file correctly or for studying the behavior of the `add-at-macro` script. An example
-   of how to do this can be found in the `kwargs-to-map.core-test` namespace at the test, `test-file`."
+   when the script is not editing a file correctly or for studying the behavior of the `kwargs_to_map` script."
   [file {:keys [verbose? testing? test-file]}]
   (let [abs-path    (when-not test-file
                       (.getAbsolutePath ^File file))
@@ -579,12 +585,6 @@
       (when verbose?
         (println "This namespace does not have any dependencies, skipping.")))))
 
-;; When print? is true, the changes this script makes are displayed to the console.
-(def print? false)
-
-;; When testing? is true, print above is true plus, the changes are not saved to file.
-(def testing? false)
-
 (defn run-script
   "Runs this script on the directory or file at the given absolute path.
 
@@ -593,10 +593,10 @@
    In the case that the absolute path resolves to a directory, we find all
    files in that directory tree that have a `.cljs` extension and we run
    this script's modifications on those files."
-  [abs-path]
+  [abs-path {:keys [verbose? testing?]}]
   (let [directory          (io/file abs-path)
         exists?            (.exists directory)
-        files              (if exists?
+        files              (when exists?
                              (file-seq directory))
         filter-valid-files (filter #(and (.exists %)
                                          (.isFile %)
@@ -607,19 +607,43 @@
 
       :else
       (doseq [file filter-valid-files]
-        (read-write-file file {:verbose? print?
+        (read-write-file file {:verbose? verbose?
                                :testing? testing?})))))
 
 (defn -main
   "Call this function with the directory path as an argument to run this script. This function
-  is called after `lein run` with the arguments passed to lein run. Also see `run-script` above."
-  [& args]
-  (let [directory (str (ffirst args))]
-    (if (seq directory)
-      (run-script directory)
-      (println "Directory/File not provided"))))
+  is called after `bb kwargs_to_map.clj` with the arguments passed to babashka (aka `bb`).
+  Also see `run-script` above."
+  [directory {:keys [testing? verbose?]}]
+  (if (seq directory)
+    (run-script directory {:verbose verbose?
+                           :testing? testing?})
+    (println "Directory/File not provided")))
 
 
-;; This section of the code is required for babashka to start our script at `-main`
-(when (= *file* (System/getProperty "babashka.file"))
-  (-main *command-line-args*))
+(def usage "Kwargs to Map Script
+
+Recursively traverse all the ClojureScript files in an existing codebase, formating re-com components to use hiccup like syntax.
+
+Usage:
+  kwargs_to_map <directory> [options]
+Options:
+  -v --verbose  Changes this script makes are printed to the console. Always true when `--testing` option is true
+  -t --testing  Changes this script makes are not written to disk, only printed to the console.
+  -h --help     Show this screen.
+  ")
+
+;; This section parses command line arguments
+;; To see the supported arguments run `bb kwargs_to_map.clj -h` in the script directory `re-com/scripts/kwargs-to-map` or check
+;; the variable `usage` above.
+;; Also see `-main` function above
+(docopt/docopt
+ usage
+ *command-line-args*
+ (fn [arg-map]
+   (let [verbose?  (get arg-map "--verbose")
+         testing?  (get arg-map "--testing")
+         directory (get arg-map "<directory>")]
+     (when directory
+       (-main directory {:verbose? verbose?
+                         :testing? testing?})))))
