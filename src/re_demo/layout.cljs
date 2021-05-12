@@ -27,7 +27,7 @@
              [h-box
               :height \"100px\"
               :children [[box :size \"70px\" :child \"Nav\"]
-                         [box :size \"1\" :child \"Content\"]]
+                         [box :size \"1\" :child \"Content\"]]]
              [box :child \"Footer\"]]]"]]]
                           [box :src (at)
                            :size "100px"
