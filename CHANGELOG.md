@@ -127,7 +127,7 @@ match the associated CSS property. Fix the documentation and demos of the same.
     ;; notice, the above also included a :v-table-top-left => :top-left conversion 
     ```
 
-## 2.12.0 (2012-01-23)
+## 2.12.0 (2021-01-23)
 
 #### Fixed
 
