@@ -16,7 +16,7 @@
                                org.clojure/google-closure-library-third-party]]
                  [thheller/shadow-cljs        "2.15.2"   :scope "provided"]
                  [reagent                     "1.1.0"    :scope "provided"]
-                 [org.clojure/core.async      "1.3.610"]
+                 [org.clojure/core.async      "1.3.618"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
   :plugins      [[day8/lein-git-inject    "0.0.15"]
