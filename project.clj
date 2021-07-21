@@ -19,7 +19,7 @@
                  [org.clojure/core.async      "1.3.610"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
-  :plugins      [[day8/lein-git-inject    "0.0.14"]
+  :plugins      [[day8/lein-git-inject    "0.0.15"]
                  [lein-shadow             "0.3.1"]
                  [com.github.liquidz/antq "RELEASE"]
                  [lein-shell              "0.5.0"]
