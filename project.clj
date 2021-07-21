@@ -33,7 +33,7 @@
   :profiles {:dev      {:source-paths ["dev-src"]
                         :dependencies [[clj-stacktrace        "0.2.8"]
                                        [binaryage/devtools    "1.0.3"]]
-                        :plugins      [[org.clojure/data.json "2.0.1"]]}
+                        :plugins      [[org.clojure/data.json "2.4.0"]]}
 
              :demo     {:dependencies [[alandipert/storage-atom "2.0.1"]
                                        [com.cognitect/transit-cljs "0.8.264"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
