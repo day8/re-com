@@ -68,7 +68,7 @@
                [:li "the width of the three left-most sections 1,2,3 is determined by the renderers of these sections. The \"widest\" hiccup returned will determine the width of all."]
                [:li "the overall width of the center sections 4,5,6 is determined by the argument " [:code ":row-content-width"] ". " 
                     "Because of space constraints, only part of this full width may be visible to the user, triggering scrollbars. "
-                     "By default, " [:code "v-table"] " will expand to the greatest width possible but you can explicitly control the horizontal extent visible for these sections via " [:code ":row-viewport-width"] "." ]
+                     "By default, " [:code "v-table"] " will expand to the greatest width possible but you can explicitly control the horizontal extent visible for these sections via " [:code ":row-viewport-width"] "."]
                [:li "the width of the three right-most sections 7,8,9 is determined by the renderers of these sections. The \"widest\" hiccup returned will determine the width of all."]
                [:li "finally, the overall (maximum) width of the table can be set with the " [:code ":max-width"] " argument. All these width settings will logically interact with each other, along with the width constraints of the parent to determine the final shape of the table."]]
 
@@ -77,9 +77,25 @@
               [:ul
                [:li "the height of the three top-most sections 1,4,7 is determined by the argument " [:code ":column-header-height"] "."]
                [:li "the height of the center sections 2,5,8 is determined by the argument " [:code ":row-viewport-height"] ". "
-                "By default, " [:code "v-table"] " will expand to the greatest height possible but you can explicitly control the vertical extent visible for these sections via " [:code ":max-row-viewport-height"] "." ]
+                "By default, " [:code "v-table"] " will expand to the greatest height possible but you can explicitly control the vertical extent visible for these sections via " [:code ":max-row-viewport-height"] "."]
                [:li "the height of the three bottom-most sections 3,6,9 is determined by the argument " [:code ":column-footer-height"] "."]
                [:li "regarding the overall height of the table, there is no specific arg equivalent of " [:code ":max-width"] " but as mentioned above, use " [:code ":max-row-viewport-height"] " to specify the maximum height for row sections. All these height settings will logically interact with each other, along with the height constraints of the parent to determine the final shape of the table."]]]])
+
+
+(defn dependencies
+  []
+  [v-box
+   :children
+   [[title2 "Required Dependencies"]
+    [p "Add "
+     [:a {:href "https://github.com/day8/re-com/blob/master/run/resources/public/assets/scripts/detect-element-resize.js"}
+      [:code "detect-element-resize.js"]]
+     " to your " [:code "index.html"] " or equivalent as per below:"]
+    [:code    
+     "<script src=\"path/to/detect-element-resize.js\" type=\"text/javascript\"></script>"]
+    [:br]
+    [p "If you do not include this script the " [:code "v-table"] " will not render and you will get an error in the "
+     "console like " [:code "Your project is missing detect-element-resize.js or detect-element-resize-externs.js could not setup v-table."]]]])
 
 
 (defn panel
@@ -104,5 +120,7 @@
                                             :note       [notes-column]
                                             :parameters [args-table v-table-args-desc {:total-width       "550px"
                                                                                        :name-column-width "180px"}])]]
-                              [demo]]]
+                              [v-box
+                               :children [[dependencies]
+                                          [demo]]]]]
                   [parts-table "v-table" v-table-parts-desc]]])))
