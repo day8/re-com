@@ -20,7 +20,7 @@
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
   :plugins      [[day8/lein-git-inject    "0.0.15"]
-                 [lein-shadow             "0.3.1"]
+                 [lein-shadow             "0.4.0"]
                  [com.github.liquidz/antq "RELEASE"]
                  [lein-shell              "0.5.0"]
                  [lein-pprint             "1.3.2"]]
