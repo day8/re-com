@@ -228,6 +228,28 @@
       :else
       (recur (z/right loc)))))
 
+(defn find-first-non-comment
+  "Akin to a rewrite-clj `right` but can skip clojure comments of the form `#_(code)`.
+   Given loc which is a value in a re-com component vector, finds the first value after
+   `loc` that is a non comment in the vector.
+
+  For example if the code being edited is
+  ```
+  [h-box #_v-box
+   :size \"1\"
+   :children []]
+  ```
+  and loc is `h-box` will return `:size`"
+  [loc]
+  (loop [loc loc]
+    (cond
+      (nil? loc) nil
+      (-> loc z/string (clojure.string/starts-with? "#"))
+      (recur (z/right loc))
+
+      :else
+      loc)))
+
 (defn add-at-in-component
   "Given `loc`, a rewrite-clj zipper for a hiccup vector for a re-com component,
   such as `[box :child [...]]`, will return a modified vector with the `:src`
@@ -246,10 +268,36 @@
     (do
       (when verbose?
         (println "Adding :src option at line " (first (z/position loc)) " column " (second (z/position loc))))
-      (-> loc z/down
-          (z/insert-right (z/node (z/of-string "(at)")))
-          (z/insert-right (z/node (z/of-string ":src")))
-          z/up))
+      (let [component-name     (z/down loc)
+            first-kw           (find-first-non-comment (z/right component-name))
+            second-arg         (when first-kw
+                                 (find-first-non-comment (z/right first-kw)))
+            component-name-pos (z/position component-name)
+            first-kw-pos       (when first-kw
+                                 (z/position first-kw))
+            second-arg-pos     (when second-arg
+                                 (z/position second-arg))
+            ;; space to be added to `(at) which is calculated as.
+            ;; (initial identation of the values in a component) - (space occupied by `:src `) - (indentation of keys in the component)
+            second-arg-space   (when second-arg
+                                 (-> second-arg-pos second (- 5) (- (second first-kw-pos))))
+            indent-col         (when first-kw-pos
+                                 (second first-kw-pos))]
+        (if (or (nil? second-arg)                  ;; true if component has no arguments
+                (< second-arg-space 1)             ;; true if we couldn't determine the indentation.
+                (= (first component-name-pos) (first first-kw-pos)))
+          (-> component-name
+              (z/insert-right (z/node (z/of-string "(at)")))
+              (z/insert-right (z/node (z/of-string ":src")))
+              z/up)
+          (-> first-kw
+              (z/insert-left :src)
+              (z/insert-left '(at))
+              z/insert-newline-left
+              (z/insert-space-left (dec indent-col))
+              z/left
+              (z/insert-space-left second-arg-space)
+              z/up))))
     loc))
 
 (defn re-com-kwargs-component?
@@ -267,8 +315,8 @@
 
 (defn find-recom-usages
   "Given `loc`, a rewrite-clj zipper for the body of a `defn`, it searches for hiccup vectors
-  involving re-com components. For each one found, it calls `add-at-in-component` to add `:src`
-  to the existing arguments.
+  using re-com components. For each one found, it calls `add-at-in-component` to add `:src`
+  annotation to the existing arguments.
 
   Note: as rewrite-clj searches, it doesn't skip uneval forms such as
   `#_[<re-com-component> ...]` and so they will also get :src annotations.
@@ -341,7 +389,7 @@
        (-> loc z/down z/string (= "defn"))))
 
 (defn arguments
-  "Takes the loc of a function and returns the arguments of the function, the arguments are important to prevent
+  "Takes the zipper of a function and returns the arguments of the function, the arguments are important to prevent
    adding `:src` annotations to local variables that share names with re-com components. For example
      (defn blah
        [label arg2 arg3]      ;; <--- oops label is now shadowing a re-com component within this defn
@@ -422,44 +470,15 @@
                    "function to prevent renaming. ")
           (recur (z/right loc)))))))
 
-(defn parse-file
-  "Takes a file and loops through the main forms. We then classify the looped form as a namespace if it is a `(ns ...)`
-   form and as a function if it is a `(defn ...)` form. Other forms have a general method.
-   We need to know if the looped form is a namespace form `(ns ...)` in order to add the at macro in the `:require`
-   section, and possibly remove the at macro in the `:require-macros` section.
-   For `defn`, we need to know the arguments to prevent renaming arguments that share names with `re-com.core` namespace
-   components.
-
-   Given the file
-   `(ns ...)                           <== namespace form
-
-   (defn x [] ...)                     <== function form
-
-   (def y [])                          <== general form
-   ...`  this function will loop three times for the three main forms."
-  [file-loc namespaced? verbose?]
-  (let [parsed-require-g (atom {})
-        edited?  (atom false)]
-    (loop [loc file-loc]
-      (when-not edited?
-        (when verbose?
-          (println "This file does not depend on re-com, skipping.")))
+(defn parse-body
+  "Given file-loc which is the first form in a file and which is not a namespace definition form `(ns ...`, loops
+  through the file and edits usages of re-com, adding `:src` annotations. If a form during iteration is a
+  function definition, we save the arguments of the function to prevent adding `:src` annotations to
+  components that share names with re-com components"
+  [file-loc verbose? parsed-require]
+   (loop [loc file-loc]
       (cond
         (z/end? loc) (z/root loc)
-
-        ;; Loc, is a (ns ...) form
-        (require-form? loc)
-        (let [require-form   (-> loc z/string (z/of-string {:track-position? true}))
-              parsed-require (fix-require-forms require-form verbose?)
-              {required-namespaces :required-namespaces
-               used-alias          :used-alias
-               edited-require      :edit-require} parsed-require]
-          (reset! parsed-require-g parsed-require)
-          (when (or (seq required-namespaces) (seq used-alias))
-            (reset! edited? true))
-          (if namespaced?
-            (recur (-> loc (z/replace edited-require) z/right))
-            (recur (z/right loc))))
 
         ;; Loc, is a (defn x [] ...) form
         (a-function? loc)
@@ -467,32 +486,61 @@
               arguments  (arguments (z/down new-loc))
               arguments  (when arguments
                            (parse-arguments arguments))
-              edited     (find-recom-usages new-loc @parsed-require-g {:namespaced? false
-                                                                       :verbose?    verbose?
-                                                                       :arguments   arguments})
+              edited     (find-recom-usages new-loc parsed-require {:namespaced? false
+                                                                    :verbose?    verbose?
+                                                                    :arguments   arguments})
               last?      (nil? (z/right loc))]
-          (if (and last? namespaced?)
+          (if last?
             (-> loc (z/replace edited) z/root)
-            (if namespaced?
-              (recur (-> loc (z/replace edited) z/right))
-              (recur (z/right loc)))))
+            (recur (-> loc (z/replace edited) z/right))))
 
         ;; Loc, is possibly any other thing in a file eg (def x ...) form
         :else
         (let [new-loc (-> loc z/string (z/of-string {:track-position? true}))
-              edited  (find-recom-usages new-loc @parsed-require-g {:namespaced? false
-                                                                    :verbose?    verbose?})]
+              edited  (find-recom-usages new-loc parsed-require {:namespaced? false
+                                                                 :verbose?    verbose?})]
           (if (nil? (z/right loc))
             (-> loc (z/replace edited) z/root)
-            (recur (-> loc (z/replace edited) z/right))))))))
+            (recur (-> loc (z/replace edited) z/right)))))))
+
+(defn parse-file
+  "Takes a file and determines if the file requires the `[re-com.core]` namespace. If so, we get the required components
+   and the alias and then call `parse-body` with the components and alias passed. `parse-body` will edit the file and
+   return the zipper of the edited file which is returned by this function as is for saving to disk.
+
+   Given the file
+   ```
+   (ns ...)                            <== namespace form
+
+   (defn x [] ...)                     <== function form
+
+   (def y [])                          <== general form
+   ...
+  ```
+  this function will get the alias and re-com components loaded in the namespace form and call `parse-body` with the zipper
+  at the second form `(defn x [] ...)`"
+  [file-loc verbose?]
+  (let [loc                  (-> file-loc z/leftmost)
+        require-form         (-> loc z/string (z/of-string {:track-position? true}))
+        parsed-require       (fix-require-forms require-form verbose?)
+        {required-namespaces :required-namespaces
+         used-alias          :used-alias
+         edited-require      :edit-require} parsed-require]
+      (if (or (seq required-namespaces) (seq used-alias))
+        (-> loc (z/replace edited-require)
+            z/right
+            (parse-body verbose? parsed-require))
+        (do
+          (when verbose?
+            (println "This file does not depend on re-com, skipping."))
+          (z/root file-loc)))))
 
 (defn read-write-file
   "Reads and writes file in case of edits. When `verbose?` is true, operations that the script does are printed to the
    console. Or when `testing?` is true, it is the same as `verbose?` being true in that operations are printed to the
    console and additionally edits are written to the console instead of files.
    For testing purposes, you can pass a file as a string using the `test-file` argument. This is convenient for testing
-   when the script is not editing a file correctly or for studying the behavior of the `add-at-macro` script. An example
-   of how to do this can be found in the `add-at-macro-test` namespace at the test, `test-file`."
+   when the script is not editing a file correctly or for studying the behavior of the `add-at-macro` script."
   [file {:keys [verbose? testing? test-file]}]
   (let [abs-path    (when-not test-file
                       (.getAbsolutePath ^File file))
@@ -506,12 +554,11 @@
                           (println "The file to test should be a string."))
                         (-> file slurp (z/of-string {:track-position? true})))
                       (catch Exception e (println "Error reading file: " e)))
+        ;; File contains (ns ...) at the beginning?
         namespaced? (when loc
-                      (-> loc z/leftmost z/down z/string (= "ns"))) ;; File contains (ns ...) at the beginning?
-        edited-file (when namespaced?
-                      (parse-file loc namespaced? verbose?))]
+                      (-> loc z/leftmost z/down z/string (= "ns")))]
     (if namespaced?
-      (do
+      (let [edited-file (parse-file loc verbose?)]
         (if (or testing? test-file)
           (println edited-file "\n")
           (spit abs-path edited-file))

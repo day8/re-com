@@ -4,7 +4,8 @@ Version 2.13.0 of `re-com` introduced a new `:src`
 debugging feature described here: https://re-com.day8.com.au/#/debug
 
 This script will recursively traverse all the ClojureScript files in an existing codebase, adding `:src (at)` to every 
-use of a `re-com` component. Where necessary, it will also modify namespace `requires` to add the `at` macro.
+use of a `re-com` component while maintaining the indentation. Where necessary, it will also modify namespace `requires` 
+to add the `at` macro.
 
 So, existing code like this:
 ```clojure
@@ -16,13 +17,12 @@ So, existing code like this:
 
 will be changed to
 ```clojure
-[v-box   :src  (at)      ;; <-- this was added
+[v-box
+  :src      (at)      ;; <-- this was added
   :size     "auto"
   :gap      "10px"
   :children [...]]
 ```
-
-(And, before you ask, no, we didn't find a way to add code on the next line, with correct indentation).
 
 This script is clever enough to detect when a component already has an existing `:src (at)` argument, and it will not 
 add duplicates. It is also clever enough to not add a duplicate requires for `at`. As a result, it can be run multiple 

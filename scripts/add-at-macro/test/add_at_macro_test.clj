@@ -161,28 +161,3 @@
 (deftest test-re-com-component?
   (testing "Testing if this is a re-com component"
     (is (not (re-com-kwargs-component? (-> p-component z/down z/string) "rc")) "This is not a valid re-com component")))
-
-(def file-example
- "(ns sample-namespace.core
-    (:require
-     [re-com.core :refer [box title p v-box] :as re-com]))
-
-  (def test [re-com/title
-             :label \"Title\"])
-  (defn a-function
-    [title]
-    [p \"Should not change.\"]
-    [title
-     :label \"Should not change.\"]
-    [v-box
-     :align :center
-     :children [[re-com/title
-                 :label \"Title\"]]])
-
-  (def test2 [title               <== :src will be added here.
-              :label \"Title\"])"
-)
-
-(deftest test-file
-  (testing "Test effect of `add-at-macro` script on a string file."
-    (read-write-file nil {:testing? true :test-file file-example})))
