@@ -27,7 +27,7 @@
                            :children [[title2 "Notes"]
                                       [status-text "Stable"]
                                       [p "Wraps a child component in a border."]
-                                      [p "The border can be used at any level in a box hierarchy. For example, it could be a child of an h-box and it's child could be a v-box."]
+                                      [p "The border can be used at any level in a box hierarchy. For example, it could be a child of an h-box and its child could be a v-box."]
                                       [args-table border-args-desc]]]
                           [v-box
                            :src      (at)
