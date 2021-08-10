@@ -33,7 +33,7 @@
                                               :target "_blank"]
                                              " will apply."]
                                             [p-span
-                                             "Re-com uses "
+                                             "re-com uses "
                                              [hyperlink-href :src (at)
                                               :label  "Segoe UI"
                                               :href   "https://www.microsoft.com/typography/fonts/family.aspx?FID=331"
