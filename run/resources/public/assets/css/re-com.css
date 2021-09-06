@@ -745,6 +745,120 @@ fieldset[disabled] .btn {
     background-color: #F7F7F7
 }
 
+/*daterange*/
+
+.rc-daterange-td-basic {
+  padding: 5px;
+  width: 30px;
+  text-align: center;
+  color: #2c2d2ecb;
+  white-space: nowrap;
+  font-weight: normal;
+}
+
+.daterange-default-td:hover {
+  cursor: pointer;
+  background: #357ebd;
+  color: #FFF;
+  /*background-color: #889afd3b*/
+}
+
+.daterange-week {
+  font-size: 80%;
+  width: 14px;
+  text-align: left;
+  color: #ccc
+}
+
+.daterange-interval-td {
+  background-color: #b0d2ffb4;
+}
+
+.daterange-interval-td:hover {
+  cursor: pointer;
+  background: #357ebd;
+  color: #FFF;
+  /*background-color: #50b4db*/
+}
+
+.daterange-start-td {
+  cursor: pointer;
+  background-color: #3ab0ffbd;
+  border-radius: 5px 0px 0px 5px;
+}
+
+.daterange-end-td {
+  cursor: pointer;
+  background-color: #3ab0ffbd;
+  border-radius: 0px 5px 5px 0px;
+}
+
+.daterange-start-td:hover, .daterange-end-td:hover {
+  cursor: pointer;
+  color: white;
+  background-color: #357ebd;
+}
+
+.daterange-temp-td {
+  background-color: #889afd3b;
+}
+
+.daterange-temp-td:hover {
+  background-color: #357ebd;
+  border-radius: 0px 5px 5px 0px;
+  cursor: pointer;
+  color: white;
+}
+
+.rc-daterange-nav-icon {
+  height: 24px;
+  width: 24px;
+}
+
+.rc-daterange-nav-button:hover {
+  background-color: #357ebd;
+  cursor: pointer;
+  color: white;
+}
+
+.rc-daterange-nav-button path {
+  fill: #357ebd;
+}
+
+.rc-daterange-nav-button:hover path {
+  fill: #FFF
+}
+
+.daterange-day-title {
+  text-align: center;
+  font-weight: 500;
+  padding: 4px;
+}
+
+.daterange-disabled-td {
+  opacity: 0.4;
+}
+
+.daterange-today {
+  background-color: #ffd413;
+  border-radius: 100px;
+}
+
+.daterange-today:hover {
+  cursor: pointer;
+  color: white;
+  background-color: #9e8100;
+}
+
+.rc-daterange-month-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.rc-daterange-year-title {
+  font-weight: 630;
+}
+
 /*----------------------------------------------------------------------------------------
   END OF DATE PICKER SECTION...
 

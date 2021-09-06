@@ -602,40 +602,40 @@
 (defn datepicker-dropdown
   [& {:keys [src] :as args}]
   (or
-    (validate-args-macro datepicker-dropdown-args-desc args)
-    (let [shown?         (reagent/atom false)
-          cancel-popover #(reset! shown? false)
-          position       :below-left]
-      (fn datepicker-dropdown-render
-        [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset src debug-as]
-            :or {no-clip? true, position-offset 0}
-            :as passthrough-args}]
-        (or
-          (validate-args-macro datepicker-dropdown-args-desc passthrough-args)
-          (let [collapse-on-select (fn [new-model]
-                                     (reset! shown? false)
-                                     (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
-                passthrough-args   (-> passthrough-args
-                                       (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)  ;; these keys only valid at this API level
-                                       (assoc :on-change collapse-on-select)
-                                       (assoc :src (at))
-                                       (merge {:hide-border? true})                                                        ;; apply defaults
-                                       vec
-                                       flatten)]
-            [popover-anchor-wrapper
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :class    "rc-datepicker-dropdown-wrapper"
-             :showing? shown?
-             :position position
-             :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
-             :popover  [popover-content-wrapper
-                        :src             (at)
-                        :position-offset (+ (if show-weeks? 43 44) position-offset)
-                        :no-clip?        no-clip?
-                        :arrow-length    0
-                        :arrow-width     0
-                        :arrow-gap       3
-                        :padding         "0px"
-                        :on-cancel       cancel-popover
-                        :body            (into [datepicker] passthrough-args)]]))))))
+   (validate-args-macro datepicker-dropdown-args-desc args)
+   (let [shown?         (reagent/atom false)
+         cancel-popover #(reset! shown? false)
+         position       :below-left]
+     (fn datepicker-dropdown-render
+       [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset src debug-as]
+           :or {no-clip? true, position-offset 0}
+           :as passthrough-args}]
+       (or
+        (validate-args-macro datepicker-dropdown-args-desc passthrough-args)
+        (let [collapse-on-select (fn [new-model]
+                                   (reset! shown? false)
+                                   (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
+              passthrough-args   (-> passthrough-args
+                                     (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)  ;; these keys only valid at this API level
+                                     (assoc :on-change collapse-on-select)
+                                     (assoc :src (at))
+                                     (merge {:hide-border? true})                                                        ;; apply defaults
+                                     vec
+                                     flatten)]
+          [popover-anchor-wrapper
+           :src      src
+           :debug-as (or debug-as (reflect-current-component))
+           :class    "rc-datepicker-dropdown-wrapper"
+           :showing? shown?
+           :position position
+           :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
+           :popover  [popover-content-wrapper
+                      :src             (at)
+                      :position-offset (+ (if show-weeks? 43 44) position-offset)
+                      :no-clip?        no-clip?
+                      :arrow-length    0
+                      :arrow-width     0
+                      :arrow-gap       3
+                      :padding         "0px"
+                      :on-cancel       cancel-popover
+                      :body            (into [datepicker] passthrough-args)]]))))))
