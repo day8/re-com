@@ -61,6 +61,22 @@
               [p "The \"Sales Table Demo\" (to the right) allows you to experiment with these concepts."]]])
 
 
+(defn dependencies
+  []
+  [v-box
+   :children
+   [[title2 "Required Dependencies"]
+    [p "Add "
+     [:a {:href "https://github.com/day8/re-com/blob/master/run/resources/public/assets/scripts/detect-element-resize.js"}
+      [:code "detect-element-resize.js"]]
+     " to your " [:code "index.html"] " or equivalent as per below:"]
+    [:code
+     "<script src=\"path/to/detect-element-resize.js\" type=\"text/javascript\"></script>"]
+    [:br]
+    [p "If you do not include this script the " [:code "simple-v-table"] " will not render and you will get an error in the "
+     "console like " [:code "Your project is missing detect-element-resize.js or detect-element-resize-externs.js could not setup v-table."]]]])
+
+
 (defn panel
   []
   (let [tab-defs        [{:id :note       :label "Notes"}
@@ -89,7 +105,8 @@
                                                                                               :name-column-width "180px"}])]]
                               [v-box
                                :src      (at)
-                               :children [[title2 "Demo #1"]
+                               :children [[dependencies]
+                                          [title2 "Demo #1"]
                                           [gap
                                            :src      (at)
                                            :size "15px"]

@@ -513,7 +513,7 @@
 
 (def v-table-args-desc
   (when include-args-desc?
-    [{:name :model                      :required true                 :type "atom containing vec of maps" :validate-fn vector-atom?           :description [:span "One element for each row displayed in the table. Typically, a vector of maps, but can be a seq of anything, with your functions like " [:code ":key-fn"] " extracting values."]}
+    [{:name :model                      :required true                 :type "r/atom containing vec of maps" :validate-fn vector-atom?           :description [:span "One element for each row displayed in the table. Typically, a vector of maps, but can be a seq of anything, with your functions like " [:code ":key-fn"] " extracting values."]}
      {:name :key-fn                     :required false :default "nil" :type "map -> anything"             :validate-fn ifn-or-nil?            :description [:span "A function/keyword or nil. Given an element of " [:code ":model"] ", it should return its unique identifier which is used by Reagent as a unique id. If not specified or nil passed, the element's 0-based row-index will be used"]}
      {:name :virtual?                   :required false :default true  :type "boolean"                                                         :description [:span "when true, only those rows that are visible are rendered to the DOM. Otherwise DOM will be generated for all rows, which might be prohibitive if there are a large number of rows."]}
 

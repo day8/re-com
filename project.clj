@@ -10,28 +10,30 @@
   :license          {:name "MIT"}
 
   :dependencies [[org.clojure/clojure         "1.10.3"   :scope "provided"]
-                 [org.clojure/clojurescript   "1.10.866" :scope "provided"
+                 [org.clojure/clojurescript   "1.10.879" :scope "provided"
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
-                 [thheller/shadow-cljs        "2.14.5"   :scope "provided"]
-                 [reagent                     "1.0.0"    :scope "provided"]
-                 [org.clojure/core.async      "1.3.610"]
+                 [thheller/shadow-cljs        "2.15.2"   :scope "provided"]
+                 [reagent                     "1.1.0"    :scope "provided"]
+                 [org.clojure/core.async      "1.3.618"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]]
 
-  :plugins      [[day8/lein-git-inject "0.0.14"]
-                 [lein-shadow          "0.3.1"]
-                 [lein-ancient         "0.6.15"]
-                 [lein-shell           "0.5.0"]
-                 [lein-pprint          "1.3.2"]]
+  :plugins      [[day8/lein-git-inject    "0.0.15"]
+                 [lein-shadow             "0.4.0"]
+                 [com.github.liquidz/antq "RELEASE"]
+                 [lein-shell              "0.5.0"]
+                 [lein-pprint             "1.3.2"]]
 
 
   :middleware   [leiningen.git-inject/middleware]
 
+  :antq     {}
+
   :profiles {:dev      {:source-paths ["dev-src"]
                         :dependencies [[clj-stacktrace        "0.2.8"]
                                        [binaryage/devtools    "1.0.3"]]
-                        :plugins      [[org.clojure/data.json "2.0.1"]]}
+                        :plugins      [[org.clojure/data.json "2.4.0"]]}
 
              :demo     {:dependencies [[alandipert/storage-atom "2.0.1"]
                                        [com.cognitect/transit-cljs "0.8.264"] ;; Overrides version in storage-atom which prevents compiler warnings about uuid? and boolean? being replaced
