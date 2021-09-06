@@ -189,7 +189,7 @@
    :style   {:background-color "#666"}
    :children [[title
                :src   (at)
-               :label "Re-com"
+               :label "re-com"
                :level :level1
                :style {:font-size   "32px"
                        :color       "#fefefe"}]]])
