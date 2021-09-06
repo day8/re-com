@@ -597,7 +597,8 @@
   (or
    (validate-args-macro datepicker-dropdown-args-desc args)
    (let [shown?         (reagent/atom false)
-         cancel-popover #(reset! shown? false)]
+         cancel-popover #(reset! shown? false)
+         position       :below-left]
      (fn datepicker-dropdown-render
        [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset position src debug-as]
            :or {no-clip? true, position-offset 0, position :below-left}
