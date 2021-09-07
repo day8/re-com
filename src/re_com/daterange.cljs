@@ -4,8 +4,8 @@
   (:require
    [reagent.core :as r]
    [re-com.config        :refer [include-args-desc?]]
-   [re-com.box :refer [line border flex-child-style flex-flow-style]]
-   [re-com.core :as re-com :refer [at v-box h-box box gap popover-anchor-wrapper popover-content-wrapper]]
+   [re-com.box :refer [line border flex-child-style]]
+   [re-com.core :as re-com :refer [at v-box h-box box popover-anchor-wrapper popover-content-wrapper]]
    [re-com.validate :refer [date-like? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
    [re-com.util          :refer [deref-or-value now->utc]]
    [cljs-time.format     :refer [parse unparse formatter]]
@@ -16,7 +16,6 @@
 
 (defn- dec-month  [date-time] (cljs-time/minus date-time (cljs-time/months 1)))
 (defn- plus-month [date-time] (cljs-time/plus date-time (cljs-time/months 1)))
-(defn- dec-day    [date-time] (cljs-time/minus date-time (cljs-time/days 1)))
 (defn- plus-day   [date-time] (cljs-time/plus date-time (cljs-time/days 1)))
 (defn- dec-year   [date-time] (cljs-time/minus date-time (cljs-time/years 1)))
 (defn- plus-year  [date-time] (cljs-time/plus date-time (cljs-time/years 1)))
