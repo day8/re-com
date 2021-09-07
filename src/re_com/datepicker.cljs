@@ -512,6 +512,7 @@
     [{:name :model          :required false                               :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like?                :description [:span "the selected date. If provided, should pass pred " [:code ":selectable-fn"] ". If not provided, (now->utc) will be used and the returned date will be a " [:code "goog.date.UtcDateTime"]]}
      {:name :on-change      :required true                                :type "satisfies DateTimeProtocol -> nil"   :validate-fn fn?                       :description [:span "called when a new selection is made. Returned type is the same as model (unless model is nil, in which case it will be " [:code "goog.date.UtcDateTime"] ")"]}
      {:name :disabled?      :required false  :default false               :type "boolean | atom"                                                             :description "when true, the user can't select dates but can navigate"}
+     {:name :initial-display :required false                              :type "satisfies DateTimeProtocol | r/atom" :validate-fn date-like?                :description "set the months shown when no model is selected, defaults to the current month"}
      {:name :selectable-fn  :required false  :default "(fn [date] true)"  :type "function"                            :validate-fn fn?                       :description "This predicate function is called with one argument, the date. If it answers false, day will be shown disabled and can't be selected."}
      {:name :show-weeks?    :required false  :default false               :type "boolean"                                                                    :description "when true, week numbers are shown to the left"}
      {:name :show-today?    :required false  :default false               :type "boolean"                                                                    :description "when true, today's date is highlighted"}
@@ -528,12 +529,12 @@
      {:name :debug-as       :required false                               :type "map"                                 :validate-fn map?                      :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
 (defn datepicker
-  [& {:keys [model] :as args}]
+  [& {:keys [model initial-display] :as args}]
   (or
     (validate-args-macro datepicker-args-desc args)
     (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
           internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
-          display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))]
+          display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model initial-display (now->utc))))]
       (fn datepicker-render
         [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts src debug-as]
             :or   {start-of-week 6} ;; Default to Sunday
@@ -547,7 +548,7 @@
             (when (not= @external-model latest-ext-model) ;; Has model changed externally?
               (reset! external-model latest-ext-model)
               (reset! internal-model latest-ext-model)
-              (reset! display-month  (cljs-time/first-day-of-the-month (or @internal-model (now->utc)))))
+              (reset! display-month  (cljs-time/first-day-of-the-month (or @internal-model initial-display (now->utc)))))
             [main-div-with
              [:table
               (merge
@@ -602,40 +603,40 @@
 (defn datepicker-dropdown
   [& {:keys [src] :as args}]
   (or
-    (validate-args-macro datepicker-dropdown-args-desc args)
-    (let [shown?         (reagent/atom false)
-          cancel-popover #(reset! shown? false)
-          position       :below-left]
-      (fn datepicker-dropdown-render
-        [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset src debug-as]
-            :or {no-clip? true, position-offset 0}
-            :as passthrough-args}]
-        (or
-          (validate-args-macro datepicker-dropdown-args-desc passthrough-args)
-          (let [collapse-on-select (fn [new-model]
-                                     (reset! shown? false)
-                                     (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
-                passthrough-args   (-> passthrough-args
-                                       (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)  ;; these keys only valid at this API level
-                                       (assoc :on-change collapse-on-select)
-                                       (assoc :src (at))
-                                       (merge {:hide-border? true})                                                        ;; apply defaults
-                                       vec
-                                       flatten)]
-            [popover-anchor-wrapper
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :class    "rc-datepicker-dropdown-wrapper"
-             :showing? shown?
-             :position position
-             :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
-             :popover  [popover-content-wrapper
-                        :src             (at)
-                        :position-offset (+ (if show-weeks? 43 44) position-offset)
-                        :no-clip?        no-clip?
-                        :arrow-length    0
-                        :arrow-width     0
-                        :arrow-gap       3
-                        :padding         "0px"
-                        :on-cancel       cancel-popover
-                        :body            (into [datepicker] passthrough-args)]]))))))
+   (validate-args-macro datepicker-dropdown-args-desc args)
+   (let [shown?         (reagent/atom false)
+         cancel-popover #(reset! shown? false)
+         position       :below-left]
+     (fn datepicker-dropdown-render
+       [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset src debug-as]
+           :or {no-clip? true, position-offset 0}
+           :as passthrough-args}]
+       (or
+        (validate-args-macro datepicker-dropdown-args-desc passthrough-args)
+        (let [collapse-on-select (fn [new-model]
+                                   (reset! shown? false)
+                                   (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
+              passthrough-args   (-> passthrough-args
+                                     (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)  ;; these keys only valid at this API level
+                                     (assoc :on-change collapse-on-select)
+                                     (assoc :src (at))
+                                     (merge {:hide-border? true})                                                        ;; apply defaults
+                                     vec
+                                     flatten)]
+          [popover-anchor-wrapper
+           :src      src
+           :debug-as (or debug-as (reflect-current-component))
+           :class    "rc-datepicker-dropdown-wrapper"
+           :showing? shown?
+           :position position
+           :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
+           :popover  [popover-content-wrapper
+                      :src             (at)
+                      :position-offset (+ (if show-weeks? 43 44) position-offset)
+                      :no-clip?        no-clip?
+                      :arrow-length    0
+                      :arrow-width     0
+                      :arrow-gap       3
+                      :padding         "0px"
+                      :on-cancel       cancel-popover
+                      :body            (into [datepicker] passthrough-args)]]))))))
