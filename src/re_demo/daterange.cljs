@@ -10,10 +10,10 @@
    [cljs-time.format  :refer [formatter unparse]]
    [re-com.core       :refer [at h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p button md-icon-button checkbox]]
    [re-com.datepicker :refer [iso8601->date datepicker-parts-desc datepicker-dropdown-args-desc]]
-   [re-com.daterange  :as daterange :refer [daterange daterange-args-desc daterange-parts-desc daterange-dropdown-args-desc daterange-dropdown]]
+   [re-com.daterange  :refer [daterange daterange-args-desc daterange-parts-desc daterange-dropdown-args-desc daterange-dropdown]] ;; TODO [GR-REMOVE] Removed unused `:as daterange`
    [re-com.validate   :refer [date-like?]]
    [re-com.util       :refer [now->utc px]]
-   [cljs-time.core :as cljs-time]
+   [cljs-time.core    :as cljs-time]
    [re-demo.utils     :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]])
   (:import
    [goog.i18n DateTimeSymbols_pl]))
@@ -29,28 +29,28 @@
 
 (defn create-checkbox [atom day]
   [v-box
-   :align :center 
+   :align :center
    :children [[box :style {:font-size "smaller"} :child day]
               [checkbox
                :model ((keyword day) @atom)
                :on-change #(swap! atom update-in [(keyword day)] not)]]])
 
 (defn holder []
-  (let [dropdown-model (reagent/atom nil)
-        model-atom (reagent/atom nil)
-        today-model (reagent/atom false)
-        disabled-model (reagent/atom false)
-        weeks-model (reagent/atom false)
-        interval-model (reagent/atom false)
+  (let [dropdown-model   (reagent/atom nil)     ;; TODO [GR-REMOVE] Align definitions (IntelliJ Ctrl+Alt+L, not sure what it is in VS Code)
+        model-atom       (reagent/atom nil)
+        today-model      (reagent/atom false)
+        disabled-model   (reagent/atom false)
+        weeks-model      (reagent/atom false)
+        interval-model   (reagent/atom false)
         week-start-model (reagent/atom 2)
-        selected-days (reagent/atom {:M true :Tu true :W true :Th true :Fr true :Sa true :Su true}) ;model for all checkboxes
-        valid? (fn [day] (nth (mapv val @selected-days) (dec (cljs-time/day-of-week day))))] ;convert to vector, check if day should be disabled
+        selected-days    (reagent/atom {:M true :Tu true :W true :Th true :Fr true :Sa true :Su true}) ;model for all checkboxes ;; TODO [GR-REMOVE] Haven't changed it but would prefer consistency of :Mo and :We
+        valid?           (fn [day] (nth (mapv val @selected-days) (dec (cljs-time/day-of-week day))))] ;convert to vector, check if day should be disabled
     (fn []
-      [v-box 
+      [v-box
        :gap "10px"
        :children [[panel-title "[daterange ...]"
-                   "src/re_com/datepicker.cljs"
-                   "src/re_demo/datepicker.cljs"]
+                   "src/re_com/daterange.cljs" ;; TODO [GR-REMOVE] corrected links
+                   "src/re_demo/daterange.cljs"]
                   [h-box
                    :gap "100px"
                    :children [[v-box
@@ -72,6 +72,8 @@
                                            :selectable-fn valid?
                                            :start-of-week @week-start-model
                                            :on-change #(reset! model-atom %)]
+
+                                          ;; TODO [GR-REMOVE] because this line is just text, it doesn't need Flexbox power. You'll see we often make use is simple [:span]s for text only
                                           [h-box
                                            :align :center
                                            :children [[:code ":model"]
@@ -79,6 +81,17 @@
                                                                        (if @model-atom (str
                                                                                         (unparse (formatter "dd MMM, yyyy") (:start @model-atom)) " ... "
                                                                                         (unparse (formatter "dd MMM, yyyy") (:end @model-atom))) "nil"))]]]
+
+                                          ;; TODO [GR-REMOVE] Here's the :span version (remove above when cleaning up)
+                                          [:span
+                                           [:code ":model"]
+                                           (str " is "
+                                                (if @model-atom ;; TODO [GR-REMOVE] Easier to read when formatted on multiple lines
+                                                  (str
+                                                    (unparse (formatter "dd MMM, yyyy") (:start @model-atom)) " ... "
+                                                    (unparse (formatter "dd MMM, yyyy") (:end @model-atom)))
+                                                  "nil"))]
+
                                           [v-box
                                            :src   (at)
                                            :gap   "10px"
@@ -90,15 +103,18 @@
                                                        :src   (at)
                                                        :style {:margin-top "0"}
                                                        :level :level3 :label "Interactive Parameters"]
-                                                      [checkbox :src (at)
+                                                      [checkbox
+                                                       :src (at)
                                                        :model disabled-model
                                                        :on-change #(swap! disabled-model not)
                                                        :label [box :child [:code ":disabled?"]]]
-                                                      [checkbox :src (at)
+                                                      [checkbox
+                                                       :src (at)
                                                        :model today-model
                                                        :on-change #(swap! today-model not)
                                                        :label [box :child [:code ":show-today?"]]]
-                                                      [checkbox :src (at)
+                                                      [checkbox
+                                                       :src (at)
                                                        :model weeks-model
                                                        :on-change #(swap! weeks-model not)
                                                        :label [box :child [:code ":show-weeks?"]]]
@@ -133,22 +149,20 @@
                                            :children [[title
                                                        :src   (at)
                                                        :level :level3 :label "Dropdown"]
-                                                      [box :src (at)
-                                                       :child "Attached to the same model and interactive paramters."]
-                                                      [daterange-dropdown
-                                                       :show-today? @today-model
-                                                       :disabled? @disabled-model
-                                                       :show-weeks? @weeks-model
+                                                      [box
+                                                       :src (at)
+                                                       :child "Attached to the same model and interactive parameters."]
+                                                      [daterange-dropdown ;; TODO [GR-REMOVE] I often like to align component args (but I haven't done it everywhere and there's no easy keyboard shortcut)
+                                                       :show-today?     @today-model
+                                                       :disabled?       @disabled-model
+                                                       :show-weeks?     @weeks-model
                                                        :check-interval? @interval-model
-                                                       :model model-atom
-                                                       :selectable-fn valid?
-                                                       :start-of-week @week-start-model
-                                                       :on-change #(reset! model-atom %)
-                                                       :placeholder "Select a range of dates"]]]]]]]
+                                                       :model           model-atom
+                                                       :selectable-fn   valid?
+                                                       :start-of-week   @week-start-model
+                                                       :on-change       #(reset! model-atom %)
+                                                       :placeholder     "Select a range of dates"]]]]]]]
                   [parts-table "daterange" daterange-parts-desc]]])))
-
-
-
 
 
 (defn panel
