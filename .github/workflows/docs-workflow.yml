@@ -7,10 +7,10 @@ on:
 jobs:
   deploy:
     name: Deploy
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     container:
       # Source: https://github.com/day8/dockerfile-for-dev-ci-image
-      image: day8au/dev-ci:0.0.6
+      image: ghcr.io/day8/dockerfile-for-dev-ci-image/chrome-56:2
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
