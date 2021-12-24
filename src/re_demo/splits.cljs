@@ -78,11 +78,15 @@
                                       [h-split :src (at)
                                        :panel-1 [left-panel]
                                        :panel-2 [right-panel]
-                                       :size    "300px"]
+                                       :size    "300px"
+                                       :parts   {:top    {:style {:overflow :hidden}}
+                                                 :bottom {:style {:overflow :hidden}}}]
                                       [title :src (at) :level :level3 :label "[v-split]"]
                                       [v-split :src (at)
                                        :panel-1       [top-panel]
                                        :panel-2       [bottom-panel]
                                        :size          "300px"
-                                       :initial-split "25%"]]]]]
+                                       :initial-split "25%"
+                                       :parts         {:top    {:style {:overflow :hidden}}
+                                                       :bottom {:style {:overflow :hidden}}}]]]]]
               [parts-table "h-split" hv-split-parts-desc]]])
