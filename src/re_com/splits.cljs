@@ -162,7 +162,6 @@
                                                                         (str "0 0 " percentage "px") ;; flex for panel-1
                                                                         (str "1 1 0px"))             ;; flex for panel-2
                                                                       (str percentage " 1 0px")))
-                                                  {:overflow "hidden"} ;; TODO: Shouldn't have this...test removing it
                                                   (when in-drag? {:pointer-events "none"})
                                                   style)}
                                    attr))
@@ -275,7 +274,6 @@
                                                                         (str "0 0 " percentage "px") ;; flex for panel-1
                                                                         (str "1 1 0px"))             ;; flex for panel-2
                                                                       (str percentage " 1 0px")))
-                                                  {:overflow "hidden"} ;; TODO: Shouldn't have this...test removing it
                                                   (when in-drag? {:pointer-events "none"})
                                                   style)}
                                    attr))
