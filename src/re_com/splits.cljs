@@ -112,12 +112,12 @@
                                  (when on-split-change (on-split-change @split-perc))
                                  (reset! dragging? false))
 
-          calc-perc            (fn [mouse-x]                                                 ;; turn a mouse y coordinate into a percentage position
-                                 (let [container  (get-element-by-id container-id)           ;; the outside container
-                                       offsets    (sum-scroll-offsets container)             ;; take any scrolling into account
-                                       c-width    (.-clientWidth container)                  ;; the container's width
-                                       c-left-x   (.-offsetLeft container)                   ;; the container's left X
-                                       relative-x (+ (- mouse-x c-left-x) (:left offsets))]  ;; the X of the mouse, relative to container
+          calc-perc            (fn [mouse-x]                                                                 ;; turn a mouse x coordinate into a percentage position
+                                 (let [container  (get-element-by-id container-id)                           ;; the outside container
+                                       c-width    (.-clientWidth container)                                  ;; the container's width
+                                       c-left-x   (+ (.-pageXOffset js/window)
+                                                     (-> container .getBoundingClientRect .-left))           ;; the container's left X
+                                       relative-x (- mouse-x c-left-x)]                                      ;; the X of the mouse, relative to container
                                    (if split-is-px?
                                      relative-x                                              ;; return the left offset in px
                                      (* 100.0 (/ relative-x c-width)))))                     ;; return the percentage panel-1 width against container width
