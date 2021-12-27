@@ -249,19 +249,20 @@
      {:name :style      :required false                   :type "CSS style map" :validate-fn css-style?     :description "CSS styles to add or override"}
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
-     {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
+     {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}
+     {:name :wrap       :required false                   :type "string"        :validate-fn string?        :description [:span "a CSS flex-wrap property. Specifies whether the box should wrap or not. Examples:" [:code ":nowrap"] ", " [:code ":wrap"] ", " [:code ":wrap-reverse"] ", " [:code ":initial"] "and" [:code ":inherit"] "."]}]))
 
 (defn h-box
   "Returns hiccup which produces a horizontal box.
    It's primary role is to act as a container for components and lays it's children from left to right.
    By default, it also acts as a child under it's parent"
-  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr]
+  [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr wrap]
       :or   {size "none" justify :start align :stretch}
       :as   args}]
   (or
     (validate-args-macro h-box-args-desc args)
     (let [s        (merge
-                     (flex-flow-style "row nowrap")
+                     (flex-flow-style (str "row " (or wrap "nowrap")))
                      (flex-child-style size)
                      (when width      {:width      width})
                      (when height     {:height     height})
