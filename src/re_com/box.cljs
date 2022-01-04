@@ -250,7 +250,7 @@
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}
-     {:name :wrap       :required false                   :type "string"        :validate-fn string?        :description [:span "a CSS flex-wrap property. Specifies whether the box should wrap or not. Examples:" [:code ":nowrap"] ", " [:code ":wrap"] ", " [:code ":wrap-reverse"] ", " [:code ":initial"] "and" [:code ":inherit"] "."]}]))
+     {:name :wrap       :required false                   :type "string"        :validate-fn string?        :description [:span "a CSS flex-wrap property. Specifies whether the box should wrap or not. Examples: " [:code "nowrap"] ", " [:code "wrap"] ", " [:code "wrap-reverse"] ", " [:code "initial"] "and" [:code "inherit"] "."]}]))
 
 (defn h-box
   "Returns hiccup which produces a horizontal box.
@@ -316,7 +316,7 @@
      {:name :attr       :required false                   :type "HTML attr map" :validate-fn html-attr?     :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed"]}
      {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}
-     {:name :wrap       :required false                   :type "string"        :validate-fn string?        :description [:span "a CSS flex-wrap property. Specifies whether the box should wrap or not. Examples:" [:code ":nowrap"] ", " [:code ":wrap"] ", " [:code ":wrap-reverse"] ", " [:code ":initial"] "and" [:code ":inherit"] "."]}]))
+     {:name :wrap       :required false                   :type "string"        :validate-fn string?        :description [:span "a CSS flex-wrap property. Specifies whether the box should wrap or not. Examples: " [:code "nowrap"] ", " [:code "wrap"] ", " [:code "wrap-reverse"] ", " [:code "initial"] "and" [:code "inherit"] "."]}]))
 
 (defn v-box
   "Returns hiccup which produces a vertical box.
