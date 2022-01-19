@@ -32,7 +32,7 @@
                                          :width    "250px"
                                          :title    [:strong "Tour 1 of 4"]
                                          :body     [:div "So, you clicked the button below and the tour started. Click the 'Next' button to proceed to the next step."
-                                                   [make-tour-nav :src (at) demo-tour]]]
+                                                   [make-tour-nav demo-tour]]]
                                :style   (align-style :align-self :center)]
                               [popover-anchor-wrapper :src (at)
                                :showing? (:step2 demo-tour)
@@ -44,7 +44,7 @@
                                          :width    "250px"
                                          :title    [:strong "Tour 2 of 4"]
                                          :body     [:div "Here's the second tour popover. Now you can advance to the next one, or go back to the first, or finish the tour by clicking the close 'X' button above."
-                                                   [make-tour-nav :src (at) demo-tour]]]
+                                                   [make-tour-nav demo-tour]]]
                                :style   (align-style :align-self :end)]
                               [popover-anchor-wrapper :src (at)
                                :showing? (:step3 demo-tour)
@@ -59,7 +59,7 @@
                                          :backdrop-opacity 0.5
                                          :title            [:strong "Tour 3 of 4"]
                                          :body             [:div "This is the penultimate tour popover. Using the backdrop feature, you can focus attention on the item you are explaining."
-                                                            [make-tour-nav :src (at) demo-tour]]]
+                                                            [make-tour-nav demo-tour]]]
                                :style   (align-style :align-self :center)]
                               [popover-anchor-wrapper :src (at)
                                :showing? (:step4 demo-tour)
@@ -71,7 +71,7 @@
                                          :width    "420px"
                                          :title    [:strong "Tour 4 of 4"]
                                          :body     [:div "Lucky last tour popover. The tour component renders a 'Finish' button instead of a 'Next button for the last popover."
-                                                    [make-tour-nav :src (at) demo-tour]]]]]]]])))
+                                                    [make-tour-nav demo-tour]]]]]]]])))
 
 
 (defn panel2
