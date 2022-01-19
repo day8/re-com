@@ -95,6 +95,7 @@
 (def selection-list             selection-list/selection-list)
 (def multi-select               multi-select/multi-select)
 (def tag-dropdown               tag-dropdown/tag-dropdown)
+(def text-tag                   tag-dropdown/text-tag)
 
 (def horizontal-tabs            tabs/horizontal-tabs)
 (def horizontal-bar-tabs        tabs/horizontal-bar-tabs)
