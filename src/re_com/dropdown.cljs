@@ -207,7 +207,7 @@
     (fn
       [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled?]
       (let [_    (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})
-            text (if @internal-model
+            text (if (some? @internal-model)
                    (label-fn (item-for-id @internal-model choices :id-fn id-fn))
                    placeholder)]
         [:a.chosen-single.chosen-default
