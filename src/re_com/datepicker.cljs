@@ -5,7 +5,7 @@
     [reagent.core         :as reagent]
     [cljs-time.core       :as cljs-time]
     [re-com.config        :refer [include-args-desc?]]
-    [re-com.validate      :refer [date-like? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
+    [re-com.validate      :refer [date-like? css-style? html-attr? parts? position? position-options-list] :refer-macros [validate-args-macro]]
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border gap box line h-box flex-child-style]]
@@ -592,23 +592,23 @@
 (def datepicker-dropdown-args-desc
   (when include-args-desc?
     (conj datepicker-args-desc
-          {:name :format          :required false  :default "yyyy MMM dd"  :type "string"   :description "[datepicker-dropdown only] a representation of a date format. See cljs_time.format"}
-          {:name :goog?           :required false  :default false          :type "boolean"  :description [:span "[datepicker-dropdown only] use " [:code "goog.i18n.DateTimeFormat"] " instead of " [:code "cljs_time.format"] " for applying " [:code ":format"]]}
-          {:name :no-clip?        :required false  :default true           :type "boolean"  :description "[datepicker-dropdown only] when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
-          {:name :placeholder     :required false                          :type "string"   :description "[datepicker-dropdown only] placeholder text for when a date is not selected."}
-          {:name :width           :required false  :validate-fn string?    :type "string"   :description "[datepicker-dropdown only] a CSS width style"}
-          {:name :position-offset :required false  :validate-fn number?    :type "integer"  :description "[datepicker-dropdown only] px horizontal offset of the popup"})))
+          {:name :format          :required false  :default "yyyy MMM dd"  :type "string"                             :description "[datepicker-dropdown only] a representation of a date format. See cljs_time.format"}
+          {:name :goog?           :required false  :default false          :type "boolean"                            :description [:span "[datepicker-dropdown only] use " [:code "goog.i18n.DateTimeFormat"] " instead of " [:code "cljs_time.format"] " for applying " [:code ":format"]]}
+          {:name :no-clip?        :required false  :default true           :type "boolean"                            :description "[datepicker-dropdown only] when an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped. When this parameter is true (which is the default), re-com will use a different CSS method to show the popover. This method is slightly inferior because the popover can't track the anchor if it is repositioned"}
+          {:name :placeholder     :required false                          :type "string"                             :description "[datepicker-dropdown only] placeholder text for when a date is not selected."}
+          {:name :width           :required false  :validate-fn string?    :type "string"                             :description "[datepicker-dropdown only] a CSS width style"}
+          {:name :position-offset :required false  :validate-fn number?    :type "integer"                            :description "[datepicker-dropdown only] px horizontal offset of the popup"}
+          {:name :position        :required false  :default :below-left    :type "keyword"    :validate-fn position?  :description [:span "[datepicker-dropdown only] relative to date anchor. One of " position-options-list]})))
 
 (defn datepicker-dropdown
   [& {:keys [src] :as args}]
   (or
     (validate-args-macro datepicker-dropdown-args-desc args)
     (let [shown?         (reagent/atom false)
-          cancel-popover #(reset! shown? false)
-          position       :below-left]
+          cancel-popover #(reset! shown? false)]
       (fn datepicker-dropdown-render
-        [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset src debug-as]
-            :or {no-clip? true, position-offset 0}
+        [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset position src debug-as]
+            :or {no-clip? true, position-offset 0, position :below-left}
             :as passthrough-args}]
         (or
           (validate-args-macro datepicker-dropdown-args-desc passthrough-args)
@@ -616,7 +616,7 @@
                                      (reset! shown? false)
                                      (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
                 passthrough-args   (-> passthrough-args
-                                       (dissoc :format :goog? :no-clip? :placeholder :width :position-offset)  ;; these keys only valid at this API level
+                                       (dissoc :format :goog? :no-clip? :placeholder :width :position-offset :position)  ;; these keys only valid at this API level
                                        (assoc :on-change collapse-on-select)
                                        (assoc :src (at))
                                        (merge {:hide-border? true})                                                        ;; apply defaults
