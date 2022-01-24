@@ -205,7 +205,7 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled?]
+      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled? parts]
       (let [_    (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})
             text (if (some? @internal-model)
                    (label-fn (item-for-id @internal-model choices :id-fn id-fn))
@@ -229,7 +229,8 @@
                   {:title text})
           text]
          (when (not disabled?)
-           [:div [:b]])])))) ;; This odd bit of markup produces the visual arrow on the right
+           [:div [:b {:class (str "rc-dropdown-arrow " (get-in parts [:arrow :class])) ;; This odd bit of markup produces the visual arrow on the right
+                      :style (get-in parts [:arrow :style])}]])]))))
 
 (defn handle-free-text-insertion
   [event ins auto-complete? capitalize? choices internal-model free-text-sel-range free-text-change]
@@ -260,7 +261,7 @@
 
 (defn- free-text-dropdown-top-base
   "Base function (before lifecycle metadata) to render the top part of the dropdown (free-text), with the editable area and the up/down arrow"
-  [free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]
+  [free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled? parts]
   [:ul.chosen-choices
    [:li.search-field
     [:div.free-text
@@ -304,7 +305,8 @@
                         (when @free-text-focused?
                           (.preventDefault event)))}            ;; Prevent free-text input from loosing focus
       (when (not disabled?)
-        [:b])]]]])
+        [:b {:class (str "rc-dropdown-arrow " (get-in parts [:arrow :class]))
+             :style (get-in parts [:arrow :style])}])]]]])
 
 (def ^:private free-text-dropdown-top
   "Render the top part of the dropdown (free-text), with the editable area and the up/down arrow"
@@ -362,6 +364,7 @@
 (def single-dropdown-parts-desc
   (when include-args-desc?
     [{:name :tooltip            :level 0 :class "rc-dropdown-tooltip"            :impl "[popover-tooltip]" :notes "Tooltip for the dropdown, if enabled."}
+     {:name :arrow              :level 0 :class "rc-dropdown-arrow"              :impl "[:b]"}
      {:type :legacy             :level 1 :class "rc-dropdown"                    :impl "[:div]"            :notes "The container for the rest of the dropdown."}
      {:name :chosen-drop        :level 2 :class "rc-dropdown-chosen-drop"        :impl "[:div]"}
      {:name :chosen-results     :level 3 :class "rc-dropdown-chosen-results"     :impl "[:ul]"}
@@ -610,8 +613,8 @@
                                     attr)
                                   (cond
                                     just-drop? nil
-                                    free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]
-                                    :else [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled?])
+                                    free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled? parts]
+                                    :else [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled? parts])
                                   (when (and @drop-showing? (not disabled?))
                                     [:div
                                      (merge
