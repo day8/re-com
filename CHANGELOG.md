@@ -11,6 +11,7 @@
 
 - Add parts to tag-dropdown for internal selection-list
 - Add simple-v-table striped? argument
+- Expose tag-dropdown/text-tag via re-com.core/text-tag
 
 ## 2.13.2 (2021-02-24)
 

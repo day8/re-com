@@ -112,12 +112,12 @@
                                  (when on-split-change (on-split-change @split-perc))
                                  (reset! dragging? false))
 
-          calc-perc            (fn [mouse-x]                                                 ;; turn a mouse y coordinate into a percentage position
-                                 (let [container  (get-element-by-id container-id)           ;; the outside container
-                                       offsets    (sum-scroll-offsets container)             ;; take any scrolling into account
-                                       c-width    (.-clientWidth container)                  ;; the container's width
-                                       c-left-x   (.-offsetLeft container)                   ;; the container's left X
-                                       relative-x (+ (- mouse-x c-left-x) (:left offsets))]  ;; the X of the mouse, relative to container
+          calc-perc            (fn [mouse-x]                                                                 ;; turn a mouse x coordinate into a percentage position
+                                 (let [container  (get-element-by-id container-id)                           ;; the outside container
+                                       c-width    (.-clientWidth container)                                  ;; the container's width
+                                       c-left-x   (+ (.-pageXOffset js/window)
+                                                     (-> container .getBoundingClientRect .-left))           ;; the container's left X
+                                       relative-x (- mouse-x c-left-x)]                                      ;; the X of the mouse, relative to container
                                    (if split-is-px?
                                      relative-x                                              ;; return the left offset in px
                                      (* 100.0 (/ relative-x c-width)))))                     ;; return the percentage panel-1 width against container width
@@ -162,7 +162,6 @@
                                                                         (str "0 0 " percentage "px") ;; flex for panel-1
                                                                         (str "1 1 0px"))             ;; flex for panel-2
                                                                       (str percentage " 1 0px")))
-                                                  {:overflow "hidden"} ;; TODO: Shouldn't have this...test removing it
                                                   (when in-drag? {:pointer-events "none"})
                                                   style)}
                                    attr))
@@ -225,12 +224,12 @@
                                  (when on-split-change (on-split-change @split-perc))
                                  (reset! dragging? false))
 
-          calc-perc            (fn [mouse-y]                                                 ;; turn a mouse y coordinate into a percentage position
-                                 (let [container  (get-element-by-id container-id)           ;; the outside container
-                                       offsets    (sum-scroll-offsets container)             ;; take any scrolling into account
-                                       c-height   (.-clientHeight container)                 ;; the container's height
-                                       c-top-y    (.-offsetTop container)                    ;; the container's top Y
-                                       relative-y (+ (- mouse-y c-top-y) (:top offsets))]    ;; the Y of the mouse, relative to container
+          calc-perc            (fn [mouse-y]                                                                ;; turn a mouse y coordinate into a percentage position
+                                 (let [container  (get-element-by-id container-id)                          ;; the outside container
+                                       c-height   (.-clientHeight container)                                ;; the container's height
+                                       c-top-y    (+ (.-pageYOffset js/window)
+                                                     (-> container .getBoundingClientRect .-top))           ;; the container's top Y
+                                       relative-y (- mouse-y c-top-y)]                                      ;; the Y of the mouse, relative to container
                                    (if split-is-px?
                                      relative-y                                              ;; return the top offset in px
                                      (* 100.0 (/ relative-y c-height)))))                    ;; return the percentage panel-1 height against container width
@@ -275,7 +274,6 @@
                                                                         (str "0 0 " percentage "px") ;; flex for panel-1
                                                                         (str "1 1 0px"))             ;; flex for panel-2
                                                                       (str percentage " 1 0px")))
-                                                  {:overflow "hidden"} ;; TODO: Shouldn't have this...test removing it
                                                   (when in-drag? {:pointer-events "none"})
                                                   style)}
                                    attr))
