@@ -2,7 +2,8 @@
   (:require
     [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
     [goog.date.DateTime]
-    [goog.date.UtcDateTime]))
+    [goog.date.UtcDateTime]
+    [clojure.string :as string]))
 
 (defn fmap
   "Takes a function 'f' amd a map 'm'.  Applies 'f' to each value in 'm' and returns.
@@ -217,3 +218,36 @@
       (.getMonth local-date-time)
       (.getDate local-date-time)
       0 0 0 0)))
+
+
+(defn merge-css [css-desc {:as params :keys [class style parts]}]
+  (fn [tag options]
+    (let [defaults (get css-desc (or tag :main))
+          user (if tag
+                 (get parts tag)
+                 {:class class :style style})]
+      (into {}
+            [(when (or (:class defaults) (:class user))
+               (let [d (:class defaults)
+                     d (if (fn? d) (d options) d)
+                     u (:class user)
+                     u (if (string? u) [u] u)]
+                 [:class (reduce into [] [d u])]))
+             (when (or (:style defaults) (:style user))
+               (let [d (:style defaults)
+                     d (if (fn? d) (d options) d)
+                     u (:style user)]
+                 [:style (reduce into {} [d u])]))
+             (when (or (:attr defaults) (:attr user))
+               (let [d (:attr defaults)
+                     d (if (fn? d) (d options) d)
+                     u (:attr user)]
+                 [:attr (reduce into {} [d u])]))]))))
+
+(defn add-map-to-hiccup-call [map hiccup]
+  (reduce into [[(first hiccup)]
+                (for [[k v] map
+                      :let [v (if (= k :class) (string/join " " v) v)]
+                      itm [k v]]
+                  itm)
+                (rest hiccup)]))

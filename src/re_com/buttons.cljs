@@ -2,7 +2,7 @@
   (:require-macros
     [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
-    [re-com.util     :refer [deref-or-value px]]
+    [re-com.util     :refer [deref-or-value px merge-css add-map-to-hiccup-call]]
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
     [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
@@ -20,6 +20,12 @@
     [{:name :wrapper :level 0 :class "rc-button-wrapper" :impl "[button]"          :notes "Outer wrapper of the button, tooltip (if any), everything."}
      {:name :tooltip :level 1 :class "rc-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
      {:type :legacy  :level 1 :class "rc-button"         :impl "[:button]"         :notes "The actual button."}]))
+
+(def button-css-desc
+  {:main {:class ["rc-button" "btn"]
+          :style (flex-child-style "none") }
+   :wrapper {:class ["rc-button-wrapper" "display-inline-flex"]}
+   :tooltip {:class ["rc-button-tooltip"]}})
 
 (def button-parts
   (when include-args-desc?
@@ -52,41 +58,37 @@
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
           (let [disabled? (deref-or-value disabled?)
+                cmerger (merge-css button-css-desc args)
                 the-button [:button
                             (merge
-                              {:class    (str "rc-button btn " class)
-                               :style    (merge
-                                           (flex-child-style "none")
-                                           style)
-                               :disabled disabled?
-                               :on-click (handler-fn
-                                           (when (and on-click (not disabled?))
-                                             (on-click event)))}
-                              (when tooltip
-                                {:on-mouse-over (handler-fn (reset! showing? true))
-                                 :on-mouse-out  (handler-fn (reset! showing? false))})
-                              attr)
+                             (cmerger :main nil)
+                             {:disabled disabled?
+                              :on-click (handler-fn
+                                         (when (and on-click (not disabled?))
+                                           (on-click event)))}
+                             (when tooltip
+                               {:on-mouse-over (handler-fn (reset! showing? true))
+                                :on-mouse-out  (handler-fn (reset! showing? false))})
+                             attr)
                             label]]
             (when disabled?
               (reset! showing? false))
-            [box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :class    (str "rc-button-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
-             :style    (get-in parts [:wrapper :style])
-             :attr     (get-in parts [:wrapper :attr])
-             :align    :start
-             :child    (if tooltip
-                         [popover-tooltip
-                          :src      (at)
-                          :label    tooltip
-                          :position (or tooltip-position :below-center)
-                          :showing? showing?
-                          :anchor   the-button
-                          :class    (str "rc-button-tooltip " (get-in parts [:tooltip :class]))
-                          :style    (get-in parts [:tooltip :style])
-                          :attr     (get-in parts [:tooltip :attr])]
-                         the-button)]))))))
+            (add-map-to-hiccup-call
+             (cmerger :wrapper nil)
+             [box
+              :src      src
+              :debug-as (or debug-as (reflect-current-component))
+              :align    :start
+              :child    (if tooltip
+                          (add-map-to-hiccup-call
+                           (cmerger :tooltip)
+                           [popover-tooltip
+                            :src      (at)
+                            :label    tooltip
+                            :position (or tooltip-position :below-center)
+                            :showing? showing?
+                            :anchor   the-button])
+                          the-button)])))))))
 
 
 ;;--------------------------------------------------------------------------------------------------
