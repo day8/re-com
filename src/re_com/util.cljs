@@ -221,9 +221,9 @@
 
 
 (defn merge-css [css-desc {:as params :keys [class style parts]}]
-  (fn [tag options]
+  (fn [tag & options]
     (let [defaults (get css-desc (or tag :main))
-          user (if tag
+          user (if (and tag (not (= tag :main)))
                  (get parts tag)
                  {:class class :style style})]
       (into {}
