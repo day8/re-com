@@ -8,7 +8,7 @@
     [re-com.config      :refer [debug? include-args-desc?]]
     [re-com.debug       :refer [->attr]]
     [re-com.box         :as    box]
-    [re-com.util        :as    util :refer [deref-or-value px-n]]
+    [re-com.util        :as    util :refer [deref-or-value px-n add-map-to-hiccup-call merge-css]]
     [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]
     [re-com.dmm-tracker :refer [make-dmm-tracker captureMouseMoves]]))
 
@@ -30,6 +30,28 @@
   (when  (.-altKey event)
     (js/console.log (str "ROW-INDEX[" row-index "]") row)))
 
+(def scrollbar-css-desc
+  {:main {:class (fn [{:keys [horizontal?]}]
+                   [(str (if horizontal? "horizontal" "vertical") "-scrollbar")])
+          :style (fn [{:keys [width horizontal? show? mouse-over? dragging?]}]
+                   (merge {:border-radius (px (/ width 2))
+                           :overflow "hidden"}
+                          (when show?
+                            {:background-color (if (or mouse-over? dragging?)
+                                                 ;;scrollbar-hover-color
+                                                 "#ccc"
+                                                 ;;scrollbar-color
+                                                 "#eee")})))}
+   :thumb {:style (fn [{:keys [width mouse-over? dragging? horizontal? scroll-position]}]
+                    {:border-radius (px (/ width 2))
+                     :cursor "default"
+                     :background-color
+                     (case
+                         dragging? "#777" ;thumb-drag-color
+                         mouse-over? "#999" ;thumb-hover-color
+                         :else "#bbb") ;thumb-color
+                     (if horizontal? :margin-left :margin-top)
+                     (px scroll-position)})}})
 
 (defn scrollbar
   "Render a horizontal or vertical scrollbar
@@ -46,12 +68,6 @@
   [& {:keys [type width on-change]
       :or   {width 10}}]
   (let [horizontal?           (= type :horizontal)
-        radius                (px (/ width 2))
-        scrollbar-color       "#eee" ;; "#f3f3f3"  "rgba(0,0,0,0.05)"  ;; These colors could be passed in as a single map,
-        scrollbar-hover-color "#ccc" ;; "#cccccc"  "rgba(0,0,0,0.20)"  ;; or we could add :style and :thumb-style args (wouldn't work for hover colors)
-        thumb-color           "#bbb" ;; "#b7b7b7"  "rgba(0,0,0,0.25)"
-        thumb-hover-color     "#999" ;; "#9a9a9a"  "rgba(0,0,0,0.30)"
-        thumb-drag-color      "#777" ;; "#707070"  "rgba(0,0,0,0.45)"
         mouse-over?           (reagent/atom false)
         dragging?             (reagent/atom false)
         pos-on-scrollbar      (reagent/atom 0)
@@ -107,14 +123,16 @@
                                   (reset! dragging? true)
                                   (.stopPropagation event)))] ;; Prevents parent div getting this mouse-down as well
     (fn scrollbar-renderer
-      [& {:keys [length width content-length scroll-pos style src]
-          :or   {width 10}}]
+      [& {:keys [length width content-length scroll-pos class style parts src]
+          :or   {width 10}
+          :as args}]
       (let [thumb-ratio             (/ content-length length)
             thumb-length            (max (* 1.5 width) (/ length thumb-ratio))
             show?                   (> content-length length)
             max-scroll-pos          (- length thumb-length)
             scrollbar-content-ratio (/ (- content-length length) max-scroll-pos)
-            internal-scroll-pos     (/ scroll-pos scrollbar-content-ratio)]
+            internal-scroll-pos     (/ scroll-pos scrollbar-content-ratio)
+            cmerger (merge-css scrollbar-css-desc args)]
         (reset! calcs {:length                  length
                        :scroll-pos              scroll-pos
                        :thumb-ratio             thumb-ratio
@@ -122,42 +140,34 @@
                        :max-scroll-pos          max-scroll-pos
                        :scrollbar-content-ratio scrollbar-content-ratio
                        :internal-scroll-pos     internal-scroll-pos})
-        [box/box
-         :src    src
-         :width  (if horizontal?
-                   (when length (px length))
-                   (px width))
-         :height (if horizontal?
-                   (px width)
-                   (when length (px length)))
-         :class  (str (if horizontal? "horizontal" "vertical") "-scrollbar")
-         :style  (merge {:background-color (when show? (if (or @mouse-over? @dragging?)
-                                                         scrollbar-hover-color
-                                                         scrollbar-color))
-                         :border-radius    radius
-                         :overflow         "hidden"}
-                        style)
-         :attr   {:on-mouse-enter on-mouse-enter
-                  :on-mouse-leave on-mouse-leave
-                  :on-mouse-down  (handler-fn (when show? (scrollbar-mouse-down event)))} ;; TODO: Best way to move this fn to outer fn? (closes over show?)
-         :child  [box/box
-                  :src    (at)
-                  :width  (if horizontal?
-                            (px (if show? thumb-length 0))
-                            (px width))
-                  :height (if horizontal?
-                            (px width)
-                            (px (if show? thumb-length 0)))
-                  :style  {:background-color (if (or @mouse-over? @dragging?)
-                                               (if @dragging? thumb-drag-color thumb-hover-color)
-                                               thumb-color)
-                           :cursor           "default"
-                           :border-radius    radius
-                           (if horizontal?
-                             :margin-left
-                             :margin-top)    (px internal-scroll-pos)}
-                  :attr   {:on-mouse-down (handler-fn (thumb-mouse-down event internal-scroll-pos))} ;; TODO: Best way to move this fn to outer fn? (closes over internal-scroll-pos)
-                  :child  ""]]))))
+        (add-map-to-hiccup-call
+         (cmerger :main {:width width :horizontal? horizontal? :show? show? :mouse-over? @mouse-over?
+                         :dragging? @dragging?})
+         [box/box
+          :src    src
+          :width  (if horizontal?
+                    (when length (px length))
+                    (px width))
+          :height (if horizontal?
+                    (px width)
+                    (when length (px length)))
+          :attr   {:on-mouse-enter on-mouse-enter
+                   :on-mouse-leave on-mouse-leave
+                   :on-mouse-down  (handler-fn (when show? (scrollbar-mouse-down event)))} ;; TODO: Best way to move this fn to outer fn? (closes over show?)
+          :child  (add-map-to-hiccup-call
+                   (cmerger :thumb {:width width :horizontal? horizontal? :show? show?
+                                    :mouse-over? @mouse-over? :dragging? @dragging?
+                                    :scroll-position internal-scroll-pos})
+                   [box/box
+                    :src    (at)
+                    :width  (if horizontal?
+                              (px (if show? thumb-length 0))
+                              (px width))
+                    :height (if horizontal?
+                              (px width)
+                              (px (if show? thumb-length 0)))
+                    :attr   {:on-mouse-down (handler-fn (thumb-mouse-down event internal-scroll-pos))} ;; TODO: Best way to move this fn to outer fn? (closes over internal-scroll-pos)
+                    :child  ""])])))))
 
 
 ;; ================================================================================== SECTION 1 - top-left
@@ -504,6 +514,86 @@
      {:type :legacy                       :level 2 :name-label "-"                                              :impl "[box]"     :notes "Legacy"}
      {:name :v-scroll                     :level 3 :class "rc-v-table-v-scroll"                                 :impl "[box]"     :notes "The vertical scrollbar"}]))
 
+(def v-table-css-desc
+  {:main
+   :wrapper {:class ["rc-v-table"]
+             :style (fn [{:keys [max-width max-height]}]
+                      {:max-width max-width :max-height max-height})}
+
+   :left-section {:class ["rc-v-table-left-section"]}
+   :top-left {:class ["rc-v-table-top-left" "rc-v-table-content"]
+              :style {:overflow "hidden"}}
+   :row-headers {:class ["rc-v-table-row-headers" "rc-v-table-viewport"]
+                 :style (fn [{:keys [max-height]}]
+                          {:position "relative"
+                           :overflow "hidden"
+                           :max-height (px max-height)})}
+   :row-header-selection-rect
+   :row-header-content {:class ["rc-v-table-row-header-content" "rc-v-table-content"]
+                        :style (fn [{:keys [scroll-y]}]
+                                 {:margin-top (px scroll-y :negative)})}
+   :bottom-left {:class ["rc-v-table-bottom-left" "rc-v-table-content"]
+                 :style {:overflow "hidden"}}
+
+   :middle-section {:class ["rc-v-table-middle-section"]
+                    :style (fn [{:keys [max-width]}]
+                             {:max-width max-width})}
+   :column-headers {:class ["rc-v-table-column-headers" "rc-v-table-viewport"]
+                    :style {:overflow "hidden"
+                            :position "relative"}}
+   :column-header-selection-rect
+   :column-header-content {:class ["rc-v-table-column-header-content" "rc-v-table-content"]
+                           :style (fn [{:keys [scroll-x]}]
+                                    {:margin-left (px scroll-x :negative)})}
+
+   :rows {:class ["rc-v-table-rows" "rc-v-table-viewport"]
+          :style (fn [{:keys [max-height]}]
+                   {:overflow "hidden"
+                    :position "relative"
+                    :max-height (px max-height)})}
+   :row-selection-rect
+   :row-content {:class ["rc-v-table-row-content" "rc-v-table-content"]
+                 :style (fn [{:keys [scroll-x scroll-y]}]
+                          {:margin-left (px scroll-x :negative)
+                           :margin-top (px scroll-y :negative)})}
+   :column-footers {:class ["rc-v-table-column-footers" "rc-v-table-viewport"]
+                    :style {:overflow "hidden"}}
+   :column-footer-content {:class ["rc-v-table-column-footer-content" "rc-v-table-content"]
+                           :style (fn [{:keys [scroll-x]}]
+                                    {:margin-left (px scroll-x :negative)})}
+
+   :h-scroll {:class ["rc-v-table-h-scroll"]
+              :style (fn [{:keys [scrollbar-margin]}]
+                       {:margin (px-n scrollbar-margin 0)})}
+
+   :right-section {:class ["rc-v-table-right-section"]}
+   :top-right {:class ["rc-v-table-top-right" "rc-v-table-content"]
+               :style {:overflow "hidden"}}
+   :row-footers {:class ["rc-v-table-row-footers" "rc-v-table-viewport"]
+                 :style (fn [{:keys [max-height]}]
+                          {:max-height (px max-height)})}
+   :row-footer-content {:class ["rc-v-table-row-footer-content" "rc-v-table-content"]
+                        :style (fn [{:keys [scroll-y]}]
+                                 {:margin-top (px scroll-y :negative)})}
+   :bottom-right {:class ["rc-v-table-bottom-right" "rc-v-table-content"]
+                  :style {:overflow "hidden"}}
+   :v-scroll-section {:class ["rc-v-table-v-scroll-section"]}
+   :v-scroll {:class ["rc-v-table-v-scroll"]
+              :style (fn [{:keys [scrollbar-margin]}]
+                       {:margin (px-n scrollbar-margin 0)})}
+   })
+
+;;This is for the selection-renderer component embedded in v-table. Perhaps it should be a key in
+;; v-table-css-desc, above. But it doesn't seem to be addressable using `parts` so for now just has
+;; its defaults defined in the separate structure below.
+(def v-table-selection-css-desc
+  {:main {:class ["rc-v-table-selection"]
+          :style (fn [{:keys [top left width height]}]
+                   {:top (px top) :left (px left) :width (px width) :height (px height)
+                    :position "absolute"
+                    :z-index 1
+                    :background-color "rgba(0,0,255,0.1)"
+                    :border "1px solid rgba(0,0,255,0.4)"})}})
 
 
 (def v-table-parts
