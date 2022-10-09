@@ -221,28 +221,40 @@
 
 
 (defn merge-css [css-desc {:as params :keys [class style parts]}]
-  (fn [tag & options]
-    (let [defaults (get css-desc (or tag :main))
-          user (if (and tag (not (= tag :main)))
-                 (get parts tag)
-                 {:class class :style style})]
-      (into {}
-            [(when (or (:class defaults) (:class user))
-               (let [d (:class defaults)
-                     d (if (fn? d) (d options) d)
-                     u (:class user)
-                     u (if (string? u) [u] u)]
-                 [:class (reduce into [] [d u])]))
-             (when (or (:style defaults) (:style user))
-               (let [d (:style defaults)
-                     d (if (fn? d) (d options) d)
-                     u (:style user)]
-                 [:style (reduce into {} [d u])]))
-             (when (or (:attr defaults) (:attr user))
-               (let [d (:attr defaults)
-                     d (if (fn? d) (d options) d)
-                     u (:attr user)]
-                 [:attr (reduce into {} [d u])]))]))))
+  (defn fetch-merged-css
+    ([tag]
+     (fetch-merged-css tag {}))
+    ([tag options]
+     (let [xoptions (reduce (partial dissoc options) [:class :style :attr])
+           defaults (get css-desc (or tag :main))
+           user (if (and tag (not (= tag :main)))
+                  (get parts tag)
+                  {:class class :style style})]
+       (into {}
+             [(let [d (:class defaults)
+                    d (if (fn? d) (d xoptions) d)
+                    u (:class user)
+                    u (if (string? u) [u] u)
+                    o (:class options)
+                    o (if (string? o) [o] o)
+                    res (reduce into [] [d u o])]
+                (when-not (empty? res)
+                  [:class res]))
+              (let [d (:style defaults)
+                    d (if (fn? d) (d xoptions) d)
+                    u (:style user)
+                    o (:style options)
+                    res (reduce into {} [d u o])]
+                (when-not (empty? res)
+                  [:style res]))
+              (let [d (:attr defaults)
+                    d (if (fn? d) (d xoptions) d)
+                    u (:attr user)
+                    o (:attr options)
+                    res (reduce into {} [d u o])]
+                (when-not (empty? res)
+                  [:attr res]))]))))
+  fetch-merged-css)
 
 (defn add-map-to-hiccup-call [map hiccup]
   (reduce into [[(first hiccup)]
