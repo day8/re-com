@@ -202,7 +202,8 @@
             ["noselect" "rc-md-icon-button"
              (case size
                :smaller "rc-icon-smaller"
-               :larger "rc-icon-larger")
+               :larger "rc-icon-larger"
+               "rc-icon-larger")
              (when emphasise? "rc-icon-emphasis")
              (when disabled? "rc-icon-disabled")])
           :style
