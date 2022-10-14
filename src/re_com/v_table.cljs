@@ -922,6 +922,8 @@
                                               [event]
                                               (let [target        (-> event .-target)
                                                     bounding-rect (if (nil? target) {} (.getBoundingClientRect target))]
+                                                (println "in on-viewport-resize")
+                                                (println (.-height bounding-rect))
                                                 (reset! rl-row-viewport-width  (or row-viewport-width  (.-width  bounding-rect)))
                                                 (reset! rl-row-viewport-height (or row-viewport-height (.-height bounding-rect)))
                                                 (reset! scroll-x               (max 0 (min @max-scroll-x @scroll-x)))
@@ -1403,7 +1405,7 @@
 
                                 ;; ========== Debug section
 
-                                #_[:pre
+                                [:pre
                                    {:style {:font-size "11px"
                                             :min-width "220px"}}
                                    (str
