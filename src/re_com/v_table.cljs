@@ -485,7 +485,7 @@
      {:name :v-scroll                     :level 3 :class "rc-v-table-v-scroll"                                 :impl "[box]"     :notes "The vertical scrollbar"}]))
 
 (def v-table-css-desc
-  {:main
+  {:main {}
    :wrapper {:class ["rc-v-table"]
              :style (fn [{:keys [max-width max-height]}]
                       {:max-width max-width :max-height max-height})}
@@ -498,7 +498,7 @@
                           {:position "relative"
                            :overflow "hidden"
                            :max-height (px max-height)})}
-   :row-header-selection-rect
+   :row-header-selection-rect {}
    :row-header-content {:class ["rc-v-table-row-header-content" "rc-v-table-content"]
                         :style (fn [{:keys [scroll-y]}]
                                  {:margin-top (px scroll-y :negative)})}
@@ -511,7 +511,7 @@
    :column-headers {:class ["rc-v-table-column-headers" "rc-v-table-viewport"]
                     :style {:overflow "hidden"
                             :position "relative"}}
-   :column-header-selection-rect
+   :column-header-selection-rect {}
    :column-header-content {:class ["rc-v-table-column-header-content" "rc-v-table-content"]
                            :style (fn [{:keys [scroll-x]}]
                                     {:margin-left (px scroll-x :negative)})}
@@ -521,7 +521,7 @@
                    {:overflow "hidden"
                     :position "relative"
                     :max-height (px max-height)})}
-   :row-selection-rect
+   :row-selection-rect {}
    :row-content {:class ["rc-v-table-row-content" "rc-v-table-content"]
                  :style (fn [{:keys [scroll-x scroll-y]}]
                           {:margin-left (px scroll-x :negative)
@@ -922,8 +922,6 @@
                                               [event]
                                               (let [target        (-> event .-target)
                                                     bounding-rect (if (nil? target) {} (.getBoundingClientRect target))]
-                                                (println "in on-viewport-resize")
-                                                (println (.-height bounding-rect))
                                                 (reset! rl-row-viewport-width  (or row-viewport-width  (.-width  bounding-rect)))
                                                 (reset! rl-row-viewport-height (or row-viewport-height (.-height bounding-rect)))
                                                 (reset! scroll-x               (max 0 (min @max-scroll-x @scroll-x)))
@@ -1405,7 +1403,7 @@
 
                                 ;; ========== Debug section
 
-                                [:pre
+                                #_ [:pre
                                    {:style {:font-size "11px"
                                             :min-width "220px"}}
                                    (str

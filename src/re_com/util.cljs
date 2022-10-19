@@ -221,6 +221,9 @@
 
 
 (defn merge-css [css-desc {:as params :keys [class style parts]}]
+  (for [[k v] css-desc
+        :when (not (and (keyword? k) (map? v)))]
+    (throw (js/Error. "CSS description must contain only keywords and maps")))
   (defn fetch-merged-css
     ([tag]
      (fetch-merged-css tag {}))
