@@ -485,10 +485,10 @@
      {:name :v-scroll                     :level 3 :class "rc-v-table-v-scroll"                                 :impl "[box]"     :notes "The vertical scrollbar"}]))
 
 (def v-table-css-desc
-  {:main {}
-   :wrapper {:class ["rc-v-table"]
+  {:wrapper {:class ["rc-v-table"]
              :style (fn [{:keys [max-width max-height]}]
-                      {:max-width max-width :max-height max-height})}
+                      {:max-width max-width :max-height max-height})
+             :use-toplevel true}
 
    :left-section {:class ["rc-v-table-left-section"]}
    :top-left {:class ["rc-v-table-top-left" "rc-v-table-content"]
@@ -1186,7 +1186,7 @@
 
                  (let [cmerger (merge-css v-table-css-desc args)]
                    (add-map-to-hiccup-call
-                    (cmerger :main {:max-width max-width ;; Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
+                    (cmerger :wrapper {:max-width max-width ;; Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
                                     :max-height
                                     (when remove-empty-row-space?
                                       (+

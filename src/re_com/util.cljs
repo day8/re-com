@@ -224,39 +224,34 @@
   (for [[k v] css-desc
         :when (not (and (keyword? k) (map? v)))]
     (throw (js/Error. "CSS description must contain only keywords and maps")))
+
+  (defn combine-css [a b]
+    (let [a (or a {})
+          b (or b {})
+          acl (:class a)
+          bcl (:class b)
+          class (reduce into [] [(if (string? acl) [acl] acl) (if (string? bcl) [bcl] bcl)])
+          style (reduce into {} [(:style a) (:style b)])
+          attr (reduce into {} [(:attr a) (:attr b)])]
+      (into {}
+            [(when-not (empty? class) [:class class])
+             (when-not (empty? style) [:style style])
+             (when-not (empty? attr) [:attr attr])])))
+
   (defn fetch-merged-css
     ([tag]
      (fetch-merged-css tag {}))
     ([tag options]
      (let [xoptions (reduce (partial dissoc options) [:class :style :attr])
            defaults (get css-desc (or tag :main))
-           user (if (and tag (not (= tag :main)))
-                  (get parts tag)
-                  {:class class :style style})]
-       (into {}
-             [(let [d (:class defaults)
-                    d (if (fn? d) (d xoptions) d)
-                    u (:class user)
-                    u (if (string? u) [u] u)
-                    o (:class options)
-                    o (if (string? o) [o] o)
-                    res (reduce into [] [d u o])]
-                (when-not (empty? res)
-                  [:class res]))
-              (let [d (:style defaults)
-                    d (if (fn? d) (d xoptions) d)
-                    u (:style user)
-                    o (:style options)
-                    res (reduce into {} [d u o])]
-                (when-not (empty? res)
-                  [:style res]))
-              (let [d (:attr defaults)
-                    d (if (fn? d) (d xoptions) d)
-                    u (:attr user)
-                    o (:attr options)
-                    res (reduce into {} [d u o])]
-                (when-not (empty? res)
-                  [:attr res]))]))))
+           use-toplevel (get :use-toplevel defaults (if (= tag :main) true false))
+           user (combine-css (get parts tag)
+                             (and use-toplevel {:class class :style style}))
+           defaults (into {} (for [k [:class :style :attr]
+                                   :when (contains? defaults k)
+                                   :let [v (get defaults k)]]
+                               [k (if (fn? v) (v xoptions) v)]))]
+       (reduce combine-css [defaults options user]))))
   fetch-merged-css)
 
 (defn add-map-to-hiccup-call [map hiccup]
