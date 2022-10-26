@@ -250,8 +250,11 @@
            defaults (into {} (for [k [:class :style :attr]
                                    :when (contains? defaults k)
                                    :let [v (get defaults k)]]
-                               [k (if (fn? v) (v xoptions) v)]))]
-       (reduce combine-css [defaults options user]))))
+                               [k (if (fn? v) (v xoptions) v)]))
+           res (reduce combine-css [defaults options user])
+           attr (:attr res)
+           res (dissoc res :attr)]
+       (merge res attr))))
   fetch-merged-css)
 
 (defn add-map-to-hiccup-call [map hiccup]
