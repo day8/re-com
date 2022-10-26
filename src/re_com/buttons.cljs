@@ -108,7 +108,8 @@
             ["noselect" "rc-md-circle-icon-button"
              (case size
                :smaller "rc-circle-smaller"
-               :larger "rc-circle-larger")
+               :larger "rc-circle-larger"
+               nil)
              (when emphasise? "rc-circle-emphasis")
              (when disabled? "rc-circle-disabled")])
           :style
@@ -166,7 +167,7 @@
                                 {:on-mouse-over (handler-fn (reset! showing? true))
                                  :on-mouse-out  (handler-fn (reset! showing? false))})
                               attr)
-                            [:i (cmerger :main {:md-icon-name md-icon-name})]]]
+                            [:i (cmerger :icon {:md-icon-name md-icon-name})]]]
             (add-map-to-hiccup-call
              (cmerger :wrapper)
              [box
