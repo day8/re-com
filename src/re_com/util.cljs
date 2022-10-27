@@ -240,8 +240,10 @@
 
   (defn fetch-merged-css
     ([tag]
-     (fetch-merged-css tag {}))
-    ([tag options & [{:keys [flatten-attr] :or {flatten-attr true}}]]
+     (fetch-merged-css tag {} {}))
+    ([tag options]
+     (fetch-merged-css tag options {}))
+    ([tag options {:keys [flatten-attr] :or {flatten-attr true}}]
      (let [xoptions (reduce (partial dissoc options) [:class :style :attr])
            defaults (get css-desc (or tag :main))
            use-toplevel (get :use-toplevel defaults (if (= tag :main) true false))

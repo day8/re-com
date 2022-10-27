@@ -146,7 +146,8 @@
                          :attr {:on-mouse-enter on-mouse-enter
                                 :on-mouse-leave on-mouse-leave
                                 ;; TODO: Best way to move this fn to outer fn? (closes over show?)
-                                :on-mouse-down  (handler-fn (when show? (scrollbar-mouse-down event)))}})
+                                :on-mouse-down  (handler-fn (when show? (scrollbar-mouse-down event)))}}
+                  {:flatten-attr false})
          [box/box
           :src    src
           :width  (if horizontal?
@@ -162,7 +163,8 @@
                                     ;; TODO: Best way to move this fn to outer fn? (closes over internal-scroll-pos)
                                     :attr   {:on-mouse-down
                                              (handler-fn
-                                              (thumb-mouse-down event internal-scroll-pos))}})
+                                              (thumb-mouse-down event internal-scroll-pos))}}
+                            {:flatten-attr false})
                    [box/box
                     :src    (at)
                     :width  (if horizontal?
@@ -227,7 +229,8 @@
      :attr (when row-header-selection-fn
              {:on-mouse-down  (handler-fn (on-mouse-down  :row-header row-header-selection-fn content-rows-height 0 event)) ;; TODO: width set to 0 because we don't have it - could probably measure it
               :on-mouse-enter (handler-fn (on-mouse-enter :row-header))
-              :on-mouse-leave (handler-fn (on-mouse-leave :row-header))})})
+              :on-mouse-leave (handler-fn (on-mouse-leave :row-header))})}
+    {:flatten-attr false})
    [box/v-box ;; viewport component
     :src      (at)
     :size     (if row-viewport-height "none" "auto")
@@ -283,7 +286,8 @@
                              (when column-header-selection-fn
                                {:on-mouse-down  (handler-fn (on-mouse-down  :column-header column-header-selection-fn column-header-height content-rows-width event))
                                 :on-mouse-enter (handler-fn (on-mouse-enter :column-header))
-                                :on-mouse-leave (handler-fn (on-mouse-leave :column-header))})})
+                                :on-mouse-leave (handler-fn (on-mouse-leave :column-header))})}
+            {:flatten-attr false})
    [box/v-box ;; viewport component
     :src      (at)
     :width    (when row-viewport-width (px row-viewport-width))
@@ -337,7 +341,8 @@
                       {:on-mouse-down  (handler-fn (on-mouse-down  :row row-selection-fn content-rows-height content-rows-width event))
                        :on-mouse-enter (handler-fn (on-mouse-enter :row))
                        :on-mouse-leave (handler-fn (on-mouse-leave :row))})
-                    {:id row-viewport-id})}) ;; Can't be overriding the internally generated id
+                    {:id row-viewport-id})};; Can't be overriding the internally generated id
+            {:flatten-attr false})
    [box/v-box ;; viewport component
     :src      (at)
     :size     (if row-viewport-height "none" "auto")
@@ -1187,25 +1192,26 @@
                  (let [cmerger (merge-css v-table-css-desc args)]
                    (add-map-to-hiccup-call
                     (cmerger :wrapper {:max-width max-width ;; Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
-                                    :max-height
-                                    (when remove-empty-row-space?
-                                      (+
-                                       (or column-header-height 0)
-                                       (or max-row-viewport-height (inc @content-rows-height)) ;; TODO: The inc prevents content scrollbar. Need to inc more if more than 1px borders specified
-                                       (or column-footer-height 0)
-                                       scrollbar-tot-thick))
+                                       :max-height
+                                       (when remove-empty-row-space?
+                                         (+
+                                          (or column-header-height 0)
+                                          (or max-row-viewport-height (inc @content-rows-height)) ;; TODO: The inc prevents content scrollbar. Need to inc more if more than 1px borders specified
+                                          (or column-footer-height 0)
+                                          scrollbar-tot-thick))
 
-                                    ;; TODO: Currently, scrolling a v-table with the mouse wheel also scrolls parent scrollbars (usually the one on the <body>)
-                                    ;; The solution seems to be to use CSS overscroll-behavior
-                                    ;; https://developers.google.com/web/updates/2017/11/overscroll-behavior
-                                    ;; The following should be in the right place but it makes no difference (also tried the block version)
-                                    ;; More research required to solve this
+                                       ;; TODO: Currently, scrolling a v-table with the mouse wheel also scrolls parent scrollbars (usually the one on the <body>)
+                                       ;; The solution seems to be to use CSS overscroll-behavior
+                                       ;; https://developers.google.com/web/updates/2017/11/overscroll-behavior
+                                       ;; The following should be in the right place but it makes no difference (also tried the block version)
+                                       ;; More research required to solve this
 
                                         ;:overscroll-behavior "contain"
                                         ;:overscroll-behavior-block "none"
 
 
-                                    :attr {:on-wheel (handler-fn (on-wheel event))}})
+                                       :attr {:on-wheel (handler-fn (on-wheel event))}}
+                             {:flatten-attr false})
                     [box/h-box
                      :src      src
                      :debug-as (or debug-as (reflect-current-component))
