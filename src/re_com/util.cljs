@@ -240,10 +240,8 @@
 
   (defn fetch-merged-css
     ([tag]
-     (fetch-merged-css tag {} {}))
+     (fetch-merged-css tag {}))
     ([tag options]
-     (fetch-merged-css tag options {}))
-    ([tag options {:keys [flatten-attr] :or {flatten-attr true}}]
      (let [xoptions (reduce (partial dissoc options) [:class :style :attr])
            defaults (get css-desc (or tag :main))
            use-toplevel (get :use-toplevel defaults (if (= tag :main) true false))
@@ -252,12 +250,12 @@
            defaults (into {} (for [k [:class :style :attr]
                                    :when (contains? defaults k)
                                    :let [v (get defaults k)]]
-                               [k (if (fn? v) (v xoptions) v)]))
-           res (reduce combine-css [defaults options user])]
-       (if flatten-attr
-         (merge (dissoc res :attr) (:attr res))
-         res))))
+                               [k (if (fn? v) (v xoptions) v)]))]
+       (reduce combine-css [defaults options user]))))
   fetch-merged-css)
+
+(defn flatten-attr [stuff]
+  (merge (dissoc stuff :attr) (:attr stuff)))
 
 (defn add-map-to-hiccup-call [map hiccup]
   (reduce into [[(first hiccup)]

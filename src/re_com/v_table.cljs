@@ -8,7 +8,7 @@
     [re-com.config      :refer [debug? include-args-desc?]]
     [re-com.debug       :refer [->attr]]
     [re-com.box         :as    box]
-    [re-com.util        :as    util :refer [deref-or-value px-n add-map-to-hiccup-call merge-css]]
+    [re-com.util        :as    util :refer [deref-or-value px-n add-map-to-hiccup-call merge-css flatten-attr]]
     [re-com.validate    :refer [vector-atom? ifn-or-nil? map-atom? parts?]]
     [re-com.dmm-tracker :refer [make-dmm-tracker captureMouseMoves]]))
 
@@ -146,8 +146,7 @@
                          :attr {:on-mouse-enter on-mouse-enter
                                 :on-mouse-leave on-mouse-leave
                                 ;; TODO: Best way to move this fn to outer fn? (closes over show?)
-                                :on-mouse-down  (handler-fn (when show? (scrollbar-mouse-down event)))}}
-                  {:flatten-attr false})
+                                :on-mouse-down  (handler-fn (when show? (scrollbar-mouse-down event)))}})
          [box/box
           :src    src
           :width  (if horizontal?
@@ -163,8 +162,7 @@
                                     ;; TODO: Best way to move this fn to outer fn? (closes over internal-scroll-pos)
                                     :attr   {:on-mouse-down
                                              (handler-fn
-                                              (thumb-mouse-down event internal-scroll-pos))}}
-                            {:flatten-attr false})
+                                              (thumb-mouse-down event internal-scroll-pos))}})
                    [box/box
                     :src    (at)
                     :width  (if horizontal?
@@ -182,9 +180,7 @@
   "Render section 1 - the content component"
   [top-left-renderer column-header-height cmerger]
   (add-map-to-hiccup-call
-   (cmerger :top-left
-            {}
-            {:flatten-attr false})
+   (cmerger :top-left)
    [box/box ;; content component
     :src    (at)
     :height (px (or column-header-height 0))
@@ -208,7 +204,7 @@
   "
   [row-header-renderer key-fn top-row-index rows scroll-y cmerger]
   (add-map-to-hiccup-call
-   (cmerger :row-header-content {:scroll-y scroll-y} {:flatten-attr false})
+   (cmerger :row-header-content {:scroll-y scroll-y})
    [box/v-box
     :src      (at)
     :children (map
@@ -231,15 +227,14 @@
      :attr (when row-header-selection-fn
              {:on-mouse-down  (handler-fn (on-mouse-down  :row-header row-header-selection-fn content-rows-height 0 event)) ;; TODO: width set to 0 because we don't have it - could probably measure it
               :on-mouse-enter (handler-fn (on-mouse-enter :row-header))
-              :on-mouse-leave (handler-fn (on-mouse-leave :row-header))})}
-    {:flatten-attr false})
+              :on-mouse-leave (handler-fn (on-mouse-leave :row-header))})})
    [box/v-box ;; viewport component
     :src      (at)
     :size     (if row-viewport-height "none" "auto")
     :height   (when row-viewport-height (px row-viewport-height))
     :children [(when selection-allowed?
                  (let [{:keys [class style attr]}
-                       (cmerger :row-header-selection-rect {} {:flatten-attr false})]
+                       (cmerger :row-header-selection-rect)]
                    [selection-renderer class style attr])) ;; selection rectangle component
                (if row-header-renderer
                  [row-header-content row-header-renderer key-fn top-row-index rows scroll-y cmerger] ;; content component
@@ -252,7 +247,7 @@
   "Render section 3 - the content component"
   [bottom-left-renderer column-footer-height cmerger]
   (add-map-to-hiccup-call
-   (cmerger :bottom-left {} {:flatten-attr false})
+   (cmerger :bottom-left)
    [box/box ;; content component
     :src    (at)
     :height (px (or column-footer-height 0))
@@ -272,7 +267,7 @@
   "
   [column-header-renderer scroll-x cmerger]
   (add-map-to-hiccup-call
-   (cmerger :column-header-content {:scroll-x scroll-x} {:flatten-attr false})
+   (cmerger :column-header-content {:scroll-x scroll-x})
    [box/box
     :src   (at)
     :child [column-header-renderer]]))
@@ -289,15 +284,14 @@
                              (when column-header-selection-fn
                                {:on-mouse-down  (handler-fn (on-mouse-down  :column-header column-header-selection-fn column-header-height content-rows-width event))
                                 :on-mouse-enter (handler-fn (on-mouse-enter :column-header))
-                                :on-mouse-leave (handler-fn (on-mouse-leave :column-header))})}
-            {:flatten-attr false})
+                                :on-mouse-leave (handler-fn (on-mouse-leave :column-header))})})
    [box/v-box ;; viewport component
     :src      (at)
     :width    (when row-viewport-width (px row-viewport-width))
     :height   (px (or column-header-height 0))
     :children [(when selection-allowed?
                  (let [{:keys [class style attr]}
-                       (cmerger :column-header-selection-rect {} {:flatten-attr false})]
+                       (cmerger :column-header-selection-rect)]
                    [selection-renderer class style attr])) ;; selection rectangle component
                (if column-header-renderer
                  [column-header-content column-header-renderer scroll-x cmerger] ;; content component
@@ -321,7 +315,7 @@
   "
   [row-renderer key-fn top-row-index rows scroll-x scroll-y cmerger]
   (add-map-to-hiccup-call
-   (cmerger :row-content {:scroll-x scroll-x :scroll-y scroll-y} {:flatten-attr false})
+   (cmerger :row-content {:scroll-x scroll-x :scroll-y scroll-y})
    [box/v-box
     :src      (at)
     :children (map
@@ -345,8 +339,7 @@
                       {:on-mouse-down  (handler-fn (on-mouse-down  :row row-selection-fn content-rows-height content-rows-width event))
                        :on-mouse-enter (handler-fn (on-mouse-enter :row))
                        :on-mouse-leave (handler-fn (on-mouse-leave :row))})
-                    {:id row-viewport-id})};; Can't be overriding the internally generated id
-            {:flatten-attr false})
+                    {:id row-viewport-id})});; Can't be overriding the internally generated id
    [box/v-box ;; viewport component
     :src      (at)
     :size     (if row-viewport-height "none" "auto")
@@ -354,7 +347,7 @@
     :height   (when row-viewport-height (px row-viewport-height))
     :children [(when selection-allowed?
                  (let [{:keys [class style attr]}
-                       (cmerger :row-selection-rect {} {:flatten-attr false})]
+                       (cmerger :row-selection-rect)]
                    [selection-renderer class style attr])) ;; selection rectangle component
                [row-content row-renderer key-fn top-row-index rows scroll-x scroll-y cmerger]]])) ;; content component
 
@@ -372,7 +365,7 @@
   "
   [column-footer-renderer scroll-x cmerger]
   (add-map-to-hiccup-call
-   (cmerger :column-footer-content {:scroll-x scroll-x} {:flatten-attr false})
+   (cmerger :column-footer-content {:scroll-x scroll-x})
    [box/box
     :src   (at)
     :child [column-footer-renderer]]))
@@ -385,7 +378,7 @@
    class style attr
    content-class content-style content-attr]
   (add-map-to-hiccup-call
-   (cmerger :column-footers {} {:flatten-attr false})
+   (cmerger :column-footers)
    [box/box ;; viewport component
     :src    (at)
     :width  (when row-viewport-width (px row-viewport-width))
@@ -401,7 +394,7 @@
   "Render section 7 - the content component"
   [top-right-renderer column-header-height cmerger]
   (add-map-to-hiccup-call
-   (cmerger :top-right {} {:flatten-attr false})
+   (cmerger :top-right)
    [box/box ;; content component
     :src    (at)
     :height (px (or column-header-height 0))
@@ -425,7 +418,7 @@
   "
   [row-footer-renderer key-fn top-row-index rows scroll-y cmerger]
   (add-map-to-hiccup-call
-   (cmerger :row-footer-content {:scroll-y scroll-y} {:flatten-attr false})
+   (cmerger :row-footer-content {:scroll-y scroll-y})
    [box/v-box
     :src      (at)
     :children (map
@@ -441,7 +434,7 @@
    row-viewport-height content-rows-height
    cmerger]
   (add-map-to-hiccup-call
-   (cmerger :row-footers {:max-height content-rows-height} {:flatten-attr false})
+   (cmerger :row-footers {:max-height content-rows-height})
    [box/box ;; viewport component
     :src    (at)
     :size   (if row-viewport-height "none" "auto")
@@ -457,7 +450,7 @@
   "Render section 9 - the content component"
   [bottom-right-renderer column-footer-height cmerger]
   (add-map-to-hiccup-call
-   (cmerger :bottom-right {} {:flatten-attr false})
+   (cmerger :bottom-right)
    [box/box ;; content component
     :src    (at)
     :height (px (or column-footer-height 0))
@@ -985,8 +978,8 @@
                                                              v-table-selection-css-desc
                                                              {:class class :style style :attr attr})]
                                                 [:div
-                                                 (cmerger :main {:width width :height height
-                                                                 :top top :left left})
+                                                 (flatten-attr (cmerger :main {:width width :height height
+                                                                  :top top :left left}))
                                                  ""]))
 
           coords-debug                      (reagent/atom nil)    ;; Handy when debugging - used to show selection coords on the left-hand debug section
@@ -1215,8 +1208,7 @@
                                         ;:overscroll-behavior-block "none"
 
 
-                                       :attr {:on-wheel (handler-fn (on-wheel event))}}
-                             {:flatten-attr false})
+                                       :attr {:on-wheel (handler-fn (on-wheel event))}})
                     [box/h-box
                      :src      src
                      :debug-as (or debug-as (reflect-current-component))
@@ -1225,7 +1217,7 @@
                                 ;; ========== LEFT SECTION (1, 2, 3) - row header area
 
                                 (add-map-to-hiccup-call
-                                 (cmerger :left-section {} {:flatten-attr false})
+                                 (cmerger :left-section)
                                  [box/v-box
                                   :src      (at)
                                   :children [
@@ -1272,8 +1264,7 @@
                                 ;; ========== MIDDLE SECTION (4, 5, 6) - column header/footer and content area
 
                                  (add-map-to-hiccup-call
-                                  (cmerger :middle-section {:max-width @content-rows-width}
-                                           {:flatten-attr false})
+                                  (cmerger :middle-section {:max-width @content-rows-width})
                                   [box/v-box
                                    :src      (at)
                                    :size     (if row-viewport-width "none" "auto")
@@ -1330,7 +1321,7 @@
                                               ;; ========== Horizontal scrollbar section
 
                                               (add-map-to-hiccup-call
-                                               (cmerger :h-scroll {:scrollbar-margin scrollbar-margin})
+                                               (flatten-attr (cmerger :h-scroll {:scrollbar-margin scrollbar-margin}))
                                                [scrollbar
                                                 :src            (at)
                                                 :type           :horizontal
@@ -1343,7 +1334,7 @@
                                 ;; ========== Right section (7, 8, 9) - row footer area
 
                                 (add-map-to-hiccup-call
-                                 (cmerger :right-section {} {:flatten-attr false})
+                                 (cmerger :right-section)
                                  [box/v-box
                                   :src      (at)
                                   :children [
@@ -1386,7 +1377,7 @@
                                 ;; ========== Vertical scrollbar section
 
                                 (add-map-to-hiccup-call
-                                 (cmerger :v-scroll-section {} {:flatten-attr false})
+                                 (cmerger :v-scroll-section)
                                  [box/v-box
                                   :src      (at)
                                   :children [[box/gap
@@ -1396,8 +1387,9 @@
                                               :src   (at)
                                               :size  "auto"
                                               :child (add-map-to-hiccup-call
-                                                      (cmerger
-                                                       :v-scroll {:scrollbar-margin scrollbar-margin})
+                                                      (flatten-attr
+                                                       (cmerger
+                                                        :v-scroll {:scrollbar-margin scrollbar-margin}))
                                                       [scrollbar
                                                        :src            (at)
                                                        :type           :vertical

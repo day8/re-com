@@ -2,7 +2,7 @@
   (:require-macros
     [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
-    [re-com.util     :refer [deref-or-value px merge-css add-map-to-hiccup-call]]
+    [re-com.util     :refer [deref-or-value px merge-css add-map-to-hiccup-call flatten-attr]]
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
     [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
@@ -61,7 +61,7 @@
                 cmerger (merge-css button-css-desc args)
                 the-button [:button
                             (merge
-                             (cmerger :main)
+                             (flatten-attr (cmerger :main))
                              {:disabled disabled?
                               :on-click (handler-fn
                                          (when (and on-click (not disabled?))
@@ -159,7 +159,8 @@
           (let [cmerger (merge-css md-circle-icon-button-css-desc args)
                 the-button [:div
                             (merge
-                             (cmerger :main {:emphasise? emphasise? :disabled? disabled? :size size})
+                             (flatten-attr
+                              (cmerger :main {:emphasise? emphasise? :disabled? disabled? :size size}))
                              {:on-click (handler-fn
                                          (when (and on-click (not disabled?))
                                            (on-click event)))}
@@ -167,7 +168,7 @@
                                 {:on-mouse-over (handler-fn (reset! showing? true))
                                  :on-mouse-out  (handler-fn (reset! showing? false))})
                               attr)
-                            [:i (cmerger :icon {:md-icon-name md-icon-name})]]]
+                            [:i (flatten-attr (cmerger :icon {:md-icon-name md-icon-name}))]]]
             (add-map-to-hiccup-call
              (cmerger :wrapper)
              [box
@@ -254,14 +255,15 @@
           (let [cmerger (merge-css md-circle-icon-button-css-desc args)
                 the-button [:div
                             (merge
-                             (cmerger :main {:size size :emphasise? emphasise? :disabled? disabled?})
-                              {:on-click (handler-fn
-                                           (when (and on-click (not disabled?))
-                                             (on-click event)))}
-                              (when tooltip
-                                {:on-mouse-over (handler-fn (reset! showing? true))
-                                 :on-mouse-out  (handler-fn (reset! showing? false))})
-                              attr)
+                             (flatten-attr
+                              (cmerger :main {:size size :emphasise? emphasise? :disabled? disabled?}))
+                             {:on-click (handler-fn
+                                         (when (and on-click (not disabled?))
+                                           (on-click event)))}
+                             (when tooltip
+                               {:on-mouse-over (handler-fn (reset! showing? true))
+                                :on-mouse-out  (handler-fn (reset! showing? false))})
+                             attr)
                             [:i (cmerger :icon {:md-icon-name md-icon-name})]]]
             (add-map-to-hiccup-call
              (cmerger :wrapper)
@@ -342,14 +344,15 @@
             :on-cancel #(swap! showing? not)
             :anchor    [:div
                         (merge
-                         (cmerger :main {:disabled? disabled?})
+                         (flatten-attr
+                          (cmerger :main {:disabled? disabled?}))
                          {:on-click (handler-fn
                                      (when (not disabled?)
                                        (swap! showing? not)))}
                          attr)
                         [:svg
                          (merge
-                          (cmerger :icon)
+                          (flatten-attr (cmerger :icon))
                           {:width  "11"
                            :height "11"})
                          [:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
@@ -412,7 +415,8 @@
           (let [cmerger (merge-css row-button-css-desc args)
                 the-button [:div
                             (merge
-                             (cmerger :main {:mouse-over-row? mouse-over-row? :disabled? disabled?})
+                             (flatten-attr
+                              (cmerger :main {:mouse-over-row? mouse-over-row? :disabled? disabled?}))
                               {:on-click (handler-fn
                                            (when (and on-click (not disabled?))
                                              (on-click event)))}
@@ -420,7 +424,7 @@
                                 {:on-mouse-over (handler-fn (reset! showing? true))
                                  :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
                               attr)
-                            [:i (cmerger :icon {:md-icon-name md-icon-name})]]]
+                            [:i (flatten-attr (cmerger :icon {:md-icon-name md-icon-name}))]]]
             (add-map-to-hiccup-call
              (cmerger :wrapper)
              [box
@@ -504,7 +508,7 @@
                              :align :start
                              :child [:a
                                      (merge
-                                      (cmerger :main {:disabled? disabled?})
+                                      (flatten-attr (cmerger :main {:disabled? disabled?}))
                                       {:on-click (handler-fn
                                                   (when (and on-click (not disabled?))
                                                     (on-click event)))}
@@ -591,7 +595,7 @@
                 disabled?  (deref-or-value disabled?)
                 cmerger (merge-css hyperlink-href-css-desc args)
                 the-button [:a
-                            (merge (cmerger :main {:disabled? disabled?})
+                            (merge (flatten-attr (cmerger :main {:disabled? disabled?}))
                                    {:target target}
                                    ;; As of HTML5 the href attribute on a elements is not required; when those elements do
                                    ;; not have href attributes they do not create hyperlinks. These are also known as a
