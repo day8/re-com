@@ -5,7 +5,7 @@
   (:require
     [re-com.config       :refer [include-args-desc?]]
     [re-com.debug        :refer [->attr]]
-    [re-com.util         :refer [get-element-by-id px deref-or-value sum-scroll-offsets]]
+    [re-com.util         :refer [get-element-by-id px deref-or-value sum-scroll-offsets merge-css add-map-to-hiccup-call flatten-attr]]
     [re-com.box          :refer [box h-box v-box flex-child-style flex-flow-style align-style]]
     [re-com.close-button :refer [close-button]]
     [re-com.validate     :refer [position? position-options-list popover-status-type? popover-status-types-list number-or-string?
@@ -86,6 +86,38 @@
     [(/ (+ (.-right  bounding-rect) (.-left bounding-rect)) 2)    ;; x
      (/ (+ (.-bottom bounding-rect) (.-top  bounding-rect)) 2)])) ;; y
 
+(def popover-arrow-css-desc
+  {:arrow {:class ["popover-arrow" "rc-popover-arrow"]
+          :style (fn [{:keys [orientation pop-offset arrow-length arrow-width]}]
+                   {:position "absolute"
+                    (case orientation ;; Connect arrow to edge of popover
+                      :left  :right
+                      :right :left
+                      :above :bottom
+                      :below :top) (px arrow-length :negative)
+
+                    (case orientation ;; Position the arrow at the top/left, center or bottom/right of the popover
+                      (:left  :right) :top
+                      (:above :below) :left) (if (nil? pop-offset) "50%" (px pop-offset))
+
+                    (case orientation ;; Adjust the arrow position so it's center is attached to the desired position set above
+                      (:left  :right) :margin-top
+                      (:above :below) :margin-left) (px (/ arrow-width 2) :negative)
+
+                    :width (px (case orientation ;; Arrow is rendered in a rectangle so choose the correct edge length
+                                 (:left  :right) arrow-length
+                                 (:above :below) arrow-width))
+
+                    :height (px (case orientation ;; Same as :width comment above
+                                  (:left  :right) arrow-width
+                                  (:above :below) arrow-length))})}
+   :arrow-drawing {:style
+                   (fn [{:keys [popover-color grey-arrow? popover-border-color no-border?]}]
+                     {:fill (if popover-color
+                              popover-color
+                              (if grey-arrow? "#f7f7f7" "white"))
+                      :stroke (or popover-border-color (when-not no-border? "rgba(0, 0, 0, .2)"))
+                      :stroke-width "1"})}})
 
 (defn- popover-arrow
   "Render the triangle which connects the popover to the anchor (using SVG)"
@@ -94,40 +126,15 @@
         arrow-shape {:left  (str (point 0 0)            (point arrow-length half-arrow-width) (point 0 arrow-width))
                      :right (str (point arrow-length 0) (point 0 half-arrow-width)            (point arrow-length arrow-width))
                      :above (str (point 0 0)            (point half-arrow-width arrow-length) (point arrow-width 0))
-                     :below (str (point 0 arrow-length) (point half-arrow-width 0)            (point arrow-width arrow-length))}]
+                     :below (str (point 0 arrow-length) (point half-arrow-width 0)            (point arrow-width arrow-length))}
+        cmerger (merge-css popover-arrow-css-desc {:parts parts})]
     [:svg
-     (merge
-       {:class (str "popover-arrow rc-popover-arrow " (get-in parts [:arrow :class]))
-        :style (merge {:position "absolute"
-                       (case orientation ;; Connect arrow to edge of popover
-                         :left  :right
-                         :right :left
-                         :above :bottom
-                         :below :top) (px arrow-length :negative)
-
-                       (case orientation ;; Position the arrow at the top/left, center or bottom/right of the popover
-                         (:left  :right) :top
-                         (:above :below) :left) (if (nil? pop-offset) "50%" (px pop-offset))
-
-                       (case orientation ;; Adjust the arrow position so it's center is attached to the desired position set above
-                         (:left  :right) :margin-top
-                         (:above :below) :margin-left) (px half-arrow-width :negative)
-
-                       :width (px (case orientation ;; Arrow is rendered in a rectangle so choose the correct edge length
-                                    (:left  :right) arrow-length
-                                    (:above :below) arrow-width))
-
-                       :height (px (case orientation ;; Same as :width comment above
-                                     (:left  :right) arrow-width
-                                     (:above :below) arrow-length))}
-                      (get-in parts [:arrow :style]))}
-       (get-in parts [:arrow :attr]))
-     [:polyline {:points (arrow-shape orientation)
-                 :style {:fill (if popover-color
-                                 popover-color
-                                 (if grey-arrow? "#f7f7f7" "white"))
-                         :stroke (or popover-border-color (when-not no-border? "rgba(0, 0, 0, .2)"))
-                         :stroke-width "1"}}]]))
+     (cmerger :arrow {:orientation orientation :pop-offset pop-offset :arrow-length arrow-length :arrow-width arrow-width})
+     [:polyline (merge {:points (arrow-shape orientation)}
+                       (cmerger :arrow-drawing {:popover-color popover-color
+                                                :grey-arrow? grey-arrow?
+                                                :popover-border-color popover-border-color
+                                                :no-border? no-border?}))]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -144,26 +151,30 @@
      {:name :src      :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
+(def backdrop-css-desc
+  {:main {:class ["noselect" "rc-backdrop"]
+          :style (fn [{:keys [opacity]}]
+                   {:position         "fixed"
+                    :left             "0px"
+                    :top              "0px"
+                    :width            "100%"
+                    :height           "100%"
+                    :background-color "black"
+                    :opacity          (or opacity 0.0)})}})
+
 (defn- backdrop
   "Renders a backdrop div which fills the entire page and responds to clicks on it. Can also specify how tranparent it should be"
   [& {:keys [opacity on-click class style attr] :as args}]
   (or
     (validate-args-macro backdrop-args-desc args)
-    [:div
-     (merge
-       {:class    (str "noselect rc-backdrop " class)
-        :style    (merge
-                    {:position         "fixed"
-                     :left             "0px"
-                     :top              "0px"
-                     :width            "100%"
-                     :height           "100%"
-                     :background-color "black"
-                     :opacity          (or opacity 0.0)}
-                    style)
-        :on-click (handler-fn (on-click))}
-       (->attr args)
-       attr)]))
+    (let [cmerger (merge-css backdrop-css-desc args)]
+      [:div
+       (merge
+        (flatten-attr
+         (cmerger :main
+                  {:attr {:on-click (handler-fn (on-click))}}))
+        (->attr args)
+        attr)])))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -175,6 +186,13 @@
     [{:type :legacy       :level 0 :class "rc-popover-title" :impl "[:h3]"          :notes "Outer wrapper of the popover title."}
      {:name :container    :level 1 :class ""                 :impl "[h-box]"        :notes [:span "Container for the " [:code ":title"] " and the close button."]}
      {:name :close-button :level 2 :class ""                 :impl "[close-button]" :notes "The close button."}]))
+
+(def popover-title-css-desc
+  {:main {:class ["popover-title" "rc-popover-title"]
+          :style (merge (flex-child-style "inherit")
+                        {:font-size "18px"})}
+   :container {}
+   :close-button {}})
 
 (def popover-title-parts
   (when include-args-desc?
@@ -200,35 +218,32 @@
   (or
     (validate-args-macro popover-title-args-desc args)
     #_(assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback") ;; IJ: TODO re-refactor
-    (let [close-button? (if (nil? close-button?) true close-button?)]
+    (let [close-button? (if (nil? close-button?) true close-button?)
+          cmerger (merge-css popover-title-css-desc args)]
       [:h3
        (merge
-         {:class (str "popover-title rc-popover-title " class)
-          :style (merge (flex-child-style "inherit")
-                        {:font-size "18px"}
-                        style)}
+        (flatten-attr (cmerger :main))
          (->attr args)
          attr)
-       [h-box
-        :src      (at)
-        :class    (get-in parts [:container :class] "")
-        :style    (get-in parts [:container :style])
-        :justify  :between
-        :align    :center
-        :children [title
-                   (when close-button?
-                     [close-button
-                      :src         (at)
-                      :class       (get-in parts [:close-button :class] "")
-                      :style       (get-in parts [:close-button :style])
-                      :attr        (get-in parts [:close-button :attr])
-                      :on-click    #(if close-callback
-                                      (close-callback)
-                                      (reset! showing? false))
-                      :div-size    0
-                      :font-size   26
-                      :top-offset  -1
-                      :left-offset -5])]]])))
+       (add-map-to-hiccup-call
+        (cmerger :container)
+        [h-box
+         :src      (at)
+         :justify  :between
+         :align    :center
+         :children [title
+                    (when close-button?
+                      (add-map-to-hiccup-call
+                       (cmerger :close-button)
+                       [close-button
+                        :src         (at)
+                        :on-click    #(if close-callback
+                                        (close-callback)
+                                        (reset! showing? false))
+                        :div-size    0
+                        :font-size   26
+                        :top-offset  -1
+                        :left-offset -5]))]])])))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -270,6 +285,40 @@
     [{:type :legacy       :level 0 :class "rc-popover-border"  :impl "[:div]"  :notes "Outer wrapper of the popover title."}
      {:name :arrow        :level 1 :class "rc-popover-arrow"   :impl "[:svg]"  :notes ""}
      {:name :content      :level 2 :class "rc-popover-content" :impl "[:div]"  :notes ""}]))
+
+(def popover-border-css-desc
+  {:main {:class ["popover" "fade" "in" "rc-popover-border"]
+          :style (fn [{:keys [top left width height background-color border-color tooltip-style?
+                              orientation margin-left margin-top ready-to-show?] :as params}]
+                   (merge
+                    (into {}
+                          (for [k [:top :left :width :height :background-color :border-color
+                                   :margin-left :margin-top]
+                                :let [v (get params k)]
+                                :when v]
+                            [k v]))
+                    (when tooltip-style?
+                      {:border-radius "4px"
+                       :box-shadow "none"
+                       :border "none"})
+
+                    ;; The popover point is zero width, therefore its absolute children will consider this width when deciding their
+                    ;; natural size and in particular, how they natually wrap text. The right hand side of the popover is used as a
+                    ;; text wrapping point so it will wrap, depending on where the child is positioned. The margin is also taken into
+                    ;; consideration for this point so below, we set the margins to negative a lot to prevent
+                    ;; this annoying wrapping phenomenon.
+                    (case orientation
+                      :left {:margin-left "-2000px"}
+                      (:right :above :below) {:margin-right "-2000px"})
+
+                    ;; make it visible and turn off Bootstrap max-width and remove Bootstrap padding which adds an internal white border
+                    {:display "block"
+                     :opacity (if ready-to-show? "1" "0")
+                     :max-width "none"
+                     :padding "0px"}))}
+   :content {:class ["popover-content" "rc-popover-content"]
+             :style (fn [{:keys [padding]}]
+                      {:padding padding})}})
 
 (def popover-border-parts
   (when include-args-desc?
@@ -345,51 +394,29 @@
                :as args}]
            (or
              (validate-args-macro popover-border-args-desc args)
-             (let [[orientation grey-arrow?] (calc-metrics @position)]
-               [:div.popover.fade.in
+             (let [[orientation grey-arrow?] (calc-metrics @position)
+                   cmerger (merge-css popover-border-css-desc args)]
+               [:div
                 (merge
-                  {:class (str "rc-popover-border " class)
-                   :id    pop-id
-                   :style (merge (if @rendered-once
-                                   (when pop-id (calc-popover-pos orientation @p-width @p-height @pop-offset arrow-length arrow-gap))
-                                   {:top "-10000px" :left "-10000px"})
-
-                                 (when width  {:width  width})
-                                 (when height {:height height})
-                                 (when popover-color {:background-color popover-color})
-                                 (when popover-border-color {:border-color popover-border-color})
-                                 (when tooltip-style?
-                                   {:border-radius "4px"
-                                    :box-shadow    "none"
-                                    :border        "none"})
-
-                                 ;; The popover point is zero width, therefore its absolute children will consider this width when deciding their
-                                 ;; natural size and in particular, how they natually wrap text. The right hand side of the popover is used as a
-                                 ;; text wrapping point so it will wrap, depending on where the child is positioned. The margin is also taken into
-                                 ;; consideration for this point so below, we set the margins to negative a lot to prevent
-                                 ;; this annoying wrapping phenomenon.
-                                 (case orientation
-                                   :left                  {:margin-left  "-2000px"}
-                                   (:right :above :below) {:margin-right "-2000px"})
-                                 ;; optional override offsets
-                                 (when margin-left {:margin-left margin-left})
-                                 (when margin-top  {:margin-top  margin-top})
-
-                                 ;; make it visible and turn off Bootstrap max-width and remove Bootstrap padding which adds an internal white border
-                                 {:display   "block"
-                                  :opacity   (if @ready-to-show? "1" "0")
-                                  :max-width "none"
-                                  :padding   "0px"}
-                                 style)}
-                  (->attr args)
-                  attr)
+                 {:id pop-id}
+                 (flatten-attr
+                  (cmerger
+                   :main
+                   (merge
+                    (if @rendered-once
+                      (when pop-id (calc-popover-pos orientation @p-width @p-height @pop-offset arrow-length arrow-gap))
+                      {:top "-10000px" :left "-10000px"})
+                    {:width width :height height :background-color popover-color
+                     :border-color popover-border-color :tooltip-style? tooltip-style?
+                     :orientation orientation :margin-left margin-left :margin-top margin-top
+                     :ready-to-show? @ready-to-show?})))
+                 (->attr args)
+                 attr)
                 [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color popover-border-color parts]
                 (when title title)
                 (into [:div
-                       (merge
-                         {:class (str "popover-content rc-popover-content " (get-in parts [:content :class]))
-                          :style (merge {:padding padding} (get-in parts [:content :style]))}
-                         (get-in parts [:content :attr]))]
+                       (flatten-attr
+                        (cmerger :content {:padding padding}))]
                       children)])))}))))
 
 
@@ -403,6 +430,18 @@
      {:name :backdrop :level 1 :class "rc-point-wrapper"           :impl "[backdrop]" :notes ""}
      {:name :border   :level 2 :class ""                           :impl "[popover-border]" :notes ""}
      {:name :title    :level 3 :class ""                           :impl "[popover-title]" :notes ""}]))
+
+(def popover-content-wrapper-css-desc
+  {:main {:class ["popover-content-wrapper" "rc-popover-content-wrapper"]
+          :style (fn [{:keys [no-clip? left-offset top-offset]}]
+                   (merge (flex-child-style "inherit")
+                          (when no-clip?
+                            {:position "fixed"
+                             :left (px left-offset)
+                             :top (px top-offset)})))}
+   :backdrop {}
+   :border {}
+   :title {}})
 
 (def popover-content-wrapper-parts
   (when include-args-desc?
@@ -470,51 +509,46 @@
                :as args}]
            (or
              (validate-args-macro popover-content-wrapper-args-desc args)
-             (do
+             (let [cmerger (merge-css popover-content-wrapper-css-desc args)]
                @position-injected ;; Dereference this atom. Although nothing here needs its value explicitly, the calculation of left-offset and top-offset are affected by it for :no-clip? true
                [:div
-                (merge {:class (str "popover-content-wrapper rc-popover-content-wrapper " class)
-                        :style (merge (flex-child-style "inherit")
-                                      (when no-clip? {:position "fixed"
-                                                      :left      (px @left-offset)
-                                                      :top       (px @top-offset)})
-                                      style)}
+                (merge (flatten-attr
+                        (cmerger :main {:no-clip? no-clip?
+                                        :left-offset @left-offset
+                                        :top-offset @top-offset}))
                        (->attr args)
                        attr)
                 (when (and (deref-or-value showing-injected?)  on-cancel)
-                  [backdrop
-                   :src      (at)
-                   :class    (get-in parts [:backdrop :class] "")
-                   :style    (get-in parts [:backdrop :style])
-                   :attr     (get-in parts [:backdrop :attr])
-                   :opacity  backdrop-opacity
-                   :on-click on-cancel])
-                [popover-border
-                 :src                  (at)
-                 :class                (get-in parts [:border :class] "")
-                 :style                (get-in parts [:border :style])
-                 :attr                 (get-in parts [:border :attr])
-                 :position             position-injected
-                 :position-offset      position-offset
-                 :width                width
-                 :height               height
-                 :tooltip-style?       tooltip-style?
-                 :popover-color        popover-color
-                 :popover-border-color popover-border-color
-                 :arrow-length         arrow-length
-                 :arrow-width          arrow-width
-                 :arrow-gap            arrow-gap
-                 :padding              padding
-                 :title                (when title [popover-title
-                                                    :src            (at)
-                                                    :class          (get-in parts [:title :class] "")
-                                                    :style          (get-in parts [:title :style])
-                                                    :attr           (get-in parts [:title :attr])
-                                                    :title          title
-                                                    :showing?       showing-injected?
-                                                    :close-button?  close-button?
-                                                    :close-callback on-cancel])
-                 :children             [body]]])))}))))
+                  (add-map-to-hiccup-call
+                   (cmerger :backdrop)
+                   [backdrop
+                    :src      (at)
+                    :opacity  backdrop-opacity
+                    :on-click on-cancel]))
+                (add-map-to-hiccup-call
+                 (cmerger :border)
+                 [popover-border
+                  :src                  (at)
+                  :position             position-injected
+                  :position-offset      position-offset
+                  :width                width
+                  :height               height
+                  :tooltip-style?       tooltip-style?
+                  :popover-color        popover-color
+                  :popover-border-color popover-border-color
+                  :arrow-length         arrow-length
+                  :arrow-width          arrow-width
+                  :arrow-gap            arrow-gap
+                  :padding              padding
+                  :title                (when title (add-map-to-hiccup-call
+                                                     (cmerger :title)
+                                                     [popover-title
+                                                      :src            (at)
+                                                      :title          title
+                                                      :showing?       showing-injected?
+                                                      :close-button?  close-button?
+                                                      :close-callback on-cancel]))
+                  :children             [body]])])))}))))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -526,6 +560,20 @@
     [{:type :legacy        :level 0 :class "rc-popover-anchor-wrapper" :impl "[:div]" :notes "Outer wrapper of the anchor, popover, backdrop, everything."}
      {:name :point-wrapper :level 1 :class "rc-point-wrapper"          :impl "[:div]" :notes "Wraps the anchor component and the popover-point (which the actual popover points to)."}
      {:name :point         :level 2 :class "rc-popover-point"          :impl "[:div]" :notes [:span "The point (width/height 0) which is placed at the center of the relevant side of the anchor, based on " [:code ":position"] "tag"]}]))
+
+(def popover-anchor-wrapper-css-desc
+  {:main {:class ["rc-popover-anchor-wrapper" "display-inline-flex"]
+          :style (flex-child-style "inherit")}
+   :point-wrapper {:class ["display-inline-flex" "rc-point-wrapper"]
+                   :style (fn [{:keys [flex-flow]}]
+                            (merge (flex-child-style "auto")
+                                   (flex-flow-style flex-flow)
+                                   (align-style :align-items :center)))}
+   :point {:class ["rc-popover-point" "display-inline-flex"]
+           :style (merge
+                   (flex-child-style "auto")
+                   {:position "relative"
+                    :z-index 4})}})
 
 (def popover-anchor-wrapper-parts
   (when include-args-desc?
@@ -567,25 +615,19 @@
                  (reset! internal-position @external-position))
                (let [[orientation _arrow-pos] (split-keyword @internal-position "-") ;; only need orientation here
                      place-anchor-before?    (case orientation (:left :above) false true)
-                     flex-flow               (case orientation (:left :right) "row" "column")]
+                     flex-flow               (case orientation (:left :right) "row" "column")
+                     cmerger (merge-css popover-anchor-wrapper-css-desc args)]
                  [:div
-                  (merge {:class (str "rc-popover-anchor-wrapper display-inline-flex " class)
-                          :style (merge (flex-child-style "inherit")
-                                        style)}
+                  (merge (flatten-attr (cmerger :main))
                          (->attr args)
                          attr)
                   [:div                                ;; Wrapper around the anchor and the "point"
-                   {:class (str "display-inline-flex rc-point-wrapper " (get-in parts [:point-wrapper :class]))
-                    :style (merge (flex-child-style "auto")
-                                  (flex-flow-style flex-flow)
-                                  (align-style :align-items :center))}
+                   (flatten-attr
+                    (cmerger :point-wrapper {:flex-flow flex-flow}))
                    (when place-anchor-before? anchor)
                    (when (deref-or-value showing?)
                      [:div                             ;; The "point" that connects the anchor to the popover
-                      {:class (str "display-inline-flex rc-popover-point " (get-in parts [:point :class]))
-                       :style (merge (flex-child-style "auto")
-                                     {:position "relative"
-                                      :z-index  4})}
+                      (flatten-attr (cmerger :point))
                       (into popover [:showing-injected? showing? :position-injected internal-position])]) ;; NOTE: Inject showing? and position to the popover
                    (when-not place-anchor-before? anchor)]]))))}))))
 
@@ -601,6 +643,21 @@
      {:name :v-box                  :level 2 :class ""                                          :impl "[v-box]"                   :notes ""}
      {:name :close-button-container :level 3 :class "rc-popover-tooltip-close-button-container" :impl "[box]"                     :notes ""}
      {:name :close-button           :level 4 :class "rc-popover-tooltip-close-button"           :impl "[close-button]"            :notes ""}]))
+
+(def popover-tooltip-css-desc
+  {:main {:class ["rc-popover-tooltip"]}
+   :content-wrapper {}
+   :v-box {:style (fn [{:keys [status]}]
+                    (if (= status :info)
+                      {:color "white"
+                       :font-size "14px"
+                       :padding "4px"}
+                      {:color "white"
+                       :font-size "12px"
+                       :font-weight "bold"
+                       :text-align "center"}))}
+   :close-button-container {:class ["rc-popover-tooltip-close-button-container"]}
+   :close-button {:class ["rc-popover-tooltip-close-button"]}})
 
 (def popover-tooltip-parts
   (when include-args-desc?
@@ -633,64 +690,51 @@
   (or
     (validate-args-macro popover-tooltip-args-desc args)
     (let [label         (deref-or-value label)
-          popover-color (case status
-                          :warning "#f57c00"
-                          :error   "#d50000"
-                          :info    "#333333"
-                          :success "#13C200"
-                          "black")]
-      [popover-anchor-wrapper
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :showing? showing?
-       :position (or position :below-center)
-       :anchor   anchor
-       :class    (str "rc-popover-tooltip " class)
-       :style    style
-       :attr     attr
-       :popover [popover-content-wrapper
-                 :src            (at)
-                 :class          (get-in parts [:content-wrapper :class] "")
-                 :style          (get-in parts [:content-wrapper :style])
-                 :attr           (get-in parts [:content-wrapper :attr])
-                 :no-clip?       no-clip?
-                 :on-cancel      on-cancel
-                 :width          width
-                 :tooltip-style? true
-                 :popover-color  popover-color
-                 :padding        "3px 8px"
-                 :arrow-length   6
-                 :arrow-width    12
-                 :arrow-gap      4
-                 :body           [v-box
-                                  :src   (at)
-                                  :class (get-in parts [:v-box :class])
-                                  :style (merge
-                                           (if (= status :info)
-                                             {:color       "white"
-                                              :font-size   "14px"
-                                              :padding     "4px"}
-                                             {:color       "white"
-                                              :font-size   "12px"
-                                              :font-weight "bold"
-                                              :text-align  "center"})
-                                           (get-in parts [:v-box :style]))
-                                  :children [(when close-button?
-                                               [box
-                                                :src        (at)
-                                                :class      (str "rc-popover-tooltip-close-button-container " (get-in parts [:close-button-container :class]))
-                                                :style      (get-in parts [:close-button-container :style])
-                                                :attr       (get-in parts [:close-button-container :attr])
-                                                :align-self :end
-                                                :child      [close-button
-                                                             :src         (at)
-                                                             :class       (str "rc-popover-tooltip-close-button " (get-in parts [:close-button :class]))
-                                                             :style       (get-in parts [:close-button :style])
-                                                             :attr        (get-in parts [:close-button :attr])
-                                                             :on-click    #(if on-cancel
-                                                                             (on-cancel)
-                                                                             (reset! showing? false))
-                                                             :div-size    15
-                                                             :font-size   20
-                                                             :left-offset 5]])
-                                             label]]]])))
+          cmerger (merge-css popover-tooltip-css-desc args)]
+      (add-map-to-hiccup-call
+       (cmerger :main)
+       [popover-anchor-wrapper
+        :src      src
+        :debug-as (or debug-as (reflect-current-component))
+        :showing? showing?
+        :position (or position :below-center)
+        :anchor   anchor
+        :popover (add-map-to-hiccup-call
+                  (cmerger :content-wrapper)
+                  [popover-content-wrapper
+                   :src            (at)
+                   :no-clip?       no-clip?
+                   :on-cancel      on-cancel
+                   :width          width
+                   :popover-color (case status
+                                    :warning "#f57c00"
+                                    :error   "#d50000"
+                                    :info    "#333333"
+                                    :success "#13C200"
+                                    "black")
+                   :padding        "3px 8px"
+                   :arrow-length   6
+                   :arrow-width    12
+                   :arrow-gap      4
+                   :tooltip-style? true
+                   :body           (add-map-to-hiccup-call
+                                    (cmerger :v-box {:status status})
+                                    [v-box
+                                     :src   (at)
+                                     :children [(when close-button?
+                                                  (add-map-to-hiccup-call
+                                                   (cmerger :close-button-container)
+                                                   [box
+                                                    :src        (at)
+                                                    :align-self :end
+                                                    :child      (add-map-to-hiccup-call
+                                                                 (cmerger :close-button)
+                                                                 [close-button
+                                                                  :src         (at)
+                                                                  :on-click    #(if on-cancel
+                                                                                  (on-cancel)
+                                                                                  (reset! showing? false))
+                                                                  :div-size    15
+                                                                  :font-size   20
+                                                                  :left-offset 5])]))
+                                                label]])])]))))
