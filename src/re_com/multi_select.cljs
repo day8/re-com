@@ -185,6 +185,20 @@
                    (flatten-attr (cmerger :list-box-no-results))
                    (str "No results match \"" filter-choices-text "\"")]))]])))
 
+(defn multi-button [& {:keys [disabled? label icon on-click class style attr] :as args}]
+
+  (let [cmerger (merge-css multi-select-css-desc {})]
+    (add-map-to-hiccup-call
+     (cmerger :button)
+     [buttons/button
+      :src       (at)
+      :label     [:span
+                  [:i (flatten-attr (cmerger :button-icon {:icon icon}))]
+                  [:span
+                   (flatten-attr (cmerger :button-content))
+                   (or label "")]]
+      :disabled? disabled?
+      :on-click  on-click])))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: multi-select
@@ -256,6 +270,17 @@
    ;;TODO: cleanup: middle-[top|bottom]-spacer are not used. Should they go away, or should it be middle-spacer that goes?
    :middle-top-spacer {:class ["rc-multi-select-middle-top-spacer"]}
    :middle {:class ["rc-multi-select-middle"]}
+   :button {:class ["rc-multi-select-button"]
+            :style {:width        "86px"
+                    :height       "24px"
+                    :padding      "0px 8px 2px 8px"
+                    :margin       "8px 6px"
+                    :text-align   "left"
+                    :font-variant "small-caps"
+                    :font-size    11}}
+   :button-icon {:class (fn [{:keys [icon]}]
+                          ["zmdi" "zmdi-hc-fw-rc" (str "zmdi-" icon)])}
+   :button-content {:style {:position "relative" :top "-1px"}}
    :include-all-button {:class ["rc-multi-select-include-all-button"]}
    :include-selected-button {:class ["rc-multi-select-include-selected-button"]}
    :exclude-selected-button {:class ["rc-multi-select-exclude-selected-button"]}
@@ -369,14 +394,7 @@
           *selection-group-heading-selected? (reagent/atom false)
           *warning-message                   (reagent/atom nil)
           *filter-choices-text               (reagent/atom "")
-          *filter-selections-text            (reagent/atom "")
-          button-style                       {:width        "86px"
-                                              :height       "24px"
-                                              :padding      "0px 8px 2px 8px"
-                                              :margin       "8px 6px"
-                                              :text-align   "left"
-                                              :font-variant "small-caps"
-                                              :font-size    11}]
+          *filter-selections-text            (reagent/atom "")]
       (fn multi-select-render
         [& {:keys [choices model required? max-selected-items left-label right-label on-change disabled? filter-box? regex-filter?
                    placeholder width height max-height tab-index id-fn label-fn group-fn sort-fn class style attr parts src]
@@ -583,64 +601,45 @@
                                           [box/v-box
                                            :src      (at)
                                            :justify  :center
-                                           :children [[buttons/button
-                                                       :src       (at)
-                                                       :class     (str "rc-multi-select-include-all-button " (get-in parts [:include-all-button :class]))
-                                                       :label     [:span
-                                                                   [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-fast-forward")}]
-                                                                   [:span
-                                                                    {:style {:position "relative" :top "-1px"}}
-                                                                    (str " include " (if (string/blank? @*filter-choices-text) potential-count (count filtered-choices)))]]
-                                                       :disabled? (or disabled? (zero? (count filtered-choices)))
-                                                       :style     (merge button-style
-                                                                         (get-in parts [:include-all-button :style]))
-                                                       :attr      (get-in parts [:include-all-button :attr])
-                                                       :on-click  include-filtered-click]
-                                                      [buttons/button
-                                                       :src       (at)
-                                                       :class     (str "rc-multi-select-include-selected-button " (get-in parts [:include-selected-button :class]))
-                                                       :label     [:span
-                                                                   [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-play")}]
-                                                                   [:span
-                                                                    {:style {:position "relative" :top "-1px"}}
-                                                                    (str " include " (when @*choice-group-heading-selected?
-                                                                                       (->> filtered-choices ;; TODO: Inefficient
-                                                                                            (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
-                                                                                            count)))]]
-                                                       :disabled? (or disabled? (not @*current-choice-id))
-                                                       :style     (merge button-style
-                                                                         (get-in parts [:include-selected-button :style]))
-                                                       :attr      (get-in parts [:include-selected-button :attr])
-                                                       :on-click  include-click]
-                                                      [buttons/button
-                                                       :src       (at)
-                                                       :class     (str "rc-multi-select-exclude-selected-button " (get-in parts [:exclude-selected-button :class]))
-                                                       :label     [:span
-                                                                   [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-play zmdi-hc-rotate-180")}]
-                                                                   [:span
-                                                                    {:style {:position "relative" :top "-1px"}}
-                                                                    (str " exclude " (when @*selection-group-heading-selected?
-                                                                                       (->> filtered-selections ;; TODO: Inefficient
-                                                                                            (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
-                                                                                            count)))]]
-                                                       :disabled? (or disabled? (not excludable?))
-                                                       :style     (merge button-style
-                                                                         (get-in parts [:exclude-selected-button :style]))
-                                                       :attr      (get-in parts [:exclude-selected-button :attr])
-                                                       :on-click  exclude-click]
-                                                      [buttons/button
-                                                       :src       (at)
-                                                       :class     (str "rc-multi-select-exclude-all-button " (get-in parts [:exclude-all-button :class]))
-                                                       :label     [:span
-                                                                   [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-fast-rewind")}]
-                                                                   [:span
-                                                                    {:style {:position "relative" :top "-1px"}}
-                                                                    (str " exclude " (if (string/blank? @*filter-selections-text) chosen-count (count filtered-selections)))]]
-                                                       :disabled? (or disabled? (zero? (count filtered-selections)) (not (> (count @*internal-model) (if required? 1 0))))
-                                                       :style     (merge button-style
-                                                                         (get-in parts [:exclude-all-button :style]))
-                                                       :attr      (get-in parts [:exclude-all-button :attr])
-                                                       :on-click  exclude-filtered-click]]])
+                                           :children [(add-map-to-hiccup-call
+                                                       (cmerger :include-all-button)
+                                                       [multi-button
+                                                        :src (at)
+                                                        :label (str " include " (if (string/blank? @*filter-choices-text) potential-count (count filtered-choices)))
+                                                        :icon "fast-forward"
+                                                        :disabled? (or disabled? (zero? (count filtered-choices)))
+                                                        :on-click  include-filtered-click])
+                                                      (add-map-to-hiccup-call
+                                                       (cmerger :include-selected-button)
+                                                       [multi-button
+                                                        :src (at)
+                                                        :label (str " include " (when @*choice-group-heading-selected?
+                                                                                 (->> filtered-choices ;; TODO: Inefficient
+                                                                                      (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
+                                                                                      count)))
+                                                        :icon "play"
+                                                        :disabled? (or disabled? (not @*current-choice-id))
+                                                        :on-click  include-click])
+                                                      (add-map-to-hiccup-call
+                                                       (cmerger :exclude-selected-button)
+                                                       [multi-button
+                                                        :src (at)
+                                                        :label (str " exclude " (when @*selection-group-heading-selected?
+                                                                                 (->> filtered-selections ;; TODO: Inefficient
+                                                                                      (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
+                                                                                      count)))
+                                                        ;;TODO: Zmdi reference should be in -css-desc
+                                                        :icon "play zmdi-hc-rotate-180"
+                                                        :disabled? (or disabled? (not excludable?))
+                                                        :on-click  exclude-click])
+                                                      (add-map-to-hiccup-call
+                                                       (cmerger :exclude-all-button)
+                                                       [multi-button
+                                                        :src       (at)
+                                                        :label (str " exclude " (if (string/blank? @*filter-selections-text) chosen-count (count filtered-selections)))
+                                                        :icon "fast-rewind"
+                                                        :disabled? (or disabled? (zero? (count filtered-selections)) (not (> (count @*internal-model) (if required? 1 0))))
+                                                        :on-click  exclude-filtered-click])]])
                                          [box/box
                                           :src   (at)
                                           :size  (str "0 2 " (if filter-box? "55px" "0px")) ;; 55 = (+ 4 4 28 4 15) - height of the bottom components
