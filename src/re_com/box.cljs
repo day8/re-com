@@ -5,6 +5,7 @@
   (:require
     [clojure.string   :as    string]
     [re-com.config    :refer [include-args-desc?]]
+    [re-com.util      :refer [add-map-to-hiccup-call flatten-attr merge-css]]
     [re-com.debug     :refer [->attr]]
     [re-com.validate  :refer [justify-style? justify-options-list align-style? align-options-list scroll-style?
                               scroll-options-list string-or-hiccup? css-style? html-attr?]]))
@@ -45,7 +46,8 @@
    Regex101 testing: ^(initial|auto|none)|(\\d+)(px|%|em)|(\\d+)\\w(\\d+)\\w(.*) - remove double backslashes"
   [size]
   ;; TODO: Could make initial/auto/none into keywords???
-  (let [split-size      (string/split (string/trim size) #"\s+")            ;; Split into words separated by whitespace
+  (let [size (or size "0 1 auto")
+        split-size      (string/split (string/trim size) #"\s+")            ;; Split into words separated by whitespace
         split-count     (count split-size)
         _               (assert (contains? #{1 3} split-count) "Must pass either 1 or 3 words to flex-child-style")
         size-only       (when (= split-count 1) (first split-size))         ;; Contains value when only one word passed (e.g. auto, 60px)
@@ -80,7 +82,8 @@
              :end     "flex-end"
              :center  "center"
              :between "space-between"
-             :around  "space-around")]
+             :around  "space-around"
+             "flex-start")]
     {:-webkit-justify-content js
              :justify-content js}))
 
@@ -97,7 +100,8 @@
                        :end      "flex-end"
                        :center   "center"
                        :baseline "baseline"
-                       :stretch  "stretch")]
+                       :stretch  "stretch"
+                       "stretch")]
     {attribute-wk as
      attribute    as}))
 
@@ -118,12 +122,11 @@
 ;;  Private Component: box-base (visualise-flow? color: lightblue)
 ;; ------------------------------------------------------------------------------------
 
-(defn- box-base
-  "This should generally NOT be used as it is the basis for the box, scroller and border components"
-  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self
-             margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr]
-      :as   args}]
-  (let [s (merge
+(def box-base-css-desc
+  {:main {:class ["display-flex"]
+          :style (fn [{:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self
+                              margin padding border l-border r-border t-border b-border radius bk-color child class style attr]}]
+           (merge
             (flex-flow-style "inherit")
             (flex-child-style size)
             (when scroll      (scroll-style   :overflow scroll))
@@ -148,12 +151,18 @@
             (when radius      {:border-radius radius})
             (if bk-color
               {:background-color bk-color}
-              (if visualise-flow? {:background-color "lightblue"} {}))
-            style)]
+              (if visualise-flow? {:background-color "lightblue"} {}))))}})
+
+(defn- box-base
+  "This should generally NOT be used as it is the basis for the box, scroller and border components"
+  [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self
+             margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr]
+      :as   args}]
+  (let [cmerger (merge-css box-base-css-desc args)]
     [:div
      (merge
        (->attr args)
-       {:class (str class-name "display-flex " class) :style s}
+       (flatten-attr (cmerger :main args))
        attr)
      child]))
 
@@ -173,22 +182,26 @@
      {:name :src      :required false :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as :required false :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
+(def gap-css-desc
+  {:main {:class ["rc-gap"]
+          :style (fn [{:keys [size width height]}]
+                   (merge
+                    (when size   (flex-child-style size))
+                    (when width  {:width width})
+                    (when height {:height height})
+                    (when visualise-flow? {:background-color "chocolate"})))}})
+
 (defn gap
   "Returns a component which produces a gap between children in a v-box/h-box along the main axis"
   [& {:keys [size width height class style attr]
       :as   args}]
   (or
     (validate-args-macro gap-args-desc args)
-    (let [s (merge
-              (when size   (flex-child-style size))
-              (when width  {:width width})
-              (when height {:height height})
-              (when visualise-flow? {:background-color "chocolate"})
-              style)]
+    (let [cmerger (merge-css gap-css-desc args)]
       [:div
        (merge
          (->attr args)
-         {:class (str "rc-gap " class) :style s}
+         (flatten-attr (cmerger :main {:size size :width width :height height}))
          attr)])))
 
 
@@ -206,6 +219,13 @@
      {:name :src      :required false                      :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as :required false                      :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
+(def line-css-desc
+  {:main {:class ["rc-line"]
+          :style (fn [{:keys [size color]}]
+                   (merge
+                    (flex-child-style (str "0 0 " size))
+                    {:background-color color}))}})
+
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
    Specify size in pixels and a stancard CSS color. Defaults to a 1px lightgray line"
@@ -214,14 +234,11 @@
       :as   args}]
   (or
     (validate-args-macro line-args-desc args)
-    (let [s (merge
-              (flex-child-style (str "0 0 " size))
-              {:background-color color}
-              style)]
+    (let [cmerger (merge-css line-css-desc args)]
       [:div
        (merge
          (->attr args)
-         {:class (str "rc-line " class) :style s}
+         (cmerger :main {:size size :color color})
          attr)])))
 
 
@@ -251,6 +268,25 @@
      {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
+(def h-box-css-desc
+  {:main {:class ["rc-h-box" "display-flex"]
+          :style (fn [{:keys [size width height min-width min-height max-width max-height justify align align-self margin padding]}]
+                   (merge
+                    (flex-flow-style "row nowrap")
+                    (flex-child-style size)
+                    (when width      {:width      width})
+                    (when height     {:height     height})
+                    (when min-width  {:min-width  min-width})
+                    (when min-height {:min-height min-height})
+                    (when max-width  {:max-width  max-width})
+                    (when max-height {:max-height max-height})
+                    (justify-style justify)
+                    (align-style :align-items align)
+                    (when align-self (align-style :align-self align-self))
+                    (when margin     {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
+                    (when padding    {:padding    padding})
+                    (when visualise-flow? {:background-color "gold"})))}})
+
 (defn h-box
   "Returns hiccup which produces a horizontal box.
    It's primary role is to act as a container for components and lays it's children from left to right.
@@ -260,22 +296,7 @@
       :as   args}]
   (or
     (validate-args-macro h-box-args-desc args)
-    (let [s        (merge
-                     (flex-flow-style "row nowrap")
-                     (flex-child-style size)
-                     (when width      {:width      width})
-                     (when height     {:height     height})
-                     (when min-width  {:min-width  min-width})
-                     (when min-height {:min-height min-height})
-                     (when max-width  {:max-width  max-width})
-                     (when max-height {:max-height max-height})
-                     (justify-style justify)
-                     (align-style :align-items align)
-                     (when align-self (align-style :align-self align-self))
-                     (when margin     {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
-                     (when padding    {:padding    padding})
-                     (when visualise-flow? {:background-color "gold"})
-                     style)
+    (let [cmerger (merge-css h-box-css-desc args)
           gap-form (when gap [re-com.box/gap
                               :src   (at)
                               :size  gap
@@ -285,8 +306,8 @@
                      children)]
       (into [:div
              (merge
-               (->attr args)
-               {:class (str "rc-h-box display-flex " class) :style s}
+              (->attr args)
+              (flatten-attr (cmerger :main args))
                attr)]
             children))))
 
@@ -316,6 +337,24 @@
      {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
+(def v-box-css-desc
+  {:main {:class ["rc-v-box" "display-flex"]
+          :style (fn [{:keys [size width height min-width min-height max-width max-height justify align align-self margin padding]}]
+                   (merge
+                    (flex-flow-style  "column nowrap")
+                    (flex-child-style size)
+                    (when width       {:width      width})
+                    (when height      {:height     height})
+                    (when min-width   {:min-width  min-width})
+                    (when min-height  {:min-height min-height})
+                    (when max-width   {:max-width  max-width})
+                    (when max-height  {:max-height max-height})
+                    (justify-style    justify)
+                    (align-style      :align-items align)
+                    (when align-self  (align-style :align-self align-self))
+                    (when margin      {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
+                    (when padding     {:padding    padding})
+                    (when visualise-flow? {:background-color "antiquewhite"})))}})
 (defn v-box
   "Returns hiccup which produces a vertical box.
    It's primary role is to act as a container for components and lays it's children from top to bottom.
@@ -325,22 +364,7 @@
       :as   args}]
   (or
     (validate-args-macro v-box-args-desc args)
-    (let [s        (merge
-                     (flex-flow-style  "column nowrap")
-                     (flex-child-style size)
-                     (when width       {:width      width})
-                     (when height      {:height     height})
-                     (when min-width   {:min-width  min-width})
-                     (when min-height  {:min-height min-height})
-                     (when max-width   {:max-width  max-width})
-                     (when max-height  {:max-height max-height})
-                     (justify-style    justify)
-                     (align-style      :align-items align)
-                     (when align-self  (align-style :align-self align-self))
-                     (when margin      {:margin     margin})       ;; margin and padding: "all" OR "top&bottom right&left" OR "top right bottom left"
-                     (when padding     {:padding    padding})
-                     (when visualise-flow? {:background-color "antiquewhite"})
-                     style)
+    (let [cmerger (merge-css v-box-css-desc args)
           gap-form (when gap [re-com.box/gap
                               :src    (at)
                               :size   gap
@@ -351,7 +375,7 @@
       (into [:div
              (merge
                (->attr args)
-               {:class (str "rc-v-box display-flex " class) :style s}
+               (flatten-attr (cmerger :main args))
                attr)]
             children))))
 
