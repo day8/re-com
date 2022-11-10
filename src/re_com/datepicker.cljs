@@ -9,7 +9,7 @@
     [cljs-time.predicates :refer [sunday?]]
     [cljs-time.format     :refer [parse unparse formatters formatter]]
     [re-com.box           :refer [border gap box line h-box flex-child-style]]
-    [re-com.util          :refer [deref-or-value now->utc]]
+    [re-com.util          :refer [deref-or-value now->utc add-map-to-hiccup-call merge-css flatten-attr]]
     [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
     [clojure.string       :as string])
   (:import
@@ -26,6 +26,8 @@
 (def ^:const date-format-str "yyyy MMM dd")
 
 (def ^:const date-format (formatter date-format-str))
+
+(declare datepicker-css-desc)
 
 (defn iso8601->date [iso8601]
   (when (seq iso8601)
@@ -161,209 +163,179 @@
 
 ;; ----------------------------------------------------------------------------
 
-
 (defn- main-div-with
-  [table-div hide-border? class style attr parts src debug-as]
+  [table-div hide-border? cmerger attr src debug-as]
   ;;extra h-box is currently necessary so that calendar & border do not stretch to width of any containing v-box
-  [h-box
-   :src      src
-   :debug-as debug-as
-   :class    "rc-datepicker-wrapper"
-   :children [[border
-               :src    (at)
-               :class  (str "rc-datepicker-border " (get-in parts [:border :class]))
-               :style  (get-in parts [:border :style] {})
-               :attr   (get-in parts [:border :attr] {})
-               :radius "4px"
-               :size   "none"
-               :border (when hide-border? "none")
-               :child  [:div
-                        (merge
-                          {:class (str "datepicker noselect rc-datepicker " class)
-                           ;; override inherited body larger 14px font-size
-                           ;; override position from css because we are inline
-                           :style (merge {:font-size "13px"
-                                          :position  "static"}
-                                         style)}
-                          attr)
-                        table-div]]]])
+  (add-map-to-hiccup-call
+   (cmerger :wrapper)
+   [h-box
+    :src      src
+    :debug-as debug-as
+    :children [(add-map-to-hiccup-call
+                (cmerger :border)
+                [border
+                 :src    (at)
+                 :radius "4px"
+                 :size   "none"
+                 :border (when hide-border? "none")
+                 :child  [:div
+                          (merge
+                           (flatten-attr (cmerger :main))
+                           attr)
+                          table-div]])]]))
 
 (defn- prev-year-icon
   [& {:keys [parts]}]
-  [:svg
-   (merge {:class   (str "rc-datepicker-prev-year-icon " (get-in parts [:prev-year-icon :class]))
-           :style   (get-in parts [:prev-year-icon :style])
-           :height  "24"
-           :viewBox "0 0 24 24"
-           :width   "24"}
-          (get-in parts [:prev-year-icon :attr]))
-   [:g
-    {:transform "translate(1.5)"}
-    [:path {:d "m 16.793529,7.4382353 -1.41,-1.41 -5.9999996,5.9999997 5.9999996,6 1.41,-1.41 -4.58,-4.59 z"}]
-    [:path {:d "m 10.862647,7.4429412 -1.4100003,-1.41 -6,5.9999998 6,6 1.4100003,-1.41 -4.5800003,-4.59 z"}]]])
+  (let [cmerger (merge-css datepicker-css-desc {:parts parts})]
+    [:svg
+     (flatten-attr (cmerger :prev-year-icon))
+     [:g
+      {:transform "translate(1.5)"}
+      [:path {:d "m 16.793529,7.4382353 -1.41,-1.41 -5.9999996,5.9999997 5.9999996,6 1.41,-1.41 -4.58,-4.59 z"}]
+      [:path {:d "m 10.862647,7.4429412 -1.4100003,-1.41 -6,5.9999998 6,6 1.4100003,-1.41 -4.5800003,-4.59 z"}]]]))
 
 (defn- prev-month-icon
   [& {:keys [parts]}]
-  [:svg
-   (merge {:class   (str "rc-datepicker-prev-month-icon " (get-in parts [:prev-month-icon :class]))
-           :style   (get-in parts [:prev-month-icon :style])
-           :height  "24"
-           :viewBox "0 0 24 24"
-           :width   "24"}
-          (get-in parts [:prev-month-icon :attr]))
-   [:path {:d    "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"}]])
+  (let [cmerger (merge-css datepicker-css-desc {:parts parts})]
+    [:svg
+     (flatten-attr (cmerger :prev-month-icon))
+     [:path {:d    "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"}]]))
 
 (defn- next-month-icon
   [& {:keys [parts]}]
-  [:svg
-   (merge {:class   (str "rc-datepicker-next-month-icon " (get-in parts [:next-month-icon :class]))
-           :style   (get-in parts [:next-month-icon :style])
-           :height  "24"
-           :viewBox "0 0 24 24"
-           :width   "24"}
-          (get-in parts [:next-month-icon :attr]))
-   [:path {:d    "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"}]])
+  (let [cmerger (merge-css datepicker-css-desc {:parts parts})]
+    [:svg
+     (flatten-attr (cmerger :next-month-icon))
+     [:path {:d    "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"}]]))
 
 (defn- next-year-icon
   [& {:keys [parts]}]
-  [:svg
-   (merge {:class   (str "rc-datepicker-next-year-icon " (get-in parts [:next-year-icon :class]))
-           :style   (get-in parts [:next-year-icon :style])
-           :height  "24"
-           :viewBox "0 0 24 24"
-           :width   "24"}
-          (get-in parts [:next-year-icon :attr]))
-   [:g
-    {:transform "translate(-1.5)"}
-    [:path {:d "m 8.5882353,6 -1.41,1.41 4.5799997,4.59 -4.5799997,4.59 1.41,1.41 5.9999997,-6 z"}]
-    [:path {:d "m 14.547353,5.9623529 -1.41,1.41 4.58,4.5900001 -4.58,4.59 1.41,1.41 6,-6 z"}]]])
+  (let [cmerger (merge-css datepicker-css-desc {:parts parts})]
+    [:svg
+     (flatten-attr (cmerger :next-year-icon))
+     [:g
+      {:transform "translate(-1.5)"}
+      [:path {:d "m 8.5882353,6 -1.41,1.41 4.5799997,4.59 -4.5799997,4.59 1.41,1.41 5.9999997,-6 z"}]
+      [:path {:d "m 14.547353,5.9623529 -1.41,1.41 4.58,4.5900001 -4.58,4.59 1.41,1.41 6,-6 z"}]]]))
 
 (defn- prev-year-nav
   [& {:keys [display-month minimum disabled? parts]}]
   (let [prev-year-date-time (dec-year @display-month)
-        prev-year-enabled?  (if minimum (cljs-time/after? prev-year-date-time (dec-month minimum)) true)]
+        prev-year-enabled?  (if minimum (cljs-time/after? prev-year-date-time (dec-month minimum)) true)
+        cmerger (merge-css datepicker-css-desc {:parts parts})]
     (when (not disabled?)
       [:<>
-       [box
-        :src     (at)
-        :class   (str (if prev-year-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-prev-year " (get-in parts [:prev-year :class]))
-        :style   (get-in parts [:prev-year :style])
-        :attr    (merge
-                   {:on-click (handler-fn (when prev-year-enabled? (reset! display-month prev-year-date-time)))}
-                   (get-in parts [:prev-year :attr]))
-        :width   "20px"
-        :align   :center
-        :justify :center
-        :child  [prev-year-icon
-                 :parts parts]]
+       (add-map-to-hiccup-call
+        (cmerger :prev-year {:enabled? prev-year-enabled?
+                             :attr {:on-click (handler-fn (when prev-year-enabled? (reset! display-month prev-year-date-time)))}})
+        [box
+         :src     (at)
+         :width   "20px"
+         :align   :center
+         :justify :center
+         :child  [prev-year-icon
+                  :parts parts]])
        [line
         :src (at)]])))
 
 (defn- prev-month-nav
   [& {:keys [display-month minimum disabled? parts]}]
   (let [prev-month-date-time (dec-month @display-month)
-        prev-month-enabled?  (if minimum (cljs-time/after? prev-month-date-time (dec-month minimum)) true)]
+        prev-month-enabled?  (if minimum (cljs-time/after? prev-month-date-time (dec-month minimum)) true)
+        cmerger (merge-css datepicker-css-desc {:parts parts})]
     (when (not disabled?)
       [:<>
-       [box
-        :src     (at)
-        :class   (str (if prev-month-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-prev-month " (get-in parts [:prev-month :class]))
-        :style   (get-in parts [:prev-month :style])
-        :attr    (merge
-                   {:on-click (handler-fn (when prev-month-enabled? (reset! display-month prev-month-date-time)))}
-                   (get-in parts [:prev-month :attr]))
-        :width   "20px"
-        :align   :center
-        :justify :center
-        :child   [prev-month-icon
-                  :parts parts]]
+       (add-map-to-hiccup-call
+        (cmerger :prev-month {:enabled? prev-month-enabled?
+                              :attr {:on-click (handler-fn (when prev-month-enabled? (reset! display-month prev-month-date-time)))}})
+        [box
+         :src     (at)
+         :width   "20px"
+         :align   :center
+         :justify :center
+         :child   [prev-month-icon
+                   :parts parts]])
        [line
         :src (at)]])))
 
 (defn- next-month-nav
   [& {:keys [display-month maximum disabled? parts]}]
   (let [next-month-date-time (inc-month @display-month)
-        next-month-enabled?  (if maximum (cljs-time/before? next-month-date-time maximum) true)]
+        next-month-enabled?  (if maximum (cljs-time/before? next-month-date-time maximum) true)
+        cmerger (merge-css datepicker-css-desc {:parts parts})]
     (when (not disabled?)
       [:<>
        [line
         :src (at)]
-       [box
-        :src     (at)
-        :class   (str (if next-month-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-next-month " (get-in parts [:next-month :class]))
-        :style   (get-in parts [:next-month :style])
-        :attr    (merge
-                   {:on-click (handler-fn (when next-month-enabled? (reset! display-month next-month-date-time)))}
-                   (get-in parts [:next-month :attr]))
-        :align   :center
-        :justify :center
-        :width   "20px"
-        :child   [next-month-icon
-                  :parts parts]]])))
+       (add-map-to-hiccup-call
+        (cmerger :next-month {:enabled? next-month-enabled?
+                              :attr {:on-click (handler-fn (when next-month-enabled? (reset! display-month next-month-date-time)))}})
+        [box
+         :src     (at)
+         :align   :center
+         :justify :center
+         :width   "20px"
+         :child   [next-month-icon
+                   :parts parts]])])))
 
 (defn- next-year-nav
   [& {:keys [display-month maximum disabled? parts]}]
   (let [next-year-date-time  (inc-year @display-month)
-        next-year-enabled?   (if maximum (cljs-time/before? next-year-date-time maximum) true)]
+        next-year-enabled?   (if maximum (cljs-time/before? next-year-date-time maximum) true)
+        cmerger (merge-css datepicker-css-desc {:parts parts})]
     (when (not disabled?)
       [:<>
        [line
         :src (at)]
-       [box
-        :src     (at)
-        :class   (str (if next-year-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-next-year " (get-in parts [:next-year :class]))
-        :style   (get-in parts [:next-year :style])
-        :attr    (merge
-                   {:on-click (handler-fn (when next-year-enabled? (reset! display-month next-year-date-time)))}
-                   (get-in parts [:next-year :attr]))
-        :align   :center
-        :justify :center
-        :width   "20px"
-        :child   [next-year-icon
-                  :parts parts]]])))
+       (add-map-to-hiccup-call
+        (cmerger :next-year {:enabled? next-year-enabled?
+                             :attr {:on-click (handler-fn (when next-year-enabled? (reset! display-month next-year-date-time)))}})
+        [box
+         :src     (at)
+         :align   :center
+         :justify :center
+         :width   "20px"
+         :child   [next-year-icon
+                   :parts parts]])])))
 
 (defn- nav
   [& {:keys [display-month minimum maximum disabled? i18n parts]}]
   (let [minimum (deref-or-value minimum)
-        maximum (deref-or-value maximum)]
-    [:th
-     (merge
-       {:col-span "7"
-        :class    (str "rc-datepicker-nav " (get-in parts [:nav :class]))
-        :style    (merge {:padding "0px"} (get-in parts [:nav :style]))}
-       (get-in parts [:nav :attr]))
-     [h-box
-      :src      (at)
-      :height   "100%"
-      :children [[prev-year-nav
-                  :display-month display-month
-                  :minimum       minimum
-                  :disabled?     disabled?
-                  :parts         parts]
-                 [prev-month-nav
-                  :display-month display-month
-                  :minimum       minimum
-                  :disabled?     disabled?
-                  :parts         parts]
-                 [box
-                  :src     (at)
-                  :class   (str "rc-datepicker-month " (get-in parts [:month :class]))
-                  :style   (get-in parts [:month :style])
-                  :attr    (get-in parts [:month :attr])
-                  :size    "1"
-                  :align   :center
-                  :justify :center
-                  :child   (month-label @display-month i18n)]
-                 [next-month-nav
-                  :display-month display-month
-                  :maximum       maximum
-                  :disabled?     disabled?
-                  :parts         parts]
-                 [next-year-nav
-                  :display-month display-month
-                  :maximum       maximum
-                  :disabled?     disabled?
-                  :parts         parts]]]]))
+        maximum (deref-or-value maximum)
+        cmerger (merge-css datepicker-css-desc {:parts parts})]
+  [:th
+   (flatten-attr (cmerger :nav))
+   [h-box
+    :src      (at)
+    :height   "100%"
+    :children [[prev-year-nav
+                :display-month display-month
+                :minimum       minimum
+                :disabled?     disabled?
+                :parts         parts]
+               [prev-month-nav
+                :display-month display-month
+                :minimum       minimum
+                :disabled?     disabled?
+                :parts         parts]
+               (add-map-to-hiccup-call
+                (cmerger :month)
+                [box
+                 :src     (at)
+                 :size    "1"
+                 :align   :center
+                 :justify :center
+                 :child   (month-label @display-month i18n)])
+               [next-month-nav
+                :display-month display-month
+                :maximum       maximum
+                :disabled?     disabled?
+                :parts         parts]
+               [next-year-nav
+                :display-month display-month
+                :maximum       maximum
+                :disabled?     disabled?
+                :parts         parts]]]]))
 
 (defn- week-days
   [& {:keys [start-of-week i18n parts]}]
@@ -381,12 +353,10 @@
 (defn- table-thead
   "Answer 2 x rows showing month with nav buttons and days"
   [display-month {:keys [show-weeks? minimum maximum start-of-week i18n]} disabled? parts]
-  (let [template-row (if show-weeks? [:tr [:th]] [:tr])]
+  (let [template-row (if show-weeks? [:tr [:th]] [:tr])
+        cmerger (merge-css datepicker-css-desc {:parts parts})]
     [:thead
-     (merge
-       {:class (str "rc-datepicker-header " (get-in parts [:header :class]))
-        :style (get-in parts [:header :style] {})}
-       (get-in parts [:header :attr]))
+     (flatten-attr (cmerger :header))
      (conj template-row
            [nav
             :display-month display-month
@@ -399,7 +369,7 @@
            [week-days
             :start-of-week start-of-week
             :i18n          i18n
-            :parts         parts])]))
+            :cmerger         cmerger])]))
 
 (defn- selection-changed
   [selection change-callback]
@@ -407,7 +377,7 @@
 
 
 (defn- table-td
-  [date focus-month selected today {minimum :minimum maximum :maximum selectable-fn :selectable-fn :as attributes} disabled? on-change parts]
+  [date focus-month selected today {minimum :minimum maximum :maximum selectable-fn :selectable-fn :as attributes} disabled? on-change cmerger]
   ;;following can be simplified and terse
   (let [minimum       (deref-or-value minimum)
         maximum       (deref-or-value maximum)
@@ -426,26 +396,25 @@
                             :else                                          (str classes " "))
         on-click      #(when-not (or disabled? unselectable-day?) (selection-changed date on-change))]
     [:td
-     (merge
-       {:class    (str classes "rc-datepicker-date " (get-in parts [:date :class]))
-        :style    (get-in parts [:date :style])
-        :on-click (handler-fn (on-click))}
-       (get-in parts [:date :attr]))
+     (flatten-attr
+      (cmerger :date {:attr {:on-click (handler-fn (on-click))}}))
      (cljs-time/day date)]))
 
 
-(defn- week-td [start-of-week date]
-  [:td {:class "week"} (week-of-year start-of-week date)])
+(defn- week-td [start-of-week date cmerger]
+  [:td
+   (flatten-attr (cmerger :week))
+   (week-of-year start-of-week date)])
 
 
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive"
-  [date start-of-week focus-month selected attributes disabled? on-change parts]
+  [date start-of-week focus-month selected attributes disabled? on-change cmerger]
 ;  {:pre [(sunday? date)]}
-  (let [table-row (if (:show-weeks? attributes) [:tr (week-td start-of-week date)] [:tr])
+  (let [table-row (if (:show-weeks? attributes) [:tr (week-td start-of-week date cmerger)] [:tr])
         row-dates (map #(inc-date date %) (range 7))
         today     (when (:show-today? attributes) (now->utc))]
-    (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change parts) row-dates))))
+    (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change cmerger) row-dates))))
 
 
 (defn- table-tbody
@@ -454,13 +423,11 @@
   (let [start-of-week   (:start-of-week attributes)
         current-start   (previous (is-day-pred start-of-week) display-month)
         focus-month     (cljs-time/month display-month)
-        row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
+        row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))
+        cmerger (merge-css datepicker-css-desc {:parts parts})]
     (into [:tbody
-           (merge
-             {:class (str "rc-datepicker-dates " (get-in parts [:dates :class]))
-              :style (get-in parts [:dates :style])}
-             (get-in parts [:dates :attr]))]
-          (map #(table-tr % start-of-week focus-month selected attributes disabled? on-change parts) row-start-dates))))
+           (flatten-attr (cmerger :dates))]
+          (map #(table-tr % start-of-week focus-month selected attributes disabled? on-change cmerger) row-start-dates))))
 
 
 (defn- configure
@@ -501,11 +468,58 @@
      {:name :dates           :level 4 :class "rc-datepicker-dates"           :impl "[:tbody]"     :notes "The table body containing the dates."}
      {:type :legacy          :level 5                                        :impl "[:tr]"        :notes "A date row. Repeats 6 times." :name-label "-"}
      {:name :date            :level 6 :class "rc-datepicker-date"            :impl "[:td]"        :notes "A date cell. Repeats 7 times per date row."}]))
-   
 
 (def datepicker-parts
   (when include-args-desc?
     (-> (map :name datepicker-parts-desc) set)))
+
+
+(def datepicker-css-desc
+  {:main {:class ["datepicker" "noselect" "rc-datepicker"]
+          :style {:font-size "13px"
+                  :position "static"}}
+   :border {:class ["rc-datepicker-border"]}
+   :wrapper {:class ["rc-datepicker-wrapper"]}
+   :table {:class ["rc-datepicker-table" "table-condensed"]}
+   :header {:class ["rc-datepicker-header"]}
+   :nav {:class ["rc-datepicker-nav"]
+         :style {:padding "0px"}
+         :attr {:col-span "7"}}
+   :prev-year {:class (fn [{:keys [enabled?]}]
+                        ["rc-datepicker-prev-year"
+                         (if enabled? "rc-datepicker-selectable" "rc-datepicker-disabled")])}
+   :prev-year-icon {:class ["rc-datepicker-prev-year-icon"]
+                    :attr {:height  "24"
+                           :viewBox "0 0 24 24"
+                           :width   "24"}}
+   :prev-month {:class (fn [{:keys [enabled?]}]
+                         ["rc-datepicker-prev-month"
+                          (if enabled? "rc-datepicker-selectable" "rc-datepicker-disabled")])}
+   :prev-month-icon {:class ["rc-datepicker-prev-month-icon"]
+                     :attr {:height  "24"
+                            :viewBox "0 0 24 24"
+                            :width   "24"}}
+   :month {:class ["rc-datepicker-month"]}
+   :next-month {:class (fn [{:keys [enabled?]}]
+                         ["rc-datepicker-next-month"
+                          (if enabled? "rc-datepicker-selectable" "rc-datepicker-disabled")])}
+   :next-month-icon {:class ["rc-datepicker-next-month-icon"]
+                     :attr {:height  "24"
+                            :viewBox "0 0 24 24"
+                            :width   "24"}}
+   :next-year {:class (fn [{:keys [enabled?]}]
+                        ["rc-datepicker-next-year"
+                         (if enabled? "rc-datepicker-selectable" "rc-datepicker-disabled")])}
+   :next-year-icon {:class ["rc-datepicker-next-year-icon"]
+                    :attr {:height  "24"
+                           :viewBox "0 0 24 24"
+                           :width   "24"}}
+   :day {:class (fn [{:keys [day]}]
+                  ["rc-datepicker-day" (str "rc-datepicker-day-" (string/lower-case (:name day)))])}
+   :week {:class ["rc-datepicker-week"]}
+   :dates {:class ["rc-datepicker-dates"]}
+   :date {:class ["rc-datepicker-date"]}})
+
 
 (def datepicker-args-desc
   (when include-args-desc?
@@ -533,7 +547,8 @@
     (validate-args-macro datepicker-args-desc args)
     (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
           internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
-          display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))]
+          display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))
+          cmerger (merge-css datepicker-css-desc args)]
       (fn datepicker-render
         [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts src debug-as]
             :or   {start-of-week 6} ;; Default to Sunday
@@ -550,17 +565,12 @@
               (reset! display-month  (cljs-time/first-day-of-the-month (or @internal-model (now->utc)))))
             [main-div-with
              [:table
-              (merge
-                {:class (str "table-condensed rc-datepicker-table " (get-in parts [:table :class]))
-                 :style (get-in parts [:table :style])}
-                (get-in parts [:table :attr]))
+              (flatten-attr (cmerger :table))
               [table-thead display-month configuration disabled? parts]
               [table-tbody @display-month @internal-model configuration disabled? on-change parts]]
              hide-border?
-             class
-             style
+             cmerger
              attr
-             parts
              src
              (or debug-as (reflect-current-component))]))))))
 
