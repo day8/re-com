@@ -1,6 +1,7 @@
 (ns re-com.util
   (:require
-    [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
+   [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
+   [reagent.dom.server :refer [render-to-string]]
     [goog.date.DateTime]
     [goog.date.UtcDateTime]
     [clojure.string :as string]))
@@ -220,6 +221,10 @@
       0 0 0 0)))
 
 
+(defn say-when [cond itm]
+  (do (when cond (println itm))
+      itm))
+
 (defn merge-css [css-desc {:as params :keys [class style parts]}]
   (for [[k v] css-desc
         :when (not (and (keyword? k) (map? v)))]
@@ -251,6 +256,8 @@
                                    :when (contains? defaults k)
                                    :let [v (get defaults k)]]
                                [k (if (fn? v) (v xoptions) v)]))]
+       (when (and tag (not (contains? css-desc tag)))
+         (println "Missing!!!: " tag))
        (reduce combine-css [defaults options user]))))
   fetch-merged-css)
 
@@ -264,3 +271,10 @@
                       itm [k v]]
                   itm)
                 (rest hiccup)]))
+
+(defn say-hiccup [itm]
+  (println "SOURCE:")
+  (println itm)
+  (println "HTML:")
+  (println (render-to-string itm))
+  itm)

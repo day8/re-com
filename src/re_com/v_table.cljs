@@ -439,7 +439,6 @@
                (iterate inc top-row-index)
                rows)]))
 
-
 (defn row-footer-viewport
   "Render section 8 - the viewport component (which renders the content component as its child)"
   [row-footer-renderer key-fn top-row-index rows scroll-y
@@ -558,7 +557,8 @@
                :style {:overflow "hidden"}}
    :row-footers {:class ["rc-v-table-row-footers" "rc-v-table-viewport"]
                  :style (fn [{:keys [max-height]}]
-                          {:max-height (px max-height)})}
+                          {:max-height (px max-height)
+                           :overflow "hidden"})}
    :row-footer-content {:class ["rc-v-table-row-footer-content" "rc-v-table-content"]
                         :style (fn [{:keys [scroll-y]}]
                                  {:margin-top (px scroll-y :negative)})}
@@ -1461,3 +1461,5 @@
                                     "content-rows-wh: "   (str "(" @content-rows-width "," @content-rows-height ")") "\n")]]])))))})))))
 
                                   ;"call-count: "       @call-count "\n"
+
+
