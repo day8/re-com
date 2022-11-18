@@ -161,9 +161,9 @@
   (let [cmerger (merge-css box-base-css-desc args)]
     [:div
      (merge
-       (->attr args)
-       (flatten-attr (cmerger :main args))
-       attr)
+      (flatten-attr (cmerger :main args))
+      (->attr args)
+      attr)
      child]))
 
 
@@ -221,16 +221,16 @@
 
 (def line-css-desc
   {:main {:class ["rc-line"]
-          :style (fn [{:keys [size color]}]
+          :style (fn [{:keys [size color]
+                       :or   {color "lightgray"}}]
                    (merge
-                    (flex-child-style (str "0 0 " size))
+                    (flex-child-style (str "0 0 " (or size "1px")))
                     {:background-color color}))}})
 
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
    Specify size in pixels and a stancard CSS color. Defaults to a 1px lightgray line"
   [& {:keys [size color class style attr]
-      :or   {size "1px" color "lightgray"}
       :as   args}]
   (or
     (validate-args-macro line-args-desc args)
@@ -270,7 +270,8 @@
 
 (def h-box-css-desc
   {:main {:class ["rc-h-box" "display-flex"]
-          :style (fn [{:keys [size width height min-width min-height max-width max-height justify align align-self margin padding]}]
+          :style (fn [{:keys [size width height min-width min-height max-width max-height justify align align-self margin padding]
+                       :or   {size "none" justify :start align :stretch}}]
                    (merge
                     (flex-flow-style "row nowrap")
                     (flex-child-style size)
@@ -292,7 +293,6 @@
    It's primary role is to act as a container for components and lays it's children from left to right.
    By default, it also acts as a child under it's parent"
   [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr]
-      :or   {size "none" justify :start align :stretch}
       :as   args}]
   (or
     (validate-args-macro h-box-args-desc args)
@@ -339,7 +339,8 @@
 
 (def v-box-css-desc
   {:main {:class ["rc-v-box" "display-flex"]
-          :style (fn [{:keys [size width height min-width min-height max-width max-height justify align align-self margin padding]}]
+          :style (fn [{:keys [size width height min-width min-height max-width max-height justify align align-self margin padding]
+                       :or   {size "none" justify :start align :stretch}}]
                    (merge
                     (flex-flow-style  "column nowrap")
                     (flex-child-style size)
@@ -360,7 +361,6 @@
    It's primary role is to act as a container for components and lays it's children from top to bottom.
    By default, it also acts as a child under it's parent"
   [& {:keys [size width height min-width min-height max-width max-height justify align align-self margin padding gap children class style attr]
-      :or   {size "none" justify :start align :stretch}
       :as   args}]
   (or
     (validate-args-macro v-box-args-desc args)
