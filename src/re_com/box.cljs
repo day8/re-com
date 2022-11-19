@@ -405,6 +405,9 @@
      {:name :src        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
+(def box-css-desc
+  {:main {:class ["rc-box"]}})
+
 (defn box
   "Returns hiccup which produces a box, which is generally used as a child of a v-box or an h-box.
    By default, it also acts as a container for further child compenents, or another h-box or v-box"
@@ -413,25 +416,26 @@
       :as   args}]
   (or
     (validate-args-macro box-args-desc args)
-    (box-base :size        size
-              :width       width
-              :height      height
-              :min-width   min-width
-              :min-height  min-height
-              :max-width   max-width
-              :max-height  max-height
-              :justify     justify
-              :align       align
-              :align-self  align-self
-              :margin      margin
-              :padding     padding
-              :child       child
-              :class-name  "rc-box "
-              :class       class
-              :style       style
-              :attr        attr
-              :src         src
-              :debug-as    debug-as)))
+    (let [cmerger (merge-css box-css-desc args)
+          {:keys [class style attr]} (cmerger :main {:attr attr})]
+      (box-base :size        size
+                :width       width
+                :height      height
+                :min-width   min-width
+                :min-height  min-height
+                :max-width   max-width
+                :max-height  max-height
+                :justify     justify
+                :align       align
+                :align-self  align-self
+                :margin      margin
+                :padding     padding
+                :child       child
+                :class       class
+                :style       style
+                :attr        attr
+                :src         src
+                :debug-as    debug-as))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -466,6 +470,9 @@
      {:name :src        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
+(def scroller-css-desc
+  {:main {:class ["rc-scroller"]}})
+
 (defn scroller
   "Returns hiccup which produces a scoller component.
    This is the way scroll bars are added to boxes, in favour of adding the scroll attributes directly to the boxes themselves.
@@ -485,7 +492,9 @@
   (or
     (validate-args-macro scroller-args-desc args)
     (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
-          scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)]
+          scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)
+          cmerger (merge-css scroller-css-desc args)
+          {:keys [class style attr]} (cmerger :main {:attr attr})]
       (box-base :size       size
                 :scroll     scroll
                 :h-scroll   h-scroll
@@ -502,7 +511,6 @@
                 :margin     margin
                 :padding    padding
                 :child      child
-                :class-name "rc-scroller "
                 :class      class
                 :style      style
                 :attr       attr
@@ -538,6 +546,9 @@
      {:name :src        :required false                                :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                                :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
+(def border-css-desc
+  {:main {:class ["rc-border"]}})
+
 (defn border
   "Returns hiccup which produces a border component.
    This is the way borders are added to boxes, in favour of adding the border attributes directly to the boxes themselves.
@@ -551,7 +562,9 @@
   (or
     (validate-args-macro border-args-desc args)
     (let [no-border      (every? nil? [border l-border r-border t-border b-border])
-          default-border "1px solid lightgrey"]
+          default-border "1px solid lightgrey"
+          cmerger (merge-css border-css-desc args)
+          {:keys [class style attr]} (cmerger :main {:attr attr})]
       (box-base :size        size
                 :width       width
                 :height      height
@@ -568,7 +581,6 @@
                 :b-border    b-border
                 :radius      radius
                 :child       child
-                :class-name  "rc-border "
                 :class       class
                 :style       style
                 :attr        attr
