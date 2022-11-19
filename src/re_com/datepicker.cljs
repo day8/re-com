@@ -387,17 +387,16 @@
         unselectable-day? (if enabled-day
                             (not (selectable-fn date))
                             true)
-        classes       (cond disabled?                              "rc-datepicker-disabled"
-                            unselectable-day?                      "rc-datepicker-unselectable"
-                            (= focus-month (cljs-time/month date)) "rc-datepicker-selectable"
-                            :else                                  "rc-datepicker-selectable rc-datepicker-out-of-focus")
-        classes       (cond (and selected (=date selected date))           (str classes " rc-datepicker-selected start-date end-date ")
-                            (and today (=date date today) (not disabled?)) (str classes " rc-datepicker-today ")
-                            :else                                          (str classes " "))
         on-click      #(when-not (or disabled? unselectable-day?) (selection-changed date on-change))]
     [:td
      (flatten-attr
-      (cmerger :date {:attr {:on-click (handler-fn (on-click))}}))
+      (cmerger :date {:disabled? disabled?
+                      :unselectable-day? unselectable-day?
+                      :selected selected
+                      :today today
+                      :focus-month focus-month
+                      :date date
+                      :attr {:on-click (handler-fn (on-click))}}))
      (cljs-time/day date)]))
 
 
@@ -518,7 +517,20 @@
                   ["rc-datepicker-day" (str "rc-datepicker-day-" (string/lower-case (:name day)))])}
    :week {:class ["rc-datepicker-week"]}
    :dates {:class ["rc-datepicker-dates"]}
-   :date {:class ["rc-datepicker-date"]}})
+   :date {:class (fn [{:keys [disabled? unselectable-day? selected today focus-month date]}]
+                   (reduce
+                    into
+                    (list
+                     ["rc-datepicker-date"]
+                     (cond disabled?                              ["rc-datepicker-disabled"]
+                           unselectable-day?                      ["rc-datepicker-unselectable"]
+                           (= focus-month (cljs-time/month date)) ["rc-datepicker-selectable"]
+                           :else ["rc-datepicker-selectable" "rc-datepicker-out-of-focus"])
+                     (cond (and selected (=date selected date))
+                           ["rc-datepicker-selected" "start-date" "end-date"]
+                           (and today (=date date today) (not disabled?))
+                           ["rc-datepicker-today"]
+                           :else []))))}})
 
 
 (def datepicker-args-desc
@@ -547,8 +559,7 @@
     (validate-args-macro datepicker-args-desc args)
     (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
           internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
-          display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))
-          cmerger (merge-css datepicker-css-desc args)]
+          display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))]
       (fn datepicker-render
         [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts src debug-as]
             :or   {start-of-week 6} ;; Default to Sunday
@@ -558,7 +569,8 @@
           (let [latest-ext-model    (deref-or-value model)
                 disabled?           (deref-or-value disabled?)
                 props-with-defaults (merge args {:start-of-week start-of-week})
-                configuration       (configure props-with-defaults)]
+                configuration       (configure props-with-defaults)
+                cmerger (merge-css datepicker-css-desc args)]
             (when (not= @external-model latest-ext-model) ;; Has model changed externally?
               (reset! external-model latest-ext-model)
               (reset! internal-model latest-ext-model)
