@@ -4,11 +4,13 @@
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [get-element-by-id sum-scroll-offsets]]
+    [re-com.util     :refer [get-element-by-id sum-scroll-offsets merge-css flatten-attr]]
     [re-com.box      :refer [flex-child-style flex-flow-style]]
     [re-com.validate :refer [string-or-hiccup? number-or-string? html-attr? css-style? parts?] :refer-macros [validate-args-macro]]
     [reagent.core    :as    reagent]))
 
+
+(declare hv-split-css-desc)
 
 (defn drag-handle
   "Return a drag handle to go into a vertical or horizontal splitter bar:
@@ -16,41 +18,20 @@
     over?:       When true, the mouse is assumed to be over the splitter so show a bolder color"
   [orientation over? parts]
   (let [vertical? (= orientation :vertical)
-        length    "20px"
-        width     "8px"
-        pos1      "3px"
-        pos2      "3px"
-        color     (if over? "#999" "#ccc")
-        border    (str "solid 1px " color)
-        flex-flow (str (if vertical? "row" "column") " nowrap")]
+        cmerger (merge-css hv-split-css-desc {:parts parts})]
     [:div
-     (merge
-       {:class (str "rc-" (if vertical? "v" "h") "-split-handle display-flex " (get-in parts [:handle :class]))
-        :style (merge (flex-flow-style flex-flow)
-                      {:width  (if vertical? width length)
-                       :height (if vertical? length width)
-                       :margin "auto"}
-                      (get-in parts [:handle :style]))}
-       (get-in parts [:handle :attr]))
+     (flatten-attr (cmerger :handle {:vertical? vertical?}))
      [:div
-      (merge
-        {:class (str "rc-" (if vertical? "v" "h") "-split-handle-bar-1 " (get-in parts [:handle-bar-1 :class]))
-         :style (merge
-                  (if vertical?
-                    {:width pos1   :height length :border-right  border}
-                    {:width length :height pos1   :border-bottom border})
-                  (get-in parts [:handle-bar-1 :style]))}
-        (get-in parts [:handle-bar-1 :attr]))]
+      (flatten-attr (cmerger :handle-bar-1 {:vertical? vertical? :over? over?}))]
      [:div
-      (merge
-        {:class (str "rc-" (if vertical? "v" "h") "-split-handle-bar-2 " (get-in parts [:handle-bar-2 :class]))
-         :style (merge
-                  (if vertical?
-                    {:width pos2   :height length :border-right  border}
-                    {:width length :height pos2   :border-bottom border})
-                  (get-in parts [:handle-bar-2 :style]))}
-        (get-in parts [:handle-bar-2 :attr]))]]))
+      (flatten-attr (cmerger :handle-bar-2 {:vertical? vertical? :over? over?}))]]))
 
+(defn calculate-split-flex-style [value is-px?]
+  (if is-px?
+    (if (pos? value)
+      (str "0 0 " value "px") ;; flex for panel-1
+      (str "1 1 0px")) ;; flex for panel-2
+    (str value " 1 0px")))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: h-split
@@ -73,9 +54,67 @@
      {:name :handle-bar-2 :level 3 :class "rc-v-split-handle-bar-2" :impl "[:div]"    :notes "The splitter handle's second bar."}
      {:name :bottom       :level 1 :class "rc-v-split-bottom"       :impl "[:div]"    :notes "Second (i.e. bottom) panel of the split."}]))
 
+(def hv-split-css-desc
+  {:main {:class (fn [{:keys [vertical?]}]
+                   [(if vertical? "rc-v-split" "rc-h-split") "display-flex"])
+          :style (fn [{:keys [size margin width height vertical?]}]
+                   (merge (flex-child-style size)
+                          (flex-flow-style (str (if vertical? "column" "row") " nowrap"))
+                          {:margin margin
+                           :width width
+                           :height height}))}
+   :splitter {:class (fn [{:keys [vertical?]}]
+                       ["display-flex" (if vertical? "rc-v-split-splitter" "rc-h-split-splitter")])
+              :style (fn [{:keys [vertical? size over?]}]
+                       (merge (flex-child-style (str "0 0 " size))
+                              {:cursor (if vertical? "row-resize" "col-resize")}
+                              (when over? {:background-color "#f8f8f8"})))}
+   :handle {:class (fn [{:keys [vertical?]}]
+                     [(if vertical? "rc-v-split-handle" "rc-h-split-handle") "display-flex"])
+            :style (fn [{:keys [vertical?]}]
+                     (let [[width height] (if vertical? ["8px" "20px"] ["20px" "8px"])]
+                       (merge
+                        (flex-flow-style (str (if vertical? "row" "column") " nowrap"))
+                        {:width width :height height :margin "auto"})))}
+   :handle-bar-1 {:class (fn [{:keys [vertical?]}]
+                           [(if vertical? "rc-v-split-handle-bar-1" "rc-h-split-handle-bar-1")])
+                  :style (fn [{:keys [vertical? over?]}]
+                           (let [border (str "solid 1px " (if over? "#999" "#ccc"))]
+                             (if vertical?
+                               {:width "3px" :height "20px" :border-right border}
+                               {:width "20px" :height "3px" :border-bottom border})))}
+   :handle-bar-2 {:class (fn [{:keys [vertical?]}]
+                           [(if vertical? "rc-v-split-handle-bar-2" "rc-h-split-handle-bar-2")])
+                  :style (fn [{:keys [vertical? over?]}]
+                           (let [border (str "solid 1px " (if over? "#999" "#ccc"))]
+                             (if vertical?
+                               {:width "3px" :height "20px" :border-right border}
+                               {:width "20px" :height "3px" :border-bottom border})))}
+   ;; Leaving rc-h-split-top class (below) for backwards compatibility only.
+   :left {:class ["rc-h-split-left" "rc-h-split-top" "display-flex"]
+          :style (fn [{:keys [flex dragging?]}]
+                   (merge (flex-child-style flex)
+                          (when dragging? {:pointer-events "none"})))}
+   ;; Leaving rc-h-split-bottom class (below) for backwards compatibility only.
+   :right {:class ["rc-h-split-right" "rc-h-split-bottom" "display-flex"]
+           :style (fn [{:keys [flex dragging?]}]
+                    (merge (flex-child-style flex)
+                           (when dragging? {:pointer-events "none"})))}
+   :top {:class ["rc-v-split-top" "display-flex"]
+         :style (fn [{:keys [flex dragging?]}]
+                  (merge (flex-child-style flex)
+                         (when dragging? {:pointer-events "none"})))}
+   :bottom {:class ["rc-v-split-bottom" "display-flex"]
+            :style (fn [{:keys [flex dragging?]}]
+                     (merge (flex-child-style flex)
+                            (when dragging? {:pointer-events "none"})))}})
+
+
 (def hv-split-parts
   (when include-args-desc?
     (-> (map :name hv-split-parts-desc) set)))
+
+
 
 (def hv-split-args-desc
   (when include-args-desc?
@@ -136,72 +175,40 @@
                                  (reset! dragging? true))
 
           mouseover-split      #(reset! over? true) ;; true CANCELs mouse-over (false cancels all others)
-          mouseout-split       #(reset! over? false)
-
-          make-container-attrs (fn [class style attr in-drag?]
-                                 (merge {:class (str "rc-h-split display-flex " class)
-                                         :id    container-id
-                                         :style (merge (flex-child-style size)
-                                                       (flex-flow-style "row nowrap")
-                                                       {:margin margin
-                                                        :width  width
-                                                        :height height}
-                                                       style)}
-                                        (when in-drag?                             ;; only listen when we are dragging
-                                          {:on-mouse-up   (handler-fn (stop-drag))
-                                           :on-mouse-move (handler-fn (mousemove event))
-                                           :on-mouse-out  (handler-fn (mouseout event))})
-                                        (->attr args)
-                                        attr))
-
-          make-panel-attrs     (fn [class style attr in-drag? percentage]
-                                 (merge
-                                   {:class (str "display-flex " class)
-                                    :style (merge (flex-child-style (if split-is-px?
-                                                                      (if (pos? percentage)
-                                                                        (str "0 0 " percentage "px") ;; flex for panel-1
-                                                                        (str "1 1 0px"))             ;; flex for panel-2
-                                                                      (str percentage " 1 0px")))
-                                                  (when in-drag? {:pointer-events "none"})
-                                                  style)}
-                                   attr))
-
-          make-splitter-attrs  (fn [class style attr]
-                                 (merge
-                                   {:class         (str "display-flex " class)
-                                    :on-mouse-down (handler-fn (mousedown event))
-                                    :on-mouse-over (handler-fn (mouseover-split))
-                                    :on-mouse-out  (handler-fn (mouseout-split))
-                                    :style         (merge (flex-child-style (str "0 0 " splitter-size))
-                                                          {:cursor "col-resize"}
-                                                          (when @over? {:background-color "#f8f8f8"})
-                                                          style)}
-                                   attr))]
+          mouseout-split       #(reset! over? false)]
 
       (fn h-split-render
         [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
-        [:div (make-container-attrs class style attr @dragging?)
-         [:div (make-panel-attrs
-                 ;; Leaving rc-h-split-top class (below) for backwards compatibility only.
-                 (str "rc-h-split-top rc-h-split-left " (get-in parts [:left :class]))
-                 (get-in parts [:top :style])
-                 (get-in parts [:top :attr])
-                 @dragging? @split-perc)
-          panel-1]
-         [:div (make-splitter-attrs
-                 (str "rc-h-split-splitter " (get-in parts [:splitter :class]))
-                 (get-in parts [:splitter :style])
-                 (get-in parts [:splitter :attr]))
-          [drag-handle :vertical @over? parts]]
-         [:div (make-panel-attrs
-                 ;; Leaving rc-h-split-bottom class (below) for backwards compatibility only.
-                 (str "rc-h-split-bottom rc-h-split-right " (get-in parts [:right :class]))
-                 (get-in parts [:bottom :style])
-                 (get-in parts [:bottom :attr])
-                 @dragging? (if split-is-px?
-                              (- @split-perc) ;; Negative value indicates this is for panel-2
-                              (- 100 @split-perc)))
-          panel-2]]))))
+        (let [cmerger (merge-css hv-split-css-desc args)]
+          [:div
+           (flatten-attr
+            (cmerger :main {:vertical? false :size size :margin margin :width width :height height
+                            :attr (merge
+                                   {:id container-id}
+                                   (when @dragging?  ;; only listen when we are dragging
+                                     {:on-mouse-up   (handler-fn (stop-drag))
+                                      :on-mouse-move (handler-fn (mousemove event))
+                                      :on-mouse-out  (handler-fn (mouseout event))}))}))
+           [:div
+            (flatten-attr
+             (cmerger :left {:dragging? @dragging?
+                             :flex (calculate-split-flex-style @split-perc split-is-px?)}))
+            panel-1]
+           [:div
+            (flatten-attr
+             (cmerger :splitter {:vertical? false :size splitter-size :over? @over?
+                                 :attr {:on-mouse-down (handler-fn (mousedown event))
+                                        :on-mouse-over (handler-fn (mouseover-split))
+                                        :on-mouse-out  (handler-fn (mouseout-split))}}))
+            [drag-handle :vertical @over? parts]]
+           [:div
+            (flatten-attr
+             (cmerger :right {:dragging? @dragging?
+                              :flex (calculate-split-flex-style (if split-is-px?
+                                                                  (- @split-perc) ;; Negative value indicates this is for panel-2
+                                                                  (- 100 @split-perc))
+                                                                split-is-px?)}))
+            panel-2]])))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -248,69 +255,38 @@
                                  (reset! dragging? true))
 
           mouseover-split      #(reset! over? true)
-          mouseout-split       #(reset! over? false)
-
-          make-container-attrs (fn [class style attr in-drag?]
-                                 (merge {:class (str "rc-v-split display-flex " class)
-                                         :id    container-id
-                                         :style (merge (flex-child-style size)
-                                                       (flex-flow-style "column nowrap")
-                                                       {:margin margin
-                                                        :width  width
-                                                        :height height}
-                                                       style)}
-                                        (when in-drag?                             ;; only listen when we are dragging
-                                          {:on-mouse-up   (handler-fn (stop-drag))
-                                           :on-mouse-move (handler-fn (mousemove event))
-                                           :on-mouse-out  (handler-fn (mouseout event))})
-                                        (->attr args)
-                                        attr))
-
-          make-panel-attrs     (fn [class style attr in-drag? percentage]
-                                 (merge
-                                   {:class (str "display-flex " class)
-                                    :style (merge (flex-child-style (if split-is-px?
-                                                                      (if (pos? percentage)
-                                                                        (str "0 0 " percentage "px") ;; flex for panel-1
-                                                                        (str "1 1 0px"))             ;; flex for panel-2
-                                                                      (str percentage " 1 0px")))
-                                                  (when in-drag? {:pointer-events "none"})
-                                                  style)}
-                                   attr))
-
-          make-splitter-attrs  (fn [class style attr]
-                                 (merge
-                                   {:class         (str "display-flex " class)
-                                    :on-mouse-down (handler-fn (mousedown event))
-                                    :on-mouse-over (handler-fn (mouseover-split))
-                                    :on-mouse-out  (handler-fn (mouseout-split))
-                                    :style         (merge (flex-child-style (str "0 0 " splitter-size))
-                                                          {:cursor  "row-resize"}
-                                                          (when @over? {:background-color "#f8f8f8"})
-                                                          style)}
-                                   attr))]
+          mouseout-split       #(reset! over? false)]
 
       (fn v-split-render
         [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
-        [:div (make-container-attrs class style attr @dragging?)
-         [:div (make-panel-attrs
-                 (str "rc-v-split-top " (get-in parts [:top :class]))
-                 (get-in parts [:top :style])
-                 (get-in parts [:top :attr])
-                 @dragging?
-                 @split-perc)
-          panel-1]
-         [:div (make-splitter-attrs
-                 (str "rc-v-split-splitter " (get-in parts [:splitter :class]))
-                 (get-in parts [:splitter :style])
-                 (get-in parts [:splitter :attr]))
-          [drag-handle :horizontal @over? parts]]
-         [:div (make-panel-attrs
-                 (str "rc-v-split-bottom " (get-in parts [:bottom :class]))
-                 (get-in parts [:bottom :style])
-                 (get-in parts [:bottom :attr])
-                 @dragging?
-                 (if split-is-px?
-                   (- @split-perc) ;; Negative value indicates this is for panel-2
-                   (- 100 @split-perc)))
-          panel-2]]))))
+
+        (let [cmerger (merge-css hv-split-css-desc args)]
+          [:div
+           (flatten-attr
+            (cmerger :main {:vertical? true :size size :margin margin :width width :height height
+                            :attr (merge
+                                   {:id container-id}
+                                   (when @dragging?  ;; only listen when we are dragging
+                                     {:on-mouse-up   (handler-fn (stop-drag))
+                                      :on-mouse-move (handler-fn (mousemove event))
+                                      :on-mouse-out  (handler-fn (mouseout event))}))}))
+           [:div
+            (flatten-attr
+             (cmerger :top {:dragging? @dragging?
+                            :flex (calculate-split-flex-style @split-perc split-is-px?)}))
+            panel-1]
+           [:div
+            (flatten-attr
+             (cmerger :splitter {:vertical? true :size splitter-size :over? @over?
+                                 :attr {:on-mouse-down (handler-fn (mousedown event))
+                                        :on-mouse-over (handler-fn (mouseover-split))
+                                        :on-mouse-out  (handler-fn (mouseout-split))}}))
+            [drag-handle :horizontal @over? parts]]
+           [:div
+            (flatten-attr
+             (cmerger :bottom {:dragging? @dragging?
+                               :flex (calculate-split-flex-style (if split-is-px?
+                                                                   (- @split-perc) ;; Negative value indicates this is for panel-2
+                                                                   (- 100 @split-perc))
+                                                                 split-is-px?)}))
+            panel-2]])))))
