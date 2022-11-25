@@ -17,7 +17,7 @@
     [re-com.validate             :as validate :refer [string-or-hiccup? parts?]]
     [reagent.core                :as reagent]))
 
-(declare multi-select-css-desc)
+(declare multi-select-css-spec)
 
 (defn items-with-group-headings
   "Split a list of maps by a group key then return both the group"
@@ -67,7 +67,7 @@
 (defn filter-text-box
   "Base function (before lifecycle metadata) to render a filter text box"
   [*filter-text placeholder *warning-message disabled? parts]
-  (let [cmerger (merge-css multi-select-css-desc {:parts parts})]
+  (let [cmerger (merge-css multi-select-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :filter-text-box)
      [box/h-box
@@ -97,7 +97,7 @@
   "Render a group heading and set up appropriate mouse events"
   []
   (let [*mouse-over? (reagent/atom false)
-        cmerger (merge-css multi-select-css-desc {})]
+        cmerger (merge-css multi-select-css-spec {})]
     (fn group-heading-render
       [& {:keys [heading disabled? click-callback double-click-callback selected-item-id]}]
       (let [id        (:id heading)
@@ -120,7 +120,7 @@
   "Render a list item and set up appropriate mouse events"
   []
   (let [*mouse-over? (reagent/atom false)
-        cmerger (merge-css multi-select-css-desc {})]
+        cmerger (merge-css multi-select-css-spec {})]
     (fn list-item-render
       [& {:keys [item id-fn label-fn disabled? click-callback double-click-callback selected-item-id group-selected?]}]
       (let [id              (id-fn item)
@@ -167,7 +167,7 @@
                                           :selected-item-id      @*current-item-id])
         make-heading-then-items        (fn [heading items]
                                          (cons (make-group-heading-item heading) (make-items items)))
-        cmerger (merge-css multi-select-css-desc args)]
+        cmerger (merge-css multi-select-css-spec args)]
     (add-map-to-hiccup-call
      (cmerger :list-box {:disabled? disabled?})
      [box/box
@@ -187,7 +187,7 @@
 
 (defn multi-button [& {:keys [disabled? label icon on-click class style attr] :as args}]
 
-  (let [cmerger (merge-css multi-select-css-desc {})]
+  (let [cmerger (merge-css multi-select-css-spec {})]
     (add-map-to-hiccup-call
      (cmerger :button)
      [buttons/button
@@ -242,7 +242,7 @@
      {:name :filter-reset-button       :level 4 :class "rc-multi-select-filter-reset-button"       :impl "[close-button]"}
      {:name :right-filter-result-count :level 3 :class "rc-multi-select-right-filter-result-count" :impl "[label]"}]))
 
-(def multi-select-css-desc
+(def multi-select-css-spec
   {:main {:class ["rc-multi-select" "noselect" "chosen-container" "chosen-container-single"]
           :style (fn [{:keys [width]}]
                    (merge (box/flex-child-style (if width "0 0 auto" "auto"))
@@ -515,7 +515,7 @@
                                             (reset! *external-model @*internal-model)
                                             (on-change @*internal-model))
                                           (reset! *current-selection-id nil))
-                cmerger (merge-css multi-select-css-desc args)]
+                cmerger (merge-css multi-select-css-spec args)]
             [:div
              (merge
               (flatten-attr (cmerger :main {:width width}))
@@ -628,7 +628,7 @@
                                                                                  (->> filtered-selections ;; TODO: Inefficient
                                                                                       (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
                                                                                       count)))
-                                                        ;;TODO: Zmdi reference should be in -css-desc
+                                                        ;;TODO: Zmdi reference should be in -css-spec
                                                         :icon "play zmdi-hc-rotate-180"
                                                         :disabled? (or disabled? (not excludable?))
                                                         :on-click  exclude-click])

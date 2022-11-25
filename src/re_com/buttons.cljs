@@ -21,7 +21,7 @@
      {:name :tooltip :level 1 :class "rc-button-tooltip" :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
      {:type :legacy  :level 1 :class "rc-button"         :impl "[:button]"         :notes "The actual button."}]))
 
-(def button-css-desc
+(def button-css-spec
   {:main {:class ["rc-button" "btn"]
           :style (flex-child-style "none") }
    :wrapper {:class ["rc-button-wrapper" "display-inline-flex"]}
@@ -58,7 +58,7 @@
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
           (let [disabled? (deref-or-value disabled?)
-                cmerger (merge-css button-css-desc args)
+                cmerger (merge-css button-css-spec args)
                 the-button [:button
                             (merge
                              (flatten-attr (cmerger :main))
@@ -102,7 +102,7 @@
      {:type :legacy  :level 1 :class "rc-md-circle-icon-button"         :impl "[:div]"                  :notes "The actual button."}
      {:name :icon    :level 2 :class "rc-md-circle-icon-button-icon"    :impl "[:i]"                    :notes "The button icon."}]))
 
-(def md-circle-icon-button-css-desc
+(def md-circle-icon-button-css-spec
   {:main {:class
           (fn [{:keys [size emphasise? disabled?]}]
             ["noselect" "rc-md-circle-icon-button"
@@ -156,7 +156,7 @@
         (validate-args-macro md-circle-icon-button-args-desc args)
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [cmerger (merge-css md-circle-icon-button-css-desc args)
+          (let [cmerger (merge-css md-circle-icon-button-css-spec args)
                 the-button [:div
                             (merge
                              (flatten-attr
@@ -198,7 +198,7 @@
      {:type :legacy  :level 1 :class "rc-md-icon-button"         :impl "[:div]"                  :notes "The actual button."}
      {:name :icon    :level 2 :class "rc-md-icon-button-icon"    :impl "[:i]"                    :notes "The button icon."}]))
 
-(def md-icon-button-css-desc
+(def md-icon-button-css-spec
   {:main {:class
           (fn [{:keys [size emphasise? disabled?]}]
             ["noselect" "rc-md-icon-button"
@@ -252,7 +252,7 @@
         (validate-args-macro md-icon-button-args-desc args)
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [cmerger (merge-css md-circle-icon-button-css-desc args)
+          (let [cmerger (merge-css md-circle-icon-button-css-spec args)
                 the-button [:div
                             (merge
                              (flatten-attr
@@ -293,7 +293,7 @@
      {:type :legacy  :level 1 :class "rc-info-button"                        :impl "[:div]"                  :notes "The actual button."}
      {:name :icon    :level 2 :class "rc-info-button-icon"                   :impl "[:svg]"                    :notes "The button icon."}]))
 
-(def info-button-css-desc
+(def info-button-css-spec
   {:main {:class (fn [{:keys [disabled?]}]
                    ["noselect" "rc-info-button" (when disabled? "rc-icon-disabled")])
           :style (fn [{:keys [disabled?]}]
@@ -330,7 +330,7 @@
       [& {:keys [info position width disabled? class style attr parts src debug-as] :as args}]
       (or
         (validate-args-macro info-button-args-desc args)
-        (let [cmerger (merge-css info-button-css-desc args)]
+        (let [cmerger (merge-css info-button-css-spec args)]
           (add-map-to-hiccup-call
            (cmerger :tooltip)
            [popover-tooltip
@@ -371,7 +371,7 @@
      {:type :legacy  :level 1 :class "rc-row-button"         :impl "[:div]"                  :notes "The actual button."}
      {:name :icon    :level 2 :class "rc-row-button-icon"    :impl "[:i]"                    :notes "The button icon."}]))
 
-(def row-button-css-desc
+(def row-button-css-spec
   {:main {:class (fn [{:keys [disabled? mouse-over-row?]}]
                    ["noselect" "rc-row-button"
                     (when mouse-over-row? "rc-row-mouse-over-row")
@@ -412,7 +412,7 @@
         (validate-args-macro row-button-args-desc args)
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [cmerger (merge-css row-button-css-desc args)
+          (let [cmerger (merge-css row-button-css-spec args)
                 the-button [:div
                             (merge
                              (flatten-attr
@@ -454,7 +454,7 @@
      {:name :container :level 1 :class "rc-hyperlink-container" :impl "[box]"}
      {:type :legacy    :level 2 :class "rc-hyperlink"           :impl "[:a]"              :notes "The anchor."}]))
 
-(def hyperlink-css-desc
+(def hyperlink-css-spec
   {:main {:class ["noselect" "rc-hyperlink"]
           :style (fn [{:keys [disabled?]}]
                    (merge
@@ -500,7 +500,7 @@
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
           (let [label      (deref-or-value label)
                 disabled?  (deref-or-value disabled?)
-                cmerger (merge-css hyperlink-css-desc args)
+                cmerger (merge-css hyperlink-css-spec args)
                 the-button (add-map-to-hiccup-call
                             (cmerger :container)
                             [box
@@ -545,7 +545,7 @@
      {:name :tooltip   :level 1 :class "rc-hyperlink-href-tooltip"   :impl "[popover-tooltip]" :notes "Tooltip, if enabled."}
      {:type :legacy    :level 2 :class "rc-hyperlink-href"           :impl "[:a]"              :notes "The anchor."}]))
 
-(def hyperlink-href-css-desc
+(def hyperlink-href-css-spec
   {:main {:class ["rc-hyperlink-href" "noselect"]
           :style (fn [{:keys [disabled?]}]
                    (merge
@@ -593,7 +593,7 @@
                 href       (deref-or-value href)
                 target     (deref-or-value target)
                 disabled?  (deref-or-value disabled?)
-                cmerger (merge-css hyperlink-href-css-desc args)
+                cmerger (merge-css hyperlink-href-css-spec args)
                 the-button [:a
                             (merge (flatten-attr (cmerger :main {:disabled? disabled?}))
                                    {:target target}

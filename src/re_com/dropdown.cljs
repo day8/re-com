@@ -121,13 +121,13 @@
                                 (< item-offset-top parent-visible-top)       item-offset-top)]
     (when new-scroll-top (set! (.-scrollTop parent) new-scroll-top))))
 
-(declare single-dropdown-css-desc)
+(declare single-dropdown-css-spec)
 
 (defn- make-group-heading
   "Render a group heading"
   [m]
 
-  (let [cmerger (merge-css single-dropdown-css-desc {})]
+  (let [cmerger (merge-css single-dropdown-css-spec {})]
     ^{:key (:id m)} [:li (cmerger :group-heading)
                      (:group m)]))
 
@@ -155,7 +155,7 @@
        (fn
          [id label on-click internal-model]
          (let [selected (= @internal-model id)
-               cmerger (merge-css single-dropdown-css-desc {})
+               cmerger (merge-css single-dropdown-css-spec {})
                class (if selected
                        "highlighted"
                        (when @mouse-over? "mouseover"))]
@@ -183,7 +183,7 @@
   "Base function (before lifecycle metadata) to render a filter text box"
   [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
 
-  (let [cmerger (merge-css single-dropdown-css-desc {})]
+  (let [cmerger (merge-css single-dropdown-css-spec {})]
     [:div
      (flatten-attr (cmerger :filter-wrapper))
     [:input
@@ -214,7 +214,7 @@
   "Render the top part of the dropdown, with the clickable area and the up/down arrow"
   []
   (let [ignore-click (atom false)
-        cmerger (merge-css single-dropdown-css-desc {})]
+        cmerger (merge-css single-dropdown-css-spec {})]
     (fn
       [internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled?]
       (let [_    (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})
@@ -274,7 +274,7 @@
 (defn- free-text-dropdown-top-base
   "Base function (before lifecycle metadata) to render the top part of the dropdown (free-text), with the editable area and the up/down arrow"
   [free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]
-  (let [cmerger (merge-css single-dropdown-css-desc {})]
+  (let [cmerger (merge-css single-dropdown-css-spec {})]
     [:ul
     (flatten-attr (cmerger :choices))
      [:li
@@ -391,7 +391,7 @@
      {:name :choices-error      :level 4 :class "rc-dropdown-choices-error"      :impl "[:li]"}
      {:name :choices-no-results :level 4 :class "rc-dropdown-choices-no-results" :impl "[:li]"}]))
 
-(def single-dropdown-css-desc
+(def single-dropdown-css-spec
   {:main {:class (fn [{:keys [free-text? drop-showing? free-text-focused?]}]
                    ["rc-dropdown" "chosen-container" "noselect"
                     (if free-text? "chosen-container-multi" "chosen-container-single")
@@ -520,7 +520,7 @@
           focus-free-text     #(when @free-text-input (.focus @free-text-input))
           node                (reagent/atom nil)
           focus-anchor        #(some-> @node (.getElementsByClassName "chosen-single") (.item 0) (.focus))
-          cmerger (merge-css single-dropdown-css-desc args)]
+          cmerger (merge-css single-dropdown-css-spec args)]
       (load-choices "" regex-filter? false)
       (fn single-dropdown-render
         [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? free-text? auto-complete? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? est-item-height repeat-change? i18n on-drop width max-height tab-index debounce-delay tooltip tooltip-position class style attr parts]

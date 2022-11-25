@@ -10,7 +10,7 @@
     [reagent.core    :as    reagent]))
 
 
-(declare hv-split-css-desc)
+(declare hv-split-css-spec)
 
 (defn drag-handle
   "Return a drag handle to go into a vertical or horizontal splitter bar:
@@ -18,7 +18,7 @@
     over?:       When true, the mouse is assumed to be over the splitter so show a bolder color"
   [orientation over? parts]
   (let [vertical? (= orientation :vertical)
-        cmerger (merge-css hv-split-css-desc {:parts parts})]
+        cmerger (merge-css hv-split-css-spec {:parts parts})]
     [:div
      (flatten-attr (cmerger :handle {:vertical? vertical?}))
      [:div
@@ -54,7 +54,7 @@
      {:name :handle-bar-2 :level 3 :class "rc-v-split-handle-bar-2" :impl "[:div]"    :notes "The splitter handle's second bar."}
      {:name :bottom       :level 1 :class "rc-v-split-bottom"       :impl "[:div]"    :notes "Second (i.e. bottom) panel of the split."}]))
 
-(def hv-split-css-desc
+(def hv-split-css-spec
   {:main {:class (fn [{:keys [vertical?]}]
                    [(if vertical? "rc-v-split" "rc-h-split") "display-flex"])
           :style (fn [{:keys [size margin width height vertical?]}]
@@ -179,7 +179,7 @@
 
       (fn h-split-render
         [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
-        (let [cmerger (merge-css hv-split-css-desc args)]
+        (let [cmerger (merge-css hv-split-css-spec args)]
           [:div
            (flatten-attr
             (cmerger :main {:vertical? false :size size :margin margin :width width :height height
@@ -260,7 +260,7 @@
       (fn v-split-render
         [& {:keys [panel-1 panel-2 _size _width _height _on-split-change _initial-split _splitter-size _margin class style attr parts src]}]
 
-        (let [cmerger (merge-css hv-split-css-desc args)]
+        (let [cmerger (merge-css hv-split-css-spec args)]
           [:div
            (flatten-attr
             (cmerger :main {:vertical? true :size size :margin margin :width width :height height

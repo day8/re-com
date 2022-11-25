@@ -122,7 +122,7 @@
 ;;  Private Component: box-base (visualise-flow? color: lightblue)
 ;; ------------------------------------------------------------------------------------
 
-(def box-base-css-desc
+(def box-base-css-spec
   {:main {:class ["display-flex"]
           :style (fn [{:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self
                               margin padding border l-border r-border t-border b-border radius bk-color child class style attr]}]
@@ -158,7 +158,7 @@
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self
              margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr]
       :as   args}]
-  (let [cmerger (merge-css box-base-css-desc args)]
+  (let [cmerger (merge-css box-base-css-spec args)]
     [:div
      (merge
       (flatten-attr (cmerger :main args))
@@ -182,7 +182,7 @@
      {:name :src      :required false :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as :required false :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
-(def gap-css-desc
+(def gap-css-spec
   {:main {:class ["rc-gap"]
           :style (fn [{:keys [size width height]}]
                    (merge
@@ -197,7 +197,7 @@
       :as   args}]
   (or
     (validate-args-macro gap-args-desc args)
-    (let [cmerger (merge-css gap-css-desc args)]
+    (let [cmerger (merge-css gap-css-spec args)]
       [:div
        (merge
          (->attr args)
@@ -219,7 +219,7 @@
      {:name :src      :required false                      :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as :required false                      :type "map"           :validate-fn map?       :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
-(def line-css-desc
+(def line-css-spec
   {:main {:class ["rc-line"]
           :style (fn [{:keys [size color]
                        :or   {color "lightgray"}}]
@@ -234,7 +234,7 @@
       :as   args}]
   (or
     (validate-args-macro line-args-desc args)
-    (let [cmerger (merge-css line-css-desc args)]
+    (let [cmerger (merge-css line-css-spec args)]
       [:div
        (merge
          (->attr args)
@@ -268,7 +268,7 @@
      {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
-(def h-box-css-desc
+(def h-box-css-spec
   {:main {:class ["rc-h-box" "display-flex"]
           :style (fn [{:keys [size width height min-width min-height max-width max-height justify align align-self margin padding]
                        :or   {size "none" justify :start align :stretch}}]
@@ -296,7 +296,7 @@
       :as   args}]
   (or
     (validate-args-macro h-box-args-desc args)
-    (let [cmerger (merge-css h-box-css-desc args)
+    (let [cmerger (merge-css h-box-css-spec args)
           gap-form (when gap [re-com.box/gap
                               :src   (at)
                               :size  gap
@@ -337,7 +337,7 @@
      {:name :src        :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                   :type "map"           :validate-fn map?           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
-(def v-box-css-desc
+(def v-box-css-spec
   {:main {:class ["rc-v-box" "display-flex"]
           :style (fn [{:keys [size width height min-width min-height max-width max-height justify align align-self margin padding]
                        :or   {size "none" justify :start align :stretch}}]
@@ -364,7 +364,7 @@
       :as   args}]
   (or
     (validate-args-macro v-box-args-desc args)
-    (let [cmerger (merge-css v-box-css-desc args)
+    (let [cmerger (merge-css v-box-css-spec args)
           gap-form (when gap [re-com.box/gap
                               :src    (at)
                               :size   gap
@@ -405,7 +405,7 @@
      {:name :src        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
-(def box-css-desc
+(def box-css-spec
   {:main {:class ["rc-box"]}})
 
 (defn box
@@ -416,7 +416,7 @@
       :as   args}]
   (or
     (validate-args-macro box-args-desc args)
-    (let [cmerger (merge-css box-css-desc args)
+    (let [cmerger (merge-css box-css-spec args)
           {:keys [class style attr]} (cmerger :main {:attr attr})]
       (box-base :size        size
                 :width       width
@@ -470,7 +470,7 @@
      {:name :src        :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                   :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
-(def scroller-css-desc
+(def scroller-css-spec
   {:main {:class ["rc-scroller"]}})
 
 (defn scroller
@@ -493,7 +493,7 @@
     (validate-args-macro scroller-args-desc args)
     (let [not-v-or-h (and (nil? v-scroll) (nil? h-scroll))
           scroll     (if (and (nil? scroll) not-v-or-h) :auto scroll)
-          cmerger (merge-css scroller-css-desc args)
+          cmerger (merge-css scroller-css-spec args)
           {:keys [class style attr]} (cmerger :main {:attr attr})]
       (box-base :size       size
                 :scroll     scroll
@@ -546,7 +546,7 @@
      {:name :src        :required false                                :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as   :required false                                :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
-(def border-css-desc
+(def border-css-spec
   {:main {:class ["rc-border"]}})
 
 (defn border
@@ -563,7 +563,7 @@
     (validate-args-macro border-args-desc args)
     (let [no-border      (every? nil? [border l-border r-border t-border b-border])
           default-border "1px solid lightgrey"
-          cmerger (merge-css border-css-desc args)
+          cmerger (merge-css border-css-spec args)
           {:keys [class style attr]} (cmerger :main {:attr attr})]
       (box-base :size        size
                 :width       width

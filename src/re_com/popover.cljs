@@ -86,7 +86,7 @@
     [(/ (+ (.-right  bounding-rect) (.-left bounding-rect)) 2)    ;; x
      (/ (+ (.-bottom bounding-rect) (.-top  bounding-rect)) 2)])) ;; y
 
-(def popover-arrow-css-desc
+(def popover-arrow-css-spec
   {:arrow {:class ["popover-arrow" "rc-popover-arrow"]
           :style (fn [{:keys [orientation pop-offset arrow-length arrow-width]}]
                    {:position "absolute"
@@ -127,7 +127,7 @@
                      :right (str (point arrow-length 0) (point 0 half-arrow-width)            (point arrow-length arrow-width))
                      :above (str (point 0 0)            (point half-arrow-width arrow-length) (point arrow-width 0))
                      :below (str (point 0 arrow-length) (point half-arrow-width 0)            (point arrow-width arrow-length))}
-        cmerger (merge-css popover-arrow-css-desc {:parts parts})]
+        cmerger (merge-css popover-arrow-css-spec {:parts parts})]
     [:svg
      (cmerger :arrow {:orientation orientation :pop-offset pop-offset :arrow-length arrow-length :arrow-width arrow-width})
      [:polyline (merge {:points (arrow-shape orientation)}
@@ -151,7 +151,7 @@
      {:name :src      :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as :required false              :type "map"             :validate-fn map?              :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
-(def backdrop-css-desc
+(def backdrop-css-spec
   {:main {:class ["noselect" "rc-backdrop"]
           :style (fn [{:keys [opacity]}]
                    {:position         "fixed"
@@ -167,7 +167,7 @@
   [& {:keys [opacity on-click class style attr] :as args}]
   (or
     (validate-args-macro backdrop-args-desc args)
-    (let [cmerger (merge-css backdrop-css-desc args)]
+    (let [cmerger (merge-css backdrop-css-spec args)]
       [:div
        (merge
         (flatten-attr
@@ -187,7 +187,7 @@
      {:name :container    :level 1 :class ""                 :impl "[h-box]"        :notes [:span "Container for the " [:code ":title"] " and the close button."]}
      {:name :close-button :level 2 :class ""                 :impl "[close-button]" :notes "The close button."}]))
 
-(def popover-title-css-desc
+(def popover-title-css-spec
   {:main {:class ["popover-title" "rc-popover-title"]
           :style (merge (flex-child-style "inherit")
                         {:font-size "18px"})}
@@ -219,7 +219,7 @@
     (validate-args-macro popover-title-args-desc args)
     #_(assert (or ((complement nil?) showing?) ((complement nil?) close-callback)) "Must specify either showing? OR close-callback") ;; IJ: TODO re-refactor
     (let [close-button? (if (nil? close-button?) true close-button?)
-          cmerger (merge-css popover-title-css-desc args)]
+          cmerger (merge-css popover-title-css-spec args)]
       [:h3
        (merge
         (flatten-attr (cmerger :main))
@@ -286,7 +286,7 @@
      {:name :arrow        :level 1 :class "rc-popover-arrow"   :impl "[:svg]"  :notes ""}
      {:name :content      :level 2 :class "rc-popover-content" :impl "[:div]"  :notes ""}]))
 
-(def popover-border-css-desc
+(def popover-border-css-spec
   {:main {:class ["popover" "fade" "in" "rc-popover-border"]
           :style (fn [{:keys [top left width height background-color border-color tooltip-style?
                               orientation margin-left margin-top ready-to-show?] :as params}]
@@ -395,7 +395,7 @@
            (or
              (validate-args-macro popover-border-args-desc args)
              (let [[orientation grey-arrow?] (calc-metrics @position)
-                   cmerger (merge-css popover-border-css-desc args)]
+                   cmerger (merge-css popover-border-css-spec args)]
                [:div
                 (merge
                  {:id pop-id}
@@ -431,7 +431,7 @@
      {:name :border   :level 2 :class ""                           :impl "[popover-border]" :notes ""}
      {:name :title    :level 3 :class ""                           :impl "[popover-title]" :notes ""}]))
 
-(def popover-content-wrapper-css-desc
+(def popover-content-wrapper-css-spec
   {:main {:class ["popover-content-wrapper" "rc-popover-content-wrapper"]
           :style (fn [{:keys [no-clip? left-offset top-offset]}]
                    (merge (flex-child-style "inherit")
@@ -509,7 +509,7 @@
                :as args}]
            (or
              (validate-args-macro popover-content-wrapper-args-desc args)
-             (let [cmerger (merge-css popover-content-wrapper-css-desc args)]
+             (let [cmerger (merge-css popover-content-wrapper-css-spec args)]
                @position-injected ;; Dereference this atom. Although nothing here needs its value explicitly, the calculation of left-offset and top-offset are affected by it for :no-clip? true
                [:div
                 (merge (flatten-attr
@@ -561,7 +561,7 @@
      {:name :point-wrapper :level 1 :class "rc-point-wrapper"          :impl "[:div]" :notes "Wraps the anchor component and the popover-point (which the actual popover points to)."}
      {:name :point         :level 2 :class "rc-popover-point"          :impl "[:div]" :notes [:span "The point (width/height 0) which is placed at the center of the relevant side of the anchor, based on " [:code ":position"] "tag"]}]))
 
-(def popover-anchor-wrapper-css-desc
+(def popover-anchor-wrapper-css-spec
   {:main {:class ["rc-popover-anchor-wrapper" "display-inline-flex"]
           :style (flex-child-style "inherit")}
    :point-wrapper {:class ["display-inline-flex" "rc-point-wrapper"]
@@ -616,7 +616,7 @@
                (let [[orientation _arrow-pos] (split-keyword @internal-position "-") ;; only need orientation here
                      place-anchor-before?    (case orientation (:left :above) false true)
                      flex-flow               (case orientation (:left :right) "row" "column")
-                     cmerger (merge-css popover-anchor-wrapper-css-desc args)]
+                     cmerger (merge-css popover-anchor-wrapper-css-spec args)]
                  [:div
                   (merge (flatten-attr (cmerger :main))
                          (->attr args)
@@ -644,7 +644,7 @@
      {:name :close-button-container :level 3 :class "rc-popover-tooltip-close-button-container" :impl "[box]"                     :notes ""}
      {:name :close-button           :level 4 :class "rc-popover-tooltip-close-button"           :impl "[close-button]"            :notes ""}]))
 
-(def popover-tooltip-css-desc
+(def popover-tooltip-css-spec
   {:main {:class ["rc-popover-tooltip"]}
    :content-wrapper {}
    :v-box {:style (fn [{:keys [status]}]
@@ -690,7 +690,7 @@
   (or
     (validate-args-macro popover-tooltip-args-desc args)
     (let [label         (deref-or-value label)
-          cmerger (merge-css popover-tooltip-css-desc args)]
+          cmerger (merge-css popover-tooltip-css-spec args)]
       (add-map-to-hiccup-call
        (cmerger :main)
        [popover-anchor-wrapper

@@ -20,7 +20,7 @@
 
 (def px (memoize util/px))
 
-(declare v-table-css-desc)
+(declare v-table-css-spec)
 
 (defn show-row-data-on-alt-click
   "Make a call to this function in the click event of your row renderer, then every time they Alt+Click on a row,
@@ -31,7 +31,7 @@
   (when  (.-altKey event)
     (js/console.log (str "ROW-INDEX[" row-index "]") row)))
 
-(def scrollbar-css-desc
+(def scrollbar-css-spec
   {:main {:class (fn [{:keys [horizontal?]}]
                    [(str (if horizontal? "horizontal" "vertical") "-scrollbar")])
           :style (fn [{:keys [width horizontal? show? mouse-over? dragging?]}]
@@ -133,7 +133,7 @@
             max-scroll-pos          (- length thumb-length)
             scrollbar-content-ratio (/ (- content-length length) max-scroll-pos)
             internal-scroll-pos     (/ scroll-pos scrollbar-content-ratio)
-            cmerger (merge-css scrollbar-css-desc args)]
+            cmerger (merge-css scrollbar-css-spec args)]
         (reset! calcs {:length                  length
                        :scroll-pos              scroll-pos
                        :thumb-ratio             thumb-ratio
@@ -180,7 +180,7 @@
 (defn top-left-content
   "Render section 1 - the content component"
   [top-left-renderer column-header-height parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :top-left)
      [box/box ;; content component
@@ -205,7 +205,7 @@
    - scroll-y            current horizontal scrollbar position in px
   "
   [row-header-renderer key-fn top-row-index rows scroll-y parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :row-header-content {:scroll-y scroll-y})
      [box/v-box
@@ -223,7 +223,7 @@
    row-header-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-height content-rows-height
    parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger
       :row-headers
@@ -250,7 +250,7 @@
 (defn bottom-left-content
   "Render section 3 - the content component"
   [bottom-left-renderer column-footer-height parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :bottom-left)
      [box/box ;; content component
@@ -271,7 +271,7 @@
    - scroll-x               current horizontal scrollbar position in px
   "
   [column-header-renderer scroll-x parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :column-header-content {:scroll-x scroll-x})
      [box/box
@@ -285,7 +285,7 @@
    column-header-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-width column-header-height content-rows-width
    parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :column-headers {:attr
                                (when column-header-selection-fn
@@ -321,7 +321,7 @@
    - scroll-y      current horizontal scrollbar position in px
   "
   [row-renderer key-fn top-row-index rows scroll-x scroll-y parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :row-content {:scroll-x scroll-x :scroll-y scroll-y})
      [box/v-box
@@ -339,7 +339,7 @@
    row-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?
    row-viewport-height row-viewport-width row-viewport-id content-rows-height content-rows-width
    parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :rows {:max-height content-rows-height
                      :attr
@@ -373,7 +373,7 @@
    - scroll-x            current horizontal scrollbar position in px
   "
   [column-footer-renderer scroll-x parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :column-footer-content {:scroll-x scroll-x})
      [box/box
@@ -387,7 +387,7 @@
    parts
    class style attr
    content-class content-style content-attr]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :column-footers)
      [box/box ;; viewport component
@@ -404,7 +404,7 @@
 (defn top-right-content
   "Render section 7 - the content component"
   [top-right-renderer column-header-height parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :top-right)
      [box/box ;; content component
@@ -444,7 +444,7 @@
   [row-footer-renderer key-fn top-row-index rows scroll-y
    row-viewport-height content-rows-height
    parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :row-footers {:max-height content-rows-height})
      [box/box ;; viewport component
@@ -461,7 +461,7 @@
 (defn bottom-right-content
   "Render section 9 - the content component"
   [bottom-right-renderer column-footer-height parts]
-  (let [cmerger (merge-css v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :bottom-right)
      [box/box ;; content component
@@ -500,7 +500,7 @@
      {:type :legacy                       :level 2 :name-label "-"                                              :impl "[box]"     :notes "Legacy"}
      {:name :v-scroll                     :level 3 :class "rc-v-table-v-scroll"                                 :impl "[box]"     :notes "The vertical scrollbar"}]))
 
-(def v-table-css-desc
+(def v-table-css-spec
   {:wrapper {:class ["rc-v-table"]
              :style (fn [{:keys [max-width max-height]}]
                       {:max-width max-width :max-height max-height})
@@ -571,9 +571,9 @@
    })
 
 ;;This is for the selection-renderer component embedded in v-table. Perhaps it should be a key in
-;; v-table-css-desc, above. But it doesn't seem to be addressable using `parts` so for now just has
+;; v-table-css-spec, above. But it doesn't seem to be addressable using `parts` so for now just has
 ;; its defaults defined in the separate structure below.
-(def v-table-selection-css-desc
+(def v-table-selection-css-spec
   {:main {:class ["rc-v-table-selection"]
           :style (fn [{:keys [top left width height]}]
                    {:top (px top) :left (px left) :width (px width) :height (px height)
@@ -989,7 +989,7 @@
                                                                        (- @sel-content-x-start @scroll-x)
                                                                        (- @sel-content-x-start @scroll-x width))
                                                     cmerger (merge-css
-                                                             v-table-selection-css-desc
+                                                             v-table-selection-css-spec
                                                              {:class class :style style :attr attr})]
                                                 [:div
                                                  (flatten-attr (cmerger :main {:width width :height height
@@ -1201,7 +1201,7 @@
 
                  ;; TODO: [DJ] Suggested that the many merges below could be placed in the let above as reaction for performance improvements (readability would suffer a bit)
 
-                 (let [cmerger (merge-css v-table-css-desc args)]
+                 (let [cmerger (merge-css v-table-css-spec args)]
                    (add-map-to-hiccup-call
                     (cmerger :wrapper {:max-width max-width ;; Can't do equivalent of :max-height because we don't know column-header-width or column-footer-width
                                        :max-height

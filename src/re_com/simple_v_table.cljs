@@ -63,7 +63,7 @@
    :sub      :end
    :text-top :center})
 
-(declare simple-v-table-css-desc)
+(declare simple-v-table-css-spec)
 
 (defn column-header-item
   [{:keys [id row-label-fn width height align vertical-align header-label sort-by] :as column} parts sort-by-column]
@@ -71,7 +71,7 @@
         {current-key-fn :key-fn order :order} @sort-by-column
         on-click #(swap! sort-by-column swap!-sort-by-column key-fn comp)
         align    (get vertical-align->align (keyword vertical-align) vertical-align)
-        cmerger (merge-css simple-v-table-css-desc {:parts parts})]
+        cmerger (merge-css simple-v-table-css-spec {:parts parts})]
     (cond->
         (add-map-to-hiccup-call
          (cmerger :simple-column-header-item {:height height :align align :sort-by sort-by
@@ -93,7 +93,7 @@
 (defn column-header-renderer
   ":column-header-renderer AND :top-left-renderer - Render the table header"
   [columns parts sort-by-column]
-  (let [cmerger (merge-css simple-v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css simple-v-table-css-spec {:parts parts})]
     (add-map-to-hiccup-call
      (cmerger :simple-column-header
               {:attr {:on-click (handler-fn (v-table/show-row-data-on-alt-click columns 0 event))}})
@@ -105,7 +105,7 @@
 (defn row-item
   "Render a single row item (column) of a single row"
   [row {:keys [width height align vertical-align row-label-fn] :as column} cell-style parts]
-  (let [cmerger (merge-css simple-v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css simple-v-table-css-spec {:parts parts})]
     [:div
      (cmerger :simple-row-item {:width width
                                 :height height
@@ -120,7 +120,7 @@
 (defn row-renderer
   ":row-renderer AND :row-header-renderer: Render a single row of the table data"
   [columns on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color row-index row]
-  (let [cmerger (merge-css simple-v-table-css-desc {:parts parts})]
+  (let [cmerger (merge-css simple-v-table-css-spec {:parts parts})]
     (into
     [:div
      (cmerger :simple-row
@@ -158,7 +158,7 @@
       simple-v-table-exclusive-parts-desc
       (map #(update % :level inc) v-table/v-table-parts-desc))))
 
-(def simple-v-table-css-desc
+(def simple-v-table-css-spec
   {:simple-wrapper {:class ["rc-simple-v-table-wrapper"]
                     :style (fn [{:keys [max-rows padding max-width table-row-line-color]}]
                              {;; :flex setting
@@ -296,7 +296,7 @@
                                                    (vec (reverse sorted))
                                                    (vec sorted))))
                                              (deref-or-value model))))
-                cmerger (merge-css simple-v-table-css-desc args)]
+                cmerger (merge-css simple-v-table-css-spec args)]
             (add-map-to-hiccup-call
              (cmerger :simple-wrapper {:max-rows max-rows
                                        :padding (px table-padding)

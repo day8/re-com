@@ -33,7 +33,7 @@
                       base-style)]
      base-style)))
 
-(declare tag-dropdown-css-desc)
+(declare tag-dropdown-css-spec)
 
 (defn text-tag
   []
@@ -50,7 +50,7 @@
             placeholder?  (= (:id tag-data) :$placeholder$)
             tag-label     (label-fn tag-data)
             tag-description (when description-fn (description-fn tag-data))
-            cmerger (merge-css tag-dropdown-css-desc args)]
+            cmerger (merge-css tag-dropdown-css-spec args)]
         (add-map-to-hiccup-call
          (cmerger :tag {:class (get-in parts [tag-id-kw :class])
                         :style (get-in parts [tag-id-kw :style])
@@ -136,7 +136,7 @@
         (remove #(= :legacy (:type %)))
         (map #(update % :level (comp inc inc)))))))
 
-(def tag-dropdown-css-desc
+(def tag-dropdown-css-spec
   {:main {:class ["rc-tag-dropdown"]
           :style (fn [{:keys [disabled?]}]
                    {:background-color (if disabled? "#EEE" "white")
@@ -225,7 +225,7 @@
                 abbrev?            (and (>= choices-num-chars abbrev-threshold)
                                         (number? abbrev-threshold)
                                         (fn? abbrev-fn))
-                cmerger (merge-css tag-dropdown-css-desc args)
+                cmerger (merge-css tag-dropdown-css-spec args)
 
                 placeholder-tag [text-tag
                                  :tag-data    {:id               :$placeholder$

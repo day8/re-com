@@ -27,7 +27,7 @@
 
 (def ^:const date-format (formatter date-format-str))
 
-(declare datepicker-css-desc)
+(declare datepicker-css-spec)
 
 (defn iso8601->date [iso8601]
   (when (seq iso8601)
@@ -186,7 +186,7 @@
 
 (defn- prev-year-icon
   [& {:keys [parts]}]
-  (let [cmerger (merge-css datepicker-css-desc {:parts parts})]
+  (let [cmerger (merge-css datepicker-css-spec {:parts parts})]
     [:svg
      (flatten-attr (cmerger :prev-year-icon))
      [:g
@@ -196,21 +196,21 @@
 
 (defn- prev-month-icon
   [& {:keys [parts]}]
-  (let [cmerger (merge-css datepicker-css-desc {:parts parts})]
+  (let [cmerger (merge-css datepicker-css-spec {:parts parts})]
     [:svg
      (flatten-attr (cmerger :prev-month-icon))
      [:path {:d    "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"}]]))
 
 (defn- next-month-icon
   [& {:keys [parts]}]
-  (let [cmerger (merge-css datepicker-css-desc {:parts parts})]
+  (let [cmerger (merge-css datepicker-css-spec {:parts parts})]
     [:svg
      (flatten-attr (cmerger :next-month-icon))
      [:path {:d    "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"}]]))
 
 (defn- next-year-icon
   [& {:keys [parts]}]
-  (let [cmerger (merge-css datepicker-css-desc {:parts parts})]
+  (let [cmerger (merge-css datepicker-css-spec {:parts parts})]
     [:svg
      (flatten-attr (cmerger :next-year-icon))
      [:g
@@ -222,7 +222,7 @@
   [& {:keys [display-month minimum disabled? parts]}]
   (let [prev-year-date-time (dec-year @display-month)
         prev-year-enabled?  (if minimum (cljs-time/after? prev-year-date-time (dec-month minimum)) true)
-        cmerger (merge-css datepicker-css-desc {:parts parts})]
+        cmerger (merge-css datepicker-css-spec {:parts parts})]
     (when (not disabled?)
       [:<>
        (add-map-to-hiccup-call
@@ -242,7 +242,7 @@
   [& {:keys [display-month minimum disabled? parts]}]
   (let [prev-month-date-time (dec-month @display-month)
         prev-month-enabled?  (if minimum (cljs-time/after? prev-month-date-time (dec-month minimum)) true)
-        cmerger (merge-css datepicker-css-desc {:parts parts})]
+        cmerger (merge-css datepicker-css-spec {:parts parts})]
     (when (not disabled?)
       [:<>
        (add-map-to-hiccup-call
@@ -262,7 +262,7 @@
   [& {:keys [display-month maximum disabled? parts]}]
   (let [next-month-date-time (inc-month @display-month)
         next-month-enabled?  (if maximum (cljs-time/before? next-month-date-time maximum) true)
-        cmerger (merge-css datepicker-css-desc {:parts parts})]
+        cmerger (merge-css datepicker-css-spec {:parts parts})]
     (when (not disabled?)
       [:<>
        [line
@@ -282,7 +282,7 @@
   [& {:keys [display-month maximum disabled? parts]}]
   (let [next-year-date-time  (inc-year @display-month)
         next-year-enabled?   (if maximum (cljs-time/before? next-year-date-time maximum) true)
-        cmerger (merge-css datepicker-css-desc {:parts parts})]
+        cmerger (merge-css datepicker-css-spec {:parts parts})]
     (when (not disabled?)
       [:<>
        [line
@@ -302,7 +302,7 @@
   [& {:keys [display-month minimum maximum disabled? i18n parts]}]
   (let [minimum (deref-or-value minimum)
         maximum (deref-or-value maximum)
-        cmerger (merge-css datepicker-css-desc {:parts parts})]
+        cmerger (merge-css datepicker-css-spec {:parts parts})]
   [:th
    (flatten-attr (cmerger :nav))
    [h-box
@@ -354,7 +354,7 @@
   "Answer 2 x rows showing month with nav buttons and days"
   [display-month {:keys [show-weeks? minimum maximum start-of-week i18n]} disabled? parts]
   (let [template-row (if show-weeks? [:tr [:th]] [:tr])
-        cmerger (merge-css datepicker-css-desc {:parts parts})]
+        cmerger (merge-css datepicker-css-spec {:parts parts})]
     [:thead
      (flatten-attr (cmerger :header))
      (conj template-row
@@ -423,7 +423,7 @@
         current-start   (previous (is-day-pred start-of-week) display-month)
         focus-month     (cljs-time/month display-month)
         row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))
-        cmerger (merge-css datepicker-css-desc {:parts parts})]
+        cmerger (merge-css datepicker-css-spec {:parts parts})]
     (into [:tbody
            (flatten-attr (cmerger :dates))]
           (map #(table-tr % start-of-week focus-month selected attributes disabled? on-change cmerger) row-start-dates))))
@@ -473,7 +473,7 @@
     (-> (map :name datepicker-parts-desc) set)))
 
 
-(def datepicker-css-desc
+(def datepicker-css-spec
   {:main {:class ["datepicker" "noselect" "rc-datepicker"]
           :style {:font-size "13px"
                   :position "static"}}
@@ -570,7 +570,7 @@
                 disabled?           (deref-or-value disabled?)
                 props-with-defaults (merge args {:start-of-week start-of-week})
                 configuration       (configure props-with-defaults)
-                cmerger (merge-css datepicker-css-desc args)]
+                cmerger (merge-css datepicker-css-spec args)]
             (when (not= @external-model latest-ext-model) ;; Has model changed externally?
               (reset! external-model latest-ext-model)
               (reset! internal-model latest-ext-model)
