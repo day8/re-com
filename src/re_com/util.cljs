@@ -265,12 +265,14 @@
   (merge (dissoc stuff :attr) (:attr stuff)))
 
 (defn add-map-to-hiccup-call [map hiccup]
-  (reduce into [[(first hiccup)]
-                (for [[k v] map
-                      :let [v (if (= k :class) (string/join " " v) v)]
-                      itm [k v]]
-                  itm)
-                (rest hiccup)]))
+  (with-meta
+    (reduce into [[(first hiccup)]
+                  (for [[k v] map
+                        :let [v (if (= k :class) (string/join " " v) v)]
+                        itm [k v]]
+                    itm)
+                  (rest hiccup)])
+    (meta hiccup)))
 
 (defn say-hiccup [itm]
   (println "SOURCE:")
