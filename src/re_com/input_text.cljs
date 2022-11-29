@@ -5,7 +5,7 @@
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px]]
+    [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
     [re-com.popover  :refer [popover-tooltip]]
     [re-com.throbber :refer [throbber]]
     [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
@@ -26,6 +26,57 @@
 (def input-text-parts
   (when include-args-desc?
     (-> (map :name input-text-parts-desc) set)))
+
+(def input-text-css-spec
+  {:main {:class ["form-control" "rc-input-text-field"]
+          :style (fn [{:keys [height]}]
+                   (merge
+                    (flex-child-style "none")
+                    {:height height
+                     :padding-right "12px"}))}
+   :inner {:class (fn [{:keys [status status-icon?]}]
+                    ["rc-input-text-inner"
+                     (case status
+                       :success "has-success"
+                       :warning "has-warning"
+                       :error "has-error"
+                       nil)
+                     (when (and status status-icon?) "has-feedback")])
+           :style (flex-child-style "auto")}
+   :wrapper {:class ["rc-input-text"]}
+   :popover {:style (merge (flex-child-style "none")
+                           (align-style :align-self :center)
+                           {:font-size "130%"
+                            :margin-left "4px"})}
+   :throbber {:class ["smaller"]}
+   :tooltip-icon {:class (fn [{:keys [status]}]
+                           ["zmdi" "zmdi-hc-fw"
+                            (case
+                                status
+                              :success "zmdi-check-circle"
+                              :warning "zmdi-alert-triangle"
+                              :error "zmdi-alert-circle zmdi-spinner"
+                              :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner"
+                              nil)
+                            "form-control-feedback"])
+                  :style {:position "static"
+                          :height "auto"
+                          :opacity "1"}}
+   :tooltip-icon2 {:class (fn [{:keys [status]}]
+                            ["zmdi" "zmdi-hc-fw"
+                             (case
+                                 status
+                               :success "zmdi-check-circle"
+                               :warning "zmdi-alert-triangle"
+                               :error "zmdi-alert-circle zmdi-spinner"
+                               :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner"
+                               nil)
+                             "form-control-feedback"])
+                   :style {:position "static"
+                           :font-size "130%"
+                           :margin-left "4px"
+                           :height "auto"
+                           :opacity "1"}}})
 
 (def input-text-args-desc
   (when include-args-desc?
@@ -93,112 +144,91 @@
                                           (on-change @internal-model reset-fn)
                                           (do
                                             (on-change @internal-model)
-                                            (reset-fn))))))]
+                                            (reset-fn))))))
+                cmerger (merge-css input-text-css-spec args)]
             (when (not= @external-model latest-ext-model) ;; Has model changed externally?
               (reset! external-model latest-ext-model)
               (reset! internal-model latest-ext-model))
-            [h-box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :align    :start
-             :class    (str "rc-input-text " (get-in parts [:wrapper :class]))
-             :style    (get-in parts [:wrapper :style])
-             :attr     (get-in parts [:wrapper :attr])
-             :width    (if width width "250px")
-             :children [[:div
-                         (merge
-                           {:class (str "rc-input-text-inner "          ;; form-group
-                                        (case status
-                                          :success "has-success "
-                                          :warning "has-warning "
-                                          :error "has-error "
-                                          "")
-                                        (when (and status status-icon?) "has-feedback ")
-                                        (get-in parts [:inner :class]))
-                            :style (merge (flex-child-style "auto")
-                                          (get-in parts [:inner :style]))}
-                           (get-in parts [:inner :attr]))
-                         [(if (= input-type :password) :input input-type)
-                          (merge
-                            {:class       (str "form-control rc-input-text-field " class)
-                             :type        (case input-type
+            (add-map-to-hiccup-call
+             (cmerger :wrapper)
+             [h-box
+              :src      src
+              :debug-as (or debug-as (reflect-current-component))
+              :align    :start
+              :width    (if width width "250px")
+              :children [[:div
+                          (flatten-attr
+                           (cmerger :inner {:status status :status-icon? status-icon?}))
+                          [(if (= input-type :password) :input input-type)
+                           (merge
+                            (flatten-attr
+                             (cmerger :main {:height height}))
+                            {:type        (case input-type
                                             :input "text"
                                             :password "password"
                                             nil)
                              :rows        (when (= input-type :textarea) (or rows 3))
-                             :style       (merge
-                                            (flex-child-style "none")
-                                            {:height        height
-                                             :padding-right "12px"} ;; override for when icon exists
-                                            style)
                              :placeholder placeholder
                              :value       @internal-model
                              :disabled    disabled?
                              :on-change   (handler-fn
-                                            (let [new-val-orig (-> event .-target .-value)
-                                                  new-val (on-alter new-val-orig)]
-                                              (when (not= new-val new-val-orig)
-                                                (set! (-> event .-target .-value) new-val))
-                                              (when (and
-                                                      on-change
-                                                      (not disabled?)
-                                                      (if validation-regex (re-find validation-regex new-val) true))
-                                                (reset! internal-model new-val)
-                                                (when-not change-on-blur?
-                                                  (on-change-handler)))))
+                                           (let [new-val-orig (-> event .-target .-value)
+                                                 new-val (on-alter new-val-orig)]
+                                             (when (not= new-val new-val-orig)
+                                               (set! (-> event .-target .-value) new-val))
+                                             (when (and
+                                                    on-change
+                                                    (not disabled?)
+                                                    (if validation-regex (re-find validation-regex new-val) true))
+                                               (reset! internal-model new-val)
+                                               (when-not change-on-blur?
+                                                 (on-change-handler)))))
                              :on-blur     (handler-fn
-                                            (when (and
-                                                    change-on-blur?
-                                                    (not= @internal-model @external-model))
-                                              (on-change-handler)))
+                                           (when (and
+                                                  change-on-blur?
+                                                  (not= @internal-model @external-model))
+                                             (on-change-handler)))
                              :on-key-up   (handler-fn
-                                            (if disabled?
-                                              (.preventDefault event)
-                                              (case (.-which event)
-                                                13 (on-change-handler)
-                                                27 (reset! internal-model @external-model)
-                                                true)))}
+                                           (if disabled?
+                                             (.preventDefault event)
+                                             (case (.-which event)
+                                               13 (on-change-handler)
+                                               27 (reset! internal-model @external-model)
+                                               true)))}
                             attr)]]
-                        (when (and status-icon? status)
-                          (let [icon-class (case status :success "zmdi-check-circle" :warning "zmdi-alert-triangle" :error "zmdi-alert-circle zmdi-spinner" :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner")]
-                            (if status-tooltip
-                             [popover-tooltip
-                              :src      (at)
-                              :label    status-tooltip
-                              :position :right-center
-                              :status   status
-                              ;:width    "200px"
-                              :showing? showing?
-                              :anchor   (if (= :validating status)
-                                          [throbber
-                                           :size  :regular
-                                           :class "smaller"
-                                           :attr  {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
-                                                   :on-mouse-out  (handler-fn (reset! showing? false))}]
-                                          [:i {:class         (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
-                                               :style         {:position "static"
-                                                               :height   "auto"
-                                                               :opacity  (if (and status-icon? status) "1" "0")}
-                                               :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
-                                               :on-mouse-out  (handler-fn (reset! showing? false))}])
-                              :style    (merge (flex-child-style "none")
-                                               (align-style :align-self :center)
-                                               {:font-size   "130%"
-                                                :margin-left "4px"})]
+                         (when (and status-icon? status)
+                           (if status-tooltip
+                             (add-map-to-hiccup-call
+                              (cmerger :popover)
+                              [popover-tooltip
+                               :src      (at)
+                               :label    status-tooltip
+                               :position :right-center
+                               :status   status
+                                        ;:width    "200px"
+                               :showing? showing?
+                               :anchor   (if (= :validating status)
+                                           (add-map-to-hiccup-call
+                                            (cmerger :throbber
+                                                     {:attr {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                                             :on-mouse-out  (handler-fn (reset! showing? false))}})
+                                            [throbber
+                                             :size  :regular])
+                                           [:i (merge
+                                                (flatten-attr
+                                                 (cmerger :tooltip-icon {:status status}))
+                                                {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                                 :on-mouse-out  (handler-fn (reset! showing? false))})])])
                              (if (= :validating status)
-                               [throbber
-                                :src   (at)
-                                :size  :regular
-                                :class "smaller"]
-                               [:i {:class (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
-                                    :style (merge (flex-child-style "none")
-                                                  (align-style :align-self :center)
-                                                  {:position    "static"
-                                                   :font-size   "130%"
-                                                   :margin-left "4px"
-                                                   :opacity     (if (and status-icon? status) "1" "0")
-                                                   :height      "auto"})
-                                    :title status-tooltip}]))))]]))))))
+                               (add-map-to-hiccup-call
+                                (cmerger :throbber)
+                                [throbber
+                                 :src   (at)
+                                 :size  :regular])
+                               [:i (flatten-attr
+                                    (cmerger :tooltip-icon2
+                                             {:status status
+                                              :attr {:title status-tooltip}}))])))]])))))))
 
 
 (defn input-text
