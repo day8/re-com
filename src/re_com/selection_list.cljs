@@ -10,7 +10,7 @@
     [re-com.radio-button :refer [radio-button]]
     [re-com.box          :refer [box border h-box v-box]]
     [re-com.validate     :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?]]
-    [re-com.util         :refer [fmap deref-or-value]]))
+    [re-com.util         :refer [fmap deref-or-value merge-css add-map-to-hiccup-call flatten-attr]]))
 
 ;; ----------------------------------------------------------------------------
 (defn label-style
@@ -28,33 +28,34 @@
                        base-style)]
      base-style)))
 
+(declare selection-list-css-spec)
+
 (defn- as-checked
   [item id-fn selections on-change disabled? label-fn required? as-exclusions? parts]
   ;;TODO: Do we really need an anchor now that bootstrap styles not realy being used ?
-  (let [item-id (id-fn item)]
-    [box
-     :class (str "list-group-item compact rc-selection-list-group-item " (get-in parts [:list-group-item :class]))
-     :style (get-in parts [:list-group-item :style] {})
-     :attr  (merge
-              {:on-click (handler-fn
-                           (let [num-selected (count selections)
-                                 only-item    (when (= 1 num-selected) (first selections))]
-                             (when (and (not disabled?)
-                                        (not (and required? (= only-item item-id))))
-                               (if (selections item-id)
-                                 (on-change (disj selections item-id))
-                                 (on-change (conj selections item-id))))))}
-              (get-in parts [:list-group-item :attr]))
-     :child [checkbox
-             :src         (at)
-             :class       (str "rc-selection-list-checkbox " (get-in parts [:checkbox :class]))
-             :style       (get-in parts [:checkbox :style])
-             :attr        (get-in parts [:checkbox :attr])
-             :model       (some? (selections item-id))
-             :on-change   #()                                 ;; handled by enclosing box
-             :disabled?   disabled?
-             :label-style (label-style (selections item-id) as-exclusions?)
-             :label       (label-fn item)]]))
+  (let [item-id (id-fn item)
+        cmerger (merge-css selection-list-css-spec {:parts parts})]
+    (add-map-to-hiccup-call
+     (cmerger
+      :list-group-item
+      {:attr {:on-click (handler-fn
+                         (let [num-selected (count selections)
+                               only-item    (when (= 1 num-selected) (first selections))]
+                           (when (and (not disabled?)
+                                      (not (and required? (= only-item item-id))))
+                             (if (selections item-id)
+                               (on-change (disj selections item-id))
+                               (on-change (conj selections item-id))))))}})
+     [box
+      :child (add-map-to-hiccup-call
+              (cmerger :checkbox)
+              [checkbox
+               :src         (at)
+               :model       (some? (selections item-id))
+               :on-change   #()                                 ;; handled by enclosing box
+               :disabled?   disabled?
+               :label-style (label-style (selections item-id) as-exclusions?)
+               :label       (label-fn item)])])))
 
 
 (defn- radio-clicked
@@ -63,29 +64,27 @@
 
 (defn- as-radio
   [item id-fn selections on-change disabled? label-fn required? as-exclusions? parts]
-  (let [item-id (id-fn item)]
-    [box
-     :class (str "list-group-item compact rc-selection-list-group-item " (get-in parts [:list-group-item :class]))
-     :style (get-in parts [:list-group-item :style] {})
-     :attr  (merge {:on-click (handler-fn (when-not disabled?
-                                            ;; prevents on-change from firing if unselect is disabled (required?)
-                                            ;; and the item clicked is already selected.
-                                            (when-not (and required? (selections item-id))
-                                              (on-change (radio-clicked selections item-id)))))}
-                   (get-in parts [:list-group-item :attr]))
-     :child [radio-button
-             :src         (at)
-             :class       (str "rc-selection-list-radio-button " (get-in parts [:radio-button :class]))
-             :style       (merge (get-in parts [:radio-button :style] {})
-                                 (when disabled?
-                                       {:pointer-events "none"}))
-             :attr        (get-in parts [:radio-button :attr])
-             :model       (first selections)
-             :value       item-id
-             :on-change   #()                                 ;; handled by enclosing box
-             :disabled?   disabled?
-             :label-style (label-style (selections item-id) as-exclusions?)
-             :label       (label-fn item)]]))
+  (let [item-id (id-fn item)
+        cmerger (merge-css selection-list-css-spec {:parts parts})]
+    (add-map-to-hiccup-call
+     (cmerger
+      :list-group-item
+      {:attr {:on-click (handler-fn (when-not disabled?
+                                      ;; prevents on-change from firing if unselect is disabled (required?)
+                                      ;; and the item clicked is already selected.
+                                      (when-not (and required? (selections item-id))
+                                        (on-change (radio-clicked selections item-id)))))}})
+     [box
+      :child (add-map-to-hiccup-call
+              (cmerger :radio-button {:disabled? disabled?})
+              [radio-button
+               :src         (at)
+               :model       (first selections)
+               :value       item-id
+               :on-change   #()                                 ;; handled by enclosing box
+               :disabled?   disabled?
+               :label-style (label-style (selections item-id) as-exclusions?)
+               :label       (label-fn item)])])))
 
 
 (def list-style
@@ -120,6 +119,21 @@
 (def selection-list-parts
   (when include-args-desc?
     (-> (map :name selection-list-parts-desc) set)))
+
+(def selection-list-css-spec
+  {:main {:class (fn [{:keys [disabled?]}]
+                   ["rc-selection-list" (when disabled? "rc-disabled")])}
+   :list-group {:class ["rc-selection-list-group" "list-group" "noselect"]
+                :style (fn [{:keys [hide-border? width height max-height]}]
+                         (merge
+                          list-style
+                          (if hide-border? spacing-unbordered spacing-bordered)
+                          {:width width :height height :max-height max-height}))}
+   :list-group-item {:class ["rc-selection-list-group-item" "list-group-item" "compact"]}
+   :checkbox {:class ["rc-selection-list-checkbox"]}
+   :radio-button {:class ["rc-selection-list-radio-button"]
+                  :style (fn [{:keys [disabled?]}]
+                           (when disabled? {:pointer-events "none"}))}})
 
 (def selection-list-args-desc
   (when include-args-desc?
@@ -179,30 +193,21 @@
                                   #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)
                                   #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)))
                               choices)
-          bounds         (select-keys args [:width :height :max-height])
-          spacing        (if hide-border? spacing-unbordered spacing-bordered)]
+          cmerger (merge-css selection-list-css-spec args)]
       ;; In single select mode force selections to one. This causes a second render
       ;; TODO: GR commented this out to fix the bug where #{nil} was being returned for an empty list. Remove when we're sure there are no ill effects.
       #_(when-not (= selected model) (on-change selected))
-      [border
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :class    (str "rc-selection-list "
-                      (when (deref-or-value disabled?) "rc-disabled")
-                      class)
-       :style    style
-       :attr     attr
-       :radius   "4px"
-       :border   (when hide-border? "none")
-       :child    (into [:div
-                        (merge
-                          {:class (str "list-group noselect rc-selection-list-group " (get-in parts [:list-group :class]))
-                           :style (merge
-                                    list-style
-                                    bounds
-                                    spacing
-                                    (get-in parts [:list-group :style]))}
-                          (get-in parts [:list-group :attr]))]
-                       items)])))
+      (add-map-to-hiccup-call
+       (cmerger :main {:disabled? (deref-or-value disabled?)})
+       [border
+        :src      src
+        :debug-as (or debug-as (reflect-current-component))
+        :radius   "4px"
+        :border   (when hide-border? "none")
+        :child    (into [:div
+                         (flatten-attr
+                          (cmerger :list-group {:width width :height height :max-height max-height
+                                                :hide-border? hide-border?}))]
+                        items)]))))
 
 
