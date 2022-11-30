@@ -7,7 +7,7 @@
     [re-com.close-button :refer [close-button]]
     [re-com.config       :refer [include-args-desc?]]
     [re-com.debug        :refer [->attr]]
-    [re-com.util         :refer [deref-or-value]]
+    [re-com.util         :refer [deref-or-value add-map-to-hiccup-call merge-css flatten-attr]]
     [re-com.validate     :refer [string-or-hiccup? alert-type? alert-types-list
                                  vector-of-maps? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]))
 
@@ -17,7 +17,7 @@
 
 (def alert-box-parts-desc
   (when include-args-desc?
-    [{:type :legacy       :level 0 :class "rc-alert-box"          :impl "[alert-box]"}
+    [{:type :legacy       :level 0 :class "rc-alert"          :impl "[alert-box]"}
      {:name :heading      :level 1 :class "rc-alert-heading"      :impl "[h-box]"}
      {:name :h4           :level 2 :class "rc-alert-h4"           :impl "[:h4]"}
      {:name :close-button :level 2 :class "rc-alert-close-button" :impl "[close-button]"}
@@ -26,6 +26,27 @@
 (def alert-box-parts
   (when include-args-desc?
     (-> (map :name alert-box-parts-desc) set)))
+
+(def alert-box-css-spec
+  {:main {:class (fn [{:keys [alert-type]}]
+                   ["rc-alert" "alert" "fade" "in"
+                    (case alert-type
+                      :none          nil
+                      :info           "alert-success"
+                      :warning        "alert-warning"
+                      :danger         "alert-danger"
+                      nil)])
+          :style (fn [{:keys [padding]}]
+                   (merge (flex-child-style "none")
+                          {:padding padding}))}
+   :heading {:class ["rc-alert-heading"]
+             :style (fn [{:keys [body]}]
+                      {:margin-bottom (if body "10px" "0px")})}
+   :h4 {:class ["rc-alert-h4"]
+        :style {:margin-bottom "0px"}}
+   :close-button {:class ["rc-alert-close-button"]}
+   :body {:class ["rc-alert-body"]}
+})
 
 (def alert-box-args-desc
   (when include-args-desc?
@@ -50,54 +71,41 @@
       :as   args}]
   (or
     (validate-args-macro alert-box-args-desc args)
-    (let [close-alert  [close-button
-                        :src       (at)
-                        :class     (str "rc-alert-close-button " (get-in parts [:close-button :class]))
-                        :style     (get-in parts [:close-button :style])
-                        :attr      (get-in parts [:close-button :attr])
-                        :on-click  #(on-close id)
-                        :div-size  20
-                        :font-size 20]
-          alert-class  (alert-type {:none           ""
-                                    :info           "alert-success"
-                                    :warning        "alert-warning"
-                                    :danger         "alert-danger"})]
+    (let [cmerger (merge-css alert-box-css-spec args)
+          close-alert  (add-map-to-hiccup-call
+                        (cmerger :close-button)
+                        [close-button
+                         :src       (at)
+                         :on-click  #(on-close id)
+                         :div-size  20
+                         :font-size 20])]
       [:div
-       (merge {:class (str "rc-alert alert fade in " alert-class " " class)
-               :style (merge (flex-child-style "none")
-                             {:padding padding}
-                             style)}
+       (merge (flatten-attr
+               (cmerger :main {:alert-type alert-type :padding padding}))
               (->attr args)
               attr)
        (when heading
-         [h-box
-          :src      (at)
-          :justify  :between
-          :align    :center
-          :class    (str "rc-alert-heading " (get-in parts [:heading :class]))
-          :style    (merge {:margin-bottom (if body "10px" "0px")}
-                           (get-in parts [:heading :style]))
-          :attr     (get-in parts [:heading :attr] {})
-          :children [[:h4
-                      (merge
-                        {:class (str "rc-alert-h4 " (get-in parts [:h4 :class]))
-                         :style (merge {:margin-bottom "0px"}
-                                       (get-in parts [:h4 :style]))}
-                        (get-in parts [:h4 :attr])) ;; Override h4
-                      heading]
-                     (when (and closeable? on-close)
-                       close-alert)]])
+         (add-map-to-hiccup-call
+          (cmerger :heading {:body body})
+          [h-box
+           :src      (at)
+           :justify  :between
+           :align    :center
+           :children [[:h4
+                       (flatten-attr (cmerger :h4))
+                       heading]
+                      (when (and closeable? on-close)
+                        close-alert)]]))
        (when body
-         [h-box
-          :src      (at)
-          :justify  :between
-          :align    :center
-          :class    (str "rc-alert-body " (get-in parts [:body :class]))
-          :style    (get-in parts [:body :style] {})
-          :attr     (get-in parts [:body :attr] {})
-          :children [[:div body]
-                     (when (and (not heading) closeable? on-close)
-                       close-alert)]])])))
+         (add-map-to-hiccup-call
+          (cmerger :body)
+          [h-box
+           :src      (at)
+           :justify  :between
+           :align    :center
+           :children [[:div body]
+                      (when (and (not heading) closeable? on-close)
+                        close-alert)]]))])))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: alert-list
@@ -115,6 +123,14 @@
 (def alert-list-parts
   (when include-args-desc?
     (-> (map :name alert-list-parts-desc) set)))
+
+(def alert-list-css-spec
+  {:wrapper {:class ["rc-alert-list-wrapper"]}
+   :main {:class ["rc-alert-list"]}
+   :scroller {:class ["rc-alert-list-scroller"]
+              :style (fn [{:keys [max-height]}]
+                       {:max-height max-height})}
+   :v-box {:class ["rc-alert-list-v-box"]}})
 
 (def alert-list-args-desc
   (when include-args-desc?
@@ -149,43 +165,39 @@
       :as   args}]
   (or
     (validate-args-macro alert-list-args-desc args)
-    (let [alerts (deref-or-value alerts)]
-      [box
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :class    (str "rc-alert-list-wrapper " (get-in parts [:wrapper :class]))
-       :style    (get-in parts [:wrapper :style] {})
-       :attr     (get-in parts [:wrapper :attr] {})
-       :child    [border
-                  :src     (at)
-                  :class   (str "rc-alert-list " class)
-                  :style   style
-                  :attr    attr
-                  :padding padding
-                  :border  border-style
-                  :child   [scroller
-                            :src      (at)
-                            :v-scroll :auto
-                            :class    (str "rc-alert-list-scroller " (get-in parts [:scroller :class]))
-                            :style    (merge {:max-height max-height}
-                                             (get-in parts [:scroller :style]))
-                            :attr     (get-in parts [:scroller :attr])
-                            :child    [v-box
-                                       :src      (at)
-                                       :size     "auto"
-                                       :class    (str "rc-alert-list-v-box " (get-in parts [:v-box :class]))
-                                       :style    (get-in parts [:v-box :style])
-                                       :attr     (get-in parts [:v-box :attr])
-                                       :children [(for [alert alerts]
-                                                    (let [{:keys [id alert-type heading body padding closeable?]} alert]
-                                                      ^{:key id} [alert-box
-                                                                  :src        (at)
-                                                                  :id         id
-                                                                  :alert-type alert-type
-                                                                  :heading    heading
-                                                                  :body       body
-                                                                  :padding    padding
-                                                                  :closeable? closeable?
-                                                                  :on-close   on-close
-                                                                  :class      alert-class
-                                                                  :style      (merge alert-style (:style alert))]))]]]]])))
+    (let [alerts (deref-or-value alerts)
+          cmerger (merge-css alert-list-css-spec args)]
+      (add-map-to-hiccup-call
+       (cmerger :wrapper)
+       [box
+        :src      src
+        :debug-as (or debug-as (reflect-current-component))
+        :child    (add-map-to-hiccup-call
+                   (cmerger :main)
+                   [border
+                    :src     (at)
+                    :padding padding
+                    :border  border-style
+                    :child   (add-map-to-hiccup-call
+                              (cmerger :scroller {:max-height max-height})
+                              [scroller
+                               :src      (at)
+                               :v-scroll :auto
+                               :child    (add-map-to-hiccup-call
+                                          (cmerger :v-box)
+                                          [v-box
+                                           :src      (at)
+                                           :size     "auto"
+                                           :children [(for [alert alerts]
+                                                        (let [{:keys [id alert-type heading body padding closeable?]} alert]
+                                                          ^{:key id} [alert-box
+                                                                      :src        (at)
+                                                                      :id         id
+                                                                      :alert-type alert-type
+                                                                      :heading    heading
+                                                                      :body       body
+                                                                      :padding    padding
+                                                                      :closeable? closeable?
+                                                                      :on-close   on-close
+                                                                      :class      alert-class
+                                                                      :style      (merge alert-style (:style alert))]))]])])])]))))
