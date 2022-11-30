@@ -9,7 +9,7 @@
     [re-com.validate :refer [css-style? html-attr? parts? number-or-string?]]
     [re-com.text     :refer [label]]
     [re-com.box      :refer [h-box gap]]
-    [re-com.util     :refer [pad-zero-number deref-or-value]]))
+    [re-com.util     :refer [pad-zero-number deref-or-value add-map-to-hiccup-call merge-css flatten-attr]]))
 
 
 (defn- time->mins
@@ -156,6 +156,17 @@
   (when include-args-desc?
     (-> (map :name input-time-parts-desc) set)))
 
+(def input-time-css-spec
+  {:wrapper {:class ["rc-input-time"]}
+   ;; Leaving time-entry class (below) for backwards compatibility only.
+   :main {:class ["rc-time-entry" "time-entry"]
+          :style (fn [{:keys [width]}]
+                   {:width width})}
+   :time-icon-container {:class ["rc-time-icon-container" "time-icon"]}
+   :time-icon {:class ["rc-time-icon" "zmdi" "zmdi-hc-fw-rc" "zmdi-time"]
+               :style {:position "static"
+                       :margin "auto"}}})
+
 (def input-time-args-desc
   (when include-args-desc?
     [{:name :model        :required true                   :type "integer | string | r/atom" :validate-fn number-or-string?         :description "a time in integer form. e.g. '09:30am' is 930"}
@@ -195,43 +206,33 @@
                              style)
                 new-val (deref-or-value model)
                 new-val (if (< new-val minimum) minimum new-val)
-                new-val (if (> new-val maximum) maximum new-val)]
+                new-val (if (> new-val maximum) maximum new-val)
+                cmerger (merge-css input-time-css-spec args)]
             ;; if the model is different to that currently shown in text, then reset the text to match
             ;; other than that we want to keep the current text, because the user is probably typing
             (when (not= @previous-model new-val)
               (reset! text-model (time->text new-val))
               (reset! previous-model new-val))
 
-            [h-box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :class    (str "rc-input-time " (get-in parts [:wrapper :class]))
-             :style    (merge {:height height} (get-in parts [:wrapper :style]))
-             :attr     (get-in parts [:wrapper :attr])
-             :children [[:input
-                         (merge
+            (add-map-to-hiccup-call
+             (cmerger :wrapper)
+             [h-box
+              :src      src
+              :debug-as (or debug-as (reflect-current-component))
+              :children [[:input
+                          (merge
+                           (flatten-attr
+                            (cmerger :main {:width width}))
                            {:type      "text"
-                            ;; Leaving time-entry class (below) for backwards compatibility only.
-                            :class     (str "time-entry rc-time-entry " class)
-                            :style     (merge {:width width}
-                                              style)
                             :value     @text-model
                             :disabled  (deref-or-value disabled?)
                             :on-change (handler-fn (on-new-keypress event text-model))
                             :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
                             :on-key-up (handler-fn (lose-focus-if-enter event))}
                            attr)]
-                        (when show-icon?
-                          ;; Leaving time-icon class (below) for backwards compatibility only.
-                          [:div
-                           (merge
-                             {:class (str "time-icon rc-time-icon-container " (get-in parts [:time-icon-container :class]))
-                              :style (get-in parts [:time-icon-container :style] {})}
-                             (get-in parts [:time-icon-container :attr]))
-                           [:i
-                            (merge
-                              {:class (str "zmdi zmdi-hc-fw-rc zmdi-time rc-time-icon " (get-in parts [:time-icon :class]))
-                               :style (merge {:position "static"
-                                              :margin   "auto"}
-                                             (get-in parts [:time-icon :style]))}
-                              (get-in parts [:time-icon :attr]))]])]]))))))
+                         (when show-icon?
+                           ;; Leaving time-icon class (below) for backwards compatibility only.
+                           [:div
+                            (flatten-attr (cmerger :time-icon-container))
+                            [:i
+                             (flatten-attr (cmerger :time-icon))]])]])))))))
