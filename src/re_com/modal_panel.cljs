@@ -5,6 +5,7 @@
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
+    [re-com.util     :refer [merge-css add-map-to-hiccup-call flatten-attr]]
     [re-com.validate :refer [string-or-hiccup? number-or-string? css-style? html-attr? parts?]]))
 
 ;; ------------------------------------------------------------------------------------
@@ -20,6 +21,32 @@
 (def modal-panel-parts
   (when include-args-desc?
     (-> (map :name modal-panel-parts-desc) set)))
+
+(def modal-panel-css-spec
+  {:main {:class ["rc-modal-panel" "display-flex"]
+          :style {:position "fixed"
+                  :left     "0px"
+                  :top      "0px"
+                  :width    "100%"
+                  :height   "100%"
+                  :z-index  1020}}
+   :backdrop {:class ["rc-modal-panel-backdrop"]
+              :style (fn [{:keys [color opacity]}]
+                       {:position         "fixed"
+                        :width            "100%"
+                        :height           "100%"
+                        :background-color (or color "black")
+                        :opacity          (or opacity 0.6)
+                        :z-index          1})}
+   :child-container {:class ["rc-modal-panel-child-container"]
+                     :style (fn [{:keys [wrap-nicely?]}]
+                              (merge
+                               {:margin "auto"
+                                :z-index 2}
+                               (when wrap-nicely?
+                                 {:background-color "white"
+                                  :padding "16px"
+                                  :border-radius "6px"})))}})
 
 (def modal-panel-args-desc
   (when include-args-desc?
@@ -42,43 +69,21 @@
    Parameters:
     - child:  The message to display in the modal (a string or a hiccup vector or function returning a hiccup vector)"
   [& {:keys [child wrap-nicely? backdrop-color backdrop-opacity backdrop-on-click class style attr parts]
-      :or   {wrap-nicely? true backdrop-color "black" backdrop-opacity 0.6}
+      :or   {wrap-nicely? true}
       :as   args}]
   (or
     (validate-args-macro modal-panel-args-desc args)
-    [:div    ;; Containing div
-     (merge {:class  (str "display-flex rc-modal-panel " class)
-             :style (merge {:position "fixed"
-                            :left     "0px"
-                            :top      "0px"
-                            :width    "100%"
-                            :height   "100%"
-                            :z-index  1020}
-                           style)}
-            (->attr args)
-            attr)
-     [:div    ;; Backdrop
-      (merge
-        {:class    (str "rc-modal-panel-backdrop " (get-in parts [:backdrop :class]))
-         :style    (merge {:position         "fixed"
-                           :width            "100%"
-                           :height           "100%"
-                           :background-color backdrop-color
-                           :opacity          backdrop-opacity
-                           :z-index          1}
-                          (get-in parts [:backdrop :style]))
-         :on-click (handler-fn (when backdrop-on-click (backdrop-on-click))
-                               (.preventDefault event)
-                               (.stopPropagation event))}
-        (get-in parts [:backdrop :attr]))]
-     [:div    ;; Child container
-      (merge
-        {:class (str  "rc-modal-panel-child-container " (get-in parts [:child-container :class]))
-         :style (merge {:margin  "auto"
-                        :z-index 2}
-                       (get-in parts [:child-container :style])
-                       (when wrap-nicely? {:background-color "white"
-                                           :padding          "16px"
-                                           :border-radius    "6px"}))}
-        (get-in parts [:child-container :attr]))
-      child]]))
+    (let [cmerger (merge-css modal-panel-css-spec args)]
+      [:div    ;; Containing div
+       (merge (flatten-attr (cmerger :main))
+             (->attr args)
+             attr)
+      [:div    ;; Backdrop
+       (flatten-attr
+        (cmerger :backdrop {:color backdrop-color :opacity backdrop-opacity
+                            :attr {:on-click (handler-fn (when backdrop-on-click (backdrop-on-click))
+                                                         (.preventDefault event)
+                                                         (.stopPropagation event))}}))]
+      [:div    ;; Child container
+       (cmerger :child-container {:wrap-nicely? wrap-nicely?}) 
+       child]])))
