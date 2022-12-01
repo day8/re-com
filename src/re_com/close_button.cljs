@@ -4,7 +4,7 @@
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px]]
+    [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
     [re-com.validate :refer [string-or-hiccup? css-style? html-attr? parts?] :refer-macros [validate-args-macro]]
     [re-com.box      :refer [box]]
     [reagent.core    :as    reagent]))
@@ -18,6 +18,35 @@
 ;; ------------------------------------------------------------------------------------
 
 ;; TODO: Add a demo page for this
+
+(def close-button-css-spec
+  {:wrapper {:class ["rc-close-button"]
+             :style (fn [{:keys [div-size disabled?]}]
+                      (merge
+                       {:display "inline-block"
+                        :position "relative"
+                        :width (px (or div-size 16))
+                        :height (px (or div-size 16))}
+                       (when disabled? {:pointer-events "none"})))}
+   :main {:style (fn [{:keys [disabled?
+                              over?
+                              font-size
+                              div-size
+                              top-offset
+                              left-offset
+                              color
+                              hover-color]}]
+                   (let [div-size (or div-size 16)
+                         font-size (or font-size 16)
+                         color (or color "#ccc")
+                         hover-color (or hover-color "#999")]
+                     {:position  "absolute"
+                      :cursor    (when-not disabled? "pointer")
+                      :font-size (px font-size)
+                      :color     (if over? hover-color color)
+                      :top       (px (- (/ (- font-size div-size) 2) top-offset)  :negative)
+                      :left      (px (- (/ (- font-size div-size) 2) left-offset) :negative)}))}
+   :icon {:class ["rc-close-button-icon" "zmdi" "zmdi-hc-fw-rc" "zmdi-close"]}})
 
 (def close-button-args-desc
   (when include-args-desc?
@@ -41,44 +70,36 @@
   []
   (let [over? (reagent/atom false)]
     (fn close-button-render
-      [& {:keys [on-click div-size font-size color hover-color tooltip top-offset left-offset disabled? class style attr parts src debug-as] :as args
-          :or   {div-size 16 font-size 16 color "#ccc" hover-color "#999"}}]
+      [& {:keys [on-click div-size font-size color hover-color tooltip top-offset left-offset disabled? class style attr parts src debug-as] :as args}]
       (or
         (validate-args-macro close-button-args-desc args)
-        (let [disabled?  (deref-or-value disabled?)]
-          [box
-           :src      src
-           :debug-as (or debug-as (reflect-current-component))
-           :class    (str "rc-close-button " (get-in parts [:wrapper :class]))
-           :style    (merge {:display          "inline-block"
-                             :position         "relative"
-                             :width            (px div-size)
-                             :height           (px div-size)}
-                            (when disabled? {:pointer-events "none"})
-                            (get-in parts [:wrapper :style]))
-           :attr     (get-in parts [:wrapper :attr])
-           :child    [box
-                      :src   (at)
-                      :class class
-                      :style (merge
-                               {:position  "absolute"
-                                :cursor    (when-not disabled? "pointer")
-                                :font-size (px font-size)
-                                :color     (if @over? hover-color color)
-                                :top       (px (- (/ (- font-size div-size) 2) top-offset)  :negative)
-                                :left      (px (- (/ (- font-size div-size) 2) left-offset) :negative)}
-                               style)
-                      :attr  (merge
-                               {:title          tooltip
-                                :on-click       (handler-fn
-                                                  (when (and on-click (not disabled?))
-                                                    (on-click event)
-                                                    (.stopPropagation event)))
-                                :on-mouse-enter (handler-fn (reset! over? true))
-                                :on-mouse-leave (handler-fn (reset! over? false))}
-                               attr)
-                      :child [:i
-                              (merge
-                                {:class (str "rc-close-button-icon zmdi zmdi-hc-fw-rc zmdi zmdi-close " (get-in parts [:icon :class]))
-                                 :style (get-in parts [:icon :style] {})}
-                                (get-in parts [:icon :attr]))]]])))))
+        (let [disabled?  (deref-or-value disabled?)
+              cmerger (merge-css close-button-css-spec args)]
+          (add-map-to-hiccup-call
+           (cmerger :wrapper {:div-size div-size :disabled? disabled?})
+           [box
+            :src      src
+            :debug-as (or debug-as (reflect-current-component))
+            :child    (add-map-to-hiccup-call
+                       (cmerger :main
+                                {:disabled? disabled?
+                                 :over? @over?
+                                 :font-size font-size
+                                 :div-size div-size
+                                 :top-offset top-offset
+                                 :left-offset left-offset
+                                 :color color
+                                 :hover-color hover-color
+                                 :attr (merge
+                                        {:title          tooltip
+                                         :on-click       (handler-fn
+                                                          (when (and on-click (not disabled?))
+                                                            (on-click event)
+                                                            (.stopPropagation event)))
+                                         :on-mouse-enter (handler-fn (reset! over? true))
+                                         :on-mouse-leave (handler-fn (reset! over? false))}
+                                        attr)})
+                       [box
+                        :src   (at)
+                        :child [:i
+                                (flatten-attr (cmerger :icon))]])]))))))
