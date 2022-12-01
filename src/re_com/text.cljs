@@ -6,7 +6,7 @@
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
     [re-com.box      :refer [v-box box line flex-child-style]]
-    [re-com.util     :refer [deep-merge]]
+    [re-com.util     :refer [deep-merge add-map-to-hiccup-call merge-css flatten-attr]]
     [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup?]]))
 
 
@@ -22,6 +22,11 @@
 (def label-parts
   (when include-args-desc?
     (-> (map :name label-parts-desc) set)))
+
+(def label-css-spec
+  {:main {:class ["rc-label"]
+          :style (flex-child-style "none")}
+   :wrapper {:class ["rc-label-wrapper" "display-inline-flex"]}})
 
 (def label-args-desc
   (when include-args-desc?
@@ -41,23 +46,21 @@
       :as   args}]
   (or
     (validate-args-macro label-args-desc args)
-    [box
-     :debug-as (or debug-as (reflect-current-component))
-     :src      src
-     :class    (str "display-inline-flex rc-label-wrapper " (get-in parts [:wrapper :class]))
-     :style    (get-in parts [:wrapper :style])
-     :attr     (get-in parts [:wrapper :attr])
-     :width    width
-     :align    :start
-     :child    [:span
-                (merge
-                  {:class (str "rc-label " class)
-                   :style (merge (flex-child-style "none")
-                                 style)}
-                  (when on-click
-                    {:on-click (handler-fn (on-click))})
-                  attr)
-                label]]))
+    (let [cmerger (merge-css label-css-spec args)]
+      (add-map-to-hiccup-call
+       (cmerger :wrapper)
+       [box
+        :debug-as (or debug-as (reflect-current-component))
+        :src      src
+        :width    width
+        :align    :start
+        :child    [:span
+                   (merge
+                    (cmerger :main)
+                    (when on-click
+                      {:on-click (handler-fn (on-click))})
+                    attr)
+                   label]]))))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -73,6 +76,22 @@
 (def title-parts
   (when include-args-desc?
     (-> (map :name title-parts-desc) set)))
+
+(def title-css-spec
+  {:wrapper {:class (fn [{:keys [level]}]
+                      ["rc-title-wrapper" (when level (name level))])}
+   :main {:class (fn [{:keys [level]}]
+                   ["rc-title" "display-flex" (when level (name level))])
+          :style (fn [{:keys [margin-top underline? margin-bottom]}]
+                   (merge
+                    (flex-child-style "none")
+                    {:margin-top (or margin-top "0.6em")
+                     :margin-bottom (when-not underline? (or margin-bottom "0.3em"))
+                     ;; so that the margins are correct
+                     :line-height 1}))}
+   :underline {:class ["rc-title-underline"]
+               :style (fn [{:keys [margin-bottom]}]
+                        {:margin-bottom (or margin-bottom "0.3em")})}})
 
 (def title-args-desc
   (when include-args-desc?
@@ -91,37 +110,37 @@
 (defn title
   "A title with four preset levels"
   [& {:keys [label level underline? margin-top margin-bottom class style attr parts src debug-as]
-      :or   {margin-top "0.6em" margin-bottom "0.3em"}
       :as   args}]
   (or
     (validate-args-macro title-args-desc args)
-    (let [preset-class (if (nil? level) "" (name level))]
-      [v-box
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :class    (str "rc-title-wrapper " preset-class " " (get-in parts [:wrapper :class]))
-       :style    (get-in parts [:wrapper :style])
-       :attr     (get-in parts [:wrapper :attr])
-       :children [[:span (merge {:class (str "display-flex rc-title " preset-class " " class)
-                                 :style (merge (flex-child-style "none")
-                                               {:margin-top margin-top}
-                                               {:line-height 1}             ;; so that the margins are correct
-                                               (when-not underline? {:margin-bottom margin-bottom})
-                                               style)}
-                                attr)
-                   label]
-                  (when underline? [line
-                                    :src  (at)
-                                    :size "1px"
-                                    :class (str "rc-title-underline " (get-in parts [:underline :class]))
-                                    :style (merge {:margin-bottom margin-bottom} (get-in parts [:underline :style]))
-                                    :attr  (get-in parts [:underline :attr])])]])))
+    (let [cmerger (merge-css title-css-spec args)]
+      (add-map-to-hiccup-call
+       (cmerger :wrapper {:level level})
+       [v-box
+        :src      src
+        :debug-as (or debug-as (reflect-current-component))
+        :children [[:span (merge (flatten-attr
+                                  (cmerger :main {:level level :underline? underline?
+                                                  :margin-top margin-top :margin-bottom margin-bottom}))
+                                 attr)
+                    label]
+                   (when underline? (add-map-to-hiccup-call
+                                     (cmerger :underline {:margin-bottom margin-bottom})
+                                     [line
+                                      :src  (at)
+                                      :size "1px"]))]]))))
 
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: p
 ;; ------------------------------------------------------------------------------------
 
+(def p-css-spec
+  {:main {:class ["rc-p"]
+          :style {:flex          "none"
+                  :width         "450px"
+                  :min-width     "450px"
+                  :margin-bottom "0.7em"}}})
 (defn p
   "acts like [:p ] but uses a [:span] in place of the [:p] and adds bottom margin of 0.7ems which
   produces the same visual result.
@@ -148,12 +167,13 @@
         [m children] (if (map? child1)
                        [child1  (rest children)]
                        [{}      children])
-        m             (deep-merge {:style {:flex          "none"
-                                           :width         "450px"
-                                           :min-width     "450px"
-                                           :margin-bottom "0.7em"}}
-                                  m)]
-    [:span.rc-p m (into [:span] children)]))
+        user (merge {:attr (reduce (partial dissoc m) [:class :style])}
+                    (when-let [c (:class m)] {:class c})
+                    (when-let [s (:style m)] {:style s}))
+        cmerger (merge-css p-css-spec {})]
+    [:span
+     (flatten-attr (cmerger :main user))
+     (into [:span] children)]))
 
 ;; Alias for backwards compatibility; p and p-span used to be different implementations.
 (def p-span p)
