@@ -221,11 +221,10 @@
 
 (def line-css-spec
   {:main {:class ["rc-line"]
-          :style (fn [{:keys [size color]
-                       :or   {color "lightgray"}}]
+          :style (fn [{:keys [size color]}]
                    (merge
                     (flex-child-style (str "0 0 " (or size "1px")))
-                    {:background-color color}))}})
+                    {:background-color (or color "lightgray")}))}})
 
 (defn line
   "Returns a component which produces a line between children in a v-box/h-box along the main axis.
