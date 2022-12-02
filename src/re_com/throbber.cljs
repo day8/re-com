@@ -5,7 +5,7 @@
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px]]
+    [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
     [re-com.popover  :refer [popover-tooltip]]
     [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
     [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
@@ -25,6 +25,20 @@
   (when include-args-desc?
     (-> (map :name throbber-parts-desc) set)))
 
+(def throbber-css-spec
+  {:wrapper {:class ["rc-throbber-wrapper"]}
+   :main {:class (fn [{:keys [size]}]
+                   ["loader" "rc-throbber"
+                    (case size
+                      :regular nil
+                      :smaller "smaller"
+                      :small "small"
+                      :large "large"
+                      nil)])}
+   :segment {:class ["rc-throbber-segment"]
+             :style (fn [{:keys [color]}]
+                      (when color {:background-color color}))}})
+
 (def throbber-args-desc
   (when include-args-desc?
     [{:name :size     :required false :default :regular :type "keyword"       :validate-fn throbber-size?          :description [:span "one of " throbber-sizes-list]}
@@ -41,30 +55,17 @@
   [& {:keys [size color class style attr parts src debug-as] :as args}]
   (or
     (validate-args-macro throbber-args-desc args)
-    (let [seg (fn []
-                [:li
-                 (merge
-                   {:class (str "rc-throbber-segment " (get-in parts [:segment :class]))
-                    :style (merge
-                             (when color {:background-color color})
-                             (get-in parts [:segment :style]))}
-                   (get-in parts [:segment :attr]))])]
-      [box
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :class    (str "rc-throbber-wrapper " (get-in parts [:wrapper :class]))
-       :style    (get-in parts [:wrapper :style])
-       :attr     (get-in parts [:wrapper :attr])
-       :align    :start
-       :child    [:ul
-                  (merge {:class (str "loader rc-throbber "
-                                      (case size :regular ""
-                                                 :smaller "smaller "
-                                                 :small "small "
-                                                 :large "large "
-                                                 "")
-                                      class)
-                          :style style}
-                         attr)
-                  [seg] [seg] [seg] [seg]
-                  [seg] [seg] [seg] [seg]]]))) ;; Each :li element in [seg] represents one of the eight circles in the throbber
+    (let [cmerger (merge-css throbber-css-spec args)
+          seg (fn []
+                [:li (cmerger :segment {:color color})])]
+      (add-map-to-hiccup-call
+       (cmerger :wrapper)
+       [box
+        :src      src
+        :debug-as (or debug-as (reflect-current-component))
+        :align    :start
+        :child    [:ul
+                   (merge (cmerger :main {:size size})
+                          attr)
+                   [seg] [seg] [seg] [seg]
+                   [seg] [seg] [seg] [seg]]])))) ;; Each :li element in [seg] represents one of the eight circles in the throbber
