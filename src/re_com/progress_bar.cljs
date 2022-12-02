@@ -5,7 +5,7 @@
   (:require
     [re-com.config   :refer [include-args-desc?]]
     [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px]]
+    [re-com.util     :refer [deref-or-value px add-map-to-hiccup-call merge-css flatten-attr]]
     [re-com.popover  :refer [popover-tooltip]]
     [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
     [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
@@ -26,6 +26,19 @@
   (when include-args-desc?
     (-> (map :name progress-bar-parts-desc) set)))
 
+(def progress-bar-css-spec
+  {:wrapper {:class ["rc-progress-bar-wrapper"]}
+   :main {:class ["rc-progress-bar" "progress"]
+          :style (fn [{:keys [width]}]
+                   (merge (flex-child-style "none")
+                          {:width (or width "100%")}))}
+   :portion {:class (fn [{:keys [striped?]}]
+                      ["progress-bar" "active" "rc-progress-bar-portion"
+                       (when striped? "progress-bar-striped")])
+             :style (fn [{:keys [percent]}]
+                      {:width (str percent "%")
+                       :transition "none"})}}) ;; Default BS transitions cause the progress bar to lag behind
+
 (def progress-bar-args-desc
   (when include-args-desc?
     [{:name :model     :required true                  :type "double | string | r/atom" :validate-fn number-or-string?           :description "current value of the slider. A number between 0 and 100"}
@@ -42,28 +55,26 @@
 (defn progress-bar
   "Render a bootstrap styled progress bar"
   [& {:keys [model width striped? class bar-class style attr parts src debug-as]
-      :or   {width "100%"}
       :as   args}]
   (or
     (validate-args-macro progress-bar-args-desc args)
-    (let [model (deref-or-value model)]
-      [box
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :class    (str "rc-progress-bar-wrapper " (get-in parts [:wrapper :class]))
-       :style    (get-in parts [:wrapper :style])
-       :attr     (get-in parts [:wrapper :attr])
-       :align    :start
-       :child    [:div
-                  (merge
-                    {:class (str "progress rc-progress-bar " class)
-                     :style (merge (flex-child-style "none")
-                                   {:width width}
-                                   style)}
+    (let [model (deref-or-value model)
+          cmerger (merge-css progress-bar-css-spec args)]
+      (add-map-to-hiccup-call
+       (cmerger :wrapper)
+       [box
+        :src      src
+        :debug-as (or debug-as (reflect-current-component))
+        :align    :start
+        :child    [:div
+                   (merge
+                    (flatten-attr
+                     (cmerger :main {:width width}))
                     attr)
-                  [:div
-                   {:class (str "progress-bar " (when striped? "progress-bar-striped active rc-progress-bar-portion ") bar-class)
-                    :role  "progressbar"
-                    :style {:width      (str model "%")
-                            :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind
-                   (str model "%")]]])))
+                   [:div
+                    (flatten-attr
+                     (cmerger :portion
+                              {:striped? striped?
+                               :percent model
+                               :attr {:role  "progressbar"}}))
+                    (str model "%")]]]))))
