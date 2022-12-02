@@ -4,7 +4,8 @@
   (:require
     [reagent.core   :as    reagent]
     [re-com.box     :refer [flex-child-style]]
-    [re-com.buttons :refer [button]]))
+    [re-com.buttons :refer [button]]
+    [re-com.util    :refer [add-map-to-hiccup-call merge-css flatten-attr]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -12,6 +13,14 @@
 ;;
 ;;   Strings together
 ;;--------------------------------------------------------------------------------------------------
+
+(def tour-css-spec
+  {:line {:style (merge (flex-child-style "none")
+                        {:margin "10px 0px 10px"})}
+   :prev-button {:class ["btn-default" "rc-tour-btn-previous"]
+                 :style {:margin-right "15px"}}
+   :next-button {:class (fn [{:keys [last-button?]}]
+                          ["btn-default" (if last-button? "rc-tour-btn-finish" "rc-tour-btn-next")])}})
 
 (defn make-tour
   "Returns a map containing
@@ -79,21 +88,22 @@
   If last button in tour, change Next button to a Finish button"
   [tour]
   (let [on-first-button (= @(:current-step tour) 0)
-        on-last-button  (= @(:current-step tour) (dec (count (:steps tour))))]
+        on-last-button  (= @(:current-step tour) (dec (count (:steps tour))))
+        cmerger (merge-css tour-css-spec {})]
     [:div
-     [:hr {:style (merge (flex-child-style "none")
-                         {:margin "10px 0px 10px"})}]
+     [:hr (flatten-attr (cmerger :line))]
      (when-not on-first-button
-       [button
-        :src      (at)
-        :label    "Previous"
-        :on-click (handler-fn (prev-tour-step tour))
-        :style    {:margin-right "15px"}
-        :class     "btn-default rc-tour-btn-previous"])
-     [button
-      :src      (at)
-      :label    (if on-last-button "Finish" "Next")
-      :on-click (handler-fn (if on-last-button
-                              (finish-tour tour)
-                              (next-tour-step tour)))
-      :class    (str "btn-default " (if on-last-button "rc-tour-btn-finish" "rc-tour-btn-next"))]]))
+       (add-map-to-hiccup-call
+        (cmerger :prev-button)
+        [button
+         :src      (at)
+         :label    "Previous"
+         :on-click (handler-fn (prev-tour-step tour))]))
+     (add-map-to-hiccup-call
+      (cmerger :next-button {:last-button? on-last-button})
+      [button
+       :src      (at)
+       :label    (if on-last-button "Finish" "Next")
+       :on-click (handler-fn (if on-last-button
+                               (finish-tour tour)
+                               (next-tour-step tour)))])]))
