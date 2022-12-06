@@ -156,12 +156,12 @@
 (defn- box-base
   "This should generally NOT be used as it is the basis for the box, scroller and border components"
   [& {:keys [size scroll h-scroll v-scroll width height min-width min-height max-width max-height justify align align-self
-             margin padding border l-border r-border t-border b-border radius bk-color child class-name class style attr]
+             margin padding border l-border r-border t-border b-border radius bk-color child class style attr]
       :as   args}]
   (let [cmerger (merge-css box-base-css-spec args)]
     [:div
      (merge
-      (flatten-attr (cmerger :main args))
+      (flatten-attr (cmerger :main (dissoc args :class :style :attr)))
       (->attr args)
       attr)
      child]))
