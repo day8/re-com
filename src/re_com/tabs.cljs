@@ -65,8 +65,7 @@
       [:ul
        (merge (flatten-attr
                (cmerger :wrapper))
-              (->attr args)
-              attr)
+              (->attr args))
        (for [t tabs]
          (let [id        (id-fn  t)
                label     (label-fn  t)

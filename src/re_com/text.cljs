@@ -58,8 +58,7 @@
                    (merge
                     (cmerger :main)
                     (when on-click
-                      {:on-click (handler-fn (on-click))})
-                    attr)
+                      {:on-click (handler-fn (on-click))}))
                    label]]))))
 
 
@@ -121,8 +120,7 @@
         :debug-as (or debug-as (reflect-current-component))
         :children [[:span (merge (flatten-attr
                                   (cmerger :main {:level level :underline? underline?
-                                                  :margin-top margin-top :margin-bottom margin-bottom}))
-                                 attr)
+                                                  :margin-top margin-top :margin-bottom margin-bottom})))
                     label]
                    (when underline? (add-map-to-hiccup-call
                                      (cmerger :underline {:margin-bottom margin-bottom})

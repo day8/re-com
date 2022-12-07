@@ -90,15 +90,13 @@
                                  :left-offset left-offset
                                  :color color
                                  :hover-color hover-color
-                                 :attr (merge
-                                        {:title          tooltip
+                                 :attr {:title          tooltip
                                          :on-click       (handler-fn
                                                           (when (and on-click (not disabled?))
                                                             (on-click event)
                                                             (.stopPropagation event)))
                                          :on-mouse-enter (handler-fn (reset! over? true))
-                                         :on-mouse-leave (handler-fn (reset! over? false))}
-                                        attr)})
+                                         :on-mouse-leave (handler-fn (reset! over? false))}})
                        [box
                         :src   (at)
                         :child [:i

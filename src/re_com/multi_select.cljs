@@ -519,8 +519,7 @@
             [:div
              (merge
               (flatten-attr (cmerger :main {:width width}))
-              (->attr args)
-              attr) ;; Prevent user text selection
+              (->attr args)) ;; Prevent user text selection
              (add-map-to-hiccup-call
               (cmerger :container)
               [box/h-box

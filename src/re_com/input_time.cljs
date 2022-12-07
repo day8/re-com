@@ -228,8 +228,7 @@
                             :disabled  (deref-or-value disabled?)
                             :on-change (handler-fn (on-new-keypress event text-model))
                             :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
-                            :on-key-up (handler-fn (lose-focus-if-enter event))}
-                           attr)]
+                            :on-key-up (handler-fn (lose-focus-if-enter event))})]
                          (when show-icon?
                            ;; Leaving time-icon class (below) for backwards compatibility only.
                            [:div

@@ -67,10 +67,8 @@
         :debug-as (or debug-as (reflect-current-component))
         :align    :start
         :child    [:div
-                   (merge
-                    (flatten-attr
-                     (cmerger :main {:width width}))
-                    attr)
+                   (flatten-attr
+                    (cmerger :main {:width width}))
                    [:div
                     (flatten-attr
                      (cmerger :portion

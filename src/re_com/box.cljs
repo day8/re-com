@@ -162,8 +162,7 @@
     [:div
      (merge
       (flatten-attr (cmerger :main (dissoc args :class :style :attr)))
-      (->attr args)
-      attr)
+      (->attr args))
      child]))
 
 
@@ -201,8 +200,7 @@
       [:div
        (merge
          (->attr args)
-         (flatten-attr (cmerger :main {:size size :width width :height height}))
-         attr)])))
+         (flatten-attr (cmerger :main {:size size :width width :height height})))])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -237,8 +235,7 @@
       [:div
        (merge
          (->attr args)
-         (cmerger :main {:size size :color color})
-         attr)])))
+         (cmerger :main {:size size :color color}))])))
 
 
 ;; ------------------------------------------------------------------------------------
@@ -306,8 +303,7 @@
       (into [:div
              (merge
               (->attr args)
-              (flatten-attr (cmerger :main args))
-               attr)]
+              (flatten-attr (cmerger :main args)))]
             children))))
 
 ;; ------------------------------------------------------------------------------------
@@ -374,8 +370,7 @@
       (into [:div
              (merge
                (->attr args)
-               (flatten-attr (cmerger :main args))
-               attr)]
+               (flatten-attr (cmerger :main args)))]
             children))))
 
 

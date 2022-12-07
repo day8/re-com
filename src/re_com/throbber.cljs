@@ -65,7 +65,6 @@
         :debug-as (or debug-as (reflect-current-component))
         :align    :start
         :child    [:ul
-                   (merge (cmerger :main {:size size})
-                          attr)
+                   (cmerger :main {:size size})
                    [seg] [seg] [seg] [seg]
                    [seg] [seg] [seg] [seg]]])))) ;; Each :li element in [seg] represents one of the eight circles in the throbber

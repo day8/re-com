@@ -75,8 +75,7 @@
                      {:type      "checkbox"
                       :disabled  disabled?
                       :checked   (boolean model)
-                      :on-change (handler-fn (callback-fn))}
-                     attr)]
+                      :on-change (handler-fn (callback-fn))})]
                    (when label
                      [:span
                       (flatten-attr

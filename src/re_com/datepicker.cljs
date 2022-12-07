@@ -179,9 +179,7 @@
                  :size   "none"
                  :border (when hide-border? "none")
                  :child  [:div
-                          (merge
-                           (flatten-attr (cmerger :main))
-                           attr)
+                          (flatten-attr (cmerger :main))
                           table-div]])]]))
 
 (defn- prev-year-icon

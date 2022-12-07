@@ -76,8 +76,7 @@
     (let [cmerger (merge-css modal-panel-css-spec args)]
       [:div    ;; Containing div
        (merge (flatten-attr (cmerger :main))
-             (->attr args)
-             attr)
+             (->attr args))
       [:div    ;; Backdrop
        (flatten-attr
         (cmerger :backdrop {:color backdrop-color :opacity backdrop-opacity

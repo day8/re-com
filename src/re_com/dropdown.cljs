@@ -677,8 +677,7 @@
                                     (when tooltip
                                       {:on-mouse-over (handler-fn (reset! over? true))
                                        :on-mouse-out (handler-fn (reset! over? false))})
-                                    (->attr args)
-                                    attr)
+                                    (->attr args))
                                   (cond
                                     just-drop? nil
                                     free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]

@@ -173,8 +173,7 @@
         (flatten-attr
          (cmerger :main
                   {:attr {:on-click (handler-fn (on-click))}}))
-        (->attr args)
-        attr)])))
+        (->attr args))])))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -223,8 +222,7 @@
       [:h3
        (merge
         (flatten-attr (cmerger :main))
-         (->attr args)
-         attr)
+         (->attr args))
        (add-map-to-hiccup-call
         (cmerger :container)
         [h-box
@@ -410,8 +408,7 @@
                      :border-color popover-border-color :tooltip-style? tooltip-style?
                      :orientation orientation :margin-left margin-left :margin-top margin-top
                      :ready-to-show? @ready-to-show?})))
-                 (->attr args)
-                 attr)
+                 (->attr args))
                 [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color popover-border-color parts]
                 (when title title)
                 (into [:div
@@ -516,8 +513,7 @@
                         (cmerger :main {:no-clip? no-clip?
                                         :left-offset @left-offset
                                         :top-offset @top-offset}))
-                       (->attr args)
-                       attr)
+                       (->attr args))
                 (when (and (deref-or-value showing-injected?)  on-cancel)
                   (add-map-to-hiccup-call
                    (cmerger :backdrop)
@@ -619,8 +615,7 @@
                      cmerger (merge-css popover-anchor-wrapper-css-spec args)]
                  [:div
                   (merge (flatten-attr (cmerger :main))
-                         (->attr args)
-                         attr)
+                         (->attr args))
                   [:div                                ;; Wrapper around the anchor and the "point"
                    (flatten-attr
                     (cmerger :point-wrapper {:flex-flow flex-flow}))

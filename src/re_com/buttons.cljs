@@ -68,8 +68,7 @@
                                            (on-click event)))}
                              (when tooltip
                                {:on-mouse-over (handler-fn (reset! showing? true))
-                                :on-mouse-out  (handler-fn (reset! showing? false))})
-                             attr)
+                                :on-mouse-out  (handler-fn (reset! showing? false))}))
                             label]]
             (when disabled?
               (reset! showing? false))
@@ -166,8 +165,7 @@
                                            (on-click event)))}
                               (when tooltip
                                 {:on-mouse-over (handler-fn (reset! showing? true))
-                                 :on-mouse-out  (handler-fn (reset! showing? false))})
-                              attr)
+                                 :on-mouse-out  (handler-fn (reset! showing? false))}))
                             [:i (flatten-attr (cmerger :icon {:md-icon-name md-icon-name}))]]]
             (add-map-to-hiccup-call
              (cmerger :wrapper)
@@ -262,8 +260,7 @@
                                            (on-click event)))}
                              (when tooltip
                                {:on-mouse-over (handler-fn (reset! showing? true))
-                                :on-mouse-out  (handler-fn (reset! showing? false))})
-                             attr)
+                                :on-mouse-out  (handler-fn (reset! showing? false))}))
                             [:i (cmerger :icon {:md-icon-name md-icon-name})]]]
             (add-map-to-hiccup-call
              (cmerger :wrapper)
@@ -348,8 +345,7 @@
                           (cmerger :main {:disabled? disabled?}))
                          {:on-click (handler-fn
                                      (when (not disabled?)
-                                       (swap! showing? not)))}
-                         attr)
+                                       (swap! showing? not)))})
                         [:svg
                          (merge
                           (flatten-attr (cmerger :icon))
@@ -422,8 +418,7 @@
                                              (on-click event)))}
                               (when tooltip
                                 {:on-mouse-over (handler-fn (reset! showing? true))
-                                 :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
-                              attr)
+                                 :on-mouse-out  (handler-fn (reset! showing? false))})) ;; Need to return true to ALLOW default events to be performed
                             [:i (flatten-attr (cmerger :icon {:md-icon-name md-icon-name}))]]]
             (add-map-to-hiccup-call
              (cmerger :wrapper)
@@ -514,8 +509,7 @@
                                                     (on-click event)))}
                                       (when tooltip
                                         {:on-mouse-over (handler-fn (reset! showing? true))
-                                         :on-mouse-out  (handler-fn (reset! showing? false))})
-                                      attr)
+                                         :on-mouse-out  (handler-fn (reset! showing? false))}))
                                      label]])]
             (add-map-to-hiccup-call
              (cmerger :wrapper)
@@ -606,8 +600,7 @@
                                      {:href   href})
                                    (when tooltip
                                      {:on-mouse-over (handler-fn (reset! showing? true))
-                                      :on-mouse-out  (handler-fn (reset! showing? false))})
-                                   attr)
+                                      :on-mouse-out  (handler-fn (reset! showing? false))}))
                             label]]
 
             (add-map-to-hiccup-call

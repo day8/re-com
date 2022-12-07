@@ -225,7 +225,7 @@
   (do (when cond (println itm))
       itm))
 
-(defn merge-css [css-desc {:as params :keys [class style parts]}]
+(defn merge-css [css-desc {:as params :keys [class style attr parts]}]
   (for [[k v] css-desc
         :when (not (and (keyword? k) (map? v)))]
     (throw (js/Error. "CSS description must contain only keywords and maps")))
@@ -251,7 +251,7 @@
            defaults (get css-desc (or tag :main))
            use-toplevel (get :use-toplevel defaults (if (= tag :main) true false))
            user (combine-css (get parts tag)
-                             (and use-toplevel {:class class :style style}))
+                             (and use-toplevel {:class class :style style :attr attr}))
            defaults (into {} (for [k [:class :style :attr]
                                    :when (contains? defaults k)
                                    :let [v (get defaults k)]]

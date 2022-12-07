@@ -81,5 +81,4 @@
                      :step      step
                      :value     model
                      :disabled  disabled?
-                     :on-change (handler-fn (on-change (js/Number (-> event .-target .-value))))}
-                    attr)]]))))
+                     :on-change (handler-fn (on-change (js/Number (-> event .-target .-value))))})]]))))

@@ -82,8 +82,7 @@
       [:div
        (merge (flatten-attr
                (cmerger :main {:alert-type alert-type :padding padding}))
-              (->attr args)
-              attr)
+              (->attr args))
        (when heading
          (add-map-to-hiccup-call
           (cmerger :heading {:body body})

@@ -76,8 +76,7 @@
                      {:type      "radio"
                       :disabled  disabled?
                       :checked   (= model value)
-                      :on-change (handler-fn (callback-fn))}
-                     attr)]
+                      :on-change (handler-fn (callback-fn))})]
                    (when label
                      [:span
                       (flatten-attr
