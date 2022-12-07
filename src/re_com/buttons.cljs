@@ -215,7 +215,7 @@
    :tooltip {:class ["rc-md-icon-button-tooltip"]}
    :icon {:class
           (fn [{:keys [md-icon-name]}]
-            ["zmdi" "zmdi-hc-fw-rc" md-icon-name "rc-md-circle-icon-button-icon"])}
+            ["zmdi" "zmdi-hc-fw-rc" md-icon-name "rc-md-icon-button-icon"])}
    })
 
 (def md-icon-button-parts
