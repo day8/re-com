@@ -250,7 +250,7 @@
         (validate-args-macro md-icon-button-args-desc args)
         (do
           (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [cmerger (merge-css md-circle-icon-button-css-spec args)
+          (let [cmerger (merge-css md-icon-button-css-spec args)
                 the-button [:div
                             (merge
                              (flatten-attr
