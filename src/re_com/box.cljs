@@ -235,7 +235,7 @@
       [:div
        (merge
          (->attr args)
-         (cmerger :main {:size size :color color}))])))
+         (flatten-attr (cmerger :main {:size size :color color})))])))
 
 
 ;; ------------------------------------------------------------------------------------
