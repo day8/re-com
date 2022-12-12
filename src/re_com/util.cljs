@@ -221,9 +221,78 @@
       0 0 0 0)))
 
 
-(defn say-when [cond itm]
-  (do (when cond (println itm))
-      itm))
+
+;; Merge-css - a tool for handling the css that comes into re-com components
+;;
+;; # Rationale
+;;
+;; Hard coded CSS is bad. Flexibility is good. Re-com has a few ways to keep the CSS flexible. For the end user, an extended 'parts' structure can be passed into components that allows :class :style and :attr of most elements in the component to be addressed. This is on top of the main :class, :style, and :attr that most components receive. Another method is meant for internal re-com use. It's a structure similar to 'parts', and generally stored with a *-css-spec name. This is meant to give access to serious re-com modifiers who want to use another CSS framework or no CSS at all. It is a place to put CSS values that would normally be hard coded into the components.
+;;
+;; Merge-css is the tool to pull all of the sources of styling together and apply them appropriately.
+;;
+;; # Basic Anatomy
+;;
+;; Merge-css takes two parameters and returns a closure. The first parameter is the *-css-spec for the component in operation. The second is a map containing parameters. Merge-css will be looking for :class, :style, :attr, and :parts keys in this map. Typically, the component's `args` will be passed in as this parameters map.
+;;
+;; The closure returned by merge-css, conventionally stored as `cmerger`, takes two parameters. The first is a keyword designating the section to retrieve from the *-css-spec and the `parts` structures. The second is a parameters map. The keys :class, :style, and :attr will be extracted from this map and applied as last minute hard coded overrides to the css. The remainder of the map will be passed as run time variables to functions found in the *-css-spec structure.
+;;
+;; # Components vs. Elements
+;;
+;; Re-com components, as called from hiccup, do not take options the same way that HTML elements do. The former takes :class, :style and :attr parameters directly, where the latter takes a map of attributes containing :class and :style as the first parameter. The return value from `cmerger` - a map containing :class, :style and :attr - is not directly usable by either. A special utility is available for each case.
+;;
+;; Components:
+;;
+;; >    (add-map-to-hiccup-call
+;; >      (cmerger :some-place {:optional :options...})
+;; >      [my-component
+;; >        :id 101
+;; >        etc...
+;;
+;; The hiccup 'call' to my-component will be rewritten to have :class, :style and :attr options added to it from the map supplied by `cmerger`. Note: results are undefined if you put :class, etc. into [my-component ...] by hand. Add-map-to-hiccup-call will not check for existing keys!
+;;
+;; Elements:
+;;
+;; >    [:div
+;; >      (flatten-attr (cmerger :some-place)) ;;No options this time
+;; >      ...
+;;
+;; Because the contents of :attr from `cmerger` belong directly in first parameter of the :div element, flatten-attr will get rid of the :attr key and place its contents in the toplevel of the returned map.
+;;
+;; What if you want to add something - say, an event handler - to the attributes of the :div? This can be done in two ways:
+;;
+;; >    [:div
+;; >      (flatten-attr (cmerger :some-place
+;; >                             {:attr {:on-squirm ...}}))
+;; >      ...
+;;
+;;
+;; >    [:div
+;; >      (merge
+;; >       (flatten-attr (cmerger :some-place))
+;; >       {:on-squirm ...})
+;; >      ...
+;;
+;; ## Fixme: other component parameters
+;;
+;; Currently there is no way to specify other parameters for re-com components. The goal is to have all hard coded CSS values be stored in -css-spec structures where they can be replaced easily. At first glance, the :attr section may seem to be the place for these other parameters, but it specifically addresses the attributes of the main internal element of the component. Another section for other parameters and variables may need to be added.
+;;
+;; # The -css-spec structure
+;;
+;; A css-spec structure will take the following form:
+;;
+;; >    (def button-css-spec
+;; >      {:main {:class ["rc-button" "btn"]
+;; >              :style {:background-color ... }
+;; >       :wrapper {:class (fn [{:keys [... ]}]
+;; >                          ...)}
+;; >       ...})
+;;
+;; At root it is a map, with a key for each section or element in the component. The key names should line up with the keys in the -parts-desc structure whereever possible. Each section is a map that may contain a :class, :style and an :attr object. The class spec should be a vector or a function. The others should be a map or a function. The function should return, respectively, a vector or a map. The function will receive the 'other' parameters mentioned above in the discussion of the `cmerger` closure.
+;;
+;; ## The :main key
+;;
+;; The :main key is a special case. Most re-com components receive a :parts parameter for fine-grained css control. But they also receive a simpler set of :class, :style and :attr components. What happens to these? They are generally directed toward the element that the end user will perceive as being the central one. The :main one, in other words. So merge-css will take these toplevel CSS parameters and apply them to the request named :main. The :use-toplevel key, placed in the :main section of the -css-spec structure with a `false` value, will suppress this behavior. Placed in another section - say, :wrapper - with a `true` value, it will cause that element to receive the toplevel user CSS parameters.
+
 
 (defn merge-css [css-desc {:as params :keys [class style attr parts]}]
   (for [[k v] css-desc
@@ -274,9 +343,4 @@
                   (rest hiccup)])
     (meta hiccup)))
 
-(defn say-hiccup [itm]
-  (println "SOURCE:")
-  (println itm)
-  (println "HTML:")
-  (println (render-to-string itm))
-  itm)
+
