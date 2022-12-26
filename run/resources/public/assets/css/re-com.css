@@ -29,6 +29,14 @@ html, body {
     padding:        0px;
 }
 
+/* The following style addresses: https://github.com/day8/re-com/issues/256
+   The default user agent style is :focus { outline: black auto 1px; } which looks terrible so we use a higher
+   specificity selector to override it. */
+
+*:focus {
+  outline: #ddd auto 1px !important;
+}
+
 /*----------------------------------------------------------------------------------------
   Bootstrap overrides after upgrading to 3.3.5
 ----------------------------------------------------------------------------------------*/
@@ -37,7 +45,15 @@ html, body {
     font-family: Segoe UI, Roboto, sans-serif;
 }
 
+/* fixed for bootstrap 4 */
+
 .popover-title {
+    padding: 8px 14px;
+    margin: 0;
+    font-size: 14px;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #ebebeb;
+    border-radius: 5px 5px 0 0;
     font-weight: normal;
 }
 
@@ -45,6 +61,17 @@ html, body {
     pointer-events: initial;
 }
 
+/*----------------------------------------------------------------------------------------
+  Bootstrap disabled style overrides
+----------------------------------------------------------------------------------------*/
+
+fieldset[disabled] .btn {
+  cursor: default !important;
+}
+
+.form-control[disabled], fieldset[disabled] .form-control {
+  cursor: default !important;
+}
 
 /*----------------------------------------------------------------------------------------
   The section immediately below is required for the drop-down components and comes from
@@ -476,13 +503,7 @@ html, body {
   padding: 4px 5px 4px 20px;
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 144dpi) {
-  .chosen-rtl .chosen-search input[type="text"],
-  .chosen-container-single .chosen-single abbr,
-  .chosen-container-single .chosen-single div b,
-  .chosen-container-single .chosen-search input[type="text"],
-  .chosen-container-multi .chosen-choices .search-choice .search-choice-close,
-  .chosen-container .chosen-results-scroll-down span,
-  .chosen-container .chosen-results-scroll-up span {
+    .chosen-container .chosen-results-scroll-up span {
     background-image: url("chosen-sprite@2x.png") !important;
     background-size: 52px 37px !important;
     background-repeat: no-repeat !important;
@@ -499,6 +520,73 @@ html, body {
 .chosen-container .chosen-results li.mouseover {
   background-color: #eeeeee;
   background-image: none;
+}
+
+/* Free-text drop-down */
+.chosen-container .free-text input {
+  display: inline-block;
+  padding-left: 12px !important;
+  padding-right: 27px !important;
+}
+
+.chosen-container .free-text .b-wrapper {
+  display: inline-block;
+  position: absolute;
+  right: 0;
+  padding-left: 7px;
+  padding-right: 2px;
+  cursor: pointer;
+}
+
+.chosen-container .free-text b {
+  display: inline-block;
+  background: url("chosen-sprite.png") no-repeat 0 7px;
+  width: 16px;
+  height: 28px;
+}
+
+.chosen-container.chosen-with-drop .free-text b {
+  background-position: -18px 7px !important;
+}
+
+/* The two rules below copied from .chosen-container-single .chosen-search above (support for filter box in free-text drop-down) */
+.chosen-container-multi .chosen-search {
+  margin: 0;
+  padding: 3px 4px;
+  position: relative;
+  white-space: nowrap;
+  z-index: 1000;
+}
+.chosen-container-multi .chosen-search input[type="text"] {
+  background: url("chosen-sprite.png") no-repeat 100% -20px, #ffffff;
+  border: 1px solid #cccccc;
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  margin: 1px 0;
+  padding: 4px 20px 4px 4px;
+  width: 100%;
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 144dpi) {
+    .chosen-container-multi .chosen-search input[type="text"] {
+    background-image: url("chosen-sprite@2x.png") !important;
+    background-size: 52px 37px !important;
+    background-repeat: no-repeat !important;
+  }
+}
+
+/* Drop-down filter placeholder color */
+.chosen-container .chosen-search input::-webkit-input-placeholder {
+  color: #bbb;
+}
+
+/* Fix for width 100% dropdown in a flex container */
+.chosen-container-multi .chosen-choices .search-field {
+  width: 100%;
 }
 
 /*----------------------------------------------------------------------------------------
@@ -535,7 +623,6 @@ html, body {
 .datepicker .calendar-date {
     border: 1px solid #ddd;
     padding: 4px;
-    border-radius: 4px;
     background: #fff;
 }
 
@@ -572,87 +659,55 @@ html, body {
     max-height: 26px;
     min-width: 27px;
     min-height: 26px;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
     padding: 4px;
     cursor: default;
     white-space: nowrap;
     font-weight: normal;
 }
 
-.datepicker td.off {
+.rc-datepicker-unselectable {
     padding: 4px;
-    color: #999;
+    color: #CCC;
 }
 
-.datepicker td.disabled {
-    color: #999;
-}
-
-.datepicker th.disabled {
-    color: #999;
-}
-
-.datepicker td.available:hover, .datepicker th.available:hover {
-    background: #eee;
+.rc-datepicker-selectable:hover {
+    background: #357ebd;
+    color: #FFF;
     cursor: pointer;
 }
 
-.datepicker td.in-range {
-    background: #ebf4f8;
-    -webkit-border-radius: 0;
-    -moz-border-radius: 0;
-  border-radius: 0;
+.rc-datepicker-selectable path {
+    fill: #357ebd;
 }
 
-.datepicker td.start-date {
-    -webkit-border-radius: 4px 0 0 4px;
-    -moz-border-radius: 4px 0 0 4px;
-    border-radius: 4px 0 0 4px;
+.rc-datepicker-disabled path {
+    fill: #999;
 }
 
-.datepicker td.end-date {
-    -webkit-border-radius: 0 4px 4px 0;
-    -moz-border-radius: 0 4px 4px 0;
-    border-radius: 0 4px 4px 0;
+.rc-datepicker-selectable:hover path {
+    fill: #FFF;
 }
 
-.datepicker td.start-date.end-date {
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
+.rc-datepicker-out-of-focus {
+    background-color: #EEE;
+    color: #333;
 }
 
-.datepicker td.active, .datepicker td.active:hover {
+.rc-datepicker-selected, .rc-datepicker-selected:hover {
     background-color: #357ebd;
     border-color: #3071a9;
     color: #fff;
 }
 
-/* Introduced by Day8 from http://eternicode.github.io/bootstrap-datepicker */
-.datepicker td.today, .datepicker td.today:hover {
+.rc-datepicker-day {
+    font-size: 10px;
+}
+
+.rc-datepicker-today {
     background-color: #ffcd70;
     border-color: #f59e00;
     border-radius: 18px;
     color: #fff;
-}
-
-.datepicker th.day-enabled, label.day-enabled {
-    font-weight: normal;
-    font-size: 10px;
-    color: #333;
-}
-
-.datepicker th.selectable {
-    font-weight: normal;
-    color: #357ebd;
-}
-
-.datepicker th.day-disabled {
-    font-weight: normal;
-    font-size: 10px;
-    color: #999;
 }
 
 .datepicker td.week, .datepicker th.week {
@@ -660,32 +715,15 @@ html, body {
   color: #ccc;
 }
 
-
-.datepicker th.prev {
+.rc-datepicker-nav {
     border: 1px solid #ccc;
-    border-right-style: none;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    border-radius: 4px;
     background-color: #F7F7F7;
 }
 
-.datepicker th.next {
-    border: 1px solid #ccc;
-    border-left-style: none;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    background-color: #F7F7F7;
-}
-
-.datepicker th.month {
-    width: auto;
-    font-size: 14px;
+.rc-datepicker-month {
+    font-size: 12px;
     color: #777;
-    border-radius: 0;
-    border: 1px solid #CCC;
-    border-right-style: none;
-    border-left-style: none;
-    background-color: #F7F7F7;
 }
 
 .dropdown-button {
@@ -695,10 +733,14 @@ html, body {
     font-weight: normal;
 }
 
+.dropdown-button-disabled {
+    cursor: default !important;
+}
+
 .dropdown-button.activator {
     width: 40px;
     color: #777;
-    background-color: #F7F7F7
+     
 }
 
 /*----------------------------------------------------------------------------------------
@@ -888,6 +930,27 @@ html, body {
     background-color: #eeeeee;
 }
 
+.rc-selection-list.rc-disabled .list-group-item {
+  background-color: #eee;
+}
+
+/*---------------------------------------------------------------------------------------
+Multi-select list component styles
+ ---------------------------------------------------------------------------------------*/
+
+@keyframes rc-multi-select-fade-warning-msg {
+
+0% {
+    opacity: 1;
+  }
+
+90% {
+    opacity: 1;
+  }
+
+}
+
+
 /*----------------------------------------------------------------------------------------
   Custom scrollbars
    - http://css-tricks.com/custom-scrollbars-in-webkit
@@ -1023,6 +1086,10 @@ code {
   background-color: #ddd;
 }
 
+.time-entry:disabled {
+  background-color: #eee;
+}
+
 /*----------------------------------------------------------------------------------------
   md-circle-icon-button
 ----------------------------------------------------------------------------------------*/
@@ -1135,6 +1202,10 @@ code {
     color:            white;
 }
 
+.rc-icon-disabled {
+  pointer-events: none;
+}
+
 .rc-icon-disabled > i {
    color: lightgrey;
 }
@@ -1164,6 +1235,11 @@ code {
 
 .rc-info-button:hover {
     fill:  #2962ff;
+}
+
+/* fixed for bootstrap 4 */
+.popover-content {
+    padding: 9px 14px;
 }
 
 .popover-content .info-heading {
@@ -1199,7 +1275,7 @@ code {
 
 .rc-row-button {
     text-align:          center;             /* to horizontally center the icon */
-    color:               #2167f2; /2196f3;
+    color:               #2167f2; /* 2196f3; */
     background-color:    inherit;
     opacity:             0;
     cursor:              pointer;
@@ -1349,4 +1425,12 @@ code {
 
 .rc-typeahead-suggestion.active {
     background-color: #ddd;
+}
+
+/*----------------------------------------------------------------------------------------
+  simple-v-table
+----------------------------------------------------------------------------------------*/
+
+.rc-simple-v-table-wrapper .rc-v-table-column-headers:hover svg path {
+  fill: #ddd;
 }

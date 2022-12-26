@@ -46,6 +46,11 @@
     {:overflow "scroll"} (box/scroll-style :overflow :on)
     {:overflow "visible"} (box/scroll-style :overflow :spill)))
 
+(defn without-debug
+  "Returns hiccup form without debug in first attrs as writing tests for that would be complex (i.e. equality of ref-fn fns etc)."
+  [[tag attrs & rest]]
+  (into [tag (dissoc attrs :data-rc :ref)] rest))
+
 (deftest test-gap
   (are [expected actual] (= expected actual)
     [:div
@@ -53,7 +58,7 @@
       :style {:flex "0 0 1px"
               :-webkit-flex "0 0 1px"}
       :id "my-id"}]
-    (box/gap :class "my-gap" :attr {:id "my-id"} :size "1px")))
+    (without-debug (box/gap :class "my-gap" :attr {:id "my-id"} :size "1px"))))
 
 (deftest test-line
   (are [expected actual] (= expected actual)
@@ -63,7 +68,7 @@
               :-webkit-flex "0 0 1px"
               :background-color "lightgray"}
       :id "my-id"}]
-    (box/line :class "my-line" :attr {:id "my-id"})))
+    (without-debug (box/line :class "my-line" :attr {:id "my-id"}))))
 
 (deftest test-box
   (are [expected actual] (= expected actual)
@@ -75,7 +80,7 @@
               :-webkit-flex-flow "inherit"}
       :id "my-id"}
      "text"]
-    (box/box :class "my-box" :attr {:id "my-id"} :child "text")))
+    (without-debug (box/box :class "my-box" :attr {:id "my-id"} :child "text"))))
 
 (deftest test-scroller
   (are [expected actual] (= expected actual)
@@ -88,7 +93,7 @@
               :overflow "auto"}
       :id "my-id"}
      "text"]
-    (box/scroller :class "my-scroller" :attr {:id "my-id"} :child "text")))
+    (without-debug (box/scroller :class "my-scroller" :attr {:id "my-id"} :child "text"))))
 
 (deftest test-border
   (are [expected actual] (= expected actual)
@@ -101,4 +106,4 @@
               :border "1px solid lightgrey"}
       :id "my-id"}
      "text"]
-    (box/border :class "my-border" :attr {:id "my-id"} :child "text")))
+    (without-debug (box/border :class "my-border" :attr {:id "my-id"} :child "text"))))

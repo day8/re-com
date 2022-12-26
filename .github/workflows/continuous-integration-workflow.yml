@@ -1,0 +1,59 @@
+name: ci
+on: [push]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-18.04
+    container:
+      # Source: https://github.com/day8/dockerfile-for-dev-ci-image
+      image: docker.pkg.github.com/day8/dockerfile-for-dev-ci-image/dev-ci:0.1
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: Maven cache
+        uses: actions/cache@v1
+        id: maven-cache
+        with:
+          path: /root/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('project.clj', '.github/workflows/**') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: npm cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('project.clj') }}-${{ hashFiles('**/deps.cljs') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+      - name: shadow-cljs compiler cache
+        uses: actions/cache@v1
+        with:
+          path: .shadow-cljs
+          key: ${{ runner.os }}-shadow-cljs-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-shadow-cljs-
+      - if: steps.maven-cache.outputs.cache-hit != 'true'
+        run: |
+          lein ci
+          lein build-report-ci
+      - if: steps.maven-cache.outputs.cache-hit == 'true'
+        run: |
+          lein -o ci
+          lein -o build-report-ci
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build-report
+          path: target/build-report.html
+      - name: Slack notification
+        uses: homoluctus/slatify@v2.0.1
+        if: failure() || cancelled()
+        with:
+          type: ${{ job.status  }}
+          job_name: re-com Tests
+          channel: '#oss-robots'
+          url: ${{ secrets.SLACK_WEBHOOK }}
+          commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}

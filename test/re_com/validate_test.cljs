@@ -27,19 +27,19 @@
 
 (deftest test-arg-names-valid?
   (are [expected actual] (= expected actual)
-    true (validate/arg-names-valid? #{:arg1} #{:arg1})
-    false (validate/arg-names-valid? #{:arg1} #{:arg2})
-    true (validate/arg-names-valid? #{:arg1 :arg2} #{:arg2})
-    false (validate/arg-names-valid? #{:arg1 :arg2} #{:arg1 :arg3})))
+                         [] (validate/arg-names-known? #{:arg1} #{:arg1} [])
+                         [{:problem :unknown :arg-name :arg2}] (validate/arg-names-known? #{:arg1} #{:arg2} [])
+                         [] (validate/arg-names-known? #{:arg1 :arg2} #{:arg2} [])
+                         [{:problem :unknown :arg-name :arg3}] (validate/arg-names-known? #{:arg1 :arg2} #{:arg1 :arg3} [])))
 
 (deftest test-required-args-passed?
   (are [expected actual] (= expected actual)
-    true (validate/required-args-passed? #{:arg1} #{:arg1})
-    false (validate/required-args-passed? #{:arg1} #{:arg2})
-    false (validate/required-args-passed? #{:arg1 :arg2} #{:arg2})
-    false (validate/required-args-passed? #{:arg1 :arg2} #{:arg1 :arg3})
-    true (validate/required-args-passed? #{:arg1 :arg2} #{:arg1 :arg2})
-    true (validate/required-args-passed? #{:arg1 :arg2} #{:arg1 :arg2 :arg3})))
+                         [] (validate/required-args? #{:arg1} #{:arg1} [])
+                         [{:problem :required :arg-name :arg1}] (validate/required-args? #{:arg1} #{:arg2} [])
+                         [{:problem :required :arg-name :arg1}] (validate/required-args? #{:arg1 :arg2} #{:arg2} [])
+                         [{:problem :required :arg-name :arg2}] (validate/required-args? #{:arg1 :arg2} #{:arg1 :arg3} [])
+                         [] (validate/required-args? #{:arg1 :arg2} #{:arg1 :arg2} [])
+                         [] (validate/required-args? #{:arg1 :arg2} #{:arg1 :arg2 :arg3} [])))
 
 (deftest test-extension-attribute?
   (is (validate/extension-attribute? :data-attribute))

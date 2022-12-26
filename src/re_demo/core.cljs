@@ -1,13 +1,19 @@
 (ns re-demo.core
-  (:require-macros [cljs.core.async.macros :refer [go]]
-                   [secretary.core         :refer [defroute]])
+  (:require-macros
+    [re-com.core            :refer []]
+    [cljs.core.async.macros :refer [go]]
+    [secretary.core         :refer [defroute]])
   (:require [goog.events                   :as    events]
             [reagent.core                  :as    reagent]
+            [reagent.dom                   :as    rdom]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
-            [re-com.core                   :refer [h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
+            [re-com.core                   :refer [at h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
+            [re-com.config                 :refer [version]]
             [re-com.util                   :refer [get-element-by-id item-for-id]]
             [re-demo.utils                 :refer [panel-title scroll-to-top]]
+            [re-demo.debug                 :as    debug]
+            [re-demo.config                :as    config]
             [re-demo.introduction          :as    introduction]
             [re-demo.radio-button          :as    radio-button]
             [re-demo.checkbox              :as    checkbox]
@@ -37,6 +43,7 @@
             [re-demo.splits                :as    splits]
             [re-demo.tour                  :as    tour]
             [re-demo.modal-panel           :as    modal-panel]
+            [re-demo.multi-select          :as    multi-select]
             [re-demo.h-box                 :as    h-box]
             [re-demo.v-box                 :as    v-box]
             [re-demo.box                   :as    box]
@@ -44,15 +51,18 @@
             [re-demo.line                  :as    line]
             [re-demo.scroller              :as    scroller]
             [re-demo.border                :as    border]
+            [re-demo.tag-dropdown          :as    tag-dropdown]
             [re-demo.typeahead             :as    typeahead]
+            [re-demo.v-table               :as    v-table]
+            [re-demo.simple-v-table        :as   simple-v-table]
             [goog.history.EventType        :as    EventType])
   (:import [goog History]))
 
+;; TODO - is this needed any more??
 (enable-console-print!)
 
 (def tabs-definition
   [{:id :introduction           :level :major :label "Introduction"       :panel introduction/panel}
-
    {:id :buttons                :level :major :label "Buttons"}
    {:id :button                 :level :minor :label "Basic Button"       :panel button/panel}
    {:id :row-button             :level :minor :label "Row Button"         :panel row-button/panel}
@@ -75,8 +85,15 @@
    {:id :selection              :level :major :label "Selection"}
    {:id :dropdown               :level :minor :label "Dropdown"           :panel dropdowns/panel}
    {:id :lists                  :level :minor :label "Selection List"     :panel selection-list/panel}
+   {:id :multi-select           :level :minor :label "Multi-select List"  :panel multi-select/panel}
+   {:id :tag-dropdown           :level :minor :label "Tag Dropdown"       :panel tag-dropdown/panel}
    {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
+
+   {:id :tables                 :level :major :label "Tables"}
+   {:id :simple-v-table         :level :minor :label "Simple V-table"     :panel simple-v-table/panel}
+   {:id :v-table                :level :minor :label "V-table"            :panel v-table/panel}
+
 
    {:id :layers                 :level :major :label "Layers"}
    {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}
@@ -99,7 +116,10 @@
    {:id :line                   :level :minor :label "Line"               :panel line/panel}
    {:id :scroller               :level :minor :label "Scroller"           :panel scroller/panel}
    {:id :border                 :level :minor :label "Border"             :panel border/panel}
-   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}])
+   {:id :splits                 :level :minor :label "Splits"             :panel splits/panel}
+
+   {:id :debug                  :level :major :label "Debugging"          :panel debug/panel}
+   {:id :config                 :level :major :label "Config"             :panel config/panel}])
 
 
 (defn nav-item
@@ -134,22 +154,41 @@
 
 (defn left-side-nav-bar
   [selected-tab-id on-select-tab]
+  (let [background-col "#fcfcfc"]
     [v-box
-     :class    "noselect"
-     :style    {:background-color "#fcfcfc"}
-     ;:size    "1"
-     :children (for [tab tabs-definition]
-                 [nav-item tab selected-tab-id on-select-tab])])
+     :src      (at)
+     :size     "1"
+     :style    {:background-color background-col}
+     :children [[v-box
+                 :src      (at)
+                 :class    "noselect"
+                 :style    {:background-color background-col}
+                 :children (conj (into []
+                                       (for [tab tabs-definition]
+                                         [nav-item tab selected-tab-id on-select-tab])))]
+                [gap
+                 :src  (at)
+                 :size "1"]
+                [box
+                 :src   (at)
+                 :style {:padding "8px 24px"
+                         :background-color background-col}
+                 :child [label
+                         :src   (at)
+                         :style {:font-size "10px"}
+                         :label version]]]]))
 
 
 (defn re-com-title-box
   []
   [h-box
+   :src     (at)
    :justify :center
    :align   :center
    :height  "62px"
    :style   {:background-color "#666"}
    :children [[title
+               :src   (at)
                :label "Re-com"
                :level :level1
                :style {:font-size   "32px"
@@ -159,8 +198,10 @@
 (defn browser-alert
   []
   [box
+   :src     (at)
    :padding "10px 10px 0px 0px"
    :child   [alert-box
+             :src        (at)
              :alert-type :danger
              :heading    "Only Tested On Chrome"
              :body       "re-com should work on all modern browsers, but there might be dragons!"]])
@@ -169,15 +210,15 @@
 
 (defonce id-store        (local-storage (atom nil) ::id-store))
 (defonce selected-tab-id (reagent/atom (if (or (nil? @id-store) (nil? (item-for-id @id-store tabs-definition)))
-                                     (:id (first tabs-definition))
-                                     @id-store)))  ;; id of the selected tab from local storage
+                                         (:id (first tabs-definition))
+                                         @id-store)))  ;; id of the selected tab from local storage
 
 (defroute demo-page "/:tab" [tab] (let [id (keyword tab)]
                                     (reset! selected-tab-id id)
                                     (reset! id-store id)))
 
 (defonce history (History.))
-(events/listen history EventType/NAVIGATE (fn [event] (secretary/dispatch! (.-token event))))
+(events/listen history EventType/NAVIGATE (fn [^js event] (secretary/dispatch! (.-token event))))
 (.setEnabled history true)
 
 (defn main
@@ -185,32 +226,42 @@
   (let [on-select-tab #(.setToken history (demo-page {:tab (name %1)}))] ;; or can use (str "/" (name %1))
     (fn
       []
-      ;(set! re-com.box/debug true)
+      ;(set! re-com.box/visualise-flow? true)
       [h-split
-       ;; Outer-most box height must be 100% to fill the entrie client height.
+       ;; Outer-most box height must be 100% to fill the entire client height.
        ;; This assumes that height of <body> is itself also set to 100%.
        ;; width does not need to be set.
-       :height   "100%"
-       ;:gap      "60px"
-       :initial-split 9
-       :margin "0px"
-       :panel-1 [scroller
-                 ;:size  "none"
-                 :v-scroll :auto
-                 :h-scroll :off
-                 :child [v-box
-                         :size "1"
-                         :children [[re-com-title-box]
-                                    [left-side-nav-bar selected-tab-id on-select-tab]]]]
-       :panel-2 [scroller
-                 :attr  {:id "right-panel"}
-                 :child [v-box
-                         :size  "1"
-                         :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
-                                    [box
-                                     :padding "0px 0px 0px 50px"
-                                     :child [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
+       :src           (at)
+       :height        "100%"
+       :split-is-px?  true
+       :initial-split 180
+       :margin        "0px"
+       :panel-1       [scroller
+                       :src      (at)
+                       ;:size  "none"
+                       :v-scroll :auto
+                       :h-scroll :off
+                       :child [v-box
+                               :src      (at)
+                               :size     "1"
+                               :children [[re-com-title-box]
+                                          [left-side-nav-bar selected-tab-id on-select-tab]]]]
+       :panel-2       [scroller
+                       :src   (at)
+                       :attr  {:id "right-panel"}
+                       :child [v-box
+                               :src      (at)
+                               :size     "1"
+                               :children [(when-not (-> js/goog .-labs .-userAgent .-browser .isChrome) [browser-alert])
+                                          [box
+                                           :src     (at)
+                                           :padding "0px 0px 0px 50px"
+                                           :child   [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
+
+(defn ^:dev/after-load mount-root
+  []
+  (rdom/render [main] (get-element-by-id "app")))
 
 (defn ^:export mount-demo
   []
-  (reagent/render [main] (get-element-by-id "app")))
+  (mount-root))

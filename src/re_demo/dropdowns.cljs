@@ -1,20 +1,26 @@
 (ns re-demo.dropdowns
-  (:require [re-com.core     :refer [h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span]]
-            [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-args-desc]]
-            [re-com.util     :refer [item-for-id]]
-            [re-demo.utils   :refer [panel-title title2 args-table github-hyperlink status-text]]
-            [reagent.core    :as    reagent]))
+  (:require-macros
+    [re-com.core     :refer []])
+  (:require
+    [re-com.core     :refer [at h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
+    [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
+    [re-com.util     :refer [item-for-id]]
+    [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
+    [re-com.util     :refer [px]]
+    [reagent.core    :as    reagent]))
 
 
-(def demos [{:id 1 :label "Simple dropdown"}
-            {:id 2 :label "Dropdown with grouping"}
-            {:id 3 :label "Dropdown with filtering"}
+(def demos [{:id 1  :label "Simple dropdown"}
+            {:id 2  :label "Dropdown with grouping"}
+            {:id 3  :label "Dropdown with filtering"}
             ;{:id 4 :label "Use of :id-fn etc."} ;; for testing
-            {:id 5 :label "Keyboard support"}
-            {:id 6 :label "Other parameters"}
-            {:id 7 :label "Two dependent dropdowns"}
-            {:id 8 :label "Custom markup"}
-            {:id 9 :label "Async choices load"}])
+            {:id 5  :label "Keyboard support"}
+            {:id 6  :label "Other parameters"}
+            {:id 7  :label "Two dependent dropdowns"}
+            {:id 8  :label "Custom markup"}
+            {:id 9  :label "Async choices load"}
+            {:id 10 :label "Drop above"}
+            {:id 11 :label "Free text"}])
 
 
 (def countries [{:id "au" :label "Australia"}
@@ -108,7 +114,7 @@
 
 (defn simple-demo
   []
-  [v-box
+  [v-box :src (at)
    :gap "10px"
    :children [[p "The dropdown above is the simple case."]
               [p "It presents a list of choices and allows one to be selected, via mouse or keyboard."]]])
@@ -119,15 +125,14 @@
   (let [selected-country-id (reagent/atom nil)]
     (fn []
       [v-box
+       :src      (at)
        :gap      "10px"
-       :children [[p "The dropdown below shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'EN COUNTRIES'."]
-                  [p "This feature is triggered if any choice has a " [:code ":group"] " attribute. Typically all choices will have a " [:code ":group"] " or none will. It's up to you to ensure that choices with the same " [:code ":group"] " are adjacent in the vector."]
-                  [p "Because :model is initially nil, the " [:code ":placeholder"] " text is initially displayed."]
-                  [p [:code ":max-width"] " is set here to make the dropdown taller."]
-                  [h-box
+       :children [[h-box
+                   :src      (at)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src         (at)
                                :choices     grouped-countries
                                :model       selected-country-id
                                :title?      true
@@ -140,7 +145,12 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
+                  [p "The dropdown above shows how related choices can be displayed in groups. In this case, several country related groups. e.g. 'EN COUNTRIES'."]
+                  [p "This feature is triggered if any choice has a " [:code ":group"] " attribute. Typically all choices will have a " [:code ":group"] " or none will. It's up to you to ensure that choices with the same " [:code ":group"] " are adjacent in the vector."]
+                  [p "Because :model is initially nil, the " [:code ":placeholder"] " text is initially displayed."]
+                  [p [:code ":max-width"] " is set here to make the dropdown taller."]]])))
+
 
 
 (defn filtering-demo
@@ -148,15 +158,14 @@
   (let [selected-country-id (reagent/atom "US")]
     (fn []
       [v-box
+       :src      (at)
        :gap      "10px"
-       :children [[p "The dropdown below adds a filter text box to the dropdown section which is convenient for when there are many choices."]
-                  [p "The filter text is searched for in both the :group and the :label values. If the text matches the " [:code ":group"] ", then all
-                      choices under that group are considered to be 'matched'."]
-                  [p "The initial model value has been set to 'US'."]
-                  [h-box
+       :children [[h-box
+                   :src      (at)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src         (at)
                                :choices     grouped-countries
                                :model       selected-country-id
                                :width       "300px"
@@ -167,7 +176,12 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
+                  [p "The dropdown above adds a filter text box to the dropdown section which is convenient for when there are many choices."]
+                  [p "The filter text is searched for in both the :group and the :label values. If the text matches the " [:code ":group"] ", then all
+                      choices under that group are considered to be 'matched'."]
+                  [p "The initial model value has been set to 'US'."]]])))
+
 
 
 (defn id-fn-demo
@@ -178,15 +192,18 @@
         selected-country-id (reagent/atom (id-fn {:code "US"}))]
     (fn []
       [v-box
+       :src      (at)
        :gap      "10px"
        :children [[p "This example is the same as the previous one except the list is shorter and the following parameters have been added to use different keywords for the data and transform the values provided:"]
                   [p [:code ":id-fn"] " is set to " [:code "#(str (:code %) \"$\")"]]
                   [p [:code ":label-fn"] " is set to " [:code "#(str (:country %) \"!\")"]]
                   [p [:code ":group-fn"] " is set to " [:code "#(str \"[\" (:region %) \"]\")"]]
                   [h-box
+                   :src      (at)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src         (at)
                                :choices     grouped-countries-2
                                :model       selected-country-id
                                :width       "300px"
@@ -205,96 +222,344 @@
 
 (defn keyboard-demo
   []
-  (let [selected-country-id (reagent/atom "US")]
+  (let [selected-country-id   (reagent/atom "US")
+        selected-country-id-1 (reagent/atom "AU")
+        selected-country-id-2 (reagent/atom "E2")
+        selected-country-id-3 (reagent/atom "GB")]
     (fn []
       [v-box
+       :src      (at)
        :gap      "10px"
        :children [[p "[single-dropdown ...] supports tab key navigation."]
-                  [p "The " [:code ":tab-index"] " parameter specifies position in the tab order,
+                  [p "The " [:code ":tab-index"] " parameter specifies position in the tab order (default is 0),
                        or it can be removed from the tab order using a value of -1."]
                   [p "Up-arrow and Down-arrow do sensible things."]
                   [p "Home and End keys move to the beginning and end of the list."]
                   [p "Enter, Tab and Shift+Tab trigger selection of the currently highlighted choice."]
                   [p "Esc closes the dropdown without making a selection."]
                   [h-box
+                   :src      (at)
                    :gap      "10px"
                    :align    :center
-                   :children [[label :label "Test tabbing"]
+                   :children [[label
+                               :src   (at)
+                               :label "Test tabbing"]
                               [input-text
+                               :src       (at)
                                :model     ""
                                :on-change #()
                                :width     "80px"]
                               [single-dropdown
+                               :src         (at)
                                :choices     grouped-countries
                                :model       selected-country-id
-                               :width       "300px"
+                               :width       "200px"
                                :filter-box? true
                                :on-change   #(reset! selected-country-id %)]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
+                  [gap
+                   :src  (at)
+                   :size "10px"]
+                  [p "All components on this page have " [:code ":tab-index"] " set to the default (0) except the ones below.
+                      Keep pressing the Tab key and note how the focus cycles through the components."]
+                  [h-box
+                   :src      (at)
+                   :align    :center
+                   :gap      "10px"
+                   :children [[label
+                               :src   (at)
+                               :label [:span [:code ":tab-index"] " is set to 3"]]
+                              [single-dropdown
+                               :src           (at)
+                               :choices       grouped-countries
+                               :model         selected-country-id-1
+                               :tab-index     3
+                               :width         "200px"
+                               :filter-box?   true
+                               :on-change     #(reset! selected-country-id-1 %)]]]
+                  [h-box
+                   :src      (at)
+                   :align    :center
+                   :gap      "10px"
+                   :children [[label
+                               :src   (at)
+                               :label [:span [:code ":tab-index"] " is set to 2"]]
+                              [single-dropdown
+                               :src           (at)
+                               :choices       grouped-countries
+                               :model         selected-country-id-2
+                               :tab-index     2
+                               :width         "200px"
+                               :filter-box?   true
+                               :on-change     #(reset! selected-country-id-2 %)]]]
+                  [h-box
+                   :src      (at)
+                   :align    :center
+                   :gap      "10px"
+                   :children [[label
+                               :src   (at)
+                               :label [:span [:code ":tab-index"] " is set to 1"]]
+                              [single-dropdown
+                               :src           (at)
+                               :choices       grouped-countries
+                               :model         selected-country-id-3
+                               :tab-index     1
+                               :width         "200px"
+                               :filter-box?   true
+                               :on-change     #(reset! selected-country-id-3 %)]]]]])))
 
 
 (defn other-params-demo
   []
   (let [selected-country-id (reagent/atom "US")
+        change-count        (reagent/atom 0)
+        drop-count          (reagent/atom 0)
         disabled?           (reagent/atom false)
         regex?              (reagent/atom false)
         width?              (reagent/atom false)
+        tooltip?            (reagent/atom false)
+        tooltip-position?   (reagent/atom false)
+        enter-drop?         (reagent/atom true)
+        cancelable?         (reagent/atom true)
+        filter-placeholder? (reagent/atom false)
+        just-drop?          (reagent/atom false)
+        repeat-change?      (reagent/atom false)
+        i18n?               (reagent/atom false)
+        on-drop?            (reagent/atom false)
         dropdown-width      "300px"]
     (fn []
       [v-box
+       :src      (at)
        :gap      "10px"
-       :children [[p "Experiment with the checkboxes below to understand the effect of other parameters."]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":disabled?"]]
-                               :model disabled?
-                               :label-style {:width "130px"}
-                               :on-change #(reset! disabled? %)]
-                              [:span (str @disabled? " - " (if @disabled?
-                                                             "the dropwdown is locked and cannot be changed."
-                                                             "the dropdown is enabled and a choice can be selected."))]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":regex-filter?"]]
-                               :model regex?
-                               :label-style {:width "130px"}
-                               :on-change #(reset! regex? %)]
-                              [:span (str @regex? " - " (if @regex?
-                                                          "the filter text box supports JavaScript regular expressions."
-                                                          "the filter text box supports plain text filtering only."))]]]
-                  [h-box
-                   :align    :center
-                   :children [[checkbox
-                               :label [box :align :start :child [:code ":width"]]
-                               :model width?
-                               :label-style {:width "130px"}
-                               :on-change #(reset! width? %)]
-                              [:span (str (if @width?
-                                            (str "\"" dropdown-width "\" - the dropdown is fixed to this width.")
-                                            "not specified - the dropdown takes up all available width."))]]]
-                  [gap :size "10px"]
-                  [h-box
+       :children [[h-box
+                   :src      (at)
                    :gap      "10px"
                    :align    :center
-                   :children [[single-dropdown
-                               :choices       grouped-countries
-                               :model         selected-country-id
-                               :disabled?     @disabled?
-                               :filter-box?   true
-                               :regex-filter? @regex?
-                               :width         (when @width? dropdown-width)
-                               :on-change     #(reset! selected-country-id %)]
+                   :children [^{:key (str @just-drop? @on-drop?)}
+                              [single-dropdown
+                               :src                (at)
+                               :choices            grouped-countries
+                               :model              selected-country-id
+                               :disabled?          @disabled?
+                               :filter-box?        true
+                               :regex-filter?      @regex?
+                               :width              (when @width? dropdown-width)
+                               :tooltip            (when @tooltip? "An example tooltip")
+                               :tooltip-position   (when @tooltip-position? :right-center)
+                               :enter-drop?        @enter-drop?
+                               :cancelable?        @cancelable?
+                               :filter-placeholder (when @filter-placeholder? "An example filter placeholder")
+                               :just-drop?         @just-drop?
+                               :repeat-change?     @repeat-change?
+                               :i18n               (when @i18n? {:no-results-match "Brak wyników odpowiadających \"%s\""})
+                               :on-change          #(do
+                                                      (swap! change-count inc)
+                                                      (reset! selected-country-id %))
+                               :on-drop            (when @on-drop?
+                                                     #(swap! drop-count inc))]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
+                  [v-box
+                   :src      (at)
+                   :gap      "10px"
+                   :style    {:min-width        "150px"
+                              :padding          "15px"
+                              :border-top       "1px solid #DDD"
+                              :background-color "#f7f7f7"}
+                   :children [[title :src (at) :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                              [p "Experiment with the checkboxes below to understand the effect of other parameters."]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":disabled?"]]
+                                           :model       disabled?
+                                           :label-style {:width "165px"}
+                                           :on-change   #(reset! disabled? %)]
+                                          [:span (str @disabled? " - " (if @disabled?
+                                                                         "the dropdown is locked and cannot be changed."
+                                                                         "the dropdown is enabled and a choice can be selected."))]]]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":regex-filter?"]]
+                                           :model       regex?
+                                           :label-style {:width "165px"}
+                                           :on-change   #(reset! regex? %)]
+                                          [:span (str @regex? " - " (if @regex?
+                                                                      "the filter text box supports JavaScript regular expressions."
+                                                                      "the filter text box supports plain text filtering only."))]]]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":width"]]
+                                           :model       width?
+                                           :label-style {:width "165px"}
+                                           :on-change   #(reset! width? %)]
+                                          [:span (str (if @width?
+                                                        (str "\"" dropdown-width "\" - the dropdown is fixed to this width.")
+                                                        "not specified - the dropdown takes up all available width."))]]]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src      (at)
+                                                         :align :start :child [:code ":tooltip"]]
+                                           :model       tooltip?
+                                           :label-style {:width "165px"}
+                                           :on-change   #(reset! tooltip? %)]
+                                          [:span (if @tooltip?
+                                                   "hover over the dropdown to see the tooltip."
+                                                   "no tooltip specified.")]]]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":tooltip-position"]]
+                                           :model       tooltip-position?
+                                           :label-style {:width "165px"}
+                                           :disabled?   (not @tooltip?)
+                                           :on-change   #(reset! tooltip-position? %)]
+                                          [:span (cond
+                                                   (not @tooltip?)    "does not apply."
+                                                   @tooltip-position? "the tooltip will appear on the right hand side of the dropdown."
+                                                   :else              "not specified - the tooltip will appear below the dropdown.")]]]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":enter-drop?"]]
+                                           :model       enter-drop?
+                                           :label-style {:width "165px"}
+                                           :on-change   #(reset! enter-drop? %)]
+                                          [:span (str @enter-drop? " - " (if @enter-drop?
+                                                                           "pressing Enter (while focused) displays the dropdown part."
+                                                                           "pressing Enter (while focused) does not display the dropdown part."))]]]
+                              [h-box
+                               :src      (at)
+                               :align    :start
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":cancelable?"]]
+                                           :model       cancelable?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! cancelable? %)]
+                                          [:span (str @cancelable? " - " (if @cancelable?
+                                                                           "selection made with arrow keys can be cancelled by pressing Esc or clicking outside the dropdown part."
+                                                                           "selection made with arrow keys is immediately applied and thus cannot be cancelled."))]]]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":filter-placeholder"]]
+                                           :model       filter-placeholder?
+                                           :label-style {:width "165px"}
+                                           :on-change   #(reset! filter-placeholder? %)]
+                                          [:span (str (if @filter-placeholder?
+                                                        "a placeholder text will be displayed when the filter is empty."
+                                                        "not specified - no placeholder text will be displayed in the filter textbox."))]]]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":just-drop?"]]
+                                           :model       just-drop?
+                                           :label-style {:width "165px"}
+                                           :on-change   #(reset! just-drop? %)]
+                                          [:span (str @just-drop? " - " (if @just-drop?
+                                                                          "just the dropdown part display."
+                                                                          "normal display."))]]]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":repeat-change?"]]
+                                           :model       repeat-change?
+                                           :label-style {:width "165px"}
+                                           :on-change #(reset! repeat-change? %)]
+                                          [:span (str @repeat-change? " - " (if @repeat-change?
+                                                                              (str "the change count of " @change-count " will increase if an item is re-selected.")
+                                                                              (str "the change count of " @change-count " will not increase if an item is re-selected.")))]]]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":i18n"]]
+                                           :model       i18n?
+                                           :label-style {:width "165px"}
+                                           :on-change   #(reset! i18n? %)]
+                                          [:span (if @i18n?
+                                                   "type e.g. \"1\" in the filter box to see the \"No results match\" message translated."
+                                                   "no internationalization applied.")]]]
+                              [h-box
+                               :src      (at)
+                               :align    :center
+                               :children [[checkbox
+                                           :src         (at)
+                                           :label       [box
+                                                         :src   (at)
+                                                         :align :start
+                                                         :child [:code ":on-drop?"]]
+                                           :model       on-drop?
+                                           :label-style {:width "165px"}
+                                           :on-change   #(reset! on-drop? %)]
+                                          [:span (str @on-drop? " - " (if @on-drop?
+                                                                        (str "the drop count of " @drop-count " will increase on the dropdown part display.")
+                                                                        (str "the drop count of " @drop-count " will not increase on the dropdown part display.")))]]]
+                              [gap
+                               :src  (at)
+                               :size "10px"]]]]])))
+
 
 
 (defn two-dependent-demo
@@ -304,12 +569,15 @@
         selected-city-id    (reagent/atom nil)]
     (fn []
       [v-box
+       :src      (at)
        :gap      "10px"
        :children [[p "Two dropdowns can be tied together in a parent-child relationship. In this case, countries and their cities."]
                   [h-box
+                   :src      (at)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src       (at)
                                :choices   countries
                                :model     selected-country-id
                                :width     "300px"
@@ -322,11 +590,15 @@
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (:label (item-for-id @selected-country-id countries)) " [" @selected-country-id "]"))]]]
-                  [gap :size "10px"]
+                  [gap
+                   :src  (at)
+                   :size "10px"]
                   [h-box
+                   :src      (at)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src       (at)
                                :choices   filtered-cities
                                :model     selected-city-id
                                :width     "300px"
@@ -342,12 +614,14 @@
   (let [selected-country-id (reagent/atom nil)]
     (fn []
       [v-box
+       :src      (at)
        :gap      "10px"
-       :children [[p "Dropdowns choices can be built with arbitrary markup using the " [:code ":render-fn"] " attribute. When filtering, only the text from the label will be considered."]
-                  [h-box
+       :children [[h-box
+                   :src      (at)
                    :gap      "10px"
                    :align    :center
                    :children [[single-dropdown
+                               :src         (at)
                                :choices     countries
                                :render-fn   (fn [choice] [:div [:span (:label choice)]
                                                                [:span {:style {:float "right"}} "\u2691"]])
@@ -361,7 +635,8 @@
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
                                  "None"
-                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]]])))
+                                 (str (:label (item-for-id @selected-country-id grouped-countries)) " [" @selected-country-id "]"))]]]
+                  [p "Dropdowns choices can be built with arbitrary markup using the " [:code ":render-fn"] " attribute. When filtering, only the text from the label will be considered."]]])))
 
 (defn async-load-demo
   []
@@ -375,108 +650,254 @@
                                        (not= -1 (.indexOf (:label %) filter-text))) cities))]
     (fn []
       [v-box
-       :gap "10px"
-       :children [[p "You may pass " [:cod "(fn [opts done fail] ...)"] " to :choices attribute to asynchronously load data.
+       :src      (at)
+       :gap      "10px"
+       :children [[p "You may pass " [:code "(fn [opts done fail] ...)"] " to :choices attribute to asynchronously load data.
                       When data is loaded callback either (done result) of (fail error) should be called."]
                   [p "Dropdown uses initial callback. This way we don't require managing callbacks and
                       allow passing inline callback. If callback will change (e.g. dependent dropdown) - :key may be used."]
-                  [label :label "Result after a second:"]
+                  [label
+                   :src   (at)
+                   :label "Result after a second:"]
                   [single-dropdown
-                   :choices (fn [{:keys [filter-text]} done fail]
-                              (js/setTimeout
-                                (fn []
-                                  (done (filter-countries filter-text)))
-                                1000))
+                   :src         (at)
+                   :choices     (fn [{:keys [filter-text]} done fail]
+                                  (js/setTimeout
+                                    (fn []
+                                      (done (filter-countries filter-text)))
+                                    1000))
                    :placeholder "Choose country"
-                   :model selected-country-id
+                   :model       selected-country-id
                    :filter-box? true
-                   :width "300px"
-                   :max-height "400px"
-                   :on-change #(reset! selected-country-id %)]
-                  [label :label "Dependent dropdown:"]
+                   :width       "300px"
+                   :max-height  "400px"
+                   :on-change   #(reset! selected-country-id %)]
+                  [label
+                   :src   (at)
+                   :label "Dependent dropdown:"]
                   [:div {:key @selected-country-id}
                    [single-dropdown
-                    :choices (fn [{:keys [filter-text]} done fail]
-                               (js/setTimeout
-                                 (fn []
-                                   (done (filter-citites @selected-country-id filter-text)))
-                                 1000))
+                    :src         (at)
+                    :choices     (fn [{:keys [filter-text]} done fail]
+                                   (js/setTimeout
+                                     (fn []
+                                       (done (filter-citites @selected-country-id filter-text)))
+                                     1000))
                     :placeholder "Choose city"
-                    :model selected-city-id
+                    :model       selected-city-id
                     :filter-box? true
-                    :width "300px"
-                    :max-height "400px"
-                    :on-change #(reset! selected-city-id %)]]
-                  [label :label "With error:"]
+                    :width       "300px"
+                    :max-height  "400px"
+                    :on-change   #(reset! selected-city-id %)]]
+                  [label
+                   :src   (at)
+                   :label "With error:"]
                   [single-dropdown
-                   :choices (fn [{:keys [filter-text]} done fail]
-                              (js/setTimeout
-                                #(if (= "please" filter-text)
-                                   (done countries)
-                                   (fail "Server error"))
-                                1000))
+                   :src         (at)
+                   :choices     (fn [{:keys [filter-text]} done fail]
+                                  (js/setTimeout
+                                    #(if (= "please" filter-text)
+                                       (done countries)
+                                       (fail "Server error"))
+                                    1000))
                    :placeholder "Type 'please' to get results"
-                   :model @selected-country-id2
+                   :model       @selected-country-id2
                    :filter-box? true
-                   :width "300px"
-                   :max-height "400px"
-                   :on-change #(reset! selected-country-id2 %)]]])))
+                   :width       "300px"
+                   :max-height  "400px"
+                   :on-change   #(reset! selected-country-id2 %)]]])))
+
+(defn drop-above-demo
+  []
+  (let [selected-city-id (reagent/atom nil)]
+    (fn []
+      [v-box
+       :src      (at)
+       :gap      "100px"
+       :children [[h-box
+                   :src      (at)
+                   :gap      "10px"
+                   :align    :center
+                   :children [[single-dropdown
+                               :src             (at)
+                               :can-drop-above? true
+                               :choices         cities
+                               :model           selected-city-id
+                               :placeholder     "Choose a city"
+                               :width           "300px"
+                               :max-height      "500px"
+                               :on-change       #(reset! selected-city-id %)]
+                              [:div
+                               [:strong "Selected city: "]
+                               (if (nil? @selected-city-id)
+                                 "None"
+                                 (str (:label (item-for-id @selected-city-id cities)) " [" @selected-city-id "]"))]]]
+                  [p "When the " [:code ":can-drop-above?"] " attribute is set the dropdown part will be displayed above the top part if the space below it is too small."]
+                  [p "If items have non-standard height, the " [:code ":est-item-height"] "can be set to help guess where to display the dropdown part. This guess will be verified on the actual render so it is non-essential but can help eliminate an unnecessary redraw."]]])))
+
+
+(defn free-text-demo
+  []
+  (let [disabled?      (reagent/atom false)
+        selected-city  (reagent/atom nil)
+        selected-city2 (reagent/atom nil)
+        auto-complete? (reagent/atom false)
+        capitalize?    (reagent/atom false)
+        f              (fn [a]
+                         [single-dropdown
+                          :src             (at)
+                          :free-text?      true
+                          :auto-complete?  @auto-complete?
+                          :capitalize?     @capitalize?
+                          :disabled?       @disabled?
+                          :choices         (->> cities (mapv :label) sort)
+                          :model           a
+                          :placeholder     (str "Choose/type a city" (when @auto-complete? " or enter a first few letters"))
+                          :width           "350px"
+                          :on-change       #(reset! a %)])]
+    (fn []
+      [v-box
+       :src      (at)
+       :gap      "10px"
+       :children [[p "Allow user a free text input by setting the " [:code ":free-text?"] " attribute."]
+                  [p "Additional options:"]
+                  [h-box
+                   :src      (at)
+                   :align    :center
+                   :children [[checkbox
+                               :src         (at)
+                               :label       [box
+                                             :src   (at)
+                                             :align :start
+                                             :child [:code ":disabled?"]]
+                               :model       disabled?
+                               :label-style {:width "165px"}
+                               :on-change   #(reset! disabled? %)]
+                              [:span (str @disabled? " - " (if @disabled?
+                                                             "the dropdown is locked and cannot be changed."
+                                                             "the dropdown is enabled and a choice can be selected."))]]]
+                  [checkbox
+                   :src         (at)
+                   :label       [box
+                                 :src   (at)
+                                 :align :start
+                                 :child [:code ":auto-complete?"]]
+                   :model       auto-complete?
+                   :label-style {:width "165px"}
+                   :on-change   #(reset! auto-complete? %)]
+                  [checkbox
+                   :src         (at)
+                   :label       [box :src (at) :align :start :child [:code ":capitalize?"]]
+                   :model       capitalize?
+                   :label-style {:width "165px"}
+                   :on-change   #(reset! capitalize? %)]
+                  [gap
+                   :src  (at)
+                   :size "10px"]
+                  [h-box
+                   :src      (at)
+                   :gap      "10px"
+                   :align    :center
+                   :children [(f selected-city)
+                              [:div
+                               [:strong "City: "]
+                               (if (seq @selected-city)
+                                 @selected-city
+                                 "None")]]]
+                  [gap
+                   :src  (at)
+                   :size "50px"]
+                  [line
+                   :src      (at)]
+
+                  [p "If the filter box is enabled, the filter text can be reused as the actual text entry. To try this, type e.g. \"1\" in the filter box and press Enter."]
+                  [:pre ":filter-box?   true\n:set-to-filter #{:on-enter-press :on-no-results-match-click}"]
+                  [gap
+                   :src  (at)
+                   :size "10px"]
+                  [h-box
+                   :src      (at)
+                   :gap      "10px"
+                   :align    :center
+                   :children [(conj (f selected-city2)
+                                :filter-box? true
+                                :set-to-filter #{:on-enter-press :on-no-results-match-click})
+                              [:div
+                               [:strong "City: "]
+                               (if (seq @selected-city2)
+                                 @selected-city2
+                                 "None")]]]]])))
+
+(defonce selected-demo-id (reagent/atom 1))
 
 (defn panel2
   []
-  (let [selected-demo-id (reagent/atom 1)]
-    (fn []
-      [v-box
-       :size     "auto"
-       :gap      "10px"
-       :children [[panel-title "[single-dropdown ... ]"
-                                "src/re_com/dropdown.cljs"
-                                "src/re_demo/dropdowns.cljs"]
-                  [h-box
-                   :gap      "100px"
-                   :children [[v-box
-                               :gap      "10px"
-                               :width    "450px"
-                               :children [[title2 "Notes"]
-                                          [status-text "Stable"]
-                                           [p-span
-                                            "A dropdown selection component, similar to "
-                                            [hyperlink-href
-                                             :label  "Chosen"
-                                             :href   "http://harvesthq.github.io/chosen"
-                                             :target "_blank"]
-                                            ", styled using "
-                                            [hyperlink-href
-                                             :label  "Bootstrap"
-                                             :href   "https://github.com/alxlit/bootstrap-chosen"
-                                             :target "_blank"]
-                                            "."]
-                                           [p "Note: Single selection only."]
-                                          [args-table single-dropdown-args-desc]]]
-                              [v-box
-                               :width     "700px"
-                               :gap       "10px"
-                               :children  [[title2 "Demo"]
-                                           [h-box
-                                            :gap      "10px"
-                                            :align    :center
-                                            :children [[label :label "Select a demo"]
-                                                       [single-dropdown
-                                                        :choices   demos
-                                                        :model     selected-demo-id
-                                                        :width     "300px"
-                                                        :on-change #(reset! selected-demo-id %)]]]
-                                           [gap :size "0px"] ;; Force a bit more space here
-                                           (case @selected-demo-id
-                                             1 [simple-demo]
-                                             2 [grouping-demo]
-                                             3 [filtering-demo]
-                                             4 [id-fn-demo] ;; for testing - uncomment equivalent line in demos vector above
-                                             5 [keyboard-demo]
-                                             6 [other-params-demo]
-                                             7 [two-dependent-demo]
-                                             8 [custom-markup-demo]
-                                             9 [async-load-demo])]]]]]])))
+  (fn []
+    [v-box
+     :src      (at)
+     :size     "auto"
+     :gap      "10px"
+     :children [[panel-title "[single-dropdown ... ]"
+                              "src/re_com/dropdown.cljs"
+                              "src/re_demo/dropdowns.cljs"]
+                [h-box
+                 :src      (at)
+                 :gap      "100px"
+                 :children [[v-box
+                             :src      (at)
+                             :gap      "10px"
+                             :width    "450px"
+                             :children [[title2 "Notes"]
+                                        [status-text "Stable"]
+                                        [p-span
+                                          "A dropdown selection component, similar to "
+                                          [hyperlink-href :src (at)
+                                           :label  "Chosen"
+                                           :href   "http://harvesthq.github.io/chosen"
+                                           :target "_blank"]
+                                          ", styled using "
+                                          [hyperlink-href :src (at)
+                                           :label  "Bootstrap"
+                                           :href   "https://github.com/alxlit/bootstrap-chosen"
+                                           :target "_blank"]
+                                          "."]
+                                        [p "Note: Single selection only."]
+                                        [args-table single-dropdown-args-desc]]]
+                            [v-box
+                             :src      (at)
+                             :width     "700px"
+                             :gap       "10px"
+                             :children  [[title2 "Demo"]
+                                         [h-box
+                                          :src      (at)
+                                          :gap      "10px"
+                                          :align    :center
+                                          :children [[label
+                                                      :src   (at)
+                                                      :label "Select a demo"]
+                                                     [single-dropdown
+                                                      :src        (at)
+                                                      :choices    demos
+                                                      :model      selected-demo-id
+                                                      :width      "300px"
+                                                      :max-height "300px"
+                                                      :on-change  #(reset! selected-demo-id %)]]]
+                                         [gap
+                                          :src  (at)
+                                          :size "0px"] ;; Force a bit more space here
+                                         (case @selected-demo-id
+                                           1  [simple-demo]
+                                           2  [grouping-demo]
+                                           3  [filtering-demo]
+                                           4  [id-fn-demo] ;; for testing - uncomment equivalent line in demos vector above
+                                           5  [keyboard-demo]
+                                           6  [other-params-demo]
+                                           7  [two-dependent-demo]
+                                           8  [custom-markup-demo]
+                                           9  [async-load-demo]
+                                           10 [drop-above-demo]
+                                           11 [free-text-demo])]]]]
+                [parts-table "single-dropdown" single-dropdown-parts-desc]]]))
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

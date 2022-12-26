@@ -1,13 +1,13 @@
 (ns re-demo.layout
-  (:require [re-com.core   :refer [h-box v-box box gap line title label hyperlink-href p md-icon-button]]
+  (:require [re-com.core   :refer [at h-box v-box box gap line title label hyperlink-href p md-icon-button]]
             [re-demo.utils :refer [panel-title title2]]))
 
 
 
 (defn components-section
   []
-  [v-box
-   :children [[title :level :level2 :label "The Components"]
+  [v-box :src (at)
+   :children [[title :src (at) :level :level2 :label "The Components"]
               [p "Re-com has layout components which are not themselves visible -
                   they just arrange other components."]
               [p "The key components are " [:span.bold "h-box"] " and " [:span.bold "v-box"] " which arange
@@ -17,82 +17,80 @@
 
 (defn example-layout
   []
-  [v-box
-   :children [
-              [h-box
-               :children [
-                          [v-box
-                           :children [
-                                      [p "And this example code, showing an " [:span.bold "h-box"] " as a child of a " [:span.bold "v-box"] " ..."]
-                                      [:pre
-                                       {:style {:width "460px"}}
+  [v-box :src (at)
+   :children [[h-box :src (at)
+               :children [[v-box :src (at)
+                           :children [[p "And this example code, showing an " [:span.bold "h-box"] " as a child of a " [:span.bold "v-box"] " ..."]
+                                      [:pre {:style {:width "460px"}}
 "[v-box
   :children [[box :child \"Header\"]
              [h-box
               :height \"100px\"
               :children [[box :size \"70px\" :child \"Nav\"]
-                         [box :size \"1\" :child \"Content\"]]
+                         [box :size \"1\" :child \"Content\"]]]
              [box :child \"Footer\"]]]"]]]
-                          [box
+                          [box :src (at)
                            :size "100px"
                            :align-self  :center
                            :justify :center
                            :child  [:div {:class "zmdi zmdi-forward rc-icon-larger"
                                           :style {:color "lightgrey"}}]]
-                          [v-box
+                          [v-box :src (at)
                            :children [[p "... results in this kind of structure:"]
-                                      [v-box
+                                      [v-box :src (at)
                                        :gap      "1px"
-                                       :children [[box :style {:background-color "lightgrey"} :child "Header"]
-                                                  [h-box
+                                       :children [[box :src (at) :style {:background-color "lightgrey"} :child "Header"]
+                                                  [h-box :src (at)
                                                    :gap "1px"
                                                    :height "100px"
-                                                   :children [[box :size "70px" :style {:background-color "lightgrey"} :child "Nav"]
-                                                              [box :size "1" :style {:background-color "lightgrey"} :child "Content"]]]
-                                                  [box :style {:background-color "lightgrey"} :child "Footer"]]]
-                                      [gap :size "15px"]]]]]]])
+                                                   :children [[box :src (at) :size "70px" :style {:background-color "lightgrey"} :child "Nav"]
+                                                              [box :src (at) :size "1" :style {:background-color "lightgrey"} :child "Content"]]]
+                                                  [box :src (at) :style {:background-color "lightgrey"} :child "Footer"]]]
+                                      [gap :src (at) :size "15px"]]]]]]])
 
 (defn flex-box-section
   []
-  [v-box
+  [v-box :src (at)
    :gap "10px"
-   :children [[title :level :level2 :label "Flexbox"]
-              [h-box
+   :children [[title :src (at) :level :level2 :label "Flexbox"]
+              [h-box :src (at)
                :gap "100px"
-               :children [[v-box
-                           :children [
-                                      [p "Re-com's layout model is a thin layer over " [:span.bold "CSS Flexbox"] "."]
+               :children [[v-box :src (at)
+                           :children [[p "Re-com's layout model is a thin layer over " [:span.bold "CSS Flexbox"] "."]
                                       [p "To fully understand Re-com's layout components and use them
                                           powerfully, you " [:span.bold "will"] " need to have a strong understanding of
                                           Flexbox. You should do these tutorials very soon:"]
                                       [:ul
                                        [:li
-                                        [hyperlink-href
+                                        [hyperlink-href :src (at)
                                          :label "CSS-Tricks guide to flexbox"
                                          :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
                                          :target "_blank"]]
                                        [:li
-                                        [hyperlink-href
+                                        [hyperlink-href :src (at)
                                          :label "The Ultimate Flexbox Cheat Sheet"
                                          :href "http://www.sketchingwithcss.com/samplechapter/cheatsheet.html"
                                          :target "_blank"]]]]]
 
-                          [v-box
+                          [v-box :src (at)
                            :style {:font-size "13px" :color "#aaa"}
-                           :children [[p {:style {:width "250px"}} "While, flexbox may be waaaaaay better than the HTML5 alternatives ..."]
-                                      [p {:style {:width "250px"}} "How crazy that Knuth pioneered this box/glue stuff "
-                                       [hyperlink-href
-                                        :label "35 years ago"
-                                        :href "http://i.stanford.edu/pub/cstr/reports/csl/tr/88/358/CSL-TR-88-358.pdf"
-                                        :target "_blank"]
-                                       ", and GUI toolkits had it "
-                                       [hyperlink-href
-                                        :label "25 years ago"
-                                        :href "http://i.stanford.edu/pub/cstr/reports/csl/tr/88/358/CSL-TR-88-358.pdf"
-                                        :target "_blank"]
-                                       ", and yet HTML5 only has a weak, half-arsed version?"]]]]]
-              [v-box
-               :children [[title :level :level2 :label "Warning: Be All In"]
+                           :children [[p "While, flexbox may be waaaaaay better than the HTML5 alternatives ..."]
+                                      [box :src (at)
+                                       :width "450px"
+                                       :child [:span
+                                               "How crazy that Knuth pioneered this box/glue stuff "
+                                               [hyperlink-href :src (at)
+                                                :label "35 years ago"
+                                                :href "http://i.stanford.edu/pub/cstr/reports/csl/tr/88/358/CSL-TR-88-358.pdf"
+                                                :target "_blank"]
+                                               ", and GUI toolkits had it "
+                                               [hyperlink-href :src (at)
+                                                :label "25 years ago"
+                                                :href "http://i.stanford.edu/pub/cstr/reports/csl/tr/88/358/CSL-TR-88-358.pdf"
+                                                :target "_blank"]
+                                               ", and yet HTML5 only has a weak, half-arsed version?"]]]]]]
+              [v-box :src (at)
+               :children [[title :src (at) :level :level2 :label "Warning: Be All In"]
                           [p "Flexbox works via the interplay of styles present on a " [:span.bold "container"] " (parent) and its " [:span.bold "items"]
                              " (children). Invariably, DOM nodes act as both a container for the level below, and an item for the level above."]
                           [p "If block-level elements (divs?) are present in this tree, they
@@ -106,15 +104,15 @@
 
 (defn key-style-section
   []
-  [v-box
+  [v-box :src (at)
    :width "450px"
-   :children [[title :level :level2 :label "The Key Style"]
+   :children [[title :src (at) :level :level2 :label "The Key Style"]
               [p "Flexbox is about styles on " [:span.bold "containers"] " and their child " [:span.bold "items"] "."]
               [p "While tutorials will walk you through the menagerie of flexbox related styles,
                   we've found that one, more than any other, is critical to getting what you want: the " [:span.bold "flex"] " style of the items."]
               [p "Worth repeating: if you are having trouble with a layout, pay particular attention to the
                " [:span.bold "flex"] " styles on the items within that layout."]
-              [title :level :level2 :label "flex=GSB"]
+              [title :src (at) :level :level2 :label "flex=GSB"]
               [p "Tutorials will tell you that the " [:span.bold "flex"] " style can be single value like " [:span.bold "none"] "  or " [:span.bold "auto"]
                  ". But those are shortcuts. Every flex style resolves to a triple of sub-values:"]
               [:ul
@@ -133,7 +131,7 @@
                [:li  [:span.bold "flex=\"none\""] " is eqivalent to  " [:span.bold "flex=\"0 0 auto\""]]
                [:li  [:span.bold "flex=\"auto\""] " is eqivalent to  " [:span.bold "flex=\"1 1 auto\""]]]
               [p "Sure, use the shortcuts. But it is only by understanding triples that you become a power user of flexbox (or re-com layouts)."]
-              [gap :size "10px"]]])
+              [gap :src (at) :size "10px"]]])
 
 
 (defn table-row
@@ -142,21 +140,21 @@
         col2 "130px"
         col3 "500px"
         col3-style {:style {:width col3}}]
-    [h-box
+    [h-box :src (at)
      :class (if header? "rc-div-table-header" "rc-div-table-row")
-     :children [[label :width col1 :label size]
-                [label :width col2 :label gsb]
+     :children [[label :src (at) :width col1 :label size]
+                [label :src (at) :width col2 :label gsb]
                 (if header?
-                  [label :width col3 :label description]
+                  [label :src (at) :width col3 :label description]
                   [:span col3-style description])]]))
 
 (defn size-table
   []
-  [v-box
-   :children [[title :level :level2 :label ":size is flex"]
+  [v-box :src (at)
+   :children [[title :src (at) :level :level2 :label ":size is flex"]
               [p "Various layout components, such as " [:span.bold "v-box"] " and " [:span.bold "h-box"] " and " [:span.bold "gap"] " take a " [:span.bold ":size"] " parameter which "
                "exactly matches the  " [:span.bold "flex"] " style talked about to the left."]
-              [gap :size "10px"]
+              [gap :src (at) :size "10px"]
               [:pre
                {:style {:width "460px"}}
 "[v-box
@@ -164,9 +162,9 @@
 :children [...]]"]
               [p "Look again at the Simple Example up the top of this page, and you'll see  "
                [:span.bold ":size"] " being used. Values like \"70px\" and \"1\" are provided."]
-              [gap :size "10px"]
+              [gap :src (at) :size "10px"]
               [p "This table of useful shortcuts might help."]
-              [v-box
+              [v-box :src (at)
                :class "rc-div-table"
                :align-self :start
                :children [[table-row
@@ -225,19 +223,19 @@
 
 (defn panel2
   []
-  [v-box
+  [v-box :src (at)
    :gap "10px"
    :children [[panel-title "Layout"]
               [components-section]
               [example-layout]
-              [gap :size "10px"] [line]
+              [gap :src (at) :size "10px"] [line :src (at)]
               [flex-box-section]
-              [gap :size "10px"] [line]
-              [h-box
+              [gap :src (at) :size "10px"] [line :src (at)]
+              [h-box :src (at)
                :gap      "100px"
                :children [[key-style-section]
                           [size-table]]]
-              [gap :size "20px"]]])
+              [gap :src (at) :size "20px"]]])
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

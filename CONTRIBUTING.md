@@ -2,7 +2,7 @@
 
 :+1::tada: First off, thanks for taking the time to contribute! :tada::+1:
 
-The following is a set of guidelines for contributing to re-com which is hosted on [Github](https://github.com/Day8/re-com).
+The following is a set of guidelines for contributing to re-com which is hosted on [Github](https://github.com/day8/re-com).
 These are just guidelines, not rules, use your best judgment and feel free to propose changes to this document in a pull request.
 
 ## Creating issues for bugs

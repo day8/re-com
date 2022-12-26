@@ -1,5 +1,5 @@
 (ns re-demo.p
-  (:require [re-com.core   :refer [h-box v-box box gap line label p p-span hyperlink-href]]
+  (:require [re-com.core   :refer [at h-box v-box box gap line label p p-span hyperlink-href]]
             [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text ]]))
 
 
@@ -9,15 +9,15 @@
 
 (defn p-demo
   []
-  [v-box
+  [v-box :src (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[p ... ]"
                             "src/re_com/text.cljs"
                             "src/re_demo/p.cljs"]
-              [h-box
+              [h-box :src (at)
                :gap      "100px"
-               :children [[v-box
+               :children [[v-box :src (at)
                            :gap      "10px"
                            :width    "450px"
                            :children [[title2 "Notes"]
@@ -26,7 +26,7 @@
 
                                        "Creates a paragraph of body text, expected to have a font-szie of 14px or 15px, which should have limited width (450px)." [:br] [:br]
 
-                                       "Why limited text width? See " [hyperlink-href
+                                       "Why limited text width? See " [hyperlink-href :src (at)
                                                                        :label  "this article"
                                                                        :href   "http://baymard.com/blog/line-length-readability"
                                                                        :target "blank"] "." [:br] [:br]
@@ -49,10 +49,10 @@
                                        [:span arg-style "components"] "one or more hiccup components."
                                        ]
                                       ]]
-                          [v-box
+                          [v-box :src (at)
                            :gap      "10px"
                            :children [[title2 "Demo"]
-                                      [v-box
+                                      [v-box :src (at)
                                        :children [[p "This is the simplest form of a p with no attribute map and only a single string. It wraps at 450px."]
                                                   [p {:style {:color "red"}} "This is a p with an optional attribute map. In this case, we're setting the color to red."]
                                                   [p {:style {:width "300px" :min-width "300px"}} "If you really feel the need to change with default width,

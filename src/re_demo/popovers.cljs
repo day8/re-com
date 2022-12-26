@@ -1,10 +1,9 @@
 (ns re-demo.popovers
-  (:require [re-com.core                 :refer [h-box v-box box gap line scroller border label title input-text checkbox radio-button button hyperlink hyperlink-href p  single-dropdown
-                                                 popover-content-wrapper popover-anchor-wrapper popover-border popover-tooltip flex-child-style] :refer-macros [handler-fn]]
-            [re-com.popover              :refer [popover-content-wrapper-args-desc popover-anchor-wrapper-args-desc popover-border-args-desc popover-tooltip-args-desc]]
+  (:require [re-com.core                 :refer [at h-box v-box box gap line scroller border label title input-text checkbox radio-button button hyperlink hyperlink-href p single-dropdown popover-content-wrapper popover-anchor-wrapper popover-border popover-tooltip flex-child-style] :refer-macros [handler-fn]]
+            [re-com.popover              :refer [popover-content-wrapper-args-desc popover-content-wrapper-parts-desc popover-anchor-wrapper-parts-desc popover-anchor-wrapper-args-desc popover-anchor-wrapper-parts-desc popover-border-args-desc popover-border-parts-desc popover-tooltip-args-desc popover-tooltip-parts-desc]]
             [re-demo.popover-dialog-demo :as    popover-dialog-demo]
             [re-com.util                 :refer [get-element-by-id px]]
-            [re-demo.utils               :refer [panel-title title2 args-table github-hyperlink status-text scroll-to-top]]
+            [re-demo.utils               :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text scroll-to-top]]
             [reagent.core                :as    reagent]))
 
 
@@ -27,7 +26,7 @@
   []
   [:span
    "See "
-   [hyperlink
+   [hyperlink :src (at)
     :label "Popover Demos"
     :on-click #(do
                  (.open js/window "#/popovers" "_self")
@@ -36,7 +35,7 @@
 
 (defn simple-code-and-demo []
   (let [showing?        (reagent/atom false)]
-    [h-box
+    [h-box :src (at)
      :gap      "40px"
      :children [[:pre "[popover-anchor-wrapper
   :showing? showing?
@@ -47,13 +46,13 @@
   :popover  [popover-content-wrapper
              :title    \"Title\"
              :body     \"Popover body text\"]]]"]
-                [popover-anchor-wrapper
+                [popover-anchor-wrapper :src (at)
                  :showing? showing?
                  :position :right-below
-                 :anchor   [button
+                 :anchor   [button :src (at)
                             :label    "Anchor"
                             :on-click #(swap! showing? not)]
-                 :popover  [popover-content-wrapper
+                 :popover  [popover-content-wrapper :src (at)
                             :title    "Title"
                             :body     "Popover body text"]]]]))
 
@@ -71,66 +70,70 @@
         indent-text     (fn [level text] [:span {:style {:padding-left (px (* level indent))}} text])
         highlight-text  (fn [text & [color]] [:span {:style {:font-weight "bold" :color (or color "dodgerblue")}} text])
         code-text       (fn [text] [:span {:style {:font-size "smaller" :line-height "150%"}} " " [:code {:style {:white-space "nowrap"}} text]])]
-    [v-box
+    [v-box :src (at)
      :gap      "10px"
-     :children [[title2 "Advanced: Component hierarchy of a Popover"]
-                [p "Here is that simple example from above again. It should come in handy as you refer to the table below:"]
-                [simple-code-and-demo]
-                [p "A popover is made up of a number of sub-components.
-                The following table shows how these components are arranged (in the form of a component tree).
-                Those highlighted in blue are the public API components."]
+     :children [[title2 "Parts"]
+                [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
+                [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
+                    Also, each part is identified by a keyword for use in " [:code ":parts"] " like this:" [:br]]
+                [:pre "[popover-anchor\n"
+                      "   ...\n"
+                      "   :parts {:wrapper {:class \"blah\"\n"
+                      "                     :style { ... }\n"
+                      "                     :attr  { ... }}}]"]
+                [title3 "Part Hierarchy"]
                 [:table table-style
                  [:thead valign-style-hd
                   [:tr
-                   [:th border-style-nw "Component"]
-                   [:th border-style-nw "Naming class"]
-                   [:th border-style "Key inline styles"]
+                   [:th border-style-nw "Part"]
+                   [:th border-style-nw "CSS Class"]
+                   [:th border-style "Keyword"]
                    [:th border-style "Notes"]]]
                  [:tbody valign-style
                   [:tr
                    [:td border-style-nw (indent-text 0 (highlight-text "[popover-anchor-wrapper]"))]
                    [:td border-style-nw "rc-popover-anchor-wrapper"]
-                   [:td border-style (code-text ":display \"inline-flex\"") (code-text ":flex \"inherit\"")]
+                   [:td border-style (code-text ":wrapper")]
                    [:td border-style "Outer wrapper of the anchor, popover, backdrop, everything."]]
                   [:tr
                    [:td border-style-nw (indent-text 1 "[:div]")]
                    [:td border-style-nw "rc-point-wrapper"]
-                   [:td border-style (code-text ":display \"inline-flex\"") (code-text ":flex \"auto\"") (code-text ":flex-flow \"row/col\"") (code-text ":align-items \"center\"")]
+                   [:td border-style (code-text ":point-wrapper")]
                    [:td border-style "Wraps the anchor component and the popover-point (which the actual popover points to)."]]
                   [:tr
-                   [:td border-style-nw (indent-text 2 (highlight-text ":anchor arg [component]"))]
+                   [:td border-style-nw (indent-text 2 (highlight-text ":anchor"))]
                    [:td border-style-nw "n/a"]
                    [:td border-style "n/a"]
                    [:td border-style "The " (code-text ":anchor") " argument of " (code-text "[popover-anchor-wrapper]") " is placed here. Could be before or after popover-point based on " (code-text ":position") " arg."]]
                   [:tr
                    [:td border-style-nw (indent-text 2 "[:div]")]
                    [:td border-style-nw "rc-popover-point"]
-                   [:td border-style (code-text ":display \"inline-flex\"") (code-text ":flex \"auto\"") (code-text ":position \"relative\"") (code-text ":z-index 4")]
+                   [:td border-style (code-text ":popover-point")]
                    [:td border-style "The point (width/height 0) which is placed at the center of the relevant side of the anchor, based on " (code-text ":position") " arg."]]
                   [:tr
-                   [:td border-style-nw (indent-text 3 (highlight-text ":popover arg [component]"))]
+                   [:td border-style-nw (indent-text 3 (highlight-text ":popover"))]
                    [:td border-style-nw "popover-content-wrapper"]
-                   [:td border-style (code-text ":display \"block\"") (code-text ":flex \"inherit\"")]
+                   [:td border-style (code-text ":content-wrapper")]
                    [:td border-style [:span "The " (code-text ":popover") " argument of " (code-text "[popover-anchor-wrapper]") " is placed here. It should be a " (code-text "[popover-content-wrapper]") " which wraps the actual content of the popover (specified as " (code-text ":body") " arg below) and the backdrop if required, but it could also be your own component which returns a " (code-text "[popover-content-wrapper]") "."]]]
                   [:tr
                    [:td border-style-nw (indent-text 4 "[backdrop]")]
                    [:td border-style-nw "rc-backdrop"]
-                   [:td border-style (code-text ":display \"block\"") (code-text ":position \"fixed\"") ]
+                   [:td border-style (code-text ":backdrop")]
                    [:td border-style "The (semi-)transparent backdrop between the popover and the rest of the screen. Calls " (code-text ":on-cancel") " when backdrop is clicked. Optional based on " (code-text ":on-cancel") " arg being set."]]
                   [:tr
                    [:td border-style-nw (indent-text 4 "[popover-border]")]
                    [:td border-style-nw "popover"]
-                   [:td border-style (code-text ":display \"block\"") (code-text ":position \"absolute\"") (code-text ":left/right/top/bottom \"##px\"")]
+                   [:td border-style (code-text ":border")]
                    [:td border-style "Wraps the content of the popover (and title and arrow). Includes the rounded white border and background."]]
                   [:tr
                    [:td border-style-nw (indent-text 5 "[popover-arrow]")]
                    [:td border-style-nw "popover-arrow"]
-                   [:td border-style (code-text ":display \"block\"") (code-text ":position \"absolute\"") (code-text ":left/right/top/bottom \"##px\"")]
+                   [:td border-style (code-text ":arrow")]
                    [:td border-style "SVG component."]]
                   [:tr
                    [:td border-style-nw (indent-text 5 "[popover-title]")]
                    [:td border-style-nw "popover-title"]
-                   [:td border-style (code-text ":display \"block\"") (code-text ":flex \"inherit\"")]
+                   [:td border-style (code-text ":title")]
                    [:td border-style "Optional based on " (code-text ":title") " arg. Adds a close button if " (code-text ":on-cancel") " arg is set."]]
                   [:tr
                    [:td border-style-nw (indent-text 5 "[:div]")]
@@ -138,7 +141,7 @@
                    [:td border-style ""]
                    [:td border-style "Exists to override the default popover padding."]]
                   [:tr
-                   [:td border-style-nw (indent-text 6 (highlight-text ":body arg [component]"))]
+                   [:td border-style-nw (indent-text 6 (highlight-text ":body"))]
                    [:td border-style-nw "n/a"]
                    [:td border-style "n/a"]
                    [:td border-style "The " (code-text ":body") " argument of " (code-text "[popover-content-wrapper]") " is placed here."]]]]]]))
@@ -146,7 +149,7 @@
 
 (defn arg-lists
   []
-  [v-box
+  [v-box :src (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "Popover Reference"
@@ -158,63 +161,71 @@
               [simple-code-and-demo]
               [p "See the Popover page, which provides a general overview of how it works."]
               [p "Or refer to the sections below, which provide a reference for each of the popover components, along with an advanced component hierarchy table at the end."]
-              [line :style {:margin-top "20px"}]
-              [h-box
+              [line :src (at) :style {:margin-top "20px"}]
+              [h-box :src (at)
                :gap      "100px"
-               :children [[v-box
+               :children [[v-box :src (at)
                            :gap      "10px"
-                           :width    "450px"
                            :children [[title2 "[popover-anchor-wrapper ...]"]
                                       [status-text "Stable"]
                                       [p "Description pending."]
-                                      [args-table popover-anchor-wrapper-args-desc]]]
-                          [v-box
+                                      [box :src (at)
+                                       :width "450px"
+                                       :child [args-table popover-anchor-wrapper-args-desc]]
+                                      [parts-table "popover-anchor" popover-anchor-wrapper-parts-desc]]]
+                          [v-box :src (at)
                            :gap      "10px"
                            :children [[title2 "Demo"]
                                       [see-demo-page]]]]]
-              [line :style {:margin-top "20px"}]
-              [h-box
+              [line :src (at) :style {:margin-top "20px"}]
+              [h-box :src (at)
                :gap      "100px"
-               :children [[v-box
+               :children [[v-box :src (at)
                            :gap      "10px"
-                           :width    "450px"
                            :children [[title2 "[popover-content-wrapper ...]"]
                                       [p "Description pending."]
-                                      [args-table popover-content-wrapper-args-desc]]]
-                          [v-box
+                                      [box :src (at)
+                                       :width "450px"
+                                       :child [args-table popover-content-wrapper-args-desc]]
+                                      [parts-table "popover-content-wrapper" popover-content-wrapper-parts-desc]]]
+                          [v-box :src (at)
                            :gap      "10px"
                            :children [[title2 "Demo"]
                                       [see-demo-page]]]]]
-              [line :style {:margin-top "20px"}]
-              [h-box
+              [line :src (at) :style {:margin-top "20px"}]
+              [h-box :src (at)
                :gap      "100px"
-               :children [[v-box
+               :children [[v-box :src (at)
                            :gap      "10px"
-                           :width    "450px"
                            :children [[title2 "[popover-border ...]"]
                                       [p "This component is not normally used as it is rendered by [popover-content-wrapper]."]
                                       [p "Only use this if you want to create a custom [popover-content-wrapper]."]
-                                      [args-table popover-border-args-desc]]]
-                          [v-box
+                                      [box :src (at)
+                                       :width "450px"
+                                       :child [args-table popover-border-args-desc]]
+                                      [parts-table "popover-border" popover-border-parts-desc]]]
+                          [v-box :src (at)
                            :gap      "10px"
                            :children [[title2 "Demo"]
                                       [p "There is no specific demo for this component."]]]]]
-              [line :style {:margin-top "20px"}]
-              [h-box
+              [line :src (at) :style {:margin-top "20px"}]
+              [h-box :src (at)
                :gap      "100px"
-               :children [[v-box
+               :children [[v-box :src (at)
                            :gap      "10px"
-                           :width    "450px"
                            :children [[title2 "[popover-tooltip ...]"]
                                       [p "Description pending."]
-                                      [args-table popover-tooltip-args-desc]]]
-                          [v-box
+                                      [args-table popover-tooltip-args-desc]
+                                      [box :src (at)
+                                       :width "450px"
+                                       :child [parts-table "popover-tooltip" popover-tooltip-parts-desc]]]]
+                          [v-box :src (at)
                            :gap      "10px"
                            :children [[title2 "Demo"]
                                       [see-demo-page]]]]]
-              [line :style {:margin-top "20px"}]
-              [popover-component-hierarchy]
-              [gap :size "30px"]]])
+              [line :src (at) :style {:margin-top "20px"}]
+              [gap :src (at) :size "30px"]
+              [popover-component-hierarchy]]])
 
 (defn simple-popover-demo
   []
@@ -232,13 +243,13 @@
         extra-text        (clojure.string/join (repeat 4 "And here's a little more text just to pad everything out a bit. "))]
     (fn []
       (let [cancel-popover  #(reset! showing? false)]
-        [v-box
+        [v-box :src (at)
          :gap      "10px"
          :children [[title2 "[popover ... ] with [button ... ] anchor"]
                     [status-text "Stable"]
-                    [h-box
+                    [h-box :src (at)
                      :gap      "100px"
-                     :children [[v-box
+                     :children [[v-box :src (at)
                                  :gap      "10px"
                                  :width    "450px"
                                  :children [[p "Popovers appear above other components, and point to an anchor."]
@@ -259,12 +270,12 @@
                                              [:li [:code ":no-clip?"] " - When an anchor is in a scrolling region (e.g. scroller component), the popover can sometimes be clipped.
                                                                          By passing true for this parameter, re-com will use a different CSS method to show the popover.
                                                                          This method is slightly inferior because the popover can't track the anchor if it is repositioned."]]]]
-                                [v-box
+                                [v-box :src (at)
                                  :gap      "30px"
                                  :margin   "20px 0px 0px 0px"
-                                 :children [[h-box
+                                 :children [[h-box :src (at)
                                              :gap      "30px"
-                                             :children [[v-box
+                                             :children [[v-box :src (at)
                                                          :width    "200px"
                                                          :height   "300px"
                                                          :align    :center
@@ -274,14 +285,14 @@
                                                                      {:style (merge (flex-child-style "inherit")
                                                                                     {:color "lightgrey"})}
                                                                      (clojure.string/join (repeat 42 "text "))]
-                                                                    [popover-anchor-wrapper
+                                                                    [popover-anchor-wrapper :src (at)
                                                                      :showing? showing?
                                                                      :position @curr-position
-                                                                     :anchor   [button
+                                                                     :anchor   [button :src (at)
                                                                                 :label (if @showing? "pop-down" "click me")
                                                                                 :on-click #(swap! showing? not)
                                                                                 :class "btn-success"]
-                                                                     :popover  [popover-content-wrapper
+                                                                     :popover  [popover-content-wrapper :src (at)
                                                                                 :width            "250px"
                                                                                 :no-clip?         @no-clip?
                                                                                 :backdrop-opacity (when @backdrop-opacity? 0.3)
@@ -296,49 +307,49 @@
                                                                      {:style (merge (flex-child-style "inherit")
                                                                                     {:color "lightgrey"})}
                                                                      (clojure.string/join (repeat (if @add-scroller? 98 49) "text "))]]]
-                                                        [v-box
+                                                        [v-box :src (at)
                                                          :gap      "15px"
                                                          :align    :start
-                                                         :children [[title :level :level3 :label "Parameters"]
-                                                                    [h-box
+                                                         :children [[title :src (at) :level :level3 :label "Parameters"]
+                                                                    [h-box :src (at)
                                                                      :gap      "20px"
                                                                      :align    :start
-                                                                     :children [[checkbox
-                                                                                 :label     [box :align :start :child [:code ":title"]]
+                                                                     :children [[checkbox :src (at)
+                                                                                 :label     [box :src (at) :align :start :child [:code ":title"]]
                                                                                  :model     title?
                                                                                  :on-change (fn [val] (reset! title? val))]
-                                                                                [checkbox
-                                                                                 :label     [box :align :start :child [:code ":close-button?"]]
+                                                                                [checkbox :src (at)
+                                                                                 :label     [box :src (at) :align :start :child [:code ":close-button?"]]
                                                                                  :model     close-button?
                                                                                  :on-change (fn [val] (reset! close-button? val))]
-                                                                                [checkbox
-                                                                                 :label     [box :align :start :child [:code ":body"]]
+                                                                                [checkbox :src (at)
+                                                                                 :label     [box :src (at) :align :start :child [:code ":body"]]
                                                                                  :model     body?
                                                                                  :on-change (fn [val] (reset! body? val))]]]
-                                                                    [h-box
+                                                                    [h-box :src (at)
                                                                      :gap "20px"
                                                                      :align :start
-                                                                     :children [[checkbox
+                                                                     :children [[checkbox :src (at)
                                                                                  :label     "add backdrop (catches clicks away from popover)"
                                                                                  :model     on-cancel?
                                                                                  :on-change (fn [val] (reset! on-cancel? val))]
                                                                                 (when @on-cancel?
-                                                                                  [checkbox
-                                                                                   :label     [h-box
+                                                                                  [checkbox :src (at)
+                                                                                   :label     [h-box :src (at)
                                                                                                :align    :start
                                                                                                :children [[:code ":backdrop-opacity"]
                                                                                                           (if @backdrop-opacity? "(0.3)" "(0.0)")]]
                                                                                    :model     backdrop-opacity?
                                                                                    :on-change (fn [val] (reset! backdrop-opacity? val))])]]
-                                                                    [h-box
+                                                                    [h-box :src (at)
                                                                      :gap "20px"
                                                                      :align :start
-                                                                     :children [[checkbox
+                                                                     :children [[checkbox :src (at)
                                                                                  :label     "add scroll bars to box"
                                                                                  :model     add-scroller?
                                                                                  :on-change (fn [val] (reset! add-scroller? val))]
-                                                                                [checkbox
-                                                                                 :label     [h-box
+                                                                                [checkbox :src (at)
+                                                                                 :label     [h-box :src (at)
                                                                                              :align    :start
                                                                                              :children [[:code ":no-clip?"]
                                                                                                         "*"]]
@@ -346,82 +357,84 @@
                                                                                  :on-change (fn [val]
                                                                                               (reset! no-clip? val)
                                                                                               (cancel-popover))]]]
-                                                                    [h-box
+                                                                    [h-box :src (at)
                                                                      :align :start
-                                                                     :children [[label :label "body content size:"]
-                                                                                [radio-button
+                                                                     :children [[label :src (at) :label "body content size:"]
+                                                                                [radio-button :src (at)
                                                                                  :label     "small"
                                                                                  :value     false
                                                                                  :model     @long-paragraph?
                                                                                  :on-change #(reset! long-paragraph? %)
                                                                                  :style     {:margin-left "10px"}]
-                                                                                [radio-button
+                                                                                [radio-button :src (at)
                                                                                  :label     "large"
                                                                                  :value     true
                                                                                  :model     @long-paragraph?
                                                                                  :on-change #(reset! long-paragraph? %)
                                                                                  :style     {:margin-left "10px"}]]]
-                                                                    [h-box
+                                                                    [h-box :src (at)
                                                                      :gap "20px"
                                                                      :align :center
                                                                      :children [[:code ":position"]
-                                                                                [single-dropdown
+                                                                                [single-dropdown :src (at)
                                                                                  :choices    positions
                                                                                  :model      @curr-position
                                                                                  :width      "140px"
                                                                                  :max-height "600px"
                                                                                  :on-change  (fn [val] (reset! curr-position val))]
-                                                                                [label :label "(applies to all popovers on this page)"]]]
-                                                                    [label :label "* Changing starred items above closes the popover."]]]]]]]]]]]))))
+                                                                                [label :src (at) :label "(applies to all popovers on this page)"]]]
+                                                                    [label :src (at) :label "* Changing starred items above closes the popover."]]]]]]]]]
+                    [line :src (at) :style {:margin-top "20px"}]]]))))
 
 
 (defn hyperlink-popover-demo
   []
   (let [showing?  (reagent/atom false)]
     (fn []
-      [v-box
+      [v-box :src (at)
        :children [[title2 "[popover ... ] with [hyperlink ... ] anchor"]
-                  [h-box
+                  [h-box :src (at)
                    :gap      "100px"
-                   :children [[v-box
+                   :children [[v-box :src (at)
                                :gap      "10px"
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
                                :children [
                                            [p "The " [:code "hyperlink"] " component is useful for creating link popovers. Use it as the anchor."]]]
-                              [v-box
+                              [v-box :src (at)
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
-                               :children [[popover-anchor-wrapper
+                               :children [[popover-anchor-wrapper :src (at)
                                            :showing? showing?
                                            :position @curr-position
-                                           :anchor   [hyperlink
+                                           :anchor   [hyperlink :src (at)
                                                       :label     "click me for popover"
                                                       :on-click  #(swap! showing? not)]
-                                           :popover  [popover-content-wrapper
+                                           :popover  [popover-content-wrapper :src (at)
                                                       :width    "250px"
                                                       :title    "Popover Title"
-                                                      :body     "popover body"]]]]]]]])))
+                                                      :body     "popover body"]]]]]]
+                  [line :src (at) :style {:margin-top "20px"}]]])))
 
 
 (defn proximity-popover-demo
   []
   (let [showing? (reagent/atom false)]
     (fn []
-      [v-box
+      [v-box :src (at)
        :children [[title2 "Proximity Popover (tooltip)"]
-                  [h-box
+                  [h-box :src (at)
                    :gap      "100px"
-                   :children [[v-box
+                   :children [[v-box :src (at)
                                :gap      "10px"
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
                                :children [ [p "Popovers can be used to create hover tooltips on any component. This example uses a " [:code "[:div]"] "."]
                                            [p "Simply set the " [:code "on-mouse-over"] " and " [:code "on-mouse-out"] " events to show/hide the popover."]]]
-                              [v-box
+                              [v-box :src (at)
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
-                               :children [[popover-anchor-wrapper
+                               :children [[popover-anchor-wrapper :src (at)
                                            :showing? showing?
                                            :position @curr-position
                                            :anchor   [:div
@@ -432,8 +445,9 @@
                                                        :on-mouse-over (handler-fn (reset! showing? true))
                                                        :on-mouse-out  (handler-fn (reset! showing? false))}
                                                       "hover here for tooltip"]
-                                           :popover [popover-content-wrapper
-                                                     :body     "popover body (without a title specified) makes a basic tooltip component"]]]]]]]])))
+                                           :popover [popover-content-wrapper :src (at)
+                                                     :body     "popover body (without a title specified) makes a basic tooltip component"]]]]]]
+                  [line :src (at) :style {:margin-top "20px"}]]])))
 
 
 (defn popover-tooltip-demo
@@ -445,110 +459,111 @@
         close-button? (reagent/atom false)
         tt-width      "200px"]
     (fn []
-      [v-box
+      [v-box :src (at)
        :children [[title2 "[popover-tooltip ... ]"]
-                  [h-box
+                  [h-box :src (at)
                    :gap      "100px"
-                   :children [[v-box
+                   :children [[v-box :src (at)
                                :gap      "10px"
                                :width    "450px"
                                :margin   "20px 0px 0px 0px"
                                :children [
                                            [p "This is a seaprate component which makes it really easy to create tooltips."]
                                            [p "It also can be colored for warning or error status."]]]
-                              [v-box
+                              [v-box :src (at)
                                :gap      "30px"
                                :margin   "20px 0px 0px 0px"
-                               :children [[popover-tooltip
+                               :children [[popover-tooltip :src (at)
                                            :label         @text
                                            :position      @curr-position
                                            :showing?      showing?
                                            :status        @status
                                            :width         (when @width? tt-width)
                                            :close-button? @close-button?
-                                           :anchor        [button
+                                           :anchor        [button :src (at)
                                                            :label    "click me"
                                                            :on-click #(swap! showing? not)
                                                            :class    "btn-success"]]]]
-                              [v-box
-                               :children [[gap :size "15px"]
-                                          [title :level :level3 :label "Parameters"]
-                                          [gap :size "15px"]
-                                          [h-box
+                              [v-box :src (at)
+                               :children [[gap :src (at) :size "15px"]
+                                          [title :src (at) :level :level3 :label "Parameters"]
+                                          [gap :src (at) :size "15px"]
+                                          [h-box :src (at)
                                            :gap      "8px"
                                            :align    :center
-                                           :children [[box :align :start :child [:code ":model"]]
-                                                      [input-text
+                                           :children [[box :src (at) :align :start :child [:code ":model"]]
+                                                      [input-text :src (at)
                                                        :model           text
                                                        :change-on-blur? false
                                                        :on-change       #(reset! text %)]]]
-                                          [gap :size "15px"]
-                                          [box :align :start :child [:code ":status"]]
-                                          [radio-button
+                                          [gap :src (at) :size "15px"]
+                                          [box :src (at) :align :start :child [:code ":status"]]
+                                          [radio-button :src (at)
                                            :label     "nil/omitted - normal input state"
                                            :value     nil
                                            :model     @status
                                            :on-change #(reset! status %)
                                            :style {:margin-left "20px"}]
-                                          [radio-button
+                                          [radio-button :src (at)
                                            :label     ":success - success status"
                                            :value     :success
                                            :model     @status
                                            :on-change #(reset! status %)
                                            :style     {:margin-left "20px"}]
-                                          [radio-button
+                                          [radio-button :src (at)
                                            :label     ":warning - Warning status"
                                            :value     :warning
                                            :model     @status
                                            :on-change #(reset! status %)
                                            :style     {:margin-left "20px"}]
-                                          [radio-button
+                                          [radio-button :src (at)
                                            :label     ":error - Error status"
                                            :value     :error
                                            :model     @status
                                            :on-change #(reset! status %)
                                            :style     {:margin-left "20px"}]
-                                          [radio-button
+                                          [radio-button :src (at)
                                            :label     ":info - Use for more detailed info tooltips, e.g. for info-button"
                                            :value     :info
                                            :model     @status
                                            :on-change #(reset! status %)
                                            :style     {:margin-left "20px"}]
-                                          [gap :size "15px"]
-                                          [h-box
+                                          [gap :src (at) :size "15px"]
+                                          [h-box :src (at)
                                            :align    :center
                                            :gap      "15px"
-                                           :children [[checkbox
-                                                       :label [box :align :start :child [:code ":width"]]
+                                           :children [[checkbox :src (at)
+                                                       :label [box :src (at) :align :start :child [:code ":width"]]
                                                        :model width?
                                                        :on-change #(reset! width? %)]
                                                       [:span (str (if @width?
                                                                     (str "\"" tt-width "\" - the tooltip is fixed to this width.")
                                                                     "not specified - the tooltip is as wide as it's contents."))]]]
-                                          [gap :size "15px"]
-                                          [h-box
+                                          [gap :src (at) :size "15px"]
+                                          [h-box :src (at)
                                            :align    :center
                                            :gap      "15px"
-                                           :children [[checkbox
-                                                       :label [box :align :start :child [:code ":close-button?"]]
+                                           :children [[checkbox :src (at)
+                                                       :label [box :src (at) :align :start :child [:code ":close-button?"]]
                                                        :model close-button?
                                                        :on-change #(reset! close-button? %)]
-                                                      "Mostly used when :status is set to :info"]]]]]]]])))
+                                                      "Mostly used when :status is set to :info"]]]]]]
+                  [line :src (at) :style {:margin-top "20px"}]]])))
 
 
 (defn complex-popover-demo
   []
-  [v-box
+  [v-box :src (at)
    :children [[title2 "Complex Popover (dialog box)"]
-              [h-box
+              [h-box :src (at)
                :gap      "100px"
-               :children [[v-box
+               :children [[v-box :src (at)
                            :gap      "10px"
                            :width    "450px"
                            :margin   "20px 0px 0px 0px"
-                           :children [[p "Popovers can be arbitrarilary complex."]
+                           :children [[p "Popovers can be arbitrarily complex."]
                                       [p [:code "popover-content-wrapper"] " is friendly to dialog coding patterns."]]]
-                          [v-box
+                          [v-box :src (at)
                            :gap      "30px"
                            :margin   "20px 0px 0px 0px"
                            :children [[popover-dialog-demo/popover-dialog-demo curr-position]]]]]]])
@@ -556,7 +571,7 @@
 
 (defn panel2
   []
-  [v-box
+  [v-box :src (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "Popover Components"
@@ -567,7 +582,7 @@
               [proximity-popover-demo]
               [popover-tooltip-demo]
               [complex-popover-demo]
-              [gap :size "280px"]]])
+              [gap :src (at) :size "280px"]]])
 
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates

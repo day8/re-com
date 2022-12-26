@@ -1,16 +1,18 @@
 (ns re-demo.alert-list
-  (:require [re-com.core   :refer [h-box v-box box line gap label title button alert-box alert-list p]]
-            [re-com.alert  :refer [alert-box-args-desc alert-list-args-desc]]
-            [re-com.util   :refer [insert-nth remove-id-item]]
-            [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]
-            [reagent.core  :as    reagent]))
+  (:require-macros
+    [re-com.core   :refer []])
+  (:require
+    [re-com.core   :refer [at h-box v-box box line gap label title button alert-box alert-list p]]
+    [re-com.alert  :refer [alert-list-parts-desc alert-box-args-desc alert-list-args-desc]]
+    [re-com.util   :refer [insert-nth remove-id-item px]]
+    [re-demo.utils :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
+    [reagent.core  :as    reagent]))
 
 
 (defn add-alert
   [alerts id alert-type {:keys [heading body]}]
   (let [alert {:id id :alert-type alert-type :heading heading :body body :padding "8px" :closeable? true}]
     (reset! alerts (insert-nth @alerts 0 alert))))
-
 
 (defn alert-list-demo
   []
@@ -22,14 +24,17 @@
 
     (fn []
       [v-box
+       :src      (at)
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[alert-list ... ]"
                                 "src/re_com/alert.cljs"
                                 "src/re_demo/alert_list.cljs"]
                   [h-box
+                   :src      (at)
                    :gap      "100px"
                    :children [[v-box
+                               :src      (at)
                                :gap      "10px"
                                :width    "450px"
                                :children [[title2 "Notes"]
@@ -37,25 +42,32 @@
                                           [p "Renders a dynamic list of alert-boxes vertically, with a scroll bar if necessary."]
                                           [args-table alert-list-args-desc]]]
                               [v-box
+                               :src      (at)
                                :width    "600px"
                                :gap      "10px"
                                :children [[title2 "Demo"]
                                           [h-box
+                                           :src      (at)
                                            :gap      "10px"
                                            :align    :center
-                                           :children [[label :label "To insert alerts at the top of the list, click "]
+                                           :children [[label
+                                                       :src   (at)
+                                                       :label "To insert alerts at the top of the list, click "]
                                                       [button
-                                                       :label "Add alert"
-                                                       :style {:width "100px"}
+                                                       :src      (at)
+                                                       :label    "Add alert"
+                                                       :style    {:width "100px"}
                                                        :on-click #(add-alert alerts (gensym) :info {:heading "New alert" :body "This alert was added by the \"Add alert\" button."})]]]
                                           [p "Also, try clicking the \"x\" on alerts."]
-                                           [p [:code ":max-height"] " is set to 300px. A scroll bar will appear as necessary."]
-                                           [p "For demonstration purposes, a 'dotted' " [:code ":border-style"] " is set."]
+                                          [p [:code ":max-height"] " is set to 300px. A scroll bar will appear as necessary."]
+                                          [p "For demonstration purposes, a 'dotted' " [:code ":border-style"] " is set."]
                                           [alert-list
+                                           :src          (at)
                                            :alerts       alerts
                                            :on-close     #(reset! alerts (remove-id-item % @alerts))
                                            :max-height   "300px"
-                                           :border-style "1px dashed lightgrey"]]]]]]])))
+                                           :border-style "1px dashed lightgrey"]]]]]
+                  [parts-table "alert-list" alert-list-parts-desc]]])))
 
 ;; need a level of indirection to get figwheel updates
 (defn panel

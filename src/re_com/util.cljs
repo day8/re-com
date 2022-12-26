@@ -1,6 +1,5 @@
 (ns re-com.util
   (:require
-    [clojure.set :refer [superset?]]
     [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
     [goog.date.DateTime]
     [goog.date.UtcDateTime]))
@@ -17,6 +16,11 @@
   (if (every? map? vals)
     (apply merge-with deep-merge vals)
     (last vals)))
+
+(defn assoc-in-if-empty
+  "Only assoc-in if no value exists at ks"
+  [m ks v]
+  (assoc-in m ks (get-in m ks v)))
 
 
 (defn deref-or-value
@@ -80,6 +84,27 @@
   [val & negative]
   (str (if negative (- val) val) "px"))
 
+
+(defn px-n
+  "takes n numbers (could also be strings) and converts them to a space separated px string
+  e.g. (px-n 10 2 30 4) => '10px 2px 30px 4px' for use in :padding, :margin etc.
+  Most useful when the args are calculations
+  e.g. (px-n top-margin (inc h-width) (- top-margin 5) (dec h-width))
+  Note: Doesn't support :negative like px above but it will work with negative numbers"
+  [& vals]
+  (clojure.string/join " " (map #(str % "px") vals)))
+
+
+(defn pluralize
+  "Return a pluralized phrase, appending an s to the singular form if no plural is provided.
+  For example:
+     (pluralize 5 \"month\") => \"5 months\"
+     (pluralize 1 \"month\") => \"1 month\"
+     (pluralize 1 \"radius\" \"radii\") => \"1 radius\"
+     (pluralize 9 \"radius\" \"radii\") => \"9 radii\"
+     From https://github.com/flatland/useful/blob/194950/src/flatland/useful/string.clj#L25-L33"
+  [num singular & [plural]]
+  (str num " " (if (= 1 num) singular (or plural (str singular "s")))))
 
 ;; ----------------------------------------------------------------------------
 ;; Handy vector functions

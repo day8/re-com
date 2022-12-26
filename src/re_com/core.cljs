@@ -1,20 +1,33 @@
 (ns re-com.core
-  (:require [re-com.alert          :as alert]
-            [re-com.box            :as box]
-            [re-com.buttons        :as buttons]
-            [re-com.close-button   :as close-button]
-            [re-com.datepicker     :as datepicker]
-            [re-com.dropdown       :as dropdown]
-            [re-com.typeahead      :as typeahead]
-            [re-com.input-time     :as input-time]
-            [re-com.splits         :as splits]
-            [re-com.misc           :as misc]
-            [re-com.modal-panel    :as modal-panel]
-            [re-com.popover        :as popover]
-            [re-com.selection-list :as selection-list]
-            [re-com.tabs           :as tabs]
-            [re-com.text           :as text]
-            [re-com.tour           :as tour]))
+  (:require-macros
+    [re-com.core])
+  (:require
+    [re-com.alert          :as alert]
+    [re-com.box            :as box]
+    [re-com.buttons        :as buttons]
+    [re-com.checkbox       :as checkbox]
+    [re-com.close-button   :as close-button]
+    [re-com.datepicker     :as datepicker]
+    [re-com.debug          :as debug]
+    [re-com.dropdown       :as dropdown]
+    [re-com.input-text     :as input-text]
+    [re-com.typeahead      :as typeahead]
+    [re-com.input-time     :as input-time]
+    [re-com.splits         :as splits]
+    [re-com.modal-panel    :as modal-panel]
+    [re-com.multi-select   :as multi-select]
+    [re-com.popover        :as popover]
+    [re-com.progress-bar   :as progress-bar]
+    [re-com.radio-button   :as radio-button]
+    [re-com.selection-list :as selection-list]
+    [re-com.slider         :as slider]
+    [re-com.tabs           :as tabs]
+    [re-com.tag-dropdown   :as tag-dropdown]
+    [re-com.text           :as text]
+    [re-com.throbber       :as throbber]
+    [re-com.tour           :as tour]
+    [re-com.v-table        :as v-table]
+    [re-com.simple-v-table :as simple-v-table]))
 
 ;; -----------------------------------------------------------------------------
 ;; re-com public API (see also re-com.util)
@@ -36,6 +49,10 @@
 (def gap                        box/gap)
 (def scroller                   box/scroller)
 (def border                     box/border)
+
+(def v-table                    v-table/v-table)
+(def show-row-data-on-alt-click v-table/show-row-data-on-alt-click)
+(def simple-v-table             simple-v-table/simple-v-table)
 
 (def button                     buttons/button)
 (def md-circle-icon-button      buttons/md-circle-icon-button)
@@ -59,14 +76,14 @@
 (def h-split                    splits/h-split)
 (def v-split                    splits/v-split)
 
-(def input-text                 misc/input-text)
-(def input-password             misc/input-password)
-(def input-textarea             misc/input-textarea)
-(def checkbox                   misc/checkbox)
-(def radio-button               misc/radio-button)
-(def slider                     misc/slider)
-(def progress-bar               misc/progress-bar)
-(def throbber                   misc/throbber)
+(def input-text                 input-text/input-text)
+(def input-password             input-text/input-password)
+(def input-textarea             input-text/input-textarea)
+(def checkbox                   checkbox/checkbox)
+(def radio-button               radio-button/radio-button)
+(def slider                     slider/slider)
+(def progress-bar               progress-bar/progress-bar)
+(def throbber                   throbber/throbber)
 
 (def modal-panel                modal-panel/modal-panel)
 
@@ -76,6 +93,8 @@
 (def popover-tooltip            popover/popover-tooltip)
 
 (def selection-list             selection-list/selection-list)
+(def multi-select               multi-select/multi-select)
+(def tag-dropdown               tag-dropdown/tag-dropdown)
 
 (def horizontal-tabs            tabs/horizontal-tabs)
 (def horizontal-bar-tabs        tabs/horizontal-bar-tabs)
@@ -91,3 +110,5 @@
 (def make-tour                  tour/make-tour)
 (def start-tour                 tour/start-tour)
 (def make-tour-nav              tour/make-tour-nav)
+
+(def stack-spy                  debug/stack-spy)

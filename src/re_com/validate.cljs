@@ -1,11 +1,16 @@
 (ns re-com.validate
+  (:require-macros
+    [re-com.validate])
   (:require
-    [cljs-time.core        :as    time.core]
-    [clojure.set           :refer [superset?]]
-    [re-com.util           :refer [deref-or-value-peek]]
-    [reagent.core          :as    reagent]
-    [reagent.impl.template :refer [valid-tag?]]
-    [goog.string           :as    gstring]))
+    [cljs-time.core         :as    time.core]
+    [clojure.set            :refer [superset?]]
+    [re-com.config          :refer [debug?]]
+    [re-com.debug           :as    debug]
+    [re-com.util            :refer [deref-or-value-peek]]
+    [reagent.core           :as    reagent]
+    [reagent.impl.component :as    component]
+    [reagent.impl.template  :refer [valid-tag?]]
+    [goog.string            :as    gstring]))
 
 
 ;; -- Helpers -----------------------------------------------------------------
@@ -16,18 +21,11 @@
   [obj max-len]
   (gstring/truncate (str obj) max-len))
 
-(defn log-error
-  "Sends a message to the DeV Tools console as an error. Returns false to indicate 'error' condition"
-  [& args]
-  (.error js/console (apply str args))
-  false)
-
 (defn log-warning
   "Sends a message to the DeV Tools console as an warning. Returns true to indicate 'not and error' condition"
   [& args]
   (.warn js/console (apply str args))
   true)
-
 
 (defn hash-map-with-name-keys
   [v]
@@ -37,84 +35,123 @@
 (defn extract-arg-data
   "Package up all the relevant data for validation purposes from the xxx-args-desc map into a new map"
   [args-desc]
-    {:arg-names      (set (map :name args-desc))
-     :required-args  (->> args-desc
-                          (filter :required)
-                          (map :name)
-                          set)
-     :validated-args (->> (filter :validate-fn args-desc)
-                          vec
-                          (hash-map-with-name-keys))})
+  {:arg-names      (set (map :name args-desc))
+   :required-args  (->> args-desc
+                        (filter :required)
+                        (map :name)
+                        set)
+   :validated-args (->> (filter :validate-fn args-desc)
+                        vec
+                        (hash-map-with-name-keys))})
 
 ;; ----------------------------------------------------------------------------
 ;; Primary validation functions
 ;; ----------------------------------------------------------------------------
 
-(defn arg-names-valid?
-  "returns true if every passed-args is value. Otherwise log the problem and return false"
-  [defined-args passed-args]
-  (or (superset? defined-args passed-args)
-      (let [missing-args (remove defined-args passed-args)]
-        (log-error "Invalid argument(s): " missing-args)))) ;; Regent will show the component-path
+(defn arg-names-known?
+  "returns problems conjed with a problem map for every passed-arg that is not in defined-args."
+  [defined-args passed-args problems]
+  (if (superset? defined-args passed-args)
+    problems
+    (let [unknown-args (remove defined-args passed-args)]
+      (into problems (map (fn [arg] {:problem :unknown :arg-name arg}) unknown-args)))))
 
-(defn required-args-passed?
-  "returns true if all the required args are supplied. Otherwise log the error and return false"
-  [required-args passed-args]
-  (or (superset? passed-args required-args)
-      (let [missing-args (remove passed-args required-args)]
-        (log-error "Missing required argument(s): " missing-args)))) ;; Regent will show the component-path
+;; [IJ] TODO: This can probably be refactored and combined with the above arg-names-valid? fn.
+(defn required-args?
+  "returns problems conjed with a problem map for every required-args that is not in passed-args."
+  [required-args passed-args problems]
+  (if (superset? passed-args required-args)
+    problems
+    (let [missing-args (remove passed-args required-args)]
+      (into problems (map (fn [arg] {:problem :required :arg-name arg}) missing-args)))))
 
-
-(defn validate-fns-pass?
+(defn validate-fns?
   "Gathers together a list of args that have a validator and...
    returns true if all argument values are valid OR are just warnings (log warning to the console).
    Otherwise log an error to the console and return false.
-   Validation functions can return:
+   Validation function args (2 arities supported):
+         - Arg 1:  The arg to be validated (note that this is stripped from it's enclosing atom if required, this is always a value)
+         - Arg 2:  (optional) true if the arg is wrapped in an atom, otherwise false
+   Validation function return:
          - true:   validation success
          - false:  validation failed - use standard error message
          - map:    validation failed - includes two keys:
                                          :status  - :error:   log to console as error
                                                     :warning: log to console as warning
                                          :message - use this string in the message of the warning/error"
-  [args-with-validators passed-args component-name]
+  [args-with-validators passed-args problems]
   (let [validate-arg (fn [[_ v-arg-def]]
-                       (let [arg-name        (:name v-arg-def)
-                             arg-val         (deref-or-value-peek (arg-name passed-args)) ;; Automatically extract value if it's in an atom
-                             required?       (:required v-arg-def)
-                             validate-result ((:validate-fn v-arg-def) arg-val)
-                             log-msg-base    (str "Validation failed for argument '" arg-name "' in component '" component-name "': ")
-                             comp-path       (str " at " (reagent/component-path (reagent/current-component)))
-                             warning?        (= (:status validate-result) :warning)]
-                         ;(println (str "[" component-name "] " arg-name " = '" (if (nil? arg-val) "nil" (left-string arg-val 200)) "' => " validate-result))
+                       (let [arg-name          (:name v-arg-def)
+                             arg-val           (deref-or-value-peek (arg-name passed-args)) ;; Automatically extract value if it's in an atom
+                             validate-fn       (:validate-fn v-arg-def)
+                             validate-result   (if (= 1 (.-length ^js/Function validate-fn))
+                                                 (validate-fn arg-val) ;; Standard call, just pass the arg
+                                                 (validate-fn arg-val (satisfies? IDeref (arg-name passed-args)))) ;; Extended call, also wants to know if arg-val is an atom
+                             required?         (:required v-arg-def)
+                             problem-base      {:arg-name arg-name}
+                             warning?          (= (:status validate-result) :warning)]
                          (cond
                            (or (true? validate-result)
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
-                                    (not required?))) true
-                           (false? validate-result)  (log-error log-msg-base "Expected '" (:type v-arg-def) "'. Got '" (if (nil? arg-val) "nil" (left-string arg-val 60)) "'" comp-path)
-                           (map?   validate-result)  ((if warning? log-warning log-error)
-                                                       log-msg-base
-                                                       (:message validate-result)
-                                                       (when warning? comp-path))
-                           :else                      (log-error "Invalid return from validate-fn: " validate-result comp-path))))]
-    (->> (select-keys args-with-validators (vec (keys passed-args)))
-         (map validate-arg)
-         (every? true?))))
+                                    (not required?)))
+                           nil
+
+                           (false? validate-result)
+                           (merge problem-base
+                                  {:problem  :validate-fn
+                                   :expected v-arg-def
+                                   :actual   (left-string (pr-str arg-val) 60)})
+
+                           (and (map? validate-result)
+                                (not warning?))
+                           (merge problem-base
+                                  {:problem            :validate-fn-map
+                                   :validate-fn-result validate-result})
+
+                           (and (map? validate-result)
+                                warning?)
+                           (do
+                             (log-warning
+                               (str "Validation failed for argument '" arg-name "' in component '" (component/component-name (reagent/current-component)) "': " (:message validate-result)))
+                             nil)
+
+                           :else
+                           (merge problem-base
+                                  {:problem            :validate-fn-return
+                                   :validate-fn-result validate-result}))))]
+    (into problems
+      (->> (select-keys args-with-validators (vec (keys passed-args)))
+           (map validate-arg)))))
 
 (defn validate-args
   "Calls three validation tests:
     - Are arg names valid?
     - Have all required args been passed?
-    - Specific valiadation function calls to check arg values if specified
-   If they all pass, returns true.
-   Normally used for a call to the {:pre...} at the beginning of a function"
-  [arg-defs passed-args & component-name]
-  (if-not ^boolean js/goog.DEBUG
-    true
-    (let [passed-arg-keys (set (keys passed-args))]
-      (and (arg-names-valid?      (:arg-names      arg-defs) passed-arg-keys)
-           (required-args-passed? (:required-args  arg-defs) passed-arg-keys)
-           (validate-fns-pass?    (:validated-args arg-defs) passed-args (first component-name))))))
+    - Specific validation function calls to check arg values if specified
 
+   If they all pass, returns nil.
+
+   Normally used as the first function of an `or` at the beginning of a component render function, so that either the
+   validation problem component will be rendered in place of the component or nil will skip to the component rendering
+   normally.
+
+   Used to use {:pre... at the beginning of functions and return booleans. Stopped doing that as throws and causes
+   long ugly stack traces. We rely on walking the dom for data-rc-src attributes in the debug/validate-args-problem
+   component instead."
+  [arg-defs passed-args]
+  (if-not debug?
+    nil
+    (let [passed-arg-keys (set (keys passed-args))
+          problems        (->> []
+                               (arg-names-known? (:arg-names arg-defs) passed-arg-keys)
+                               (required-args?   (:required-args arg-defs) passed-arg-keys)
+                               (validate-fns?    (:validated-args arg-defs) passed-args)
+                               (remove nil?))]
+      (when-not (empty? problems)
+        [debug/validate-args-error
+         :problems  problems
+         :args      passed-args
+         :component (debug/short-component-name (component/component-name (reagent/current-component)))]))))
 
 ;; ----------------------------------------------------------------------------
 ;; Custom :validate-fn functions based on (validate-arg-against-set)
@@ -179,8 +216,9 @@
 
 (def html-attrs #{; ----- HTML attributes (:class and :style commented out as they are not valid in re-com)
                   ; ----- Reference: https://facebook.github.io/react/docs/dom-elements.html#all-supported-html-attributes
+                  ; ----- Another place for names: https://github.com/facebook/react/blob/master/packages/react-dom/src/shared/possibleStandardNames.js
                   :accept :accept-charset :access-key :action :allow-full-screen :allow-transparency :alt :async :auto-complete :auto-focus :auto-play :capture
-                  :cell-padding :cell-spacing :challenge :char-set :checked :cite #_:class :class-name :cols :col-span :content :content-editable :context-menu :controls
+                  :cell-padding :cell-spacing :challenge :char-set :checked :cite #_:class :class-name :cols :col-span :content :content-editable :context-menu :controls :controls-list
                   :coords :cross-origin :data :date-time :default :defer :dir :disabled :download :draggable :enc-type :form :form-action :form-enc-type :form-method
                   :form-no-validate :form-target :frame-border :headers :height :hidden :high :href :href-lang :html-for :http-equiv :icon :id :input-mode :integrity
                   :is :key-params :key-type :kind :label :lang :list :loop :low :manifest
@@ -207,30 +245,42 @@
                   :text-rendering :to :transform :u1 :u2 :underline-position :underline-thickness :unicode :unicode-bidi :unicode-range :units-per-em :v-alphabetic :v-hanging
                   :v-ideographic :v-mathematical :values :vector-effect :version :vert-adv-y :vert-origin-x :vert-origin-y :view-box :view-target :visibility :widths :word-spacing
                   :writing-mode :x :x1 :x2 :x-channel-selector :x-height :xlink-actuate :xlink-arcrole :xlink-href :xlink-role :xlink-show :xlink-title :xlink-type :xml-base
-                  :xml-lang :xml-space :y :y1 :y2 :y-channel-selector :z :zoom-and-pan
+                  :xml-lang :xml-space :xmlns :xmlns-xlink :y :y1 :y2 :y-channel-selector :z :zoom-and-pan
                   ; ----- Event attributes
                   ; ----- Reference: https://facebook.github.io/react/docs/events.html#supported-events
                   :on-copy :on-cut :on-paste :on-composition-end :on-composition-start :on-composition-update :on-key-down
-                  :on-key-press :on-key-up :on-focus :on-blur :on-change :on-input :on-submit :on-click
+                  :on-key-press :on-key-up :on-focus :on-blur :on-change :on-input :on-invalid :on-reset
+                  :on-submit :on-error :on-load :on-click
                   :on-context-menu :on-double-click :on-drag :on-drag-end :on-drag-enter :on-drag-exit :on-drag-leave
                   :on-drag-over :on-drag-start :on-drop :on-mouse-down :on-mouse-enter :on-mouse-leave :on-mouse-move
-                  :on-mouse-out :on-mouse-over :on-mouse-up :on-select :on-touch-cancel :on-touch-end :on-touch-move
+                  :on-mouse-out :on-mouse-over :on-mouse-up
+                  :on-pointer-down :on-pointer-move :on-pointer-up :on-pointer-cancel :on-got-pointer-capture
+                  :on-lost-pointer-capture :on-pointer-enter :on-pointer-leave :on-pointer-over :on-pointer-out
+                  :on-select :on-touch-cancel :on-touch-end :on-touch-move
                   :on-touch-start :on-scroll :on-wheel :on-abort :on-can-play :on-can-play-through :on-duration-change
-                  :on-emptied :on-encrypted :on-ended :on-error :on-loaded-data :on-loaded-metadata :on-load-start
+                  :on-emptied :on-encrypted :on-ended #_:on-error :on-loaded-data :on-loaded-metadata :on-load-start
                   :on-pause :on-play :on-playing :on-progress :on-rate-change :on-seeked :on-seeking :on-stalled
-                  :on-suspend :on-time-update :on-volume-change :on-waiting :on-load #_:on-error :on-animation-start
-                  :on-animation-end :on-animation-iteration :on-transition-end
+                  :on-suspend :on-time-update :on-volume-change :on-waiting #_:on-load #_:on-error :on-animation-start
+                  :on-animation-end :on-animation-iteration :on-transition-end :on-toggle
                   ; ----- '--capture' versions of the above events
                   :on-copy-capture :on-cut-capture :on-paste-capture :on-composition-end-capture :on-composition-start-capture :on-composition-update-capture :on-key-down-capture
-                  :on-key-press-capture :on-key-up-capture :on-focus-capture :on-blur-capture :on-change-capture :on-input-capture :on-submit-capture :on-click-capture
+                  :on-key-press-capture :on-key-up-capture :on-focus-capture :on-blur-capture :on-change-capture :on-input-capture :on-invalid-capture :on-reset-capture
+                  :on-submit-capture :on-error-capture :on-load-capture :on-click-capture
                   :on-context-menu-capture :on-double-click-capture :on-drag-capture :on-drag-end-capture :on-drag-enter-capture :on-drag-exit-capture :on-drag-leave-capture
                   :on-drag-over-capture :on-drag-start-capture :on-drop-capture :on-mouse-down-capture :on-mouse-enter-capture :on-mouse-leave-capture :on-mouse-move-capture
-                  :on-mouse-out-capture :on-mouse-over-capture :on-mouse-up-capture :on-select-capture :on-touch-cancel-capture :on-touch-end-capture :on-touch-move-capture
+                  :on-mouse-out-capture :on-mouse-over-capture :on-mouse-up-capture
+                  :on-pointer-down-capture :on-pointer-move-capture :on-pointer-up-capture :on-pointer-cancel-capture :on-got-pointer-capture-capture
+                  :on-lost-pointer-capture-capture :on-pointer-enter-capture :on-pointer-leave-capture :on-pointer-over-capture :on-pointer-out-capture
+                  :on-select-capture :on-touch-cancel-capture :on-touch-end-capture :on-touch-move-capture
                   :on-touch-start-capture :on-scroll-capture :on-wheel-capture :on-abort-capture :on-can-play-capture :on-can-play-through-capture :on-duration-change-capture
-                  :on-emptied-capture :on-encrypted-capture :on-ended-capture :on-error-capture :on-loaded-data-capture :on-loaded-metadata-capture :on-load-start-capture
+                  :on-emptied-capture :on-encrypted-capture #_:on-ended #_:on-error-capture :on-loaded-data-capture :on-loaded-metadata-capture :on-load-start-capture
                   :on-pause-capture :on-play-capture :on-playing-capture :on-progress-capture :on-rate-change-capture :on-seeked-capture :on-seeking-capture :on-stalled-capture
-                  :on-suspend-capture :on-time-update-capture :on-volume-change-capture :on-waiting-capture :on-load-capture #_:on-error-capture :on-animation-start-capture
-                  :on-animation-end-capture :on-animation-iteration-capture :on-transition-end-capture})
+                  :on-suspend-capture :on-time-update-capture :on-volume-change-capture :on-waiting-capture #_:on-load #_:on-error-capture :on-animation-start-capture
+                  :on-animation-end-capture :on-animation-iteration-capture :on-transition-end-capture :on-toggle-capture
+                  ; ----- React attributes
+                  ; ----- Reference: Refs: https://reactjs.org/docs/refs-and-the-dom.html
+                  ; ----- Reference: Keys: https://reactjs.org/docs/lists-and-keys.html
+                  :ref :key})
 
 ; ----- Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*
 ; -----            https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA
@@ -271,8 +321,25 @@
                   :touch-action :transform :transform-box :transform-origin :transform-style :transition :transition-delay :transition-duration :transition-property
                   :transition-timing-function :turn :unicode-bidi :unicode-range :unset :vertical-align :vh :visibility :vmax :vmin :vw :white-space :widows :width
                   :will-change :word-break :word-spacing :word-wrap :writing-mode :z-index
+                  ; ----- Additions from https://www.w3.org/Style/CSS/all-properties.en.html as at July-2020
+                  ; ----- Only added new WD (Working Draft) styles
+                  :appearance :caret :caret-color :caret-shape :nav-down :nav-left :nav-right :nav-up :user-select :gap :justify-items :justify-self :place-content
+                  :place-items :place-self :row-gap :color-adjust :color-scheme :forced-color-adjust :contain :wrap-flow :wrap-through :font-optical-sizing :font-palette
+                  :font-synthesis-small-caps :font-synthesis-style :font-synthesis-weight :font-variant-emoji :font-variation-settings :bookmark-label :bookmark-level
+                  :bookmark-state :footnote-display :footnote-policy :running :string-set :alignment-baseline :baseline-shift :dominant-baseline :initial-letters
+                  :initial-letters-align :initial-letters-wrap :inline-sizing :box-snap :line-grid :line-snap :counter-set :marker-side :border-block :border-block-color
+                  :border-block-style :border-block-width :border-end-end-radius :border-end-start-radius :border-inline :border-inline-color :border-inline-style
+                  :border-inline-width :border-start-end-radius :border-start-start-radius :inset :inset-block :inset-block-end :inset-block-start :inset-inline
+                  :inset-inline-end :inset-inline-start :margin-block :margin-inline :padding-block :padding-inline :block-overflow :continue :line-clamp :max-lines
+                  :overflow-block :overflow-inline :page :flow-from :flow-into :region-fragment :border-boundary :shape-inside :ruby-overhang :spatial-navigation-action
+                  :spatial-navigation-contain :spatial-navigation-function :text-decoration-skip :text-decoration-skip-box :text-decoration-skip-ink
+                  :text-decoration-skip-inset :text-decoration-skip-self :text-decoration-skip-spaces :text-decoration-thickness :text-emphasis-skip
+                  :text-underline-offset :hanging-punctuation :text-align-all :text-justify :hyphenate-character :hyphenate-limit-chars :hyphenate-limit-last
+                  :hyphenate-limit-lines :hyphenate-limit-zone :line-padding :text-group-align :text-space-collapse :text-space-trim :text-spacing :text-wrap
+                  :word-boundary-detection :word-boundary-expansion :wrap-after :wrap-before :wrap-inside :color-interpolation-filters :flood-color :flood-opacity
+                  :lighting-color :offset :offset-anchor :offset-distance :offset-path :offset-position :offset-rotate
                   ; ----- Browser specific styles
-                  :-webkit-user-select :-moz-user-select :-ms-user-select :user-select
+                  :-webkit-user-select :-moz-user-select :-ms-user-select
                   :-webkit-flex-flow :-webkit-flex-direction :-webkit-flex-wrap :-webkit-justify-content :-webkit-align-items :-webkit-align-content
                   :-webkit-flex :-webkit-flex-grow :-webkit-flex-shrink :-webkit-flex-basis :-webkit-order :-webkit-align-self})
 
@@ -297,7 +364,7 @@
   "Returns true if the passed argument is a valid CSS style.
    Otherwise returns a warning map"
   [arg]
-  (if-not ^boolean js/goog.DEBUG
+  (if-not debug?
     true
     (let [arg (deref-or-value-peek arg)]
       (and (map? arg)
@@ -311,7 +378,7 @@
   ([attr]
    (let [attr (name attr)
          ext? #(and (= (.indexOf attr %) 0)
-                       (> (count attr) (count %)))]
+                    (> (count attr) (count %)))]
      (some (comp ext? #(str % "-") name) extension-attrs))))
 
 (defn invalid-html-attrs
@@ -327,7 +394,7 @@
    Notes:
     - Prevents :class and :style attributes"
   [arg]
-  (if-not ^boolean js/goog.DEBUG
+  (if-not debug?
     true
     (let [arg (deref-or-value-peek arg)]
       (and (map? arg)
@@ -335,13 +402,51 @@
                  contains-class? (contains? arg-keys :class)
                  contains-style? (contains? arg-keys :style)
                  result   (cond
-                            contains-class? ":class not allowed in :attr argument"
-                            contains-style? ":style not allowed in :attr argument"
+                            contains-class? ":attr parameters (including :parts) do not allow :class"
+                            contains-style? ":attr parameters (including :parts) do not allow :style"
                             :else           (when-let [invalid (not-empty (invalid-html-attrs arg-keys))]
                                               (str "Unknown HTML attribute(s): " invalid)))]
              (or (nil? result)
                  {:status  (if (or contains-class? contains-style?) :error :warning)
                   :message result}))))))
+
+(defn parts?
+  "Returns a function that validates a value is a map that contains `keys` mapped to values that are maps containing
+   `class`, `:style` and/or `:attr`."
+  [keys]
+  {:pre [(set? keys)]}
+  (fn [arg]
+    (if-not debug?
+      true
+      (reduce-kv
+        (fn [_ k v]
+          (if-not (keys k)
+            (reduced {:status  :error
+                      :message (str "Invalid keyword in :parts parameter: " k)})
+            (reduce-kv
+              (fn [_ k2 v2]
+                (case k2
+                  :class (if-not (string? v2)
+                           (reduced {:status :error
+                                     :message (str "Parameter [:parts " k " " k2 "] expected string but got " (type v2))})
+                           true)
+                  :style (let [valid? (css-style? v2)]
+                           (if-not (true? valid?)
+                             (reduced valid?)
+                             true))
+                  :attr  (let [valid? (html-attr? v2)]
+                           (if-not (true? valid?)
+                             (reduced valid?)
+                             true))
+                  (reduced {:status :error
+                            :message (str "Invalid keyword in [:parts " k "] parameter: " k2)})))
+              true
+              v)))
+        true
+        arg))))
+
+
+;; Test for specific data types
 
 (defn date-like?
   "Returns true if arg satisfies cljs-time.core/DateTimeProtocol typically goog.date.UtcDateTime or goog.date.Date,
@@ -361,10 +466,44 @@
   (let [arg (deref-or-value-peek arg)]
     (or (number? arg) (string? arg))))
 
+(defn ifn-or-nil?
+  "Returns true if the passed argument is a function, keyword or nil, otherwise false/error"
+  [arg]
+  (or (nil? arg) (ifn? arg)))
+
+
+;; Test for atoms containing specific data types
+;; NOTE: These "test for atom" validation functions use the 2-arity option where the validation mechanism passes the value
+;;       of the arg as with the 1-arity version (derefed with peek) but also a boolean (arg-is-atom?) showing whether
+;;       the arg was passed inside an atom or not
+
+(defn vector-atom?
+  "Returns true if the passed argument is an atom containing a vector"
+  [arg arg-is-atom?]
+  (and arg-is-atom? (vector? (deref-or-value-peek arg))))
+
+(defn map-atom?
+  "Returns true if the passed argument is an atom containing a map"
+  [arg arg-is-atom?]
+  (and arg-is-atom? (map? (deref-or-value-peek arg))))
+
+
+;; Test for specific data types either as values or contained in atoms, but WITHOUT derefing the atoms
+
 (defn string-or-atom?
   "Returns true if the passed argument is a string (or a string within an atom), otherwise false/error"
   [arg]
   (string? (deref-or-value-peek arg)))
+
+(defn vector-or-atom?
+  "Returns true if the passed argument is a vector (or a vector within an atom), otherwise false/error"
+  [arg]
+  (vector? (deref-or-value-peek arg)))
+
+(defn map-or-atom?
+  "Returns true if the passed argument is a map (or a map within an atom), otherwise false/error"
+  [arg]
+  (map? (deref-or-value-peek arg)))
 
 (defn nillable-string-or-atom?
   "Returns true if the passed argument is a string/nil (or a string/nil within an atom), otherwise false/error"
