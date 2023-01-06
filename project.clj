@@ -23,15 +23,21 @@
                  [lein-shadow             "0.4.0"]
                  [com.github.liquidz/antq "RELEASE"]
                  [lein-shell              "0.5.0"]
-                 [lein-pprint             "1.3.2"]]
+                 [lein-pprint             "1.3.2"]
+                 [lein-cljsbuild "1.1.8"]
+                 [lein-bump-version "0.1.6"]
+                 [lein-tools-deps "0.4.5"]]
 
 
-  :middleware   [leiningen.git-inject/middleware]
+  :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
+  ;; run lein install with LEIN_SNAPSHOTS_IN_RELEASE=true lein install
+  :lein-tools-deps/config {:config-files [:install :user :project]}
 
   :antq     {}
 
   :profiles {:dev      {:dependencies [[clj-stacktrace "0.2.8"]
-                                               [binaryage/devtools "0.9.10"]]
+                                       [binaryage/devtools "0.9.10"]
+                                       [org.clojure/tools.namespace "1.1.0"]]
                               :plugins      [[lein-shell "0.5.0"]
                                              [org.clojure/data.json "0.2.6"]
                                              [lein-ancient "0.6.15"]]}
@@ -45,6 +51,19 @@
   
 
   :source-paths    ["src"]
+  ;; Change your environment variables (maybe editing .zshrc or .bashrc) to have:
+  ;; export LEIN_USERNAME="pdelfino"
+  ;; export LEIN_PASSWORD="your-personal-access-token-the-same-used-on-.npmrc"
+  ;; LEIN_PASSWORD should use the same Token used by .npmrc
+  ;; Also, do "LEIN_SNAPSHOTS_IN_RELEASE=true lein install" or edit your .zshrc:
+  ;; export LEIN_SNAPSHOTS_IN_RELEASE=true
+  :repositories {"releases"  {:url           "https://maven.pkg.github.com/tallyfor/*"
+                              :username      :env/LEIN_USERNAME ;; change your env
+                              :password      :env/LEIN_PASSWORD}}
+
+  :pom-addition [:distribution-management [:repository [:id "github"]
+                                           [:name "GitHub Packages"]
+                                           [:url "https://maven.pkg.github.com/tallyfor/re-com"]]]
   :test-paths      ["test"]
   :resource-paths  ["run/resources"]
 
