@@ -137,7 +137,7 @@
                  selected? (= id current)
                  the-button [:button
                              (merge
-                              (cmerger :button {:selected? selected?})
+                              (cmerger :button {:selected? selected? :vertical? vertical?})
                               {:type     "button"
                                :key      (str id)
                                :on-click (when on-change (handler-fn (on-change id)))}
