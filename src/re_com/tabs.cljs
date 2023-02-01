@@ -76,7 +76,8 @@
                             :attr {:key (str id)}}))
             [:a
              (flatten-attr
-              (cmerger :anchor {:attr
+              (cmerger :anchor {:selected? selected?
+                                :attr
                                 {:on-click (when on-change (handler-fn (on-change id)))}}))
              label]]))])))
 

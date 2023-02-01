@@ -38,7 +38,7 @@
      {:name :tooltip          :required false                        :type "string | hiccup" :validate-fn string-or-hiccup?     :description "what to show in the tooltip"}
      {:name :tooltip-position :required false :default :below-center :type "keyword"         :validate-fn position?             :description [:span "relative to this anchor. One of " position-options-list]}
      {:name :disabled?        :required false :default false         :type "boolean | atom"                                     :description "if true, the user can't click the button"}
-     {:name :class            :required false                        :type "string"          :validate-fn string?               :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
+     {:name :class            :required false                        :type "string | vector"          :validate-fn #(or (string? %) (vector? %))               :description "CSS class names, space separated (applies to the button, not the wrapping div)"}
      {:name :style            :required false                        :type "CSS style map"   :validate-fn css-style?            :description "CSS styles (applies to the button, not the wrapping div)"}
      {:name :attr             :required false                        :type "HTML attr map"   :validate-fn html-attr?            :description [:span "HTML attributes, like " [:code ":on-mouse-move"] [:br] "No " [:code ":class"] " or " [:code ":style"] "allowed (applies to the button, not the wrapping div)"]}
      {:name :parts            :required false                        :type "map"             :validate-fn (parts? button-parts) :description "See Parts section below."}
