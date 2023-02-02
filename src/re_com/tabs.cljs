@@ -255,12 +255,13 @@
              selected? (= id current)]                   ;; must use 'current' instead of @model to avoid reagent warnings
          [:li
           (flatten-attr
-           (cmerger :tab {:selected? selected?
+           (cmerger :tab {:selected? selected? :vertical? vertical?
                           :attr {:key (str id)}}))
           [:a
            (flatten-attr
             (cmerger :anchor
-                     {:attr {:on-click  (when on-change (handler-fn (on-change id)))}}))
+                     {:selected? selected?
+                      :attr {:on-click  (when on-change (handler-fn (on-change id)))}}))
            label]]))]))
 
 
