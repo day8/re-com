@@ -22,7 +22,8 @@
      {:type :legacy  :level 1 :class "rc-button"         :impl "[:button]"         :notes "The actual button."}]))
 
 (def button-css-spec
-  {:main {:class ["rc-button" "btn"]
+  {:main {:class (fn [{:keys [class]}]
+                   ["rc-button" "btn" (when (empty? class) "btn-default")])
           :style (flex-child-style "none") }
    :wrapper {:class ["rc-button-wrapper" "display-inline-flex"]}
    :tooltip {:class ["rc-button-tooltip"]}})
@@ -51,7 +52,6 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts src debug-as]
-          :or   {class "btn-default"}
           :as   args}]
       (or
         (validate-args-macro button-args-desc args)
@@ -61,7 +61,7 @@
                 cmerger (merge-css button-css-spec args)
                 the-button [:button
                             (merge
-                             (flatten-attr (cmerger :main))
+                             (flatten-attr (cmerger :main {:class class :disabled? disabled?}))
                              {:disabled disabled?
                               :on-click (handler-fn
                                          (when (and on-click (not disabled?))
