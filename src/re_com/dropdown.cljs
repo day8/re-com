@@ -520,7 +520,7 @@
           focus-free-text     #(when @free-text-input (.focus @free-text-input))
           node                (reagent/atom nil)
           focus-anchor        #(some-> @node (.getElementsByClassName "chosen-single") (.item 0) (.focus))
-          cmerger (merge-css single-dropdown-css-spec args)]
+          ]
       (load-choices "" regex-filter? false)
       (fn single-dropdown-render
         [& {:keys [choices model on-change id-fn label-fn group-fn render-fn disabled? filter-box? regex-filter? placeholder title? free-text? auto-complete? capitalize? enter-drop? cancelable? set-to-filter filter-placeholder can-drop-above? est-item-height repeat-change? i18n on-drop width max-height tab-index debounce-delay tooltip tooltip-position class style attr parts]
@@ -528,7 +528,8 @@
             :as args}]
         (or
           (validate-args-macro single-dropdown-args-desc args)
-          (let [choices          (if choices-fn? (:choices @choices-state) (deref-or-value choices))
+          (let [cmerger (merge-css single-dropdown-css-spec args)
+                choices          (if choices-fn? (:choices @choices-state) (deref-or-value choices))
                 id-fn            (if free-text? identity id-fn)
                 label-fn         (if free-text? identity label-fn)
                 render-fn        (if free-text? identity render-fn)
