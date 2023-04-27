@@ -287,11 +287,12 @@
 (def popover-border-css-spec
   {:main {:class ["popover" "fade" "in" "rc-popover-border"]
           :style (fn [{:keys [top left width height background-color border-color tooltip-style?
-                              orientation margin-left margin-top ready-to-show?] :as params}]
+                              orientation margin-left margin-top ready-to-show? right bottom]
+                       :as params}]
                    (merge
                     (into {}
                           (for [k [:top :left :width :height :background-color :border-color
-                                   :margin-left :margin-top]
+                                   :margin-left :margin-top :right :bottom]
                                 :let [v (get params k)]
                                 :when v]
                             [k v]))
@@ -595,7 +596,8 @@
     (validate-args-macro popover-anchor-wrapper-args-desc args)
     (let [external-position (reagent/atom position)
           internal-position (reagent/atom @external-position)
-          reset-on-hide     (reaction (when-not (deref-or-value showing?) (reset! internal-position @external-position)))]
+          reset-on-hide     (reaction (when-not (deref-or-value showing?)
+                                        (reset! internal-position @external-position)))]
       (reagent/create-class
         {:display-name "popover-anchor-wrapper"
 
