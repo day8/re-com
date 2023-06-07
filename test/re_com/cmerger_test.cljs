@@ -10,15 +10,14 @@
 
 (def fake-css-spec
   {:main {:class ["c"]
-          :style {:position "extradimensional"}
-          :attr {:personality "nice"}}
+          :style {:position "extradimensional"}}
    :tale {:class (fn [{:keys [is?]}]
-                   (if is? "sickle" "less"))}})
+                   (if is? "sickle" "less"))
+          :attr {:personality "nice"}}})
 
 (deftest test-cmerger-main
   (are [expected actual] (= expected actual)
-    ["c"] (:class ((util/merge-css fake-css-spec {}) :main))
-    
+
     "extradimensional" (->
                         ((util/merge-css fake-css-spec {}) :main)
                         :style :position)
@@ -45,4 +44,36 @@
                  {:style {:position "here"}})
                 :style :position)
 
-    ))
+    ["c"] (:class ((util/merge-css fake-css-spec {}) :main))
+    ["c" "stowage" "2nd" "1st"]
+    (:class ((util/merge-css
+              fake-css-spec
+              {:class "1st"
+               :parts {:main {:class "2nd"}}})
+             :main
+             {:class "stowage"}))))
+
+(deftest test-cmerger-parts
+  (are [expected actual] (= expected actual)
+
+    ["less"] (:class ((util/merge-css fake-css-spec {}) :tale))
+    ["sickle"] (:class ((util/merge-css fake-css-spec {}) :tale {:is? true}))
+
+    "nice" (->
+            ((re-com.util/merge-css
+              fake-css-spec
+              {:attr {:personality "cranky"}
+               :parts {:main {:attr {:personality "agressive"}}}})
+             :tale)
+            :attr :personality)
+
+    "split" (->
+            ((re-com.util/merge-css
+              fake-css-spec
+              {:attr {:personality "cranky"}
+               :parts {:main {:attr {:personality "aggressive"}}}})
+             :tale
+             {:attr {:personality "split"}})
+            :attr :personality)))
+
+
