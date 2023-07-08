@@ -5,7 +5,6 @@
             [re-com.util       :refer [px]]
             [reagent.core      :as    reagent]))
 
-
 (defn- simulated-bools
   [disabled? hide-border? show-icon?]
   [v-box :src (at)
@@ -115,8 +114,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[input-time ... ]"
-                            "src/re_com/input_time.cljs"
-                            "src/re_demo/input_time.cljs"]
+               "src/re_com/input_time.cljs"
+               "src/re_demo/input_time.cljs"]
               [h-box :src (at)
                :gap "100px"
                :children [[v-box :src (at)
@@ -131,7 +130,6 @@
                                       [args-table input-time-args-desc]]]
                           [basics-demo]]]
               [parts-table "input-time" input-time-parts-desc]]])
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

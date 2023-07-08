@@ -14,8 +14,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[md-icon-button ... ]"
-                                "src/re_com/buttons.cljs"
-                                "src/re_demo/md_icon_button.cljs"]
+                   "src/re_com/buttons.cljs"
+                   "src/re_demo/md_icon_button.cljs"]
 
                   [h-box :src (at)
                    :gap "100px"

@@ -1,9 +1,9 @@
 (ns re-demo.utils
   (:require
-    [re-com.core           :refer [title line label hyperlink-href align-style at]]
-    [re-com.box            :refer [box gap h-box v-box]]
-    [re-com.text           :refer [p]]
-    [re-com.util           :refer [px]]))
+   [re-com.core           :refer [title line label hyperlink-href align-style at]]
+   [re-com.box            :refer [box gap h-box v-box]]
+   [re-com.text           :refer [p]]
+   [re-com.util           :refer [px]]))
 
 (defn github-hyperlink
   "given a label and a relative path, return a component which hyperlinks to the GitHub URL in a new tab"
@@ -23,7 +23,6 @@
    :align  :center
    :children [[label :src (at) :label "source:"]
               [github-hyperlink description src]]])
-
 
 (defn panel-title
   "Shown across the top of each page"
@@ -86,8 +85,6 @@
    :href   "http://zavoloklom.github.io/material-design-iconic-font/icons.html"
    :target "_blank"])
 
-
-
 (defn arg-row
   "I show one argument in an args table (which is itself a horizontal list of arguments)."
   [name-column-width arg odd-row?]
@@ -97,11 +94,11 @@
         needed-vec (if (not required)
                      (if (nil? default)
                        [[:span.semibold.all-small-caps "optional"]]
-                       [[:span.semibold.all-small-caps "default:"] 
+                       [[:span.semibold.all-small-caps "default:"]
                         [:code {:style {:margin-right 0}} (str default)]])
                      [[:span.semibold.all-small-caps "required"]])]
     [h-box
-     :style    {:background (if odd-row? "#F4F4F4" "#FCFCFC") 
+     :style    {:background (if odd-row? "#F4F4F4" "#FCFCFC")
                 :border-left (when (not odd-row?) "1px solid #f4f4f4")
                 :border-right (when (not odd-row?) "1px solid #f4f4f4")}
      :children [[:span {:class "semibold"
@@ -109,32 +106,32 @@
                                       {:width        name-column-width
                                        :padding-left "15px"})}
                  (str (:name arg))]
-                 [line :src (at) :size "1px" :color (if odd-row? "white" "#f4f4f4")]
-                 [v-box
-                  :style {:padding "7px 15px 2px 15px"}
-                  :gap  "4px"
-                  :size  "1 1 0px"    ;; grow horizontally to fill the space
-                  :children [[h-box
-                              :gap   "4px"
-                              :children (concat [[:span.semibold  arg-type]
-                                                 [gap :size "1"]]
-                                                 needed-vec)]
-                             [line :src (at)]
-                             [:p
+                [line :src (at) :size "1px" :color (if odd-row? "white" "#f4f4f4")]
+                [v-box
+                 :style {:padding "7px 15px 2px 15px"}
+                 :gap  "4px"
+                 :size  "1 1 0px"    ;; grow horizontally to fill the space
+                 :children [[h-box
+                             :gap   "4px"
+                             :children (concat [[:span.semibold  arg-type]
+                                                [gap :size "1"]]
+                                               needed-vec)]
+                            [line :src (at)]
+                            [:p
                               ; {:font-size "smaller" :color "red"}
-                              (:description arg)]]]]]))
+                             (:description arg)]]]]]))
 
 (defn args-table
   "I render component arguments in an easy to read format"
   [args  {:keys [total-width name-column-width title]
-          :or   {name-column-width "130px" }}]
+          :or   {name-column-width "130px"}}]
   (let [public-args (remove #(= :debug-as (:name %)) args)] ;; Hide :debug-as parameter
     [v-box
      :width    total-width
      :children (concat
-                 [[title2 (if title title "Parameters")]
-                  [gap :size "10px"]]
-                 (map (partial arg-row name-column-width) public-args (cycle [true false])))]))
+                [[title2 (if title title "Parameters")]
+                 [gap :size "10px"]]
+                (map (partial arg-row name-column-width) public-args (cycle [true false])))]))
 
 (defn parts-header
   []
@@ -201,19 +198,19 @@
      :src     (at)
      :margin   "0px 20px 20px 0px"
      :children (concat
-                 [[title2 "Parts"]
-                  [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
-                  [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
+                [[title2 "Parts"]
+                 [p "This component is constructed from a hierarchy of HTML elements which we refer to as \"parts\"."]
+                 [p "re-com gives each of these parts a unique CSS class, so that you can individually target them.
                         Also, each part is identified by a keyword for use in " [:code ":parts"] " like this:" [:br]]
-                  [:pre "[" component-name "\n"
-                   "   ...\n"
-                   "   :parts {" name-of-first-part " {:class \"blah\"\n"
-                   code-example-spaces ":style { ... }\n"
-                   code-example-spaces ":attr  { ... }}}]"]
-                  [title3 "Part Hierarchy"]
-                  [gap :size "10px"]
-                  [parts-header]]
-                 (map parts-row parts (cycle [true false])))]))
+                 [:pre "[" component-name "\n"
+                  "   ...\n"
+                  "   :parts {" name-of-first-part " {:class \"blah\"\n"
+                  code-example-spaces ":style { ... }\n"
+                  code-example-spaces ":attr  { ... }}}]"]
+                 [title3 "Part Hierarchy"]
+                 [gap :size "10px"]
+                 [parts-header]]
+                (map parts-row parts (cycle [true false])))]))
 
 (defn scroll-to-top
   [element]

@@ -1,19 +1,19 @@
 (ns re-com.datepicker
   (:require-macros
-    [re-com.core          :refer [handler-fn at reflect-current-component]])
+   [re-com.core          :refer [handler-fn at reflect-current-component]])
   (:require
-    [reagent.core         :as reagent]
-    [cljs-time.core       :as cljs-time]
-    [re-com.config        :refer [include-args-desc?]]
-    [re-com.validate      :refer [date-like? css-style? html-attr? parts? position? position-options-list] :refer-macros [validate-args-macro]]
-    [cljs-time.predicates :refer [sunday?]]
-    [cljs-time.format     :refer [parse unparse formatters formatter]]
-    [re-com.box           :refer [border gap box line h-box flex-child-style]]
-    [re-com.util          :refer [deref-or-value now->utc]]
-    [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
-    [clojure.string       :as string])
+   [reagent.core         :as reagent]
+   [cljs-time.core       :as cljs-time]
+   [re-com.config        :refer [include-args-desc?]]
+   [re-com.validate      :refer [date-like? css-style? html-attr? parts? position? position-options-list] :refer-macros [validate-args-macro]]
+   [cljs-time.predicates :refer [sunday?]]
+   [cljs-time.format     :refer [parse unparse formatters formatter]]
+   [re-com.box           :refer [border gap box line h-box flex-child-style]]
+   [re-com.util          :refer [deref-or-value now->utc]]
+   [re-com.popover       :refer [popover-anchor-wrapper popover-content-wrapper]]
+   [clojure.string       :as string])
   (:import
-    [goog.i18n DateTimeFormat]))
+   [goog.i18n DateTimeFormat]))
 
 ;; Loosely based on ideas: https://github.com/dangrossman/bootstrap-daterangepicker
 
@@ -65,9 +65,9 @@
 
 (defn- =date [date1 date2]
   (and
-    (= (cljs-time/year date1)  (cljs-time/year date2))
-    (= (cljs-time/month date1) (cljs-time/month date2))
-    (= (cljs-time/day date1)   (cljs-time/day date2))))
+   (= (cljs-time/year date1)  (cljs-time/year date2))
+   (= (cljs-time/month date1) (cljs-time/month date2))
+   (= (cljs-time/day date1)   (cljs-time/day date2))))
 
 (defn- <=date [date1 date2]
   (or (=date date1 date2) (cljs-time/before? date1 date2)))
@@ -81,14 +81,14 @@
   [year]
   ;; A year is a leap year if it is...
   (not
-    (or
+   (or
       ;; Divisible by 4 (bitwise and 3), OR
-      (pos? (bit-and year 3))
+    (pos? (bit-and year 3))
       ;; Divisible by 16 (bitwise and 15) AND
       ;; not divisible by 25.
-      (and
-        (pos? (bit-and year 15))
-        (not (mod 25 year))))))
+    (and
+     (pos? (bit-and year 15))
+     (not (mod 25 year))))))
 
 (defn first-weekday-of-year
   [week-day-at-start-of-week year]
@@ -108,7 +108,7 @@
         days-to-add (if (pos? week-day-delta)
                       (- 7 week-day-delta)
                       (js/Math.abs week-day-delta))]
-      (cljs-time/plus jan-1-date-time (cljs-time/days days-to-add))))
+    (cljs-time/plus jan-1-date-time (cljs-time/days days-to-add))))
 
 (defn week-of-year
   [week-day-at-start-of-week start-of-week-date-time]
@@ -161,7 +161,6 @@
 
 ;; ----------------------------------------------------------------------------
 
-
 (defn- main-div-with
   [table-div hide-border? class style attr parts src debug-as]
   ;;extra h-box is currently necessary so that calendar & border do not stretch to width of any containing v-box
@@ -179,13 +178,13 @@
                :border (when hide-border? "none")
                :child  [:div
                         (merge
-                          {:class (str "datepicker noselect rc-datepicker " class)
+                         {:class (str "datepicker noselect rc-datepicker " class)
                            ;; override inherited body larger 14px font-size
                            ;; override position from css because we are inline
-                           :style (merge {:font-size "13px"
-                                          :position  "static"}
-                                         style)}
-                          attr)
+                          :style (merge {:font-size "13px"
+                                         :position  "static"}
+                                        style)}
+                         attr)
                         table-div]]]])
 
 (defn- prev-year-icon
@@ -249,8 +248,8 @@
         :class   (str (if prev-year-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-prev-year " (get-in parts [:prev-year :class]))
         :style   (get-in parts [:prev-year :style])
         :attr    (merge
-                   {:on-click (handler-fn (when prev-year-enabled? (reset! display-month prev-year-date-time)))}
-                   (get-in parts [:prev-year :attr]))
+                  {:on-click (handler-fn (when prev-year-enabled? (reset! display-month prev-year-date-time)))}
+                  (get-in parts [:prev-year :attr]))
         :width   "20px"
         :align   :center
         :justify :center
@@ -270,8 +269,8 @@
         :class   (str (if prev-month-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-prev-month " (get-in parts [:prev-month :class]))
         :style   (get-in parts [:prev-month :style])
         :attr    (merge
-                   {:on-click (handler-fn (when prev-month-enabled? (reset! display-month prev-month-date-time)))}
-                   (get-in parts [:prev-month :attr]))
+                  {:on-click (handler-fn (when prev-month-enabled? (reset! display-month prev-month-date-time)))}
+                  (get-in parts [:prev-month :attr]))
         :width   "20px"
         :align   :center
         :justify :center
@@ -293,8 +292,8 @@
         :class   (str (if next-month-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-next-month " (get-in parts [:next-month :class]))
         :style   (get-in parts [:next-month :style])
         :attr    (merge
-                   {:on-click (handler-fn (when next-month-enabled? (reset! display-month next-month-date-time)))}
-                   (get-in parts [:next-month :attr]))
+                  {:on-click (handler-fn (when next-month-enabled? (reset! display-month next-month-date-time)))}
+                  (get-in parts [:next-month :attr]))
         :align   :center
         :justify :center
         :width   "20px"
@@ -314,8 +313,8 @@
         :class   (str (if next-year-enabled? "rc-datepicker-selectable " "rc-datepicker-disabled ") "rc-datepicker-next-year " (get-in parts [:next-year :class]))
         :style   (get-in parts [:next-year :style])
         :attr    (merge
-                   {:on-click (handler-fn (when next-year-enabled? (reset! display-month next-year-date-time)))}
-                   (get-in parts [:next-year :attr]))
+                  {:on-click (handler-fn (when next-year-enabled? (reset! display-month next-year-date-time)))}
+                  (get-in parts [:next-year :attr]))
         :align   :center
         :justify :center
         :width   "20px"
@@ -328,10 +327,10 @@
         maximum (deref-or-value maximum)]
     [:th
      (merge
-       {:col-span "7"
-        :class    (str "rc-datepicker-nav " (get-in parts [:nav :class]))
-        :style    (merge {:padding "0px"} (get-in parts [:nav :style]))}
-       (get-in parts [:nav :attr]))
+      {:col-span "7"
+       :class    (str "rc-datepicker-nav " (get-in parts [:nav :class]))
+       :style    (merge {:padding "0px"} (get-in parts [:nav :style]))}
+      (get-in parts [:nav :attr]))
      [h-box
       :src      (at)
       :height   "100%"
@@ -369,14 +368,14 @@
   [& {:keys [start-of-week i18n parts]}]
   (let [{:keys [days]} i18n]
     (into
-      [:<>]
-      (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
-        [:th
-         (merge
-           {:class (str "rc-datepicker-day rc-datepicker-day-" (string/lower-case (:name day)) " " (get-in parts [:day :class]))
-            :style (get-in parts [:day :style] {})}
-           (get-in parts [:day :attr]))
-         (str (:name day))]))))
+     [:<>]
+     (for [day (rotate start-of-week (or (when days (to-days-vector days)) days-vector))]
+       [:th
+        (merge
+         {:class (str "rc-datepicker-day rc-datepicker-day-" (string/lower-case (:name day)) " " (get-in parts [:day :class]))
+          :style (get-in parts [:day :style] {})}
+         (get-in parts [:day :attr]))
+        (str (:name day))]))))
 
 (defn- table-thead
   "Answer 2 x rows showing month with nav buttons and days"
@@ -384,9 +383,9 @@
   (let [template-row (if show-weeks? [:tr [:th]] [:tr])]
     [:thead
      (merge
-       {:class (str "rc-datepicker-header " (get-in parts [:header :class]))
-        :style (get-in parts [:header :style] {})}
-       (get-in parts [:header :attr]))
+      {:class (str "rc-datepicker-header " (get-in parts [:header :class]))
+       :style (get-in parts [:header :style] {})}
+      (get-in parts [:header :attr]))
      (conj template-row
            [nav
             :display-month display-month
@@ -404,7 +403,6 @@
 (defn- selection-changed
   [selection change-callback]
   (change-callback selection))
-
 
 (defn- table-td
   [date focus-month selected today {minimum :minimum maximum :maximum selectable-fn :selectable-fn :as attributes} disabled? on-change parts]
@@ -427,16 +425,14 @@
         on-click      #(when-not (or disabled? unselectable-day?) (selection-changed date on-change))]
     [:td
      (merge
-       {:class    (str classes "rc-datepicker-date " (get-in parts [:date :class]))
-        :style    (get-in parts [:date :style])
-        :on-click (handler-fn (on-click))}
-       (get-in parts [:date :attr]))
+      {:class    (str classes "rc-datepicker-date " (get-in parts [:date :class]))
+       :style    (get-in parts [:date :style])
+       :on-click (handler-fn (on-click))}
+      (get-in parts [:date :attr]))
      (cljs-time/day date)]))
-
 
 (defn- week-td [start-of-week date]
   [:td {:class "week"} (week-of-year start-of-week date)])
-
 
 (defn- table-tr
   "Return 7 columns of date cells from date inclusive"
@@ -447,7 +443,6 @@
         today     (when (:show-today? attributes) (now->utc))]
     (into table-row (map #(table-td % focus-month selected today attributes disabled? on-change parts) row-dates))))
 
-
 (defn- table-tbody
   "Return matrix of 6 rows x 7 cols table cells representing 41 days from start-date inclusive"
   [display-month selected attributes disabled? on-change parts]
@@ -457,11 +452,10 @@
         row-start-dates (map #(inc-date current-start (* 7 %)) (range 6))]
     (into [:tbody
            (merge
-             {:class (str "rc-datepicker-dates " (get-in parts [:dates :class]))
-              :style (get-in parts [:dates :style])}
-             (get-in parts [:dates :attr]))]
+            {:class (str "rc-datepicker-dates " (get-in parts [:dates :class]))
+             :style (get-in parts [:dates :style])}
+            (get-in parts [:dates :attr]))]
           (map #(table-tr % start-of-week focus-month selected attributes disabled? on-change parts) row-start-dates))))
-
 
 (defn- configure
   "Augment passed attributes with extra info/defaults"
@@ -501,7 +495,6 @@
      {:name :dates           :level 4 :class "rc-datepicker-dates"           :impl "[:tbody]"     :notes "The table body containing the dates."}
      {:type :legacy          :level 5                                        :impl "[:tr]"        :notes "A date row. Repeats 6 times." :name-label "-"}
      {:name :date            :level 6 :class "rc-datepicker-date"            :impl "[:td]"        :notes "A date cell. Repeats 7 times per date row."}]))
-   
 
 (def datepicker-parts
   (when include-args-desc?
@@ -530,40 +523,39 @@
 (defn datepicker
   [& {:keys [model] :as args}]
   (or
-    (validate-args-macro datepicker-args-desc args)
-    (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
-          internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
-          display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))]
-      (fn datepicker-render
-        [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts src debug-as]
-            :or   {start-of-week 6} ;; Default to Sunday
-            :as   args}]
-        (or
-          (validate-args-macro datepicker-args-desc args)
-          (let [latest-ext-model    (deref-or-value model)
-                disabled?           (deref-or-value disabled?)
-                props-with-defaults (merge args {:start-of-week start-of-week})
-                configuration       (configure props-with-defaults)]
-            (when (not= @external-model latest-ext-model) ;; Has model changed externally?
-              (reset! external-model latest-ext-model)
-              (reset! internal-model latest-ext-model)
-              (reset! display-month  (cljs-time/first-day-of-the-month (or @internal-model (now->utc)))))
-            [main-div-with
-             [:table
-              (merge
-                {:class (str "table-condensed rc-datepicker-table " (get-in parts [:table :class]))
-                 :style (get-in parts [:table :style])}
-                (get-in parts [:table :attr]))
-              [table-thead display-month configuration disabled? parts]
-              [table-tbody @display-month @internal-model configuration disabled? on-change parts]]
-             hide-border?
-             class
-             style
-             attr
-             parts
-             src
-             (or debug-as (reflect-current-component))]))))))
-
+   (validate-args-macro datepicker-args-desc args)
+   (let [external-model (reagent/atom (deref-or-value model))  ;; Set model type in stone on creation of this datepicker instance
+         internal-model (reagent/atom @external-model)         ;; Holds the last known external value of model, to detect external model changes
+         display-month  (reagent/atom (cljs-time/first-day-of-the-month (or @internal-model (now->utc))))]
+     (fn datepicker-render
+       [& {:keys [model on-change disabled? start-of-week hide-border? class style attr parts src debug-as]
+           :or   {start-of-week 6} ;; Default to Sunday
+           :as   args}]
+       (or
+        (validate-args-macro datepicker-args-desc args)
+        (let [latest-ext-model    (deref-or-value model)
+              disabled?           (deref-or-value disabled?)
+              props-with-defaults (merge args {:start-of-week start-of-week})
+              configuration       (configure props-with-defaults)]
+          (when (not= @external-model latest-ext-model) ;; Has model changed externally?
+            (reset! external-model latest-ext-model)
+            (reset! internal-model latest-ext-model)
+            (reset! display-month  (cljs-time/first-day-of-the-month (or @internal-model (now->utc)))))
+          [main-div-with
+           [:table
+            (merge
+             {:class (str "table-condensed rc-datepicker-table " (get-in parts [:table :class]))
+              :style (get-in parts [:table :style])}
+             (get-in parts [:table :attr]))
+            [table-thead display-month configuration disabled? parts]
+            [table-tbody @display-month @internal-model configuration disabled? on-change parts]]
+           hide-border?
+           class
+           style
+           attr
+           parts
+           src
+           (or debug-as (reflect-current-component))]))))))
 
 (defn- anchor-button
   "Provide clickable field with current date label and dropdown button e.g. [ 2014 Sep 17 | # ]"
@@ -571,8 +563,8 @@
   [:div {:class    "rc-datepicker-dropdown-anchor input-group display-flex noselect"
          :style    (flex-child-style "none")
          :on-click (handler-fn
-                     (when (not (deref-or-value disabled?))
-                       (swap! shown? not)))}
+                    (when (not (deref-or-value disabled?))
+                      (swap! shown? not)))}
    [h-box
     :align     :center
     :class     "noselect"
@@ -603,39 +595,39 @@
 (defn datepicker-dropdown
   [& {:keys [src] :as args}]
   (or
-    (validate-args-macro datepicker-dropdown-args-desc args)
-    (let [shown?         (reagent/atom false)
-          cancel-popover #(reset! shown? false)]
-      (fn datepicker-dropdown-render
-        [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset position src debug-as]
-            :or {no-clip? true, position-offset 0, position :below-left}
-            :as passthrough-args}]
-        (or
-          (validate-args-macro datepicker-dropdown-args-desc passthrough-args)
-          (let [collapse-on-select (fn [new-model]
-                                     (reset! shown? false)
-                                     (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
-                passthrough-args   (-> passthrough-args
-                                       (dissoc :format :goog? :no-clip? :placeholder :width :position-offset :position)  ;; these keys only valid at this API level
-                                       (assoc :on-change collapse-on-select)
-                                       (assoc :src (at))
-                                       (merge {:hide-border? true})                                                        ;; apply defaults
-                                       vec
-                                       flatten)]
-            [popover-anchor-wrapper
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :class    "rc-datepicker-dropdown-wrapper"
-             :showing? shown?
-             :position position
-             :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
-             :popover  [popover-content-wrapper
-                        :src             (at)
-                        :position-offset (+ (if show-weeks? 43 44) position-offset)
-                        :no-clip?        no-clip?
-                        :arrow-length    0
-                        :arrow-width     0
-                        :arrow-gap       3
-                        :padding         "0px"
-                        :on-cancel       cancel-popover
-                        :body            (into [datepicker] passthrough-args)]]))))))
+   (validate-args-macro datepicker-dropdown-args-desc args)
+   (let [shown?         (reagent/atom false)
+         cancel-popover #(reset! shown? false)]
+     (fn datepicker-dropdown-render
+       [& {:keys [model show-weeks? on-change format goog? no-clip? placeholder width disabled? position-offset position src debug-as]
+           :or {no-clip? true, position-offset 0, position :below-left}
+           :as passthrough-args}]
+       (or
+        (validate-args-macro datepicker-dropdown-args-desc passthrough-args)
+        (let [collapse-on-select (fn [new-model]
+                                   (reset! shown? false)
+                                   (when on-change (on-change new-model)))                                                ;; wrap callback to collapse popover
+              passthrough-args   (-> passthrough-args
+                                     (dissoc :format :goog? :no-clip? :placeholder :width :position-offset :position)  ;; these keys only valid at this API level
+                                     (assoc :on-change collapse-on-select)
+                                     (assoc :src (at))
+                                     (merge {:hide-border? true})                                                        ;; apply defaults
+                                     vec
+                                     flatten)]
+          [popover-anchor-wrapper
+           :src      src
+           :debug-as (or debug-as (reflect-current-component))
+           :class    "rc-datepicker-dropdown-wrapper"
+           :showing? shown?
+           :position position
+           :anchor   [anchor-button shown? model format goog? placeholder width disabled?]
+           :popover  [popover-content-wrapper
+                      :src             (at)
+                      :position-offset (+ (if show-weeks? 43 44) position-offset)
+                      :no-clip?        no-clip?
+                      :arrow-length    0
+                      :arrow-width     0
+                      :arrow-gap       3
+                      :padding         "0px"
+                      :on-cancel       cancel-popover
+                      :body            (into [datepicker] passthrough-args)]]))))))

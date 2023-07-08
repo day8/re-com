@@ -3,7 +3,6 @@
             [reagent.core      :as reagent]
             [re-com.input-time :as time]))
 
-
 ;; --- Tests ---
 
 (deftest test-valid-time?
@@ -45,50 +44,49 @@
 
 ;; IJ: TODO
 #_(deftest test-input-time
- (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159 :on-change #())) "Expected a function.")
- (let [input-time-fn (time/input-time :model 1530 :on-change #())]
-   (is (fn? input-time-fn) "Expected a function.")
-   (let [result (input-time-fn :model (reagent/atom 1530) :on-change #() :minimum 600 :maximum 2159)]
+    (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159 :on-change #())) "Expected a function.")
+    (let [input-time-fn (time/input-time :model 1530 :on-change #())]
+      (is (fn? input-time-fn) "Expected a function.")
+      (let [result (input-time-fn :model (reagent/atom 1530) :on-change #() :minimum 600 :maximum 2159)]
      ;(is (= :span.input-append (first result)) "Expected first element to be :span.input-append.bootstrap-timepicker")
-     (is (fn? (first result)) "Expected first element to be a function")
-     (let [input-time-comp (first (nth result 8))
-           input-time-attrs (last input-time-comp)]
-       (is (= :input (first input-time-comp)) "Expected time input start with :input")
-       (are [expected actual] (= expected actual)
-         nil           (:disabled input-time-attrs)
-         "time-entry rc-time-entry " (:class input-time-attrs)
-         "15:30"       (:value input-time-attrs)
-         "text"        (:type input-time-attrs)
-         "time-entry rc-time-entry " (:class input-time-attrs)
-         true          (fn? (:on-blur input-time-attrs))
-         true          (fn? (:on-change input-time-attrs))))))
+        (is (fn? (first result)) "Expected first element to be a function")
+        (let [input-time-comp (first (nth result 8))
+              input-time-attrs (last input-time-comp)]
+          (is (= :input (first input-time-comp)) "Expected time input start with :input")
+          (are [expected actual] (= expected actual)
+            nil           (:disabled input-time-attrs)
+            "time-entry rc-time-entry " (:class input-time-attrs)
+            "15:30"       (:value input-time-attrs)
+            "text"        (:type input-time-attrs)
+            "time-entry rc-time-entry " (:class input-time-attrs)
+            true          (fn? (:on-blur input-time-attrs))
+            true          (fn? (:on-change input-time-attrs))))))
  ;; These tests don't work. But i have verified that the check is happening and it works
- #_(is (thrown? js/Error (time/input-time :model "abc") "should fail - model is invalid"))
- #_(is (thrown? js/Error (time/input-time :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
- #_(is (thrown? js/Error (time/input-time :model 930 :minimum 600 :maximum "fred") "should fail - maximum is invalid"))
-)
+    #_(is (thrown? js/Error (time/input-time :model "abc") "should fail - model is invalid"))
+    #_(is (thrown? js/Error (time/input-time :model 930 :minimum "abc" :maximum 2159) "should fail - minimum is invalid"))
+    #_(is (thrown? js/Error (time/input-time :model 930 :minimum 600 :maximum "fred") "should fail - maximum is invalid")))
 
  ;; (is (thrown? js/Error (time/input-time :model 530 :minimum 600 :maximum 2159) "should fail - model is before range start"))
  ;; (is (thrown? js/Error (time/input-time :model 2230 :minimum 600 :maximum 2159) "should fail - model is after range end"))
 
 ;; IJ: TODO
 #_(deftest test-pre-conditions
- (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159 :on-change #())) "Expected a function.")
- (is (thrown? js/Error (time/input-time :model 1530 :minimum 600 :maximum 2159 :fred "test") "Expected an exception due to invalid parameter.")))
+    (is (fn? (time/input-time :model 1530 :minimum 600 :maximum 2159 :on-change #())) "Expected a function.")
+    (is (thrown? js/Error (time/input-time :model 1530 :minimum 600 :maximum 2159 :fred "test") "Expected an exception due to invalid parameter.")))
 
 ;; --- WIP ---
 
 #_(defn div-app []
-  (let [div (.createElement js/document "div")]
-    (set! (.-id div) "app")
-    div))
+    (let [div (.createElement js/document "div")]
+      (set! (.-id div) "app")
+      div))
 
 #_(trace-forms
-  {:tracer default-tracer}
-  (deftest test-test-input-time-gen
-    (let [tm-input (time/input-time :model 1500)
-          result (reagent/render-component [tm-input] (div-app))]
-      (println (-> result .-_renderedComponent .-props)))))
+   {:tracer default-tracer}
+   (deftest test-test-input-time-gen
+     (let [tm-input (time/input-time :model 1500)
+           result (reagent/render-component [tm-input] (div-app))]
+       (println (-> result .-_renderedComponent .-props)))))
 
 ;; The above statement results in -
 ;; #js {:cljsArgv

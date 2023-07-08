@@ -1,11 +1,10 @@
 (ns re-demo.border
   (:require-macros
-    [re-com.core   :refer []])
+   [re-com.core   :refer []])
   (:require
-    [re-com.core   :refer [at h-box v-box box gap border p]]
-    [re-com.box    :refer [border-args-desc]]
-    [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
-
+   [re-com.core   :refer [at h-box v-box box gap border p]]
+   [re-com.box    :refer [border-args-desc]]
+   [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
 (defn panel
   []
@@ -14,8 +13,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title  "[border ... ]"
-                            "src/re_com/box.cljs"
-                            "src/re_demo/border.cljs"]
+               "src/re_com/box.cljs"
+               "src/re_demo/border.cljs"]
 
               [h-box
                :src      (at)
@@ -38,7 +37,7 @@
                                       [p "Here is some sample code..."]
                                       [:pre
                                        {:style {:width "40em"}}
-"[border
+                                       "[border
  :border \"1px dashed red\"
  :child  [box :height \"100px\" :child \"Hello\"]]"]
 

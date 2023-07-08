@@ -1,15 +1,15 @@
 (ns re-demo.simple-v-table-sales
   (:require-macros
-    [re-com.core           :refer []])
+   [re-com.core           :refer []])
   (:require
-    [clojure.string        :as string]
-    [goog.string           :as gstring]
-    [goog.string.format]
-    [reagent.core          :as reagent]
-    [re-com.core           :refer [at label p slider hyperlink-href h-box v-box gap simple-v-table checkbox button]]
-    [re-com.config         :refer [debug?]]
-    [re-demo.utils         :refer [title3]]
-    [re-com.util           :refer [px]]))
+   [clojure.string        :as string]
+   [goog.string           :as gstring]
+   [goog.string.format]
+   [reagent.core          :as reagent]
+   [re-com.core           :refer [at label p slider hyperlink-href h-box v-box gap simple-v-table checkbox button]]
+   [re-com.config         :refer [debug?]]
+   [re-demo.utils         :refer [title3]]
+   [re-com.util           :refer [px]]))
 
 ;; 50 randomly sampled names from most popular baby names in 2019. 
 (def names
@@ -23,16 +23,16 @@
 (defn generate-sales-rows
   [& [row-count]]
   (mapv
-    (fn [n]
-      (let [person (rand-nth names)]
-        {:id     n
-         :region (rand-nth ["North" "East" "South" "West"])
-         :person person
-         :method (rand-nth [:online :in-store])
-         :email  (str (string/lower-case person) "@" (rand-nth ["widget.org" "example.com" "deck.com" "conversation.com" "response.com"]))
-         :sales  (gstring/format "%.2f" (+ (* (rand) (- 10000 1000)) 1000))
-         :units  (+ (* (rand-int 10) (- 1000 100)) 100)}))
-    (range row-count)))
+   (fn [n]
+     (let [person (rand-nth names)]
+       {:id     n
+        :region (rand-nth ["North" "East" "South" "West"])
+        :person person
+        :method (rand-nth [:online :in-store])
+        :email  (str (string/lower-case person) "@" (rand-nth ["widget.org" "example.com" "deck.com" "conversation.com" "response.com"]))
+        :sales  (gstring/format "%.2f" (+ (* (rand) (- 10000 1000)) 1000))
+        :units  (+ (* (rand-int 10) (- 1000 100)) 100)}))
+   (range row-count)))
 
 (defn store-icon
   []
@@ -77,7 +77,7 @@
                                :src      (at)
                                :width    "450px"
                                :children [[:p "This demo shows the primary use case - a table displaying entities in rows, and their attributes in columns. See it below in the blue box."]
-                                          #_[:p  "This demo allows you to experiment with how the dimensions of a " [:code "simple-v-table"]" interact with those of its parent. "]]]
+                                          #_[:p  "This demo allows you to experiment with how the dimensions of a " [:code "simple-v-table"] " interact with those of its parent. "]]]
 
                               [v-box
                                :src      (at)
@@ -182,16 +182,16 @@
                                                          :style {:background-color parent-color}
                                                          :label (str "when unset, the table's height is the parent's explicit height, or if that's unset, the number of rows of data (" (count @sales-rows) ")")])]]
                                           [h-box
-                                            :src      (at)
-                                            :gap      spacing7
-                                            :align    :center
-                                            :children [[checkbox
-                                                        :src      (at)
-                                                        :model     striped?
-                                                        :on-change #(reset! striped? %)]
-                                                       [label
-                                                        :src      (at)
-                                                        :label [:code ":striped?"]]]]
+                                           :src      (at)
+                                           :gap      spacing7
+                                           :align    :center
+                                           :children [[checkbox
+                                                       :src      (at)
+                                                       :model     striped?
+                                                       :on-change #(reset! striped? %)]
+                                                      [label
+                                                       :src      (at)
+                                                       :label [:code ":striped?"]]]]
                                           [gap
                                            :src      (at)
                                            :size "0px"]
@@ -312,8 +312,7 @@
                                                                        [label :src (at) :label @how-many]]
                                                                       [label :src (at) :label "random number between 5 and 99"])]])
 
-
-                                                      ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
                                                       ;; The simple-v-table demo starts here
                                                       [simple-v-table
                                                        :src                       (at)

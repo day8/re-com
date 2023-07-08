@@ -24,8 +24,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title  "Input Text Components"
-                                "src/re_com/input_text.cljs"
-                                "src/re_demo/input_text.cljs"]
+                   "src/re_com/input_text.cljs"
+                   "src/re_demo/input_text.cljs"]
 
                   [h-box :src (at)
                    :gap      "100px"
@@ -118,8 +118,7 @@
                                                       :padding          "15px"
                                                       :border-top       "1px solid #DDD"
                                                       :background-color "#f7f7f7"}
-                                           :children [
-                                                      [title :src (at) :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
+                                           :children [[title :src (at) :level :level3 :label "Interactive Parameters" :style {:margin-top "0"}]
                                                       [v-box :src (at)
                                                        :children [[box :src (at) :align :start :child [:code ":change-on-blur?"]]
                                                                   [radio-button :src (at)
@@ -141,40 +140,40 @@
                                                                    :value     nil
                                                                    :model     @status
                                                                    :on-change #(do
-                                                                                (reset! status %)
-                                                                                (reset! status-tooltip ""))
+                                                                                 (reset! status %)
+                                                                                 (reset! status-tooltip ""))
                                                                    :style {:margin-left "20px"}]
                                                                   [radio-button :src (at)
                                                                    :label ":validating - set while validating an input value"
                                                                    :value :validating
                                                                    :model @status
                                                                    :on-change #(do
-                                                                                (reset! status %)
-                                                                                (reset! status-tooltip "Validating tooltip - this (optionally) appears when an input-text is validating."))
+                                                                                 (reset! status %)
+                                                                                 (reset! status-tooltip "Validating tooltip - this (optionally) appears when an input-text is validating."))
                                                                    :style {:margin-left "20px"}]
                                                                   [radio-button :src (at)
                                                                    :label ":success - border color becomes green"
                                                                    :value :success
                                                                    :model @status
                                                                    :on-change #(do
-                                                                                (reset! status %)
-                                                                                (reset! status-tooltip "Success tooltip - this (optionally) appears when an input-text components has validated successfully."))
+                                                                                 (reset! status %)
+                                                                                 (reset! status-tooltip "Success tooltip - this (optionally) appears when an input-text components has validated successfully."))
                                                                    :style {:margin-left "20px"}]
                                                                   [radio-button :src (at)
                                                                    :label     ":warning - border color becomes orange"
                                                                    :value     :warning
                                                                    :model     @status
                                                                    :on-change #(do
-                                                                                (reset! status %)
-                                                                                (reset! status-tooltip "Warning tooltip - this (optionally) appears when there are warnings on input-text components."))
+                                                                                 (reset! status %)
+                                                                                 (reset! status-tooltip "Warning tooltip - this (optionally) appears when there are warnings on input-text components."))
                                                                    :style     {:margin-left "20px"}]
                                                                   [radio-button :src (at)
                                                                    :label     ":error - border color becomes red"
                                                                    :value     :error
                                                                    :model     @status
                                                                    :on-change #(do
-                                                                                (reset! status %)
-                                                                                (reset! status-tooltip "Error tooltip - this (optionally) appears when there are errors on input-text components."))
+                                                                                 (reset! status %)
+                                                                                 (reset! status-tooltip "Error tooltip - this (optionally) appears when there are errors on input-text components."))
                                                                    :style     {:margin-left "20px"}]]]
                                                       [h-box :src (at)
                                                        :align :start
@@ -230,7 +229,6 @@
                                                                    :on-change #(reset! slider-val %)]
                                                                   [label :src (at) :label @slider-val]]]]]]]]]
                   [parts-table "input-text" input-text-parts-desc]]])))
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

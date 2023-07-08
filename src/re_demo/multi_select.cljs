@@ -1,14 +1,14 @@
 (ns re-demo.multi-select
   (:require-macros
-    [re-com.core  :refer []])
+   [re-com.core  :refer []])
   (:require
-    [cljs.pprint          :as pprint]
-    [reagent.core         :as reagent]
-    [re-com.core          :refer [at h-box box checkbox gap v-box multi-select hyperlink-href p label]]
-    [re-com.multi-select  :refer [multi-select-parts-desc multi-select-args-desc]]
-    [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text new-in-version]]
-    [re-com.util          :refer [px]]
-    [clojure.string]))
+   [cljs.pprint          :as pprint]
+   [reagent.core         :as reagent]
+   [re-com.core          :refer [at h-box box checkbox gap v-box multi-select hyperlink-href p label]]
+   [re-com.multi-select  :refer [multi-select-parts-desc multi-select-args-desc]]
+   [re-demo.utils        :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text new-in-version]]
+   [re-com.util          :refer [px]]
+   [clojure.string]))
 
 (def model (reagent/atom #{:tesla-model-s}))
 (def disabled? (reagent/atom false))
@@ -36,8 +36,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[multi-select ... ]"
-                            "src/re_com/multi_select.cljs"
-                            "src/re_demo/multi_select.cljs"]
+               "src/re_com/multi_select.cljs"
+               "src/re_demo/multi_select.cljs"]
 
               [h-box
                :src      (at)

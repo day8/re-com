@@ -1,13 +1,13 @@
 (ns re-demo.alert-box
   (:require-macros
-    [reagent.debug :refer [dbg prn println log dev? warn warn-unless]]
-    [re-com.core   :refer []])
+   [reagent.debug :refer [dbg prn println log dev? warn warn-unless]]
+   [re-com.core   :refer []])
   (:require
-    [re-com.core   :refer [at h-box v-box box line gap title label alert-box alert-list p]]
-    [re-com.alert  :refer [alert-box-parts-desc alert-box-args-desc alert-list-args-desc]]
-    [re-demo.utils :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
-    [re-com.util   :refer [px]]
-    [reagent.core  :as    reagent]))
+   [re-com.core   :refer [at h-box v-box box line gap title label alert-box alert-list p]]
+   [re-com.alert  :refer [alert-box-parts-desc alert-box-args-desc alert-list-args-desc]]
+   [re-demo.utils :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
+   [re-com.util   :refer [px]]
+   [reagent.core  :as    reagent]))
 
 (defn alert-box-demo
   []
@@ -23,8 +23,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[alert-box ... ]"
-                                "src/re_com/alert.cljs"
-                                "src/re_demo/alert_box.cljs"]
+                   "src/re_com/alert.cljs"
+                   "src/re_demo/alert_box.cljs"]
 
                   [h-box
                    :src      (at)
@@ -174,8 +174,6 @@
                                            :src  (at)
                                            :size "60px"]]]]]
                   [parts-table "alert-box" alert-box-parts-desc]]])))
-
-
 
 ;; core holds onto references, so need one level of indirection to get figwheel updates
 (defn panel

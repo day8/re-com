@@ -17,7 +17,6 @@
 
       (throw (js/Error. "Couldn't find addEventListener method in document-event-listener")))))
 
-
 (defprotocol IMouseMoveTracker
   (captureMouseMoves  [this event])
   (-releaseMouseMoves [this event])

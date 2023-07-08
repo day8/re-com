@@ -1,25 +1,23 @@
 (ns re-demo.datepicker
   (:require-macros
-    [reagent.ratom     :refer [reaction]]
-    [re-com.core       :refer []])
+   [reagent.ratom     :refer [reaction]]
+   [re-com.core       :refer []])
   (:require
-    [goog.date.Date]
-    [reagent.core      :as    reagent]
-    [cljs-time.core    :refer [today days minus plus day-of-week before?]]
-    [cljs-time.coerce  :refer [to-local-date]]
-    [cljs-time.format  :refer [formatter unparse]]
-    [re-com.core       :refer [at h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p button md-icon-button]]
-    [re-com.datepicker :refer [iso8601->date datepicker-parts-desc datepicker-dropdown-args-desc]]
-    [re-com.validate   :refer [date-like?]]
-    [re-com.util       :refer [now->utc px]]
-    [re-demo.utils     :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]])
+   [goog.date.Date]
+   [reagent.core      :as    reagent]
+   [cljs-time.core    :refer [today days minus plus day-of-week before?]]
+   [cljs-time.coerce  :refer [to-local-date]]
+   [cljs-time.format  :refer [formatter unparse]]
+   [re-com.core       :refer [at h-box v-box box gap single-dropdown datepicker datepicker-dropdown checkbox label title p button md-icon-button]]
+   [re-com.datepicker :refer [iso8601->date datepicker-parts-desc datepicker-dropdown-args-desc]]
+   [re-com.validate   :refer [date-like?]]
+   [re-com.util       :refer [now->utc px]]
+   [re-demo.utils     :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]])
   (:import
-    [goog.i18n DateTimeSymbols_pl]))
-
+   [goog.i18n DateTimeSymbols_pl]))
 
 (def ^:private days-map
-     {:Su "S" :Mo "M" :Tu "T" :We "W" :Th "T" :Fr "F" :Sa "S"})
-
+  {:Su "S" :Mo "M" :Tu "T" :We "W" :Th "T" :Fr "F" :Sa "S"})
 
 (defn- toggle-inclusion!
   "convenience function to include/exclude member from"
@@ -121,17 +119,11 @@
                                        :align :end
                                        :child [:code (str "(fn [d]\n (" @as-days " (.getDay d)))")]]]]]]]])
 
-
-
-
 (defn- date->string
   [date]
   (if (date-like? date)
     (unparse (formatter "dd MMM, yyyy") date)
     "no date"))
-
-
-
 
 (defn- show-variant
   [variation]
@@ -263,7 +255,6 @@
                 start-of-week-choices
                 start-of-week])])))
 
-
 (def variations ^:private
   [{:id :inline       :label "Inline"}
    {:id :dropdown     :label "Dropdown"}
@@ -277,8 +268,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "Date Components"
-                               "src/re_com/datepicker.cljs"
-                               "src/re_demo/datepicker.cljs"]
+                   "src/re_com/datepicker.cljs"
+                   "src/re_demo/datepicker.cljs"]
                   [h-box
                    :src      (at)
                    :gap      "100px"
@@ -310,7 +301,6 @@
                                                         :on-change #(reset! selected-variation %)]]]
                                            [show-variant @selected-variation]]]]]
                   [parts-table "datepicker" datepicker-parts-desc]]])))
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

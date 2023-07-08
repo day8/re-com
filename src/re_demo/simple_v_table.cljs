@@ -1,15 +1,14 @@
 (ns re-demo.simple-v-table
   (:require-macros
-    [re-com.core                           :refer []])
+   [re-com.core                           :refer []])
   (:require
-    [re-com.core                           :refer [at h-box gap v-box p line horizontal-tabs]]
-    [re-com.simple-v-table                 :refer [simple-v-table-parts-desc simple-v-table-args-desc]]
-    [re-com.util                           :refer [px]]
-    [re-demo.simple-v-table-sales          :as simple-v-table-sales]
-    [re-demo.simple-v-table-periodic-table :as simple-v-table-periodic-table]
-    [re-demo.utils                         :refer [source-reference panel-title title2 title3 parts-table args-table status-text new-in-version]]
-    [reagent.core                          :as    reagent]))
-
+   [re-com.core                           :refer [at h-box gap v-box p line horizontal-tabs]]
+   [re-com.simple-v-table                 :refer [simple-v-table-parts-desc simple-v-table-args-desc]]
+   [re-com.util                           :refer [px]]
+   [re-demo.simple-v-table-sales          :as simple-v-table-sales]
+   [re-demo.simple-v-table-periodic-table :as simple-v-table-periodic-table]
+   [re-demo.utils                         :refer [source-reference panel-title title2 title3 parts-table args-table status-text new-in-version]]
+   [reagent.core                          :as    reagent]))
 
 (defn notes-column
   []
@@ -60,7 +59,6 @@
                [:li "Even if you are explicit via " [:code ":max-width"]  " or " [:code ":max-rows"] ", the parent's dimensions will always dominate, if they are set"]]
               [p "The \"Sales Table Demo\" (to the right) allows you to experiment with these concepts."]]])
 
-
 (defn dependencies
   []
   [v-box
@@ -75,7 +73,6 @@
     [:br]
     [p "If you do not include this script the " [:code "simple-v-table"] " will not render and you will get an error in the "
      "console like " [:code "Your project is missing detect-element-resize.js or detect-element-resize-externs.js could not setup v-table."]]]])
-
 
 (defn panel
   []

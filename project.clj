@@ -25,7 +25,6 @@
                  [lein-shell              "0.5.0"]
                  [lein-pprint             "1.3.2"]]
 
-
   :middleware   [leiningen.git-inject/middleware]
 
   :antq     {}
@@ -114,8 +113,8 @@
 
   :aliases          {;; *** DEV ***
                      "watch"   ["with-profile" "+dev,+demo" "do"
-                                   ["clean"]
-                                   ["shadow" "watch" "demo" "browser-test" "karma-test"]]
+                                ["clean"]
+                                ["shadow" "watch" "demo" "browser-test" "karma-test"]]
 
                      ;; *** PROD ***
                      "prod-once"  ["with-profile" "+demo,-dev" "do"
@@ -133,12 +132,12 @@
                                         ["shadow" "run" "shadow.cljs.build-report" "demo" "target/build-report.html"]]
 
                      "ci" ["do"
-                             ["with-profile" "+dev" "do"
-                              ["clean"]
-                              ["shadow" "compile" "karma-test"]
-                              ["shell" "karma" "start" "--single-run" "--reporters" "junit,dots"]]
-                             ["with-profile" "+demo,-dev" "do"
-                              ["clean"]
-                              ["shadow" "release" "demo"]]]})
+                           ["with-profile" "+dev" "do"
+                            ["clean"]
+                            ["shadow" "compile" "karma-test"]
+                            ["shell" "karma" "start" "--single-run" "--reporters" "junit,dots"]]
+                           ["with-profile" "+demo,-dev" "do"
+                            ["clean"]
+                            ["shadow" "release" "demo"]]]})
 
 

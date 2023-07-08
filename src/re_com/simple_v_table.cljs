@@ -1,15 +1,14 @@
 (ns re-com.simple-v-table
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
-    [reagent.core    :as    reagent]
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.box      :refer [box h-box gap]]
-    [re-com.util     :refer [px deref-or-value assoc-in-if-empty]]
-    [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
-    [re-com.v-table  :as    v-table]))
-
+   [reagent.core    :as    reagent]
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.box      :refer [box h-box gap]]
+   [re-com.util     :refer [px deref-or-value assoc-in-if-empty]]
+   [re-com.validate :refer [vector-of-maps? vector-atom? parts?]]
+   [re-com.v-table  :as    v-table]))
 
 (defn swap!-sort-by-column
   [{:keys [key-fn order]} new-key-fn new-comp]
@@ -22,7 +21,6 @@
     {:key-fn new-key-fn
      :comp   new-comp
      :order :asc}))
-
 
 (defn sort-icon
   [{:keys [size fill]
@@ -44,7 +42,6 @@
    [:path {:fill fill
            :d    "M7 10l5 5 5-5H7z"}]])
 
-
 (defn arrow-up-icon
   [{:keys [size fill]
     :or   {size "24px"
@@ -54,7 +51,6 @@
          :viewBox "0 0 24 24"}
    [:path {:fill fill
            :d    "M7 14l5-5 5 5H7z"}]])
-
 
 (def vertical-align->align
   {:top      :start
@@ -70,35 +66,35 @@
     (let [on-click #(swap! sort-by-column swap!-sort-by-column key-fn comp)
           align    (get vertical-align->align (keyword vertical-align) vertical-align)]
       (cond->
-        [h-box
-         :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
-         :width    (px width)
-         :style    (merge
-                     {:padding       "0px 12px"
-                      :min-height    "24px"
-                      :height        (px height)
-                      :font-weight   "bold"
-                      :text-align    align
-                      :white-space   "nowrap"
-                      :overflow      "hidden"
-                      :text-overflow "ellipsis"}
-                     (when sort-by
-                       {:cursor "pointer"})
-                     (get-in parts [:simple-column-header-item :style]))
-         :attr     (merge
-                     {}
-                     (when sort-by
-                       {:on-click on-click})
-                     (get-in parts [:simple-column-header-item :attr]))
-         :children [header-label
-                    (when sort-by
-                      [:<>
-                       [gap :size "16px"]
-                       (if (not= current-key-fn key-fn)
-                         [sort-icon]
-                         (if (= order :desc)
-                           [arrow-down-icon]
-                           [arrow-up-icon]))])]]
+       [h-box
+        :class    (str "rc-simple-v-table-column-header-item " (get-in parts [:simple-column-header-item :class]))
+        :width    (px width)
+        :style    (merge
+                   {:padding       "0px 12px"
+                    :min-height    "24px"
+                    :height        (px height)
+                    :font-weight   "bold"
+                    :text-align    align
+                    :white-space   "nowrap"
+                    :overflow      "hidden"
+                    :text-overflow "ellipsis"}
+                   (when sort-by
+                     {:cursor "pointer"})
+                   (get-in parts [:simple-column-header-item :style]))
+        :attr     (merge
+                   {}
+                   (when sort-by
+                     {:on-click on-click})
+                   (get-in parts [:simple-column-header-item :attr]))
+        :children [header-label
+                   (when sort-by
+                     [:<>
+                      [gap :size "16px"]
+                      (if (not= current-key-fn key-fn)
+                        [sort-icon]
+                        (if (= order :desc)
+                          [arrow-down-icon]
+                          [arrow-up-icon]))])]]
         (when align)
         (into [:align align])))))
 
@@ -122,51 +118,49 @@
   [row {:keys [width height align vertical-align row-label-fn] :as column} cell-style parts]
   [:div
    (merge
-     {:class (str "rc-simple-v-table-row-item " (get-in parts [:simple-row-item :class]))
-      :style (merge {:display        "inline-block"
-                     :padding        (str "0px " "12px")
-                     :width          (px width)
-                     :height         (px height)
-                     :text-align     align
-                     :vertical-align vertical-align
-                     :white-space    "nowrap"
-                     :overflow       "hidden"
-                     :text-overflow  "ellipsis"}
-                    (get-in parts [:simple-row-item :style])
-                    (if (fn? cell-style)
-                      (cell-style row column)
-                      cell-style))}
-     (get-in parts [:simple-row-item :attr]))
+    {:class (str "rc-simple-v-table-row-item " (get-in parts [:simple-row-item :class]))
+     :style (merge {:display        "inline-block"
+                    :padding        (str "0px " "12px")
+                    :width          (px width)
+                    :height         (px height)
+                    :text-align     align
+                    :vertical-align vertical-align
+                    :white-space    "nowrap"
+                    :overflow       "hidden"
+                    :text-overflow  "ellipsis"}
+                   (get-in parts [:simple-row-item :style])
+                   (if (fn? cell-style)
+                     (cell-style row column)
+                     cell-style))}
+    (get-in parts [:simple-row-item :attr]))
    (row-label-fn row)])
-
 
 (defn row-renderer
   ":row-renderer AND :row-header-renderer: Render a single row of the table data"
   [columns on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color row-index row]
   (into
-    [:div
-     (merge
-       {:class          (str "rc-simple-v-table-row " (get-in parts [:simple-row :class]))
-        :style          (merge {:padding     "4px 0px"
-                                :overflow    "hidden"
-                                :white-space "nowrap"
-                                :height      (px row-height)
-                                :border-top  (str "1px solid " table-row-line-color)
-                                :cursor      (when on-click-row "pointer")}
-                               (when (and striped? (odd? row-index))
-                                 {:background-color "#f2f2f2"})
-                               (get-in parts [:simple-row :style])
-                               (if (fn? row-style)
-                                 (row-style row)
-                                 row-style))
-        :on-click       (handler-fn (do (v-table/show-row-data-on-alt-click row row-index event)
-                                        (when on-click-row (on-click-row row-index))))
-        :on-mouse-enter (when on-enter-row (handler-fn (on-enter-row row-index)))
-        :on-mouse-leave (when on-leave-row (handler-fn (on-leave-row row-index)))}
-       (get-in parts [:simple-row :attr]))]
-    (for [column columns]
-      [row-item row column cell-style parts])))
-
+   [:div
+    (merge
+     {:class          (str "rc-simple-v-table-row " (get-in parts [:simple-row :class]))
+      :style          (merge {:padding     "4px 0px"
+                              :overflow    "hidden"
+                              :white-space "nowrap"
+                              :height      (px row-height)
+                              :border-top  (str "1px solid " table-row-line-color)
+                              :cursor      (when on-click-row "pointer")}
+                             (when (and striped? (odd? row-index))
+                               {:background-color "#f2f2f2"})
+                             (get-in parts [:simple-row :style])
+                             (if (fn? row-style)
+                               (row-style row)
+                               row-style))
+      :on-click       (handler-fn (do (v-table/show-row-data-on-alt-click row row-index event)
+                                      (when on-click-row (on-click-row row-index))))
+      :on-mouse-enter (when on-enter-row (handler-fn (on-enter-row row-index)))
+      :on-mouse-leave (when on-leave-row (handler-fn (on-leave-row row-index)))}
+     (get-in parts [:simple-row :attr]))]
+   (for [column columns]
+     [row-item row column cell-style parts])))
 
 (def simple-v-table-exclusive-parts-desc
   (when include-args-desc?
@@ -176,23 +170,19 @@
      {:name :simple-row                 :level 5 :class "rc-simple-v-table-row"                 :impl "[:div]"           :notes "Simple-v-table's container for rows (placed under v-table's :row-content/:row-header-content)"}
      {:name :simple-row-item            :level 6 :class "rc-simple-v-table-row-item"            :impl "[:div]"           :notes "Individual row item/cell components"}]))
 
-
 (def simple-v-table-exclusive-parts
   (when include-args-desc?
     (-> (map :name simple-v-table-exclusive-parts-desc) set)))
 
-
 (def simple-v-table-parts-desc
   (when include-args-desc?
     (into
-      simple-v-table-exclusive-parts-desc
-      (map #(update % :level inc) v-table/v-table-parts-desc))))
-
+     simple-v-table-exclusive-parts-desc
+     (map #(update % :level inc) v-table/v-table-parts-desc))))
 
 (def simple-v-table-parts
   (when include-args-desc?
     (-> (map :name simple-v-table-parts-desc) set)))
-
 
 (def simple-v-table-args-desc
   (when include-args-desc?
@@ -218,7 +208,6 @@
      {:name :src                       :required false                    :type "map"                              :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging. Source code coordinates map containing keys" [:code ":file"] "and" [:code ":line"]  ". See 'Debugging'."]}
      {:name :debug-as                  :required false                    :type "map"                              :validate-fn map?                           :description [:span "Used in dev builds to assist with debugging, when one component is used implement another component, and we want the implementation component to masquerade as the original component in debug output, such as component stacks. A map optionally containing keys" [:code ":component"] "and" [:code ":args"] "."]}]))
 
-
 (defn simple-v-table
   "Render a v-table and introduce the concept of columns (provide a spec for each).
   Of the nine possible sections of v-table, this table only supports four:
@@ -230,97 +219,97 @@
   "
   [& {:keys [src] :as args}]
   (or
-    (validate-args-macro simple-v-table-args-desc args)
-    (let [sort-by-column         (reagent/atom nil)]
-      (fn simple-v-table-render
-        [& {:keys [model columns fixed-column-count fixed-column-border-color column-header-height column-header-renderer
-                   max-width max-rows row-height table-padding table-row-line-color on-click-row on-enter-row on-leave-row
-                   striped? row-style cell-style class parts src debug-as]
+   (validate-args-macro simple-v-table-args-desc args)
+   (let [sort-by-column         (reagent/atom nil)]
+     (fn simple-v-table-render
+       [& {:keys [model columns fixed-column-count fixed-column-border-color column-header-height column-header-renderer
+                  max-width max-rows row-height table-padding table-row-line-color on-click-row on-enter-row on-leave-row
+                  striped? row-style cell-style class parts src debug-as]
 
-            :or   {column-header-height      31
-                   row-height                31
-                   fixed-column-count        0
-                   table-padding             19
-                   table-row-line-color      "#EAEEF1"
-                   fixed-column-border-color "#BBBEC0"
-                   column-header-renderer    column-header-renderer}
-            :as   args}]
-        (or
-          (validate-args-macro simple-v-table-args-desc args)
-          (let [fcc-bounded            (min fixed-column-count (count columns))
-                fixed-cols             (subvec columns 0 fcc-bounded)
-                content-cols           (subvec columns fcc-bounded (count columns))
-                fixed-content-width    (->> fixed-cols (map :width) (reduce + 0))
-                content-width          (->> content-cols (map :width) (reduce + 0))
-                table-border-style     (str "1px solid " table-row-line-color)
-                fixed-col-border-style (str "1px solid " fixed-column-border-color)
-                actual-table-width     (+ fixed-content-width
-                                          (when (pos? fixed-column-count) 1) ;; 1 border width (for fixed-col-border)
-                                          content-width
-                                          v-table/scrollbar-tot-thick
-                                          (* 2 table-padding)
-                                          2) ;; 2 border widths
-                internal-model         (reagent/track
-                                         (fn []
-                                           (if-let [{:keys [key-fn comp order] :or {comp compare}} @sort-by-column]
-                                             (do
-                                               (let [sorted (sort-by key-fn comp (deref-or-value model))]
-                                                 (if (= order :desc)
-                                                   (vec (reverse sorted))
-                                                   (vec sorted))))
-                                             (deref-or-value model))))]
-            [box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :class    (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
-             :style    (merge {;; :flex setting
+           :or   {column-header-height      31
+                  row-height                31
+                  fixed-column-count        0
+                  table-padding             19
+                  table-row-line-color      "#EAEEF1"
+                  fixed-column-border-color "#BBBEC0"
+                  column-header-renderer    column-header-renderer}
+           :as   args}]
+       (or
+        (validate-args-macro simple-v-table-args-desc args)
+        (let [fcc-bounded            (min fixed-column-count (count columns))
+              fixed-cols             (subvec columns 0 fcc-bounded)
+              content-cols           (subvec columns fcc-bounded (count columns))
+              fixed-content-width    (->> fixed-cols (map :width) (reduce + 0))
+              content-width          (->> content-cols (map :width) (reduce + 0))
+              table-border-style     (str "1px solid " table-row-line-color)
+              fixed-col-border-style (str "1px solid " fixed-column-border-color)
+              actual-table-width     (+ fixed-content-width
+                                        (when (pos? fixed-column-count) 1) ;; 1 border width (for fixed-col-border)
+                                        content-width
+                                        v-table/scrollbar-tot-thick
+                                        (* 2 table-padding)
+                                        2) ;; 2 border widths
+              internal-model         (reagent/track
+                                      (fn []
+                                        (if-let [{:keys [key-fn comp order] :or {comp compare}} @sort-by-column]
+                                          (do
+                                            (let [sorted (sort-by key-fn comp (deref-or-value model))]
+                                              (if (= order :desc)
+                                                (vec (reverse sorted))
+                                                (vec sorted))))
+                                          (deref-or-value model))))]
+          [box
+           :src      src
+           :debug-as (or debug-as (reflect-current-component))
+           :class    (str "rc-simple-v-table-wrapper " (get-in parts [:simple-wrapper :class]))
+           :style    (merge {;; :flex setting
                                ;; When max-rows is being used:
                                ;;  - "0 1 auto" allows shrinking within parent but not growing (to prevent vertical spill)
                                ;; Otherwise:
                                ;;  - "100%" used instead of 1 to resolve conflicts when simple-v-table is the anchor of a popover (e.g. the periodic table demo)
-                               :flex             (if max-rows "0 1 auto" "100%")
-                               :background-color "white" ;; DEBUG "salmon"
-                               :padding          (px table-padding)
-                               :max-width        (or max-width (px actual-table-width)) ;; Removing actual-table-width would make the table stretch to the end of the page
-                               :border           table-border-style
-                               :border-radius    "3px"}
-                              (get-in parts [:simple-wrapper :style]))
-             :attr     (get-in parts [:simple-wrapper :attr])
-             :child    [v-table/v-table
-                        :src                     (at)
-                        :model                   internal-model
+                             :flex             (if max-rows "0 1 auto" "100%")
+                             :background-color "white" ;; DEBUG "salmon"
+                             :padding          (px table-padding)
+                             :max-width        (or max-width (px actual-table-width)) ;; Removing actual-table-width would make the table stretch to the end of the page
+                             :border           table-border-style
+                             :border-radius    "3px"}
+                            (get-in parts [:simple-wrapper :style]))
+           :attr     (get-in parts [:simple-wrapper :attr])
+           :child    [v-table/v-table
+                      :src                     (at)
+                      :model                   internal-model
 
                         ;; ===== Column header (section 4)
-                        :column-header-renderer  (partial column-header-renderer content-cols parts sort-by-column)
-                        :column-header-height    column-header-height
+                      :column-header-renderer  (partial column-header-renderer content-cols parts sort-by-column)
+                      :column-header-height    column-header-height
 
                         ;; ===== Row header (section 2)
-                        :row-header-renderer     (partial row-renderer fixed-cols on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color)
+                      :row-header-renderer     (partial row-renderer fixed-cols on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color)
 
                         ;; ===== Rows (section 5)
-                        :row-renderer            (partial row-renderer content-cols on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color)
-                        :row-content-width       content-width
-                        :row-height              row-height
-                        :max-row-viewport-height (when max-rows (* max-rows row-height))
+                      :row-renderer            (partial row-renderer content-cols on-click-row on-enter-row on-leave-row striped? row-height row-style cell-style parts table-row-line-color)
+                      :row-content-width       content-width
+                      :row-height              row-height
+                      :max-row-viewport-height (when max-rows (* max-rows row-height))
                         ;:max-width               (px (or max-width (+ fixed-content-width content-width v-table/scrollbar-tot-thick))) ; :max-width handled by enclosing parent above
 
                         ;; ===== Corners (section 1)
-                        :top-left-renderer       (partial column-header-renderer fixed-cols parts sort-by-column) ;; Used when there are fixed columns
+                      :top-left-renderer       (partial column-header-renderer fixed-cols parts sort-by-column) ;; Used when there are fixed columns
 
                         ;; ===== Styling
-                        :class                   class
-                        :parts                   (cond-> (->
+                      :class                   class
+                      :parts                   (cond-> (->
                                                            ;; Remove the parts that are exclusive to simple-v-table, or v-table part
                                                            ;; validation will fail:
-                                                           (apply dissoc (into [parts] simple-v-table-exclusive-parts))
+                                                        (apply dissoc (into [parts] simple-v-table-exclusive-parts))
                                                            ;; Inject styles, if not set already, into parts. merge is not safe as it is not
                                                            ;; recursive so e.g. simply setting :attr would delete :style map.
 
                                                            ;(assoc-in-if-empty [:wrapper :style :background-color] "antiquewhite") ;; DEBUG
-                                                           (assoc-in-if-empty [:wrapper :style :font-size] "13px")
-                                                           (assoc-in-if-empty [:wrapper :style :cursor] "default"))
+                                                        (assoc-in-if-empty [:wrapper :style :font-size] "13px")
+                                                        (assoc-in-if-empty [:wrapper :style :cursor] "default"))
 
-                                                         (pos? fixed-column-count)
-                                                         (->
-                                                           (assoc-in-if-empty [:top-left :style :border-right] fixed-col-border-style)
-                                                           (assoc-in-if-empty [:row-headers :style :border-right] fixed-col-border-style)))]]))))))
+                                                 (pos? fixed-column-count)
+                                                 (->
+                                                  (assoc-in-if-empty [:top-left :style :border-right] fixed-col-border-style)
+                                                  (assoc-in-if-empty [:row-headers :style :border-right] fixed-col-border-style)))]]))))))

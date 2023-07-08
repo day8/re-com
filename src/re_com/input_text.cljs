@@ -1,17 +1,17 @@
 (ns re-com.input-text
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [re-com.throbber :refer [throbber]]
-    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                             number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]
-    [reagent.core    :as    reagent]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value px]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [re-com.throbber :refer [throbber]]
+   [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
+   [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
+                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]
+   [reagent.core    :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: input-text
@@ -61,19 +61,19 @@
   "Returns markup for a basic text input label"
   [& {:keys [model input-type src] :as args}]
   (or
-    (validate-args-macro input-text-args-desc args)
-    (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
-          internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)]
-      (fn input-text-base-render
-        [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts src debug-as]
-            :or   {change-on-blur? true, on-alter identity}
-            :as   args}]
-        (or
-          (validate-args-macro input-text-args-desc args)
-          (let [latest-ext-model  (deref-or-value model)
-                disabled?         (deref-or-value disabled?)
-                change-on-blur?   (deref-or-value change-on-blur?)
-                showing?          (reagent/atom false)
+   (validate-args-macro input-text-args-desc args)
+   (let [external-model (reagent/atom (deref-or-value model))  ;; Holds the last known external value of model, to detect external model changes
+         internal-model (reagent/atom (if (nil? @external-model) "" @external-model))] ;; Create a new atom from the model to be used internally (avoid nil)]
+     (fn input-text-base-render
+       [& {:keys [model on-change status status-icon? status-tooltip placeholder width height rows change-on-blur? on-alter validation-regex disabled? class style attr parts src debug-as]
+           :or   {change-on-blur? true, on-alter identity}
+           :as   args}]
+       (or
+        (validate-args-macro input-text-args-desc args)
+        (let [latest-ext-model  (deref-or-value model)
+              disabled?         (deref-or-value disabled?)
+              change-on-blur?   (deref-or-value change-on-blur?)
+              showing?          (reagent/atom false)
                 ;; If the user types a value that is subsequently modified in :on-change to the prior value of :model, such
                 ;; as validation or filtering, the :model is reset! to the same value then the value that the user typed
                 ;; (not the value of :model after the reset!) will remain displayed in the text input as no change is
@@ -85,131 +85,128 @@
                 ;; fix this problem there is an optional 2-arity version of on-change that receives a function as the second
                 ;; arg that when called signals that :model has reached a 'steady state' and the reset! of external-model
                 ;; can be done thus avoiding the flicker.
-                on-change-handler (fn []
-                                    (when (fn? on-change)
-                                      (let [has-done-fn? (= 2 (.-length ^js/Function on-change))
-                                            reset-fn     #(reset! external-model @internal-model)]
-                                        (if has-done-fn?
-                                          (on-change @internal-model reset-fn)
-                                          (do
-                                            (on-change @internal-model)
-                                            (reset-fn))))))]
-            (when (not= @external-model latest-ext-model) ;; Has model changed externally?
-              (reset! external-model latest-ext-model)
-              (reset! internal-model latest-ext-model))
-            [h-box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :align    :start
-             :class    (str "rc-input-text " (get-in parts [:wrapper :class]))
-             :style    (get-in parts [:wrapper :style])
-             :attr     (get-in parts [:wrapper :attr])
-             :width    (if width width "250px")
-             :children [[:div
-                         (merge
-                           {:class (str "rc-input-text-inner "          ;; form-group
-                                        (case status
-                                          :success "has-success "
-                                          :warning "has-warning "
-                                          :error "has-error "
-                                          "")
-                                        (when (and status status-icon?) "has-feedback ")
-                                        (get-in parts [:inner :class]))
-                            :style (merge (flex-child-style "auto")
-                                          (get-in parts [:inner :style]))}
-                           (get-in parts [:inner :attr]))
-                         [(if (= input-type :password) :input input-type)
-                          (merge
-                            {:class       (str "form-control rc-input-text-field " class)
-                             :type        (case input-type
-                                            :input "text"
-                                            :password "password"
-                                            nil)
-                             :rows        (when (= input-type :textarea) (or rows 3))
-                             :style       (merge
-                                            (flex-child-style "none")
-                                            {:height        height
-                                             :padding-right "12px"} ;; override for when icon exists
-                                            style)
-                             :placeholder placeholder
-                             :value       @internal-model
-                             :disabled    disabled?
-                             :on-change   (handler-fn
-                                            (let [new-val-orig (-> event .-target .-value)
-                                                  new-val (on-alter new-val-orig)]
-                                              (when (not= new-val new-val-orig)
-                                                (set! (-> event .-target .-value) new-val))
-                                              (when (and
-                                                      on-change
-                                                      (not disabled?)
-                                                      (if validation-regex (re-find validation-regex new-val) true))
-                                                (reset! internal-model new-val)
-                                                (when-not change-on-blur?
-                                                  (on-change-handler)))))
-                             :on-blur     (handler-fn
-                                            (when (and
-                                                    change-on-blur?
-                                                    (not= @internal-model @external-model))
-                                              (on-change-handler)))
-                             :on-key-up   (handler-fn
-                                            (if disabled?
-                                              (.preventDefault event)
-                                              (case (.-which event)
-                                                13 (on-change-handler)
-                                                27 (reset! internal-model @external-model)
-                                                true)))}
-                            attr)]]
-                        (when (and status-icon? status)
-                          (let [icon-class (case status :success "zmdi-check-circle" :warning "zmdi-alert-triangle" :error "zmdi-alert-circle zmdi-spinner" :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner")]
-                            (if status-tooltip
-                             [popover-tooltip
-                              :src      (at)
-                              :label    status-tooltip
-                              :position :right-center
-                              :status   status
+              on-change-handler (fn []
+                                  (when (fn? on-change)
+                                    (let [has-done-fn? (= 2 (.-length ^js/Function on-change))
+                                          reset-fn     #(reset! external-model @internal-model)]
+                                      (if has-done-fn?
+                                        (on-change @internal-model reset-fn)
+                                        (do
+                                          (on-change @internal-model)
+                                          (reset-fn))))))]
+          (when (not= @external-model latest-ext-model) ;; Has model changed externally?
+            (reset! external-model latest-ext-model)
+            (reset! internal-model latest-ext-model))
+          [h-box
+           :src      src
+           :debug-as (or debug-as (reflect-current-component))
+           :align    :start
+           :class    (str "rc-input-text " (get-in parts [:wrapper :class]))
+           :style    (get-in parts [:wrapper :style])
+           :attr     (get-in parts [:wrapper :attr])
+           :width    (if width width "250px")
+           :children [[:div
+                       (merge
+                        {:class (str "rc-input-text-inner "          ;; form-group
+                                     (case status
+                                       :success "has-success "
+                                       :warning "has-warning "
+                                       :error "has-error "
+                                       "")
+                                     (when (and status status-icon?) "has-feedback ")
+                                     (get-in parts [:inner :class]))
+                         :style (merge (flex-child-style "auto")
+                                       (get-in parts [:inner :style]))}
+                        (get-in parts [:inner :attr]))
+                       [(if (= input-type :password) :input input-type)
+                        (merge
+                         {:class       (str "form-control rc-input-text-field " class)
+                          :type        (case input-type
+                                         :input "text"
+                                         :password "password"
+                                         nil)
+                          :rows        (when (= input-type :textarea) (or rows 3))
+                          :style       (merge
+                                        (flex-child-style "none")
+                                        {:height        height
+                                         :padding-right "12px"} ;; override for when icon exists
+                                        style)
+                          :placeholder placeholder
+                          :value       @internal-model
+                          :disabled    disabled?
+                          :on-change   (handler-fn
+                                        (let [new-val-orig (-> event .-target .-value)
+                                              new-val (on-alter new-val-orig)]
+                                          (when (not= new-val new-val-orig)
+                                            (set! (-> event .-target .-value) new-val))
+                                          (when (and
+                                                 on-change
+                                                 (not disabled?)
+                                                 (if validation-regex (re-find validation-regex new-val) true))
+                                            (reset! internal-model new-val)
+                                            (when-not change-on-blur?
+                                              (on-change-handler)))))
+                          :on-blur     (handler-fn
+                                        (when (and
+                                               change-on-blur?
+                                               (not= @internal-model @external-model))
+                                          (on-change-handler)))
+                          :on-key-up   (handler-fn
+                                        (if disabled?
+                                          (.preventDefault event)
+                                          (case (.-which event)
+                                            13 (on-change-handler)
+                                            27 (reset! internal-model @external-model)
+                                            true)))}
+                         attr)]]
+                      (when (and status-icon? status)
+                        (let [icon-class (case status :success "zmdi-check-circle" :warning "zmdi-alert-triangle" :error "zmdi-alert-circle zmdi-spinner" :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner")]
+                          (if status-tooltip
+                            [popover-tooltip
+                             :src      (at)
+                             :label    status-tooltip
+                             :position :right-center
+                             :status   status
                               ;:width    "200px"
-                              :showing? showing?
-                              :anchor   (if (= :validating status)
-                                          [throbber
-                                           :size  :regular
-                                           :class "smaller"
-                                           :attr  {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
-                                                   :on-mouse-out  (handler-fn (reset! showing? false))}]
-                                          [:i {:class         (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
-                                               :style         {:position "static"
-                                                               :height   "auto"
-                                                               :opacity  (if (and status-icon? status) "1" "0")}
-                                               :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
-                                               :on-mouse-out  (handler-fn (reset! showing? false))}])
-                              :style    (merge (flex-child-style "none")
-                                               (align-style :align-self :center)
-                                               {:font-size   "130%"
-                                                :margin-left "4px"})]
-                             (if (= :validating status)
-                               [throbber
-                                :src   (at)
-                                :size  :regular
-                                :class "smaller"]
-                               [:i {:class (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
-                                    :style (merge (flex-child-style "none")
-                                                  (align-style :align-self :center)
-                                                  {:position    "static"
-                                                   :font-size   "130%"
-                                                   :margin-left "4px"
-                                                   :opacity     (if (and status-icon? status) "1" "0")
-                                                   :height      "auto"})
-                                    :title status-tooltip}]))))]]))))))
-
+                             :showing? showing?
+                             :anchor   (if (= :validating status)
+                                         [throbber
+                                          :size  :regular
+                                          :class "smaller"
+                                          :attr  {:on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                                  :on-mouse-out  (handler-fn (reset! showing? false))}]
+                                         [:i {:class         (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
+                                              :style         {:position "static"
+                                                              :height   "auto"
+                                                              :opacity  (if (and status-icon? status) "1" "0")}
+                                              :on-mouse-over (handler-fn (when (and status-icon? status) (reset! showing? true)))
+                                              :on-mouse-out  (handler-fn (reset! showing? false))}])
+                             :style    (merge (flex-child-style "none")
+                                              (align-style :align-self :center)
+                                              {:font-size   "130%"
+                                               :margin-left "4px"})]
+                            (if (= :validating status)
+                              [throbber
+                               :src   (at)
+                               :size  :regular
+                               :class "smaller"]
+                              [:i {:class (str "zmdi zmdi-hc-fw " icon-class " form-control-feedback")
+                                   :style (merge (flex-child-style "none")
+                                                 (align-style :align-self :center)
+                                                 {:position    "static"
+                                                  :font-size   "130%"
+                                                  :margin-left "4px"
+                                                  :opacity     (if (and status-icon? status) "1" "0")
+                                                  :height      "auto"})
+                                   :title status-tooltip}]))))]]))))))
 
 (defn input-text
   [& args]
   (apply input-text-base :input-type :input :debug-as (reflect-current-component) args))
 
-
 (defn input-password
   [& args]
   (apply input-text-base :input-type :password :debug-as (reflect-current-component) args))
-
 
 (defn input-textarea
   [& args]
