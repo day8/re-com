@@ -1,0 +1,25 @@
+
+* dropdown
+:PROPERTIES:
+:org-remark-file: ~/re-com/src/re_com/dropdown.cljs
+:END:
+
+** latest-ext-model
+:PROPERTIES:
+:org-remark-beg: 35439
+:org-remark-end: 35455
+:org-remark-id: 20a4bcab
+:org-remark-label: blue
+:org-remark-link: [[file:~/re-com/src/re_com/dropdown.cljs::525]]
+:END:
+what are models?
+
+** make-choice-item
+:PROPERTIES:
+:org-remark-beg: 7038
+:org-remark-end: 7054
+:org-remark-id: 83f6d8e9
+:org-remark-label: blue
+:org-remark-link: [[file:~/re-com/src/re_com/dropdown.cljs::165]]
+:END:
+Can this be called choice-item or choice? It's misleading for a component to be called make-thing.
