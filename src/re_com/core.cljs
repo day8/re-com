@@ -14,6 +14,8 @@
    [re-com.typeahead      :as typeahead]
    [re-com.input-time     :as input-time]
    [re-com.splits         :as splits]
+   [re-com.style          :as style]
+   [re-com.simple-dropdown :as simple-dropdown]
    [re-com.modal-panel    :as modal-panel]
    [re-com.multi-select   :as multi-select]
    [re-com.popover        :as popover]
@@ -68,6 +70,7 @@
 (def datepicker-dropdown        datepicker/datepicker-dropdown)
 
 (def single-dropdown            dropdown/single-dropdown)
+(def simple-dropdown            simple-dropdown/simple-dropdown)
 
 (def typeahead                  typeahead/typeahead)
 
@@ -113,3 +116,5 @@
 (def make-tour-nav              tour/make-tour-nav)
 
 (def stack-spy                  debug/stack-spy)
+
+(def base-style                 style/base)

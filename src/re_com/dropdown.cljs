@@ -8,6 +8,7 @@
    [re-com.box      :refer [align-style flex-child-style]]
    [re-com.validate :refer [vector-of-maps? css-style? html-attr? parts? number-or-string? log-warning
                             string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
+   [re-com.style    :as    style]
    [re-com.popover  :refer [popover-tooltip]]
    [clojure.string  :as    string]
    [reagent.core    :as    reagent]
@@ -155,10 +156,10 @@
            label]))})))
 
 (defn make-choice-item
-  [id-fn render-fn callback internal-model opt]
+  [id-fn render-fn on-click internal-model opt]
   (let [id (id-fn opt)
         markup (render-fn opt)]
-    ^{:key (str id)} [choice-item id markup callback internal-model]))
+    ^{:key (str id)} [choice-item id markup on-click internal-model]))
 
 (defn- filter-text-box-base
   "Base function (before lifecycle metadata) to render a filter text box"
@@ -187,7 +188,7 @@
      :component-did-update #(let [node (.-firstChild (rdom/dom-node %))]
                               (.focus node))}))
 
-(defn- dropdown-top
+(defn dropdown-top
   "Render the top part of the dropdown, with the clickable area and the up/down arrow"
   []
   (let [ignore-click (atom false)]
@@ -348,7 +349,7 @@
 
 (def single-dropdown-parts-desc
   (when include-args-desc?
-    [{:name :tooltip            :level 0 :class "rc-dropdown-tooltip"            :impl "[popover-tooltip]" :notes "Tooltip for the dropdown, if enabled."}
+    [{:name :tooltip            :level 0 :class "rc-dropdown-tooltip"            :impl "[popover-tooltip]" :notes "Tooltip for the dropdown, if enabled." :states #{:on :off}}
      {:type :legacy             :level 1 :class "rc-dropdown"                    :impl "[:div]"            :notes "The container for the rest of the dropdown."}
      {:name :chosen-drop        :level 2 :class "rc-dropdown-chosen-drop"        :impl "[:div]"}
      {:name :chosen-results     :level 3 :class "rc-dropdown-chosen-results"     :impl "[:ul]"}

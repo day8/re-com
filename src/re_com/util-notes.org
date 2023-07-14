@@ -10,7 +10,7 @@
 :org-remark-end: 745
 :org-remark-id: 6e1ba2ac
 :org-remark-label: blue
-:org-remark-link: [[file:~/re-com/src/re_com/util.cljs::27]]
+:org-remark-link: [[file:~/re-com/src/re_com/util.cljs::28]]
 :END:
 What's the value prop? Convenience?
 
