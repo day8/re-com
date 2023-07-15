@@ -18,11 +18,4 @@ Seems like it adds complexity.
 Might be nicer to spec validate the args, rather than coercing them.
 
 ** (for [[k v] map                         :let [v (if (= k :class) (string/join " " v) v)]                         itm [k v]]                     itm)
-:PROPERTIES:
-:org-remark-beg: 15923
-:org-remark-end: 16071
-:org-remark-id: ab74772d
-:org-remark-label: blue
-:org-remark-link: [[file:~/re-com/src/re_com/util.cljs::322]]
-:END:
 consider extracting this. Also, I guess we won't need this whole adapter once we switch the api to regular reagent props maps.
