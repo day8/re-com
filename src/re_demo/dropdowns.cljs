@@ -4,6 +4,7 @@
   (:require
    [re-com.core     :refer [at h-box v-box box gap single-dropdown simple-dropdown input-text checkbox label title hyperlink-href p p-span line]]
    [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
+   [re-com.simple-dropdown :as sdd :refer [simple-dropdown]]
    [re-com.util     :refer [item-for-id]]
    [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
    [re-com.util     :refer [px]]
@@ -862,6 +863,7 @@
                                                      [simple-dropdown
                                                       :src        (at)
                                                       :choices    demos
+                                                      :parts {::sdd/simple-dropdown {}}
                                                       :init       selected-demo-id
                                                       :width      "300px"
                                                       :max-height "300px"

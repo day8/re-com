@@ -5,9 +5,10 @@
    [re-com.config   :refer [include-args-desc?]]
    [re-com.debug    :refer [->attr]]
    [re-com.dropdown :as    dropdown]
-   [re-com.box      :refer [align-style flex-child-style]]
+   [re-com.box      :as    box :refer [align-style flex-child-style]]
    [re-com.validate :refer [log-warning]]
    [re-com.style    :as    style]
+   ["simple-dropdown.module.css" :as css-module]
    [re-com.state    :as st]
    [re-com.util     :refer [item-for-id]]
    [clojure.string  :as    string]
@@ -31,10 +32,9 @@
   []
   (let [ignore-click (atom false)]
     (fn
-      [internal-model choices id-fn label-fn tab-index placeholder dropdown-click _ filter-box? drop-showing? title? disabled?]
-      (let [_    (reagent/set-state (reagent/current-component) {:filter-box? filter-box?})
-            text (if (some? @internal-model)
-                   (label-fn (item-for-id @internal-model choices :id-fn id-fn))
+      [value choices id-fn label-fn tab-index placeholder dropdown-click _ filter-box? drop-showing? title? disabled?]
+      (let [text (if-some value
+                   (label-fn (item-for-id value choices :id-fn id-fn))
                    placeholder)]
         [:a.chosen-single.chosen-default
          {:style         (when disabled?
@@ -50,7 +50,7 @@
          [:span (when title?
                   {:title text})
           text]
-         (when (not disabled?)
+         (when-not disabled?
            [:div [:b]])]))))
 
 (defn- choice-item
@@ -72,6 +72,19 @@
         markup (render-fn opt)]
     ^{:key (str id)} [choice-item id markup on-click chosen?]))
 
+(def style-chart
+  (when include-args-desc?
+    [{:name ::tooltip            :level 0 :class "rc-dropdown-tooltip"            :impl "[popover-tooltip]" :notes "Tooltip for the dropdown, if enabled." :states #{:on :off}}
+     {:type ::base               :level 1 :class "rc-dropdown"                    :impl "[:div]"            :notes "The container for the rest of the dropdown."}
+     {:name ::chosen-drop        :level 2 :class "rc-dropdown-chosen-drop"        :impl "[:div]"}
+     {:name ::chosen-results     :level 3 :class "rc-dropdown-chosen-results"     :impl "[:ul]"}
+     {:name ::choices-loading    :level 4 :class "rc-dropdown-choices-loading"    :impl "[:li]"}
+     {:name ::choices-error      :level 4 :class "rc-dropdown-choices-error"      :impl "[:li]"}
+     {:name ::choices-no-results :level 4 :class "rc-dropdown-choices-no-results" :impl "[:li]"}]))
+
+(def style-parts
+ {::base }
+
 (defn simple-dropdown
   "Render a single dropdown component which emulates the bootstrap-choosen style. Sample choices object:
      [{:id \"AU\" :label \"Australia\"      :group \"Group 1\"}
@@ -79,26 +92,27 @@
       {:id \"GB\" :label \"United Kingdom\" :group \"Group 1\"}
       {:id \"AF\" :label \"Afghanistan\"    :group \"Group 2\"}]"
   [& {:keys [choices init]}]
-  (let [choices-state    (reagent/atom {:loading? (fn? choices)
-                                        :error    nil
-                                        :choices  []
-                                        :id       0
-                                        :timer    nil})
-        node              (reagent/atom nil)
+  (let [node              (reagent/atom nil)
         focus-anchor      #(some-> @node (.getElementsByClassName "chosen-single") (.item 0) (.focus))
-        state-chart {::st/states ^:& {::dropdown #{::closed ::open}
-                                      ::choice   (set choices)}
-                     ::st/init {::dropdown ::closed
-                                ::choice init}
-                     ::st/transitions {::->choose {::dropdown {::open   ::closed}}
-                                       ::->open   {::dropdown {::closed ::open}}
-                                       ::->cancel {::dropdown {::open   ::closed}}}
-                     ::st/actions {::->choose (fn [{old ::choice}
-                                                   {new ::choice}
-                                                   [value {:keys [on-change repeat-change?]}]]
-                                                (when (and on-change (or repeat-change? (not= old new)))
-                                                  (on-change new))
-                                                (focus-anchor))}}
+        change! (fn [old new]
+                  (when-not (= old new)
+                    (focus! new)
+                    (when on-change (on-change))))
+        state-chart {::st/states
+                     ^{st/init ::loading}
+                     {::chosen   ^{st/init nil st/on-entry change!} (-> choices set (conj nil))
+                      ::choosing ^{st/init nil}                     (-> choices set (conj nil))
+                      ::loading  {}
+                      ::disabled {}}
+                     ::st/transitions {::->choose  (fn ->choose [_ [choice]]
+                                                     {st/from ::choosing
+                                                      st/to   {::chosen choice}})
+                                       ::->open    {st/any       ::choosing}
+                                       ::->hover   {::choosing   {::choosing st/%}}
+                                       ::->cancel  {::choosing   {::chosen st/history}}
+                                       ::->disable {st/any-other ::disabled}
+                                       ::->load    {::loading    ::chosen}
+                                       ::->enable  {st/any       st/history}}}
         machine          (st/machine state-chart)
         some-state       (partial st/some-state machine)
         open?            (some-state ::open)
@@ -129,18 +143,15 @@
                                    (> (+ node-top top-height @drop-height)
                                       window-height))))
             with-part        (partial style/with-part parts)]
-        [:div
-         (merge
-          {:class (str "rc-dropdown chosen-container chosen-container-single noselect "
-                       (when @open? "chosen-container-active chosen-with-drop ")
-                       class)
-           :style (merge (flex-child-style (if width "0 0 auto" "auto"))
-                         (align-style :align-self :start)
-                         {:width width}
-                         style)
-           :ref   #(reset! node %)}
-          (->attr args)
-          attr)
+        [:div.rc-simple-dropdown
+         {:class (sss ::simple-dropdown {st/any {box/align-style [:align-self :start]
+                                                 :display "inline-block"
+                                                 :font-size style.font/base
+                                                 :position "relative"
+                                                 :vertical-align "middle"}})
+          :style (merge (flex-child-style (if width "auto" "0 0 auto"))
+                        style)
+          :ref   #(reset! node %)}
          [dropdown-top (::choice @machine) choices id-fn label-fn tab-index placeholder #(transition! ::->open) (constantly nil) false open? title? false]
          (when (#{::open} (::dropdown @machine))
            [:div
