@@ -1,0 +1,26 @@
+
+* dropdowns
+:PROPERTIES:
+:org-remark-file: ~/re-com/src/re_demo/dropdowns.cljs
+:END:
+
+
+
+
+** [::sdd/outer ::sdd/disabled]
+A combined part/state query: ~[part & state-query]~.
+Might be non-obvious where part ends & state begins.
+As long as parts is a flat structure, it should be alright.
+Otherwise, might have to do ~[[& part-query] [& state-query]]~.
+
+** ::sdd/outer {:margin-left 20}
+Target a part without targeting any state.
+In this case, the css rule applies in all states.
+** ::sdd/base ::sdd/disabled] {
+:PROPERTIES:
+:org-remark-beg: 50800
+:org-remark-end: 50828
+:org-remark-id: 821aca56
+:org-remark-label: blue
+:org-remark-link: [[file:~/re-com/src/re_demo/dropdowns.cljs::869]]
+:END:

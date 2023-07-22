@@ -1,0 +1,112 @@
+
+* simple_dropdown
+:PROPERTIES:
+:org-remark-file: ~/re-com/src/re_com/simple_dropdown.cljs
+:END:
+
+** box/align-style
+:PROPERTIES:
+:org-remark-beg: 7195
+:org-remark-end: 7210
+:org-remark-id: c0aaa7d3
+:org-remark-label: green
+:org-remark-link: [[file:~/re-com/src/re_com/simple_dropdown.cljs::122]]
+:END:
+Invoke abstractions in the sss compiler. They can expand to multiple rules.
+
+** :display "inline-block"
+:PROPERTIES:
+:org-remark-beg: 7281
+:org-remark-end: 7304
+:org-remark-id: 307ca06d
+:org-remark-label: red
+:org-remark-link: [[file:~/re-com/src/re_com/simple_dropdown.cljs::123]]
+:END:
+Factored out of boostrap's ~.chosen-container~.
+Bootstrap's ~chosen-container-single~ isn't preserved at all. That's because it has no rules of its own. Bootstrap uses it only as a parent selector. I'd argue that makes it a vestigal programming surface, which state & parts can subsume.
+
+In this case, we appear to be reverse-engineering bootstrap's hierarchy just so we can access it as a flat namespace again.
+
+** with-part
+:PROPERTIES:
+:org-remark-beg: 7080
+:org-remark-end: 7111
+:org-remark-id: 1439a0bc
+:org-remark-label: red
+:org-remark-link: [[file:~/re-com/src/re_com/simple_dropdown.cljs::120]]
+:END:
+Not sure this is the best invocation, but we need to merge the parts arg with the default parts. I still think this can be statically compiled if we're careful. It's still unclear to me whether we still need :parts for the dynamic inline styles.
+
+** :div.rc-simple-dropdown
+:PROPERTIES:
+:org-remark-beg: 7122
+:org-remark-end: 7145
+:org-remark-id: b1e0e53c
+:org-remark-label: green
+:org-remark-link: [[file:~/re-com/src/re_com/simple_dropdown.cljs::121]]
+:END:
+We still provide this class, so the user can extend with simple stylesheets as needed.
+
+** ::st/any
+:PROPERTIES:
+:org-remark-beg: 7187
+:org-remark-end: 7193
+:org-remark-id: 56bba9b9
+:org-remark-label: green
+:org-remark-link: [[file:~/re-com/src/re_com/simple_dropdown.cljs::122]]
+:END:
+This style just applies in every state. We can find a sugary way to express this.
+** (if width "auto" "0 0 auto")
+We should try to minimize dynamism, but some cases may be unavoiable. I'm still a bit confused how reactive arguments and statecharts can mix. I feel like there's an elegant solution, though.
+
+** ->choose
+:PROPERTIES:
+:org-remark-beg: 4313
+:org-remark-end: 4321
+:org-remark-id: 49abd896
+:org-remark-label: red
+:org-remark-link: [[file:~/re-com/src/re_com/simple_dropdown.cljs::82]]
+:END:
+Here's a longer way to pass arguments to a transition.
+** st/%
+:PROPERTIES:
+:org-remark-beg: 4644
+:org-remark-end: 4648
+:org-remark-id: cc8eda0c
+:org-remark-label: green
+:org-remark-link: [[file:~/re-com/src/re_com/simple_dropdown.cljs::86]]
+:END:
+
+** sss
+:PROPERTIES:
+:org-remark-beg: 7725
+:org-remark-end: 7728
+:org-remark-id: b6a525a8
+:org-remark-label: green
+:org-remark-link: [[file:~/re-com/src/re_com/simple_dropdown.cljs::131]]
+:END:
+In this case, since no part is assigned, sss creates a uuid class selector.
+
+** (sss/override parts)
+:PROPERTIES:
+:org-remark-beg: 3595
+:org-remark-end: 3615
+:org-remark-id: 0896065f
+:org-remark-label: blue
+:org-remark-link: [[file:~/re-com/src/re_com/simple_dropdown.cljs::69]]
+:END:
+This causes the sss compiler to compose these styles last, even though it reads them first. Composition is basically a deep-merge.
+** when (::choosing @machine)
+:PROPERTIES:
+:org-remark-beg: 8368
+:org-remark-end: 8394
+:org-remark-id: 34e24d3c
+:org-remark-label: red
+:org-remark-link: [[file:~/re-com/src/re_com/simple_dropdown.cljs::144]]
+:END:
+Instead, we might consider declaring
+#+begin_src clojure
+{(st/not ::choosing) {display: none}}
+#+end_src
+
+This makes css transitions easier, since the element never unmounts. I also think we could do css transitions with actions.

@@ -862,12 +862,28 @@
                                                       :label "Select a demo"]
                                                      [simple-dropdown
                                                       :src        (at)
-                                                      :choices    demos
-                                                      :parts {::sdd/simple-dropdown {}}
+                                                      :choices    ["camaro" "corvette"]
+                                                      :parts {::sdd/header {st/any     {:margin-left 20}
+                                                                            ::disabled {:background "green"}}
+                                                              ::sdd/base {:margin-left 20}
+                                                              [::sdd/base ::sdd/disabled] {:color "black"}
+                                                              [::sdd/base ::sdd/chosen "camaro"] {:color "red"}}
                                                       :init       selected-demo-id
                                                       :width      "300px"
                                                       :max-height "300px"
-                                                      :on-change  #(reset! selected-demo-id %)]]]
+                                                      :on-change  #(reset! selected-demo-id %)]
+                                                     [simple-dropdown
+                                                      :src        (at)
+                                                      :choices    ["camaro" "corvette"]
+                                                      ::sdd/header {st/any     {:margin-left 20}
+                                                                    ::disabled {:background "green"}}
+                                                      ::sdd/base {:margin-left 20}
+                                                      ::sdd/base {::sdd/disabled {:color "black"}}
+                                                      [::sdd/header ::sdd/chosen "camaro"] {:color "red"}
+                                                      :init       selected-demo-id
+                                                      :on-change  #(reset! selected-demo-id %)]
+                                                     ;; declare parts at the top level
+                                                     ]]]
                                          [gap
                                           :src  (at)
                                           :size "0px"] ;; Force a bit more space here
@@ -889,3 +905,73 @@
 (defn panel
   []
   [panel2])
+
+
+[simple-dropdown
+ :src        (at)
+ :choices    ["camaro" "corvette"]
+ ::sdd/disabled {st/any     {:margin-left 20}
+                 ::disabled {:background "green"}}
+ ::sdd/base {::rc/renderer my/s
+             :margin-left 20}
+ ::sdd {::sdd/disabled {:color "black"}}
+ [::sdd/header ::sdd/chosen "camaro"] {:color "red"}
+ :init       selected-demo-id
+ :on-change  #(reset! selected-demo-id %)
+
+[simple-dropdown
+ :choices    ["camaro" "corvette"]
+ :parts {::sdd/header {st/any     {:margin-left 20
+                                   :background "green"}
+                       ::disabled {:background "grey"}}
+         ::sdd/base {:margin-left 20}
+         [::sdd/base ::sdd/disabled] {:pointer-events "none"}
+         [::sdd/base ::sdd/chosen "camaro"] {:color "red"}}
+ :init       selected-demo-id
+ :width      "300px"
+ :max-height "300px"
+ :on-change  #(reset! selected-demo-id %)]
+
+
+[sdd/base (-> @(rc/attrs sdd/base)
+              (merge {:width "300px" :max-height "300px"})
+              (css/comp {:margin-left 20})
+              @(css/when ::sdd/disabled          {:pointer-events "none"}
+                         [::sdd/chosen "camaro"] {:color "red"})
+              (rc/on ::->change #(reset! selected-demo-id %)))
+ [sdd/header @(-> (rc/attrs sdd/chosen-drop)
+                  (css/when st/any {:margin-left 20
+                                    :background "green"}
+                            ::sdd/disabled {:background "green"}))]
+ [sdd/choices @(rc/attrs sdd/choices) "camaro" "corvette"]]
+ 
+ (defn my-dropdown []
+   (let [machine (st/machine sdd/state-chart)
+         part+state->style (fn [state part-id]
+                             (-> {::sdd/base
+                                  [(css/class {:margin-left 20})
+                                   (when (::sdd/disabled state)
+                                     (css/class {:pointer-events "none"}))
+                                   (when (-> state ::sdd/chosen #{"camaro"})
+                                     (css/class {:color "red"}))]
+                                  ::sdd/header
+                                  [(css/class {:margin-left 20
+                                               :background "green"})
+                                   (when (::sdd/disabled state)
+                                     (css/class {:background "grey"}))]}
+                                 (get part-id)))]
+     (fn []
+       [simple-dropdown {:part->style (partial part+state->style @machine)}])))
+
+[simple-dropdown
+ :choices    ["camaro" "corvette"]
+ :parts {::sdd/header {st/any         {:margin-left 20
+                                       :background "green"}
+                       ::sdd/disabled {:background "grey"}}
+         ::sdd/base {:margin-left 20}
+         [::sdd/base ::sdd/disabled] {:pointer-events "none"}
+         [::sdd/base ::sdd/chosen "camaro"] {:color "red"}}
+ :init       selected-demo-id
+ :width      "300px"
+ :max-height "300px"
+ :on-change  #(reset! selected-demo-id %)]

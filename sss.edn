@@ -1,0 +1,1 @@
+{:re-com/simple-dropdown {::base [:re-com.box/flex-child-style ]}}

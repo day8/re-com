@@ -1,0 +1,46 @@
+
+* v_table
+:PROPERTIES:
+:org-remark-file: ~/re-com/src/re_com/v_table.cljs
+:END:
+
+** (reset! content-rows-width row-content-width)
+:PROPERTIES:
+:org-remark-beg: 78139
+:org-remark-end: 78184
+:org-remark-id: 109c2313
+:org-remark-label: blue
+:org-remark-link: [[file:~/re-com/src/re_com/v_table.cljs::1045]]
+:END:
+I've seen this pattern elsewhere, storing values in an atom on every render. In 10x it's used to make the value accessible to multiple reagent class methods. In this case, why store this in an atom if you're /not/ going to deref it outside the render fn?
+Semantics are clashing, too.
+
+** detect-element-resize.js
+:PROPERTIES:
+:org-remark-beg: 75903
+:org-remark-end: 75927
+:org-remark-id: d03ce509
+:org-remark-label: blue
+:org-remark-link: [[file:~/re-com/src/re_com/v_table.cljs::995]]
+:END:
+Why is this dep inlined? I wonder how current & idiomatic it is.
+
+** scroll-rows-into-view
+:PROPERTIES:
+:org-remark-beg: 77761
+:org-remark-end: 77782
+:org-remark-id: b84f04f4
+:org-remark-label: blue
+:org-remark-link: [[file:~/re-com/src/re_com/v_table.cljs::1036]]
+:END:
+This sym is hard to infer, since it's named after an imperative phrase.
+
+** [row-renderer key-fn top-row-index rows scroll-x scroll-y    row-selection-fn [selection-renderer on-mouse-down on-mouse-enter on-mouse-leave] selection-allowed?    row-viewport-height row-viewport-width row-viewport-id content-rows-height content-rows-width    class style attr    sel-class sel-style sel-attr    content-class content-style content-attr]
+:PROPERTIES:
+:org-remark-beg: 18606
+:org-remark-end: 18767
+:org-remark-id: 7c7503d0
+:org-remark-label: blue
+:org-remark-link: [[file:~/re-com/src/re_com/v_table.cljs::322]]
+:END:
+Why not use keyword args or a map? For performance?

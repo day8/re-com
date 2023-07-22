@@ -17,6 +17,8 @@
                (class->vec c1)
                (class->vec c2))))
 
+(defn merge [c1 c2])
+
 (defn with-part [parts k attrs]
   (if-let [parts (-> parts :attr (get k))]
     (-> attrs

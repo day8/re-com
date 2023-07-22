@@ -1,0 +1,3 @@
+{::sdd/header
+ {st/any {:margin-left 20}
+  ::disabled {:background "green"}}}
