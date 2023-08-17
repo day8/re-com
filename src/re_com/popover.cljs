@@ -119,9 +119,9 @@
                       :stroke (or popover-border-color (when-not no-border? "rgba(0, 0, 0, .2)"))
                       :stroke-width "1"})}})
 
-(defn- popover-arrow
+(defn popover-arrow
   "Render the triangle which connects the popover to the anchor (using SVG)"
-  [orientation pop-offset arrow-length arrow-width grey-arrow? no-border? popover-color popover-border-color parts]
+  [& {:keys [orientation pop-offset arrow-length arrow-width grey-arrow? no-border? popover-color popover-border-color parts]}]
   (let [half-arrow-width (/ arrow-width 2)
         arrow-shape {:left  (str (point 0 0)            (point arrow-length half-arrow-width) (point 0 arrow-width))
                      :right (str (point arrow-length 0) (point 0 half-arrow-width)            (point arrow-length arrow-width))
@@ -339,6 +339,7 @@
      {:name :margin-left          :required false                       :type "string"           :validate-fn string?                       :description "a CSS style describing the horiztonal offset from anchor after position"}
      {:name :margin-top           :required false                       :type "string"           :validate-fn string?                       :description "a CSS style describing the vertical offset from anchor after position"}
      {:name :tooltip-style?       :required false :default false        :type "boolean"                                                     :description "setup popover styles for a tooltip"}
+     {:name :arrow-renderer       :required false                       :type "-> hiccup"        :validate-fn fn?                           :description "A function that may take any of the keywords received by popover-arrow in popover.cljs. Returns hiccup for the popover arrow."}
      {:name :title                :required false                       :type "string | markup"                                             :description "describes a title"}
      {:name :class                :required false                       :type "string"           :validate-fn string?                       :description "CSS class names, space separated (applies to the outer container)"}
      {:name :style                :required false                       :type "CSS style map"    :validate-fn css-style?                    :description "override component style(s) with a style map, only use in case of emergency (applies to the outer container)"}
@@ -388,7 +389,8 @@
          :reagent-render
          (fn popover-border-render
            [& {:keys [children position position-offset width height popover-color popover-border-color arrow-length
-                      arrow-width arrow-gap padding margin-left margin-top tooltip-style? title class style attr parts src]
+                      arrow-width arrow-gap padding margin-left margin-top tooltip-style? arrow-renderer
+                      title class style attr parts src]
                :or {arrow-length 11 arrow-width 22 arrow-gap -1}
                :as args}]
            (or
@@ -410,7 +412,16 @@
                      :orientation orientation :margin-left margin-left :margin-top margin-top
                      :ready-to-show? @ready-to-show?})))
                  (->attr args))
-                [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color popover-border-color parts]
+                [(or arrow-renderer popover-arrow)
+                 :orientation orientation
+                 :pop-offset @pop-offset
+                 :arrow-length arrow-length
+                 :arrow-width arrow-width
+                 :grey-arrow? grey-arrow?
+                 :tooltip-style? tooltip-style?
+                 :popover-color popover-color
+                 :popover-border-color popover-border-color
+                 :parts parts]
                 (when title title)
                 (into [:div
                        (flatten-attr
@@ -459,6 +470,7 @@
      {:name :close-button?        :required false  :default true         :type "boolean"                                         :description "when true, displays the close button"}
      {:name :body                 :required false                        :type "string | hiccup"  :validate-fn string-or-hiccup? :description "describes the popover body. Must be a single component"}
      {:name :tooltip-style?       :required false  :default false        :type "boolean"                                         :description "setup popover styles for a tooltip"}
+     {:name :arrow-renderer       :required false                       :type "-> hiccup"        :validate-fn fn?                           :description "A function that may take any of the keywords received by popover-arrow in popover.cljs. Returns hiccup for the popover arrow."}
      {:name :popover-color        :required false  :default "white"      :type "string"           :validate-fn string?           :description "fill color of the popover"}
      {:name :popover-border-color :required false                        :type "string"           :validate-fn string?           :description "color of the popover border, including the arrow"}
      {:name :arrow-length         :required false  :default 11           :type "integer | string" :validate-fn number-or-string? :description "the length in pixels of the arrow (from pointy part to middle of arrow base)"}
@@ -502,7 +514,7 @@
          (fn popover-content-wrapper-render
            [& {:keys [showing-injected? position-injected position-offset no-clip? width height backdrop-opacity on-cancel
                       title close-button? body tooltip-style? popover-color popover-border-color arrow-length arrow-width
-                      arrow-gap padding class style attr parts]
+                      arrow-gap arrow-renderer padding class style attr parts]
                :or {arrow-length 11 arrow-width 22 arrow-gap -1}
                :as args}]
            (or
@@ -531,6 +543,7 @@
                   :width                width
                   :height               height
                   :tooltip-style?       tooltip-style?
+                  :arrow-renderer       arrow-renderer
                   :popover-color        popover-color
                   :popover-border-color popover-border-color
                   :arrow-length         arrow-length
