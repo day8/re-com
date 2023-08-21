@@ -14,6 +14,7 @@
 (def disabled? (reagent/atom false))
 (def required? (reagent/atom false))
 (def filter-box? (reagent/atom false))
+(def i18n? (reagent/atom false))
 (def regex-filter? (reagent/atom false))
 
 (def choices [{:id :tesla-model-s          :label "Model S"        :group "Tesla"}
@@ -63,6 +64,16 @@
                                        :left-label    "Car Choices"
                                        :right-label   "Cars Selected"
                                        :placeholder   "Select some cars."
+                                       :i18n (when @i18n? {:no-results-match "Ei sopivaa tulosta haulle \"%s\""
+                                                           :item-singular "%s osio"
+                                                           :item-plural "%s osiota"
+                                                           :showing-of "näytetään %s %s:sta"
+                                                           :filter-result-singular "Löydetty %s tulos sisältäen %s"
+                                                           :filter-result-plural "Löydetty %s tulosta sisältäen %s"
+                                                           :include-all "sisällytä %s"
+                                                           :include "sisällytä %s"
+                                                           :exclude "sulje pois %s"
+                                                           :exclude-all "sulje pois %s"})
                                        :disabled?     disabled?
                                        :required?     required?
                                        :filter-box?   filter-box?
@@ -132,7 +143,16 @@
                                                                                          :align :start
                                                                                          :child [:code ":regex-filter?"]]
                                                                              :model     regex-filter?
-                                                                             :on-change #(reset! regex-filter? %)])]]]]
+                                                                             :on-change #(reset! regex-filter? %)])]]
+                                                              [v-box :src (at)
+                                                               :gap "3px"
+                                                               :children [[checkbox
+                                                                           :src       (at)
+                                                                           :label     [box :src (at)
+                                                                                       :align :start
+                                                                                       :child [:code ":i18n?"]]
+                                                                           :model     i18n?
+                                                                           :on-change #(reset! i18n? %)]]]]]
 
                                                   [v-box
                                                    :src      (at)
