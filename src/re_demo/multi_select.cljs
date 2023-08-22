@@ -67,7 +67,7 @@
                                        :i18n (when @i18n? {:no-results-match "Ei sopivaa tulosta haulle \"%s\""
                                                            :item-singular "%s osio"
                                                            :item-plural "%s osiota"
-                                                           :showing-of "näytetään %s %s:sta"
+                                                           :showing-of "näytetään %s tulosta %s:sta"
                                                            :filter-result-singular "Löydetty %s tulos sisältäen %s"
                                                            :filter-result-plural "Löydetty %s tulosta sisältäen %s"
                                                            :include-all "sisällytä %s"

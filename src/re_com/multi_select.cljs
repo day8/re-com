@@ -186,7 +186,7 @@
                  (make-items (first group-item-lists)))
                (if (string/blank? filter-choices-text)
                  ""
-                 [:li.no-results (gstring/format (get i18n :no-results-match "No results match \"%s\"") filter-choices-text)]))]]))
+                 [:li.no-results (rc.util/translate i18n :no-results-match "No results match \"%s\"" filter-choices-text)]))]]))
 
 
 ;;--------------------------------------------------------------------------------------------------
@@ -251,7 +251,7 @@
      {:name :disabled?          :required false :default false      :type "boolean | r/atom"                                                  :description "if true, no user selection is allowed"}
      {:name :filter-box?        :required false :default false      :type "boolean | r/atom"                                                  :description "if true, a filter text field is placed at the bottom of the component"}
      {:name :regex-filter?      :required false :default false      :type "boolean | r/atom"                                                  :description "if true, the filter text field will support JavaScript regular expressions. If false, just plain text"}
-     {:name :placeholder        :required false                     :type "string"                   :validate-fn string?                     :description "background text when no selection"} ;; TODO this is actually broken, does not display background text (currently shows in filter box so move that functionality to i18n if changed)
+     {:name :placeholder        :required false                     :type "string"                   :validate-fn string?                     :description "background text when no selection"} ;; TODO this is actually broken, does not display background text (currently shows in filter box so consider moving that functionality to i18n if changed)
      {:name :i18n               :required false                     :type "map"                                                               :description [:span "internationalization map with optional keys e.g." [:code {:style {:white-space "pre-wrap"}} (with-out-str (pprint/pprint (sorted-map :no-results-match "No results match \"%s\"" :item-singular "%s item" :item-plural "%s items" :showing-of "showing %s of %s" :filter-result-singular "Found %s match containing %s" :filter-result-plural "Found %s matches containing %s" :include-all "include %s" :include "include %s" :exclude "exclude %s" :exclude-all "exclude %s")))]
                                                                                                                                                             "In case translation doesn't fit to button box use " [:code ":parts"] "e.g." [:code "{:include-all-button {:style {:width \"150px\"}}}"] " to adjust"]}
      {:name :width              :required false :default "100%"     :type "string"                   :validate-fn string?                     :description "the CSS width. e.g.: \"500px\" or \"20em\""}
@@ -464,10 +464,8 @@
                                                                          (get-in parts [:left-label-item-count :style]))}
                                                           (get-in parts [:left-label-item-count :attr]))
                                                         (if (string/blank? @*filter-choices-text)
-                                                          (if (= 1 potential-count)
-                                                            (gstring/format (get i18n :item-singular "%s item") potential-count)
-                                                            (gstring/format (get i18n :item-plural "%s items") potential-count))
-                                                          (gstring/format (get i18n :showing-of "showing %s of %s") (count filtered-choices) potential-count))]]]
+                                                          (rc.util/translate-plural i18n :item "%s item" "%s items" potential-count potential-count)
+                                                          (rc.util/translate i18n :showing-of "showing %s of %s" (count filtered-choices) potential-count))]]]
                                            left-label))
                                        [list-box
                                         :src                     (at)
@@ -503,10 +501,7 @@
                                              :style (merge {:font-size "smaller"}
                                                            (get-in parts [:left-filter-result-count :style]))
                                              :attr  (get-in parts [:left-filter-result-count :attr])
-                                             :label (let [filter-result-key (if (= 1 (count filtered-choices))
-                                                                              (get i18n :filter-result-singular "Found %s match containing %s")
-                                                                              (get i18n :filter-result-plural "Found %s matches containing %s"))
-                                                          [start middle end] (clojure.string/split filter-result-key #"%s")]
+                                             :label (let [[start middle end] (rc.util/translate-split-result i18n :filter-result "Found %s match containing %s" "Found %s matches containing %s" (count filtered-choices))]
                                                       [:span (gstring/format (str start "%s" middle) (count filtered-choices))
                                                        [:strong (gstring/format "%s" @*filter-choices-text)]
                                                        end])])])]]
@@ -537,10 +532,10 @@
                                                                 [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-fast-forward")}]
                                                                 [:span
                                                                  {:style {:position "relative" :top "-1px"}}
-                                                                 (gstring/format (str " " (get i18n :include-all "include %s"))
-                                                                                 (if (string/blank? @*filter-choices-text)
-                                                                                   potential-count
-                                                                                   (count filtered-choices)))]]
+                                                                 (let [num (if (string/blank? @*filter-choices-text)
+                                                                             potential-count
+                                                                             (count filtered-choices))]
+                                                                   (str " " (rc.util/translate i18n :include-all "include %s" num)))]]
                                                     :disabled? (or disabled? (zero? (count filtered-choices)))
                                                     :style     (merge button-style
                                                                       (get-in parts [:include-all-button :style]))
@@ -553,12 +548,12 @@
                                                                 [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-play")}]
                                                                 [:span
                                                                  {:style {:position "relative" :top "-1px"}}
-                                                                 (gstring/format (str " " (get i18n :include "include %s"))
-                                                                                 (if @*choice-group-heading-selected?
-                                                                                   (->> filtered-choices ;; TODO: Inefficient
-                                                                                        (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
-                                                                                        count)
-                                                                                   ""))]]
+                                                                 (let [num (if @*choice-group-heading-selected?
+                                                                             (->> filtered-choices ;; TODO: Inefficient
+                                                                                  (filter (fn [item] (= (first @*current-choice-id) (group-fn item))))
+                                                                                  count)
+                                                                             "")]
+                                                                   (str " " (rc.util/translate i18n :include "include %s" num)))]]
                                                     :disabled? (or disabled? (not @*current-choice-id))
                                                     :style     (merge button-style
                                                                       (get-in parts [:include-selected-button :style]))
@@ -571,12 +566,12 @@
                                                                 [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-play zmdi-hc-rotate-180")}]
                                                                 [:span
                                                                  {:style {:position "relative" :top "-1px"}}
-                                                                 (gstring/format (str " " (get i18n :exclude "exclude %s"))
-                                                                                 (if @*selection-group-heading-selected?
-                                                                                   (->> filtered-selections ;; TODO: Inefficient
-                                                                                        (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
-                                                                                        count)
-                                                                                   ""))]]
+                                                                 (let [num (if @*selection-group-heading-selected?
+                                                                           (->> filtered-selections ;; TODO: Inefficient
+                                                                                (filter (fn [item] (= (first @*current-selection-id) (group-fn item))))
+                                                                                count)
+                                                                           "")]
+                                                                   (str " " (rc.util/translate i18n :exclude "exclude %s" num)))]]
                                                     :disabled? (or disabled? (not excludable?))
                                                     :style     (merge button-style
                                                                       (get-in parts [:exclude-selected-button :style]))
@@ -589,10 +584,10 @@
                                                                 [:i {:class (str "zmdi zmdi-hc-fw-rc zmdi-fast-rewind")}]
                                                                 [:span
                                                                  {:style {:position "relative" :top "-1px"}}
-                                                                 (gstring/format (str " " (get i18n :exclude-all "exclude %s"))
-                                                                                 (if (string/blank? @*filter-selections-text)
-                                                                                   chosen-count
-                                                                                   (count filtered-selections)))]]
+                                                                 (let [num (if (string/blank? @*filter-selections-text)
+                                                                             chosen-count
+                                                                             (count filtered-selections))]
+                                                                   (str " " (rc.util/translate i18n :exclude-all "exclude %s" num)))]]
                                                     :disabled? (or disabled? (zero? (count filtered-selections)) (not (> (count @*internal-model) (if required? 1 0))))
                                                     :style     (merge button-style
                                                                       (get-in parts [:exclude-all-button :style]))
@@ -654,11 +649,8 @@
                                                                          (get-in parts [:right-label-item-count :style]))}
                                                           (get-in parts [:right-label-item-count :attr]))
                                                         (if (string/blank? @*filter-selections-text)
-                                                          (if (string/blank? @*filter-choices-text)
-                                                            (if (= 1 chosen-count)
-                                                              (gstring/format (get i18n :item-singular "%s item") chosen-count)
-                                                              (gstring/format (get i18n :item-plural "%s items") chosen-count))
-                                                            (gstring/format (get i18n :showing-of "showing %s of %s") (count filtered-selections) chosen-count)))]]]
+                                                            (rc.util/translate-plural i18n :item "%s item" "%s items" chosen-count chosen-count)
+                                                            (rc.util/translate i18n :showing-of "showing %s of %s" (count filtered-selections) chosen-count))]]]
                                            right-label))
                                        [list-box
                                         :src                     (at)
@@ -692,10 +684,7 @@
                                              :style {:font-size "smaller"}]
                                             [text/label
                                              :src   (at)
-                                             :label (let [filter-result-key (if (= 1 (count filtered-selections))
-                                                                              (get i18n :filter-result-singular "Found %s match containing %s")
-                                                                              (get i18n :filter-result-plural "Found %s matches containing %s"))
-                                                          [start middle end] (clojure.string/split filter-result-key #"%s")]
+                                             :label (let [[start middle end] (rc.util/translate-split-result i18n :filter-result "Found %s match containing %s" "Found %s matches containing %s" (count filtered-selections))]
                                                       [:span (gstring/format (str start "%s" middle) (count filtered-selections))
                                                        [:strong (gstring/format "%s" @*filter-selections-text)]
                                                        end])

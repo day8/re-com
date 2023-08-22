@@ -1,6 +1,7 @@
 (ns re-com.util
   (:require
     [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
+    [goog.string   :as gstring]
     [goog.date.DateTime]
     [goog.date.UtcDateTime]))
 
@@ -106,6 +107,29 @@
   [num singular & [plural]]
   (str num " " (if (= 1 num) singular (or plural (str singular "s")))))
 
+(defn translate
+  "Simple translation function that picks required translation from i18n map. Also format if args is provided.
+   Else returns unformatted translation."
+  [i18n i18n-key default-value & args]
+  (let [unformatted (get i18n i18n-key default-value)]
+    (if (seq args)
+      (apply gstring/format  unformatted args)
+      unformatted)))
+
+(defn translate-plural
+  "Adds -singular or -plural to given key depending on num. Convenience function for translate."
+  [i18n i18n-key default-value-singular default-value-plural num & args]
+  (if (= 1 num)
+    (apply translate i18n (keyword (str (name i18n-key) "-singular")) default-value-singular args)
+    (apply translate i18n (keyword (str (name i18n-key) "-plural")) default-value-plural args)))
+
+(defn translate-split-result
+  "Return unformatted translation text split by %s. Expect caller do the formatting and add the %s between vector splits.
+  Used primarily when special formatting is needed."
+  [i18n i18n-key default-value-singular default-value-plural num]
+  (-> (translate-plural i18n i18n-key default-value-singular default-value-plural num)
+      (clojure.string/split #"%s")))
+
 ;; ----------------------------------------------------------------------------
 ;; Handy vector functions
 ;; ----------------------------------------------------------------------------
@@ -194,17 +218,17 @@
 ;;
 ;; Run at 09:22:35 in Sydney Australia...
 ;;
-;; (now)................ goog.date.UtcDateTime {date: Thu Nov 22 2018 09:22:35 GMT+1100 (Australian Eastern Daylight Time)}
-;; (now->utc)........... goog.date.UtcDateTime {date: Thu Nov 22 2018 11:00:00 GMT+1100 (Australian Eastern Daylight Time)}
-;; (today).............. goog.date.Date        {date: Thu Nov 22 2018 00:00:00 GMT+1100 (Australian Eastern Daylight Time)}
+;; (now)................ goog.date.UtcDateTime {date: Thu Nov 22 2018 09:22:35 GMT+1100 (Australian Eastern Daylight Time)}
+;; (now->utc)........... goog.date.UtcDateTime {date: Thu Nov 22 2018 11:00:00 GMT+1100 (Australian Eastern Daylight Time)}
+;; (today).............. goog.date.Date        {date: Thu Nov 22 2018 00:00:00 GMT+1100 (Australian Eastern Daylight Time)}
 ;;
-;; (time-now)........... goog.date.DateTime    {date: Thu Nov 22 2018 09:22:35 GMT+1100 (Australian Eastern Daylight Time)}
-;; (today-at-midnight).. goog.date.UtcDateTime {date: Wed Nov 21 2018 11:00:00 GMT+1100 (Australian Eastern Daylight Time), firstDayOfWeek_: 6, firstWeekCutOffDay_: 5}
-;; (date-midnight)...... goog.date.UtcDateTime {date: Thu Nov 22 2018 11:00:00 GMT+1100 (Australian Eastern Daylight Time)}
+;; (time-now)........... goog.date.DateTime    {date: Thu Nov 22 2018 09:22:35 GMT+1100 (Australian Eastern Daylight Time)}
+;; (today-at-midnight).. goog.date.UtcDateTime {date: Wed Nov 21 2018 11:00:00 GMT+1100 (Australian Eastern Daylight Time), firstDayOfWeek_: 6, firstWeekCutOffDay_: 5}
+;; (date-midnight)...... goog.date.UtcDateTime {date: Thu Nov 22 2018 11:00:00 GMT+1100 (Australian Eastern Daylight Time)}
 ;;
-;; (date-time).......... goog.date.UtcDateTime {date: Thu Nov 22 2018 19:05:05 GMT+1100 (Australian Eastern Daylight Time)}
-;; (local-date-time).... goog.date.DateTime    {date: Thu Nov 22 2018 08:05:05 GMT+1100 (Australian Eastern Daylight Time)}
-;; (local-date)......... goog.date.Date        {date: Thu Nov 22 2018 00:00:00 GMT+1100 (Australian Eastern Daylight Time)}
+;; (date-time).......... goog.date.UtcDateTime {date: Thu Nov 22 2018 19:05:05 GMT+1100 (Australian Eastern Daylight Time)}
+;; (local-date-time).... goog.date.DateTime    {date: Thu Nov 22 2018 08:05:05 GMT+1100 (Australian Eastern Daylight Time)}
+;; (local-date)......... goog.date.Date        {date: Thu Nov 22 2018 00:00:00 GMT+1100 (Australian Eastern Daylight Time)}
 ;;
 ;; ----------------------------------------------------------------------------
 
