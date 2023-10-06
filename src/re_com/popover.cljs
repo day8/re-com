@@ -11,8 +11,8 @@
    [re-com.validate     :refer [position? position-options-list popover-status-type? popover-status-types-list number-or-string?
                                 string-or-hiccup? string-or-atom? vector-of-maps? css-style? html-attr? parts?]]
    [clojure.string      :as    string]
+   [react               :as    react]
    [reagent.core        :as    reagent]
-   [reagent.dom         :as    rdom]
    [reagent.ratom       :refer-macros [reaction]]))
 
 (defn point
@@ -302,6 +302,7 @@
          p-height                (reagent/atom 0)
          pop-offset              (reagent/atom 0)
          found-optimal           (reagent/atom false)
+         pop-border-ref          (react/createRef)
          calc-metrics            (fn [pos]
                                    (let [popover-elem            (get-element-by-id pop-id)
                                          [orientation arrow-pos] (split-keyword pos "-")
@@ -319,7 +320,7 @@
 
        :component-did-update
        (fn [this]
-         (let [pop-border-node (rdom/dom-node this)
+         (let [pop-border-node (.-current pop-border-ref)
                clipped?        (popover-clipping pop-border-node)
                anchor-node     (-> pop-border-node .-parentNode .-parentNode .-parentNode)] ;; Get reference to rc-point-wrapper node
            (when (and clipped? (not @found-optimal))
@@ -373,7 +374,8 @@
                               :padding   "0px"}
                              style)}
               (->attr args)
-              attr)
+              attr
+              {:ref pop-border-ref})
              [popover-arrow orientation @pop-offset arrow-length arrow-width grey-arrow? tooltip-style? popover-color popover-border-color parts]
              (when title title)
              (into [:div
@@ -432,10 +434,11 @@
    (validate-args-macro popover-content-wrapper-args-desc args)
    (let [left-offset              (reagent/atom 0)
          top-offset               (reagent/atom 0)
+         ref                      (react/createRef)
          position-no-clip-popover (fn position-no-clip-popover
                                     [this]
                                     (when no-clip?
-                                      (let [node               (rdom/dom-node this)
+                                      (let [node               (.-current ref)
                                             popover-point-node (.-parentNode node)                           ;; Get reference to rc-popover-point node
                                             bounding-rect      (.getBoundingClientRect popover-point-node)]  ;; The modern magical way of getting offsetLeft and offsetTop. Returns this: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMClientRect
                                         (reset! left-offset (.-left bounding-rect))
@@ -470,7 +473,8 @@
                                                    :top       (px @top-offset)})
                                    style)}
                     (->attr args)
-                    attr)
+                    attr
+                    {:ref ref})
              (when (and (deref-or-value showing-injected?)  on-cancel)
                [backdrop
                 :src      (at)

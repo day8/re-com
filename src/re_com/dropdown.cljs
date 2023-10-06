@@ -10,10 +10,10 @@
                             string-or-hiccup? position? position-options-list] :refer-macros [validate-args-macro]]
    [re-com.popover  :refer [popover-tooltip]]
    [clojure.string  :as    string]
+   [react           :as    react]
    [reagent.core    :as    reagent]
    [goog.string     :as    gstring]
-   [goog.string.format]
-   [reagent.dom     :as    rdom]))
+   [goog.string.format]))
 
 ;;  Inspiration: http://alxlit.name/bootstrap-chosen
 ;;  Alternative: http://silviomoreto.github.io/bootstrap-select
@@ -122,17 +122,18 @@
 (defn- choice-item
   "Render a choice item and set up appropriate mouse events"
   [id label on-click internal-model]
-  (let [mouse-over? (reagent/atom false)]
+  (let [mouse-over? (reagent/atom false)
+        ref         (react/createRef)]
     (reagent/create-class
      {:component-did-mount
       (fn [this]
-        (let [node (rdom/dom-node this)
+        (let [node (.-current ref)
               selected (= @internal-model id)]
           (when selected (show-selected-item node))))
 
       :component-did-update
       (fn [this]
-        (let [node (rdom/dom-node this)
+        (let [node (.-current ref)
               selected (= @internal-model id)]
           (when selected (show-selected-item node))))
 
@@ -147,6 +148,7 @@
                       (when @mouse-over? "mouseover"))]
           [:li
            {:class         (str "active-result group-option " class)
+            :ref           ref
             :on-mouse-over (handler-fn (reset! mouse-over? true))
             :on-mouse-out  (handler-fn (reset! mouse-over? false))
             :on-mouse-down (handler-fn
@@ -162,30 +164,37 @@
 
 (defn- filter-text-box-base
   "Base function (before lifecycle metadata) to render a filter text box"
-  [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
-  [:div.chosen-search
-   [:input
-    {:type          "text"
-     :auto-complete "off"
-     :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
-                                           :width    "0px"      ;; The rest of these styles make the textbox invisible
-                                           :padding  "0px"
-                                           :border   "none"})
-     :value         @filter-text
-     :placeholder   filter-placeholder
-     :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
-     :on-key-down   (handler-fn (when-not (key-handler event)
-                                  (.stopPropagation event)
-                                  (.preventDefault event))) ;; When key-handler returns false, preventDefault
-     :on-blur       (handler-fn (reset! drop-showing? false))}]])
+  [ref]
+  (fn [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
+    [:div.chosen-search {:ref ref}
+     [:input
+      {:type          "text"
+       :auto-complete "off"
+       :style         (when-not filter-box? {:position "absolute" ;; When no filter box required, use it but hide it off screen
+                                             :width    "0px"      ;; The rest of these styles make the textbox invisible
+                                             :padding  "0px"
+                                             :border   "none"})
+       :value         @filter-text
+       :placeholder   filter-placeholder
+       :on-change     (handler-fn (set-filter-text (-> event .-target .-value)))
+       :on-key-down   (handler-fn (when-not (key-handler event)
+                                    (.stopPropagation event)
+                                    (.preventDefault event))) ;; When key-handler returns false, preventDefault
+       :on-blur       (handler-fn (reset! drop-showing? false))}]]))
 
-(def ^:private filter-text-box
+(defn- filter-text-box
   "Render a filter text box"
-  (with-meta filter-text-box-base
-    {:component-did-mount #(let [node (.-firstChild (rdom/dom-node %))]
-                             (.focus node))
-     :component-did-update #(let [node (.-firstChild (rdom/dom-node %))]
-                              (.focus node))}))
+  [filter-box? filter-text key-handler drop-showing? set-filter-text filter-placeholder]
+  (let [ref (react/createRef)
+        render-fn (filter-text-box-base ref)]
+    (reagent/create-class
+     {:component-did-mount (fn [this]
+                             (let [node (.. ref -current -firstChild)]
+                               (.focus node)))
+      :component-did-update (fn [this]
+                              (let [node (.. ref -current -firstChild)]
+                                (.focus node)))
+      :reagent-render render-fn})))
 
 (defn- dropdown-top
   "Render the top part of the dropdown, with the clickable area and the up/down arrow"
