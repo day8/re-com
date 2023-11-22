@@ -1,12 +1,9 @@
 (ns re-demo.config
   (:require-macros
-    [re-com.core       :refer []])
+   [re-com.core       :refer []])
   (:require
    [re-com.core       :refer [at h-box v-box gap line title p hyperlink-href]]
    [re-demo.utils     :refer [panel-title title2 title3]]))
-
-
-
 
 (defn compiler-config
   []
@@ -63,7 +60,6 @@
                :gap      "100px"
                :children [[compiler-config]
                           [tools]]]]])
-
 
 ;; core holds a reference to panel, so we need one level of indirection to get hot realoading to work 
 (defn panel

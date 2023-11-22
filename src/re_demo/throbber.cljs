@@ -5,10 +5,9 @@
             [re-com.util     :refer [px]]
             [reagent.core    :as    reagent]))
 
-
 (def state (reagent/atom
-             {:outcome-index 0
-              :see-throbber  false}))
+            {:outcome-index 0
+             :see-throbber  false}))
 
 (defn throbber-demo
   []
@@ -16,8 +15,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[throbber ... ]"
-                            "src/re_com/throbber.cljs"
-                            "src/re_demo/throbber.cljs"]
+               "src/re_com/throbber.cljs"
+               "src/re_demo/throbber.cljs"]
 
               [h-box :src (at)
                :gap      "100px"
@@ -56,7 +55,6 @@
                                                                :size  :large
                                                                :color "blue"]]]]]]]]]
               [parts-table "throbber" throbber-parts-desc]]])
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

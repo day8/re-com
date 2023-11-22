@@ -1,12 +1,12 @@
 (ns re-demo.selection-list
   (:require
-    [cljs.pprint           :as pprint]
-    [re-com.debug          :refer [stack-spy]]
-    [re-com.core           :refer [at h-box v-box box gap selection-list label title checkbox p]]
-    [re-com.selection-list :refer [selection-list-parts-desc selection-list-args-desc]]
-    [re-demo.utils         :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
-    [re-com.util           :refer [px]]
-    [reagent.core          :as    reagent]))
+   [cljs.pprint           :as pprint]
+   [re-com.debug          :refer [stack-spy]]
+   [re-com.core           :refer [at h-box v-box box gap selection-list label title checkbox p]]
+   [re-com.selection-list :refer [selection-list-parts-desc selection-list-args-desc]]
+   [re-demo.utils         :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
+   [re-com.util           :refer [px]]
+   [reagent.core          :as    reagent]))
 
 (defn- list-with-options
   [width]
@@ -83,8 +83,8 @@
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[selection-list ... ]"
-                            "src/re_com/selection_list.cljs"
-                            "src/re_demo/selection_list.cljs"]
+               "src/re_com/selection_list.cljs"
+               "src/re_demo/selection_list.cljs"]
               [h-box :src (at)
                :gap      "100px"
                :children [[v-box :src (at)
@@ -98,7 +98,6 @@
                                       [args-table selection-list-args-desc]]]
                           [list-with-options 600]]]
               [parts-table "selection-list" selection-list-parts-desc]]])
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

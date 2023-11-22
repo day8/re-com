@@ -26,8 +26,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[info-button ... ]"
-                                "src/re_com/buttons.cljs"
-                                "src/re_demo/info_button.cljs"]
+                   "src/re_com/buttons.cljs"
+                   "src/re_demo/info_button.cljs"]
 
                   [h-box :src (at)
                    :gap "100px"
@@ -41,7 +41,7 @@
                                           [p "The popup has a dark theme, and uses white text. CSS classes for the text are available as follows:to format the text in the popover"]
                                           [:ul
                                            [:li [:span.semibold "info-heading"] " - heading/title style"]
-                                           [:li [:span.semibold"info-subheading"] " - subheading style"]
+                                           [:li [:span.semibold "info-subheading"] " - subheading style"]
                                            [:li [:span.semibold "info-bold"] " - bold style"]]
                                           [args-table info-button-args-desc]]]
                               [v-box :src (at)
@@ -86,7 +86,6 @@
                                                        :disabled? true
                                                        :on-change   #()]]]]]]]
                   [parts-table "info-button" info-button-parts-desc]]])))
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

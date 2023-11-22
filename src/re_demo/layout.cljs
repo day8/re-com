@@ -2,8 +2,6 @@
   (:require [re-com.core   :refer [at h-box v-box box gap line title label hyperlink-href p md-icon-button]]
             [re-demo.utils :refer [panel-title title2]]))
 
-
-
 (defn components-section
   []
   [v-box :src (at)
@@ -14,7 +12,6 @@
                   their children horizontally and vertically respectively. Because they are
                   mutually nestable, you can combine them to create arbitrarily complex layouts."]]])
 
-
 (defn example-layout
   []
   [v-box :src (at)
@@ -22,7 +19,7 @@
                :children [[v-box :src (at)
                            :children [[p "And this example code, showing an " [:span.bold "h-box"] " as a child of a " [:span.bold "v-box"] " ..."]
                                       [:pre {:style {:width "460px"}}
-"[v-box
+                                       "[v-box
   :children [[box :child \"Header\"]
              [h-box
               :height \"100px\"
@@ -92,7 +89,7 @@
               [v-box :src (at)
                :children [[title :src (at) :level :level2 :label "Warning: Be All In"]
                           [p "Flexbox works via the interplay of styles present on a " [:span.bold "container"] " (parent) and its " [:span.bold "items"]
-                             " (children). Invariably, DOM nodes act as both a container for the level below, and an item for the level above."]
+                           " (children). Invariably, DOM nodes act as both a container for the level below, and an item for the level above."]
                           [p "If block-level elements (divs?) are present in this tree, they
                               can break the flex style interplay up and down the DOM hierarchy, and cause problems."]
                           [p [:span.bold "As a result, we have found Flexbox use to be viral."] " Once you start using it, you
@@ -100,7 +97,6 @@
                           [p "So, we recommend you go 100% all-in on using h-box and v-box. If you do, everything should \"just work\"."]
                           [p "Never mint your own container " [:span.bold "[:div]"] " or "  [:span.bold "[:span]"] " unless
                               you also  give them the correct flex styles, which is arduous and error prone."]]]]])
-
 
 (defn key-style-section
   []
@@ -114,7 +110,7 @@
                " [:span.bold "flex"] " styles on the items within that layout."]
               [title :src (at) :level :level2 :label "flex=GSB"]
               [p "Tutorials will tell you that the " [:span.bold "flex"] " style can be single value like " [:span.bold "none"] "  or " [:span.bold "auto"]
-                 ". But those are shortcuts. Every flex style resolves to a triple of sub-values:"]
+               ". But those are shortcuts. Every flex style resolves to a triple of sub-values:"]
               [:ul
                [:li [:span [:span.bold "grow"]   " - Integer which determines how an item grows in size (in proportion to its siblings) if there is
                                                    extra container space to distribute. 0 for no growing."]]
@@ -132,7 +128,6 @@
                [:li  [:span.bold "flex=\"auto\""] " is eqivalent to  " [:span.bold "flex=\"1 1 auto\""]]]
               [p "Sure, use the shortcuts. But it is only by understanding triples that you become a power user of flexbox (or re-com layouts)."]
               [gap :src (at) :size "10px"]]])
-
 
 (defn table-row
   [size gsb description header?]
@@ -157,7 +152,7 @@
               [gap :src (at) :size "10px"]
               [:pre
                {:style {:width "460px"}}
-"[v-box
+               "[v-box
 :size \"auto\"     ;; <-- equivalent of \"flex\" style
 :children [...]]"]
               [p "Look again at the Simple Example up the top of this page, and you'll see  "
@@ -218,9 +213,6 @@
                                    the stretch.  The basis comes from its child nav items, hence the auto.
                                    But it can't go smaller than its children, hence shrink of 0."]]]]]])
 
-
-
-
 (defn panel2
   []
   [v-box :src (at)
@@ -236,7 +228,6 @@
                :children [[key-style-section]
                           [size-table]]]
               [gap :src (at) :size "20px"]]])
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

@@ -1,8 +1,8 @@
 (ns re-com.util
   (:require
-    [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
-    [goog.date.DateTime]
-    [goog.date.UtcDateTime]))
+   [reagent.ratom :refer [RAtom Reaction RCursor Track Wrapper]]
+   [goog.date.DateTime]
+   [goog.date.UtcDateTime]))
 
 (defn fmap
   "Takes a function 'f' amd a map 'm'.  Applies 'f' to each value in 'm' and returns.
@@ -22,7 +22,6 @@
   [m ks v]
   (assoc-in m ks (get-in m ks v)))
 
-
 (defn deref-or-value
   "Takes a value or an atom
   If it's a value, returns it
@@ -32,7 +31,6 @@
   (if (satisfies? IDeref val-or-atom)
     @val-or-atom
     val-or-atom))
-
 
 (defn deref-or-value-peek
   "Takes a value or an atom
@@ -59,11 +57,9 @@
       :else                            (throw (js/Error. "Unknown reactive data type")))
     val-or-atom))
 
-
 (defn get-element-by-id
   [id]
   (.getElementById js/document id))
-
 
 (defn pad-zero
   "Left pad a string 's' with '0', until 's' has length 'len'. Return 's' unchanged, if it is already len or greater"
@@ -72,18 +68,15 @@
     (apply str (take-last len (concat (repeat len \0) s)))
     s))
 
-
 (defn pad-zero-number
   "return 'num' as a string of 'len' characters, left padding with '0' as necessary"
   [num len]
   (pad-zero (str num) len))
 
-
 (defn px
   "takes a number (and optional :negative keyword to indicate a negative value) and returns that number as a string with 'px' at the end"
   [val & negative]
   (str (if negative (- val) val) "px"))
-
 
 (defn px-n
   "takes n numbers (could also be strings) and converts them to a space separated px string
@@ -93,7 +86,6 @@
   Note: Doesn't support :negative like px above but it will work with negative numbers"
   [& vals]
   (clojure.string/join " " (map #(str % "px") vals)))
-
 
 (defn pluralize
   "Return a pluralized phrase, appending an s to the singular form if no plural is provided.
@@ -114,14 +106,12 @@
   "Removes the item at position n from a vector v, returning a shrunk vector"
   [v n]
   (vec
-    (concat
-      (subvec v 0 n) (subvec v (inc n) (count v)))))
-
+   (concat
+    (subvec v 0 n) (subvec v (inc n) (count v)))))
 
 (defn insert-nth
   [vect index item]
   (apply merge (subvec vect 0 index) item (subvec vect index)))
-
 
 ;; ----------------------------------------------------------------------------
 ;; Utilities for vectors of maps containing :id
@@ -134,21 +124,17 @@
   (let [index-fn (fn [index item] (when (= (id-fn item) id) index))]
     (first (keep-indexed index-fn v))))
 
-
-
 (defn item-for-id
   "Takes a vector of maps 'v'. Returns the first item in 'v' whose id-fn (default :id) matches 'id'.
    Returns nil if id not found"
   [id v & {:keys [id-fn] :or {id-fn :id}}]
   (first (filter #(= (id-fn %) id) v)))
 
-
 (defn remove-id-item
   "Takes a vector of maps 'v', each of which has an id-fn (default :id) key.
   Return v where item matching 'id' is excluded"
   [id v & {:keys [id-fn] :or {id-fn :id}}]
   (filterv #(not= (id-fn %) id) v))
-
 
 ;; ----------------------------------------------------------------------------
 ;; Other functions
@@ -213,7 +199,7 @@
   []
   (let [local-date-time (js/goog.date.DateTime.)]
     (js/goog.date.UtcDateTime.
-      (.getYear local-date-time)
-      (.getMonth local-date-time)
-      (.getDate local-date-time)
-      0 0 0 0)))
+     (.getYear local-date-time)
+     (.getMonth local-date-time)
+     (.getDate local-date-time)
+     0 0 0 0)))

@@ -1,14 +1,13 @@
 (ns re-com.text
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.box      :refer [v-box box line flex-child-style]]
-    [re-com.util     :refer [deep-merge]]
-    [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup?]]))
-
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.box      :refer [v-box box line flex-child-style]]
+   [re-com.util     :refer [deep-merge]]
+   [re-com.validate :refer [title-levels-list title-level-type? css-style? html-attr? parts? string-or-hiccup?]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: label
@@ -40,25 +39,24 @@
   [& {:keys [label on-click width class style attr parts src debug-as]
       :as   args}]
   (or
-    (validate-args-macro label-args-desc args)
-    [box
-     :debug-as (or debug-as (reflect-current-component))
-     :src      src
-     :class    (str "display-inline-flex rc-label-wrapper " (get-in parts [:wrapper :class]))
-     :style    (get-in parts [:wrapper :style])
-     :attr     (get-in parts [:wrapper :attr])
-     :width    width
-     :align    :start
-     :child    [:span
-                (merge
-                  {:class (str "rc-label " class)
-                   :style (merge (flex-child-style "none")
-                                 style)}
-                  (when on-click
-                    {:on-click (handler-fn (on-click))})
-                  attr)
-                label]]))
-
+   (validate-args-macro label-args-desc args)
+   [box
+    :debug-as (or debug-as (reflect-current-component))
+    :src      src
+    :class    (str "display-inline-flex rc-label-wrapper " (get-in parts [:wrapper :class]))
+    :style    (get-in parts [:wrapper :style])
+    :attr     (get-in parts [:wrapper :attr])
+    :width    width
+    :align    :start
+    :child    [:span
+               (merge
+                {:class (str "rc-label " class)
+                 :style (merge (flex-child-style "none")
+                               style)}
+                (when on-click
+                  {:on-click (handler-fn (on-click))})
+                attr)
+               label]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: title
@@ -94,29 +92,28 @@
       :or   {margin-top "0.6em" margin-bottom "0.3em"}
       :as   args}]
   (or
-    (validate-args-macro title-args-desc args)
-    (let [preset-class (if (nil? level) "" (name level))]
-      [v-box
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :class    (str "rc-title-wrapper " preset-class " " (get-in parts [:wrapper :class]))
-       :style    (get-in parts [:wrapper :style])
-       :attr     (get-in parts [:wrapper :attr])
-       :children [[:span (merge {:class (str "display-flex rc-title " preset-class " " class)
-                                 :style (merge (flex-child-style "none")
-                                               {:margin-top margin-top}
-                                               {:line-height 1}             ;; so that the margins are correct
-                                               (when-not underline? {:margin-bottom margin-bottom})
-                                               style)}
-                                attr)
-                   label]
-                  (when underline? [line
-                                    :src  (at)
-                                    :size "1px"
-                                    :class (str "rc-title-underline " (get-in parts [:underline :class]))
-                                    :style (merge {:margin-bottom margin-bottom} (get-in parts [:underline :style]))
-                                    :attr  (get-in parts [:underline :attr])])]])))
-
+   (validate-args-macro title-args-desc args)
+   (let [preset-class (if (nil? level) "" (name level))]
+     [v-box
+      :src      src
+      :debug-as (or debug-as (reflect-current-component))
+      :class    (str "rc-title-wrapper " preset-class " " (get-in parts [:wrapper :class]))
+      :style    (get-in parts [:wrapper :style])
+      :attr     (get-in parts [:wrapper :attr])
+      :children [[:span (merge {:class (str "display-flex rc-title " preset-class " " class)
+                                :style (merge (flex-child-style "none")
+                                              {:margin-top margin-top}
+                                              {:line-height 1}             ;; so that the margins are correct
+                                              (when-not underline? {:margin-bottom margin-bottom})
+                                              style)}
+                               attr)
+                  label]
+                 (when underline? [line
+                                   :src  (at)
+                                   :size "1px"
+                                   :class (str "rc-title-underline " (get-in parts [:underline :class]))
+                                   :style (merge {:margin-bottom margin-bottom} (get-in parts [:underline :style]))
+                                   :attr  (get-in parts [:underline :attr])])]])))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: p

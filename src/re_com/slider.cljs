@@ -1,15 +1,15 @@
 (ns re-com.slider
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                             number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value px]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
+   [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
+                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: slider
@@ -46,35 +46,35 @@
       :or   {min 0 max 100}
       :as   args}]
   (or
-    (validate-args-macro slider-args-desc args)
-    (let [model     (deref-or-value model)
-          min       (deref-or-value min)
-          max       (deref-or-value max)
-          step      (deref-or-value step)
-          disabled? (deref-or-value disabled?)]
-      [box
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :class    (str "rc-slider-wrapper " (get-in parts [:wrapper :class]))
-       :style    (get-in parts [:wrapper :style] {})
-       :attr     (get-in parts [:wrapper :attr] {})
-       :align    :start
-       :child    [:input
-                  (merge
-                    {:class     (str "rc-slider " class)
-                     :type      "range"
+   (validate-args-macro slider-args-desc args)
+   (let [model     (deref-or-value model)
+         min       (deref-or-value min)
+         max       (deref-or-value max)
+         step      (deref-or-value step)
+         disabled? (deref-or-value disabled?)]
+     [box
+      :src      src
+      :debug-as (or debug-as (reflect-current-component))
+      :class    (str "rc-slider-wrapper " (get-in parts [:wrapper :class]))
+      :style    (get-in parts [:wrapper :style] {})
+      :attr     (get-in parts [:wrapper :attr] {})
+      :align    :start
+      :child    [:input
+                 (merge
+                  {:class     (str "rc-slider " class)
+                   :type      "range"
                      ;:orient    "vertical" ;; Make Firefox slider vertical (doesn't work because React ignores it, I think)
-                     :style     (merge
-                                  (flex-child-style "none")
-                                  {;:-webkit-appearance "slider-vertical"   ;; TODO: Make a :orientation (:horizontal/:vertical) option
+                   :style     (merge
+                               (flex-child-style "none")
+                               {;:-webkit-appearance "slider-vertical"   ;; TODO: Make a :orientation (:horizontal/:vertical) option
                                    ;:writing-mode       "bt-lr"             ;; Make IE slider vertical
-                                   :width  (or width "400px")
-                                   :cursor (if disabled? "default" "pointer")}
-                                  style)
-                     :min       min
-                     :max       max
-                     :step      step
-                     :value     model
-                     :disabled  disabled?
-                     :on-change (handler-fn (on-change (js/Number (-> event .-target .-value))))}
-                    attr)]])))
+                                :width  (or width "400px")
+                                :cursor (if disabled? "default" "pointer")}
+                               style)
+                   :min       min
+                   :max       max
+                   :step      step
+                   :value     model
+                   :disabled  disabled?
+                   :on-change (handler-fn (on-change (js/Number (-> event .-target .-value))))}
+                  attr)]])))

@@ -10,7 +10,6 @@
 
 ;; ========== Fundamental values and styling ==========
 
-
 (def non-breaking-space (gstring/unescapeEntities "&nbsp;"))
 
 (def headers-background-color  "#60A0D8")   ;; used for row and column headers
@@ -52,7 +51,6 @@
 (def format-date-mmm-yyyy (time.format/formatter "MMM yyyy"))
 (def dow-character        {1 "M" 2 "T" 3 "W" 4 "T" 5 "F" 6 "S" 7 "S"})
 
-
 ;; ========== :model ==========
 
 (defn yyyymmdd->date
@@ -83,55 +81,55 @@
                   :from-date (yyyymmdd->date "20160828")
                   :to-date   (yyyymmdd->date "20160904")
                   :style     grey-stripe-style}]}
-      {:id         (random-uuid)
-       :label      "Public Holidays"
-       :activities [{:id        1
-                     :label      ""
-                     :from-date (yyyymmdd->date "20160822")
-                     :to-date   (yyyymmdd->date "20160823")
-                     :style     grey-stripe-style}]}
+   {:id         (random-uuid)
+    :label      "Public Holidays"
+    :activities [{:id        1
+                  :label      ""
+                  :from-date (yyyymmdd->date "20160822")
+                  :to-date   (yyyymmdd->date "20160823")
+                  :style     grey-stripe-style}]}
    {}
    {:id         (random-uuid)
     :row-type   :column-header
     :label      "Market,Duration"}
-      
+
    {:id         (random-uuid)
     :label      "Sydney,30 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "500"
                   :from-date (yyyymmdd->date "20160807")
                   :to-date   (yyyymmdd->date "20160814")
                   :style     {:background-color "#C7AFE7AA"}}
-                 {:id        2 
+                 {:id        2
                   :label "625"
                   :from-date (yyyymmdd->date "20160814")
                   :to-date   (yyyymmdd->date "20160821")
                   :style     {:background-color "#C7AFE7"}}
-                 #_{:id        3 
-                  :label "Do not book!"
-                  :from-date (yyyymmdd->date "20160819")
-                  :to-date   (yyyymmdd->date "20160826")
-                  :style     {:background-color "#D8CCE8" :color "#7C31E0"}}
-                 {:id        4 
+                 #_{:id        3
+                    :label "Do not book!"
+                    :from-date (yyyymmdd->date "20160819")
+                    :to-date   (yyyymmdd->date "20160826")
+                    :style     {:background-color "#D8CCE8" :color "#7C31E0"}}
+                 {:id        4
                   :label "Sneaky hidden one"
                   :from-date (yyyymmdd->date "20161009")
                   :to-date   (yyyymmdd->date "20161016")
                   :style     {:background-color "#A00000" :color "#444"}}]}
    {:id         (random-uuid)
     :label      "Sydney,15 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "250"
                   :from-date (yyyymmdd->date "20160731")
                   :to-date   (yyyymmdd->date "20160814")
                   :style     {:background-color "#c6f08a"}}
-                 {:id        2 
+                 {:id        2
                   :label "100"
                   :from-date (yyyymmdd->date "20160821")
                   :to-date   (yyyymmdd->date "20160828")
                   :style     {:background-color "#c6f08a"}}]}
    {:id         (random-uuid)
     :label      "Melbourne,30 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "999"
                   :from-date (yyyymmdd->date "20160806")
                   :to-date   (yyyymmdd->date "20160830")
@@ -140,7 +138,7 @@
     :label "Brisbane,30 sec"}
    {:id         (random-uuid)
     :label      "Adelaide,60 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "Comment only"
                   :from-date (yyyymmdd->date "20160809")
                   :to-date   (yyyymmdd->date "20160817")
@@ -152,17 +150,17 @@
    {}
    {:id         (random-uuid)
     :label      "Albury,30 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "123"
                   :from-date (yyyymmdd->date "20160805")
                   :to-date   (yyyymmdd->date "20160810")
                   :style     {:background-color "#fff8dc"}}
-                 {:id        2 
+                 {:id        2
                   :label "456"
                   :from-date (yyyymmdd->date "20160812")
                   :to-date   (yyyymmdd->date "20160815")
                   :style     {:background-color "#ffb300"}}
-                 {:id        3 
+                 {:id        3
                   :label "Definitely book!"
                   :from-date (yyyymmdd->date "20160819")
                   :to-date   (yyyymmdd->date "20160904")
@@ -180,12 +178,12 @@
                   :style     {:background-color "#c6f08a"}}]}
    {:id         (random-uuid)
     :label      "Dubbo,30 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "777"
                   :from-date (yyyymmdd->date "20160814")
                   :to-date   (yyyymmdd->date "20160821")
                   :style     {:background-color "#fff8dc"}}
-                 {:id        2 
+                 {:id        2
                   :label "888"
                   :from-date (yyyymmdd->date "20160828")
                   :to-date   (yyyymmdd->date "20160903")
@@ -193,14 +191,14 @@
    {}
    {:id         (random-uuid)
     :label      "Wodonga,15 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "300"
                   :from-date (yyyymmdd->date "20160806")
                   :to-date   (yyyymmdd->date "20160830")
                   :style     {:background-color "#5ba9b8" :color "#444"}}]}
    {:id         (random-uuid)
     :label      "Wodonga,30 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "305"
                   :from-date (yyyymmdd->date "20160810")
                   :to-date   (yyyymmdd->date "20160903")
@@ -219,14 +217,14 @@
    {}
    {:id         (random-uuid)
     :label      "Newcastle,15 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "310"
                   :from-date (yyyymmdd->date "20160806")
                   :to-date   (yyyymmdd->date "20160830")
                   :style     {:background-color "#5ba9ff" :color "#444"}}]}
    {:id         (random-uuid)
     :label      "Newcastle,30 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "315"
                   :from-date (yyyymmdd->date "20160810")
                   :to-date   (yyyymmdd->date "20160903")
@@ -234,7 +232,7 @@
    {}
    {:id         (random-uuid)
     :label      "Wollongong,15 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "999"
                   :from-date (yyyymmdd->date "20160807")
                   :to-date   (yyyymmdd->date "20160814")
@@ -245,12 +243,12 @@
                   :style     {:background-color "#c6f0ff"}}]}
    {:id         (random-uuid)
     :label      "Wollongong,30 sec"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "bbb"
                   :from-date (yyyymmdd->date "20160814")
                   :to-date   (yyyymmdd->date "20160821")
                   :style     {:background-color "#fff8ff"}}
-                 {:id        2 
+                 {:id        2
                   :label "ccc"
                   :from-date (yyyymmdd->date "20160828")
                   :to-date   (yyyymmdd->date "20160903")
@@ -258,17 +256,16 @@
    {}
    {:id         (random-uuid)
     :label      "Final row"
-    :activities [{:id        1 
+    :activities [{:id        1
                   :label "The End"
                   :from-date (yyyymmdd->date "20160809")
                   :to-date   (yyyymmdd->date "20160817")
                   :style     {:background-color "#A00000" :color "#444"}}
-                 {:id        2 
+                 {:id        2
                   :label "The VERY End"
                   :from-date (yyyymmdd->date "20161009")
                   :to-date   (yyyymmdd->date "20161016")
                   :style     {:background-color "#A00000" :color "#444"}}]}])
-
 
 ;; ========== Helper functions ==========
 
@@ -282,16 +279,14 @@
   [num-days]
   (px (- (* num-days day-width) 2)))
 
-
-(defn translate 
+(defn translate
   [x-offset y-offset]
   (str "translate(" x-offset "px,  " y-offset "px)"))
-                                      
+
 (defn translate-x
   "Return the translateX CSS for a specified offset"
   [x-offset]
   (str "translateX(" x-offset "px)"))
-
 
 ;; ========== Column Header Renderer functions ==========
 
@@ -320,31 +315,28 @@
          (partition-by time.core/month)
          (map #(hash-map :start-date (first %) :num-days (count %))))))
 
-
-
 (defn render-dates-row
   [timeline-start activities]
   ; activities - vector of maps each :start-date :num-days :label
   (into
-    [:div {:class "table-date-header-label"
-           :style {:height (px row-height) :position "relative" :font-size demo-table-font-size}}]
-    (map
-      (fn [{:keys [start-date num-days label]}]
-        (let [x-offset (-> (time.core/in-days (time.core/interval timeline-start start-date))
-                           (* day-width))]
-          [:span {:style {:position      "absolute"
-                          :width         (px-width num-days)
-                          :height        row-height-px
-                          :border-right  "1px solid lightgrey"
-                          :border-bottom "1px solid lightgrey"
-                          :transform     (translate-x x-offset)
-                          :text-align    "center"
-                          :white-space   "nowrap"
-                          :overflow      "hidden"
-                          :text-overflow "ellipsis"}}
-           (or label non-breaking-space)]))
-      activities)))
-
+   [:div {:class "table-date-header-label"
+          :style {:height (px row-height) :position "relative" :font-size demo-table-font-size}}]
+   (map
+    (fn [{:keys [start-date num-days label]}]
+      (let [x-offset (-> (time.core/in-days (time.core/interval timeline-start start-date))
+                         (* day-width))]
+        [:span {:style {:position      "absolute"
+                        :width         (px-width num-days)
+                        :height        row-height-px
+                        :border-right  "1px solid lightgrey"
+                        :border-bottom "1px solid lightgrey"
+                        :transform     (translate-x x-offset)
+                        :text-align    "center"
+                        :white-space   "nowrap"
+                        :overflow      "hidden"
+                        :text-overflow "ellipsis"}}
+         (or label non-breaking-space)]))
+    activities)))
 
 (defn render-dates-dow
   [timeline-start timeline-end]
@@ -353,7 +345,6 @@
                            (timeline-activities timeline-start timeline-end :days))]
     [render-dates-row timeline-start activities]))
 
-
 (defn render-dates-dd
   [timeline-start timeline-end]
   (let [show-content? (>= day-width 14) ; any smaller and don't render date label
@@ -361,20 +352,17 @@
                            (timeline-activities timeline-start timeline-end :days))]
     [render-dates-row timeline-start activities]))
 
-
 (defn render-dates-wc
   [timeline-start timeline-end]
   (let [activities (map #(assoc % :label (time.format/unparse format-date-dd-mmm (:start-date %)))
                         (timeline-activities timeline-start timeline-end :weeks))]
     [render-dates-row timeline-start activities]))
 
-
 (defn render-dates-month
   [timeline-start timeline-end]
   (let [activities (map #(assoc % :label (when (>= (* (:num-days %) day-width) 40) (time.format/unparse format-date-mmm-yyyy (:start-date %))))
                         (timeline-activities timeline-start timeline-end :months))]
     [render-dates-row timeline-start activities]))
-
 
 (defn render-table-dates
   "RENDERER: column-header-renderer - Output the detailed 4-row column header of the specified date range"
@@ -384,7 +372,6 @@
               [render-dates-wc    timeline-start-date timeline-end-date]
               [render-dates-dow   timeline-start-date timeline-end-date]
               [render-dates-dd    timeline-start-date timeline-end-date]]])
-
 
 ;; ========== Row Header Renderer functions (including top-left) ==========
 
@@ -403,7 +390,6 @@
                    [gap :src (at) :size "5px"]
                    [box :src (at) :width (px dur-width) :child duration]])]]))
 
-
 ;; TODO - its a bit empty right now
 (defn render-top-left-header
   "compute the row-header column headings (Market and Dur)"
@@ -413,7 +399,6 @@
    :align    :end ;; Send text to the bottom
    :children [[gap :src (at) :size "1"]]])
 
-
 (defn render-activity-row-header
   "compute hiccup for the Market and Dur values in the row header"
   [row-header-selections row-index row] ;; The row, row-header and row-footer renderers are passed the zero-based row index and the data object for that row
@@ -421,14 +406,13 @@
         market   (or market non-breaking-space)
         duration (or duration non-breaking-space)
         selected? (and @row-header-selections (and (>= row-index (:start-row @row-header-selections)) (<= row-index (:end-row @row-header-selections))))]
-      [:div {:class "table-row-header"
-             :style (merge activity-row-style
-                           (when selected?
-                             {:color            selection-color
-                              :background-color selection-bg-color}))}
+    [:div {:class "table-row-header"
+           :style (merge activity-row-style
+                         (when selected?
+                           {:color            selection-color
+                            :background-color selection-bg-color}))}
 
-       [create-row-header-line market duration]]))
-
+     [create-row-header-line market duration]]))
 
 ;; ========== Row Renderer functions ==========
 
@@ -457,7 +441,6 @@
                    :width      "0px"
                    :height     "0px"}}
           (into popover [:showing-injected? showing? :position-injected internal-position])])]))) ;; NOTE: Inject showing? and position to the popover
-
 
 (defn render-activity-item
   [editor-on row activity _selection-start-col _selection-end-col]
@@ -511,7 +494,6 @@
                            :on-cancel  #(reset! editor-on nil)]]
           anchor)))))
 
-
 (defn render-activity-row
   "RENDERER: :row-renderer - Output a full row of activity items"
   [editor-on row-selections row-index row] ;; The row, row-header and row-footer renderers are passed the zero-based row index and the data object for that row
@@ -521,34 +503,33 @@
         selection-end-col   (when selected? (:end-col   @row-selections))]
     (-> (into
           ;; Row layer 1 - the outer div
-          [:div {:class    "activity-row"
-                 :style    (merge activity-row-style
-                                  #_(when selected? {:background-color "rgba(253, 71, 1, 0.1)"})) ;; Uncomment to also highlight in orange, entire selected rows
-                 :on-click (handler-fn (show-row-data-on-alt-click row row-index event))}]
+         [:div {:class    "activity-row"
+                :style    (merge activity-row-style
+                                 #_(when selected? {:background-color "rgba(253, 71, 1, 0.1)"})) ;; Uncomment to also highlight in orange, entire selected rows
+                :on-click (handler-fn (show-row-data-on-alt-click row row-index event))}]
 
           ;; Row layer 2 - vertical grid lines based on totals-dates
-          (map
-            (fn
-              [{:keys [start-date]}]
+         (map
+          (fn
+            [{:keys [start-date]}]
                 ; Calc offset based on how many days this date is from timeline start.
-              (let [glx-offset (-> (time.core/interval timeline-start-date start-date)
-                                   (time.core/in-days)
-                                   (* day-width))]
+            (let [glx-offset (-> (time.core/interval timeline-start-date start-date)
+                                 (time.core/in-days)
+                                 (* day-width))]
                   ;; draw vertical grid lines using <hr> which is a no-content
                   ;; element so it is lighter weight then e.g. div/span as we do
                   ;; not need to include non-breaking-space and in turn width.
-                [:hr {:class "activity-row-v-grid-line"
-                      :style (assoc vertical-gridline-style
-                                    :transform (translate-x glx-offset))}]))
-            totals-dates))
+              [:hr {:class "activity-row-v-grid-line"
+                    :style (assoc vertical-gridline-style
+                                  :transform (translate-x glx-offset))}]))
+          totals-dates))
 
         ;; Row layer 3 - activities
         (into
-          (map
-            #(vector render-activity-item editor-on row % selection-start-col selection-end-col) ;; Create a render-activity component to represent a single activity
-            (:activities row)))
+         (map
+          #(vector render-activity-item editor-on row % selection-start-col selection-end-col) ;; Create a render-activity component to represent a single activity
+          (:activities row)))
         (with-meta {:key (:id row)}))))
-
 
 (defn gantt-chart-demo
   []
@@ -602,7 +583,7 @@
                                                                     :border-bottom table-outside-border-style}}
                              ; 2
                              :row-headers                  {:style {:background-color headers-background-color
-                                                                    :color            headers-color                
+                                                                    :color            headers-color
                                                                     :border-left      table-outside-border-style
                                                                     :border-right     table-outside-border-style}}
                              ; 3
@@ -620,15 +601,13 @@
                              :row-footers                  {:style {:border-right     table-outside-border-style}}
                              ;; ===== Selection styles
                              :row-selection-rect           {:style {:z-index 0
-                                                                #_#_:background-color "rgba(0,152,12,0.1)"
-                                                                #_#_:border           "1px solid rgba(0,152,12,0.4)"}}
+                                                                    #_#_:background-color "rgba(0,152,12,0.1)"
+                                                                    #_#_:border           "1px solid rgba(0,152,12,0.4)"}}
                              :column-header-selection-rect {:style {:z-index          0 ;; Behind rows
                                                                     :background-color "rgba(0,152,12,0.1)" ;; Green
                                                                     :border           "1px solid rgba(0,152,12,0.4)"}}
-                         #_#_:row-header-selection-rect    {:style {:background-color "rgba(0,0,0,0.02)"                ;; Very transparent black
-                                                                    :border           "1px solid transparent"}}}]]])))) ;; Disable border
-
-
+                             #_#_:row-header-selection-rect    {:style {:background-color "rgba(0,0,0,0.02)"                ;; Very transparent black
+                                                                        :border           "1px solid transparent"}}}]]])))) ;; Disable border
 
 (defn demo
   []
@@ -656,8 +635,6 @@
                        [:li "row rendering is automatically virtualised - only the ones visible are rendered"]
 
                        [:li [source-reference "for this v-table" "src/re_demo/v_table_demo.cljs"]]]]]])
-
-
 
 ;; MT Notes
 ;; 

@@ -3,15 +3,14 @@
             [re-com.box    :refer [line-args-desc]]
             [re-demo.utils :refer [panel-title title2 args-table github-hyperlink status-text]]))
 
-
 (defn panel
   []
   [v-box :src (at)
    :size     "auto"
    :gap      "10px"
    :children [[panel-title "[line ... ]"
-                            "src/re_com/box.cljs"
-                            "src/re_demo/line.cljs"]
+               "src/re_com/box.cljs"
+               "src/re_demo/line.cljs"]
 
               [h-box :src (at)
                :gap      "100px"
@@ -31,7 +30,7 @@
                                       [p "Here is some sample code..."]
                                       [:pre
                                        {:style {:width "40em"}}
-"[h-box
+                                       "[h-box
  :gap      \"10px\"
  :children [[grey-box]
             [line

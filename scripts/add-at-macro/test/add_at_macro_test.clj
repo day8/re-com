@@ -1,8 +1,8 @@
 (ns add-at-macro-test
-    (:require
-      [clojure.test :refer :all]
-      [add-at-macro :refer :all]
-      [rewrite-clj.zip :as z]))
+  (:require
+   [clojure.test :refer :all]
+   [add-at-macro :refer :all]
+   [rewrite-clj.zip :as z]))
 
 (def ^:private verbose? true)
 
@@ -62,7 +62,7 @@
       (is (if (seq referred-vars) (not (some #{'at} referred-vars)) true) "At macro was not successfully deleted"))))
 
 (def import-form-a (z/of-string
-                     "(ns re-demo.alert-box
+                    "(ns re-demo.alert-box
                        (:require-macros
                          [reagent.debug :refer [dbg prn println log dev? warn warn-unless]]
                          [re-com.core   :refer [at]])
@@ -74,7 +74,7 @@
                          [reagent.core  :as    reagent]))"))
 
 (def import-form-b (z/of-string
-                     "(ns re-demo.alert-box
+                    "(ns re-demo.alert-box
                        (:require-macros
                          [reagent.debug :refer [dbg prn println log dev? warn warn-unless]])
                        (:require

@@ -1,21 +1,19 @@
 (ns re-com.input-time
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
-    [reagent.core    :as    reagent]
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :as debug :refer [->attr]]
-    [re-com.validate :refer [css-style? html-attr? parts? number-or-string?]]
-    [re-com.text     :refer [label]]
-    [re-com.box      :refer [h-box gap]]
-    [re-com.util     :refer [pad-zero-number deref-or-value]]))
-
+   [reagent.core    :as    reagent]
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :as debug :refer [->attr]]
+   [re-com.validate :refer [css-style? html-attr? parts? number-or-string?]]
+   [re-com.text     :refer [label]]
+   [re-com.box      :refer [h-box gap]]
+   [re-com.util     :refer [pad-zero-number deref-or-value]]))
 
 (defn- time->mins
   [time]
   (rem time 100))
-
 
 (defn- time->hrs
   [time]
@@ -31,7 +29,6 @@
   "Return a time integer from a triple int vector of form  [H  _  M]"
   [[hr _ mi]]
   (+ (* hr 100) mi))                                        ;; a four digit integer:  HHMM
-
 
 ;; This regular expression matchs all valid forms of time entry, including partial
 ;; forms which happen during user entry.
@@ -51,7 +48,6 @@
        (rest)                                               ;; get rid of the first value. It is the entire matched string.
        (filter (comp not nil?))))                           ;; of the 9 items, there should be only 3 non-nil matches coresponding to  H : M
 
-
 (defn text->time
   "return as a time int, the contents of 'text'"
   [text]
@@ -59,7 +55,6 @@
        extract-triple-from-text
        (map to-int)                                         ;; make them ints (or 0)
        triple->time))                                       ;; turn the triple of values into a single int
-
 
 (defn time->text
   "return a string of format HH:MM for 'time'"
@@ -102,11 +97,10 @@
                        :default
                        nil)]
     [debug/validate-args-error
-      :component "input-time"
-      :args      args
-      :problems  [{:problem            :validate-fn-map
-                   :validate-fn-result {:message message}}]]))
-
+     :component "input-time"
+     :args      args
+     :problems  [{:problem            :validate-fn-map
+                  :validate-fn-result {:message message}}]]))
 
 (defn- force-valid-time
   "Validate the time supplied.
@@ -180,58 +174,58 @@
   [& {:keys [model minimum maximum] :as args
       :or   {minimum 0 maximum 2359}}]
   (or
-    (validate-args-macro input-time-args-desc args)
-    (validate-arg-times (deref-or-value model) minimum maximum args)
-    (let [deref-model    (deref-or-value model)
-          text-model     (reagent/atom (time->text deref-model))
-          previous-model (reagent/atom deref-model)]
-      (fn input-time-render
-        [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts src debug-as] :as args
-            :or   {minimum 0 maximum 2359}}]
-        (or
-          (validate-args-macro input-time-args-desc args)
-          (validate-arg-times (deref-or-value model) minimum maximum args)
-          (let [style (merge (when hide-border? {:border "none"})
-                             style)
-                new-val (deref-or-value model)
-                new-val (if (< new-val minimum) minimum new-val)
-                new-val (if (> new-val maximum) maximum new-val)]
+   (validate-args-macro input-time-args-desc args)
+   (validate-arg-times (deref-or-value model) minimum maximum args)
+   (let [deref-model    (deref-or-value model)
+         text-model     (reagent/atom (time->text deref-model))
+         previous-model (reagent/atom deref-model)]
+     (fn input-time-render
+       [& {:keys [model on-change minimum maximum disabled? show-icon? hide-border? width height class style attr parts src debug-as] :as args
+           :or   {minimum 0 maximum 2359}}]
+       (or
+        (validate-args-macro input-time-args-desc args)
+        (validate-arg-times (deref-or-value model) minimum maximum args)
+        (let [style (merge (when hide-border? {:border "none"})
+                           style)
+              new-val (deref-or-value model)
+              new-val (if (< new-val minimum) minimum new-val)
+              new-val (if (> new-val maximum) maximum new-val)]
             ;; if the model is different to that currently shown in text, then reset the text to match
             ;; other than that we want to keep the current text, because the user is probably typing
-            (when (not= @previous-model new-val)
-              (reset! text-model (time->text new-val))
-              (reset! previous-model new-val))
+          (when (not= @previous-model new-val)
+            (reset! text-model (time->text new-val))
+            (reset! previous-model new-val))
 
-            [h-box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :class    (str "rc-input-time " (get-in parts [:wrapper :class]))
-             :style    (merge {:height height} (get-in parts [:wrapper :style]))
-             :attr     (get-in parts [:wrapper :attr])
-             :children [[:input
-                         (merge
-                           {:type      "text"
+          [h-box
+           :src      src
+           :debug-as (or debug-as (reflect-current-component))
+           :class    (str "rc-input-time " (get-in parts [:wrapper :class]))
+           :style    (merge {:height height} (get-in parts [:wrapper :style]))
+           :attr     (get-in parts [:wrapper :attr])
+           :children [[:input
+                       (merge
+                        {:type      "text"
                             ;; Leaving time-entry class (below) for backwards compatibility only.
-                            :class     (str "time-entry rc-time-entry " class)
-                            :style     (merge {:width width}
-                                              style)
-                            :value     @text-model
-                            :disabled  (deref-or-value disabled?)
-                            :on-change (handler-fn (on-new-keypress event text-model))
-                            :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
-                            :on-key-up (handler-fn (lose-focus-if-enter event))}
-                           attr)]
-                        (when show-icon?
+                         :class     (str "time-entry rc-time-entry " class)
+                         :style     (merge {:width width}
+                                           style)
+                         :value     @text-model
+                         :disabled  (deref-or-value disabled?)
+                         :on-change (handler-fn (on-new-keypress event text-model))
+                         :on-blur   (handler-fn (on-defocus text-model minimum maximum on-change @previous-model))
+                         :on-key-up (handler-fn (lose-focus-if-enter event))}
+                        attr)]
+                      (when show-icon?
                           ;; Leaving time-icon class (below) for backwards compatibility only.
-                          [:div
-                           (merge
-                             {:class (str "time-icon rc-time-icon-container " (get-in parts [:time-icon-container :class]))
-                              :style (get-in parts [:time-icon-container :style] {})}
-                             (get-in parts [:time-icon-container :attr]))
-                           [:i
-                            (merge
-                              {:class (str "zmdi zmdi-hc-fw-rc zmdi-time rc-time-icon " (get-in parts [:time-icon :class]))
-                               :style (merge {:position "static"
-                                              :margin   "auto"}
-                                             (get-in parts [:time-icon :style]))}
-                              (get-in parts [:time-icon :attr]))]])]]))))))
+                        [:div
+                         (merge
+                          {:class (str "time-icon rc-time-icon-container " (get-in parts [:time-icon-container :class]))
+                           :style (get-in parts [:time-icon-container :style] {})}
+                          (get-in parts [:time-icon-container :attr]))
+                         [:i
+                          (merge
+                           {:class (str "zmdi zmdi-hc-fw-rc zmdi-time rc-time-icon " (get-in parts [:time-icon :class]))
+                            :style (merge {:position "static"
+                                           :margin   "auto"}
+                                          (get-in parts [:time-icon :style]))}
+                           (get-in parts [:time-icon :attr]))]])]]))))))

@@ -1,15 +1,15 @@
 (ns re-com.progress-bar
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                                     number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value px]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
+   [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
+                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: progress-bar
@@ -45,25 +45,25 @@
       :or   {width "100%"}
       :as   args}]
   (or
-    (validate-args-macro progress-bar-args-desc args)
-    (let [model (deref-or-value model)]
-      [box
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :class    (str "rc-progress-bar-wrapper " (get-in parts [:wrapper :class]))
-       :style    (get-in parts [:wrapper :style])
-       :attr     (get-in parts [:wrapper :attr])
-       :align    :start
-       :child    [:div
-                  (merge
-                    {:class (str "progress rc-progress-bar " class)
-                     :style (merge (flex-child-style "none")
-                                   {:width width}
-                                   style)}
-                    attr)
-                  [:div
-                   {:class (str "progress-bar " (when striped? "progress-bar-striped active rc-progress-bar-portion ") bar-class)
-                    :role  "progressbar"
-                    :style {:width      (str model "%")
-                            :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind
-                   (str model "%")]]])))
+   (validate-args-macro progress-bar-args-desc args)
+   (let [model (deref-or-value model)]
+     [box
+      :src      src
+      :debug-as (or debug-as (reflect-current-component))
+      :class    (str "rc-progress-bar-wrapper " (get-in parts [:wrapper :class]))
+      :style    (get-in parts [:wrapper :style])
+      :attr     (get-in parts [:wrapper :attr])
+      :align    :start
+      :child    [:div
+                 (merge
+                  {:class (str "progress rc-progress-bar " class)
+                   :style (merge (flex-child-style "none")
+                                 {:width width}
+                                 style)}
+                  attr)
+                 [:div
+                  {:class (str "progress-bar " (when striped? "progress-bar-striped active rc-progress-bar-portion ") bar-class)
+                   :role  "progressbar"
+                   :style {:width      (str model "%")
+                           :transition "none"}}                 ;; Default BS transitions cause the progress bar to lag behind
+                  (str model "%")]]])))

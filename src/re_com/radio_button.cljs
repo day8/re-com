@@ -1,15 +1,15 @@
 (ns re-com.radio-button
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.util     :refer [deref-or-value px]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
-    [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
-                             number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.util     :refer [deref-or-value px]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [re-com.box      :refer [h-box v-box box gap line flex-child-style align-style]]
+   [re-com.validate :refer [input-status-type? input-status-types-list regex? string-or-hiccup? css-style? html-attr? parts?
+                            number-or-string? string-or-atom? nillable-string-or-atom? throbber-size? throbber-sizes-list]]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: radio-button
@@ -47,37 +47,37 @@
   [& {:keys [model value on-change label disabled? label-class label-style class style attr parts src debug-as]
       :as   args}]
   (or
-    (validate-args-macro radio-button-args-desc args)
-    (let [cursor      "default"
-          model       (deref-or-value model)
-          disabled?   (deref-or-value disabled?)
-          callback-fn #(when (and on-change (not disabled?))
+   (validate-args-macro radio-button-args-desc args)
+   (let [cursor      "default"
+         model       (deref-or-value model)
+         disabled?   (deref-or-value disabled?)
+         callback-fn #(when (and on-change (not disabled?))
                         (on-change value))]  ;; call on-change with the :value arg
-      [h-box
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :class    (str "noselect rc-radio-button-wrapper " (get-in parts [:wrapper :class]))
-       :style    (get-in parts [:wrapper :style])
-       :attr     (get-in parts [:wrapper :attr])
-       :align    :start
-       :children [[:input
-                   (merge
-                     {:class     (str "rc-radio-button " class)
-                      :style     (merge
-                                   (flex-child-style "none")
-                                   {:cursor cursor}
-                                   style)
-                      :type      "radio"
-                      :disabled  disabled?
-                      :checked   (= model value)
-                      :on-change (handler-fn (callback-fn))}
-                     attr)]
-                  (when label
-                    [:span
-                     {:class    (str "rc-radio-button-label " label-class)
-                      :style    (merge (flex-child-style "none")
-                                       {:padding-left "8px"
-                                        :cursor       cursor}
-                                       label-style)
-                      :on-click (handler-fn (callback-fn))}
-                     label])]])))
+     [h-box
+      :src      src
+      :debug-as (or debug-as (reflect-current-component))
+      :class    (str "noselect rc-radio-button-wrapper " (get-in parts [:wrapper :class]))
+      :style    (get-in parts [:wrapper :style])
+      :attr     (get-in parts [:wrapper :attr])
+      :align    :start
+      :children [[:input
+                  (merge
+                   {:class     (str "rc-radio-button " class)
+                    :style     (merge
+                                (flex-child-style "none")
+                                {:cursor cursor}
+                                style)
+                    :type      "radio"
+                    :disabled  disabled?
+                    :checked   (= model value)
+                    :on-change (handler-fn (callback-fn))}
+                   attr)]
+                 (when label
+                   [:span
+                    {:class    (str "rc-radio-button-label " label-class)
+                     :style    (merge (flex-child-style "none")
+                                      {:padding-left "8px"
+                                       :cursor       cursor}
+                                      label-style)
+                     :on-click (handler-fn (callback-fn))}
+                    label])]])))

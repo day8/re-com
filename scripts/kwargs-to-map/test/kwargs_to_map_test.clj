@@ -180,7 +180,7 @@
    [child-component]]
    ```
    has two immediate children, the map and the vector, child component."
-  [loc ]
+  [loc]
   (let [loc (z/down loc)
         children-count (atom 0)]
     (loop [loc loc]

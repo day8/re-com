@@ -2,7 +2,6 @@
   (:require [re-com.core   :refer [at h-box v-box box gap line title label hyperlink-href input-text p p-span]]
             [re-demo.utils :refer [panel-title title2]]))
 
-
 ; narrow, light grey column of text, on the RHS
 (def RHS-column-style
   {:style {:width "450px"
@@ -25,8 +24,7 @@
                "."]
               [h-box :src (at)
                :gap center-gap-px
-               :children [
-                          [p "It provides " [:span.bold "layout"] " and " [:span.bold "widget"] " components
+               :children [[p "It provides " [:span.bold "layout"] " and " [:span.bold "widget"] " components
                           for building desktop-class apps. The set of widgets is incomplete but growing."]
                           [p-span RHS-column-style [:br] "The github repo "
                            [hyperlink-href :src (at)
@@ -34,12 +32,10 @@
                             :href "https://github.com/day8/re-com"
                             :target "_blank"] "."]]]]])
 
-
 (defn this-app
   []
   [v-box :src (at)
-   :children [
-              ; [title :level :level2 :label "This app"]
+   :children [; [title :level :level2 :label "This app"]
 
               [h-box :src (at)
                :gap center-gap-px
@@ -55,13 +51,10 @@
                                        "Most pages of this app have hyperlinks (to the right of the page title) which take you
                                         directly to the associated source code (within github)."]]]]]]])
 
-
-
 (defn named-params
   []
   [v-box :src (at)
-   :children [
-              [title :src (at) :level :level2 :label "Uses Named Parameters"]
+   :children [[title :src (at) :level :level2 :label "Uses Named Parameters"]
               [gap :src (at) :size "10px"]
               [p  "Generally, when you use a Reagent component it looks  like this:"]
               [:pre
@@ -73,15 +66,15 @@
               [h-box :src (at)
                :gap center-gap-px
                :children [[v-box :src (at)
-                          :children [[p  "Re-com uses a different approach.  All re-com components take " [:span.bold "named parameters"] "."]
-                                     [p "For example, using re-com's " [:span.bold "button"] " component, looks like:"]
-                                     [:pre
-                                      {:style {:width "450px"}}
-                                      "[button
+                           :children [[p  "Re-com uses a different approach.  All re-com components take " [:span.bold "named parameters"] "."]
+                                      [p "For example, using re-com's " [:span.bold "button"] " component, looks like:"]
+                                      [:pre
+                                       {:style {:width "450px"}}
+                                       "[button
   :label     \"Click me!\"
   :on-click  #(swap! click-count inc)
   :style     {:background-color \"blue\"}]"]
-                                     [p "Each parameter involves a leading keyword name, followed by a value.  Always pairs. "]]]
+                                      [p "Each parameter involves a leading keyword name, followed by a value.  Always pairs. "]]]
                           [v-box :src (at)
                            :children [[p RHS-column-style "We use named parameters because:"]
                                       [:ol RHS-column-style
@@ -89,11 +82,10 @@
                                        [:li "optionality - not all parameters need be supplied and defaults can be introduced"]
                                        [:li "API flexibility - easy to add new parameters"]]
                                       [p-span RHS-column-style "Read further analysis "
-                                        [hyperlink-href :src (at)
-                                         :label "here"
-                                         :href "https://clojurefun.wordpress.com/2012/08/13/keyword-arguments-in-clojure/"
-                                         :target "_blank"] "."]]]]]]])
-
+                                       [hyperlink-href :src (at)
+                                        :label "here"
+                                        :href "https://clojurefun.wordpress.com/2012/08/13/keyword-arguments-in-clojure/"
+                                        :target "_blank"] "."]]]]]]])
 
 (defn layouts-section
   []
@@ -106,8 +98,7 @@
               [h-box :src (at)
                :gap center-gap-px
                :children [[v-box :src (at)
-                           :children [
-                                      [p "The key components are " [:span.bold "h-box"] " and " [:span.bold "v-box"] " which arange
+                           :children [[p "The key components are " [:span.bold "h-box"] " and " [:span.bold "v-box"] " which arange
                their children horizontally and vertically respectively. Because they are
                mutually nestable, you can combine them to create arbitrarily complex layouts."]
                                       [p "This very page involves a " [:span.bold "v-box"] " arranging other components:"]
@@ -122,13 +113,12 @@
               [named-params]
               ... etc
               ]]"]]]
-                           [v-box :src (at)
-                            :children [[p-span RHS-column-style "The underlying technology is "
-                                        [hyperlink-href :src (at)
-                                         :label "flexbox"
-                                         :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
-                                         :target "_blank"]]]]]]]])
-
+                          [v-box :src (at)
+                           :children [[p-span RHS-column-style "The underlying technology is "
+                                       [hyperlink-href :src (at)
+                                        :label "flexbox"
+                                        :href "https://css-tricks.com/snippets/css/a-guide-to-flexbox"
+                                        :target "_blank"]]]]]]]])
 
 (defn example-layout
   []
@@ -180,8 +170,6 @@
               [gap :src (at) :size "30px"]
               [example-layout]
               [gap :src (at) :size "40px"]]])
-
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

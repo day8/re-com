@@ -3,7 +3,6 @@
             [re-com.util  :refer [deref-or-value]]
             [reagent.core :as    reagent]))
 
-
 (defn popover-body
   [dialog-data on-change & {:keys [showing-injected? position-injected]}]  ;; v0.10.0 breaking change fix (was [showing? position dialog-data on-change])
   (let [dialog-data   (reagent/atom (deref-or-value dialog-data))
@@ -47,21 +46,20 @@
                                      [h-box :src (at)
                                       :gap      "10px"
                                       :children [[button :src (at)
-                                                  :label    [:span [:i {:class "zmdi zmdi-check" }] " Apply"]
+                                                  :label    [:span [:i {:class "zmdi zmdi-check"}] " Apply"]
                                                   :on-click #(submit-dialog @dialog-data)
                                                   :class    "btn-primary"]
                                                  [popover-anchor-wrapper :src (at)
                                                   :showing? show-tooltip?
                                                   :position :right-below
                                                   :anchor   [button :src (at)
-                                                             :label    [:span [:i {:class "zmdi zmdi-close" }] " Cancel"]
+                                                             :label    [:span [:i {:class "zmdi zmdi-close"}] " Cancel"]
                                                              :on-click cancel-dialog]
                                                   :popover  [popover-content-wrapper :src (at) ;; NOTE: didn't specify on-cancel here (handled properly)
                                                              :width         "250px"
                                                              :title         "This is the cancel button"
                                                              :close-button? false
                                                              :body          "You can even have a popover over a popover!"]]]]]]])))
-
 
 (defn popover-dialog-demo
   [position]

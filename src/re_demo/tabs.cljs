@@ -1,19 +1,17 @@
 (ns re-demo.tabs
   (:require
-    [re-com.core             :refer [at h-box v-box box gap line scroller border horizontal-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs label button single-dropdown p]]
-    [re-com.tabs             :refer [horizontal-tabs-args-desc bar-tabs-args-desc pill-tabs-args-desc
-                                     horizontal-tabs-parts-desc bar-tabs-parts-desc pill-tabs-parts-desc]]
-    [re-com.util             :refer [item-for-id]]
-    [re-demo.utils           :refer [panel-title title2 parts-table args-table github-hyperlink status-text]]
-    [alandipert.storage-atom :refer [local-storage]]
-    [reagent.core            :as    reagent]))
-
+   [re-com.core             :refer [at h-box v-box box gap line scroller border horizontal-tabs horizontal-bar-tabs vertical-bar-tabs horizontal-pill-tabs vertical-pill-tabs label button single-dropdown p]]
+   [re-com.tabs             :refer [horizontal-tabs-args-desc bar-tabs-args-desc pill-tabs-args-desc
+                                    horizontal-tabs-parts-desc bar-tabs-parts-desc pill-tabs-parts-desc]]
+   [re-com.util             :refer [item-for-id]]
+   [re-demo.utils           :refer [panel-title title2 parts-table args-table github-hyperlink status-text]]
+   [alandipert.storage-atom :refer [local-storage]]
+   [reagent.core            :as    reagent]))
 
 (def demos [{:id 1 :label "Tab Styles"}
             {:id 2 :label "Persistent Tab Selection"}
             {:id 3 :label "Dynamic Tabs"}
             {:id 4 :label "Tooltips"}])
-
 
 ;; Define some tabs.
 ;; A tab definition need only consist of an :id and a :label. The rest is up to you
@@ -24,7 +22,6 @@
    {:id ::tab2  :label "Tab2"  :say-this "Don't listen to Tab1, he's just jealous of my train set."}
    {:id ::tab3  :label "Tab3"  :say-this "I'm telling Mum on you two !!"}])
 
-
 (defn tab-styles-demo
   []
   (let [selected-tab-id (reagent/atom (:id (first tabs-definition)))     ;; holds the id of the selected tab
@@ -33,11 +30,10 @@
     (fn []
       [v-box :src (at)
        :gap      "20px"
-       :children [
-                   [p "Each of the five tab components shown below have a distinct visual style."]
-                   [p "In this demo, all five tab components share the same state, so they change in lockstep."]
-                   [p "For effect, some fake  \"Tab Contents\" (a string of text) is shown in the dotted border below."]
-                   [p "The implementation here is simple and your selection is forgotten when you change to another demo panel."]
+       :children [[p "Each of the five tab components shown below have a distinct visual style."]
+                  [p "In this demo, all five tab components share the same state, so they change in lockstep."]
+                  [p "For effect, some fake  \"Tab Contents\" (a string of text) is shown in the dotted border below."]
+                  [p "The implementation here is simple and your selection is forgotten when you change to another demo panel."]
                   [h-box :src (at)
                    :align    :center
                    :children [[title2
@@ -93,7 +89,6 @@
                                :margin  "10px"
                                :child   [:p (:say-this (item-for-id @selected-tab-id tabs-definition))]]]]]])))
 
-
 (defn remembers-demo
   []
   (let [tab-defs        [{:id ::1 :label "1"}
@@ -106,8 +101,7 @@
     (fn []
       [v-box :src (at)
        :gap   "10px"
-       :children [
-                  [p "Any tab selection you make below will persist, because your choice will be
+       :children [[p "Any tab selection you make below will persist, because your choice will be
                   remembered using HTML5's local-storage."]
                   [p "If you refresh the entire browser page and return here, you'll see the same selection."]
                   [gap :src (at) :size "20px"]
@@ -115,7 +109,6 @@
                    :model     selected-tab-id
                    :tabs      tab-defs
                    :on-change #(reset! selected-tab-id %)]]])))
-
 
 (defn adding-tabs-demo
   []
@@ -126,8 +119,7 @@
     (fn []
       [v-box :src (at)
        :gap   "10px"
-       :children [
-                  [p "If the " [:code ":tabs"] " parameter is an atom and the value in that atom changes,
+       :children [[p "If the " [:code ":tabs"] " parameter is an atom and the value in that atom changes,
                    the display will change dynamically"]
                   [gap :src (at) :size "20px"]
                   [horizontal-tabs :src (at)
@@ -145,7 +137,6 @@
                                            (let [c       (str (inc (count @tab-defs)))
                                                  new-tab {:id (keyword c) :label c}]
                                              (swap! tab-defs conj new-tab)))]]]]])))
-
 
 (defn tooltips-demo
   []
@@ -174,9 +165,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "Tab Components"
-                                "src/re_com/tabs.cljs"
-                                "src/re_demo/tabs.cljs"]
-
+                   "src/re_com/tabs.cljs"
+                   "src/re_demo/tabs.cljs"]
 
                   [h-box :src (at)
                    :gap      "100px"
@@ -222,7 +212,6 @@
                     :horizontal [parts-table "horizontal-tabs" horizontal-tabs-parts-desc]
                     :bar        [parts-table "horizontal-bar-tabs" bar-tabs-parts-desc]
                     :pill       [parts-table "horizontal-pill-tabs" pill-tabs-parts-desc])]])))
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

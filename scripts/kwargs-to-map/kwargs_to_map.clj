@@ -3,8 +3,8 @@
 (require '[babashka.deps :as deps])
 
 (deps/add-deps
-  '{:deps {docopt/docopt {:git/url "https://github.com/nubank/docopt.clj"
-                          :sha     "12b997548381b607ddb246e4f4c54c01906e70aa"}}})
+ '{:deps {docopt/docopt {:git/url "https://github.com/nubank/docopt.clj"
+                         :sha     "12b997548381b607ddb246e4f4c54c01906e70aa"}}})
 
 (ns kwargs-to-map
   (:require [clojure.java.io :as io]
@@ -88,7 +88,7 @@
   and `k` is `:border` we will return `:border` since it is a key in the component."
   [loc k]
   (let
-    [k (str k)]
+   [k (str k)]
     (loop [loc (z/down loc)]
       (cond
         (nil? loc) false
@@ -375,7 +375,7 @@
              (not (clojure.string/starts-with? (-> loc z/down z/string) "#_")) ;; skip uneval forms
              (-> loc z/down z/string (re-com-kwargs-component? (:used-alias parsed-require))))
         (recur (-> loc (z/replace (z/node (kwags-to-map loc {:verbose? verbose?
-                                                     :alias    (:used-alias parsed-require)}))) z/next))
+                                                             :alias    (:used-alias parsed-require)}))) z/next))
 
         :else
         (recur (z/next loc))))))
@@ -619,7 +619,6 @@
     (run-script directory {:verbose verbose?
                            :testing? testing?})
     (println "Directory/File not provided")))
-
 
 (def usage "Kwargs to Map Script
 

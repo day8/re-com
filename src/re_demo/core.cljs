@@ -1,8 +1,8 @@
 (ns re-demo.core
   (:require-macros
-    [re-com.core            :refer []]
-    [cljs.core.async.macros :refer [go]]
-    [secretary.core         :refer [defroute]])
+   [re-com.core            :refer []]
+   [cljs.core.async.macros :refer [go]]
+   [secretary.core         :refer [defroute]])
   (:require [goog.events                   :as    events]
             [reagent.core                  :as    reagent]
             [reagent.dom                   :as    rdom]
@@ -94,7 +94,6 @@
    {:id :simple-v-table         :level :minor :label "Simple V-table"     :panel simple-v-table/panel}
    {:id :v-table                :level :minor :label "V-table"            :panel v-table/panel}
 
-
    {:id :layers                 :level :major :label "Layers"}
    {:id :modal-panel            :level :minor :label "Modal Panel"        :panel modal-panel/panel}
    {:id :popovers               :level :minor :label "Popover"            :panel popovers/panel}
@@ -121,7 +120,6 @@
    {:id :debug                  :level :major :label "Debugging"          :panel debug/panel}
    {:id :config                 :level :major :label "Config"             :panel config/panel}])
 
-
 (defn nav-item
   []
   (let [mouse-over? (reagent/atom false)]
@@ -141,8 +139,8 @@
                           :cursor           (if has-panel? "pointer" "default")
                           :color            (if has-panel? (when selected? "#111") "#888")
                           :background-color (if (or
-                                                  (= @selected-tab-id (:id tab))
-                                                  @mouse-over?) "#eaeaea")}
+                                                 (= @selected-tab-id (:id tab))
+                                                 @mouse-over?) "#eaeaea")}
 
           :on-mouse-over (handler-fn (when has-panel? (reset! mouse-over? true)))
           :on-mouse-out  (handler-fn (reset! mouse-over? false))
@@ -150,7 +148,6 @@
                                        (on-select-tab (:id tab))
                                        (scroll-to-top (get-element-by-id "right-panel"))))}
          [:span (:label tab)]]))))
-
 
 (defn left-side-nav-bar
   [selected-tab-id on-select-tab]
@@ -178,7 +175,6 @@
                          :style {:font-size "10px"}
                          :label version]]]]))
 
-
 (defn re-com-title-box
   []
   [h-box
@@ -193,7 +189,6 @@
                :level :level1
                :style {:font-size   "32px"
                        :color       "#fefefe"}]]])
-
 
 (defn browser-alert
   []

@@ -1,11 +1,10 @@
 (ns re-com.tour
   (:require-macros
-    [re-com.core    :refer [handler-fn at]])
+   [re-com.core    :refer [handler-fn at]])
   (:require
-    [reagent.core   :as    reagent]
-    [re-com.box     :refer [flex-child-style]]
-    [re-com.buttons :refer [button]]))
-
+   [reagent.core   :as    reagent]
+   [re-com.box     :refer [flex-child-style]]
+   [re-com.buttons :refer [button]]))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: tour
@@ -30,12 +29,10 @@
 
     (reduce #(assoc %1 %2 (reagent/atom false)) tour-map tour-spec))) ;; Old way: (merge {} (map #(hash-map % (reagent/atom false)) tour-spec))
 
-
 (defn- initialise-tour
   "Resets all poover atoms to false"
   [tour]
   (doall (for [step (:steps tour)] (reset! (step tour) false))))
-
 
 (defn start-tour
   "Sets the first popover atom in the tour to true"
@@ -44,12 +41,10 @@
   (reset! (:current-step tour) 0)
   (reset! ((first (:steps tour)) tour) true))
 
-
 (defn finish-tour
   "Closes all tour popovers"
   [tour]
   (initialise-tour tour))
-
 
 (defn- next-tour-step
   [tour]
@@ -61,7 +56,6 @@
       (reset! ((nth steps old-step) tour) false)
       (reset! ((nth steps new-step) tour) true))))
 
-
 (defn- prev-tour-step
   [tour]
   (let [steps    (:steps tour)
@@ -71,7 +65,6 @@
       (reset! (:current-step tour) new-step)
       (reset! ((nth steps old-step) tour) false)
       (reset! ((nth steps new-step) tour) true))))
-
 
 (defn make-tour-nav
   "Generate the hr and previous/next buttons markup.

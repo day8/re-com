@@ -1,16 +1,16 @@
 (ns re-com.selection-list
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]]
-    [re-com.validate :refer [validate-args-macro]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]]
+   [re-com.validate :refer [validate-args-macro]])
   (:require
-    [re-com.config       :refer [include-args-desc?]]
-    [re-com.debug        :refer [->attr]]
-    [re-com.text         :refer [label]]
-    [re-com.checkbox     :refer [checkbox]]
-    [re-com.radio-button :refer [radio-button]]
-    [re-com.box          :refer [box border h-box v-box]]
-    [re-com.validate     :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?]]
-    [re-com.util         :refer [fmap deref-or-value]]))
+   [re-com.config       :refer [include-args-desc?]]
+   [re-com.debug        :refer [->attr]]
+   [re-com.text         :refer [label]]
+   [re-com.checkbox     :refer [checkbox]]
+   [re-com.radio-button :refer [radio-button]]
+   [re-com.box          :refer [box border h-box v-box]]
+   [re-com.validate     :refer [vector-of-maps? string-or-atom? set-or-atom? css-style? html-attr? parts?]]
+   [re-com.util         :refer [fmap deref-or-value]]))
 
 ;; ----------------------------------------------------------------------------
 (defn label-style
@@ -20,12 +20,12 @@
   ([selected? as-exclusions? selected-color]
     ;;TODO: margin-top required because currently checkbox & radio-button don't center label
    (let [base-style {:margin-top "1px"}
-          base-style (if (and selected? as-exclusions?)
-                       (merge base-style {:text-decoration "line-through"})
-                       base-style)
-          base-style (if (and selected? selected-color)
-                       (merge base-style {:color selected-color})
-                       base-style)]
+         base-style (if (and selected? as-exclusions?)
+                      (merge base-style {:text-decoration "line-through"})
+                      base-style)
+         base-style (if (and selected? selected-color)
+                      (merge base-style {:color selected-color})
+                      base-style)]
      base-style)))
 
 (defn- as-checked
@@ -36,15 +36,15 @@
      :class (str "list-group-item compact rc-selection-list-group-item " (get-in parts [:list-group-item :class]))
      :style (get-in parts [:list-group-item :style] {})
      :attr  (merge
-              {:on-click (handler-fn
-                           (let [num-selected (count selections)
-                                 only-item    (when (= 1 num-selected) (first selections))]
-                             (when (and (not disabled?)
-                                        (not (and required? (= only-item item-id))))
-                               (if (selections item-id)
-                                 (on-change (disj selections item-id))
-                                 (on-change (conj selections item-id))))))}
-              (get-in parts [:list-group-item :attr]))
+             {:on-click (handler-fn
+                         (let [num-selected (count selections)
+                               only-item    (when (= 1 num-selected) (first selections))]
+                           (when (and (not disabled?)
+                                      (not (and required? (= only-item item-id))))
+                             (if (selections item-id)
+                               (on-change (disj selections item-id))
+                               (on-change (conj selections item-id))))))}
+             (get-in parts [:list-group-item :attr]))
      :child [checkbox
              :src         (at)
              :class       (str "rc-selection-list-checkbox " (get-in parts [:checkbox :class]))
@@ -55,7 +55,6 @@
              :disabled?   disabled?
              :label-style (label-style (selections item-id) as-exclusions?)
              :label       (label-fn item)]]))
-
 
 (defn- radio-clicked
   [selections item-id]
@@ -78,7 +77,7 @@
              :class       (str "rc-selection-list-radio-button " (get-in parts [:radio-button :class]))
              :style       (merge (get-in parts [:radio-button :style] {})
                                  (when disabled?
-                                       {:pointer-events "none"}))
+                                   {:pointer-events "none"}))
              :attr        (get-in parts [:radio-button :attr])
              :model       (first selections)
              :value       item-id
@@ -86,7 +85,6 @@
              :disabled?   disabled?
              :label-style (label-style (selections item-id) as-exclusions?)
              :label       (label-fn item)]]))
-
 
 (def list-style
   ;;TODO: These should be in CSS resource
@@ -159,50 +157,50 @@
              label-fn       :label}
       :as   args}]
   (or
-    (validate-args-macro selection-list-args-desc args)
-    (let [choices        (deref-or-value choices)
-          model          (deref-or-value model)
-          on-change      (deref-or-value on-change)
-          multi-select?  (deref-or-value multi-select?)
-          as-exclusions? (deref-or-value as-exclusions?)
-          required?      (deref-or-value required?)
-          width          (deref-or-value width)
-          height         (deref-or-value height)
-          max-height     (deref-or-value max-height)
-          disabled?      (deref-or-value disabled?)
-          hide-border?   (deref-or-value hide-border?)
-          item-renderer  (deref-or-value item-renderer)
-          selected       (if multi-select? model (-> model first vector set))
-          items          (map (if item-renderer
-                                #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
-                                (if multi-select?
-                                  #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)
-                                  #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)))
-                              choices)
-          bounds         (select-keys args [:width :height :max-height])
-          spacing        (if hide-border? spacing-unbordered spacing-bordered)]
+   (validate-args-macro selection-list-args-desc args)
+   (let [choices        (deref-or-value choices)
+         model          (deref-or-value model)
+         on-change      (deref-or-value on-change)
+         multi-select?  (deref-or-value multi-select?)
+         as-exclusions? (deref-or-value as-exclusions?)
+         required?      (deref-or-value required?)
+         width          (deref-or-value width)
+         height         (deref-or-value height)
+         max-height     (deref-or-value max-height)
+         disabled?      (deref-or-value disabled?)
+         hide-border?   (deref-or-value hide-border?)
+         item-renderer  (deref-or-value item-renderer)
+         selected       (if multi-select? model (-> model first vector set))
+         items          (map (if item-renderer
+                               #(item-renderer % id-fn selected on-change disabled? label-fn required? as-exclusions?)  ;; TODO do we need to pass id-fn?
+                               (if multi-select?
+                                 #(as-checked % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)
+                                 #(as-radio % id-fn selected on-change disabled? label-fn required? as-exclusions? parts)))
+                             choices)
+         bounds         (select-keys args [:width :height :max-height])
+         spacing        (if hide-border? spacing-unbordered spacing-bordered)]
       ;; In single select mode force selections to one. This causes a second render
       ;; TODO: GR commented this out to fix the bug where #{nil} was being returned for an empty list. Remove when we're sure there are no ill effects.
-      #_(when-not (= selected model) (on-change selected))
-      [border
-       :src      src
-       :debug-as (or debug-as (reflect-current-component))
-       :class    (str "rc-selection-list "
-                      (when (deref-or-value disabled?) "rc-disabled")
-                      class)
-       :style    style
-       :attr     attr
-       :radius   "4px"
-       :border   (when hide-border? "none")
-       :child    (into [:div
-                        (merge
-                          {:class (str "list-group noselect rc-selection-list-group " (get-in parts [:list-group :class]))
-                           :style (merge
-                                    list-style
-                                    bounds
-                                    spacing
-                                    (get-in parts [:list-group :style]))}
-                          (get-in parts [:list-group :attr]))]
-                       items)])))
+     #_(when-not (= selected model) (on-change selected))
+     [border
+      :src      src
+      :debug-as (or debug-as (reflect-current-component))
+      :class    (str "rc-selection-list "
+                     (when (deref-or-value disabled?) "rc-disabled")
+                     class)
+      :style    style
+      :attr     attr
+      :radius   "4px"
+      :border   (when hide-border? "none")
+      :child    (into [:div
+                       (merge
+                        {:class (str "list-group noselect rc-selection-list-group " (get-in parts [:list-group :class]))
+                         :style (merge
+                                 list-style
+                                 bounds
+                                 spacing
+                                 (get-in parts [:list-group :style]))}
+                        (get-in parts [:list-group :attr]))]
+                      items)])))
 
 

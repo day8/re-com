@@ -1,15 +1,15 @@
 (ns re-com.buttons
   (:require-macros
-    [re-com.core     :refer [handler-fn at reflect-current-component]])
+   [re-com.core     :refer [handler-fn at reflect-current-component]])
   (:require
-    [re-com.util     :refer [deref-or-value px]]
-    [re-com.config   :refer [include-args-desc?]]
-    [re-com.debug    :refer [->attr]]
-    [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
-                             string-or-hiccup? css-style? html-attr? string-or-atom? parts?] :refer-macros [validate-args-macro]]
-    [re-com.popover  :refer [popover-tooltip]]
-    [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
-    [reagent.core    :as    reagent]))
+   [re-com.util     :refer [deref-or-value px]]
+   [re-com.config   :refer [include-args-desc?]]
+   [re-com.debug    :refer [->attr]]
+   [re-com.validate :refer [position? position-options-list button-size? button-sizes-list
+                            string-or-hiccup? css-style? html-attr? string-or-atom? parts?] :refer-macros [validate-args-macro]]
+   [re-com.popover  :refer [popover-tooltip]]
+   [re-com.box      :refer [h-box v-box box gap line flex-child-style]]
+   [reagent.core    :as    reagent]))
 
 ;; ------------------------------------------------------------------------------------
 ;;  Component: button
@@ -48,46 +48,45 @@
           :or   {class "btn-default"}
           :as   args}]
       (or
-        (validate-args-macro button-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [disabled? (deref-or-value disabled?)
-                the-button [:button
-                            (merge
-                              {:class    (str "rc-button btn " class)
-                               :style    (merge
-                                           (flex-child-style "none")
-                                           style)
-                               :disabled disabled?
-                               :on-click (handler-fn
-                                           (when (and on-click (not disabled?))
-                                             (on-click event)))}
-                              (when tooltip
-                                {:on-mouse-over (handler-fn (reset! showing? true))
-                                 :on-mouse-out  (handler-fn (reset! showing? false))})
-                              attr)
-                            label]]
-            (when disabled?
-              (reset! showing? false))
-            [box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :class    (str "rc-button-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
-             :style    (get-in parts [:wrapper :style])
-             :attr     (get-in parts [:wrapper :attr])
-             :align    :start
-             :child    (if tooltip
-                         [popover-tooltip
-                          :src      (at)
-                          :label    tooltip
-                          :position (or tooltip-position :below-center)
-                          :showing? showing?
-                          :anchor   the-button
-                          :class    (str "rc-button-tooltip " (get-in parts [:tooltip :class]))
-                          :style    (get-in parts [:tooltip :style])
-                          :attr     (get-in parts [:tooltip :attr])]
-                         the-button)]))))))
-
+       (validate-args-macro button-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [disabled? (deref-or-value disabled?)
+               the-button [:button
+                           (merge
+                            {:class    (str "rc-button btn " class)
+                             :style    (merge
+                                        (flex-child-style "none")
+                                        style)
+                             :disabled disabled?
+                             :on-click (handler-fn
+                                        (when (and on-click (not disabled?))
+                                          (on-click event)))}
+                            (when tooltip
+                              {:on-mouse-over (handler-fn (reset! showing? true))
+                               :on-mouse-out  (handler-fn (reset! showing? false))})
+                            attr)
+                           label]]
+           (when disabled?
+             (reset! showing? false))
+           [box
+            :src      src
+            :debug-as (or debug-as (reflect-current-component))
+            :class    (str "rc-button-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
+            :style    (get-in parts [:wrapper :style])
+            :attr     (get-in parts [:wrapper :attr])
+            :align    :start
+            :child    (if tooltip
+                        [popover-tooltip
+                         :src      (at)
+                         :label    tooltip
+                         :position (or tooltip-position :below-center)
+                         :showing? showing?
+                         :anchor   the-button
+                         :class    (str "rc-button-tooltip " (get-in parts [:tooltip :class]))
+                         :style    (get-in parts [:tooltip :style])
+                         :attr     (get-in parts [:tooltip :attr])]
+                        the-button)]))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: md-circle-icon-button
@@ -129,54 +128,53 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       (or
-        (validate-args-macro md-circle-icon-button-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [the-button [:div
+       (validate-args-macro md-circle-icon-button-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [the-button [:div
+                           (merge
+                            {:class    (str
+                                        "noselect rc-md-circle-icon-button "
+                                        (case size
+                                          :smaller "rc-circle-smaller "
+                                          :larger "rc-circle-larger "
+                                          " ")
+                                        (when emphasise? "rc-circle-emphasis ")
+                                        (when disabled? "rc-circle-disabled ")
+                                        class)
+                             :style    (merge
+                                        {:cursor (when-not disabled? "pointer")}
+                                        style)
+                             :on-click (handler-fn
+                                        (when (and on-click (not disabled?))
+                                          (on-click event)))}
+                            (when tooltip
+                              {:on-mouse-over (handler-fn (reset! showing? true))
+                               :on-mouse-out  (handler-fn (reset! showing? false))})
+                            attr)
+                           [:i
                             (merge
-                              {:class    (str
-                                           "noselect rc-md-circle-icon-button "
-                                           (case size
-                                             :smaller "rc-circle-smaller "
-                                             :larger "rc-circle-larger "
-                                             " ")
-                                           (when emphasise? "rc-circle-emphasis ")
-                                           (when disabled? "rc-circle-disabled ")
-                                           class)
-                               :style    (merge
-                                           {:cursor (when-not disabled? "pointer")}
-                                           style)
-                               :on-click (handler-fn
-                                           (when (and on-click (not disabled?))
-                                             (on-click event)))}
-                              (when tooltip
-                                {:on-mouse-over (handler-fn (reset! showing? true))
-                                 :on-mouse-out  (handler-fn (reset! showing? false))})
-                              attr)
-                            [:i
-                             (merge
-                               {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-md-circle-icon-button-icon " (get-in parts [:icon :class]))
-                                :style (get-in parts [:icon :style] {})}
-                               (get-in parts [:icon :attr]))]]]
-            [box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :align    :start
-             :class    (str "display-inline-flex rc-md-circle-icon-button-wrapper " (get-in parts [:wrapper :class]))
-             :style    (get-in parts [:wrapper :style])
-             :attr     (get-in parts [:wrapper :attr])
-             :child    (if tooltip
-                         [popover-tooltip
-                          :src      (at)
-                          :label    tooltip
-                          :position (or tooltip-position :below-center)
-                          :showing? showing?
-                          :anchor   the-button
-                          :class    (str "rc-md-circle-icon-button-tooltip " (get-in parts [:tooltip :class]))
-                          :style    (get-in parts [:tooltip :style])
-                          :attr     (get-in parts [:tooltip :attr])]
-                         the-button)]))))))
-
+                             {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-md-circle-icon-button-icon " (get-in parts [:icon :class]))
+                              :style (get-in parts [:icon :style] {})}
+                             (get-in parts [:icon :attr]))]]]
+           [box
+            :src      src
+            :debug-as (or debug-as (reflect-current-component))
+            :align    :start
+            :class    (str "display-inline-flex rc-md-circle-icon-button-wrapper " (get-in parts [:wrapper :class]))
+            :style    (get-in parts [:wrapper :style])
+            :attr     (get-in parts [:wrapper :attr])
+            :child    (if tooltip
+                        [popover-tooltip
+                         :src      (at)
+                         :label    tooltip
+                         :position (or tooltip-position :below-center)
+                         :showing? showing?
+                         :anchor   the-button
+                         :class    (str "rc-md-circle-icon-button-tooltip " (get-in parts [:tooltip :class]))
+                         :style    (get-in parts [:tooltip :style])
+                         :attr     (get-in parts [:tooltip :attr])]
+                        the-button)]))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: md-icon-button
@@ -218,54 +216,53 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       (or
-        (validate-args-macro md-icon-button-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [the-button [:div
+       (validate-args-macro md-icon-button-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [the-button [:div
+                           (merge
+                            {:class    (str
+                                        "noselect rc-md-icon-button "
+                                        (case size
+                                          :smaller "rc-icon-smaller "
+                                          :larger "rc-icon-larger "
+                                          " ")
+                                        (when emphasise? "rc-icon-emphasis ")
+                                        (when disabled? "rc-icon-disabled ")
+                                        class)
+                             :style    (merge
+                                        {:cursor (when-not disabled? "pointer")}
+                                        style)
+                             :on-click (handler-fn
+                                        (when (and on-click (not disabled?))
+                                          (on-click event)))}
+                            (when tooltip
+                              {:on-mouse-over (handler-fn (reset! showing? true))
+                               :on-mouse-out  (handler-fn (reset! showing? false))})
+                            attr)
+                           [:i
                             (merge
-                              {:class    (str
-                                           "noselect rc-md-icon-button "
-                                           (case size
-                                             :smaller "rc-icon-smaller "
-                                             :larger "rc-icon-larger "
-                                             " ")
-                                           (when emphasise? "rc-icon-emphasis ")
-                                           (when disabled? "rc-icon-disabled ")
-                                           class)
-                               :style    (merge
-                                           {:cursor (when-not disabled? "pointer")}
-                                           style)
-                               :on-click (handler-fn
-                                           (when (and on-click (not disabled?))
-                                             (on-click event)))}
-                              (when tooltip
-                                {:on-mouse-over (handler-fn (reset! showing? true))
-                                 :on-mouse-out  (handler-fn (reset! showing? false))})
-                              attr)
-                            [:i
-                             (merge
-                               {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-md-icon-button-icon " (get-in parts [:icon :class]))
-                                :style (get-in parts [:icon :style] {})}
-                               (get-in parts [:icon :attr]))]]]
-            [box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :align    :start
-             :class    (str "display-inline-flex rc-md-icon-button-wrapper " (get-in parts [:wrapper :class]))
-             :style    (get-in parts [:wrapper :style])
-             :attr     (get-in parts [:wrapper :attr])
-             :child    (if tooltip
-                         [popover-tooltip
-                          :src      (at)
-                          :label    tooltip
-                          :position (or tooltip-position :below-center)
-                          :showing? showing?
-                          :anchor   the-button
-                          :class    (str "rc-md-icon-button-tooltip " (get-in parts [:tooltip :class]))
-                          :style    (get-in parts [:tooltip :style])
-                          :attr     (get-in parts [:tooltip :attr])]
-                         the-button)]))))))
-
+                             {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-md-icon-button-icon " (get-in parts [:icon :class]))
+                              :style (get-in parts [:icon :style] {})}
+                             (get-in parts [:icon :attr]))]]]
+           [box
+            :src      src
+            :debug-as (or debug-as (reflect-current-component))
+            :align    :start
+            :class    (str "display-inline-flex rc-md-icon-button-wrapper " (get-in parts [:wrapper :class]))
+            :style    (get-in parts [:wrapper :style])
+            :attr     (get-in parts [:wrapper :attr])
+            :child    (if tooltip
+                        [popover-tooltip
+                         :src      (at)
+                         :label    tooltip
+                         :position (or tooltip-position :below-center)
+                         :showing? showing?
+                         :anchor   the-button
+                         :class    (str "rc-md-icon-button-tooltip " (get-in parts [:tooltip :class]))
+                         :style    (get-in parts [:tooltip :style])
+                         :attr     (get-in parts [:tooltip :attr])]
+                        the-button)]))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: info-button
@@ -304,42 +301,41 @@
     (fn info-button-render
       [& {:keys [info position width disabled? class style attr parts src debug-as] :as args}]
       (or
-        (validate-args-macro info-button-args-desc args)
-        [popover-tooltip
-         :src       src
-         :debug-as  (or debug-as (reflect-current-component))
-         :label     info
-         :status    :info
-         :position  (or position :right-below)
-         :width     (or width "250px")
-         :showing?  showing?
-         :on-cancel #(swap! showing? not)
-         :class     (str "rc-info-button-popover-anchor-wrapper " (get-in parts [:tooltip :class]))
-         :style     (get-in parts [:tooltip :style])
-         :attr      (get-in parts [:tooltip :attr])
-         :anchor    [:div
+       (validate-args-macro info-button-args-desc args)
+       [popover-tooltip
+        :src       src
+        :debug-as  (or debug-as (reflect-current-component))
+        :label     info
+        :status    :info
+        :position  (or position :right-below)
+        :width     (or width "250px")
+        :showing?  showing?
+        :on-cancel #(swap! showing? not)
+        :class     (str "rc-info-button-popover-anchor-wrapper " (get-in parts [:tooltip :class]))
+        :style     (get-in parts [:tooltip :style])
+        :attr      (get-in parts [:tooltip :attr])
+        :anchor    [:div
+                    (merge
+                     {:class    (str "noselect rc-info-button "
+                                     (when disabled? "rc-icon-disabled ")
+                                     class)
+                      :style    (merge
+                                 {:cursor (when-not disabled? "pointer")}
+                                 style)
+                      :on-click (handler-fn
+                                 (when (not disabled?)
+                                   (swap! showing? not)))}
+                     attr)
+                    [:svg
                      (merge
-                       {:class    (str "noselect rc-info-button "
-                                       (when disabled? "rc-icon-disabled ")
-                                       class)
-                        :style    (merge
-                                    {:cursor (when-not disabled? "pointer")}
-                                    style)
-                        :on-click (handler-fn
-                                    (when (not disabled?)
-                                      (swap! showing? not)))}
-                       attr)
-                     [:svg
-                      (merge
-                        {:width  "11"
-                         :height "11"
-                         :class  (str "rc-info-button-icon " (get-in parts [:icon :class]))
-                         :style  (get-in parts [:icon :style] {})}
-                        (get-in parts [:icon :attr]))
-                      [:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
-                      [:circle {:cx "5.5" :cy "2.5" :r "1.4" :fill "white"}]
-                      [:line   {:x1 "5.5" :y1 "5.2" :x2 "5.5" :y2 "9.7" :stroke "white" :stroke-width "2.5"}]]]]))))
-
+                      {:width  "11"
+                       :height "11"
+                       :class  (str "rc-info-button-icon " (get-in parts [:icon :class]))
+                       :style  (get-in parts [:icon :style] {})}
+                      (get-in parts [:icon :attr]))
+                     [:circle {:cx "5.5" :cy "5.5" :r "5.5"}]
+                     [:circle {:cx "5.5" :cy "2.5" :r "1.4" :fill "white"}]
+                     [:line   {:x1 "5.5" :y1 "5.2" :x2 "5.5" :y2 "9.7" :stroke "white" :stroke-width "2.5"}]]]]))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: row-button
@@ -380,48 +376,47 @@
           :or   {md-icon-name "zmdi-plus"}
           :as   args}]
       (or
-        (validate-args-macro row-button-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [the-button [:div
+       (validate-args-macro row-button-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [the-button [:div
+                           (merge
+                            {:class    (str
+                                        "noselect rc-row-button "
+                                        (when mouse-over-row? "rc-row-mouse-over-row ")
+                                        (when disabled? "rc-row-disabled ")
+                                        class)
+                             :style    style
+                             :on-click (handler-fn
+                                        (when (and on-click (not disabled?))
+                                          (on-click event)))}
+                            (when tooltip
+                              {:on-mouse-over (handler-fn (reset! showing? true))
+                               :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
+                            attr)
+                           [:i
                             (merge
-                              {:class    (str
-                                           "noselect rc-row-button "
-                                           (when mouse-over-row? "rc-row-mouse-over-row ")
-                                           (when disabled? "rc-row-disabled ")
-                                           class)
-                               :style    style
-                               :on-click (handler-fn
-                                           (when (and on-click (not disabled?))
-                                             (on-click event)))}
-                              (when tooltip
-                                {:on-mouse-over (handler-fn (reset! showing? true))
-                                 :on-mouse-out  (handler-fn (reset! showing? false))}) ;; Need to return true to ALLOW default events to be performed
-                              attr)
-                            [:i
-                             (merge
-                               {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-row-button-icon " (get-in parts [:icon :class]))
-                                :style (get-in parts [:icon :style] {})}
-                               (get-in parts [:icon :attr]))]]]
-            [box
-             :src      src
-             :debug-as (reflect-current-component)
-             :align    :start
-             :class    (str "display-inline-flex rc-row-button-wrapper " (get-in parts [:wrapper :class]))
-             :style    (get-in parts [:wrapper :style] {})
-             :attr     (get-in parts [:wrapper :attr] {})
-             :child    (if tooltip
-                         [popover-tooltip
-                          :src      (at)
-                          :label    tooltip
-                          :position (or tooltip-position :below-center)
-                          :showing? showing?
-                          :anchor   the-button
-                          :class    (str "rc-row-button-tooltip " (get-in parts [:tooltip :class]))
-                          :style    (get-in parts [:tooltip :style])
-                          :attr     (get-in parts [:tooltip :attr])]
-                         the-button)]))))))
-
+                             {:class (str "zmdi zmdi-hc-fw-rc " md-icon-name " rc-row-button-icon " (get-in parts [:icon :class]))
+                              :style (get-in parts [:icon :style] {})}
+                             (get-in parts [:icon :attr]))]]]
+           [box
+            :src      src
+            :debug-as (reflect-current-component)
+            :align    :start
+            :class    (str "display-inline-flex rc-row-button-wrapper " (get-in parts [:wrapper :class]))
+            :style    (get-in parts [:wrapper :style] {})
+            :attr     (get-in parts [:wrapper :attr] {})
+            :child    (if tooltip
+                        [popover-tooltip
+                         :src      (at)
+                         :label    tooltip
+                         :position (or tooltip-position :below-center)
+                         :showing? showing?
+                         :anchor   the-button
+                         :class    (str "rc-row-button-tooltip " (get-in parts [:tooltip :class]))
+                         :style    (get-in parts [:tooltip :style])
+                         :attr     (get-in parts [:tooltip :attr])]
+                        the-button)]))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: hyperlink
@@ -461,51 +456,50 @@
     (fn hyperlink-render
       [& {:keys [label on-click tooltip tooltip-position disabled? class style attr parts src debug-as] :as args}]
       (or
-        (validate-args-macro hyperlink-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [label      (deref-or-value label)
-                disabled?  (deref-or-value disabled?)
-                the-button [box
-                            :src   (at)
-                            :align :start
-                            :class (str "rc-hyperlink-container " (get-in parts [:container :class]))
-                            :child [:a
-                                    (merge
-                                      {:class    (str "noselect rc-hyperlink " class)
-                                       :style    (merge
-                                                   (flex-child-style "none")
-                                                   {:cursor (if disabled? "default" "pointer")
-                                                    :pointer-events (when disabled? "none")
-                                                    :color  (when disabled? "grey")}
-                                                   style)
-                                       :on-click (handler-fn
-                                                   (when (and on-click (not disabled?))
-                                                     (on-click event)))}
-                                      (when tooltip
-                                        {:on-mouse-over (handler-fn (reset! showing? true))
-                                         :on-mouse-out  (handler-fn (reset! showing? false))})
-                                      attr)
-                                    label]]]
-            [box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :align    :start
-             :class    (str "display-inline-flex rc-hyperlink-wrapper " (get-in parts [:wrapper :class]))
-             :style    (get-in parts [:wrapper :style])
-             :attr     (get-in parts [:wrapper :attr])
-             :child    (if tooltip
-                         [popover-tooltip
-                          :src      (at)
-                          :label    tooltip
-                          :position (or tooltip-position :below-center)
-                          :showing? showing?
-                          :anchor   the-button
-                          :class    (str "rc-hyperlink-tooltip " (get-in parts [:tooltip :class]))
-                          :style    (get-in parts [:tooltip :style])
-                          :attr     (get-in parts [:tooltip :attr])]
-                         the-button)]))))))
-
+       (validate-args-macro hyperlink-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [label      (deref-or-value label)
+               disabled?  (deref-or-value disabled?)
+               the-button [box
+                           :src   (at)
+                           :align :start
+                           :class (str "rc-hyperlink-container " (get-in parts [:container :class]))
+                           :child [:a
+                                   (merge
+                                    {:class    (str "noselect rc-hyperlink " class)
+                                     :style    (merge
+                                                (flex-child-style "none")
+                                                {:cursor (if disabled? "default" "pointer")
+                                                 :pointer-events (when disabled? "none")
+                                                 :color  (when disabled? "grey")}
+                                                style)
+                                     :on-click (handler-fn
+                                                (when (and on-click (not disabled?))
+                                                  (on-click event)))}
+                                    (when tooltip
+                                      {:on-mouse-over (handler-fn (reset! showing? true))
+                                       :on-mouse-out  (handler-fn (reset! showing? false))})
+                                    attr)
+                                   label]]]
+           [box
+            :src      src
+            :debug-as (or debug-as (reflect-current-component))
+            :align    :start
+            :class    (str "display-inline-flex rc-hyperlink-wrapper " (get-in parts [:wrapper :class]))
+            :style    (get-in parts [:wrapper :style])
+            :attr     (get-in parts [:wrapper :attr])
+            :child    (if tooltip
+                        [popover-tooltip
+                         :src      (at)
+                         :label    tooltip
+                         :position (or tooltip-position :below-center)
+                         :showing? showing?
+                         :anchor   the-button
+                         :class    (str "rc-hyperlink-tooltip " (get-in parts [:tooltip :class]))
+                         :style    (get-in parts [:tooltip :style])
+                         :attr     (get-in parts [:tooltip :attr])]
+                        the-button)]))))))
 
 ;;--------------------------------------------------------------------------------------------------
 ;; Component: hyperlink-href
@@ -545,49 +539,49 @@
     (fn hyperlink-href-render
       [& {:keys [label href target tooltip tooltip-position disabled? class style attr parts src debug-as] :as args}]
       (or
-        (validate-args-macro hyperlink-href-args-desc args)
-        (do
-          (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
-          (let [label      (deref-or-value label)
-                href       (deref-or-value href)
-                target     (deref-or-value target)
-                disabled?  (deref-or-value disabled?)
-                the-button [:a
-                            (merge {:class  (str "rc-hyperlink-href noselect " class)
-                                    :style  (merge (flex-child-style "none")
-                                                   {:cursor (if disabled? "default" "pointer")
-                                                    :pointer-events (when disabled? "none")
-                                                    :color  (when disabled? "grey")}
-                                                   style)
-                                    :target target}
+       (validate-args-macro hyperlink-href-args-desc args)
+       (do
+         (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+         (let [label      (deref-or-value label)
+               href       (deref-or-value href)
+               target     (deref-or-value target)
+               disabled?  (deref-or-value disabled?)
+               the-button [:a
+                           (merge {:class  (str "rc-hyperlink-href noselect " class)
+                                   :style  (merge (flex-child-style "none")
+                                                  {:cursor (if disabled? "default" "pointer")
+                                                   :pointer-events (when disabled? "none")
+                                                   :color  (when disabled? "grey")}
+                                                  style)
+                                   :target target}
                                    ;; As of HTML5 the href attribute on a elements is not required; when those elements do
                                    ;; not have href attributes they do not create hyperlinks. These are also known as a
                                    ;; 'placeholder link'. A placeholder link resembles a traditional hyperlink, but does not
                                    ;; lead anywhere; i.e. it is disabled.
                                    ;; Ref: https://www.w3.org/TR/html5/links.html#attr-hyperlink-href
-                                   (when (not disabled?)
-                                     {:href   href})
-                                   (when tooltip
-                                     {:on-mouse-over (handler-fn (reset! showing? true))
-                                      :on-mouse-out  (handler-fn (reset! showing? false))})
-                                   attr)
-                            label]]
+                                  (when (not disabled?)
+                                    {:href   href})
+                                  (when tooltip
+                                    {:on-mouse-over (handler-fn (reset! showing? true))
+                                     :on-mouse-out  (handler-fn (reset! showing? false))})
+                                  attr)
+                           label]]
 
-            [box
-             :src      src
-             :debug-as (or debug-as (reflect-current-component))
-             :align    :start
-             :class    (str "rc-hyperlink-href-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
-             :style    (get-in parts [:wrapper :style] {})
-             :attr     (get-in parts [:wrapper :attr] {})
-             :child    (if tooltip
-                         [popover-tooltip
-                          :src      (at)
-                          :label    tooltip
-                          :position (or tooltip-position :below-center)
-                          :showing? showing?
-                          :anchor   the-button
-                          :class    (str "rc-hyperlink-href-tooltip " (get-in parts [:tooltip :class]))
-                          :style    (get-in parts [:tooltip :style] {})
-                          :attr     (get-in parts [:tooltip :attr] {})]
-                         the-button)]))))))
+           [box
+            :src      src
+            :debug-as (or debug-as (reflect-current-component))
+            :align    :start
+            :class    (str "rc-hyperlink-href-wrapper display-inline-flex " (get-in parts [:wrapper :class]))
+            :style    (get-in parts [:wrapper :style] {})
+            :attr     (get-in parts [:wrapper :attr] {})
+            :child    (if tooltip
+                        [popover-tooltip
+                         :src      (at)
+                         :label    tooltip
+                         :position (or tooltip-position :below-center)
+                         :showing? showing?
+                         :anchor   the-button
+                         :class    (str "rc-hyperlink-href-tooltip " (get-in parts [:tooltip :class]))
+                         :style    (get-in parts [:tooltip :style] {})
+                         :attr     (get-in parts [:tooltip :attr] {})]
+                        the-button)]))))))

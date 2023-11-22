@@ -1,14 +1,13 @@
 (ns re-demo.dropdowns
   (:require-macros
-    [re-com.core     :refer []])
+   [re-com.core     :refer []])
   (:require
-    [re-com.core     :refer [at h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
-    [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
-    [re-com.util     :refer [item-for-id]]
-    [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
-    [re-com.util     :refer [px]]
-    [reagent.core    :as    reagent]))
-
+   [re-com.core     :refer [at h-box v-box box gap single-dropdown input-text checkbox label title hyperlink-href p p-span line]]
+   [re-com.dropdown :refer [filter-choices-by-keyword single-dropdown-parts-desc single-dropdown-args-desc]]
+   [re-com.util     :refer [item-for-id]]
+   [re-demo.utils   :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
+   [re-com.util     :refer [px]]
+   [reagent.core    :as    reagent]))
 
 (def demos [{:id 1  :label "Simple dropdown"}
             {:id 2  :label "Dropdown with grouping"}
@@ -22,13 +21,11 @@
             {:id 10 :label "Drop above"}
             {:id 11 :label "Free text"}])
 
-
 (def countries [{:id "au" :label "Australia"}
                 {:id "us" :label "United States"}
                 {:id "uk" :label "United Kingdom"}
                 {:id "ca" :label "Canada"}
                 {:id "nz" :label "New Zealand"}])
-
 
 (def cities [{:id "01" :label "Sydney"       :country-id "au"}
              {:id "02" :label "Melbourne"    :country-id "au"}
@@ -58,8 +55,6 @@
              {:id "26" :label "Christchurch" :country-id "nz"}
              {:id "27" :label "Hamilton"     :country-id "nz"}
              {:id "28" :label "Dunedin"      :country-id "nz"}])
-
-
 
 (def grouped-countries [{:id "AU" :label "Australia"                :group "EN Speakers"}
                         {:id "US" :label "United States"            :group "EN Speakers"}
@@ -102,7 +97,6 @@
                         {:id "36" :label "Burkina Faso"             :group "'B' COUNTRIES"}
                         {:id "37" :label "Burundi"                  :group "'B' COUNTRIES"}])
 
-
 (def grouped-countries-2 [{:code "AU" :country "Australia"     :region "EN Speakers"}
                           {:code "US" :country "United States" :region "EN Speakers"}
                           {:code "E1" :country "Iraq"          :region "Updated Axis Of Evil"}
@@ -118,7 +112,6 @@
    :gap "10px"
    :children [[p "The dropdown above is the simple case."]
               [p "It presents a list of choices and allows one to be selected, via mouse or keyboard."]]])
-
 
 (defn grouping-demo
   []
@@ -151,8 +144,6 @@
                   [p "Because :model is initially nil, the " [:code ":placeholder"] " text is initially displayed."]
                   [p [:code ":max-width"] " is set here to make the dropdown taller."]]])))
 
-
-
 (defn filtering-demo
   []
   (let [selected-country-id (reagent/atom "US")]
@@ -181,8 +172,6 @@
                   [p "The filter text is searched for in both the :group and the :label values. If the text matches the " [:code ":group"] ", then all
                       choices under that group are considered to be 'matched'."]
                   [p "The initial model value has been set to 'US'."]]])))
-
-
 
 (defn id-fn-demo
   []
@@ -218,7 +207,6 @@
                                (if (nil? @selected-country-id)
                                  "None"
                                  (str (label-fn (item-for-id @selected-country-id grouped-countries-2 :id-fn id-fn)) " [" @selected-country-id "]"))]]]]])))
-
 
 (defn keyboard-demo
   []
@@ -311,7 +299,6 @@
                                :width         "200px"
                                :filter-box?   true
                                :on-change     #(reset! selected-country-id-3 %)]]]]])))
-
 
 (defn other-params-demo
   []
@@ -560,8 +547,6 @@
                                :src  (at)
                                :size "10px"]]]]])))
 
-
-
 (defn two-dependent-demo
   []
   (let [selected-country-id (reagent/atom nil)
@@ -582,9 +567,9 @@
                                :model     selected-country-id
                                :width     "300px"
                                :on-change #(do
-                                            (reset! selected-country-id %)
-                                            (reset! filtered-cities (vec (filter-choices-by-keyword cities :country-id @selected-country-id)))
-                                            (reset! selected-city-id nil))]
+                                             (reset! selected-country-id %)
+                                             (reset! filtered-cities (vec (filter-choices-by-keyword cities :country-id @selected-country-id)))
+                                             (reset! selected-city-id nil))]
                               [:div
                                [:strong "Selected country: "]
                                (if (nil? @selected-country-id)
@@ -624,7 +609,7 @@
                                :src         (at)
                                :choices     countries
                                :render-fn   (fn [choice] [:div [:span (:label choice)]
-                                                               [:span {:style {:float "right"}} "\u2691"]])
+                                                          [:span {:style {:float "right"}} "\u2691"]])
                                :model       selected-country-id
                                :placeholder "Choose a country"
                                :width       "300px"
@@ -663,9 +648,9 @@
                    :src         (at)
                    :choices     (fn [{:keys [filter-text]} done fail]
                                   (js/setTimeout
-                                    (fn []
-                                      (done (filter-countries filter-text)))
-                                    1000))
+                                   (fn []
+                                     (done (filter-countries filter-text)))
+                                   1000))
                    :placeholder "Choose country"
                    :model       selected-country-id
                    :filter-box? true
@@ -680,9 +665,9 @@
                     :src         (at)
                     :choices     (fn [{:keys [filter-text]} done fail]
                                    (js/setTimeout
-                                     (fn []
-                                       (done (filter-citites @selected-country-id filter-text)))
-                                     1000))
+                                    (fn []
+                                      (done (filter-citites @selected-country-id filter-text)))
+                                    1000))
                     :placeholder "Choose city"
                     :model       selected-city-id
                     :filter-box? true
@@ -696,10 +681,10 @@
                    :src         (at)
                    :choices     (fn [{:keys [filter-text]} done fail]
                                   (js/setTimeout
-                                    #(if (= "please" filter-text)
-                                       (done countries)
-                                       (fail "Server error"))
-                                    1000))
+                                   #(if (= "please" filter-text)
+                                      (done countries)
+                                      (fail "Server error"))
+                                   1000))
                    :placeholder "Type 'please' to get results"
                    :model       @selected-country-id2
                    :filter-box? true
@@ -734,7 +719,6 @@
                                  (str (:label (item-for-id @selected-city-id cities)) " [" @selected-city-id "]"))]]]
                   [p "When the " [:code ":can-drop-above?"] " attribute is set the dropdown part will be displayed above the top part if the space below it is too small."]
                   [p "If items have non-standard height, the " [:code ":est-item-height"] "can be set to help guess where to display the dropdown part. This guess will be verified on the actual render so it is non-essential but can help eliminate an unnecessary redraw."]]])))
-
 
 (defn free-text-demo
   []
@@ -820,8 +804,8 @@
                    :gap      "10px"
                    :align    :center
                    :children [(conj (f selected-city2)
-                                :filter-box? true
-                                :set-to-filter #{:on-enter-press :on-no-results-match-click})
+                                    :filter-box? true
+                                    :set-to-filter #{:on-enter-press :on-no-results-match-click})
                               [:div
                                [:strong "City: "]
                                (if (seq @selected-city2)
@@ -838,8 +822,8 @@
      :size     "auto"
      :gap      "10px"
      :children [[panel-title "[single-dropdown ... ]"
-                              "src/re_com/dropdown.cljs"
-                              "src/re_demo/dropdowns.cljs"]
+                 "src/re_com/dropdown.cljs"
+                 "src/re_demo/dropdowns.cljs"]
                 [h-box
                  :src      (at)
                  :gap      "100px"
@@ -850,17 +834,17 @@
                              :children [[title2 "Notes"]
                                         [status-text "Stable"]
                                         [p-span
-                                          "A dropdown selection component, similar to "
-                                          [hyperlink-href :src (at)
-                                           :label  "Chosen"
-                                           :href   "http://harvesthq.github.io/chosen"
-                                           :target "_blank"]
-                                          ", styled using "
-                                          [hyperlink-href :src (at)
-                                           :label  "Bootstrap"
-                                           :href   "https://github.com/alxlit/bootstrap-chosen"
-                                           :target "_blank"]
-                                          "."]
+                                         "A dropdown selection component, similar to "
+                                         [hyperlink-href :src (at)
+                                          :label  "Chosen"
+                                          :href   "http://harvesthq.github.io/chosen"
+                                          :target "_blank"]
+                                         ", styled using "
+                                         [hyperlink-href :src (at)
+                                          :label  "Bootstrap"
+                                          :href   "https://github.com/alxlit/bootstrap-chosen"
+                                          :target "_blank"]
+                                         "."]
                                         [p "Note: Single selection only."]
                                         [args-table single-dropdown-args-desc]]]
                             [v-box
@@ -898,7 +882,6 @@
                                            10 [drop-above-demo]
                                            11 [free-text-demo])]]]]
                 [parts-table "single-dropdown" single-dropdown-parts-desc]]]))
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel

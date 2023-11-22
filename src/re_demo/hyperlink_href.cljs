@@ -1,12 +1,12 @@
 (ns re-demo.hyperlink-href
   (:require-macros
-    [re-com.core    :refer []])
+   [re-com.core    :refer []])
   (:require
-    [re-com.core    :refer [at h-box v-box box gap line label title radio-button hyperlink-href p checkbox]]
-    [re-com.buttons :refer [hyperlink-href-parts-desc hyperlink-href-args-desc]]
-    [re-demo.utils  :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
-    [re-com.util    :refer [px]]
-    [reagent.core   :as    reagent]))
+   [re-com.core    :refer [at h-box v-box box gap line label title radio-button hyperlink-href p checkbox]]
+   [re-com.buttons :refer [hyperlink-href-parts-desc hyperlink-href-args-desc]]
+   [re-demo.utils  :refer [panel-title title2 title3 parts-table args-table github-hyperlink status-text]]
+   [re-com.util    :refer [px]]
+   [reagent.core   :as    reagent]))
 
 (defn hyperlink-href-demo
   []
@@ -20,8 +20,8 @@
        :size     "auto"
        :gap      "10px"
        :children [[panel-title "[hyperlink-href ... ]"
-                                "src/re_com/buttons.cljs"
-                                "src/re_demo/hyperlink_href.cljs"]
+                   "src/re_com/buttons.cljs"
+                   "src/re_demo/hyperlink_href.cljs"]
 
                   [h-box
                    :src      (at)
@@ -83,7 +83,6 @@
                                                                      :on-change (fn [val]
                                                                                   (reset! disabled? val))]]])]]]]]]
                   [parts-table "hyperlink-href" hyperlink-href-parts-desc]]])))
-
 
 ;; core holds a reference to panel, so need one level of indirection to get figwheel updates
 (defn panel
