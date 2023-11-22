@@ -16,3 +16,4 @@ misc/
 /shadow-cljs.edn
 /.clj-kondo/
 /.lsp/
+.*
