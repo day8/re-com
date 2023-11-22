@@ -72,7 +72,7 @@
              {:class    (str "rc-tab-anchor " (get-in parts [:anchor :class]))
               :style    (merge {:cursor "pointer"}
                                style)
-              :on-click (when on-change (handler-fn (on-change id)))}
+              :on-click (when (and on-change (not selected?)) (handler-fn (on-change id)))}
              (get-in parts [:anchor :attr]))
             label]]))])))
 
@@ -128,7 +128,8 @@
                                     :key      (str id)
                                     :class    (str "btn btn-default " (if selected? "active ") "rc-tabs-btn " (get-in parts [:button :class]))
                                     :style    style
-                                    :on-click (when on-change (handler-fn (on-change id)))}
+                                    :on-click (when (and on-change (not selected?))
+                                                (handler-fn (on-change id)))}
                                    (when tooltip
                                      {:on-mouse-over (handler-fn (reset! showing id))
                                       :on-mouse-out  (handler-fn (swap! showing #(when-not (= id %) %)))})
@@ -242,7 +243,7 @@
             {:class     (str "rc-tabs-anchor " (get-in parts [:anchor :class]))
              :style     (merge {:cursor "pointer"}
                                style)
-             :on-click  (when on-change (handler-fn (on-change id)))}
+             :on-click  (when (and on-change (not selected?)) (handler-fn (on-change id)))}
             (get-in parts [:anchor :attr]))
            label]]))]))
 

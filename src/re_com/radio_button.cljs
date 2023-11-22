@@ -51,8 +51,9 @@
    (let [cursor      "default"
          model       (deref-or-value model)
          disabled?   (deref-or-value disabled?)
-         callback-fn #(when (and on-change (not disabled?))
-                        (on-change value))]  ;; call on-change with the :value arg
+         checked?    (= model value)
+         callback-fn #(when (and on-change (not disabled?) (not checked?))
+                        (on-change value))]
      [h-box
       :src      src
       :debug-as (or debug-as (reflect-current-component))
@@ -69,7 +70,7 @@
                                 style)
                     :type      "radio"
                     :disabled  disabled?
-                    :checked   (= model value)
+                    :checked   checked?
                     :on-change (handler-fn (callback-fn))}
                    attr)]
                  (when label
