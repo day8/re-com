@@ -12,6 +12,7 @@
 - Add parts to tag-dropdown for internal selection-list
 - Add simple-v-table striped? argument
 - Expose tag-dropdown/text-tag via re-com.core/text-tag
+- :disabled? prop for tabs & tab pickers (#331)
 
 #### Fixed
 
