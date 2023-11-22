@@ -13,6 +13,10 @@
 - Add simple-v-table striped? argument
 - Expose tag-dropdown/text-tag via re-com.core/text-tag
 
+#### Fixed
+
+- Selected tabs & radio buttons no longer trigger their on-change handler (#333)
+
 ## 2.13.2 (2021-02-24)
 
 #### Fixed
