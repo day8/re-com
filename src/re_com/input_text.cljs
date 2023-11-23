@@ -160,7 +160,7 @@
                                             true)))}
                          attr)]]
                       (when (and status-icon? status)
-                        (let [icon-class (case status :success "zmdi-check-circle" :warning "zmdi-alert-triangle" :error "zmdi-alert-circle zmdi-spinner" :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner")]
+                        (let [icon-class (case status :success "zmdi-check-circle" :warning "zmdi-alert-triangle" :error "zmdi-alert-circle" :validating "zmdi-hc-spin zmdi-rotate-right zmdi-spinner")]
                           (if status-tooltip
                             [popover-tooltip
                              :src      (at)
