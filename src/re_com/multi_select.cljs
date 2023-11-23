@@ -38,11 +38,11 @@
 (defn filter-items
   "Filter a list of items based on a filter string using plain string searches (case insensitive). Less powerful
    than regex's but no confusion with reserved characters"
-  [group-fn label-fn filter-text]
+  [group-fn filter-fn filter-text]
   (let [lower-filter-text (string/lower-case filter-text)]
     (fn [item]
       (let [group (or (group-fn item) "")
-            label (str (label-fn item))] ;; Need str for non-string labels like hiccup
+            label (str (filter-fn item))] ;; Need str for non-string labels like hiccup
         (or
          (string/includes? (string/lower-case group) lower-filter-text)
          (string/includes? (string/lower-case label) lower-filter-text))))))
@@ -50,13 +50,13 @@
 (defn filter-items-regex
   "Filter a list of items based on a filter string using regex's (case insensitive). More powerful but can cause
    confusion for users entering reserved characters such as [ ] * + . ( ) etc."
-  [group-fn label-fn filter-text]
+  [group-fn filter-fn filter-text]
   (let [re (try
              (js/RegExp. filter-text "i")
              (catch js/Object e nil))]
     (partial (fn [re item]
                (when-not (nil? re)
-                 (or (.test re (group-fn item)) (.test re (label-fn item)))))
+                 (or (.test re (group-fn item)) (.test re (filter-fn item)))))
              re)))
 
 (defn filter-text-box
@@ -232,6 +232,7 @@
     [{:name :choices            :required true                      :type "vector of maps | r/atom"  :validate-fn validate/vector-of-maps?    :description [:span "Each map represents a choice. Values corresponding to id, label and, optionally, a group, are extracted by the functions " [:code ":id-fn"] ", " [:code ":label-fn"] " & " [:code ":group-fn"]  ". See below."]}
      {:name :id-fn              :required false :default :id        :type "map -> anything"          :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the unique identifier for that map. Called for each element in " [:code ":choices"]]}
      {:name :label-fn           :required false :default :label     :type "map -> string | hiccup"   :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the displayable label for that map. Called for each element in " [:code ":choices"]]}
+     {:name :filter-fn          :required false :default "str∘label-fn" :type "map -> string"      :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the string to filter by. Called for each element in " [:code ":choices"] ". (Note: items are also filtered by group-fn)"]}
      {:name :group-fn           :required false :default :group     :type "map -> string | hiccup"   :validate-fn ifn?                        :description [:span "a function taking one argument (a map) and returns the group identifier for that map. Called for each element in " [:code ":choices"]]}
      {:name :sort-fn            :required false :default "compare"  :type "map, map -> integer"      :validate-fn ifn?                        :description [:span "The comparator function used with " [:code "cljs.core/sort-by"] " to sort choices."]}
      {:name :model              :required true                      :type "a set of ids | r/atom"                                             :description [:span "a set of the ids for currently selected choices. If nil, see " [:code ":placeholder"] "."]}
@@ -288,7 +289,7 @@
                                              :font-size    11}]
      (fn multi-select-render
        [& {:keys [choices model required? max-selected-items left-label right-label on-change disabled? filter-box? regex-filter?
-                  placeholder width height max-height tab-index id-fn label-fn group-fn sort-fn class style attr parts src]
+                  placeholder width height max-height tab-index id-fn label-fn group-fn sort-fn filter-fn class style attr parts src]
            :or   {id-fn     :id
                   label-fn  :label
                   group-fn  :group
@@ -312,9 +313,10 @@
                                        (reset! *internal-model @*latest-ext-model))
               changeable?            (and on-change (not disabled?))
               excludable?            (and @*current-selection-id (> (count @*internal-model) (if required? 1 0)))
+              filter-fn              (or filter-fn (comp str label-fn))
               choices-filter-fn      (if regex-filter?
-                                       (filter-items-regex group-fn label-fn @*filter-choices-text)
-                                       (filter-items group-fn label-fn @*filter-choices-text))
+                                       (filter-items-regex group-fn filter-fn @*filter-choices-text)
+                                       (filter-items group-fn filter-fn @*filter-choices-text))
               filtered-choices       (into []
                                            (->> choices
                                                 (remove #(contains? @*internal-model (id-fn %)))
@@ -325,8 +327,8 @@
                                                 (map #(rc.util/item-for-id % choices :id-fn id-fn))
                                                 (sort-by sort-fn)))
               selections-filter-fn   (if regex-filter?
-                                       (filter-items-regex group-fn label-fn @*filter-selections-text)
-                                       (filter-items group-fn label-fn @*filter-selections-text))
+                                       (filter-items-regex group-fn filter-fn @*filter-selections-text)
+                                       (filter-items group-fn filter-fn @*filter-selections-text))
               filtered-selections    (into []
                                            (->> selections
                                                 (filter selections-filter-fn)

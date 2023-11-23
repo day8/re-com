@@ -13,6 +13,7 @@
 - Add simple-v-table striped? argument
 - Expose tag-dropdown/text-tag via re-com.core/text-tag
 - :disabled? prop for tabs & tab pickers (#331)
+- :filter-fn prop for multi-select (#304)
 
 #### Fixed
 
