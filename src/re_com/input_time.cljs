@@ -124,7 +124,7 @@
 (defn- lose-focus-if-enter
   "When Enter is pressed, force the component to lose focus"
   [ev]
-  (when (= (.-keyCode ev) 13)
+  (when (= (.-key ev) "Enter")
     (-> ev .-target .blur)
     true))
 

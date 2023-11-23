@@ -19,6 +19,7 @@
 
 - Selected tabs & radio buttons no longer trigger their on-change handler (#333)
 - Use alert-circle for input-text error state, not spinner (#325)
+- Stop using deprecated keycodes. This fixes some edge cases with keyboard layouts. (#197)
 
 ## 2.13.2 (2021-02-24)
 

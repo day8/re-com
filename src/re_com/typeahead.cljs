@@ -213,14 +213,14 @@
 
 (defn- input-text-on-key-down!
   [state-atom event]
-  (condp = (.-which event)
-    goog.events.KeyCodes.UP     (swap! state-atom activate-suggestion-prev)
-    goog.events.KeyCodes.DOWN   (swap! state-atom activate-suggestion-next)
-    goog.events.KeyCodes.ENTER  (swap! state-atom choose-suggestion-active)
-    goog.events.KeyCodes.ESC    (swap! state-atom got-suggestions [])
+  (condp = (.-key event)
+    "ArrowUp"   (swap! state-atom activate-suggestion-prev)
+    "ArrowDown" (swap! state-atom activate-suggestion-next)
+    "Enter"     (swap! state-atom choose-suggestion-active)
+    "Escape"    (swap! state-atom got-suggestions [])
     ;; tab requires special treatment
     ;; trap it IFF there are suggestions, otherwise let the input defocus
-    goog.events.KeyCodes.TAB
+    "Tab"
     (if (not-empty (:suggestions @state-atom))
       (do (swap! state-atom activate-suggestion-next)
           (.preventDefault event))

@@ -154,9 +154,9 @@
                           :on-key-up   (handler-fn
                                         (if disabled?
                                           (.preventDefault event)
-                                          (case (.-which event)
-                                            13 (on-change-handler)
-                                            27 (reset! internal-model @external-model)
+                                          (case (.-key event)
+                                            "Enter"  (on-change-handler)
+                                            "Escape" (reset! internal-model @external-model)
                                             true)))}
                          attr)]]
                       (when (and status-icon? status)

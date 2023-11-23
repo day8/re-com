@@ -210,7 +210,7 @@
                             (reset! ignore-click true)))   ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
           :on-key-down   (handler-fn
                           (key-handler event)
-                          (when (= (.-which event) 13)     ;; Pressing enter on an anchor also triggers click event, which we don't want
+                          (when (= (.-key event) "Enter")     ;; Pressing enter on an anchor also triggers click event, which we don't want
                             (reset! ignore-click true)))}  ;; TODO: Hmmm, have a look at calling preventDefault (and stopProp?) and removing the ignore-click stuff
          [:span (when title?
                   {:title text})
@@ -571,16 +571,16 @@
               press-end         #(press-home-or-end :end)
               key-handler      #(if disabled?
                                   false
-                                  (case (.-which %)
-                                    13 (press-enter)
-                                    27 (press-escape)
-                                    9  (press-tab (.-shiftKey %))
-                                    38 (press-up)
-                                    40 (press-down)
-                                    33 (press-page-up)
-                                    34 (press-page-down)
-                                    36 (press-home)
-                                    35 (press-end)
+                                  (case (.-key %)
+                                    "Enter"     (press-enter)
+                                    "Escape"    (press-escape)
+                                    "Tab"       (press-tab (.-shiftKey %))
+                                    "ArrowUp"   (press-up)
+                                    "ArrowDown" (press-down)
+                                    "PageUp"    (press-page-up)
+                                    "PageDown"  (press-page-down)
+                                    "Home"      (press-home)
+                                    "End"       (press-end)
                                     (or filter-box? free-text?)))                  ;; Use this boolean to allow/prevent the key from being processed by the text box
               dropdown         [:div
                                 (merge
