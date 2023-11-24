@@ -134,6 +134,9 @@
       :required        (js/console.log
                         (str "• %cMissing required parameter: %c" arg-name)
                         error-style code-style)
+      :ref             (js/console.log
+                        (str "• %cParameter %c" arg-name "%c expected a reactive atom but got a %c" actual)
+                        error-style code-style error-style code-style)
       :validate-fn     (js/console.log
                         (str "• %cParameter %c" arg-name "%c expected %c" (:type expected) "%c but got %c" actual)
                         error-style code-style error-style code-style error-style code-style)

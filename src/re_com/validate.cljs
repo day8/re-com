@@ -80,11 +80,14 @@
   [args-with-validators passed-args problems]
   (let [validate-arg (fn [[_ v-arg-def]]
                        (let [arg-name          (:name v-arg-def)
-                             arg-val           (deref-or-value-peek (arg-name passed-args)) ;; Automatically extract value if it's in an atom
+                             arg-val           (try (deref-or-value-peek (arg-name passed-args))
+                                                    (catch js/Error _ {::problem :ref}))
+                             ref-problem?      (some? (get arg-val ::problem))
                              validate-fn       (:validate-fn v-arg-def)
-                             validate-result   (if (= 1 (.-length ^js/Function validate-fn))
-                                                 (validate-fn arg-val) ;; Standard call, just pass the arg
-                                                 (validate-fn arg-val (satisfies? IDeref (arg-name passed-args)))) ;; Extended call, also wants to know if arg-val is an atom
+                             validate-result   (when-not ref-problem?
+                                                 (if (= 1 (.-length ^js/Function validate-fn))
+                                                   (validate-fn arg-val) ;; Standard call, just pass the arg
+                                                   (validate-fn arg-val (satisfies? IDeref (arg-name passed-args))))) ;; Extended call, also wants to know if arg-val is an atom
                              required?         (:required v-arg-def)
                              problem-base      {:arg-name arg-name}
                              warning?          (= (:status validate-result) :warning)]
@@ -93,6 +96,11 @@
                                (and (nil? arg-val)          ;; Allow nil values through if the arg is NOT required
                                     (not required?)))
                            nil
+
+                           ref-problem?
+                           (merge problem-base
+                                  {:problem :ref
+                                   :actual (left-string (pr-str (type (arg-name passed-args))) 60)})
 
                            (false? validate-result)
                            (merge problem-base
