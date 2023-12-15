@@ -26,6 +26,7 @@
    [re-com.text           :as text]
    [re-com.throbber       :as throbber]
    [re-com.tour           :as tour]
+   [re-com.tree-select    :as tree-select]
    [re-com.v-table        :as v-table]
    [re-com.simple-v-table :as simple-v-table]))
 
@@ -94,6 +95,8 @@
 
 (def selection-list             selection-list/selection-list)
 (def multi-select               multi-select/multi-select)
+(def tree-select                tree-select/tree-select)
+(def tree-select-dropdown       tree-select/tree-select-dropdown)
 (def tag-dropdown               tag-dropdown/tag-dropdown)
 (def text-tag                   tag-dropdown/text-tag)
 

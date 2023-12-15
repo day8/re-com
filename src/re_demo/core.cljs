@@ -35,6 +35,7 @@
             [re-demo.alert-box             :as    alert-box]
             [re-demo.alert-list            :as    alert-list]
             [re-demo.tabs                  :as    tabs]
+            [re-demo.tree-select           :as    tree-select]
             [re-demo.popovers              :as    popovers]
             [re-demo.datepicker            :as    datepicker]
             [re-demo.selection-list        :as    selection-list]
@@ -87,6 +88,7 @@
    {:id :lists                  :level :minor :label "Selection List"     :panel selection-list/panel}
    {:id :multi-select           :level :minor :label "Multi-select List"  :panel multi-select/panel}
    {:id :tag-dropdown           :level :minor :label "Tag Dropdown"       :panel tag-dropdown/panel}
+   {:id :tree-select            :level :minor :label "Tree-select"        :panel tree-select/panel}
    {:id :tabs                   :level :minor :label "Tabs"               :panel tabs/panel}
    {:id :typeahead              :level :minor :label "Typeahead"          :panel typeahead/panel}
 
