@@ -60,8 +60,7 @@
   :shadow-cljs {:nrepl  {:port 7777}
 
                 :builds {:demo         {:target           :browser
-                                        :modules          {:demo {:init-fn  re-demo.core/mount-demo
-                                                                  :preloads [day8.app.dev-preload]}}
+                                        :modules          {:demo {:init-fn  re-demo.core/mount-demo}}
                                         :compiler-options {:closure-defines {re-com.config/version                  "lein-git-inject/version"
                                                                              ;; For production builds of the demo app, set goog.DEBUG
                                                                              ;; to be true so that the debugging demo page works as expected.
@@ -94,8 +93,7 @@
                                                            :externs         ["externs/detect-element-resize-externs.js"]
                                                            :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}
                                         :devtools         {:http-port 8021
-                                                           :http-root "run/resources/public/compiled_test/demo"
-                                                           :preloads  [day8.app.dev-preload]}}
+                                                           :http-root "run/resources/public/compiled_test/demo"}}
                          :karma-test   {:target           :karma
                                         :ns-regexp        ".*-test$"
                                         :output-to        "target/karma/test.js"
