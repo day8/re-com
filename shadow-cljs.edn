@@ -1,4 +1,4 @@
-{:lein  true
+{:lein  {:profile "+demo"}
  :nrepl {:port 7777}
 
  :builds {:demo

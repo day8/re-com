@@ -16,7 +16,8 @@
                  [reagent                     "1.1.0"    :scope "provided"]
                  [org.clojure/core.async      "1.3.618"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]
-                 [day8/shadow-git-inject "0.0.5"]]
+                 [day8/shadow-git-inject "0.0.5"]
+                 [hashp/hashp "0.2.2"]]
 
   :plugins      [[day8/lein-git-inject    "0.0.15"]
                  [com.github.liquidz/antq "RELEASE"]
