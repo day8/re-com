@@ -4,6 +4,7 @@
    [cljs.core.async.macros :refer [go]]
    [secretary.core         :refer [defroute]])
   (:require [goog.events                   :as    events]
+            [cljs-react-devtools.core      :as    crd]
             [reagent.core                  :as    reagent]
             [reagent.dom.client            :as    rdc]
             [alandipert.storage-atom       :refer [local-storage]]
