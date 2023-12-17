@@ -1,7 +1,5 @@
 (require 'leiningen.core.eval)
 
-(def http-port 3449)
-
 ;; ---------------------------------------------------------------------------------------
 
 (defproject         re-com "lein-git-inject/version"
@@ -17,7 +15,8 @@
                  [thheller/shadow-cljs        "2.15.2"   :scope "provided"]
                  [reagent                     "1.1.0"    :scope "provided"]
                  [org.clojure/core.async      "1.3.618"]
-                 [com.andrewmcveigh/cljs-time "0.5.2"]]
+                 [com.andrewmcveigh/cljs-time "0.5.2"]
+                 [day8/shadow-git-inject "0.0.5"]]
 
   :plugins      [[day8/lein-git-inject    "0.0.15"]
                  [lein-shadow             "0.4.0"]
@@ -57,50 +56,6 @@
   ;; Exclude the demo and compiled files from the output of either 'lein jar' or 'lein install'
   :jar-exclusions   [#"(?:^|\/)re_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
 
-  :shadow-cljs {:nrepl  {:port 7777}
-
-                :builds {:demo         {:target           :browser
-                                        :modules          {:demo {:init-fn  re-demo.core/mount-demo}}
-                                        :compiler-options {:closure-defines {re-com.config/version                  "lein-git-inject/version"
-                                                                             ;; For production builds of the demo app, set goog.DEBUG
-                                                                             ;; to be true so that the debugging demo page works as expected.
-                                                                             goog.DEBUG                             true
-                                                                             re-com.config/force-include-args-desc? true}
-                                                           ;; For production builds of the demo app, keep the component name
-                                                           ;; symbols for display in validation error logging.
-                                                           :pseudo-names    true
-                                                           :externs         ["externs/detect-element-resize-externs.js"]}
-                                        :dev              {:asset-path       "/compiled_dev/demo"
-                                                           :output-dir       "run/resources/public/compiled_dev/demo"
-                                                           :compiler-options {:closure-defines {;; When re-com produces validation errors it tries to provide links
-                                                                                                ;; to source code. These links require that you provide the root URL
-                                                                                                ;; to the ClojureScript compiler output with source maps.
-                                                                                                re-com.config/root-url-for-compiler-output "http://localhost:3449/compiled_dev/demo/cljs-runtime/"}
-                                                                              :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}
-                                        :release          {:output-dir "run/resources/public/compiled_prod/demo"
-                                                           :compiler-options {:closure-defines {;; For production builds, such as the demo website, there is no source
-                                                                                                ;; code to link to in validation errors or component stacks, so we set
-                                                                                                ;; it to an empty string to cause links to not be displayed at all.
-                                                                                                re-com.config/root-url-for-compiler-output ""}}}
-                                        :devtools         {:http-port        ~http-port
-                                                           :http-root        "run/resources/public"
-                                                           :push-state/index "index_dev.html"}}
-
-                         :browser-test {:target           :browser-test
-                                        :ns-regexp        "-test$"
-                                        :test-dir         "run/resources/public/compiled_test/demo"
-                                        :compiler-options {:closure-defines {re-com.config/version "lein-git-inject/version"}
-                                                           :externs         ["externs/detect-element-resize-externs.js"]
-                                                           :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}
-                                        :devtools         {:http-port 8021
-                                                           :http-root "run/resources/public/compiled_test/demo"}}
-                         :karma-test   {:target           :karma
-                                        :ns-regexp        ".*-test$"
-                                        :output-to        "target/karma/test.js"
-                                        :compiler-options {:pretty-print true
-                                                           :closure-defines {re-com.config/version "lein-git-inject/version"}
-                                                           :externs         ["externs/detect-element-resize-externs.js"]}}}}
-
   :release-tasks [["deploy" "clojars"]]
 
   :shell {:commands {"karma" {:windows         ["cmd" "/c" "karma"]
@@ -137,5 +92,3 @@
                            ["with-profile" "+demo,-dev" "do"
                             ["clean"]
                             ["shadow" "release" "demo"]]]})
-
-

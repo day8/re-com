@@ -1,0 +1,47 @@
+{:lein {:profile "+demo"}
+ :nrepl  {:port 7777}
+
+ :builds {:demo         {:target           :browser
+                         :modules          {:demo {:init-fn  re-demo.core/mount-demo}}
+                         :build-hooks [(shadow-git-inject.core/hook)]
+                         :compiler-options {:closure-defines {re-com.config/version                  :shadow-git-inject/version
+                                                                             ;; For production builds of the demo app, set goog.DEBUG
+                                                                             ;; to be true so that the debugging demo page works as expected.
+                                                              goog.DEBUG                             true
+                                                              re-com.config/force-include-args-desc? true}
+                                                           ;; For production builds of the demo app, keep the component name
+                                                           ;; symbols for display in validation error logging.
+                                            :pseudo-names    true
+                                            :externs         ["externs/detect-element-resize-externs.js"]}
+                         :dev              {:asset-path       "/compiled_dev/demo"
+                                            :output-dir       "run/resources/public/compiled_dev/demo"
+                                            :compiler-options {:closure-defines {;; When re-com produces validation errors it tries to provide links
+                                                                                                ;; to source code. These links require that you provide the root URL
+                                                                                                ;; to the ClojureScript compiler output with source maps.
+                                                                                 re-com.config/root-url-for-compiler-output "http://localhost:3449/compiled_dev/demo/cljs-runtime/"}
+                                                               :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}
+                         :release          {:output-dir "run/resources/public/compiled_prod/demo"
+                                            :compiler-options {:closure-defines {;; For production builds, such as the demo website, there is no source
+                                                                                                ;; code to link to in validation errors or component stacks, so we set
+                                                                                                ;; it to an empty string to cause links to not be displayed at all.
+                                                                                 re-com.config/root-url-for-compiler-output ""}}}
+                         :devtools         {:http-port        3449
+                                            :http-root        "run/resources/public"
+                                            :push-state/index "index_dev.html"}}
+
+          :browser-test {:target           :browser-test
+                         :ns-regexp        "-test$"
+                         :test-dir         "run/resources/public/compiled_test/demo"
+                         :compiler-options {:closure-defines {re-com.config/version :shadow-git-inject/version}
+                                            :externs         ["externs/detect-element-resize-externs.js"]
+                                            :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}
+                         :devtools         {:http-port 8021
+                                            :http-root "run/resources/public/compiled_test/demo"}}
+          :karma-test   {:target           :karma
+                         :ns-regexp        ".*-test$"
+                         :output-to        "target/karma/test.js"
+                         :compiler-options {:pretty-print true
+                                            :closure-defines {re-com.config/version :shadow-git-inject/version}
+                                            :externs         ["externs/detect-element-resize-externs.js"]}}}}
+
+ ;;{:nrepl {:port 7777}, :builds {:demo {:target :browser, :modules {:demo {:init-fn re-demo.core/mount-demo, :preloads [day8.app.dev-preload]}}, :compiler-options {:closure-defines {re-com.config/version "2.13.2-129-e96c6a0-SNAPSHOT", goog.DEBUG true, re-com.config/force-include-args-desc? true}, :pseudo-names true, :externs ["externs/detect-element-resize-externs.js"]}, :dev {:asset-path "/compiled_dev/demo", :output-dir "run/resources/public/compiled_dev/demo", :compiler-options {:closure-defines {re-com.config/root-url-for-compiler-output "http://localhost:3449/compiled_dev/demo/cljs-runtime/"}, :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}}, :release {:output-dir "run/resources/public/compiled_prod/demo", :compiler-options {:closure-defines {re-com.config/root-url-for-compiler-output ""}}}, :devtools {:http-port 3449, :http-root "run/resources/public", :push-state/index "index_dev.html"}}, :browser-test {:target :browser-test, :ns-regexp "-test$", :test-dir "run/resources/public/compiled_test/demo", :compiler-options {:closure-defines {re-com.config/version "2.13.2-129-e96c6a0-SNAPSHOT"}, :externs ["externs/detect-element-resize-externs.js"], :external-config {:devtools/config {:features-to-install [:formatters :hints]}}}, :devtools {:http-port 8021, :http-root "run/resources/public/compiled_test/demo", :preloads [day8.app.dev-preload]}}, :karma-test {:target :karma, :ns-regexp ".*-test$", :output-to "target/karma/test.js", :compiler-options {:pretty-print true, :closure-defines {re-com.config/version "2.13.2-129-e96c6a0-SNAPSHOT"}, :externs ["externs/detect-element-resize-externs.js"]}}}, :lein true}
