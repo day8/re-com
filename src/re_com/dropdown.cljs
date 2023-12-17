@@ -584,7 +584,12 @@
                                     (or filter-box? free-text?)))                  ;; Use this boolean to allow/prevent the key from being processed by the text box
               dropdown         [:div
                                 (merge
-                                 {:class (str "rc-dropdown chosen-container " (if free-text? "chosen-container-multi " "chosen-container-single ") "noselect " (when (or @drop-showing? @free-text-focused?) "chosen-container-active ") (when @drop-showing? "chosen-with-drop ") class)          ;; Prevent user text selection
+                                 {:class (str "rc-dropdown chosen-container "
+                                              (if free-text? "chosen-container-multi " "chosen-container-single ")
+                                              "noselect "
+                                              (when (or @drop-showing? @free-text-focused?) "chosen-container-active ")
+                                              (when @drop-showing? "chosen-with-drop ")
+                                              class)          ;; Prevent user text selection
                                   :style (merge (flex-child-style (if width "0 0 auto" "auto"))
                                                 (align-style :align-self :start)
                                                 {:width width}
@@ -597,13 +602,17 @@
                                  attr)
                                 (cond
                                   just-drop? nil
-                                  free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel width free-text-change auto-complete? choices capitalize? disabled?]
-                                  :else [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler filter-box? drop-showing? title? disabled?])
+                                  free-text? [free-text-dropdown-top free-text-input select-free-text? free-text-focused? free-text-sel-range
+                                              internal-model tab-index placeholder dropdown-click key-handler filter-box? drop-showing? cancel
+                                              width free-text-change auto-complete? choices capitalize? disabled?]
+                                  :else [dropdown-top internal-model choices id-fn label-fn tab-index placeholder dropdown-click key-handler
+                                         filter-box? drop-showing? title? disabled?])
                                 (when (and @drop-showing? (not disabled?))
                                   [:div
                                    (merge
                                     {:class (str "chosen-drop rc-dropdown-chosen-drop " (get-in parts [:chosen-drop :class]))
-                                     :style (merge (when @drop-above? {:transform (gstring/format "translate3d(0px, -%ipx, 0px)" (+ top-height @drop-height -2))})
+                                     :style (merge (when @drop-above? {:transform (gstring/format "translate3d(0px, -%ipx, 0px)"
+                                                                                                  (+ top-height @drop-height -2))})
                                                    (get-in parts [:chosen-drop :style]))}
                                     (get-in parts [:chosen-drop :attr]))
                                    (when (and (or filter-box? (not free-text?))
