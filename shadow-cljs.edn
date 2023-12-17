@@ -1,4 +1,4 @@
-{:lein {:profile "+demo"}
+{:deps true
  :nrepl  {:port 7777}
 
  :builds {:demo         {:target           :browser
