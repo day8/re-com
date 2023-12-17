@@ -3,6 +3,7 @@
             [clojure.string       :as string]
             [reagent.core         :as reagent]
             [re-com.core          :refer [at h-box box checkbox gap v-box tree-select tag-dropdown hyperlink-href p label line]]
+            [re-com.radio-button  :refer [radio-button]]
             [re-com.slider        :refer [slider]]
             [re-com.tree-select   :refer [tree-select-parts-desc tree-select-args-desc]]
             [re-com.tag-dropdown  :refer [tag-dropdown-parts-desc tag-dropdown-args-desc]]
@@ -27,8 +28,10 @@
 
 (defn demo
   []
-  (let [model             (reagent/atom nil)
+  (let [model             (reagent/atom #{:sydney :auckland})
+        groups            (reagent/atom nil)
         disabled?         (reagent/atom false)
+        open-to           (reagent/atom :chosen)
         placeholder?      (reagent/atom false)
         abbrev-fn?        (reagent/atom false)
         abbrev-threshold? (reagent/atom false)
@@ -47,9 +50,11 @@
                    :min-width         (when @min-width? (str @min-width "px"))
                    :max-width         (when @max-width? (str @max-width "px"))
                    :disabled?         disabled?
+                   :open-to           @open-to
                    :placeholder       (when @placeholder? "placeholder message")
                    :choices           cities
                    :model             model
+                   :groups            groups
                    :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
                    :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
                    :on-change         #(reset! model %)]
@@ -63,6 +68,16 @@
                                {:class "display-flex"
                                 :style {:flex "1"}}
                                (with-out-str (pprint/pprint @model))]]]
+                  [h-box :src (at)
+                   :height   "45px"
+                   :gap      "5px"
+                   :width    "100%"
+                   :children [[label :src (at) :label [:code ":groups"]]
+                              [label :src (at) :label " is currently"]
+                              [:code
+                               {:class "display-flex"
+                                :style {:flex "1"}}
+                               (with-out-str (pprint/pprint @groups))]]]
                   [v-box :src (at)
                    :gap "10px"
                    :style {:min-width        "550px"
@@ -84,6 +99,20 @@
                                                        :child [:span "Supply the string \"placeholder message\" for the " [:code ":placeholder"] " parameter"]]
                                            :model     placeholder?
                                            :on-change #(reset! placeholder? %)]
+                                          [v-box :src (at)
+                                           :children [[box :src (at) :align :start :child [:code ":open-to"]]
+                                                      [radio-button :src (at)
+                                                       :label     [:span [:code ":chosen"] ", " [:code "nil"] ", ommitted - reveal every chosen item."]
+                                                       :value     :chosen
+                                                       :model     @open-to
+                                                       :on-change #(reset! open-to %)
+                                                       :style {:margin-left "20px"}]
+                                                      [radio-button :src (at)
+                                                       :label     [:span [:code ":all"] " - expand all groups"]
+                                                       :value     :all
+                                                       :model     @open-to
+                                                       :on-change #(reset! open-to %)
+                                                       :style     {:margin-left "20px"}]]]
                                           [v-box :src (at)
                                            :gap      "11px"
                                            :children [[checkbox :src (at)

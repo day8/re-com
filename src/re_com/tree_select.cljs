@@ -1,19 +1,33 @@
 (ns re-com.tree-select
+  (:require-macros
+   [re-com.core :refer [handler-fn]])
   (:require
    [clojure.set :as set]
    [reagent.core          :as r]
+   [re-com.config         :refer [include-args-desc?]]
    [re-com.util           :refer [deref-or-value]]
-   [re-com.box            :refer [h-box v-box box]]))
+   [re-com.box            :refer [h-box v-box box gap]]
+   [re-com.validate       :as validate :refer [parts?]]))
 
-(def tree-select-parts-desc [])
+(def tree-select-parts-desc nil)
 
-(def tree-select-args-desc [])
+(def tree-select-args-desc
+  (when include-args-desc?
+    [{:name :choices            :required true                          :type "vector of maps | r/atom" :validate-fn validate/vector-of-maps?    :description [:span "Each map represents a choice. Values corresponding to id, & label are extracted by the functions " [:code ":id-fn"] " & " [:code ":label-fn"] ". See below."]}
+     {:name :model              :required true                          :type "a set of ids | r/atom"                                            :description [:span "The set of the ids for currently selected choices. If nil or empty, see " [:code ":placeholder"] "."]}]))
 
-(defn choice [{:keys [label checked? toggle! level showing? width style disabled?]}]
+(def tree-select-dropdown-parts-desc nil)
+
+(def tree-select-dropdown-args-desc
+  (when include-args-desc?
+    [{:name :placeholder        :required false                         :type "string"                  :validate-fn string?                     :description "Background text shown when there's no selection."}]))
+
+(defn choice [{:keys [label checked? toggle! level showing? disabled?]}]
   (when showing?
     [h-box
      :children
-     [[box
+     [[gap :size (str level "rem")]
+      [box
        :attr {:on-click (when-not disabled? toggle!)}
        :style {:cursor (if disabled? "default" "pointer")}
        :child
@@ -57,12 +71,12 @@
   (some->> path as-v (iterate butlast) (take-while identity) (map vec)))
 
 (defn infer-groups [items]
-  (into items (comp
-               (keep :group)
-               (map #(if (vector? %) % [%]))
-               (mapcat ancestor-paths)
-               (map #(do {:type :group :group %}))
-               (distinct))
+  (into #{} (comp
+             (keep :group)
+             (map #(if (vector? %) % [%]))
+             (mapcat ancestor-paths)
+             (map #(do {:type :group :group %}))
+             (distinct))
         items))
 
 (defn toggle [s k]
@@ -71,54 +85,65 @@
     ((fnil conj #{}) s k)))
 
 (defn tree-select
-  [& {:keys [model choice-renderer group-renderer groups]
-      :or   {model           (r/atom nil)
+  [& {:as props
+      :keys [model choices choice-renderer group-renderer groups open-to id-fn]
+      :or   {open-to         :chosen
              groups          (r/atom nil)
+             id-fn           :id
              choice-renderer choice
              group-renderer  group}}]
-  (fn [& {:keys [choices group-label-fn disabled? min-width max-width]
+  (let [open-to (deref-or-value open-to)]
+    (println open-to)
+    (when-not (= :none open-to)
+      (reset! groups (case open-to
+                       :all (infer-groups choices)
+                       (:chosen nil)
+                       (into #{}
+                             (comp
+                              (filter #(contains? (deref-or-value model) (id-fn %)))
+                              (keep :group)
+                              (mapcat ancestor-paths))
+                             choices)))))
+  (fn [& {:keys [choices group-label-fn disabled? min-width max-width on-change]
           :or {group-label-fn {}}}]
     (let [choices (deref-or-value choices)
           disabled? (deref-or-value disabled?)
-          items   (->> choices
-                       infer-groups
-                       (sort-by (juxt (comp #(apply str %) :group)
-                                      (complement group?))))
-          item    (fn [{:keys [group id] :as m}]
-                    (let [group (as-v group)]
-                      (if (group? m)
+          items   (->> choices infer-groups (into choices) (sort-by (juxt (comp #(apply str %) :group)
+                                                                          (complement group?))))
+          item    (fn [{:keys [group id] :as item}]
+                    (let [group-v (as-v group)]
+                      (if (group? item)
                         [group-renderer
-                         (let [descendant? #(= group (vec (take (count group) (as-v (:group %)))))
-                               descendants (->> choices
-                                                (filter descendant?)
-                                                (map :id))
+                         (let [descendant? #(= group-v (vec (take (count group-v) (as-v (:group %)))))
+                               descendants (map :id (filter descendant? choices))
                                checked?    (cond
-                                             (every? (set (:choices @model)) descendants) :all
-                                             (some   (set (:choices @model)) descendants) :some)]
-                           (merge m {:label      (or (group-label-fn (peek group)) (peek group))
-                                     :hide-show! #(swap! groups toggle group)
-                                     :toggle!    #(swap! model update :choices
-                                                         (if (= :all checked?) set/difference (fnil into #{}))
-                                                         descendants)
-                                     :open?      (contains? @groups group)
-                                     :checked?   checked?
-                                     :model      model
-                                     :disabled?  disabled?
-                                     :showing?   (every? (set @groups) (rest (ancestor-paths group)))
-                                     :level      (if (vector? group) (count group) 1)}))]
+                                             (every? (deref-or-value model) descendants) :all
+                                             (some   (deref-or-value model) descendants) :some)]
+                           (merge item
+                                  {:label      (or (group-label-fn (peek group-v)) (peek group-v))
+                                   :hide-show! #(swap! groups toggle group-v)
+                                   :toggle!    #(swap! model
+                                                       (if (= :all checked?) set/difference (fnil into #{}))
+                                                       descendants)
+                                   :open?      (contains? @groups group-v)
+                                   :checked?   checked?
+                                   :model      model
+                                   :disabled?  disabled?
+                                   :showing?   (every? (set @groups) (rest (ancestor-paths group-v)))
+                                   :level      (count group-v)}))]
                         [choice-renderer
-                         (merge m {:model    model
-                                   :showing? (if-not group
-                                               true
-                                               (every? (set @groups) (ancestor-paths group)))
-                                   :disabled? disabled?
-                                   :toggle!  #(swap! model update :choices toggle id)
-                                   :checked? (some-> @model :choices (get id))
-                                   :level    (count group)})])))]
+                         (merge item
+                                {:model    model
+                                 :showing? (if-not group-v
+                                             true
+                                             (every? (set @groups) (ancestor-paths group-v)))
+                                 :disabled? disabled?
+                                 :toggle!  (handler-fn (on-change (toggle @model id)))
+                                 :checked? (get @model id)
+                                 :level    (inc (count group-v))})])))]
       [:<>
-       @groups ;; TODO remove. Doesn't update without this.
        [v-box
         :min-width min-width
         :max-width max-width
         :children
-        (map item items)]])))
+        (mapv item items)]])))
