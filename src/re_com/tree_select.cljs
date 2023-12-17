@@ -71,8 +71,9 @@
     ((fnil conj #{}) s k)))
 
 (defn tree-select
-  [& {:keys [model choice-renderer group-renderer]
+  [& {:keys [model choice-renderer group-renderer groups]
       :or   {model           (r/atom nil)
+             groups          (r/atom nil)
              choice-renderer choice
              group-renderer  group}}]
   (fn [& {:keys [choices group-label-fn disabled? min-width max-width]
@@ -95,26 +96,27 @@
                                              (every? (set (:choices @model)) descendants) :all
                                              (some   (set (:choices @model)) descendants) :some)]
                            (merge m {:label      (or (group-label-fn (peek group)) (peek group))
-                                     :hide-show! #(swap! model update :groups toggle group)
+                                     :hide-show! #(swap! groups toggle group)
                                      :toggle!    #(swap! model update :choices
                                                          (if (= :all checked?) set/difference (fnil into #{}))
                                                          descendants)
-                                     :open?      (contains? (:groups @model) group)
+                                     :open?      (contains? @groups group)
                                      :checked?   checked?
                                      :model      model
                                      :disabled?  disabled?
-                                     :showing?   (every? (set (:groups @model)) (rest (ancestor-paths group)))
+                                     :showing?   (every? (set @groups) (rest (ancestor-paths group)))
                                      :level      (if (vector? group) (count group) 1)}))]
                         [choice-renderer
                          (merge m {:model    model
                                    :showing? (if-not group
                                                true
-                                               (every? (set (:groups @model)) (ancestor-paths group)))
+                                               (every? (set @groups) (ancestor-paths group)))
                                    :disabled? disabled?
                                    :toggle!  #(swap! model update :choices toggle id)
                                    :checked? (some-> @model :choices (get id))
                                    :level    (count group)})])))]
       [:<>
+       @groups ;; TODO remove. Doesn't update without this.
        [v-box
         :min-width min-width
         :max-width max-width
