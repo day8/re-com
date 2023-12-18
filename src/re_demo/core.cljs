@@ -5,7 +5,7 @@
    [secretary.core         :refer [defroute]])
   (:require [goog.events                   :as    events]
             [reagent.core                  :as    reagent]
-            [reagent.dom                   :as    rdom]
+            [reagent.dom.client            :as    rdc]
             [alandipert.storage-atom       :refer [local-storage]]
             [secretary.core                :as    secretary]
             [re-com.core                   :refer [at h-box v-box box gap line scroller border label p title alert-box h-split] :refer-macros [handler-fn]]
@@ -255,9 +255,12 @@
                                            :padding "0px 0px 0px 50px"
                                            :child   [(:panel (item-for-id @selected-tab-id tabs-definition))]]]]]])))    ;; the tab panel to show, for the selected tab
 
+(defonce root (rdc/create-root (get-element-by-id "app")))
+
 (defn ^:dev/after-load mount-root
   []
-  (rdom/render [main] (get-element-by-id "app")))
+  (rdc/render root [main])
+  (crd/init! {:root (get-element-by-id "app")}))
 
 (defn ^:export mount-demo
   []
