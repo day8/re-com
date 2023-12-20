@@ -18,20 +18,14 @@
              {:id :wellington :label "Wellington" :group [:oceania :new-zealand]}
              {:id :atlantis :label "atlantis"}])
 
-(def choices [{:id :bug           :description "Something isn't working"                    :label "bug"           :background-color "#fc2a29" :group [:x :national :metro]}
-              {:id :documentation :description "Improvements or additions to documentation" :label "documentation" :background-color "#0052cc"}
-              {:id :duplicate     :description "This issue or pull request already exists"  :label "duplicate"     :background-color "#cccccc"}
-              {:id :enhancement   :description "New feature or request"                     :label "enhancement"   :background-color "#84b6eb"}
-              {:id :help          :description "Extra attention is needed"                  :label "help"          :background-color "#169819"}
-              {:id :invalid       :description "This doesn't seem right"                    :label "invalid"       :background-color "#e6e6e6"}
-              {:id :wontfix       :description "This will not be worked on"                 :label "wontfix"       :background-color "#eb6421"}])
-
 (defn demo
   []
   (let [model             (reagent/atom #{:sydney :auckland})
         groups            (reagent/atom nil)
         disabled?         (reagent/atom false)
         open-to           (reagent/atom :chosen)
+        label-fn          (reagent/atom nil)
+        group-label-fn    (reagent/atom nil)
         placeholder?      (reagent/atom false)
         abbrev-fn?        (reagent/atom false)
         abbrev-threshold? (reagent/atom false)
@@ -39,25 +33,69 @@
         min-width?        (reagent/atom true)
         min-width         (reagent/atom 200)
         max-width?        (reagent/atom true)
-        max-width         (reagent/atom 300)]
+        max-width         (reagent/atom 300)
+        open-to-chosen (fn []
+                         [tree-select :src (at)
+                          :min-width         (when @min-width? (str @min-width "px"))
+                          :max-width         (when @max-width? (str @max-width "px"))
+                          :disabled?         disabled?
+                          :label-fn          @label-fn
+                          :group-label-fn    @group-label-fn
+                          :open-to           :chosen
+                          :choices           cities
+                          :model             model
+                          :groups            groups
+                          :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
+                          :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
+                          :on-change         #(reset! model %)])
+        open-to-nil (fn []
+                      [tree-select :src (at)
+                       :min-width         (when @min-width? (str @min-width "px"))
+                       :max-width         (when @max-width? (str @max-width "px"))
+                       :disabled?         disabled?
+                       :label-fn          @label-fn
+                       :group-label-fn    @group-label-fn
+                       :choices           cities
+                       :model             model
+                       :groups            groups
+                       :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
+                       :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
+                       :on-change         #(reset! model %)])
+        open-to-all (fn []
+                      [tree-select :src (at)
+                       :min-width         (when @min-width? (str @min-width "px"))
+                       :max-width         (when @max-width? (str @max-width "px"))
+                       :disabled?         disabled?
+                       :open-to           :all
+                       :choices           cities
+                       :model             model
+                       :groups            groups
+                       :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
+                       :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
+                       :on-change         #(reset! model %)])
+        open-to-none (fn []
+                       [tree-select :src (at)
+                        :min-width         (when @min-width? (str @min-width "px"))
+                        :max-width         (when @max-width? (str @max-width "px"))
+                        :disabled?         disabled?
+                        :open-to           :none
+                        :choices           cities
+                        :model             model
+                        :groups            groups
+                        :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
+                        :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
+                        :on-change         #(reset! model %)])]
     (fn []
       [v-box :src (at)
        :gap      "11px"
        :width    "450px"
        :align    :start
        :children [[title2 "Demo"]
-                  [tree-select :src (at)
-                   :min-width         (when @min-width? (str @min-width "px"))
-                   :max-width         (when @max-width? (str @max-width "px"))
-                   :disabled?         disabled?
-                   :open-to           @open-to
-                   :placeholder       (when @placeholder? "placeholder message")
-                   :choices           cities
-                   :model             model
-                   :groups            groups
-                   :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
-                   :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
-                   :on-change         #(reset! model %)]
+                  [(case @open-to
+                     nil open-to-nil
+                     :chosen open-to-chosen
+                     :all open-to-all
+                     :none open-to-none)]
                   [h-box :src (at)
                    :height   "45px"
                    :gap      "5px"
@@ -93,16 +131,17 @@
                                                        :child [:code ":disabled?"]]
                                            :model     disabled?
                                            :on-change #(reset! disabled? %)]
-                                          [checkbox :src (at)
-                                           :label     [box :src (at)
-                                                       :align :start
-                                                       :child [:span "Supply the string \"placeholder message\" for the " [:code ":placeholder"] " parameter"]]
-                                           :model     placeholder?
-                                           :on-change #(reset! placeholder? %)]
                                           [v-box :src (at)
                                            :children [[box :src (at) :align :start :child [:code ":open-to"]]
+
                                                       [radio-button :src (at)
-                                                       :label     [:span [:code ":chosen"] ", " [:code "nil"] ", ommitted - reveal every chosen item."]
+                                                       :label     [:span [:code "nil"] ", ommitted - use the intial value of " [:code "groups"] "."]
+                                                       :value     nil
+                                                       :model     @open-to
+                                                       :on-change #(reset! open-to %)
+                                                       :style {:margin-left "20px"}]
+                                                      [radio-button :src (at)
+                                                       :label     [:span [:code ":chosen"] " - reveal every chosen item."]
                                                        :value     :chosen
                                                        :model     @open-to
                                                        :on-change #(reset! open-to %)
@@ -112,33 +151,31 @@
                                                        :value     :all
                                                        :model     @open-to
                                                        :on-change #(reset! open-to %)
+                                                       :style     {:margin-left "20px"}]
+                                                      [radio-button :src (at)
+                                                       :label     [:span [:code ":none"] " - collapse all groups"]
+                                                       :value     :none
+                                                       :model     @open-to
+                                                       :on-change #(reset! open-to %)
                                                        :style     {:margin-left "20px"}]]]
                                           [v-box :src (at)
                                            :gap      "11px"
                                            :children [[checkbox :src (at)
                                                        :label     [box :src (at)
                                                                    :align :start
-                                                                   :child [:span "Supply an " [:code ":abbrev-fn"] " of " [:code "#(clojure.string/upper-case (first (:label %)))"]]]
-                                                       :model     abbrev-fn?
-                                                       :on-change #(reset! abbrev-fn? %)]
-                                                      (when @abbrev-fn?
-                                                        [h-box :src (at)
-                                                         :gap      "5px"
-                                                         :align    :center
-                                                         :children [[checkbox :src (at)
-                                                                     :label     [box :src (at)
-                                                                                 :align :start
-                                                                                 :child [:span " and also supply an " [:code ":abbrev-threshold"] " of "]]
-                                                                     :model     abbrev-threshold?
-                                                                     :on-change #(reset! abbrev-threshold? %)]
-                                                                    [slider
-                                                                     :model     abbrev-threshold
-                                                                     :on-change #(reset! abbrev-threshold %)
-                                                                     :min       10
-                                                                     :max       50
-                                                                     :step      1
-                                                                     :width     "160px"]
-                                                                    [label :src (at) :label @abbrev-threshold]]])]]
+                                                                   :child [:span "Supply a " [:code ":label-fn"]
+                                                                           " of "
+                                                                           [:code "#(clojure.string/upper-case (:label %)))"]]]
+                                                       :model     label-fn
+                                                       :on-change (fn [] (swap! label-fn (fn [x] (if x nil #(clojure.string/upper-case (:label %))))))]
+                                                      [checkbox :src (at)
+                                                       :label     [box :src (at)
+                                                                   :align :start
+                                                                   :child [:span "Supply a " [:code ":group-label-fn"]
+                                                                           " of "
+                                                                           [:code "#(clojure.string/upper-case (name (last %))))"]]]
+                                                       :model     group-label-fn
+                                                       :on-change (fn [] (swap! group-label-fn (fn [x] (if x nil #(clojure.string/upper-case (name (last %)))))))]]]
                                           [h-box :src (at)
                                            :align    :center
                                            :children [[checkbox :src (at)
