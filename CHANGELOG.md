@@ -2,6 +2,8 @@
 
 > Committed but unreleased changes are put here, at the top. Older releases are detailed chronologically below. 
 
+## 2.14.0 (2023-12-21)
+
 #### Changed
 
 - Change colour of `:focus` outline on non-native components such as `button` and `single-dropdown`
