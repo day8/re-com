@@ -59,7 +59,7 @@
                           :groups            groups
                           :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
                           :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
-                          :on-change         #(reset! model %)])
+                          :on-change         #(reset! model %1)])
         open-to-nil (fn []
                       [tree-select :src (at)
                        :min-width         (when @min-width? (str @min-width "px"))
@@ -74,7 +74,7 @@
                        :groups            groups
                        :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
                        :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
-                       :on-change         #(reset! model %)])
+                       :on-change         #(reset! model %1)])
         open-to-all (fn []
                       [tree-select :src (at)
                        :min-width         (when @min-width? (str @min-width "px"))
@@ -90,7 +90,7 @@
                        :groups            groups
                        :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
                        :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
-                       :on-change         #(reset! model %)])
+                       :on-change         #(reset! model %1)])
         open-to-none (fn []
                        [tree-select :src (at)
                         :min-width         (when @min-width? (str @min-width "px"))
@@ -106,7 +106,7 @@
                         :groups            groups
                         :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
                         :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
-                        :on-change         #(reset! model %)])
+                        :on-change         #(reset! model %1)])
         open-to-specified (fn []
                             [tree-select :src (at)
                              :min-width         (when @min-width? (str @min-width "px"))
@@ -122,7 +122,7 @@
                              :groups            groups
                              :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
                              :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
-                             :on-change         #(reset! model %)])]
+                             :on-change         #(reset! model %1)])]
     (fn []
       [v-box :src (at)
        :gap      "11px"
@@ -155,7 +155,7 @@
                    :groups            groups
                    :abbrev-fn         (when @abbrev-fn? #(string/upper-case (first (:label %))))
                    :abbrev-threshold  (when @abbrev-threshold? abbrev-threshold)
-                   :on-change         #(reset! model %)]
+                   :on-change         #(do (reset! model %1) (println %2))]
                   [gap :src (at) :size "5px"]
                   [h-box :src (at)
                    :height   "45px"
