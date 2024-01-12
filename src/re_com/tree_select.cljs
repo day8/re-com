@@ -19,7 +19,7 @@
      {:name :model              :required true                          :type "a set of ids | r/atom"                                            :description [:span "The set of the ids for currently selected choices. If nil or empty, see " [:code ":placeholder"] "."]}
      {:name :groups             :required false :default "(reagent/atom nil)" :type "a set of paths | r/atom"                            :description [:span "The set of currently expanded group paths."]}
      {:name :initial-expanded-groups :required false                         :type "keyword | set of paths"                                               :description [:span "How to expand groups when the component first mounts."]}
-     {:name :on-change          :required true                          :type "set of ids -> nil"       :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. Called with one argument, the set of selected ids. See " [:code ":model"] "."]}
+     {:name :on-change          :required true                          :type "[set of choice ids, set of group vectors]  -> nil"       :validate-fn fn?                         :description [:span "This function is called whenever the selection changes. Called with one argument, the set of selected ids. See " [:code ":model"] "."]}
      {:name :on-groups-change   :required false :default "#(reset! groups %)" :type "set of ids -> nil"       :validate-fn fn?           :description [:span "This function is called whenever a group expands or collapses. Called with one argument, the set of expanded groups. See " [:code ":groups"] "."]}
      {:name :disabled?          :required false :default false          :type "boolean"                                                          :description "if true, no user selection is allowed"}
      {:name :label-fn           :required false :default ":label"       :type "map -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
@@ -224,9 +224,7 @@
     (fn tree-select-dropdown-render
       [& {:keys [choices group-label-fn disabled? min-width max-width min-height max-height on-change on-groups-change
                  label-fn height parts style model expanded-groups placeholder id-fn alt-text-fn field-label-fn]
-          :or   {on-groups-change #(reset! expanded-groups %)
-                 expanded-groups  (r/atom #{})
-                 placeholder      "Select an item..."
+          :or   {placeholder      "Select an item..."
                  id-fn            :id
                  label-fn         :label
                  alt-text-fn      #(->> % (map (or label-fn :label)) (str/join ", "))}}]
@@ -258,8 +256,6 @@
                                 :min-height min-height
                                 :max-height max-height
                                 :on-change on-change
-                                :groups expanded-groups
-                                :on-groups-change on-groups-change
                                 :label-fn label-fn
                                 :model model]]]
             anchor (fn []
