@@ -23,9 +23,7 @@
      {:name :on-groups-change   :required false :default "#(reset! groups %)" :type "set of ids -> nil"       :validate-fn fn?           :description [:span "This function is called whenever a group expands or collapses. Called with one argument, the set of expanded groups. See " [:code ":groups"] "."]}
      {:name :disabled?          :required false :default false          :type "boolean"                                                          :description "if true, no user selection is allowed"}
      {:name :label-fn           :required false :default ":label"       :type "map -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a choice into a displayable label. Will be called for each element in " [:code ":choices"] ". Given one argument, a choice map, it returns a string or hiccup."]}
-     {:name :group-label-fn     :required false :default "(comp name last)"       :type "vector -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a group vector into a displayable label. Will be called for each element in " [:code ":groups"] ". Given one argument, a group vector, it returns a string or hiccup."]}
-     {:name :group-renderer     :required false :default "re-com.tree-select/group"  :type [:code "{:keys [group label hide-show! toggle! open? checked? model disabled? showing? level]} -> hiccup"] :validate-fn ifn?          :description "You can provide a renderer function to override the inbuilt renderer for group headers."}
-     {:name :choice-renderer    :required false :default "re-com.tree-select/choice" :type [:code "{:keys [choice model label showing? disabled? toggle! checked? level]} -> hiccup"] :validate-fn ifn?          :description "You can provide a renderer function to override the inbuilt renderer for group headers."}]))
+     {:name :group-label-fn     :required false :default "(comp name last)"       :type "vector -> hiccup"           :validate-fn ifn?                        :description [:span "A function which can turn a group vector into a displayable label. Will be called for each element in " [:code ":groups"] ". Given one argument, a group vector, it returns a string or hiccup."]}]))
 
 (def tree-select-dropdown-parts-desc nil)
 
@@ -47,7 +45,7 @@
                 :opacity          (or opacity 0.0)}
      :on-click (when on-click (handler-fn (on-click)))})])
 
-(defn choice [{:keys [label checked? toggle! level showing? disabled?]}]
+(defn choice-item [{:keys [label checked? toggle! level showing? disabled?]}]
   (when showing?
     [h-box
      :children
@@ -60,7 +58,7 @@
        :label label
        :disabled? disabled?]]]))
 
-(defn group [{:keys [label checked? toggle! hide-show! level showing? open? disabled?]}]
+(defn group-item [{:keys [label checked? toggle! hide-show! level showing? open? disabled?]}]
   (when showing?
     [h-box :class "chosen-container chosen-container-single chosen-container-active"
      :children
@@ -117,12 +115,10 @@
 (def group-label (comp str/capitalize name last :group))
 
 (defn tree-select
-  [& {:keys [model choices choice-renderer group-renderer groups on-groups-change initial-expanded-groups id-fn]
+  [& {:keys [model choices groups on-groups-change initial-expanded-groups id-fn]
       :or   {groups           (r/atom nil)
              id-fn            :id
-             on-groups-change #(reset! groups %)
-             choice-renderer  choice
-             group-renderer   group}}]
+             on-groups-change #(reset! groups %)}}]
   (when-let [initial-expanded-groups (deref-or-value initial-expanded-groups)]
     (on-groups-change (case initial-expanded-groups
                         :all    (set (map :group (infer-groups choices)))
@@ -146,7 +142,7 @@
           item           (fn [item-props]
                            (let [{:keys [id group] :as item-props} (update item-props :group as-v)]
                              (if (group? item-props)
-                               [group-renderer
+                               [group-item
                                 (let [descendant-ids (map :id (filter-descendants* group choices))
                                       checked?       (cond
                                                        (every? model descendant-ids) :all
@@ -163,7 +159,7 @@
                                    :disabled?  disabled?
                                    :showing?   (every? (set groups) (rest (ancestor-paths group)))
                                    :level      (count group)})]
-                               [choice-renderer
+                               [choice-item
                                 {:choice    item-props
                                  :model     model
                                  :label     (label-fn item-props)
